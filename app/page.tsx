@@ -10,8 +10,8 @@ export default function HomePage() {
       <section className="flex-1">
         <Topbar />
 
-        <div className="p-8">
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="px-14 py-12">
+          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
               title="Net P&L"
               value="$12,480"
@@ -27,37 +27,53 @@ export default function HomePage() {
             />
 
             <StatCard
-              title="Loss Rate"
-              value="32%"
-              change="-1.3% reduction"
+              title="Profit Factor"
+              value="2.14"
+              change="+0.32 increase"
               positive
             />
 
             <StatCard
-              title="Commissions"
+              title="Expenses"
               value="$482"
-              change="+12% expenses"
+              change="+12% this month"
               positive={false}
             />
           </div>
 
-          <div className="mt-8 grid gap-6 xl:grid-cols-3">
-            <div className="rounded-2xl border border-slate-800 bg-[#0b1120]/90 p-6 xl:col-span-2">
-              <h3 className="text-lg font-semibold text-white">
-                Performance Overview
-              </h3>
+          <div className="mt-10 grid gap-8 xl:grid-cols-3">
+            <div className="glass-card rounded-3xl p-8 xl:col-span-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-3xl font-bold text-white">
+                    Performance Overview
+                  </h3>
 
-              <div className="mt-6 flex h-[320px] items-center justify-center rounded-2xl border border-dashed border-slate-700 text-slate-500">
-                Charts Coming Soon
+                  <p className="mt-3 text-base text-slate-400">
+                    Daily and cumulative trading performance
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-blue-500/10 bg-blue-500/10 px-5 py-3 text-sm text-blue-300">
+                  LIVE PREVIEW
+                </div>
+              </div>
+
+              <div className="mt-10 flex h-[520px] items-center justify-center rounded-3xl border border-dashed border-blue-500/15 bg-slate-950/30 text-slate-500">
+                Advanced Charts Coming Soon
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-[#0b1120]/90 p-6">
-              <h3 className="text-lg font-semibold text-white">
+            <div className="glass-card rounded-3xl p-8">
+              <h3 className="text-3xl font-bold text-white">
                 Recent Activity
               </h3>
 
-              <div className="mt-6 flex h-[320px] items-center justify-center rounded-2xl border border-dashed border-slate-700 text-slate-500">
+              <p className="mt-3 text-base text-slate-400">
+                Latest trades and updates
+              </p>
+
+              <div className="mt-10 flex h-[520px] items-center justify-center rounded-3xl border border-dashed border-blue-500/15 bg-slate-950/30 text-slate-500">
                 Trade Feed Coming Soon
               </div>
             </div>

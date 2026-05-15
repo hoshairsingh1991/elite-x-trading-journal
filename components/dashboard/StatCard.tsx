@@ -12,17 +12,17 @@ export default function StatCard({
   positive = true,
 }: StatCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-[#0b1120]/90 p-6 shadow-[0_0_40px_rgba(15,23,42,0.45)]">
-      <p className="text-sm text-slate-400">
+    <div className="glass-card rounded-3xl p-8 transition-all hover:-translate-y-1 hover:border-blue-500/20">
+      <p className="text-sm uppercase tracking-[0.22em] text-slate-500">
         {title}
       </p>
 
-      <h3 className="mt-3 text-3xl font-bold text-white">
+      <h3 className="mt-6 text-5xl font-black tracking-tight text-white">
         {value}
       </h3>
 
       <p
-        className={`mt-2 text-sm font-medium ${
+        className={`mt-5 text-base font-medium ${
           positive
             ? "text-green-400"
             : "text-red-400"

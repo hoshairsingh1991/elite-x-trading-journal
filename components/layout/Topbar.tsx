@@ -1,24 +1,26 @@
 export default function Topbar() {
   return (
-    <header className="flex items-center justify-between border-b border-slate-800 bg-[#070b18]/60 px-8 py-5 backdrop-blur-xl">
-      <div>
-        <h2 className="text-2xl font-bold text-white">
-          Dashboard
-        </h2>
+    <header className="sticky top-0 z-50 border-b border-blue-500/10 bg-[#030712]/75 backdrop-blur-2xl">
+      <div className="flex items-center justify-between px-14 py-8">
+        <div>
+          <h2 className="text-4xl font-black tracking-tight text-white">
+            Trading Dashboard
+          </h2>
 
-        <p className="mt-1 text-sm text-slate-400">
-          Professional trading analytics overview
-        </p>
-      </div>
+          <p className="mt-3 text-base text-slate-400">
+            Professional trading analytics and performance overview
+          </p>
+        </div>
 
-      <div className="flex items-center gap-3">
-        <button className="rounded-xl border border-slate-700 bg-[#0b1120] px-4 py-2 text-sm text-slate-300 transition hover:border-blue-500 hover:text-white">
-          Today
-        </button>
+        <div className="flex items-center gap-5">
+          <button className="rounded-2xl border border-blue-500/10 bg-slate-900/60 px-6 py-4 text-sm text-slate-300 transition-all hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-white">
+            Last 30 Days
+          </button>
 
-        <button className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-600">
-          Add Trade
-        </button>
+          <button className="blue-glow rounded-2xl bg-blue-500 px-6 py-4 text-sm font-semibold text-white transition-all hover:bg-blue-600">
+            Add Trade
+          </button>
+        </div>
       </div>
     </header>
   );
