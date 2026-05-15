@@ -5,92 +5,148 @@ import {
   PlusCircle,
   BarChart3,
   Wallet,
+  ChevronRight,
 } from "lucide-react";
 
-const menuItems = [
+const sections = [
   {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    active: true,
+    label: "OVERVIEW",
+    items: [
+      {
+        title: "Dashboard",
+        icon: LayoutDashboard,
+        active: true,
+      },
+    ],
   },
+
   {
-    title: "Trade History",
-    icon: History,
+    label: "TRADING",
+    items: [
+      {
+        title: "Trade History",
+        icon: History,
+      },
+      {
+        title: "Import CSV",
+        icon: Upload,
+      },
+      {
+        title: "Manual Entry",
+        icon: PlusCircle,
+      },
+    ],
   },
+
   {
-    title: "Import CSV",
-    icon: Upload,
-  },
-  {
-    title: "Manual Entry",
-    icon: PlusCircle,
-  },
-  {
-    title: "Analytics",
-    icon: BarChart3,
-  },
-  {
-    title: "Expenses",
-    icon: Wallet,
+    label: "ANALYTICS",
+    items: [
+      {
+        title: "Analytics",
+        icon: BarChart3,
+      },
+      {
+        title: "Expenses",
+        icon: Wallet,
+      },
+    ],
   },
 ];
 
 export default function Sidebar() {
   return (
-    <aside className="sidebar-glow sticky top-0 flex h-screen w-[320px] flex-col border-r border-blue-500/10 bg-[#040b18]/95 px-8 py-10 backdrop-blur-xl">
-      <div>
-        <div className="blue-glow mb-10 rounded-3xl border border-blue-500/20 bg-blue-500/10 p-7">
-          <h1 className="text-4xl font-black tracking-tight text-white">
-            Elite X
-          </h1>
+    <aside className="sticky top-0 flex h-screen w-[255px] flex-col border-r border-[#13203a] bg-[#050816] px-4 py-5">
+      
+      {/* Top Brand Card */}
+      <div className="rounded-3xl border border-[#173056] bg-gradient-to-b from-[#111827] to-[#0a1020] px-5 py-7 shadow-[0_0_40px_rgba(0,0,0,0.35)]">
+        
+        {/* Logo */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[30px] font-black tracking-tight text-white">
+              Elite X
+            </h1>
 
-          <p className="mt-3 text-sm leading-relaxed text-slate-400">
-            Professional Trading Journal
-          </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Trading Journal
+            </p>
+          </div>
+
+          <ChevronRight
+            size={18}
+            className="text-slate-600"
+          />
         </div>
 
-        <button className="blue-glow mb-10 w-full rounded-2xl bg-blue-500 py-4 text-base font-semibold text-white transition-all hover:bg-blue-600">
+        {/* Add Trade Button */}
+        <button className="mt-6 flex w-full items-center justify-center rounded-xl bg-blue-500 py-3 text-sm font-medium text-white transition-all hover:bg-blue-600">
           + Add Trade
         </button>
       </div>
 
-      <nav className="flex flex-col gap-4">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
+      {/* Navigation */}
+      <nav className="mt-8 flex-1 overflow-y-auto">
+        <div className="space-y-8">
+          {sections.map((section) => (
+            <div key={section.label}>
+              
+              {/* Section Label */}
+              <p className="mb-3 px-2 text-[10px] font-semibold tracking-[0.28em] text-slate-600">
+                {section.label}
+              </p>
 
-          return (
-            <button
-              key={item.title}
-              className={`group flex items-center gap-4 rounded-2xl border px-5 py-4 transition-all ${
-                item.active
-                  ? "border-blue-500/30 bg-blue-500/15 text-white"
-                  : "border-slate-800/80 bg-slate-900/40 text-slate-400 hover:border-blue-500/20 hover:bg-blue-500/10 hover:text-white"
-              }`}
-            >
-              <Icon
-                size={20}
-                className="transition-all group-hover:scale-110"
-              />
+              {/* Nav Items */}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
 
-              <span className="text-base font-medium tracking-wide">
-                {item.title}
-              </span>
-            </button>
-          );
-        })}
+                  return (
+                    <button
+                      key={item.title}
+                      className={`group flex w-full items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
+                        item.active
+                          ? "bg-blue-500/10 text-white"
+                          : "text-slate-400 hover:bg-white/[0.03] hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon
+                          size={16}
+                          className={`${
+                            item.active
+                              ? "text-blue-400"
+                              : "text-slate-500 group-hover:text-slate-300"
+                          }`}
+                        />
+
+                        <span className="text-[14px] font-medium">
+                          {item.title}
+                        </span>
+                      </div>
+
+                      {!item.active && (
+                        <ChevronRight
+                          size={14}
+                          className="text-slate-700 opacity-0 transition-all group-hover:opacity-100"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </nav>
 
-      <div className="mt-auto rounded-3xl border border-blue-500/10 bg-slate-900/40 p-6">
-        <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
-          V1 Status
+      {/* Bottom Footer */}
+      <div className="border-t border-white/5 pt-5">
+        <p className="text-[11px] uppercase tracking-[0.22em] text-slate-600">
+          Elite X V1
         </p>
 
-        <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-800">
-          <div className="h-full w-[18%] rounded-full bg-blue-500" />
-        </div>
-
-        <p className="mt-4 text-sm text-slate-400">
-          Foundation Phase
+        <p className="mt-2 text-xs leading-relaxed text-slate-500">
+          Local-first analytics platform for discretionary traders.
         </p>
       </div>
     </aside>
