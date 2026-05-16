@@ -1,211 +1,231 @@
+"use client";
+
 import Sidebar from "@/components/layout/Sidebar";
-import StatCard from "@/components/dashboard/StatCard";
-import PerformanceChart from "@/components/dashboard/PerformanceChart";
+import TradingCalendar from "@/components/dashboard/TradingCalendar";
+
+import {
+  Upload,
+  Plus,
+} from "lucide-react";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#020617] p-5 text-white">
+    <main className="flex h-screen overflow-hidden bg-[#020617] text-white">
       
-      {/* Workspace Container */}
-      <div className="flex min-h-[calc(100vh-40px)] gap-5 rounded-[36px] border border-blue-500/10 bg-[#030b1a] p-5 shadow-2xl shadow-blue-950/20">
-        
-        {/* Sidebar */}
+      {/* ================================================= */}
+      {/* SIDEBAR */}
+      {/* ================================================= */}
+
+      <div className="p-4">
         <Sidebar />
+      </div>
 
-        {/* Main Workspace */}
-        <section className="flex-1 overflow-y-auto rounded-[30px] border border-blue-500/10 bg-[#020817] p-8">
+      {/* ================================================= */}
+      {/* GAP */}
+      {/* ================================================= */}
+
+      <div className="w-6 shrink-0" />
+
+      {/* ================================================= */}
+      {/* MAIN */}
+      {/* ================================================= */}
+
+      <section className="flex min-w-0 flex-1 flex-col overflow-hidden pt-4 pr-4">
+        
+        {/* ================================================= */}
+        {/* HEADER */}
+        {/* ================================================= */}
+
+        <div className="flex h-[70px] shrink-0 items-center justify-end gap-4 border-b border-white/[0.05] px-6 pb-3">
           
-          <div className="mx-auto max-w-[1800px]">
+          {/* Upload CSV */}
+
+          <button className="flex h-[46px] items-center gap-3 rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-[14px] font-semibold text-slate-200 transition-all hover:bg-[#13203a]">
+            <Upload size={17} />
+            Upload IBKR CSV
+          </button>
+
+          {/* Add Trade */}
+
+          <button className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600">
+            <Plus size={17} />
+            Add Trade
+          </button>
+        </div>
+
+        {/* ================================================= */}
+        {/* CONTENT */}
+        {/* ================================================= */}
+
+        <div className="flex-1 overflow-y-auto px-8 pt-8 pb-8">
+          
+          {/* ================================================= */}
+          {/* TOP SECTION */}
+          {/* ================================================= */}
+
+          <div className="flex gap-8">
             
-            {/* Header */}
-            <div className="mb-10 flex items-start justify-between">
+            {/* ================================================= */}
+            {/* LEFT SIDE */}
+            {/* ================================================= */}
+
+            <div className="flex w-[70%] flex-col gap-8">
               
-              <div>
-                <p className="text-sm font-medium uppercase tracking-[0.35em] text-blue-400">
-                  ELITE X TERMINAL
-                </p>
+              {/* ================================================= */}
+              {/* ACCOUNT OVERVIEW */}
+              {/* ================================================= */}
 
-                <h1 className="mt-4 text-6xl font-black tracking-tight">
-                  Performance Dashboard
-                </h1>
-
-                <p className="mt-5 max-w-3xl text-lg leading-relaxed text-slate-400">
-                  Monitor trading performance, analyze profitability,
-                  track expenses, and review trading activity from a
-                  unified professional trading workspace.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4">
+              <div className="rounded-[26px] bg-[#071427] p-5 shadow-[0_0_40px_rgba(0,0,0,0.18)]">
                 
-                <button className="rounded-2xl border border-blue-500/10 bg-slate-900/60 px-6 py-4 text-sm text-slate-300 transition-all hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-white">
-                  Last 30 Days
-                </button>
-
-                <button className="blue-glow rounded-2xl bg-blue-500 px-6 py-4 text-sm font-semibold text-white transition-all hover:bg-blue-600">
-                  Add Trade
-                </button>
-
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-4 gap-6">
-              
-              <StatCard
-                title="Net P&L"
-                value="$12,480"
-                change="+4.2% this month"
-                positive
-              />
-
-              <StatCard
-                title="Win Rate"
-                value="68%"
-                change="+2.1% improvement"
-                positive
-              />
-
-              <StatCard
-                title="Profit Factor"
-                value="2.14"
-                change="+0.32 increase"
-                positive
-              />
-
-              <StatCard
-                title="Expenses"
-                value="$482"
-                change="+12% this month"
-                positive={false}
-              />
-
-            </div>
-
-            {/* Main Layout */}
-            <div className="mt-8 grid grid-cols-[1.65fr_0.75fr] gap-6">
-              
-              {/* LEFT SIDE */}
-              <div className="space-y-6">
-                
-                {/* Performance Chart */}
-                <div className="glass-card rounded-[32px] p-8">
+                <div className="rounded-[22px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] p-8">
                   
-                  <div className="flex items-start justify-between">
+                  {/* HEADER */}
+
+                  <div className="relative left-4">
+                    <h1 className="text-[30px] font-black tracking-tight text-white">
+                      Account Overview
+                    </h1>
+                  </div>
+
+                  {/* KPI GRID */}
+
+                  <div className="mt-10 grid grid-cols-3 gap-6">
                     
-                    <div>
-                      <h2 className="text-3xl font-bold">
-                        Performance Overview
+                    {[
+                      {
+                        title: "Net Liquid Value",
+                        value: "$12,480",
+                        sub: "+4.2% this month",
+                        color: "text-emerald-400",
+                      },
+                      {
+                        title: "Gross P&L",
+                        value: "$9,842",
+                        sub: "+2.1% increase",
+                        color: "text-emerald-400",
+                      },
+                      {
+                        title: "Total Expenses",
+                        value: "$482",
+                        sub: "+12% this month",
+                        color: "text-red-400",
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.title}
+                        className="p-2"
+                      >
+                        <div className="relative left-2">
+                          
+                          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">
+                            {item.title}
+                          </p>
+
+                          <h2 className="mt-4 text-[42px] font-black tracking-tight text-white">
+                            {item.value}
+                          </h2>
+
+                          <p className={`mt-3 text-sm font-bold ${item.color}`}>
+                            {item.sub}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* ================================================= */}
+              {/* PERFORMANCE + PNL ANALYTICS */}
+              {/* ================================================= */}
+
+              <div className="grid grid-cols-2 gap-8">
+                
+                {/* ================================================= */}
+                {/* PERFORMANCE */}
+                {/* ================================================= */}
+
+                <div className="rounded-[26px] bg-[#071427] p-5 shadow-[0_0_40px_rgba(0,0,0,0.18)]">
+                  
+                  <div className="rounded-[22px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] p-8">
+                    
+                    {/* HEADER */}
+
+                    <div className="relative left-4">
+                      <h2 className="text-[25px] font-black tracking-tight text-white">
+                        Trading Performance
+                      </h2>
+                    </div>
+
+                    {/* MODULE */}
+
+                    <div className="mt-10">
+                      
+                      <div className="flex items-center justify-between">
+                        
+                        <div className="relative left-2">
+                          <p className="text-sm text-slate-400">
+                            Win Rate
+                          </p>
+
+                          <h3 className="mt-3 text-[38px] font-black tracking-tight text-white">
+                            68%
+                          </h3>
+                        </div>
+
+                        <div className="flex h-[95px] w-[95px] items-center justify-center rounded-full border-[8px] border-blue-500">
+                          <span className="text-lg font-bold text-white">
+                            68%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ================================================= */}
+                {/* PNL ANALYTICS */}
+                {/* ================================================= */}
+
+                <div className="rounded-[26px] bg-[#071427] p-5 shadow-[0_0_40px_rgba(0,0,0,0.18)]">
+                  
+                  <div className="flex h-full items-center justify-center rounded-[22px] border border-dashed border-white/[0.08]">
+                    
+                    <div className="text-center">
+                      
+                      <h2 className="text-[26px] font-black tracking-tight text-white">
+                        P&L Analytics
                       </h2>
 
-                      <p className="mt-3 text-slate-400">
-                        Daily and cumulative trading performance
+                      <p className="mt-3 text-sm text-slate-500">
+                        Coming soon
                       </p>
                     </div>
-
-                    <div className="rounded-2xl border border-blue-500/10 bg-blue-500/10 px-4 py-2 text-sm text-blue-300">
-                      LIVE
-                    </div>
-
                   </div>
-
-                  <div className="mt-8">
-                    <PerformanceChart />
-                  </div>
-
-                </div>
-
-                {/* Bottom Grid */}
-                <div className="grid grid-cols-2 gap-6">
-                  
-                  {/* Insights */}
-                  <div className="glass-card rounded-[32px] p-8">
-                    
-                    <h3 className="text-2xl font-bold">
-                      Trading Insights
-                    </h3>
-
-                    <p className="mt-3 text-slate-400">
-                      Trading behavior analytics
-                    </p>
-
-                    <div className="mt-8 flex h-[260px] items-center justify-center rounded-[24px] border border-dashed border-blue-500/10 bg-slate-950/30">
-                      <p className="text-slate-500">
-                        Insight Modules
-                      </p>
-                    </div>
-
-                  </div>
-
-                  {/* Expense Tracking */}
-                  <div className="glass-card rounded-[32px] p-8">
-                    
-                    <h3 className="text-2xl font-bold">
-                      Expense Tracking
-                    </h3>
-
-                    <p className="mt-3 text-slate-400">
-                      Subscription and platform costs
-                    </p>
-
-                    <div className="mt-8 flex h-[260px] items-center justify-center rounded-[24px] border border-dashed border-blue-500/10 bg-slate-950/30">
-                      <p className="text-slate-500">
-                        Expense Analytics
-                      </p>
-                    </div>
-
-                  </div>
-
                 </div>
               </div>
-
-              {/* RIGHT SIDE */}
-              <div className="space-y-6">
-                
-                {/* Activity */}
-                <div className="glass-card rounded-[32px] p-8">
-                  
-                  <h3 className="text-2xl font-bold">
-                    Recent Activity
-                  </h3>
-
-                  <p className="mt-3 text-slate-400">
-                    Latest trading updates
-                  </p>
-
-                  <div className="mt-8 flex h-[320px] items-center justify-center rounded-[24px] border border-dashed border-blue-500/10 bg-slate-950/30">
-                    <p className="text-slate-500">
-                      Trade Feed
-                    </p>
-                  </div>
-
-                </div>
-
-                {/* Calendar */}
-                <div className="glass-card rounded-[32px] p-8">
-                  
-                  <h3 className="text-2xl font-bold">
-                    Trading Calendar
-                  </h3>
-
-                  <p className="mt-3 text-slate-400">
-                    Daily performance tracking
-                  </p>
-
-                  <div className="mt-8 flex h-[320px] items-center justify-center rounded-[24px] border border-dashed border-blue-500/10 bg-slate-950/30">
-                    <p className="text-slate-500">
-                      Calendar Module
-                    </p>
-                  </div>
-
-                </div>
-
-              </div>
-
             </div>
+
+            {/* ================================================= */}
+            {/* RIGHT EMPTY SPACE */}
+            {/* ================================================= */}
+
+            <div className="w-[30%] shrink-0" />
           </div>
-        </section>
-      </div>
+
+          {/* ================================================= */}
+          {/* GAP */}
+          {/* ================================================= */}
+
+          <div className="h-8" />
+
+          {/* ================================================= */}
+          {/* FULL WIDTH CALENDAR */}
+          {/* ================================================= */}
+
+          <TradingCalendar />
+        </div>
+      </section>
     </main>
   );
 }

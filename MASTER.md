@@ -2,7 +2,21 @@
 
 ## Vision
 
-Professional trading analytics and journaling platform focused on options trading, performance analytics, and business tracking.
+Professional institutional-grade trading analytics and journaling platform focused on:
+- discretionary futures/options trading
+- execution analytics
+- performance review
+- behavioral journaling
+- business tracking
+- professional workflow optimization
+
+The platform should feel:
+- clean
+- premium
+- fast
+- minimal
+- institutional
+- execution-focused
 
 ---
 
@@ -16,6 +30,9 @@ Professional trading analytics and journaling platform focused on options tradin
 - Minimal rewrites
 - Clean UI/UX
 - Beginner-safe development process
+- Typography-first design
+- Spacing over clutter
+- Surgical edits over full rewrites
 
 ---
 
@@ -30,83 +47,120 @@ Professional trading analytics and journaling platform focused on options tradin
 
 ---
 
-# Current V1 Scope
+# Design Language
 
-## Dashboard
-- Total PnL
-- Win rate
-- Profit factor
-- Recent trades
-- Performance overview
+## UI Direction
 
-## Trade Management
-- IBKR CSV upload
-- Manual trade entry
-- Trade history table
+The UI should feel:
+- institutional
+- modern
+- minimal
+- analytics-focused
+- typography-driven
 
-## Expenses
-- Daily expenses
-- Monthly subscriptions
-- Platform fees
-
-## Analytics
-- PnL tracking
-- Win/loss tracking
-- Calendar analytics
-- Performance metrics
+Inspired by:
+- Tradelizer
+- Linear
+- Notion
+- Bloomberg terminals
+- modern SaaS dashboards
 
 ---
 
-# Architecture Rules
+# UI Philosophy
 
-- Do not rewrite unrelated files
-- Keep components modular
-- Separate UI from business logic
-- Preserve architecture consistency
-- Prefer small scoped updates
-- Use full file rewrites for simplicity
+Elite X UI should prioritize:
 
----
+- clarity over decoration
+- readability over density
+- spacing over borders
+- typography over containers
+- workflow speed over visual gimmicks
 
-# Folder Structure
+The platform should feel:
+- professional
+- calm
+- analytical
+- focused
+- premium
 
-/app
-/components
-/lib
-/types
-/data
-
----
-
-# Storage Strategy
-
-V1:
-- Local JSON storage
-
-Future:
-- Supabase backend
+Avoid:
+- flashy retail trading aesthetics
+- neon overload
+- crowded dashboards
+- excessive gradients
+- unnecessary widgets
 
 ---
 
-# Development Workflow
+# UI Rules
 
-1. Build locally first
-2. Test incrementally
-3. Commit stable checkpoints
-4. Avoid unnecessary refactors
-5. Feature-by-feature development
+## DO
+
+- Use spacing for hierarchy
+- Keep modules breathable
+- Use large typography
+- Preserve optical alignment
+- Use incremental changes
+- Prefer clean layouts over flashy UI
+
+## DO NOT
+
+- Overuse nested cards
+- Add unnecessary borders
+- Rewrite stable layouts casually
+- Compress modules tightly
+- Break spacing systems
+- Remove optical offsets without testing
 
 ---
 
-# Current Status
+# Current UI Checkpoint
 
-## Completed
-- Next.js foundation setup
-- Tailwind setup
-- Initial architecture structure
+## Stable Layout
 
-## Next Steps
-- Build professional dashboard shell
-- Create layout system
-- Add navigation/sidebar
-- Create dark theme foundation
+Current stable dashboard includes:
+
+- Sidebar
+- Header actions
+- Account Overview
+- Trading Performance
+- P&L Analytics placeholder
+- Full-width Trading Calendar
+
+This layout is currently considered STABLE.
+
+---
+
+# Critical UI Notes
+
+## Calendar System
+
+TradingCalendar.tsx is highly sensitive.
+
+DO NOT casually modify:
+- width calculations
+- flex wrappers
+- parent containers
+- relative offsets
+- alignment logic
+
+The calendar currently uses:
+- manual optical balancing
+- relative positioning fixes
+- controlled spacing offsets
+
+These are intentional.
+
+---
+
+## Optical Alignment System
+
+The project uses:
+
+```tsx
+relative left-2
+relative left-4
+relative left-8
+relative right-*
+top-*
