@@ -20,6 +20,8 @@ import {
   TimeRange,
 } from "@/lib/analytics";
 
+import { parseIBKRCsv } from "@/lib/parsers/ibkrParser";
+
 import { Trade } from "@/types/trade";
 
 import {
@@ -68,6 +70,28 @@ export default function HomePage() {
     setIsModalOpen(false);
   };
 
+  const handleCSVUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+
+    const file =
+      event.target.files?.[0];
+
+    if (!file) return;
+
+    try {
+
+      await parseIBKRCsv(file);
+
+    } catch (error) {
+
+      console.error(
+        "CSV PARSE ERROR:",
+        error
+      );
+    }
+  };
+
   return (
     <main className="flex h-screen overflow-hidden bg-[#020617] text-white">
 
@@ -97,12 +121,19 @@ export default function HomePage() {
 
         <div className="flex h-[70px] shrink-0 items-center justify-end gap-4 border-b border-white/[0.05] px-8 pb-4">
 
-          <button className="flex h-[46px] items-center gap-3 rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-[14px] font-semibold text-slate-200 transition-all hover:bg-[#13203a]">
+          <label className="flex h-[46px] cursor-pointer items-center gap-3 rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-[14px] font-semibold text-slate-200 transition-all hover:bg-[#13203a]">
 
             <Upload size={17} />
 
             Upload IBKR CSV
-          </button>
+
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCSVUpload}
+              className="hidden"
+            />
+          </label>
 
           <button className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600">
 
