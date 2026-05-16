@@ -1,49 +1,83 @@
 # Elite X Trading Journal
 
-## Vision
+---
 
-Professional institutional-grade trading analytics and journaling platform focused on:
-- discretionary futures/options trading
+# Vision
+
+Elite X is a professional institutional-grade trading analytics and journaling platform focused on:
+
+- discretionary futures trading
+- options trading
 - execution analytics
 - performance review
 - behavioral journaling
 - business tracking
-- professional workflow optimization
+- workflow optimization
+- long-term trading development
 
 The platform should feel:
+
 - clean
 - premium
-- fast
 - minimal
 - institutional
+- fast
+- calm
+- analytical
 - execution-focused
+
+Elite X is NOT intended to feel like:
+- retail trading software
+- gambling UI
+- flashy crypto dashboards
+- neon-heavy interfaces
+- crowded analytics systems
+
+The platform should prioritize:
+- clarity
+- focus
+- readability
+- workflow speed
+- structured review
 
 ---
 
-# Core Principles
+# Core Development Principles
 
-- Stability first
-- Modular architecture
-- Incremental feature building
-- Local-first development
+Elite X development follows:
+
+- stability first
+- modular architecture
+- incremental feature building
+- local-first development
 - Git-safe workflow
-- Minimal rewrites
-- Clean UI/UX
-- Beginner-safe development process
-- Typography-first design
-- Spacing over clutter
-- Surgical edits over full rewrites
+- minimal rewrites
+- clean UI systems
+- beginner-safe development process
+- typography-first design
+- spacing-first hierarchy
+- surgical edits over aggressive rewrites
 
 ---
 
 # Tech Stack
 
+## Current Stack
+
 - Next.js
 - TypeScript
 - TailwindCSS
 - Local JSON storage (V1)
-- Supabase (future)
-- Vercel deployment (future)
+
+## Future Stack
+
+- Prisma
+- Supabase
+- PostgreSQL
+- Vercel deployment
+- Authentication system
+- Cloud sync
+- AI analytics engine
 
 ---
 
@@ -51,45 +85,42 @@ The platform should feel:
 
 ## UI Direction
 
-The UI should feel:
-- institutional
-- modern
-- minimal
-- analytics-focused
-- typography-driven
+Elite X UI should feel inspired by:
 
-Inspired by:
 - Tradelizer
 - Linear
 - Notion
 - Bloomberg terminals
-- modern SaaS dashboards
+- modern institutional SaaS dashboards
+
+The UI should feel:
+
+- professional
+- premium
+- restrained
+- modern
+- analytical
+- typography-driven
 
 ---
 
 # UI Philosophy
 
-Elite X UI should prioritize:
+Elite X UI prioritizes:
 
 - clarity over decoration
 - readability over density
 - spacing over borders
 - typography over containers
 - workflow speed over visual gimmicks
+- optical balance over mathematical rigidity
 
-The platform should feel:
-- professional
+The interface should feel:
+- breathable
 - calm
-- analytical
 - focused
-- premium
-
-Avoid:
-- flashy retail trading aesthetics
-- neon overload
-- crowded dashboards
-- excessive gradients
-- unnecessary widgets
+- analytical
+- professional
 
 ---
 
@@ -97,69 +128,41 @@ Avoid:
 
 ## DO
 
-- Use spacing for hierarchy
-- Keep modules breathable
-- Use large typography
-- Preserve optical alignment
-- Use incremental changes
-- Prefer clean layouts over flashy UI
+- use spacing for hierarchy
+- preserve breathing room
+- use typography as structure
+- maintain optical alignment
+- prefer incremental changes
+- visually test layout changes
+- preserve stable systems
+- use Git checkpoints frequently
 
 ## DO NOT
 
-- Overuse nested cards
-- Add unnecessary borders
-- Rewrite stable layouts casually
-- Compress modules tightly
-- Break spacing systems
-- Remove optical offsets without testing
+- overuse nested cards
+- casually rewrite stable layouts
+- tightly compress modules
+- overuse borders
+- overuse gradients
+- stack random spacing patches
+- remove optical offsets blindly
+- rebuild stable components unnecessarily
 
 ---
 
-# Current UI Checkpoint
+# Optical Alignment System
 
-## Stable Layout
+Elite X intentionally uses optical balancing.
 
-Current stable dashboard includes:
+The UI does NOT rely entirely on strict mathematical centering.
 
-- Sidebar
-- Header actions
-- Account Overview
-- Trading Performance
-- P&L Analytics placeholder
-- Full-width Trading Calendar
+Small positional offsets are part of the visual system.
 
-This layout is currently considered STABLE.
-
----
-
-# Critical UI Notes
-
-## Calendar System
-
-TradingCalendar.tsx is highly sensitive.
-
-DO NOT casually modify:
-- width calculations
-- flex wrappers
-- parent containers
-- relative offsets
-- alignment logic
-
-The calendar currently uses:
-- manual optical balancing
-- relative positioning fixes
-- controlled spacing offsets
-
-These are intentional.
-
----
-
-## Optical Alignment System
-
-The project uses:
+Examples:
 
 ```tsx
 relative left-2
+relative left-3
 relative left-4
 relative left-8
 relative right-*
