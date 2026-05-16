@@ -36,7 +36,7 @@ export default function HomePage() {
         {/* HEADER */}
         {/* ================================================= */}
 
-        <div className="flex h-[70px] shrink-0 items-center justify-end gap-4 border-b border-white/[0.05] px-6 pb-3">
+        <div className="relative right-6 flex h-[70px] shrink-0 items-center justify-end gap-4 border-b border-white/[0.05] px-6 pb-3">
           
           {/* Upload CSV */}
 
@@ -52,6 +52,12 @@ export default function HomePage() {
             Add Trade
           </button>
         </div>
+
+        {/* ================================================= */}
+        {/* HEADER BOTTOM GAP */}
+        {/* ================================================= */}
+
+        <div className="h-6 shrink-0" />
 
         {/* ================================================= */}
         {/* CONTENT */}
