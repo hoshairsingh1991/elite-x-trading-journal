@@ -58,6 +58,7 @@ Elite X development follows:
 - beginner-safe development process
 - typography-first design
 - spacing-first hierarchy
+- optical alignment systems
 - surgical edits over aggressive rewrites
 
 ---
@@ -85,17 +86,35 @@ Elite X development follows:
 
 # Current Project Status
 
-## Completed Systems
+Elite X has transitioned from:
 
-### Dashboard Foundation
+prototype dashboard architecture
 
-- institutional dashboard architecture completed
-- stable layout structure completed
-- stable spacing hierarchy completed
+into:
+
+modular multi-page SaaS architecture.
+
+The application now behaves as a real local-first trading operating system.
+
+---
+
+# Completed Systems
+
+## Dashboard Foundation
+
+Completed:
+
+- institutional dashboard architecture
+- stable layout structure
+- stable spacing hierarchy
 - optical alignment system established
-- responsive dashboard structure stable
+- responsive dashboard structure stabilized
+- safe-zone spacing system established
+- typography-first hierarchy stabilized
 
-### Trading Calendar System
+---
+
+## Trading Calendar System
 
 Completed:
 
@@ -103,75 +122,263 @@ Completed:
 - dynamic monthly navigation
 - P&L heatmap engine
 - profit/loss intensity scaling
-- day drilldown modal system
 - monthly analytics display
-- trading day tracking
 - total trade tracking
+- day drilldown modal system
+- calendar trade synchronization
 
-### Trade Review Modal
+Important:
 
-Completed:
+TradingCalendar.tsx is considered highly sensitive.
 
-- institutional modal layout
-- safe spacing architecture
-- inner safe-zone body system
-- trade review table
-- win-rate display
-- fee display
-- open trade support
-- status badges
-- ticker rendering
-- side rendering
-- modal KPI cards
+Avoid modifying:
 
-Current modal limitations:
-
-- CSV normalization layer still incomplete
-- some broker CSV fields not mapped correctly yet
-- entry/exit price may display empty
-- fees may display empty for some imports
-- parser stabilization required next
+- wrapper structure
+- width calculations
+- parent flex systems
+- alignment logic
+- relative offsets
+- spacing containers
 
 ---
 
-# Immediate Next Development Phase
+## Trade Review Modal System
 
-## Priority: Data Normalization Layer
+Completed:
+
+- institutional modal architecture
+- modal safe-spacing system
+- inner safe-zone body architecture
+- trade review table
+- daily drilldown system
+- win-rate calculations
+- commission rendering
+- entry/exit rendering
+- open trade support
+- status badge system
+- ticker rendering
+- account rendering
+- modal KPI cards
+
+---
+
+## CSV Import + Parser Architecture
+
+Completed:
+
+- IBKR CSV parsing
+- execution normalization
+- trade pairing engine
+- open trade handling
+- commission normalization
+- duplicate prevention
+- ticker normalization
+- account mapping
+- entry price rendering
+- exit price rendering
+- trade status mapping
+- asset type mapping
+
+Current parser supports:
+
+- Futures
+- Options
+- Stocks
+- Forex
+
+---
+
+## Persistent Storage Architecture
+
+Completed:
+
+- local-first storage system
+- persistent trade database
+- application hydration
+- centralized trade storage
+- durable CSV imports
+- reload-safe architecture
+- analytics persistence
+- calendar persistence
+- trade history persistence
+
+Application now uses:
+
+localStorage
+
+as centralized V1 persistence layer.
+
+---
+
+## Multi-Page SaaS Architecture
+
+Completed:
+
+- route-aware sidebar
+- scalable page routing
+- modular page separation
+- execution terminal architecture
+- dashboard separation strategy
+- trades page architecture
+
+Current routes:
+
+- /
+- /trades
+
+Future planned routes:
+
+- /calendar
+- /analytics
+- /expenses
+- /settings
+
+---
+
+## Trade History Execution Terminal
+
+Trades page now acts as:
+
+institutional execution terminal.
+
+Completed:
+
+- full Trade History table
+- newest-to-oldest sorting
+- entry/exit rendering
+- commission rendering
+- account rendering
+- asset type rendering
+- modal trade drilldowns
+- centralized trade loading
+- institutional table spacing system
+
+---
+
+# Current UI Architecture Rules
+
+IMPORTANT:
+
+The current spacing and alignment systems are considered stable.
+
+Avoid unnecessary rewrites.
+
+Preserve:
+
+- spacing hierarchy
+- optical alignment
+- safe-zone spacing
+- relative offsets
+- institutional density
+- typography rhythm
+- dashboard proportions
+- table proportions
+
+DO NOT casually modify:
+
+- wrapper structures
+- parent flex containers
+- TradingCalendar.tsx layout systems
+- global dashboard spacing
+- safe-zone containers
+
+The application intentionally uses:
+
+- relative left-*
+- relative right-*
+- top-*
+- invisible spacing compensation
+- optical balancing
+
+These are part of the institutional UI alignment system.
+
+---
+
+# Current Architecture Philosophy
+
+Dashboard should function as:
+
+high-level command center.
+
+Trades page should function as:
+
+execution review terminal.
+
+Architecture separation is intentional.
+
+Dashboard responsibilities:
+
+- KPIs
+- analytics snapshots
+- calendar systems
+- performance overview
+- recent activity
+
+Trades page responsibilities:
+
+- execution history
+- filtering
+- search
+- review workflows
+- tagging
+- screenshots
+- exports
+- future execution analytics
+
+---
+
+# Current Development Priority
+
+## Priority Phase:
+Trade Search + Filtering Architecture
 
 Next development focus:
 
-- stabilize CSV parser
-- normalize broker imports
-- correctly map:
-  - ticker
-  - entryPrice
-  - exitPrice
-  - fees
-  - pnl
-  - status
-  - side
-  - quantity
+- search bar system
+- trade filtering toolbar
+- account filtering
+- ticker filtering
+- status filtering
+- asset-type filtering
+- scalable table state architecture
 
-### Important
+---
 
-DO NOT redesign UI during this phase.
+# Future Planned Systems
 
-The current priority is:
-- data integrity
-- parser stability
-- trade normalization
-- open trade handling
+## Manual Trade Entry System
 
-NOT:
-- visual redesigns
-- layout rewrites
-- dashboard restructuring
+Planned:
+
+- AddTradeModal.tsx
+- manual execution journaling
+- form validation
+- direct storage persistence
+- screenshot uploads
+- setup tagging
+- emotion tracking
+- mistake tracking
+
+---
+
+## Future Analytics Systems
+
+Planned:
+
+- advanced execution analytics
+- expectancy calculations
+- equity curve engine
+- session analytics
+- setup analytics
+- behavior analytics
+- consistency scoring
+- AI trade review engine
 
 ---
 
 # Open Trade Architecture
 
-Elite X now supports open positions.
+Elite X supports open positions.
 
 Trade status system:
 

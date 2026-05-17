@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import Sidebar from "@/components/layout/Sidebar";
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import TradesTable from "@/components/trades/TradesTable";
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
-
-import tradesData from "@/data/trades.json";
 
 import {
   calculateAverageWin,
@@ -21,6 +22,11 @@ import {
 } from "@/lib/analytics";
 
 import { parseIBKRCsv } from "@/lib/parsers/ibkrParser";
+
+import {
+  appendTrades,
+  loadTrades,
+} from "@/lib/storage/tradeStorage";
 
 import { Trade } from "@/types/trade";
 
@@ -41,7 +47,39 @@ export default function HomePage() {
     useState(false);
 
   const [importedTrades, setImportedTrades] =
-    useState<Trade[]>(tradesData as Trade[]);
+    useState<Trade[]>([]);
+
+  // =================================================
+  // INITIAL LOAD
+  // =================================================
+
+  useEffect(() => {
+
+    const storedTrades =
+      loadTrades();
+
+    // =============================================
+    // LOAD SAVED TRADES
+    // =============================================
+
+    if (
+      storedTrades.length > 0
+    ) {
+
+      setImportedTrades(
+        storedTrades
+      );
+
+      return;
+    }
+
+    // =============================================
+    // EMPTY STATE
+    // =============================================
+
+    setImportedTrades([]);
+
+  }, []);
 
   // =================================================
   // FILTERED TRADES
@@ -58,22 +96,34 @@ export default function HomePage() {
   // =================================================
 
   const totalPnL =
-    calculateTotalPnL(filteredTrades);
+    calculateTotalPnL(
+      filteredTrades
+    );
 
   const totalTrades =
-    calculateTotalTrades(filteredTrades);
+    calculateTotalTrades(
+      filteredTrades
+    );
 
   const winRate =
-    calculateWinRate(filteredTrades);
+    calculateWinRate(
+      filteredTrades
+    );
 
   const averageWin =
-    calculateAverageWin(filteredTrades);
+    calculateAverageWin(
+      filteredTrades
+    );
 
   const profitFactor =
-    calculateProfitFactor(filteredTrades);
+    calculateProfitFactor(
+      filteredTrades
+    );
 
   const totalFees =
-    calculateTotalFees(filteredTrades);
+    calculateTotalFees(
+      filteredTrades
+    );
 
   // =================================================
   // MODAL HANDLERS
@@ -113,8 +163,21 @@ export default function HomePage() {
       const parsedTrades =
         await parseIBKRCsv(file);
 
+      // =============================================
+      // APPEND + SAVE
+      // =============================================
+
+      const updatedTrades =
+        appendTrades(
+          parsedTrades as Trade[]
+        );
+
+      // =============================================
+      // UPDATE UI
+      // =============================================
+
       setImportedTrades(
-        parsedTrades as Trade[]
+        updatedTrades
       );
 
     } catch (error) {
@@ -169,7 +232,9 @@ export default function HomePage() {
             <input
               type="file"
               accept=".csv"
-              onChange={handleCSVUpload}
+              onChange={
+                handleCSVUpload
+              }
               className="hidden"
             />
           </label>
