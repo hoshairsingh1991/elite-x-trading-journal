@@ -41,35 +41,63 @@ export default function HomePage() {
     useState(false);
 
   const [importedTrades, setImportedTrades] =
-    useState<Trade[]>(tradesData);
+    useState<Trade[]>(tradesData as Trade[]);
 
-  const filteredTrades = filterTradesByRange(
-    importedTrades,
-    selectedRange
-  );
+  // =================================================
+  // FILTERED TRADES
+  // =================================================
 
-  const totalPnL = calculateTotalPnL(filteredTrades);
+  const filteredTrades =
+    filterTradesByRange(
+      importedTrades,
+      selectedRange
+    );
 
-  const totalTrades = calculateTotalTrades(filteredTrades);
+  // =================================================
+  // ANALYTICS
+  // =================================================
 
-  const winRate = calculateWinRate(filteredTrades);
+  const totalPnL =
+    calculateTotalPnL(filteredTrades);
 
-  const averageWin = calculateAverageWin(filteredTrades);
+  const totalTrades =
+    calculateTotalTrades(filteredTrades);
 
-  const profitFactor = calculateProfitFactor(filteredTrades);
+  const winRate =
+    calculateWinRate(filteredTrades);
 
-  const totalFees = calculateTotalFees(filteredTrades);
+  const averageWin =
+    calculateAverageWin(filteredTrades);
+
+  const profitFactor =
+    calculateProfitFactor(filteredTrades);
+
+  const totalFees =
+    calculateTotalFees(filteredTrades);
+
+  // =================================================
+  // MODAL HANDLERS
+  // =================================================
 
   const handleSelectTrade = (
     trade: Trade
   ) => {
+
     setSelectedTrade(trade);
+
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
+
     setIsModalOpen(false);
+
+    setSelectedTrade(null);
   };
+
+  // =================================================
+  // CSV IMPORT
+  // =================================================
 
   const handleCSVUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -99,6 +127,7 @@ export default function HomePage() {
   };
 
   return (
+
     <main className="flex h-screen overflow-hidden bg-[#020617] text-white">
 
       {/* ================================================= */}
@@ -127,6 +156,10 @@ export default function HomePage() {
 
         <div className="flex h-[70px] shrink-0 items-center justify-end gap-4 border-b border-white/[0.05] px-8 pb-4">
 
+          {/* ================================================= */}
+          {/* CSV BUTTON */}
+          {/* ================================================= */}
+
           <label className="flex h-[46px] cursor-pointer items-center gap-3 rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-[14px] font-semibold text-slate-200 transition-all hover:bg-[#13203a]">
 
             <Upload size={17} />
@@ -140,6 +173,10 @@ export default function HomePage() {
               className="hidden"
             />
           </label>
+
+          {/* ================================================= */}
+          {/* ADD TRADE BUTTON */}
+          {/* ================================================= */}
 
           <button className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600">
 
@@ -196,11 +233,20 @@ export default function HomePage() {
 
                     <div className="flex items-center gap-3">
 
-                      {["1D", "7D", "30D", "1Y", "ALL"].map((range) => (
+                      {[
+                        "1D",
+                        "7D",
+                        "30D",
+                        "1Y",
+                        "ALL",
+                      ].map((range) => (
+
                         <button
                           key={range}
                           onClick={() =>
-                            setSelectedRange(range as TimeRange)
+                            setSelectedRange(
+                              range as TimeRange
+                            )
                           }
                           className={`rounded-full px-4 py-2 text-[12px] font-black tracking-[0.08em] transition-all ${
                             selectedRange === range
@@ -218,28 +264,50 @@ export default function HomePage() {
 
                     {[
                       {
-                        title: "Total P&L",
-                        value: `$${totalPnL.toLocaleString()}`,
-                        sub: `${totalTrades} total trades`,
-                        color: totalPnL >= 0
-                          ? "text-emerald-400"
-                          : "text-red-400",
+                        title:
+                          "Total P&L",
+
+                        value:
+                          `$${totalPnL.toLocaleString()}`,
+
+                        sub:
+                          `${totalTrades} total trades`,
+
+                        color:
+                          totalPnL >= 0
+                            ? "text-emerald-400"
+                            : "text-red-400",
                       },
 
                       {
-                        title: "Average Win",
-                        value: `$${averageWin.toLocaleString()}`,
-                        sub: `${winRate}% win rate`,
-                        color: "text-emerald-400",
+                        title:
+                          "Average Win",
+
+                        value:
+                          `$${averageWin.toLocaleString()}`,
+
+                        sub:
+                          `${winRate}% win rate`,
+
+                        color:
+                          "text-emerald-400",
                       },
 
                       {
-                        title: "Commissions",
-                        value: `$${totalFees.toLocaleString()}`,
-                        sub: "Execution & brokerage",
-                        color: "text-orange-400",
+                        title:
+                          "Commissions",
+
+                        value:
+                          `$${totalFees.toLocaleString()}`,
+
+                        sub:
+                          "Execution & brokerage",
+
+                        color:
+                          "text-orange-400",
                       },
                     ].map((item) => (
+
                       <div
                         key={item.title}
                         className="flex flex-col"
@@ -332,7 +400,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* EQUITY */}
+                {/* EQUITY CURVE */}
 
                 <div className="rounded-[28px] bg-[#071427] p-6 shadow-[0_0_40px_rgba(0,0,0,0.18)]">
 
@@ -360,14 +428,24 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* RIGHT SAFE SPACE */}
+
             <div className="w-[22%] shrink-0" />
           </div>
+
+          {/* ================================================= */}
+          {/* CALENDAR */}
+          {/* ================================================= */}
 
           <div className="h-10" />
 
           <TradingCalendar
-  trades={filteredTrades}
-/>
+            trades={filteredTrades}
+          />
+
+          {/* ================================================= */}
+          {/* TRADE HISTORY */}
+          {/* ================================================= */}
 
           <div className="h-10" />
 
@@ -375,18 +453,36 @@ export default function HomePage() {
 
             <TradesTable
               trades={filteredTrades}
-              onSelectTrade={handleSelectTrade}
+              onSelectTrade={
+                handleSelectTrade
+              }
             />
           </div>
 
           <div className="h-12" />
         </div>
 
-        <TradeDetailModal
-          trade={selectedTrade}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
+        {/* ================================================= */}
+        {/* MODAL */}
+        {/* ================================================= */}
+
+        {isModalOpen &&
+          selectedTrade && (
+
+          <TradeDetailModal
+            selectedDate={
+              selectedTrade.date
+            }
+            trades={filteredTrades.filter(
+              (trade) =>
+                trade.date ===
+                selectedTrade.date
+            )}
+            onClose={
+              handleCloseModal
+            }
+          />
+        )}
       </section>
     </main>
   );

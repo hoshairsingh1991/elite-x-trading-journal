@@ -2,26 +2,76 @@ import Papa from "papaparse";
 
 import { pairTrades } from "./pairTrades";
 
-export interface ParsedTrade {
-  id: string;
-  date: string;
-  symbol: string;
-  contract: string;
-  side: "LONG" | "SHORT";
-  quantity: number;
-  pnl: number;
-  fees: number;
-  account: string;
-  tradeType: string;
-  result: "Win" | "Loss";
-  status: "Closed";
-  price: number;
-  multiplier: number;
+import {
+  NormalizedExecution,
+  Trade,
+} from "@/types/trade";
+
+// =================================================
+// HELPERS
+// =================================================
+
+function parseNumber(
+  value: any,
+  fallback = 0
+): number {
+
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return fallback;
+  }
+
+  const cleanedValue = String(value)
+    .replace(/[$,]/g, "")
+    .trim();
+
+  const parsed = Number(cleanedValue);
+
+  return Number.isNaN(parsed)
+    ? fallback
+    : parsed;
 }
+
+// =================================================
+// FORMAT ASSET TYPE
+// =================================================
+
+function formatAssetType(
+  assetClass: string
+): string {
+
+  switch (assetClass) {
+
+    case "OPT":
+      return "Options";
+
+    case "STK":
+      return "Stocks";
+
+    case "FUT":
+      return "Futures";
+
+    case "CASH":
+      return "Forex";
+
+    case "CRYPTO":
+      return "Crypto";
+
+    default:
+      return assetClass || "Trade";
+  }
+}
+
+// =================================================
+// IBKR CSV PARSER
+// =================================================
 
 export async function parseIBKRCsv(
   file: File
-): Promise<ParsedTrade[]> {
+): Promise<Trade[]> {
 
   return new Promise((resolve, reject) => {
 
@@ -37,6 +87,10 @@ export async function parseIBKRCsv(
 
           const rows =
             results.data as any[];
+
+          // =================================================
+          // FILTER EXECUTION ROWS
+          // =================================================
 
           const executionRows =
             rows.filter((row) => {
@@ -60,30 +114,14 @@ export async function parseIBKRCsv(
               );
             });
 
-          const normalizedTrades:
-            ParsedTrade[] =
+          // =================================================
+          // NORMALIZE EXECUTIONS
+          // =================================================
+
+          const normalizedExecutions:
+            NormalizedExecution[] =
               executionRows.map(
                 (row, index) => {
-
-                  const netCash =
-                    Number(
-                      row.NetCash || 0
-                    );
-
-                  const fees =
-                    Math.abs(
-                      Number(
-                        row.Commission || 0
-                      )
-                    );
-
-                  const cleanSymbol =
-                    row.UnderlyingSymbol ||
-                    row.Symbol;
-
-                  const fullContract =
-                    row.Description ||
-                    cleanSymbol;
 
                   const rawDate =
                     row["Date/Time"] || "";
@@ -117,28 +155,64 @@ export async function parseIBKRCsv(
                       Number(month) - 1
                     ]} ${Number(day)}, ${year}`;
 
+                  const ticker =
+                    row.UnderlyingSymbol ||
+                    row.Symbol ||
+                    "UNKNOWN";
+
+                  const contract =
+                    row.Description ||
+                    row.Symbol ||
+                    ticker;
+
+                  // =================================================
+                  // FIXED PRICE MAPPING
+                  // =================================================
+
                   const executionPrice =
-                    Number(
-                      row.TradePrice || 0
+                    parseNumber(
+                      row["T. Price"] ||
+                      row["Trade Price"] ||
+                      row["TradePrice"] ||
+                      row["Price"]
+                    );
+
+                  const quantity =
+                    Math.abs(
+                      parseNumber(
+                        row.Quantity
+                      )
+                    );
+
+                  const executionValue =
+                    parseNumber(
+                      row.NetCash
+                    );
+
+                  const fees =
+                    Math.abs(
+                      parseNumber(
+                        row.Commission
+                      )
                     );
 
                   const multiplier =
-                    Number(
-                      row.Multiplier || 100
+                    parseNumber(
+                      row.Multiplier,
+                      100
                     );
 
                   return {
 
-                    id: String(index),
+                    id:
+                      `${ticker}-${index}`,
 
                     date:
                       formattedDate,
 
-                    symbol:
-                      cleanSymbol,
+                    ticker,
 
-                    contract:
-                      fullContract,
+                    contract,
 
                     side:
                       row["Buy/Sell"] ===
@@ -146,17 +220,11 @@ export async function parseIBKRCsv(
                         ? "LONG"
                         : "SHORT",
 
-                    quantity:
-                      Math.abs(
-                        Number(
-                          row.Quantity || 0
-                        )
-                      ),
+                    quantity,
 
-                    pnl:
-                      Number(
-                        netCash.toFixed(2)
-                      ),
+                    executionPrice,
+
+                    executionValue,
 
                     fees:
                       Number(
@@ -167,34 +235,27 @@ export async function parseIBKRCsv(
                       row.ClientAccountID ||
                       "IBKR",
 
-                    tradeType:
-                      row.AssetClass ===
-                      "OPT"
-                        ? "Options"
-                        : row.AssetClass,
-
-                    result:
-                      netCash >= 0
-                        ? "Win"
-                        : "Loss",
-
-                    status: "Closed",
-
-                    price:
-                      executionPrice,
+                    assetType:
+                      formatAssetType(
+                        row.AssetClass
+                      ),
 
                     multiplier,
                   };
                 }
               );
 
+          // =================================================
+          // PAIR EXECUTIONS
+          // =================================================
+
           const pairedTrades =
             pairTrades(
-              normalizedTrades
+              normalizedExecutions
             );
 
           console.log(
-            "PAIRED TRADES:"
+            "NORMALIZED TRADES"
           );
 
           console.table(
@@ -202,7 +263,7 @@ export async function parseIBKRCsv(
           );
 
           resolve(
-            pairedTrades as ParsedTrade[]
+            pairedTrades
           );
 
         } catch (error) {

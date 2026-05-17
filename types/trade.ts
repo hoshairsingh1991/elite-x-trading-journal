@@ -32,14 +32,50 @@ export type TradeMistake =
   | "PLAN_DEVIATION"
   | "REVENGE_TRADING";
 
+// =================================================
+// RAW NORMALIZED EXECUTION
+// =================================================
+
+export interface NormalizedExecution {
+  id: string;
+
+  date: string;
+
+  ticker: string;
+
+  contract: string;
+
+  side: TradeSide;
+
+  quantity: number;
+
+  executionPrice: number;
+
+  executionValue: number;
+
+  fees: number;
+
+  account: string;
+
+  assetType: string;
+
+  multiplier: number;
+}
+
+// =================================================
+// CANONICAL TRADE OBJECT
+// =================================================
+
 export interface Trade {
   id: string;
 
   // =================================================
-  // BASIC TRADE INFO
+  // BASIC INFO
   // =================================================
 
   ticker: string;
+
+  contract?: string;
 
   side: TradeSide;
 
@@ -47,11 +83,15 @@ export interface Trade {
 
   date: string;
 
-  strategy: string;
+  strategy?: string;
 
-  setup: string;
+  setup?: string;
 
-  session: TradingSession;
+  session?: TradingSession;
+
+  assetType?: string;
+
+  account?: string;
 
   // =================================================
   // EXECUTION
@@ -59,11 +99,11 @@ export interface Trade {
 
   entryPrice: number;
 
-  exitPrice: number;
+  exitPrice?: number | null;
 
   quantity: number;
 
-  riskRewardRatio: number;
+  riskRewardRatio?: number;
 
   stopLoss?: number;
 
@@ -78,6 +118,16 @@ export interface Trade {
   pnlPercent?: number;
 
   fees: number;
+
+  // =================================================
+  // OPEN POSITION SUPPORT
+  // =================================================
+
+  isOpen: boolean;
+
+  openedAt?: string;
+
+  closedAt?: string | null;
 
   // =================================================
   // JOURNALING

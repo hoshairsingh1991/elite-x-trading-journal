@@ -1,222 +1,284 @@
 "use client";
 
-import { X } from "lucide-react";
-
 import { Trade } from "@/types/trade";
 
 interface TradeDetailModalProps {
-  trade: Trade | null;
-  isOpen: boolean;
+  selectedDate: string;
+  trades?: Trade[];
   onClose: () => void;
 }
 
 export default function TradeDetailModal({
-  trade,
-  isOpen,
+  selectedDate,
+  trades = [],
   onClose,
 }: TradeDetailModalProps) {
 
-  if (!isOpen || !trade) return null;
+  const totalPnL =
+    trades.reduce(
+      (sum, trade) =>
+        sum + trade.pnl,
+      0
+    );
 
-  const pnl =
-    Number(trade.pnl) || 0;
+  const totalCommission =
+    trades.reduce(
+      (sum, trade) =>
+        sum + trade.fees,
+      0
+    );
 
-  const isWinner = pnl >= 0;
+  const winningTrades =
+    trades.filter(
+      (trade) =>
+        trade.status === "WIN"
+    ).length;
+
+  const closedTrades =
+    trades.filter(
+      (trade) =>
+        trade.status !== "OPEN"
+    ).length;
+
+  const winRate =
+    closedTrades > 0
+      ? Math.round(
+          (winningTrades /
+            closedTrades) *
+            100
+        )
+      : 0;
 
   return (
-    <>
-      {/* ================================================= */}
-      {/* BACKDROP */}
-      {/* ================================================= */}
 
-      <div
-        onClick={onClose}
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-[6px]">
 
       {/* ================================================= */}
-      {/* SLIDE PANEL */}
+      {/* MODAL */}
       {/* ================================================= */}
 
-      <div className="fixed right-0 top-0 z-50 flex h-screen w-[520px] flex-col border-l border-white/[0.05] bg-[#06101f] shadow-[-20px_0_60px_rgba(0,0,0,0.45)]">
+      <div className="relative w-[940px] overflow-hidden rounded-[28px] border border-white/[0.06] bg-[#0b1730] shadow-[0_0_80px_rgba(0,0,0,0.55)]">
 
         {/* ================================================= */}
         {/* HEADER */}
         {/* ================================================= */}
 
-        <div className="flex items-start justify-between border-b border-white/[0.05] px-8 py-7">
+        <div className="border-b border-white/[0.05] px-8 pb-5 pt-7">
 
-          <div>
+          <div className="flex items-start justify-between">
 
-            {/* SYMBOL */}
+            <div>
 
-            <div className="flex items-center gap-4">
-
-              <h2 className="text-[34px] font-black tracking-tight text-white">
-                {trade.symbol}
+              <h2 className="text-[52px] font-black tracking-tight text-white">
+                {selectedDate}
               </h2>
 
-              {/* SIDE */}
-
-              <div
-                className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] ${
-                  trade.side === "LONG"
-                    ? "bg-emerald-500/15 text-emerald-400"
-                    : "bg-red-500/15 text-red-400"
-                }`}
-              >
-                {trade.side}
-              </div>
+              <p className="mt-1 text-[16px] text-slate-400">
+                Institutional Trade Review
+              </p>
             </div>
 
-            {/* DATE */}
-
-            <p className="mt-3 text-sm text-slate-500">
-              {trade.date}
-            </p>
+            <button
+              onClick={onClose}
+              className="flex h-[44px] w-[44px] items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.03] text-[24px] text-slate-400 transition-all hover:bg-white/[0.06] hover:text-white"
+            >
+              ×
+            </button>
           </div>
-
-          {/* CLOSE BUTTON */}
-
-          <button
-            onClick={onClose}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.03] text-slate-400 transition-all hover:bg-white/[0.06] hover:text-white"
-          >
-            <X size={18} />
-          </button>
         </div>
 
         {/* ================================================= */}
-        {/* CONTENT */}
+        {/* KPI ROW */}
         {/* ================================================= */}
 
-        <div className="flex-1 overflow-y-auto px-8 py-8">
+        <div className="grid grid-cols-4 gap-4 px-8 pb-6 pt-6">
 
-          {/* ================================================= */}
-          {/* PNL CARD */}
-          {/* ================================================= */}
+          {/* NET PNL */}
 
-          <div className="rounded-[24px] border border-white/[0.04] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] p-7">
+          <div className="flex flex-col items-center justify-center rounded-[22px] border border-white/[0.05] bg-white/[0.03] p-5 text-center">
 
-            <p className="text-[11px] font-bold uppercase tracking-[0.20em] text-slate-500">
-              Trade Result
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+              Net P&L
             </p>
 
-            <h1
-              className={`mt-5 text-[58px] font-black leading-none tracking-tight ${
-                isWinner
+            <h3
+              className={`mt-3 text-[42px] font-black tracking-tight ${
+                totalPnL >= 0
                   ? "text-emerald-400"
                   : "text-red-400"
               }`}
             >
-              {isWinner ? "+" : "-"}$
-              {Math.abs(pnl).toLocaleString()}
-            </h1>
-
-            <p className="mt-4 text-sm font-medium text-slate-400">
-              Net profit after execution fees
-            </p>
+              {totalPnL >= 0 ? "+" : "-"}$
+              {Math.abs(
+                totalPnL
+              ).toFixed(2)}
+            </h3>
           </div>
 
-          {/* ================================================= */}
-          {/* TRADE DETAILS */}
-          {/* ================================================= */}
+          {/* TOTAL TRADES */}
 
-          <div className="mt-8 rounded-[24px] border border-white/[0.04] bg-white/[0.02] p-7">
+          <div className="flex flex-col items-center justify-center rounded-[22px] border border-white/[0.05] bg-white/[0.03] p-5 text-center">
 
-            <h3 className="text-[18px] font-bold tracking-tight text-white">
-              Trade Details
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+              Total Trades
+            </p>
+
+            <h3 className="mt-3 text-[42px] font-black tracking-tight text-white">
+              {trades.length}
             </h3>
+          </div>
 
-            <div className="mt-7 space-y-5">
+          {/* COMMISSION */}
+
+          <div className="flex flex-col items-center justify-center rounded-[22px] border border-white/[0.05] bg-white/[0.03] p-5 text-center">
+
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+              Commission
+            </p>
+
+            <h3 className="mt-3 text-[42px] font-black tracking-tight text-white">
+              $
+              {totalCommission.toFixed(
+                2
+              )}
+            </h3>
+          </div>
+
+          {/* WIN RATE */}
+
+          <div className="flex flex-col items-center justify-center rounded-[22px] border border-white/[0.05] bg-white/[0.03] p-5 text-center">
+
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+              Win Rate
+            </p>
+
+            <h3 className="mt-3 text-[42px] font-black tracking-tight text-blue-400">
+              {winRate}%
+            </h3>
+          </div>
+        </div>
+
+        {/* ================================================= */}
+        {/* TABLE */}
+        {/* ================================================= */}
+
+        <div className="px-8 pb-8">
+
+          <div className="overflow-hidden rounded-[22px] border border-white/[0.05]">
+
+            {/* TABLE HEADER */}
+
+            <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-white/[0.05] bg-white/[0.03] px-4 py-4">
 
               {[
-                {
-                  label: "Setup",
-                  value: trade.setup,
-                },
+                "Ticker",
+                "Side",
+                "Entry",
+                "Exit",
+                "Net P&L",
+                "Commission",
+                "Status",
+              ].map((header) => (
 
-                {
-                  label: "Entry",
-                  value: `$${trade.entry}`,
-                },
-
-                {
-                  label: "Exit",
-                  value: `$${trade.exit}`,
-                },
-
-                {
-                  label: "Fees",
-                  value: `$${trade.fees}`,
-                },
-              ].map((item) => (
                 <div
-                  key={item.label}
-                  className="flex items-center justify-between border-b border-white/[0.04] pb-4"
+                  key={header}
+                  className="text-center text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500"
                 >
-                  <span className="text-sm text-slate-500">
-                    {item.label}
-                  </span>
-
-                  <span className="text-sm font-semibold text-white">
-                    {item.value}
-                  </span>
+                  {header}
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* ================================================= */}
-          {/* TRADE NOTES */}
-          {/* ================================================= */}
+            {/* TABLE ROWS */}
 
-          <div className="mt-8 rounded-[24px] border border-white/[0.04] bg-white/[0.02] p-7">
+            <div>
 
-            <h3 className="text-[18px] font-bold tracking-tight text-white">
-              Execution Notes
-            </h3>
+              {trades.map((trade) => {
 
-            <p className="mt-5 text-[15px] leading-8 text-slate-400">
-              Placeholder for detailed execution review,
-              emotional state, trade management notes,
-              mistakes made, and lessons learned.
-            </p>
-          </div>
+                const isWinner =
+                  trade.status === "WIN";
 
-          {/* ================================================= */}
-          {/* LESSONS */}
-          {/* ================================================= */}
+                const isOpen =
+                  trade.status === "OPEN";
 
-          <div className="mt-8 rounded-[24px] border border-white/[0.04] bg-white/[0.02] p-7">
+                return (
 
-            <h3 className="text-[18px] font-bold tracking-tight text-white">
-              Lessons Learned
-            </h3>
+                  <div
+                    key={trade.id}
+                    className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-white/[0.04] px-4 py-4 last:border-none"
+                  >
 
-            <div className="mt-5 space-y-4">
+                    <div className="text-center text-[16px] font-semibold text-white">
+                      {trade.ticker}
+                    </div>
 
-              {[
-                "Wait for confirmation before entry",
-                "Respect predefined stop placement",
-                "Avoid emotional scaling",
-              ].map((lesson, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-3"
-                >
+                    <div className="text-center text-[15px] font-bold text-emerald-400">
+                      {trade.side}
+                    </div>
 
-                  <div className="mt-[7px] h-2 w-2 rounded-full bg-blue-400" />
+                    <div className="text-center text-[15px] text-slate-300">
 
-                  <p className="text-[15px] leading-7 text-slate-400">
-                    {lesson}
-                  </p>
-                </div>
-              ))}
+                      {trade.entryPrice
+                        ? `$${Number(
+                            trade.entryPrice
+                          ).toFixed(2)}`
+                        : "--"}
+                    </div>
+
+                    <div className="text-center text-[15px] text-slate-300">
+
+                      {trade.exitPrice
+                        ? `$${Number(
+                            trade.exitPrice
+                          ).toFixed(2)}`
+                        : "--"}
+                    </div>
+
+                    <div
+                      className={`text-center text-[15px] font-bold ${
+                        isWinner
+                          ? "text-emerald-400"
+                          : isOpen
+                          ? "text-yellow-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {trade.pnl >= 0
+                        ? "+"
+                        : "-"}
+                      $
+                      {Math.abs(
+                        trade.pnl
+                      ).toFixed(2)}
+                    </div>
+
+                    <div className="text-center text-[15px] font-semibold text-slate-300">
+
+                      $
+                      {Number(
+                        trade.fees
+                      ).toFixed(2)}
+                    </div>
+
+                    <div
+                      className={`text-center text-[13px] font-black uppercase tracking-[0.12em] ${
+                        isWinner
+                          ? "text-emerald-400"
+                          : isOpen
+                          ? "text-yellow-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {trade.status}
+                    </div>
+
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

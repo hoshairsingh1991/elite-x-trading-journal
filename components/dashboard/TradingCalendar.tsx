@@ -182,7 +182,7 @@ export default function TradingCalendar({
       0
     );
 
-  const totalFees =
+  const totalCommission =
     selectedTrades.reduce(
       (sum, trade) =>
         sum +
@@ -518,7 +518,7 @@ export default function TradingCalendar({
 
       {selectedDay && (
 
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-8 backdrop-blur-sm">
 
           <div className="w-full max-w-[1280px] rounded-[38px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-10 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
 
@@ -561,7 +561,7 @@ export default function TradingCalendar({
 
                 <div className="grid grid-cols-4 gap-5">
 
-                  <div className="rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6">
+                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                     <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                       NET P&L
@@ -581,7 +581,7 @@ export default function TradingCalendar({
                     </p>
                   </div>
 
-                  <div className="rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6">
+                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                     <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                       TOTAL TRADES
@@ -594,23 +594,23 @@ export default function TradingCalendar({
                     </p>
                   </div>
 
-                  <div className="rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6">
+                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                     <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
-                      FEES
+                      COMMISSION
                     </p>
 
                     <p className="mt-4 text-[30px] font-black tracking-tight text-white">
 
-                      {totalFees > 0
-                        ? `$${totalFees.toFixed(
+                      {totalCommission > 0
+                        ? `$${totalCommission.toFixed(
                             2
                           )}`
                         : "--"}
                     </p>
                   </div>
 
-                  <div className="rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6">
+                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                     <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                       WIN RATE
@@ -670,7 +670,7 @@ export default function TradingCalendar({
 
                   <div className="mt-7 overflow-x-auto">
 
-                    <table className="w-full border-collapse">
+                    <table className="w-full table-fixed border-collapse">
 
                       <thead>
 
@@ -682,7 +682,7 @@ export default function TradingCalendar({
                             "Entry",
                             "Exit",
                             "Net P&L",
-                            "Fees",
+                            "Commission",
                             "Status",
                           ].map(
                             (
@@ -740,16 +740,14 @@ export default function TradingCalendar({
 
                               <td className="py-6 text-sm text-white">
 
-                                {trade.entryPrice >
-                                0
+                                {trade.entryPrice > 0
                                   ? `$${trade.entryPrice}`
                                   : "--"}
                               </td>
 
                               <td className="py-6 text-sm text-white">
 
-                                {trade.exitPrice >
-                                0
+                                {trade.exitPrice > 0
                                   ? `$${trade.exitPrice}`
                                   : "--"}
                               </td>
@@ -778,8 +776,7 @@ export default function TradingCalendar({
 
                               <td className="py-6 text-sm text-white">
 
-                                {trade.fees >
-                                0
+                                {trade.fees > 0
                                   ? `$${trade.fees.toFixed(
                                       2
                                     )}`
