@@ -365,7 +365,9 @@ export default function HomePage() {
 
           <div className="h-10" />
 
-          <TradingCalendar />
+          <TradingCalendar
+  trades={filteredTrades}
+/>
 
           <div className="h-10" />
 

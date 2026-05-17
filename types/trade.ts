@@ -1,6 +1,10 @@
 export type TradeSide = "LONG" | "SHORT";
 
-export type TradeStatus = "WIN" | "LOSS" | "BREAKEVEN";
+export type TradeStatus =
+  | "WIN"
+  | "LOSS"
+  | "BREAKEVEN"
+  | "OPEN";
 
 export type TradingSession =
   | "LONDON"
@@ -36,12 +40,15 @@ export interface Trade {
   // =================================================
 
   ticker: string;
+
   side: TradeSide;
+
   status: TradeStatus;
 
   date: string;
 
   strategy: string;
+
   setup: string;
 
   session: TradingSession;
@@ -51,6 +58,7 @@ export interface Trade {
   // =================================================
 
   entryPrice: number;
+
   exitPrice: number;
 
   quantity: number;
@@ -58,6 +66,7 @@ export interface Trade {
   riskRewardRatio: number;
 
   stopLoss?: number;
+
   takeProfit?: number;
 
   // =================================================
@@ -93,5 +102,6 @@ export interface Trade {
   // =================================================
 
   createdAt: string;
+
   updatedAt: string;
 }
