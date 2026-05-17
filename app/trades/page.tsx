@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -11,20 +12,46 @@ import TradesTable from "@/components/trades/TradesTable";
 
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 
+import TradesToolbar from "@/components/trades/TradesToolbar";
+
 import { loadTrades } from "@/lib/storage/tradeStorage";
 
 import { Trade } from "@/types/trade";
 
 export default function TradesPage() {
 
+  // =================================================
+  // TRADE STATE
+  // =================================================
+
   const [trades, setTrades] =
     useState<Trade[]>([]);
+
+  // =================================================
+  // MODAL STATE
+  // =================================================
 
   const [selectedTrade, setSelectedTrade] =
     useState<Trade | null>(null);
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
+
+  // =================================================
+  // FILTER STATE
+  // =================================================
+
+  const [searchQuery, setSearchQuery] =
+    useState("");
+
+  const [statusFilter, setStatusFilter] =
+    useState("ALL");
+
+  const [sideFilter, setSideFilter] =
+    useState("ALL");
+
+  const [assetFilter, setAssetFilter] =
+    useState("ALL");
 
   // =================================================
   // LOAD TRADES
@@ -40,6 +67,87 @@ export default function TradesPage() {
     );
 
   }, []);
+
+  // =================================================
+  // FILTERED TRADES
+  // =================================================
+
+  const filteredTrades =
+    useMemo(() => {
+
+      return trades.filter(
+        (trade) => {
+
+          // =========================================
+          // SEARCH
+          // =========================================
+
+          const search =
+            searchQuery
+              .toLowerCase()
+              .trim();
+
+          const matchesSearch =
+            !search ||
+            trade.ticker
+              ?.toLowerCase()
+              .includes(search) ||
+            trade.account
+              ?.toLowerCase()
+              .includes(search) ||
+            trade.date
+              ?.toLowerCase()
+              .includes(search) ||
+            trade.assetType
+              ?.toLowerCase()
+              .includes(search);
+
+          // =========================================
+          // STATUS
+          // =========================================
+
+          const matchesStatus =
+            statusFilter ===
+              "ALL" ||
+            trade.status ===
+              statusFilter;
+
+          // =========================================
+          // SIDE
+          // =========================================
+
+          const matchesSide =
+            sideFilter ===
+              "ALL" ||
+            trade.side ===
+              sideFilter;
+
+          // =========================================
+          // ASSET TYPE
+          // =========================================
+
+          const matchesAsset =
+            assetFilter ===
+              "ALL" ||
+            trade.assetType ===
+              assetFilter;
+
+          return (
+            matchesSearch &&
+            matchesStatus &&
+            matchesSide &&
+            matchesAsset
+          );
+        }
+      );
+
+    }, [
+      trades,
+      searchQuery,
+      statusFilter,
+      sideFilter,
+      assetFilter,
+    ]);
 
   // =================================================
   // MODAL HANDLERS
@@ -115,8 +223,45 @@ export default function TradesPage() {
 
           <div className="max-w-[98.5%]">
 
+            {/* ================================================= */}
+            {/* TOOLBAR */}
+            {/* ================================================= */}
+
+            <TradesToolbar
+              searchQuery={
+                searchQuery
+              }
+              setSearchQuery={
+                setSearchQuery
+              }
+              statusFilter={
+                statusFilter
+              }
+              setStatusFilter={
+                setStatusFilter
+              }
+              sideFilter={
+                sideFilter
+              }
+              setSideFilter={
+                setSideFilter
+              }
+              assetFilter={
+                assetFilter
+              }
+              setAssetFilter={
+                setAssetFilter
+              }
+            />
+
+            {/* ================================================= */}
+            {/* TABLE */}
+            {/* ================================================= */}
+
             <TradesTable
-              trades={trades}
+              trades={
+                filteredTrades
+              }
               onSelectTrade={
                 handleSelectTrade
               }
@@ -135,7 +280,7 @@ export default function TradesPage() {
             selectedDate={
               selectedTrade.date
             }
-            trades={trades.filter(
+            trades={filteredTrades.filter(
               (trade) =>
                 trade.date ===
                 selectedTrade.date
