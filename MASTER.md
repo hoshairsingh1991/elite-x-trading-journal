@@ -27,6 +27,7 @@ The platform should feel:
 - execution-focused
 
 Elite X is NOT intended to feel like:
+
 - retail trading software
 - gambling UI
 - flashy crypto dashboards
@@ -34,6 +35,7 @@ Elite X is NOT intended to feel like:
 - crowded analytics systems
 
 The platform should prioritize:
+
 - clarity
 - focus
 - readability
@@ -81,89 +83,100 @@ Elite X development follows:
 
 ---
 
-# Design Language
+# Current Project Status
 
-## UI Direction
+## Completed Systems
 
-Elite X UI should feel inspired by:
+### Dashboard Foundation
 
-- Tradelizer
-- Linear
-- Notion
-- Bloomberg terminals
-- modern institutional SaaS dashboards
+- institutional dashboard architecture completed
+- stable layout structure completed
+- stable spacing hierarchy completed
+- optical alignment system established
+- responsive dashboard structure stable
 
-The UI should feel:
+### Trading Calendar System
 
-- professional
-- premium
-- restrained
-- modern
-- analytical
-- typography-driven
+Completed:
 
----
+- institutional calendar layout
+- dynamic monthly navigation
+- P&L heatmap engine
+- profit/loss intensity scaling
+- day drilldown modal system
+- monthly analytics display
+- trading day tracking
+- total trade tracking
 
-# UI Philosophy
+### Trade Review Modal
 
-Elite X UI prioritizes:
+Completed:
 
-- clarity over decoration
-- readability over density
-- spacing over borders
-- typography over containers
-- workflow speed over visual gimmicks
-- optical balance over mathematical rigidity
+- institutional modal layout
+- safe spacing architecture
+- inner safe-zone body system
+- trade review table
+- win-rate display
+- fee display
+- open trade support
+- status badges
+- ticker rendering
+- side rendering
+- modal KPI cards
 
-The interface should feel:
-- breathable
-- calm
-- focused
-- analytical
-- professional
+Current modal limitations:
 
----
-
-# UI Rules
-
-## DO
-
-- use spacing for hierarchy
-- preserve breathing room
-- use typography as structure
-- maintain optical alignment
-- prefer incremental changes
-- visually test layout changes
-- preserve stable systems
-- use Git checkpoints frequently
-
-## DO NOT
-
-- overuse nested cards
-- casually rewrite stable layouts
-- tightly compress modules
-- overuse borders
-- overuse gradients
-- stack random spacing patches
-- remove optical offsets blindly
-- rebuild stable components unnecessarily
+- CSV normalization layer still incomplete
+- some broker CSV fields not mapped correctly yet
+- entry/exit price may display empty
+- fees may display empty for some imports
+- parser stabilization required next
 
 ---
 
-# Optical Alignment System
+# Immediate Next Development Phase
 
-Elite X intentionally uses optical balancing.
+## Priority: Data Normalization Layer
 
-The UI does NOT rely entirely on strict mathematical centering.
+Next development focus:
 
-Small positional offsets are part of the visual system.
+- stabilize CSV parser
+- normalize broker imports
+- correctly map:
+  - ticker
+  - entryPrice
+  - exitPrice
+  - fees
+  - pnl
+  - status
+  - side
+  - quantity
 
-Examples:
+### Important
 
-```tsx
-relative left-2
-relative left-3
-relative left-4
-relative left-8
-relative right-*
-top-*
+DO NOT redesign UI during this phase.
+
+The current priority is:
+- data integrity
+- parser stability
+- trade normalization
+- open trade handling
+
+NOT:
+- visual redesigns
+- layout rewrites
+- dashboard restructuring
+
+---
+
+# Open Trade Architecture
+
+Elite X now supports open positions.
+
+Trade status system:
+
+```ts
+"WIN"
+"LOSS"
+"BREAKEVEN"
+"OPEN"
