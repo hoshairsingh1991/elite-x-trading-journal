@@ -40,10 +40,11 @@ export default function HomePage() {
   const [isModalOpen, setIsModalOpen] =
     useState(false);
 
-  const trades: Trade[] = tradesData;
+  const [importedTrades, setImportedTrades] =
+    useState<Trade[]>(tradesData);
 
   const filteredTrades = filterTradesByRange(
-    trades,
+    importedTrades,
     selectedRange
   );
 
@@ -81,7 +82,12 @@ export default function HomePage() {
 
     try {
 
-      await parseIBKRCsv(file);
+      const parsedTrades =
+        await parseIBKRCsv(file);
+
+      setImportedTrades(
+        parsedTrades as Trade[]
+      );
 
     } catch (error) {
 

@@ -1,9 +1,12 @@
 import Papa from "papaparse";
 
+import { pairTrades } from "./pairTrades";
+
 export interface ParsedTrade {
   id: string;
   date: string;
   symbol: string;
+  contract: string;
   side: "LONG" | "SHORT";
   quantity: number;
   pnl: number;
@@ -12,6 +15,8 @@ export interface ParsedTrade {
   tradeType: string;
   result: "Win" | "Loss";
   status: "Closed";
+  price: number;
+  multiplier: number;
 }
 
 export async function parseIBKRCsv(
@@ -34,11 +39,26 @@ export async function parseIBKRCsv(
             results.data as any[];
 
           const executionRows =
-            rows.filter(
-              (row) =>
+            rows.filter((row) => {
+
+              const isExecution =
                 row.LevelOfDetail ===
-                "EXECUTION"
-            );
+                "EXECUTION";
+
+              const symbol =
+                row.UnderlyingSymbol ||
+                row.Symbol ||
+                "";
+
+              const isForexConversion =
+                symbol.includes("USD.CAD") ||
+                symbol.includes("CAD.USD");
+
+              return (
+                isExecution &&
+                !isForexConversion
+              );
+            });
 
           const normalizedTrades:
             ParsedTrade[] =
@@ -61,16 +81,64 @@ export async function parseIBKRCsv(
                     row.UnderlyingSymbol ||
                     row.Symbol;
 
+                  const fullContract =
+                    row.Description ||
+                    cleanSymbol;
+
+                  const rawDate =
+                    row["Date/Time"] || "";
+
+                  const year =
+                    rawDate.slice(0, 4);
+
+                  const month =
+                    rawDate.slice(4, 6);
+
+                  const day =
+                    rawDate.slice(6, 8);
+
+                  const monthNames = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                  ];
+
+                  const formattedDate =
+                    `${monthNames[
+                      Number(month) - 1
+                    ]} ${Number(day)}, ${year}`;
+
+                  const executionPrice =
+                    Number(
+                      row.TradePrice || 0
+                    );
+
+                  const multiplier =
+                    Number(
+                      row.Multiplier || 100
+                    );
+
                   return {
 
                     id: String(index),
 
                     date:
-                      row["Date/Time"] ||
-                      "",
+                      formattedDate,
 
                     symbol:
                       cleanSymbol,
+
+                    contract:
+                      fullContract,
 
                     side:
                       row["Buy/Sell"] ===
@@ -85,9 +153,15 @@ export async function parseIBKRCsv(
                         )
                       ),
 
-                    pnl: netCash,
+                    pnl:
+                      Number(
+                        netCash.toFixed(2)
+                      ),
 
-                    fees,
+                    fees:
+                      Number(
+                        fees.toFixed(2)
+                      ),
 
                     account:
                       row.ClientAccountID ||
@@ -105,20 +179,30 @@ export async function parseIBKRCsv(
                         : "Loss",
 
                     status: "Closed",
+
+                    price:
+                      executionPrice,
+
+                    multiplier,
                   };
                 }
               );
 
+          const pairedTrades =
+            pairTrades(
+              normalizedTrades
+            );
+
           console.log(
-            "NORMALIZED TRADES:"
+            "PAIRED TRADES:"
           );
 
           console.table(
-            normalizedTrades
+            pairedTrades
           );
 
           resolve(
-            normalizedTrades
+            pairedTrades as ParsedTrade[]
           );
 
         } catch (error) {
