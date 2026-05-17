@@ -17,15 +17,7 @@ export default function TradesTable({
   return (
     <div className="mr-10 rounded-[34px] bg-[#071427] p-7 shadow-[0_0_60px_rgba(0,0,0,0.28)]">
 
-      {/* ================================================= */}
-      {/* INNER CONTAINER */}
-      {/* ================================================= */}
-
       <div className="overflow-hidden rounded-[28px] border border-white/[0.05] bg-[#0b1220]">
-
-        {/* ================================================= */}
-        {/* HEADER */}
-        {/* ================================================= */}
 
         <div className="flex items-center justify-between border-b border-white/[0.05] px-8 py-7">
 
@@ -48,21 +40,9 @@ export default function TradesTable({
           </div>
         </div>
 
-        {/* ================================================= */}
-        {/* TABLE */}
-        {/* ================================================= */}
-
         <div className="px-6 pb-6 pt-5">
 
-          {/* ================================================= */}
-          {/* MASTER GRID */}
-          {/* ================================================= */}
-
           <div className="grid auto-rows-[50px] grid-cols-[1.1fr_1.5fr_0.9fr_1fr_0.9fr_0.6fr_1fr_1fr_0.9fr_0.9fr]">
-
-            {/* ================================================= */}
-            {/* TABLE HEADER */}
-            {/* ================================================= */}
 
             {[
               "Date",
@@ -85,20 +65,17 @@ export default function TradesTable({
               </div>
             ))}
 
-            {/* ================================================= */}
-            {/* ROWS */}
-            {/* ================================================= */}
-
             {trades.map((trade, index) => {
 
               const isWinner =
-                trade.result === "Win";
+                trade.status === "WIN";
+
+              const isOpen =
+                trade.status === "OPEN";
 
               return (
 
-                <React.Fragment key={index}>
-
-                  {/* DATE */}
+                <React.Fragment key={trade.id || index}>
 
                   <div
                     onClick={() =>
@@ -109,18 +86,14 @@ export default function TradesTable({
                     {trade.date}
                   </div>
 
-                  {/* ACCOUNT */}
-
                   <div
                     onClick={() =>
                       onSelectTrade(trade)
                     }
                     className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-200 transition-all hover:bg-white/[0.02]"
                   >
-                    {(trade as any).account}
+                    {trade.account || "N/A"}
                   </div>
-
-                  {/* SYMBOL */}
 
                   <div
                     onClick={() =>
@@ -128,22 +101,18 @@ export default function TradesTable({
                     }
                     className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium tracking-wide text-white transition-all hover:bg-white/[0.02]"
                   >
-                    {trade.symbol}
+                    {trade.ticker}
                   </div>
-
-                  {/* TYPE */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
                     <div className="inline-flex items-center justify-center rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-[8px]">
 
                       <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-blue-400">
-                        {(trade as any).tradeType}
+                        {trade.assetType || "TRADE"}
                       </span>
                     </div>
                   </div>
-
-                  {/* SIDE */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
@@ -167,34 +136,33 @@ export default function TradesTable({
                     </div>
                   </div>
 
-                  {/* QTY */}
-
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-300">
 
-                    {(trade as any).quantity}
+                    {trade.quantity}
                   </div>
-
-                  {/* NET PNL */}
 
                   <div
                     className={`flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[18px] font-black tracking-tight ${
                       isWinner
                         ? "text-emerald-400"
+                        : isOpen
+                        ? "text-yellow-400"
                         : "text-red-400"
                     }`}
                   >
-                    {isWinner ? "+" : "-"}$
-                    {Math.abs(Number(trade.pnl)).toLocaleString()}
+                    {trade.pnl >= 0 ? "+" : "-"}$
+                    {Math.abs(
+                      Number(trade.pnl)
+                    ).toLocaleString()}
                   </div>
-
-                  {/* COMMISSION */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-semibold text-orange-400">
 
-                    ${trade.fees}
+                    $
+                    {Number(
+                      trade.fees
+                    ).toFixed(2)}
                   </div>
-
-                  {/* RESULT */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
@@ -202,6 +170,8 @@ export default function TradesTable({
                       className={`inline-flex items-center justify-center rounded-full px-4 py-[8px] ${
                         isWinner
                           ? "border border-emerald-500/20 bg-emerald-500/10"
+                          : isOpen
+                          ? "border border-yellow-500/20 bg-yellow-500/10"
                           : "border border-red-500/20 bg-red-500/10"
                       }`}
                     >
@@ -210,21 +180,21 @@ export default function TradesTable({
                         className={`text-[12px] font-bold uppercase tracking-[0.14em] ${
                           isWinner
                             ? "text-emerald-400"
+                            : isOpen
+                            ? "text-yellow-400"
                             : "text-red-400"
                         }`}
                       >
-                        {trade.result}
+                        {trade.status}
                       </span>
                     </div>
                   </div>
-
-                  {/* STATUS */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
                     <div
                       className={`inline-flex items-center justify-center rounded-full px-4 py-[8px] ${
-                        trade.status === "Open"
+                        isOpen
                           ? "border border-yellow-500/20 bg-yellow-500/10"
                           : "border border-slate-500/20 bg-slate-500/10"
                       }`}
@@ -232,12 +202,14 @@ export default function TradesTable({
 
                       <span
                         className={`text-[12px] font-bold uppercase tracking-[0.14em] ${
-                          trade.status === "Open"
+                          isOpen
                             ? "text-yellow-400"
                             : "text-slate-300"
                         }`}
                       >
-                        {trade.status}
+                        {isOpen
+                          ? "OPEN"
+                          : "CLOSED"}
                       </span>
                     </div>
                   </div>
