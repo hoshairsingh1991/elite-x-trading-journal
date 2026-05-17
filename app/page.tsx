@@ -7,7 +7,6 @@ import {
 
 import Sidebar from "@/components/layout/Sidebar";
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
-import TradesTable from "@/components/trades/TradesTable";
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 
 import {
@@ -58,10 +57,6 @@ export default function HomePage() {
     const storedTrades =
       loadTrades();
 
-    // =============================================
-    // LOAD SAVED TRADES
-    // =============================================
-
     if (
       storedTrades.length > 0
     ) {
@@ -72,10 +67,6 @@ export default function HomePage() {
 
       return;
     }
-
-    // =============================================
-    // EMPTY STATE
-    // =============================================
 
     setImportedTrades([]);
 
@@ -163,18 +154,10 @@ export default function HomePage() {
       const parsedTrades =
         await parseIBKRCsv(file);
 
-      // =============================================
-      // APPEND + SAVE
-      // =============================================
-
       const updatedTrades =
         appendTrades(
           parsedTrades as Trade[]
         );
-
-      // =============================================
-      // UPDATE UI
-      // =============================================
 
       setImportedTrades(
         updatedTrades
@@ -507,22 +490,6 @@ export default function HomePage() {
           <TradingCalendar
             trades={filteredTrades}
           />
-
-          {/* ================================================= */}
-          {/* TRADE HISTORY */}
-          {/* ================================================= */}
-
-          <div className="h-10" />
-
-          <div className="max-w-[98.5%]">
-
-            <TradesTable
-              trades={filteredTrades}
-              onSelectTrade={
-                handleSelectTrade
-              }
-            />
-          </div>
 
           <div className="h-12" />
         </div>
