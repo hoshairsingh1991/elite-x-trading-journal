@@ -11,7 +11,7 @@ export interface PairedTrade {
   fees: number;
   account: string;
   tradeType: string;
-  result: "Win" | "Loss";
+  result: "Win" | "Loss" | "Open";
   status: "Open" | "Closed";
 }
 
@@ -160,7 +160,7 @@ export function pairTrades(
             tradeType:
               execution.tradeType,
 
-            result: "Loss",
+            result: "Open",
 
             status: "Open",
           });
@@ -217,7 +217,7 @@ export function pairTrades(
           tradeType:
             position.tradeType,
 
-          result: "Loss",
+          result: "Open",
 
           status: "Open",
         });
