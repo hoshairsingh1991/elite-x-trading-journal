@@ -19,6 +19,10 @@ export default function TradesTable({
 
       <div className="overflow-hidden rounded-[28px] border border-white/[0.05] bg-[#0b1220]">
 
+        {/* ================================================= */}
+        {/* HEADER */}
+        {/* ================================================= */}
+
         <div className="flex items-center justify-between border-b border-white/[0.05] px-8 py-7">
 
           <div className="relative left-4">
@@ -40,9 +44,13 @@ export default function TradesTable({
           </div>
         </div>
 
+        {/* ================================================= */}
+        {/* TABLE */}
+        {/* ================================================= */}
+
         <div className="px-6 pb-6 pt-5">
 
-          <div className="grid auto-rows-[50px] grid-cols-[1.1fr_1.5fr_0.9fr_1fr_0.9fr_0.6fr_1fr_1fr_0.9fr_0.9fr]">
+          <div className="grid auto-rows-[50px] grid-cols-[1.15fr_1.4fr_0.9fr_1fr_0.85fr_0.85fr_0.85fr_0.55fr_1fr_1fr_0.95fr]">
 
             {[
               "Date",
@@ -50,10 +58,11 @@ export default function TradesTable({
               "Symbol",
               "Type",
               "Side",
+              "Entry",
+              "Exit",
               "Qty",
               "Net P&L",
               "Commission",
-              "Result",
               "Status",
             ].map((header) => (
 
@@ -77,6 +86,8 @@ export default function TradesTable({
 
                 <React.Fragment key={trade.id || index}>
 
+                  {/* DATE */}
+
                   <div
                     onClick={() =>
                       onSelectTrade(trade)
@@ -85,6 +96,8 @@ export default function TradesTable({
                   >
                     {trade.date}
                   </div>
+
+                  {/* ACCOUNT */}
 
                   <div
                     onClick={() =>
@@ -95,6 +108,8 @@ export default function TradesTable({
                     {trade.account || "N/A"}
                   </div>
 
+                  {/* SYMBOL */}
+
                   <div
                     onClick={() =>
                       onSelectTrade(trade)
@@ -103,6 +118,8 @@ export default function TradesTable({
                   >
                     {trade.ticker}
                   </div>
+
+                  {/* TYPE */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
@@ -113,6 +130,8 @@ export default function TradesTable({
                       </span>
                     </div>
                   </div>
+
+                  {/* SIDE */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
@@ -136,10 +155,36 @@ export default function TradesTable({
                     </div>
                   </div>
 
+                  {/* ENTRY */}
+
+                  <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300">
+
+                    {trade.entryPrice > 0
+                      ? `$${Number(
+                          trade.entryPrice
+                        ).toFixed(2)}`
+                      : "--"}
+                  </div>
+
+                  {/* EXIT */}
+
+                  <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300">
+
+                    {trade.exitPrice > 0
+                      ? `$${Number(
+                          trade.exitPrice
+                        ).toFixed(2)}`
+                      : "--"}
+                  </div>
+
+                  {/* QTY */}
+
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-300">
 
                     {trade.quantity}
                   </div>
+
+                  {/* PNL */}
 
                   <div
                     className={`flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[18px] font-black tracking-tight ${
@@ -156,6 +201,8 @@ export default function TradesTable({
                     ).toLocaleString()}
                   </div>
 
+                  {/* COMMISSION */}
+
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-semibold text-orange-400">
 
                     $
@@ -164,31 +211,7 @@ export default function TradesTable({
                     ).toFixed(2)}
                   </div>
 
-                  <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
-
-                    <div
-                      className={`inline-flex items-center justify-center rounded-full px-4 py-[8px] ${
-                        isWinner
-                          ? "border border-emerald-500/20 bg-emerald-500/10"
-                          : isOpen
-                          ? "border border-yellow-500/20 bg-yellow-500/10"
-                          : "border border-red-500/20 bg-red-500/10"
-                      }`}
-                    >
-
-                      <span
-                        className={`text-[12px] font-bold uppercase tracking-[0.14em] ${
-                          isWinner
-                            ? "text-emerald-400"
-                            : isOpen
-                            ? "text-yellow-400"
-                            : "text-red-400"
-                        }`}
-                      >
-                        {trade.status}
-                      </span>
-                    </div>
-                  </div>
+                  {/* STATUS */}
 
                   <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
