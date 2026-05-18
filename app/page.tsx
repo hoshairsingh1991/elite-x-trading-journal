@@ -12,6 +12,7 @@ import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
 import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
 
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
+import AddTradeModal from "@/components/trades/AddTradeModal";
 
 import {
   calculateAverageWin,
@@ -47,6 +48,15 @@ export default function HomePage() {
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
+
+  // =================================================
+  // ADD TRADE MODAL
+  // =================================================
+
+  const [
+    isAddTradeOpen,
+    setIsAddTradeOpen,
+  ] = useState(false);
 
   const [importedTrades, setImportedTrades] =
     useState<Trade[]>([]);
@@ -226,7 +236,12 @@ export default function HomePage() {
           {/* ADD TRADE BUTTON */}
           {/* ================================================= */}
 
-          <button className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600">
+          <button
+            onClick={() =>
+              setIsAddTradeOpen(true)
+            }
+            className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
+          >
 
             <Plus size={17} />
 
@@ -393,10 +408,10 @@ export default function HomePage() {
 
             <div className="w-[29%] shrink-0 pr-2">
 
-  <PositionsTradesPanel
-    trades={filteredTrades}
-  />
-</div>
+              <PositionsTradesPanel
+                trades={filteredTrades}
+              />
+            </div>
           </div>
 
           {/* ================================================= */}
@@ -413,7 +428,7 @@ export default function HomePage() {
         </div>
 
         {/* ================================================= */}
-        {/* MODAL */}
+        {/* TRADE DETAIL MODAL */}
         {/* ================================================= */}
 
         {isModalOpen &&
@@ -433,6 +448,17 @@ export default function HomePage() {
             }
           />
         )}
+
+        {/* ================================================= */}
+        {/* ADD TRADE MODAL */}
+        {/* ================================================= */}
+
+        <AddTradeModal
+          open={isAddTradeOpen}
+          onClose={() =>
+            setIsAddTradeOpen(false)
+          }
+        />
       </section>
     </main>
   );

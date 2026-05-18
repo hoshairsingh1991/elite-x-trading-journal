@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface TradesToolbarProps {
 
   searchQuery: string;
@@ -44,6 +46,15 @@ export default function TradesToolbar({
 }: TradesToolbarProps) {
 
   // =================================================
+  // TEST STATE
+  // =================================================
+
+  const [
+    isAddTradeOpen,
+    setIsAddTradeOpen,
+  ] = useState(false);
+
+  // =================================================
   // ACTIVE FILTERS
   // =================================================
 
@@ -81,7 +92,33 @@ export default function TradesToolbar({
   return (
 
     <>
-    
+
+      {/* ================================================= */}
+      {/* TEST MODAL */}
+      {/* ================================================= */}
+
+      {isAddTradeOpen && (
+
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80">
+
+          <div className="rounded-3xl bg-[#071427] p-10">
+
+            <h1 className="text-3xl font-black text-white">
+              STATE WORKING
+            </h1>
+
+            <button
+              onClick={() =>
+                setIsAddTradeOpen(false)
+              }
+              className="mt-6 rounded-2xl bg-red-500 px-6 py-3 text-white"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="ml-10 mr-10 rounded-[28px] border border-white/[0.05] bg-[#071427] p-6 shadow-[0_0_50px_rgba(0,0,0,0.22)]">
 
         {/* ================================================= */}
@@ -89,6 +126,22 @@ export default function TradesToolbar({
         {/* ================================================= */}
 
         <div className="flex flex-wrap items-center justify-end gap-4">
+
+          {/* ================================================= */}
+          {/* ADD TRADE */}
+          {/* ================================================= */}
+
+          <div className="mr-auto">
+
+            <button
+              onClick={() =>
+                setIsAddTradeOpen(true)
+              }
+              className="h-[50px] rounded-2xl border border-emerald-500/15 bg-emerald-500/10 px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-emerald-400 transition-all hover:bg-emerald-500/15"
+            >
+              + Add Trade
+            </button>
+          </div>
 
           {/* ================================================= */}
           {/* SEARCH */}
@@ -223,8 +276,6 @@ export default function TradesToolbar({
 
           <div className="mt-5 flex flex-wrap items-center justify-end gap-3 border-t border-white/[0.05] pt-5">
 
-            {/* SEARCH PILL */}
-
             {searchQuery && (
 
               <div className="rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-[8px]">
@@ -234,8 +285,6 @@ export default function TradesToolbar({
                 </span>
               </div>
             )}
-
-            {/* FILTER PILLS */}
 
             {activeFilters.map(
               (filter) => (
