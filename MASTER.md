@@ -294,6 +294,120 @@ These are part of the institutional UI alignment system.
 
 ---
 
+## P&L Analytics UI System
+
+P&L Analytics is now considered a stabilized institutional UI module.
+
+The current layout system intentionally uses:
+
+- relative left offsets
+- relative right offsets
+- invisible spacing compensation
+- optical alignment balancing
+- asymmetric chart safe-zones
+- manual typography positioning
+
+These are NOT accidental.
+
+They are part of the finalized dashboard alignment architecture.
+
+---
+
+### Daily P&L Distribution Rules
+
+Current architecture intentionally uses:
+
+- centered zero-line structure
+- positive/negative directional bars
+- tooltip-based interaction
+- manual left-axis spacing
+- optical x-axis balancing
+- chart safe-zone compensation
+
+Avoid modifying:
+
+- left-[84px]
+- chart safe-zones
+- zero-line alignment
+- tooltip positioning
+- x-axis positioning logic
+- relative chart offsets
+
+The current spacing system is visually calibrated.
+
+---
+
+### Trading Behavior Rules
+
+Trading Behavior now uses:
+
+- isolated weekday card structure
+- invisible spacing compensation
+- independent row spacing
+- optical separation rhythm
+- manual alignment stabilization
+
+Important:
+
+Invisible spacing elements are intentionally used to stabilize:
+
+- vertical rhythm
+- flex alignment
+- header balancing
+- card separation
+- institutional spacing consistency
+
+Do NOT remove invisible spacing elements unless replacing them with an equally stable layout system.
+
+---
+
+### Metrics Card System
+
+Bottom KPI cards now use:
+
+- enlarged institutional card sizing
+- balanced typography hierarchy
+- centered metric alignment
+- soft-border proportional spacing
+- optical scaling on AVG DAILY
+
+Preserve:
+
+- card proportions
+- spacing rhythm
+- typography sizing
+- current gap system
+- visual hierarchy balance
+
+---
+
+### UI Development Philosophy
+
+Elite X UI development prioritizes:
+
+- optical alignment over mathematical alignment
+- spacing rhythm over compact density
+- calm institutional presentation
+- modular stabilization
+- surgical refinement
+- layout predictability
+
+If layout becomes unstable:
+
+DO NOT aggressively rewrite containers first.
+
+Instead evaluate:
+
+- invisible spacer balancing
+- relative positioning
+- flex rhythm
+- optical compensation
+- local safe-zone stabilization
+
+Institutional dashboards require optical balancing, not just technically valid alignment.
+
+---
+
 # Current Architecture Philosophy
 
 Dashboard should function as:
@@ -387,3 +501,4 @@ Trade status system:
 "LOSS"
 "BREAKEVEN"
 "OPEN"
+```

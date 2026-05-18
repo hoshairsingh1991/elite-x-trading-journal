@@ -8,8 +8,8 @@ import {
 import Sidebar from "@/components/layout/Sidebar";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
-import RecentActivity from "@/components/dashboard/RecentActivity";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
+import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
 
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 
@@ -391,12 +391,12 @@ export default function HomePage() {
             {/* RIGHT PANEL */}
             {/* ================================================= */}
 
-            <div className="w-[32%] shrink-0">
+            <div className="w-[29%] shrink-0 pr-2">
 
-              <RecentActivity
-                trades={filteredTrades}
-              />
-            </div>
+  <PositionsTradesPanel
+    trades={filteredTrades}
+  />
+</div>
           </div>
 
           {/* ================================================= */}
