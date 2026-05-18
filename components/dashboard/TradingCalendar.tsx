@@ -1,6 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  Fragment,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   ChevronLeft,
@@ -367,7 +371,7 @@ export default function TradingCalendar({
       {/* CALENDAR */}
       {/* ===================================================== */}
 
-      <div className="w-[calc(100%-24px)] rounded-[32px] bg-[#071427] p-5 shadow-[0_0_60px_rgba(0,0,0,0.30)]">
+      <div className="min-h-[780px] w-[calc(100%-24px)] rounded-[32px] bg-[#071427]/00 p-5 shadow-[0_0_60px_rgba(0,0,0,0.30)]">
 
         <div className="rounded-[28px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)] p-8">
 
@@ -480,11 +484,13 @@ export default function TradingCalendar({
 
           {/* CALENDAR BODY */}
 
-          <div className="mt-16 rounded-[42px] border border-white/[0.04] bg-[#081526]/35 p-12">
+          <div className="mt-16 rounded-[42px] border border-white/[0.00] bg-[#081526]/00 px-12 pt-12 pb-[72px]">
 
-            <div className="rounded-[34px] border border-white/[0.04] bg-[#081526]/85 p-12">
+            <div className="w-[calc(100%-36px)] translate-x-[18px] translate-y-[-12px] rounded-[34px] border border-white/[0.04] bg-[#081526]/85 px-12 pt-12 pb-[48px]">
 
-              {/* DAYS */}
+              <div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+                spacer
+              </div>
 
               <div className="grid grid-cols-7 gap-3 pb-8">
 
@@ -501,11 +507,27 @@ export default function TradingCalendar({
                 )}
               </div>
 
-              {/* GRID */}
+              <div className="flex items-start">
 
-              <div className="grid grid-cols-7 gap-3">
+                <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+                  spacer
+                </div>
 
-                {calendarCells}
+                <div className="flex-1">
+
+                  <div className="grid grid-cols-7 gap-3 mb-[18px]">
+
+                    {calendarCells}
+                  </div>
+
+                  <p className="invisible text-[18px] leading-[18px]">
+                    spacing
+                  </p>
+                </div>
+
+                <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+                  spacer
+                </div>
               </div>
             </div>
           </div>
@@ -522,296 +544,384 @@ export default function TradingCalendar({
 
           <div className="w-full max-w-[1280px] rounded-[38px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-10 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
 
-            <div className="rounded-[32px] border border-white/[0.04] bg-[#0c1a31]/92 p-10">
+            <div className="rounded-[32px] border border-white/[0.04] bg-[#0c1a31]/92 px-[28px] pt-[28px] pb-[28px]">
 
-              {/* HEADER */}
+              <div className="flex">
 
-              <div className="flex items-start justify-between">
-
-                <div>
-
-                  <h2 className="text-[36px] font-black tracking-tight text-white">
-                    {monthName}{" "}
-                    {selectedDay},{" "}
-                    {currentYear}
-                  </h2>
-
-                  <p className="mt-2 text-sm text-slate-400">
-                    Institutional Trade Review
-                  </p>
+                <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+                  spacer
                 </div>
 
-                <button
-                  onClick={() =>
-                    setSelectedDay(
-                      null
-                    )
-                  }
-                  className="flex h-[46px] w-[46px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-white"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+                <div className="flex-1">
 
-              {/* SAFE ZONE */}
+                  {/* HEADER */}
 
-              <div className="mt-10 rounded-[28px] border border-white/[0.04] bg-[#081526]/70 p-8">
+                  <div className="flex items-start justify-between">
 
-                {/* KPI */}
+                    <div>
 
-                <div className="grid grid-cols-4 gap-5">
+                      <h2 className="text-[36px] font-black tracking-tight text-white">
+                        {monthName}{" "}
+                        {selectedDay},{" "}
+                        {currentYear}
+                      </h2>
 
-                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <p className="mt-2 text-sm text-slate-400">
+                        Institutional Trade Review
+                      </p>
+                    </div>
 
-                    <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
-                      NET P&L
-                    </p>
-
-                    <p
-                      className={`mt-4 text-[30px] font-black tracking-tight ${
-                        totalPnL >= 0
-                          ? "text-emerald-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      $
-                      {totalPnL.toFixed(
-                        2
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
-
-                    <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
-                      TOTAL TRADES
-                    </p>
-
-                    <p className="mt-4 text-[30px] font-black tracking-tight text-white">
-                      {
-                        totalTradesDay
+                    <button
+                      onClick={() =>
+                        setSelectedDay(
+                          null
+                        )
                       }
-                    </p>
+                      className="flex h-[46px] w-[46px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-white"
+                    >
+                      <X size={20} />
+                    </button>
                   </div>
 
-                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                  {/* SAFE ZONE */}
 
-                    <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
-                      COMMISSION
-                    </p>
+                  <div className="mt-10 rounded-[28px] border border-white/[0.04] bg-[#081526]/70 p-8">
 
-                    <p className="mt-4 text-[30px] font-black tracking-tight text-white">
+                    {/* KPI */}
 
-                      {totalCommission > 0
-                        ? `$${totalCommission.toFixed(
+                    <div className="grid grid-cols-4 gap-5">
+
+                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+
+                        <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
+                          NET P&L
+                        </p>
+
+                        <p
+                          className={`mt-4 text-[30px] font-black tracking-tight ${
+                            totalPnL >= 0
+                              ? "text-emerald-400"
+                              : "text-red-400"
+                          }`}
+                        >
+                          $
+                          {totalPnL.toFixed(
                             2
-                          )}`
-                        : "--"}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
-
-                    <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
-                      WIN RATE
-                    </p>
-
-                    <p className="mt-4 text-[30px] font-black tracking-tight text-blue-400">
-                      {winRate}%
-                    </p>
-                  </div>
-                </div>
-
-                {/* WIN RATE BAR */}
-
-                <div className="mt-6 rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
-
-                  <div className="flex items-center justify-between">
-
-                    <p className="text-[12px] font-black tracking-[0.18em] text-slate-500">
-                      WIN RATE
-                    </p>
-
-                    <p className="text-sm font-bold text-white">
-                      {wins}W ·{" "}
-                      {losses}L ·{" "}
-                      {winRate}%
-                    </p>
-                  </div>
-
-                  <div className="mt-6 h-[12px] overflow-hidden rounded-full bg-white/[0.04]">
-
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-400"
-                      style={{
-                        width: `${winRate}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* TABLE */}
-
-                <div className="mt-6 rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
-
-                  <div className="flex items-center justify-between">
-
-                    <p className="text-[12px] font-black tracking-[0.18em] text-slate-500">
-                      TRADES
-                    </p>
-
-                    <p className="text-sm text-slate-500">
-                      {
-                        totalTradesDay
-                      }{" "}
-                      Trades
-                    </p>
-                  </div>
-
-                  <div className="mt-7 overflow-x-auto">
-
-                    <table className="w-full table-fixed border-collapse">
-
-                      <thead>
-
-                        <tr className="border-b border-white/[0.05]">
-
-                          {[
-                            "Ticker",
-                            "Side",
-                            "Entry",
-                            "Exit",
-                            "Net P&L",
-                            "Commission",
-                            "Status",
-                          ].map(
-                            (
-                              header
-                            ) => (
-
-                              <th
-                                key={
-                                  header
-                                }
-                                className="pb-5 text-left text-[11px] font-black tracking-[0.18em] text-slate-500"
-                              >
-                                {
-                                  header
-                                }
-                              </th>
-                            )
                           )}
-                        </tr>
-                      </thead>
+                        </p>
+                      </div>
 
-                      <tbody>
+                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
-                        {selectedTrades.map(
-                          (
-                            trade,
-                            index
-                          ) => (
+                        <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
+                          TOTAL TRADES
+                        </p>
 
-                            <tr
-                              key={
-                                index
-                              }
-                              className="border-b border-white/[0.03]"
-                            >
+                        <p className="mt-4 text-[30px] font-black tracking-tight text-white">
+                          {
+                            totalTradesDay
+                          }
+                        </p>
+                      </div>
 
-                              <td className="py-6 text-sm font-semibold text-white">
-                                {
-                                  trade.ticker
-                                }
-                              </td>
+                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
-                              <td
-                                className={`py-6 text-sm font-bold ${
-                                  trade.side ===
-                                  "LONG"
-                                    ? "text-emerald-400"
-                                    : "text-red-400"
-                                }`}
-                              >
-                                {
-                                  trade.side
-                                }
-                              </td>
+                        <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
+                          COMMISSION
+                        </p>
 
-                              <td className="py-6 text-sm text-white">
+                        <p className="mt-4 text-[30px] font-black tracking-tight text-white">
 
-                                {trade.entryPrice > 0
-                                  ? `$${trade.entryPrice}`
-                                  : "--"}
-                              </td>
+                          {totalCommission > 0
+                            ? `$${totalCommission.toFixed(
+                                2
+                              )}`
+                            : "--"}
+                        </p>
+                      </div>
 
-                              <td className="py-6 text-sm text-white">
+                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
-                                {trade.exitPrice > 0
-                                  ? `$${trade.exitPrice}`
-                                  : "--"}
-                              </td>
+                        <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
+                          WIN RATE
+                        </p>
 
-                              <td
-                                className={`py-6 text-sm font-bold ${
-                                  Number(
-                                    trade.pnl
-                                  ) >= 0
-                                    ? "text-emerald-400"
-                                    : "text-red-400"
-                                }`}
-                              >
-                                {Number(
-                                  trade.pnl
-                                ) >= 0
-                                  ? "+"
-                                  : ""}
-                                $
-                                {Number(
-                                  trade.pnl
-                                ).toFixed(
-                                  2
-                                )}
-                              </td>
+                        <p className="mt-4 text-[30px] font-black tracking-tight text-blue-400">
+                          {winRate}%
+                        </p>
+                      </div>
+                    </div>
 
-                              <td className="py-6 text-sm text-white">
+{/* ===================================================== */}
+{/* INVISIBLE 18PX SPACER */}
+{/* ===================================================== */}
 
-                                {trade.fees > 0
-                                  ? `$${trade.fees.toFixed(
-                                      2
-                                    )}`
-                                  : "--"}
-                              </td>
+<div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+  spacer
+</div>
+                    {/* WIN RATE BAR */}
 
-                              <td className="py-6">
+                    <div className="mt-6 rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
 
-                                <span
-                                  className={`rounded-full px-3 py-1 text-[11px] font-bold border ${
-                                    trade.status ===
-                                    "OPEN"
-                                      ? "border-yellow-500/20 bg-yellow-500/10 text-yellow-400"
-                                      : trade.status ===
-                                        "WIN"
-                                      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                                      : trade.status ===
-                                        "LOSS"
-                                      ? "border-red-500/20 bg-red-500/10 text-red-400"
-                                      : "border-slate-500/20 bg-slate-500/10 text-slate-400"
-                                  }`}
-                                >
-                                  {
-                                    trade.status
-                                  }
-                                </span>
-                              </td>
+                      <div className="flex items-center justify-between">
+
+                        <p className="relative left-4 text-[12px] font-black tracking-[0.18em] text-slate-500">
+                          WIN RATE
+                        </p>
+
+                        <p className="text-sm font-bold text-white">
+                          {wins}W ·{" "}
+                          {losses}L ·{" "}
+                          {winRate}%
+                        </p>
+                      </div>
+
+                      <div className="mt-6 h-[12px] overflow-hidden rounded-full bg-white/[0.04]">
+
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-400"
+                          style={{
+                            width: `${winRate}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+{/* ===================================================== */}
+{/* INVISIBLE 18PX SPACER */}
+{/* ===================================================== */}
+
+<div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+  spacer
+</div>
+
+<style jsx>{`
+  div::-webkit-scrollbar {
+    width: 18px;
+  }
+
+  div::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  div::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.14);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  div::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.22);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+`}</style>
+                    {/* TABLE */}
+
+                    <div className="mt-6 rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
+
+                      <div className="flex items-center justify-between">
+
+                        <p className="relative left-4 text-[12px] font-black tracking-[0.18em] text-slate-500">
+                          TRADES
+                        </p>
+
+                        <p className="relative right-8 text-sm text-slate-500">
+                          {
+                            totalTradesDay
+                          }{" "}
+                          Trades
+                        </p>
+                      </div>
+
+                      <div className="mt-7 max-h-[420px] overflow-y-auto overflow-x-hidden pr-[6px]">
+
+                        <table className="relative left-4 w-full table-fixed border-collapse">
+
+                          <thead>
+
+                            <tr className="border-b border-white/[0.05]">
+
+                              {[
+                                "Ticker",
+                                "Side",
+                                "Entry",
+                                "Exit",
+                                "Net P&L",
+                                "Commission",
+                                "Status",
+                              ].map(
+                                (
+                                  header
+                                ) => (
+
+                                  <th
+                                    key={
+                                      header
+                                    }
+                                    className="pb-5 text-left text-[11px] font-black tracking-[0.18em] text-slate-500"
+                                  >
+                                    {
+                                      header
+                                    }
+                                  </th>
+                                )
+                              )}
                             </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
+                          </thead>
+
+                          <tbody>
+                            {/* ===================================================== */}
+{/* TOP 18PX SPACER */}
+{/* ===================================================== */}
+
+<tr className="opacity-0 pointer-events-none select-none">
+
+  <td
+    colSpan={7}
+    className="h-[10px] p-0"
+  >
+    spacer
+  </td>
+</tr>
+
+                            {selectedTrades.map(
+                              (
+                                trade,
+                                index
+                              ) => (
+
+                                <Fragment
+                                  key={
+                                    index
+                                  }
+                                >
+
+                                  <tr className="border-b border-white/[0.08]">
+
+                                    <td className="h-[15px]">
+
+  <div className="flex h-full items-center text-sm font-semibold text-white">
+    {trade.ticker}
+  </div>
+
+</td>
+
+                                    <td
+                                      className={`h-[10px] align-middle text-sm font-bold ${
+                                        trade.side ===
+                                        "LONG"
+                                          ? "text-emerald-400"
+                                          : "text-red-400"
+                                      }`}
+                                    >
+                                      {
+                                        trade.side
+                                      }
+                                    </td>
+
+                                    <td className="py-6 text-sm text-white">
+
+                                      {trade.entryPrice > 0
+                                        ? `$${trade.entryPrice}`
+                                        : "--"}
+                                    </td>
+
+                                    <td className="py-6 text-sm text-white">
+
+                                      {trade.exitPrice > 0
+                                        ? `$${trade.exitPrice}`
+                                        : "--"}
+                                    </td>
+
+                                    <td
+                                      className={`py-6 text-sm font-bold ${
+                                        Number(
+                                          trade.pnl
+                                        ) >= 0
+                                          ? "text-emerald-400"
+                                          : "text-red-400"
+                                      }`}
+                                    >
+                                      {Number(
+                                        trade.pnl
+                                      ) >= 0
+                                        ? "+"
+                                        : ""}
+                                      $
+                                      {Number(
+                                        trade.pnl
+                                      ).toFixed(
+                                        2
+                                      )}
+                                    </td>
+
+                                    <td className="py-6 text-sm text-white">
+
+                                      {trade.fees > 0
+                                        ? `$${trade.fees.toFixed(
+                                            2
+                                          )}`
+                                        : "--"}
+                                    </td>
+
+                                    <td className="py-6">
+
+                                      <span
+                                        className={`rounded-full px-3 py-1 text-[11px] font-bold border ${
+                                          trade.status ===
+                                          "OPEN"
+                                            ? "border-yellow-500/20 bg-yellow-500/10 text-yellow-400"
+                                            : trade.status ===
+                                              "WIN"
+                                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                                            : trade.status ===
+                                              "LOSS"
+                                            ? "border-red-500/20 bg-red-500/10 text-red-400"
+                                            : "border-slate-500/20 bg-slate-500/10 text-slate-400"
+                                        }`}
+                                      >
+                                        {
+                                          trade.status
+                                        }
+                                      </span>
+                                    </td>
+                                  </tr>
+
+                                  {/* ===================================================== */}
+                                  {/* INVISIBLE 18PX SPACER */}
+                                  {/* ===================================================== */}
+
+                                  <tr className="opacity-0 pointer-events-none select-none">
+
+                                    <td
+                                      colSpan={7}
+                                      className="h-[18px] p-0"
+                                    >
+                                      spacer
+                                    </td>
+                                  </tr>
+
+                                </Fragment>
+                              )
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
+                </div>
+
+                <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+                  spacer
                 </div>
               </div>
+
+              <p className="invisible text-[18px] leading-[18px]">
+                spacing
+              </p>
+
             </div>
           </div>
         </div>
