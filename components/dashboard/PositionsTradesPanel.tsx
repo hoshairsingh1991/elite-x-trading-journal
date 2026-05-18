@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 import { Trade } from "@/types/trade";
 
@@ -104,40 +105,55 @@ export default function PositionsTradesPanel({
           {/* TABS */}
           {/* ================================================= */}
 
-          <div className="rounded-[18px] border border-white/[0.05] bg-[#091426] p-1.5">
+          <div className="flex items-center">
 
-            <div className="grid grid-cols-2 gap-2">
+            {/* LEFT INVISIBLE SAFE ZONE */}
 
-              {/* OPEN */}
+            <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+              spacer
+            </div>
 
-              <button
-                onClick={() =>
-                  setActiveTab("OPEN")
-                }
-                className={`h-[50px] rounded-[14px] text-[14px] font-bold transition-all ${
-                  activeTab === "OPEN"
-                    ? "bg-blue-500 text-white shadow-[0_0_24px_rgba(59,130,246,0.25)]"
-                    : "text-slate-400 hover:bg-white/[0.04]"
-                }`}
-              >
-                Open Positions (
-                {openTrades.length})
-              </button>
+            <div className="flex-1 rounded-[18px] border border-white/[0.05] bg-[#091426] p-1.5">
 
-              {/* RECENT */}
+              <div className="grid grid-cols-2 gap-2">
 
-              <button
-                onClick={() =>
-                  setActiveTab("RECENT")
-                }
-                className={`h-[50px] rounded-[14px] text-[14px] font-bold transition-all ${
-                  activeTab === "RECENT"
-                    ? "bg-blue-500 text-white shadow-[0_0_24px_rgba(59,130,246,0.25)]"
-                    : "text-slate-400 hover:bg-white/[0.04]"
-                }`}
-              >
-                Recent Trades
-              </button>
+                {/* OPEN */}
+
+                <button
+                  onClick={() =>
+                    setActiveTab("OPEN")
+                  }
+                  className={`h-[48px] rounded-[14px] text-[13px] font-bold transition-all ${
+                    activeTab === "OPEN"
+                      ? "bg-blue-500 text-white shadow-[0_0_24px_rgba(59,130,246,0.25)]"
+                      : "text-slate-400 hover:bg-white/[0.04]"
+                  }`}
+                >
+                  Open Positions (
+                  {openTrades.length})
+                </button>
+
+                {/* RECENT */}
+
+                <button
+                  onClick={() =>
+                    setActiveTab("RECENT")
+                  }
+                  className={`h-[48px] rounded-[14px] text-[13px] font-bold transition-all ${
+                    activeTab === "RECENT"
+                      ? "bg-blue-500 text-white shadow-[0_0_24px_rgba(59,130,246,0.25)]"
+                      : "text-slate-400 hover:bg-white/[0.04]"
+                  }`}
+                >
+                  Recent Trades
+                </button>
+              </div>
+            </div>
+
+            {/* RIGHT INVISIBLE SAFE ZONE */}
+
+            <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+              spacer
             </div>
           </div>
 
@@ -221,7 +237,7 @@ export default function PositionsTradesPanel({
 
                 ) : (
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
 
                     {displayedTrades.map(
                       (trade, index) => {
@@ -240,15 +256,23 @@ export default function PositionsTradesPanel({
                             {/* CARD WRAPPER */}
                             {/* ================================================= */}
 
-                            <div className="w-full">
+                            <div className="w-full px-8">
 
                               {/* ================================================= */}
                               {/* CARD */}
                               {/* ================================================= */}
 
                               <div
-                                className="rounded-[18px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,23,42,0.82)_0%,rgba(7,18,35,0.88)_100%)] px-5 py-4 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition-all hover:border-white/[0.12]"
+                                className="rounded-[16px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,23,42,0.82)_0%,rgba(7,18,35,0.88)_100%)] px-4 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition-all hover:border-white/[0.12]"
                               >
+
+                                {/* ===================================== */}
+                                {/* TOP SAFE-ZONE COMPENSATION */}
+                                {/* ===================================== */}
+
+                                <div className="opacity-0 pointer-events-none select-none text-[9px] leading-none">
+                                  spacer
+                                </div>
 
                                 {/* ===================================== */}
                                 {/* TOP */}
@@ -260,27 +284,38 @@ export default function PositionsTradesPanel({
                                   {/* LEFT */}
                                   {/* ===================================== */}
 
-                                  <div className="relative right-18 flex flex-col items-center">
+                                  <div className="relative right-12 flex flex-col items-center">
 
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="opacity-0 pointer-events-none select-none text-[9px] leading-none">
+                                      spacer
+                                    </div>
 
-                                      <h3 className="truncate text-[18px] font-black tracking-tight text-white">
-                                        {trade.symbol || "NQ"}
+                                    <div className="flex items-center justify-center gap-1.5">
+
+                                      <h3 className="truncate text-[16px] font-black tracking-tight text-white">
+                                        {trade.ticker || "NQ"}
                                       </h3>
 
                                       <div
-                                        className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.08em] ${
-                                          trade.direction ===
+                                        className={`flex items-center gap-1 rounded-full px-2 py-[4px] text-[8px] font-black uppercase tracking-[0.08em] ${
+                                          trade.side ===
                                           "LONG"
                                             ? "bg-emerald-500/15 text-emerald-400"
                                             : "bg-red-500/15 text-red-400"
                                         }`}
                                       >
-                                        {trade.direction || "LONG"}
+
+                                        {trade.side === "LONG" ? (
+                                          <ArrowUpRight className="h-2.5 w-2.5" />
+                                        ) : (
+                                          <ArrowDownRight className="h-2.5 w-2.5" />
+                                        )}
+
+                                        {trade.side || "LONG"}
                                       </div>
                                     </div>
 
-                                    <p className="mt-2 text-[11px] text-slate-400">
+                                    <p className="mt-1.5 text-[10px] text-slate-400">
                                       {trade.assetType?.toLowerCase() || "futures"}
                                     </p>
                                   </div>
@@ -289,26 +324,34 @@ export default function PositionsTradesPanel({
                                   {/* RIGHT */}
                                   {/* ===================================== */}
 
-                                  <div className="relative left-12 flex justify-center gap-7">
+                                  <div className="relative left-10 flex justify-center gap-5">
 
                                     <div className="text-center">
 
-                                      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                                      <div className="opacity-0 pointer-events-none select-none text-[9px] leading-none">
+                                        spacer
+                                      </div>
+
+                                      <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-500">
                                         Volume
                                       </p>
 
-                                      <p className="mt-1.5 text-[16px] font-black text-white">
+                                      <p className="mt-1 text-[14px] font-black text-white">
                                         {trade.quantity || 1}
                                       </p>
                                     </div>
 
                                     <div className="text-center">
 
-                                      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                                      <div className="opacity-0 pointer-events-none select-none text-[9px] leading-none">
+                                        spacer
+                                      </div>
+
+                                      <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-500">
                                         Position
                                       </p>
 
-                                      <p className="mt-1.5 text-[16px] font-black text-white">
+                                      <p className="mt-1 text-[14px] font-black text-white">
                                         1
                                       </p>
                                     </div>
@@ -319,24 +362,24 @@ export default function PositionsTradesPanel({
                                 {/* SPACING */}
                                 {/* ===================================== */}
 
-                                <div className="h-4" />
+                                <div className="h-3" />
 
                                 {/* ===================================== */}
                                 {/* ENTRY */}
                                 {/* ===================================== */}
 
-                                <div className="grid grid-cols-2 items-center border-b border-white/[0.07] pb-3">
+                                <div className="grid grid-cols-2 items-center border-b border-white/[0.07] pb-2.5">
 
-                                  <div className="relative right-18 text-center">
+                                  <div className="relative right-12 text-center">
 
-                                    <p className="text-[12px] text-slate-400">
+                                    <p className="text-[11px] text-slate-400">
                                       Entry
                                     </p>
                                   </div>
 
-                                  <div className="relative left-12 text-center">
+                                  <div className="relative left-10 text-center">
 
-                                    <p className="text-[16px] font-black text-white">
+                                    <p className="text-[14px] font-black text-white">
                                       $
                                       {trade.entryPrice?.toFixed(
                                         2
@@ -349,7 +392,7 @@ export default function PositionsTradesPanel({
                                 {/* SPACING */}
                                 {/* ===================================== */}
 
-                                <div className="h-3" />
+                                <div className="h-2.5" />
 
                                 {/* ===================================== */}
                                 {/* PNL */}
@@ -357,17 +400,21 @@ export default function PositionsTradesPanel({
 
                                 <div className="grid grid-cols-2 items-center">
 
-                                  <div className="relative right-18 text-center">
+                                  <div className="relative right-12 text-center">
 
-                                    <p className="text-[12px] text-slate-400">
+                                    <p className="text-[11px] text-slate-400">
                                       P&L
                                     </p>
+
+                                    <div className="opacity-0 pointer-events-none select-none text-[9px] leading-none">
+                                      spacer
+                                    </div>
                                   </div>
 
-                                  <div className="relative left-12 text-center">
+                                  <div className="relative left-10 text-center">
 
                                     <p
-                                      className={`text-[22px] font-black tracking-tight ${
+                                      className={`text-[18px] font-black tracking-tight ${
                                         isProfit
                                           ? "text-emerald-400"
                                           : "text-red-400"
@@ -381,15 +428,15 @@ export default function PositionsTradesPanel({
                                         trade.pnl
                                       ).toFixed(2)}
                                     </p>
+
+                                    <div className="opacity-0 pointer-events-none select-none text-[9px] leading-none">
+                                      spacer
+                                    </div>
                                   </div>
                                 </div>
                               </div>
 
-                              {/* ================================================= */}
-                              {/* INVISIBLE GAP STABILIZER */}
-                              {/* ================================================= */}
-
-                              <div className="opacity-0 pointer-events-none select-none py-[1.5px]">
+                              <div className="opacity-0 pointer-events-none select-none py-[1px]">
                                 spacer
                               </div>
 
