@@ -6,41 +6,41 @@
 
 Elite X is a professional institutional-grade trading analytics and journaling platform focused on:
 
-- discretionary futures trading
-- options trading
-- execution analytics
-- performance review
-- behavioral journaling
-- business tracking
-- workflow optimization
-- long-term trading development
+* discretionary futures trading
+* options trading
+* execution analytics
+* performance review
+* behavioral journaling
+* business tracking
+* workflow optimization
+* long-term trading development
 
 The platform should feel:
 
-- clean
-- premium
-- minimal
-- institutional
-- fast
-- calm
-- analytical
-- execution-focused
+* clean
+* premium
+* minimal
+* institutional
+* fast
+* calm
+* analytical
+* execution-focused
 
 Elite X is NOT intended to feel like:
 
-- retail trading software
-- gambling UI
-- flashy crypto dashboards
-- neon-heavy interfaces
-- crowded analytics systems
+* retail trading software
+* gambling UI
+* flashy crypto dashboards
+* neon-heavy interfaces
+* crowded analytics systems
 
 The platform should prioritize:
 
-- clarity
-- focus
-- readability
-- workflow speed
-- structured review
+* clarity
+* focus
+* readability
+* workflow speed
+* structured review
 
 ---
 
@@ -48,18 +48,18 @@ The platform should prioritize:
 
 Elite X development follows:
 
-- stability first
-- modular architecture
-- incremental feature building
-- local-first development
-- Git-safe workflow
-- minimal rewrites
-- clean UI systems
-- beginner-safe development process
-- typography-first design
-- spacing-first hierarchy
-- optical alignment systems
-- surgical edits over aggressive rewrites
+* stability first
+* modular architecture
+* incremental feature building
+* local-first development
+* Git-safe workflow
+* minimal rewrites
+* clean UI systems
+* beginner-safe development process
+* typography-first design
+* spacing-first hierarchy
+* optical alignment systems
+* surgical edits over aggressive rewrites
 
 ---
 
@@ -67,20 +67,20 @@ Elite X development follows:
 
 ## Current Stack
 
-- Next.js
-- TypeScript
-- TailwindCSS
-- Local JSON storage (V1)
+* Next.js
+* TypeScript
+* TailwindCSS
+* Local JSON storage (V1)
 
 ## Future Stack
 
-- Prisma
-- Supabase
-- PostgreSQL
-- Vercel deployment
-- Authentication system
-- Cloud sync
-- AI analytics engine
+* Prisma
+* Supabase
+* PostgreSQL
+* Vercel deployment
+* Authentication system
+* Cloud sync
+* AI analytics engine
 
 ---
 
@@ -96,6 +96,12 @@ modular multi-page SaaS architecture.
 
 The application now behaves as a real local-first trading operating system.
 
+Current system state is considered:
+
+STABLE CHECKPOINT
+
+Current calendar + modal spacing systems are considered production-calibrated.
+
 ---
 
 # Completed Systems
@@ -104,13 +110,13 @@ The application now behaves as a real local-first trading operating system.
 
 Completed:
 
-- institutional dashboard architecture
-- stable layout structure
-- stable spacing hierarchy
-- optical alignment system established
-- responsive dashboard structure stabilized
-- safe-zone spacing system established
-- typography-first hierarchy stabilized
+* institutional dashboard architecture
+* stable layout structure
+* stable spacing hierarchy
+* optical alignment system established
+* responsive dashboard structure stabilized
+* safe-zone spacing system established
+* typography-first hierarchy stabilized
 
 ---
 
@@ -118,27 +124,68 @@ Completed:
 
 Completed:
 
-- institutional calendar layout
-- dynamic monthly navigation
-- P&L heatmap engine
-- profit/loss intensity scaling
-- monthly analytics display
-- total trade tracking
-- day drilldown modal system
-- calendar trade synchronization
+* institutional calendar layout
+* dynamic monthly navigation
+* P&L heatmap engine
+* profit/loss intensity scaling
+* monthly analytics display
+* total trade tracking
+* day drilldown modal system
+* calendar trade synchronization
+* stabilized safe-zone architecture
+* modal-safe spacing system
+* optical calendar compensation system
+* left/right calendar spacing stabilization
+* top/bottom calendar safe-zone balancing
 
 Important:
 
-TradingCalendar.tsx is considered highly sensitive.
+TradingCalendar.tsx is considered HIGHLY SENSITIVE.
 
 Avoid modifying:
 
-- wrapper structure
-- width calculations
-- parent flex systems
-- alignment logic
-- relative offsets
-- spacing containers
+* wrapper structure
+* width calculations
+* parent flex systems
+* alignment logic
+* relative offsets
+* spacing containers
+* translate-x systems
+* translate-y systems
+* safe-zone spacers
+* invisible spacing architecture
+
+---
+
+## Calendar Safe-Zone Architecture
+
+Trading calendar now intentionally uses:
+
+* invisible spacer balancing
+* left/right safe-zones
+* top spacing compensation
+* bottom spacing compensation
+* optical alignment calibration
+* translate-x compensation
+* translate-y compensation
+* independent shell spacing
+* visual breathing-room architecture
+
+Important:
+
+The calendar intentionally uses:
+
+* invisible spacer divs
+* opacity-0 safe-zones
+* invisible text spacing
+* relative positioning
+* translate compensation
+
+These are NOT accidental.
+
+They are required for institutional spacing consistency.
+
+Do NOT aggressively remove these systems.
 
 ---
 
@@ -146,19 +193,49 @@ Avoid modifying:
 
 Completed:
 
-- institutional modal architecture
-- modal safe-spacing system
-- inner safe-zone body architecture
-- trade review table
-- daily drilldown system
-- win-rate calculations
-- commission rendering
-- entry/exit rendering
-- open trade support
-- status badge system
-- ticker rendering
-- account rendering
-- modal KPI cards
+* institutional modal architecture
+* modal safe-spacing system
+* inner safe-zone body architecture
+* trade review table
+* daily drilldown system
+* win-rate calculations
+* commission rendering
+* entry/exit rendering
+* open trade support
+* status badge system
+* ticker rendering
+* account rendering
+* modal KPI cards
+* modal spacing stabilization
+* modal optical balancing
+* left/right modal safe-zones
+* section separation rhythm
+
+---
+
+## Modal Layout Rules
+
+The modal architecture intentionally uses:
+
+* invisible spacer balancing
+* optical vertical rhythm
+* section-safe spacing
+* inner-body containment
+* manual spacing compensation
+
+Spacing between:
+
+* KPI cards
+* win-rate graph
+* trades table
+
+is intentionally stabilized using:
+
+* invisible spacer containers
+* opacity-0 safe-zones
+* fixed 18px spacing rhythm
+
+Do NOT replace with random margin systems unless preserving visual rhythm consistency.
 
 ---
 
@@ -166,25 +243,25 @@ Completed:
 
 Completed:
 
-- IBKR CSV parsing
-- execution normalization
-- trade pairing engine
-- open trade handling
-- commission normalization
-- duplicate prevention
-- ticker normalization
-- account mapping
-- entry price rendering
-- exit price rendering
-- trade status mapping
-- asset type mapping
+* IBKR CSV parsing
+* execution normalization
+* trade pairing engine
+* open trade handling
+* commission normalization
+* duplicate prevention
+* ticker normalization
+* account mapping
+* entry price rendering
+* exit price rendering
+* trade status mapping
+* asset type mapping
 
 Current parser supports:
 
-- Futures
-- Options
-- Stocks
-- Forex
+* Futures
+* Options
+* Stocks
+* Forex
 
 ---
 
@@ -192,15 +269,15 @@ Current parser supports:
 
 Completed:
 
-- local-first storage system
-- persistent trade database
-- application hydration
-- centralized trade storage
-- durable CSV imports
-- reload-safe architecture
-- analytics persistence
-- calendar persistence
-- trade history persistence
+* local-first storage system
+* persistent trade database
+* application hydration
+* centralized trade storage
+* durable CSV imports
+* reload-safe architecture
+* analytics persistence
+* calendar persistence
+* trade history persistence
 
 Application now uses:
 
@@ -214,24 +291,24 @@ as centralized V1 persistence layer.
 
 Completed:
 
-- route-aware sidebar
-- scalable page routing
-- modular page separation
-- execution terminal architecture
-- dashboard separation strategy
-- trades page architecture
+* route-aware sidebar
+* scalable page routing
+* modular page separation
+* execution terminal architecture
+* dashboard separation strategy
+* trades page architecture
 
 Current routes:
 
-- /
-- /trades
+* /
+* /trades
 
 Future planned routes:
 
-- /calendar
-- /analytics
-- /expenses
-- /settings
+* /calendar
+* /analytics
+* /expenses
+* /settings
 
 ---
 
@@ -243,15 +320,15 @@ institutional execution terminal.
 
 Completed:
 
-- full Trade History table
-- newest-to-oldest sorting
-- entry/exit rendering
-- commission rendering
-- account rendering
-- asset type rendering
-- modal trade drilldowns
-- centralized trade loading
-- institutional table spacing system
+* full Trade History table
+* newest-to-oldest sorting
+* entry/exit rendering
+* commission rendering
+* account rendering
+* asset type rendering
+* modal trade drilldowns
+* centralized trade loading
+* institutional table spacing system
 
 ---
 
@@ -259,36 +336,41 @@ Completed:
 
 IMPORTANT:
 
-The current spacing and alignment systems are considered stable.
+The current spacing and alignment systems are considered STABLE.
 
 Avoid unnecessary rewrites.
 
 Preserve:
 
-- spacing hierarchy
-- optical alignment
-- safe-zone spacing
-- relative offsets
-- institutional density
-- typography rhythm
-- dashboard proportions
-- table proportions
+* spacing hierarchy
+* optical alignment
+* safe-zone spacing
+* relative offsets
+* institutional density
+* typography rhythm
+* dashboard proportions
+* table proportions
 
 DO NOT casually modify:
 
-- wrapper structures
-- parent flex containers
-- TradingCalendar.tsx layout systems
-- global dashboard spacing
-- safe-zone containers
+* wrapper structures
+* parent flex containers
+* TradingCalendar.tsx layout systems
+* global dashboard spacing
+* safe-zone containers
+* invisible spacing architecture
+* translate compensation systems
 
 The application intentionally uses:
 
-- relative left-*
-- relative right-*
-- top-*
-- invisible spacing compensation
-- optical balancing
+* relative left-*
+* relative right-*
+* top-*
+* invisible spacing compensation
+* optical balancing
+* translate-x
+* translate-y
+* opacity-0 spacer systems
 
 These are part of the institutional UI alignment system.
 
@@ -300,12 +382,12 @@ P&L Analytics is now considered a stabilized institutional UI module.
 
 The current layout system intentionally uses:
 
-- relative left offsets
-- relative right offsets
-- invisible spacing compensation
-- optical alignment balancing
-- asymmetric chart safe-zones
-- manual typography positioning
+* relative left offsets
+* relative right offsets
+* invisible spacing compensation
+* optical alignment balancing
+* asymmetric chart safe-zones
+* manual typography positioning
 
 These are NOT accidental.
 
@@ -317,21 +399,21 @@ They are part of the finalized dashboard alignment architecture.
 
 Current architecture intentionally uses:
 
-- centered zero-line structure
-- positive/negative directional bars
-- tooltip-based interaction
-- manual left-axis spacing
-- optical x-axis balancing
-- chart safe-zone compensation
+* centered zero-line structure
+* positive/negative directional bars
+* tooltip-based interaction
+* manual left-axis spacing
+* optical x-axis balancing
+* chart safe-zone compensation
 
 Avoid modifying:
 
-- left-[84px]
-- chart safe-zones
-- zero-line alignment
-- tooltip positioning
-- x-axis positioning logic
-- relative chart offsets
+* left-[84px]
+* chart safe-zones
+* zero-line alignment
+* tooltip positioning
+* x-axis positioning logic
+* relative chart offsets
 
 The current spacing system is visually calibrated.
 
@@ -341,21 +423,21 @@ The current spacing system is visually calibrated.
 
 Trading Behavior now uses:
 
-- isolated weekday card structure
-- invisible spacing compensation
-- independent row spacing
-- optical separation rhythm
-- manual alignment stabilization
+* isolated weekday card structure
+* invisible spacing compensation
+* independent row spacing
+* optical separation rhythm
+* manual alignment stabilization
 
 Important:
 
 Invisible spacing elements are intentionally used to stabilize:
 
-- vertical rhythm
-- flex alignment
-- header balancing
-- card separation
-- institutional spacing consistency
+* vertical rhythm
+* flex alignment
+* header balancing
+* card separation
+* institutional spacing consistency
 
 Do NOT remove invisible spacing elements unless replacing them with an equally stable layout system.
 
@@ -365,19 +447,19 @@ Do NOT remove invisible spacing elements unless replacing them with an equally s
 
 Bottom KPI cards now use:
 
-- enlarged institutional card sizing
-- balanced typography hierarchy
-- centered metric alignment
-- soft-border proportional spacing
-- optical scaling on AVG DAILY
+* enlarged institutional card sizing
+* balanced typography hierarchy
+* centered metric alignment
+* soft-border proportional spacing
+* optical scaling on AVG DAILY
 
 Preserve:
 
-- card proportions
-- spacing rhythm
-- typography sizing
-- current gap system
-- visual hierarchy balance
+* card proportions
+* spacing rhythm
+* typography sizing
+* current gap system
+* visual hierarchy balance
 
 ---
 
@@ -385,12 +467,12 @@ Preserve:
 
 Elite X UI development prioritizes:
 
-- optical alignment over mathematical alignment
-- spacing rhythm over compact density
-- calm institutional presentation
-- modular stabilization
-- surgical refinement
-- layout predictability
+* optical alignment over mathematical alignment
+* spacing rhythm over compact density
+* calm institutional presentation
+* modular stabilization
+* surgical refinement
+* layout predictability
 
 If layout becomes unstable:
 
@@ -398,11 +480,11 @@ DO NOT aggressively rewrite containers first.
 
 Instead evaluate:
 
-- invisible spacer balancing
-- relative positioning
-- flex rhythm
-- optical compensation
-- local safe-zone stabilization
+* invisible spacer balancing
+* relative positioning
+* flex rhythm
+* optical compensation
+* local safe-zone stabilization
 
 Institutional dashboards require optical balancing, not just technically valid alignment.
 
@@ -422,39 +504,40 @@ Architecture separation is intentional.
 
 Dashboard responsibilities:
 
-- KPIs
-- analytics snapshots
-- calendar systems
-- performance overview
-- recent activity
+* KPIs
+* analytics snapshots
+* calendar systems
+* performance overview
+* recent activity
 
 Trades page responsibilities:
 
-- execution history
-- filtering
-- search
-- review workflows
-- tagging
-- screenshots
-- exports
-- future execution analytics
+* execution history
+* filtering
+* search
+* review workflows
+* tagging
+* screenshots
+* exports
+* future execution analytics
 
 ---
 
 # Current Development Priority
 
 ## Priority Phase:
+
 Trade Search + Filtering Architecture
 
 Next development focus:
 
-- search bar system
-- trade filtering toolbar
-- account filtering
-- ticker filtering
-- status filtering
-- asset-type filtering
-- scalable table state architecture
+* search bar system
+* trade filtering toolbar
+* account filtering
+* ticker filtering
+* status filtering
+* asset-type filtering
+* scalable table state architecture
 
 ---
 
@@ -464,14 +547,14 @@ Next development focus:
 
 Planned:
 
-- AddTradeModal.tsx
-- manual execution journaling
-- form validation
-- direct storage persistence
-- screenshot uploads
-- setup tagging
-- emotion tracking
-- mistake tracking
+* AddTradeModal.tsx
+* manual execution journaling
+* form validation
+* direct storage persistence
+* screenshot uploads
+* setup tagging
+* emotion tracking
+* mistake tracking
 
 ---
 
@@ -479,14 +562,14 @@ Planned:
 
 Planned:
 
-- advanced execution analytics
-- expectancy calculations
-- equity curve engine
-- session analytics
-- setup analytics
-- behavior analytics
-- consistency scoring
-- AI trade review engine
+* advanced execution analytics
+* expectancy calculations
+* equity curve engine
+* session analytics
+* setup analytics
+* behavior analytics
+* consistency scoring
+* AI trade review engine
 
 ---
 
