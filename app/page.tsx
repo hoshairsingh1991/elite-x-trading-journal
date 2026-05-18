@@ -6,12 +6,15 @@ import {
 } from "react";
 
 import Sidebar from "@/components/layout/Sidebar";
+
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
+import RecentActivity from "@/components/dashboard/RecentActivity";
+import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
+
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 
 import {
   calculateAverageWin,
-  calculateProfitFactor,
   calculateTotalFees,
   calculateTotalPnL,
   calculateTotalTrades,
@@ -106,11 +109,6 @@ export default function HomePage() {
       filteredTrades
     );
 
-  const profitFactor =
-    calculateProfitFactor(
-      filteredTrades
-    );
-
   const totalFees =
     calculateTotalFees(
       filteredTrades
@@ -124,7 +122,9 @@ export default function HomePage() {
     trade: Trade
   ) => {
 
-    setSelectedTrade(trade);
+    setSelectedTrade(
+      trade
+    );
 
     setIsModalOpen(true);
   };
@@ -247,16 +247,16 @@ export default function HomePage() {
         <div className="flex-1 overflow-y-auto px-8">
 
           {/* ================================================= */}
-          {/* TOP GRID */}
+          {/* TOP SECTION */}
           {/* ================================================= */}
 
-          <div className="flex gap-10">
+          <div className="flex items-start gap-8">
 
             {/* ================================================= */}
             {/* LEFT SIDE */}
             {/* ================================================= */}
 
-            <div className="flex w-[78%] flex-col gap-8">
+            <div className="flex w-[68%] flex-col gap-8">
 
               {/* ================================================= */}
               {/* ACCOUNT OVERVIEW */}
@@ -379,106 +379,24 @@ export default function HomePage() {
               </div>
 
               {/* ================================================= */}
-              {/* PERFORMANCE + EQUITY */}
+              {/* PNL ANALYTICS */}
               {/* ================================================= */}
 
-              <div className="grid grid-cols-2 gap-8">
-
-                {/* PERFORMANCE */}
-
-                <div className="rounded-[28px] bg-[#071427] p-6 shadow-[0_0_40px_rgba(0,0,0,0.18)]">
-
-                  <div className="rounded-[24px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] p-8">
-
-                    <div className="relative left-3">
-
-                      <h2 className="text-[26px] font-black tracking-tight text-white">
-                        Trading Performance
-                      </h2>
-                    </div>
-
-                    <div className="mt-10">
-
-                      <div className="flex items-center justify-between">
-
-                        <div className="relative left-3">
-
-                          <p className="text-sm text-slate-400">
-                            Win Rate
-                          </p>
-
-                          <h3 className="mt-3 text-[40px] font-black tracking-tight text-white">
-                            {winRate}%
-                          </h3>
-                        </div>
-
-                        <div className="flex h-[100px] w-[100px] items-center justify-center rounded-full border-[8px] border-blue-500">
-
-                          <span className="text-lg font-bold text-white">
-                            {winRate}%
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mt-10 space-y-5 border-t border-white/[0.05] pt-6">
-
-                        <div className="flex items-center justify-between">
-
-                          <span className="text-sm text-slate-400">
-                            Profit Factor
-                          </span>
-
-                          <span className="text-lg font-bold text-blue-400">
-                            {profitFactor.toFixed(2)}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-
-                          <span className="text-sm text-slate-400">
-                            Total Trades
-                          </span>
-
-                          <span className="text-lg font-bold text-white">
-                            {totalTrades}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* EQUITY CURVE */}
-
-                <div className="rounded-[28px] bg-[#071427] p-6 shadow-[0_0_40px_rgba(0,0,0,0.18)]">
-
-                  <div className="h-[420px] rounded-[24px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] p-8">
-
-                    <div className="relative left-3">
-
-                      <h2 className="text-[26px] font-black tracking-tight text-white">
-                        Equity Curve
-                      </h2>
-
-                      <p className="mt-2 text-sm text-slate-500">
-                        Portfolio growth performance
-                      </p>
-                    </div>
-
-                    <div className="mt-10 flex h-[300px] items-center justify-center rounded-[18px] border border-dashed border-white/[0.08] bg-white/[0.02]">
-
-                      <span className="text-sm font-medium text-slate-500">
-                        Equity Curve Temporarily Disabled
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <PnLAnalytics
+                trades={filteredTrades}
+              />
             </div>
 
-            {/* RIGHT SAFE SPACE */}
+            {/* ================================================= */}
+            {/* RIGHT PANEL */}
+            {/* ================================================= */}
 
-            <div className="w-[22%] shrink-0" />
+            <div className="w-[32%] shrink-0">
+
+              <RecentActivity
+                trades={filteredTrades}
+              />
+            </div>
           </div>
 
           {/* ================================================= */}
