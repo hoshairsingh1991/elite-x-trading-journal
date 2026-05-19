@@ -280,11 +280,15 @@ export default function TradesPage() {
             selectedDate={
               selectedTrade.date
             }
-            trades={filteredTrades.filter(
-              (trade) =>
-                trade.date ===
-                selectedTrade.date
-            )}
+
+            // =================================================
+            // SINGLE TRADE ONLY
+            // =================================================
+
+            trades={[
+              selectedTrade
+            ]}
+
             onClose={
               handleCloseModal
             }
