@@ -135,25 +135,8 @@ export async function parseIBKRCsv(
                   const day =
                     rawDate.slice(6, 8);
 
-                  const monthNames = [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                  ];
-
                   const formattedDate =
-                    `${monthNames[
-                      Number(month) - 1
-                    ]} ${Number(day)}, ${year}`;
+  `${year}-${month}-${day}`;
 
                   const ticker =
                     row.UnderlyingSymbol ||
