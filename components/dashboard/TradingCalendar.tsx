@@ -27,6 +27,40 @@ const days = [
 interface TradingCalendarProps {
   trades: Trade[];
 }
+// =====================================================
+// LOCAL DATE PARSER
+// FIXES UTC DATE DRIFT
+// =====================================================
+
+function parseLocalDate(
+  dateString: string
+) {
+
+  // =================================================
+  // SUPPORTS:
+  // 1. YYYY-MM-DD
+  // 2. ISO TIMESTAMPS
+  // =================================================
+
+  const cleanDate =
+    dateString.includes("T")
+      ? dateString.split("T")[0]
+      : dateString;
+
+  const [
+    year,
+    month,
+    day,
+  ] = cleanDate
+    .split("-")
+    .map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  );
+}
 
 export default function TradingCalendar({
   trades,
@@ -99,7 +133,9 @@ export default function TradingCalendar({
         (trade) => {
 
           const tradeDate =
-            new Date(trade.date);
+  parseLocalDate(
+    trade.date
+  );
 
           return (
             tradeDate.getMonth() ===
@@ -132,7 +168,9 @@ export default function TradingCalendar({
     (trade) => {
 
       const tradeDate =
-        new Date(trade.date);
+  parseLocalDate(
+    trade.date
+  );
 
       const day =
         tradeDate.getDate();
@@ -165,7 +203,9 @@ export default function TradingCalendar({
         }
 
         const tradeDate =
-          new Date(trade.date);
+  parseLocalDate(
+    trade.date
+  );
 
         return (
           tradeDate.getDate() ===

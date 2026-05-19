@@ -261,7 +261,7 @@ export default function PnLAnalytics({
 
                 {/* BARS */}
 
-                <div className="absolute left-[84px] right-[22px] top-[33px] bottom-[64px] flex gap-[8px]">
+                <div className="absolute left-[84px] right-[22px] top-[23px] bottom-[64px] flex gap-[8px]">
 
                   {dailyPnL.map(
                     (day, index) => {

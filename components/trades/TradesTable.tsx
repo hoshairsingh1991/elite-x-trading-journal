@@ -11,6 +11,35 @@ interface TradesTableProps {
   ) => void;
 }
 
+// =====================================================
+// LOCAL DATE PARSER
+// FIXES UTC DATE DRIFT
+// =====================================================
+
+function parseLocalDate(
+  dateString: string
+) {
+
+  const cleanDate =
+    dateString.includes("T")
+      ? dateString.split("T")[0]
+      : dateString;
+
+  const [
+    year,
+    month,
+    day,
+  ] = cleanDate
+    .split("-")
+    .map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  );
+}
+
 export default function TradesTable({
   trades,
   onSelectTrade,
@@ -35,12 +64,12 @@ export default function TradesTable({
   ].sort((a, b) => {
 
     const dateA =
-      new Date(
+      parseLocalDate(
         a.date
       ).getTime();
 
     const dateB =
-      new Date(
+      parseLocalDate(
         b.date
       ).getTime();
 
@@ -122,6 +151,18 @@ export default function TradesTable({
                   trade.status ===
                   "OPEN";
 
+                const formattedDate =
+                  parseLocalDate(
+                    trade.date
+                  ).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    }
+                  );
+
                 return (
 
                   <React.Fragment
@@ -141,7 +182,7 @@ export default function TradesTable({
                       }
                       className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[18px] font-medium text-slate-300 transition-all hover:bg-white/[0.02]"
                     >
-                      {trade.date}
+                      {formattedDate}
                     </div>
 
                     {/* ACCOUNT */}
