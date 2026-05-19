@@ -5,19 +5,28 @@ import {
 } from "@/lib/analytics/pnlAnalytics";
 
 import { Trade } from "@/types/trade";
+import { TimeRange } from "@/lib/analytics";
 
 interface PnLAnalyticsProps {
+
   trades?: Trade[];
+
+  selectedRange?: TimeRange;
 }
 
 export default function PnLAnalytics({
+
   trades = [],
+
+  selectedRange = "ALL",
+
 }: PnLAnalyticsProps) {
 
   const analytics =
-    generatePnLAnalytics(
-      trades
-    );
+  generatePnLAnalytics(
+    trades,
+    selectedRange
+  );
 
   const dailyPnL =
     analytics.dailyPnL;
@@ -38,6 +47,104 @@ export default function PnLAnalytics({
     -maxBarValue * 0.5,
     -maxBarValue,
   ];
+  // =================================================
+// LABEL FORMATTER
+// =================================================
+
+function formatXAxisLabel(
+  date: string
+) {
+
+  // =============================================
+  // MONTHLY
+  // =============================================
+
+  if (
+    selectedRange === "1Y" ||
+    selectedRange === "ALL"
+  ) {
+
+    const [
+      year,
+      month,
+    ] = date
+      .split("-")
+      .map(Number);
+
+    return new Date(
+      year,
+      month
+    ).toLocaleDateString(
+      "en-US",
+      {
+        month: "short",
+      }
+    );
+  }
+
+  // =============================================
+  // WEEKLY
+  // =============================================
+
+  if (
+    selectedRange === "30D"
+  ) {
+
+    const parts =
+      date.split("-");
+
+    const year =
+      Number(parts[0]);
+
+    const month =
+      Number(parts[1]);
+
+    const week =
+      parts[2];
+
+    const monthLabel =
+      new Date(
+        year,
+        month
+      ).toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+        }
+      );
+
+    return `${monthLabel} ${week}`;
+  }
+
+  // =============================================
+  // DAILY
+  // =============================================
+
+  const cleanDate =
+  date.includes("T")
+    ? date.split("T")[0]
+    : date;
+
+const [
+  year,
+  month,
+  day,
+] = cleanDate
+  .split("-")
+  .map(Number);
+
+return new Date(
+  year,
+  month - 1,
+  day
+).toLocaleDateString(
+  "en-US",
+  {
+    month: "short",
+    day: "numeric",
+  }
+);
+}
 
   const weekdays = [
     "Monday",
@@ -290,16 +397,9 @@ export default function PnLAnalytics({
                           <div className="pointer-events-none absolute left-1/2 top-[18%] z-20 w-[130px] -translate-x-1/2 rounded-[14px] border border-white/[0.06] bg-[#08111f]/95 px-4 py-3 opacity-0 shadow-[0_10px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-200 group-hover:opacity-100">
 
                             <p className="text-center text-[11px] font-bold text-slate-400">
-                              {new Date(
-                                day.date
-                              ).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "long",
-                                  day: "numeric",
-                                  year: "numeric",
-                                }
-                              )}
+                              {formatXAxisLabel(
+  day.date
+)}
                             </p>
 
                             <p
@@ -360,15 +460,9 @@ export default function PnLAnalytics({
                       >
 
                         <p className="text-[10px] text-slate-500">
-                          {new Date(
-                            day.date
-                          ).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                              day: "numeric",
-                            }
-                          )}
+                          {formatXAxisLabel(
+  day.date
+)}
                         </p>
 
                       </div>

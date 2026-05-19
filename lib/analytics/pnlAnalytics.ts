@@ -31,7 +31,35 @@ export interface PnLAnalyticsData {
 }
 
 // =================================================
-// GROUP DAILY PNL
+// LOCAL DATE PARSER
+// =================================================
+
+function parseLocalDate(
+  dateString: string
+) {
+
+  const cleanDate =
+    dateString.includes("T")
+      ? dateString.split("T")[0]
+      : dateString;
+
+  const [
+    year,
+    month,
+    day,
+  ] = cleanDate
+    .split("-")
+    .map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  );
+}
+
+// =================================================
+// DAILY PNL
 // =================================================
 
 export function groupDailyPnL(
@@ -62,9 +90,96 @@ export function groupDailyPnL(
 
     .sort(
       (a, b) =>
-        new Date(a.date).getTime() -
-        new Date(b.date).getTime()
+        parseLocalDate(
+          a.date
+        ).getTime() -
+        parseLocalDate(
+          b.date
+        ).getTime()
     );
+}
+
+// =================================================
+// WEEKLY PNL
+// =================================================
+
+export function groupWeeklyPnL(
+  dailyData: DailyPnLData[] = []
+): DailyPnLData[] {
+
+  const grouped:
+    Record<string, number> = {};
+
+  dailyData.forEach((day) => {
+
+    const date =
+      parseLocalDate(
+        day.date
+      );
+
+    const week =
+      Math.ceil(
+        date.getDate() / 7
+      );
+
+    const key =
+      `${date.getFullYear()}-${date.getMonth()}-W${week}`;
+
+    if (!grouped[key]) {
+
+      grouped[key] = 0;
+    }
+
+    grouped[key] +=
+      day.pnl;
+  });
+
+  return Object.entries(grouped)
+
+    .map(([date, pnl]) => ({
+
+      date,
+      pnl,
+    }));
+}
+
+// =================================================
+// MONTHLY PNL
+// =================================================
+
+export function groupMonthlyPnL(
+  dailyData: DailyPnLData[] = []
+): DailyPnLData[] {
+
+  const grouped:
+    Record<string, number> = {};
+
+  dailyData.forEach((day) => {
+
+    const date =
+      parseLocalDate(
+        day.date
+      );
+
+    const key =
+      `${date.getFullYear()}-${date.getMonth()}`;
+
+    if (!grouped[key]) {
+
+      grouped[key] = 0;
+    }
+
+    grouped[key] +=
+      day.pnl;
+  });
+
+  return Object.entries(grouped)
+
+    .map(([date, pnl]) => ({
+
+      date,
+      pnl,
+    }));
 }
 
 // =================================================
@@ -257,49 +372,82 @@ export function calculateVolatility(
 // =================================================
 
 export function generatePnLAnalytics(
-  trades: Trade[] = []
+  trades: Trade[] = [],
+  range:
+    | "1D"
+    | "7D"
+    | "30D"
+    | "1Y"
+    | "ALL" = "ALL"
 ): PnLAnalyticsData {
 
-  const dailyPnL =
+  const rawDailyPnL =
     groupDailyPnL(
       trades
     );
 
+  let displayPnL =
+    rawDailyPnL;
+
+  // =================================================
+  // ADAPTIVE AGGREGATION
+  // =================================================
+
+  if (range === "30D") {
+
+    displayPnL =
+      groupWeeklyPnL(
+        rawDailyPnL
+      );
+  }
+
+  if (
+    range === "1Y" ||
+    range === "ALL"
+  ) {
+
+    displayPnL =
+      groupMonthlyPnL(
+        rawDailyPnL
+      );
+  }
+
   const cumulativePnL =
     calculateCumulativePnL(
-      dailyPnL
+      displayPnL
     );
 
   const bestDay =
     calculateBestDay(
-      dailyPnL
+      displayPnL
     );
 
   const worstDay =
     calculateWorstDay(
-      dailyPnL
+      displayPnL
     );
 
   const avgDaily =
     calculateAverageDaily(
-      dailyPnL
+      displayPnL
     );
 
   const {
     streak,
     streakType,
   } = calculateStreak(
-    dailyPnL
+    displayPnL
   );
 
   const volatility =
     calculateVolatility(
-      dailyPnL
+      displayPnL
     );
 
   return {
 
-    dailyPnL,
+    dailyPnL:
+      displayPnL,
 
     cumulativePnL,
 
