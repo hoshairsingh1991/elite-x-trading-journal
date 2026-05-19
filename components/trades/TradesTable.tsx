@@ -305,7 +305,8 @@ export default function TradesTable({
 
                       <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300">
 
-                        {trade.exitPrice > 0
+                        {trade.exitPrice &&
+trade.exitPrice > 0
                           ? `$${Number(
                               trade.exitPrice
                             ).toFixed(2)}`
