@@ -891,9 +891,10 @@ export default function TradingCalendar({
 
                                     <td className="py-6 text-sm text-white">
 
-                                      {trade.exitPrice > 0
-                                        ? `$${trade.exitPrice}`
-                                        : "--"}
+                                      {trade.exitPrice &&
+trade.exitPrice > 0
+  ? `$${trade.exitPrice}`
+  : "--"}
                                     </td>
 
                                     <td

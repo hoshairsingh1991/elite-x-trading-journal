@@ -285,12 +285,13 @@ export function calculateStreak(
 
   let currentStreak = 1;
 
-  let streakType =
-    dailyData[
-      dailyData.length - 1
-    ].pnl >= 0
-      ? "WINNING"
-      : "LOSING";
+  let streakType:
+  "WINNING" | "LOSING" =
+  dailyData[
+    dailyData.length - 1
+  ].pnl >= 0
+    ? "WINNING"
+    : "LOSING";
 
   for (
     let i =
@@ -374,11 +375,12 @@ export function calculateVolatility(
 export function generatePnLAnalytics(
   trades: Trade[] = [],
   range:
-    | "1D"
-    | "7D"
-    | "30D"
-    | "1Y"
-    | "ALL" = "ALL"
+  | "1D"
+  | "7D"
+  | "30D"
+  | "MTD"
+  | "1Y"
+  | "ALL" = "ALL"
 ): PnLAnalyticsData {
 
   const rawDailyPnL =
