@@ -398,8 +398,9 @@ export default function HomePage() {
               {/* ================================================= */}
 
               <PnLAnalytics
-                trades={filteredTrades}
-              />
+  trades={filteredTrades}
+  selectedRange={selectedRange}
+/>
             </div>
 
             {/* ================================================= */}
