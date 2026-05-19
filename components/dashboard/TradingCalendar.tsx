@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
+import EditTradeModal from "@/components/trades/EditTradeModal";
 
 const days = [
   "SUN",
@@ -71,6 +72,12 @@ export default function TradingCalendar({
 
   const [selectedDay, setSelectedDay] =
     useState<number | null>(null);
+    const [
+  editingTrade,
+  setEditingTrade,
+] = useState<Trade | null>(
+  null
+);
 
   const currentMonth =
     currentDate.getMonth();
@@ -574,6 +581,19 @@ export default function TradingCalendar({
         </div>
       </div>
 
+<EditTradeModal
+  open={
+    !!editingTrade
+  }
+  trade={
+    editingTrade
+  }
+  onClose={() =>
+    setEditingTrade(
+      null
+    )
+  }
+/>
       {/* ===================================================== */}
       {/* MODAL */}
       {/* ===================================================== */}
@@ -784,14 +804,15 @@ export default function TradingCalendar({
                             <tr className="border-b border-white/[0.05]">
 
                               {[
-                                "Ticker",
-                                "Side",
-                                "Entry",
-                                "Exit",
-                                "Net P&L",
-                                "Commission",
-                                "Status",
-                              ].map(
+  "Ticker",
+  "Side",
+  "Entry",
+  "Exit",
+  "Net P&L",
+  "Commission",
+  "Status",
+  "",
+].map(
                                 (
                                   header
                                 ) => (
@@ -819,7 +840,7 @@ export default function TradingCalendar({
 <tr className="opacity-0 pointer-events-none select-none">
 
   <td
-    colSpan={7}
+    colSpan={8}
     className="h-[10px] p-0"
   >
     spacer
@@ -840,7 +861,7 @@ export default function TradingCalendar({
 
                                   <tr className="border-b border-white/[0.08]">
 
-                                    <td className="h-[15px]">
+                                    <td className="h-[15px] text-center">
 
   <div className="flex h-full items-center text-sm font-semibold text-white">
     {trade.ticker}
@@ -906,7 +927,7 @@ export default function TradingCalendar({
                                         : "--"}
                                     </td>
 
-                                    <td className="py-6">
+                                    <td className="py-6 pr-6">
 
                                       <span
                                         className={`rounded-full px-3 py-1 text-[11px] font-bold border ${
@@ -927,6 +948,19 @@ export default function TradingCalendar({
                                         }
                                       </span>
                                     </td>
+                                    <td className="py-6">
+
+  <button
+    onClick={() =>
+      setEditingTrade(
+        trade
+      )
+    }
+    className="relative top-[-10px] flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-blue-500/20 bg-blue-500/10 text-[14px] text-blue-400 transition-all hover:bg-blue-500/20"
+  >
+    ✎
+  </button>
+</td>
                                   </tr>
 
                                   {/* ===================================================== */}
@@ -936,7 +970,7 @@ export default function TradingCalendar({
                                   <tr className="opacity-0 pointer-events-none select-none">
 
                                     <td
-                                      colSpan={7}
+                                      colSpan={8}
                                       className="h-[18px] p-0"
                                     >
                                       spacer

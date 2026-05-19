@@ -139,6 +139,44 @@ export function appendTrades(
 }
 
 // =====================================================
+// UPDATE TRADE
+// =====================================================
+
+export function updateTrade(
+  updatedTrade: Trade
+): Trade[] {
+
+  const existingTrades =
+    loadTrades();
+
+  const updatedTrades =
+    existingTrades.map(
+      (trade) => {
+
+        if (
+          trade.id ===
+          updatedTrade.id
+        ) {
+
+          return {
+
+            ...updatedTrade,
+
+            updatedAt:
+              new Date().toISOString(),
+          };
+        }
+
+        return trade;
+      }
+    );
+
+  saveTrades(updatedTrades);
+
+  return updatedTrades;
+}
+
+// =====================================================
 // CLEAR STORAGE
 // =====================================================
 
