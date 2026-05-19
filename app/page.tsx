@@ -41,7 +41,37 @@ import {
 export default function HomePage() {
 
   const [selectedRange, setSelectedRange] =
-    useState<TimeRange>("ALL");
+  useState<TimeRange>("ALL");
+  // =================================================
+// RANGE PERSISTENCE
+// =================================================
+
+useEffect(() => {
+
+  const savedRange =
+    localStorage.getItem(
+      "elite-x-range"
+    );
+
+  if (
+    savedRange
+  ) {
+
+    setSelectedRange(
+      savedRange as TimeRange
+    );
+  }
+
+}, []);
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "elite-x-range",
+    selectedRange
+  );
+
+}, [selectedRange]);
 
   const [selectedTrade, setSelectedTrade] =
     useState<Trade | null>(null);
@@ -294,12 +324,13 @@ export default function HomePage() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="relative right-4 flex items-center gap-3">
 
                       {[
                         "1D",
                         "7D",
                         "30D",
+                        "MTD",
                         "1Y",
                         "ALL",
                       ].map((range) => (
@@ -311,7 +342,7 @@ export default function HomePage() {
                               range as TimeRange
                             )
                           }
-                          className={`rounded-full px-4 py-2 text-[12px] font-black tracking-[0.08em] transition-all ${
+                          className={`flex h-[22px] min-w-[40px] items-center justify-center rounded-full px-5 text-[15px] font-black tracking-[0.08em] transition-all ${
                             selectedRange === range
                               ? "bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.35)]"
                               : "bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]"

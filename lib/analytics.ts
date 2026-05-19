@@ -9,6 +9,7 @@ export type TimeRange =
   | "1D"
   | "7D"
   | "30D"
+  | "MTD"
   | "1Y"
   | "ALL";
 
@@ -28,9 +29,32 @@ export function filterTradesByRange(
 
   const now = new Date();
 
+  // =================================================
+  // MONTH TO DATE
+  // =================================================
+
+  if (range === "MTD") {
+
+    return trades.filter((trade) => {
+
+      const tradeDate =
+        new Date(
+          trade.date
+        );
+
+      return (
+        tradeDate.getFullYear() ===
+          now.getFullYear() &&
+        tradeDate.getMonth() ===
+          now.getMonth()
+      );
+    });
+  }
+
   let days = 0;
 
   switch (range) {
+
     case "1D":
       days = 1;
       break;
@@ -50,12 +74,20 @@ export function filterTradesByRange(
 
   const cutoffDate = new Date();
 
-  cutoffDate.setDate(now.getDate() - days);
+  cutoffDate.setDate(
+    now.getDate() - days
+  );
 
   return trades.filter((trade) => {
-    const tradeDate = new Date(trade.date);
 
-    return tradeDate >= cutoffDate;
+    const tradeDate =
+      new Date(
+        trade.date
+      );
+
+    return (
+      tradeDate >= cutoffDate
+    );
   });
 }
 
@@ -64,8 +96,15 @@ export function filterTradesByRange(
 // TOTAL PNL
 // =================================================
 
-export function calculateTotalPnL(trades: Trade[]): number {
-  return trades.reduce((total, trade) => total + trade.pnl, 0);
+export function calculateTotalPnL(
+  trades: Trade[]
+): number {
+
+  return trades.reduce(
+    (total, trade) =>
+      total + trade.pnl,
+    0
+  );
 }
 
 
@@ -73,7 +112,10 @@ export function calculateTotalPnL(trades: Trade[]): number {
 // TOTAL TRADES
 // =================================================
 
-export function calculateTotalTrades(trades: Trade[]): number {
+export function calculateTotalTrades(
+  trades: Trade[]
+): number {
+
   return trades.length;
 }
 
@@ -82,8 +124,14 @@ export function calculateTotalTrades(trades: Trade[]): number {
 // WINNING TRADES
 // =================================================
 
-export function calculateWinningTrades(trades: Trade[]): number {
-  return trades.filter((trade) => trade.status === "WIN").length;
+export function calculateWinningTrades(
+  trades: Trade[]
+): number {
+
+  return trades.filter(
+    (trade) =>
+      trade.status === "WIN"
+  ).length;
 }
 
 
@@ -91,8 +139,14 @@ export function calculateWinningTrades(trades: Trade[]): number {
 // LOSING TRADES
 // =================================================
 
-export function calculateLosingTrades(trades: Trade[]): number {
-  return trades.filter((trade) => trade.status === "LOSS").length;
+export function calculateLosingTrades(
+  trades: Trade[]
+): number {
+
+  return trades.filter(
+    (trade) =>
+      trade.status === "LOSS"
+  ).length;
 }
 
 
@@ -100,8 +154,15 @@ export function calculateLosingTrades(trades: Trade[]): number {
 // BREAKEVEN TRADES
 // =================================================
 
-export function calculateBreakevenTrades(trades: Trade[]): number {
-  return trades.filter((trade) => trade.status === "BREAKEVEN").length;
+export function calculateBreakevenTrades(
+  trades: Trade[]
+): number {
+
+  return trades.filter(
+    (trade) =>
+      trade.status ===
+      "BREAKEVEN"
+  ).length;
 }
 
 
@@ -109,12 +170,27 @@ export function calculateBreakevenTrades(trades: Trade[]): number {
 // WIN RATE
 // =================================================
 
-export function calculateWinRate(trades: Trade[]): number {
-  if (trades.length === 0) return 0;
+export function calculateWinRate(
+  trades: Trade[]
+): number {
 
-  const winningTrades = calculateWinningTrades(trades);
+  if (
+    trades.length === 0
+  ) return 0;
 
-  return Number(((winningTrades / trades.length) * 100).toFixed(1));
+  const winningTrades =
+    calculateWinningTrades(
+      trades
+    );
+
+  return Number(
+    (
+      (
+        winningTrades /
+        trades.length
+      ) * 100
+    ).toFixed(1)
+  );
 }
 
 
@@ -122,19 +198,34 @@ export function calculateWinRate(trades: Trade[]): number {
 // AVERAGE WIN
 // =================================================
 
-export function calculateAverageWin(trades: Trade[]): number {
-  const winningTrades = trades.filter(
-    (trade) => trade.status === "WIN"
+export function calculateAverageWin(
+  trades: Trade[]
+): number {
+
+  const winningTrades =
+    trades.filter(
+      (trade) =>
+        trade.status ===
+        "WIN"
+    );
+
+  if (
+    winningTrades.length === 0
+  ) return 0;
+
+  const totalWins =
+    winningTrades.reduce(
+      (total, trade) =>
+        total + trade.pnl,
+      0
+    );
+
+  return Number(
+    (
+      totalWins /
+      winningTrades.length
+    ).toFixed(2)
   );
-
-  if (winningTrades.length === 0) return 0;
-
-  const totalWins = winningTrades.reduce(
-    (total, trade) => total + trade.pnl,
-    0
-  );
-
-  return Number((totalWins / winningTrades.length).toFixed(2));
 }
 
 
@@ -142,19 +233,37 @@ export function calculateAverageWin(trades: Trade[]): number {
 // AVERAGE LOSS
 // =================================================
 
-export function calculateAverageLoss(trades: Trade[]): number {
-  const losingTrades = trades.filter(
-    (trade) => trade.status === "LOSS"
+export function calculateAverageLoss(
+  trades: Trade[]
+): number {
+
+  const losingTrades =
+    trades.filter(
+      (trade) =>
+        trade.status ===
+        "LOSS"
+    );
+
+  if (
+    losingTrades.length === 0
+  ) return 0;
+
+  const totalLosses =
+    losingTrades.reduce(
+      (total, trade) =>
+        total +
+        Math.abs(
+          trade.pnl
+        ),
+      0
+    );
+
+  return Number(
+    (
+      totalLosses /
+      losingTrades.length
+    ).toFixed(2)
   );
-
-  if (losingTrades.length === 0) return 0;
-
-  const totalLosses = losingTrades.reduce(
-    (total, trade) => total + Math.abs(trade.pnl),
-    0
-  );
-
-  return Number((totalLosses / losingTrades.length).toFixed(2));
 }
 
 
@@ -162,18 +271,47 @@ export function calculateAverageLoss(trades: Trade[]): number {
 // PROFIT FACTOR
 // =================================================
 
-export function calculateProfitFactor(trades: Trade[]): number {
-  const grossProfit = trades
-    .filter((trade) => trade.pnl > 0)
-    .reduce((total, trade) => total + trade.pnl, 0);
+export function calculateProfitFactor(
+  trades: Trade[]
+): number {
 
-  const grossLoss = trades
-    .filter((trade) => trade.pnl < 0)
-    .reduce((total, trade) => total + Math.abs(trade.pnl), 0);
+  const grossProfit =
+    trades
+      .filter(
+        (trade) =>
+          trade.pnl > 0
+      )
+      .reduce(
+        (total, trade) =>
+          total + trade.pnl,
+        0
+      );
 
-  if (grossLoss === 0) return grossProfit;
+  const grossLoss =
+    trades
+      .filter(
+        (trade) =>
+          trade.pnl < 0
+      )
+      .reduce(
+        (total, trade) =>
+          total +
+          Math.abs(
+            trade.pnl
+          ),
+        0
+      );
 
-  return Number((grossProfit / grossLoss).toFixed(2));
+  if (
+    grossLoss === 0
+  ) return grossProfit;
+
+  return Number(
+    (
+      grossProfit /
+      grossLoss
+    ).toFixed(2)
+  );
 }
 
 
@@ -181,10 +319,18 @@ export function calculateProfitFactor(trades: Trade[]): number {
 // TOTAL FEES
 // =================================================
 
-export function calculateTotalFees(trades: Trade[]): number {
+export function calculateTotalFees(
+  trades: Trade[]
+): number {
+
   return Number(
     trades
-      .reduce((total, trade) => total + trade.fees, 0)
+      .reduce(
+        (total, trade) =>
+          total +
+          trade.fees,
+        0
+      )
       .toFixed(2)
   );
 }
@@ -194,11 +340,20 @@ export function calculateTotalFees(trades: Trade[]): number {
 // BEST TRADE
 // =================================================
 
-export function calculateBestTrade(trades: Trade[]): Trade | null {
-  if (trades.length === 0) return null;
+export function calculateBestTrade(
+  trades: Trade[]
+): Trade | null {
 
-  return trades.reduce((best, trade) =>
-    trade.pnl > best.pnl ? trade : best
+  if (
+    trades.length === 0
+  ) return null;
+
+  return trades.reduce(
+    (best, trade) =>
+      trade.pnl >
+      best.pnl
+        ? trade
+        : best
   );
 }
 
@@ -207,10 +362,19 @@ export function calculateBestTrade(trades: Trade[]): Trade | null {
 // WORST TRADE
 // =================================================
 
-export function calculateWorstTrade(trades: Trade[]): Trade | null {
-  if (trades.length === 0) return null;
+export function calculateWorstTrade(
+  trades: Trade[]
+): Trade | null {
 
-  return trades.reduce((worst, trade) =>
-    trade.pnl < worst.pnl ? trade : worst
+  if (
+    trades.length === 0
+  ) return null;
+
+  return trades.reduce(
+    (worst, trade) =>
+      trade.pnl <
+      worst.pnl
+        ? trade
+        : worst
   );
 }
