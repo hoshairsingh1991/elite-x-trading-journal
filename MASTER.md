@@ -71,6 +71,8 @@ Elite X development follows:
 * TypeScript
 * TailwindCSS
 * Local JSON storage (V1)
+* localStorage persistence
+* PapaParse CSV ingestion
 
 ## Future Stack
 
@@ -101,6 +103,8 @@ Current system state is considered:
 STABLE CHECKPOINT
 
 Current calendar + modal spacing systems are considered production-calibrated.
+
+Current trade ingestion + date architecture is considered STABLE.
 
 ---
 
@@ -137,6 +141,8 @@ Completed:
 * optical calendar compensation system
 * left/right calendar spacing stabilization
 * top/bottom calendar safe-zone balancing
+* timezone-safe local date parsing
+* unified trade date architecture
 
 Important:
 
@@ -154,12 +160,127 @@ Avoid modifying:
 * translate-y systems
 * safe-zone spacers
 * invisible spacing architecture
+* local date parsing architecture
+
+---
+
+## Unified Trade Date Architecture
+
+Elite X now uses a unified institutional-grade date system.
+
+IMPORTANT:
+
+Trade dates are now standardized internally as:
+
+```txt
+YYYY-MM-DD
+```
+
+Example:
+
+```txt
+2026-05-15
+```
+
+This format is now considered:
+
+CANONICAL STORAGE FORMAT
+
+This architecture permanently solves:
+
+* timezone drift
+* UTC conversion bugs
+* previous-day calendar bugs
+* inconsistent trade rendering
+* CSV/manual trade mismatch
+* browser timezone inconsistencies
+
+---
+
+## Date Rendering Rules
+
+Elite X separates:
+
+STORAGE FORMAT
+
+from:
+
+DISPLAY FORMAT
+
+### Storage Layer
+
+ALWAYS store trade dates as:
+
+```txt
+YYYY-MM-DD
+```
+
+Never store:
+
+* localized date strings
+* UTC timestamps
+* browser-generated formatted dates
+* display-layer formatted dates
+
+### Display Layer
+
+Trade dates may render visually as:
+
+```txt
+May 15, 2026
+```
+
+ONLY inside UI rendering layers.
+
+Never use display formatting as storage format.
+
+---
+
+## Local Date Parsing System
+
+Elite X now uses:
+
+parseLocalDate()
+
+instead of:
+
+```ts
+new Date("YYYY-MM-DD")
+```
+
+Reason:
+
+JavaScript UTC parsing causes timezone drift.
+
+Correct architecture uses:
+
+```ts
+new Date(year, month - 1, day)
+```
+
+for local timezone-safe parsing.
+
+This architecture is considered CRITICAL.
+
+Never casually revert back to:
+
+```ts
+new Date(trade.date)
+```
+
+inside:
+
+* TradingCalendar.tsx
+* TradesTable.tsx
+* analytics systems
+* charts
+* KPI engines
 
 ---
 
 ## Calendar Safe-Zone Architecture
 
-Trading calendar now intentionally uses:
+Trading calendar intentionally uses:
 
 * invisible spacer balancing
 * left/right safe-zones
@@ -213,6 +334,37 @@ Completed:
 
 ---
 
+## Manual Trade Entry System
+
+Completed:
+
+* AddTradeModal.tsx
+* institutional modal architecture
+* centered execution workflow
+* asset type selector
+* LONG / SHORT selector
+* commission support
+* account support
+* custom calendar input
+* manual persistence
+* centralized storage integration
+* trade history integration
+* calendar integration
+* optical modal balancing
+* safe-zone spacing architecture
+* local timezone-safe date handling
+
+Supported asset types:
+
+* Stocks
+* Options
+* Futures
+* Crypto
+* CFD
+* Forex
+
+---
+
 ## Modal Layout Rules
 
 The modal architecture intentionally uses:
@@ -255,6 +407,9 @@ Completed:
 * exit price rendering
 * trade status mapping
 * asset type mapping
+* canonical date normalization
+* unified ingestion architecture
+* timezone-safe trade storage
 
 Current parser supports:
 
@@ -262,6 +417,19 @@ Current parser supports:
 * Options
 * Stocks
 * Forex
+* Crypto
+
+IMPORTANT:
+
+All imported trades must normalize dates into:
+
+```txt
+YYYY-MM-DD
+```
+
+before entering application state.
+
+This is considered critical architecture.
 
 ---
 
@@ -278,6 +446,7 @@ Completed:
 * analytics persistence
 * calendar persistence
 * trade history persistence
+* unified trade persistence architecture
 
 Application now uses:
 
@@ -329,6 +498,25 @@ Completed:
 * modal trade drilldowns
 * centralized trade loading
 * institutional table spacing system
+* timezone-safe trade rendering
+* local date parsing architecture
+* unified date formatting system
+
+IMPORTANT:
+
+Trade history now uses:
+
+parseLocalDate()
+
+instead of:
+
+```ts
+new Date(trade.date)
+```
+
+to prevent UTC drift.
+
+This is considered production-critical architecture.
 
 ---
 
@@ -543,21 +731,6 @@ Next development focus:
 
 # Future Planned Systems
 
-## Manual Trade Entry System
-
-Planned:
-
-* AddTradeModal.tsx
-* manual execution journaling
-* form validation
-* direct storage persistence
-* screenshot uploads
-* setup tagging
-* emotion tracking
-* mistake tracking
-
----
-
 ## Future Analytics Systems
 
 Planned:
@@ -570,6 +743,34 @@ Planned:
 * behavior analytics
 * consistency scoring
 * AI trade review engine
+
+---
+
+## Future Database Architecture
+
+Planned:
+
+* Prisma integration
+* SQLite local database
+* PostgreSQL migration
+* Supabase sync
+* cloud persistence
+* authentication layer
+* multi-device sync
+* user portfolios
+
+---
+
+## Future Broker Adapter Layer
+
+Planned:
+
+* Tradovate parser
+* NinjaTrader parser
+* TradeStation parser
+* ThinkOrSwim parser
+* broker abstraction architecture
+* normalized ingestion pipelines
 
 ---
 
