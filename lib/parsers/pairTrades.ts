@@ -4,6 +4,13 @@ import {
 } from "@/types/trade";
 
 // =================================================
+// EPSILON NORMALIZATION
+// =================================================
+
+const EPSILON =
+  0.00000001;
+
+// =================================================
 // EXTENDED EXECUTION TYPE
 // =================================================
 
@@ -46,6 +53,18 @@ export function pairTrades(
 
         return;
       }
+
+      if (
+  trade.ticker ===
+    "USD.CAD" ||
+  trade.ticker ===
+    "EUR.CAD" ||
+  trade.ticker ===
+    "EUR.USD"
+) {
+
+  return;
+}
 
       if (
         !openPositions[
@@ -115,6 +134,22 @@ export function pairTrades(
   executions.forEach(
     (execution, index) => {
 
+      // =============================================
+      // IGNORE CASH FX
+      // =============================================
+
+      if (
+  execution.ticker ===
+    "USD.CAD" ||
+  execution.ticker ===
+    "EUR.CAD" ||
+  execution.ticker ===
+    "EUR.USD"
+) {
+
+  return;
+}
+
       const contractKey =
         execution.contractKey ||
         execution.contract;
@@ -163,7 +198,8 @@ export function pairTrades(
         execution.quantity;
 
       while (
-        remainingExitQuantity > 0
+        remainingExitQuantity >
+        EPSILON
       ) {
 
         const entryExecution =
@@ -335,11 +371,36 @@ export function pairTrades(
           ) - consumeQuantity;
 
         // =============================================
+        // FLOATING POINT CLEANUP
+        // =============================================
+
+        if (
+          Math.abs(
+            remainingExitQuantity
+          ) < EPSILON
+        ) {
+
+          remainingExitQuantity = 0;
+        }
+
+        if (
+          Math.abs(
+            entryExecution.remainingQuantity
+          ) < EPSILON
+        ) {
+
+          entryExecution.remainingQuantity = 0;
+        }
+
+        // =============================================
         // REMOVE FULLY CLOSED POSITION
         // =============================================
 
         if (
-          entryExecution.remainingQuantity <= 0
+          (
+            entryExecution.remainingQuantity ||
+            0
+          ) <= EPSILON
         ) {
 
           openPositions[
@@ -353,7 +414,8 @@ export function pairTrades(
       // =================================================
 
       if (
-        remainingExitQuantity > 0
+        remainingExitQuantity >
+        EPSILON
       ) {
 
         finalTrades.push({
@@ -424,22 +486,45 @@ export function pairTrades(
     ([contractKey, positions]) => {
 
       positions.forEach(
-        (position, index) => {
+        (position) => {
+
+          const remainingQuantity =
+            position.remainingQuantity ||
+            position.quantity;
+
+          // =============================================
+          // REMOVE FLOATING DUST
+          // =============================================
 
           if (
-            (
-              position.remainingQuantity ||
-              position.quantity
-            ) <= 0
+            Math.abs(
+              remainingQuantity
+            ) < EPSILON
           ) {
 
             return;
           }
 
+          // =============================================
+          // IGNORE CASH FX
+          // =============================================
+
+          if (
+  position.ticker ===
+    "USD.CAD" ||
+  position.ticker ===
+    "EUR.CAD" ||
+  position.ticker ===
+    "EUR.USD"
+) {
+
+  return;
+}
+
           finalTrades.push({
 
             id:
-  `${contractKey}-${position.date}-${position.executionPrice}-${position.quantity}`,
+              `${contractKey}-${position.date}-${position.executionPrice}-${position.quantity}`,
 
             // =================================================
             // BASIC INFO
@@ -477,8 +562,7 @@ export function pairTrades(
             exitPrice: null,
 
             quantity:
-              position.remainingQuantity ||
-              position.quantity,
+              remainingQuantity,
 
             // =================================================
             // PERFORMANCE

@@ -14,7 +14,12 @@ import TradeDetailModal from "@/components/trades/TradeDetailModal";
 
 import TradesToolbar from "@/components/trades/TradesToolbar";
 
-import { loadTrades } from "@/lib/storage/tradeStorage";
+import {
+  loadExecutions,
+} from "@/lib/storage/executionStorage";
+
+import { pairTrades }
+from "@/lib/parsers/pairTrades";
 
 import { Trade } from "@/types/trade";
 
@@ -59,14 +64,19 @@ export default function TradesPage() {
 
   useEffect(() => {
 
-    const storedTrades =
-      loadTrades();
+  const storedExecutions =
+    loadExecutions();
 
-    setTrades(
-      storedTrades
+  const rebuiltTrades =
+    pairTrades(
+      storedExecutions
     );
 
-  }, []);
+  setTrades(
+    rebuiltTrades
+  );
+
+}, []);
 
   // =================================================
   // FILTERED TRADES
