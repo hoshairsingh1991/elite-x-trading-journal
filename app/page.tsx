@@ -32,6 +32,9 @@ import {
   loadExecutions,
   appendExecutions,
 } from "@/lib/storage/executionStorage";
+import {
+  loadTrades,
+} from "@/lib/storage/tradeStorage";
 
 import { Trade } from "@/types/trade";
 
@@ -99,26 +102,43 @@ useEffect(() => {
 
   useEffect(() => {
 
+  // =========================================
+  // IMPORTED EXECUTION TRADES
+  // =========================================
+
   const storedExecutions =
     loadExecutions();
 
-  if (
-    storedExecutions.length > 0
-  ) {
-
-    const rebuiltTrades =
-      pairTrades(
-        storedExecutions
-      );
-
-    setImportedTrades(
-      rebuiltTrades
+  const rebuiltTrades =
+    pairTrades(
+      storedExecutions
     );
 
-    return;
-  }
+  // =========================================
+  // MANUAL TRADES
+  // =========================================
 
-  setImportedTrades([]);
+  const manualTrades =
+    loadTrades();
+
+  // =========================================
+  // REMOVE IMPORTED DUPLICATES
+  // =========================================
+
+  const filteredManualTrades =
+    manualTrades.filter(
+      (trade) =>
+        !trade.contractKey
+    );
+
+  // =========================================
+  // COMBINED RENDER LAYER
+  // =========================================
+
+  setImportedTrades([
+    ...rebuiltTrades,
+    ...filteredManualTrades,
+  ]);
 
 }, []);
 
