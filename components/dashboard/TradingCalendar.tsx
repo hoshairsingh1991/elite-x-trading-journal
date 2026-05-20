@@ -838,6 +838,7 @@ const tradeDate =
 
                               {[
   "Ticker",
+  "Account",
   "Side",
   "Entry",
   "Exit",
@@ -873,7 +874,7 @@ const tradeDate =
 <tr className="opacity-0 pointer-events-none select-none">
 
   <td
-    colSpan={8}
+    colSpan={9}
     className="h-[10px] p-0"
   >
     spacer
@@ -899,6 +900,11 @@ const tradeDate =
   <div className="flex h-full items-center text-sm font-semibold text-white">
     {trade.ticker}
   </div>
+
+</td>
+<td className="py-6 text-sm font-medium text-slate-300">
+
+  {trade.account || "--"}
 
 </td>
 
@@ -1004,7 +1010,7 @@ trade.exitPrice > 0
                                   <tr className="opacity-0 pointer-events-none select-none">
 
                                     <td
-                                      colSpan={8}
+                                      colSpan={9}
                                       className="h-[18px] p-0"
                                     >
                                       spacer
