@@ -1,19 +1,25 @@
 "use client";
 
 import {
-  Fragment,
-  useMemo,
-  useState,
+Fragment,
+useEffect,
+useMemo,
+useState,
 } from "react";
 
 import {
   ChevronLeft,
   ChevronRight,
+  FileText,
   X,
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
 import EditTradeModal from "@/components/trades/EditTradeModal";
+import {
+  getDailyNote,
+  upsertDailyNote,
+} from "@/lib/storage/dailyNotesStorage";
 
 const days = [
   "SUN",
@@ -71,13 +77,33 @@ export default function TradingCalendar({
     useState(new Date());
 
   const [selectedDay, setSelectedDay] =
-    useState<number | null>(null);
-    const [
+  useState<number | null>(null);
+
+const [
+  selectedNoteDate,
+  setSelectedNoteDate,
+] = useState<string | null>(
+  null
+);
+
+const [
+  noteInput,
+  setNoteInput,
+] = useState("");
+const [mounted, setMounted] =
+  useState(false);
+
+const [
   editingTrade,
   setEditingTrade,
 ] = useState<Trade | null>(
   null
 );
+useEffect(() => {
+
+  setMounted(true);
+
+}, []);
 
   const currentMonth =
     currentDate.getMonth();
@@ -394,6 +420,18 @@ const tradeDate =
 
     const dayData =
       tradesByDay[day];
+      const formattedDay =
+  `${currentYear}-${String(
+    currentMonth + 1
+  ).padStart(2, "0")}-${String(
+    day
+  ).padStart(2, "0")}`;
+
+const hasNote =
+  mounted &&
+  !!getDailyNote(
+    formattedDay
+  );
 
     calendarCells.push(
 
@@ -414,6 +452,32 @@ const tradeDate =
         <span className="text-[14px] font-bold text-white">
           {day}
         </span>
+        <div
+  role="button"
+  tabIndex={0}
+  onClick={(event) => {
+
+    event.stopPropagation();
+
+    setSelectedNoteDate(
+      formattedDay
+    );
+
+    setNoteInput(
+      getDailyNote(
+        formattedDay
+      )
+    );
+  }}
+  className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-[7px] transition-all ${
+    hasNote
+      ? "text-blue-400/80"
+      : "text-slate-600 hover:text-slate-400"
+  }`}
+>
+  <FileText size={12} />
+</div>
+  
 
         {dayData ? (
 
@@ -631,6 +695,140 @@ const tradeDate =
       {/* MODAL */}
       {/* ===================================================== */}
 
+      {/* ===================================================== */}
+{/* DAILY NOTES MODAL */}
+{/* ===================================================== */}
+
+{selectedNoteDate && (
+
+  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm">
+
+    <div className="w-full max-w-[560px] rounded-[32px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-8 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
+
+      <div className="rounded-[24px] border border-white/[0.05] bg-[#0c1a31]/92 px-[28px] pt-[28px] pb-[28px]">
+      <div className="flex">
+
+  <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+    spacer
+  </div>
+
+  <div className="flex-1">
+
+{/* HEADER */}
+
+        <div className="relative top-[6px] flex items-start justify-between">
+
+          <div>
+
+            <h2 className="text-[28px] font-black tracking-tight text-white">
+              Session Notes
+            </h2>
+
+            <p className="mt-2 text-sm text-slate-400">
+              {selectedNoteDate}
+            </p>
+          </div>
+
+          <button
+            onClick={() => {
+
+              setSelectedNoteDate(
+                null
+              );
+
+              setNoteInput("");
+            }}
+            className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-white"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* SPACER */}
+
+        <div className="h-[18px] opacity-0 select-none">
+          spacer
+        </div>
+
+        {/* TEXTAREA */}
+
+        <textarea
+  style={{
+    WebkitAppearance: "none",
+  }}
+  value={noteInput}
+  onChange={(event) =>
+    setNoteInput(
+      event.target.value
+    )
+  }
+          placeholder="Add trading session notes..."
+          className="min-h-[240px] w-full resize-none rounded-[10px] border border-white/[0.06] bg-[#081526]/110 px-[26px] pt-[30px] pb-6 text-sm leading-7 tracking-[0.01em] text-slate-200 outline-none transition-all placeholder:text-slate-500 focus:border-blue-500/30"
+        />
+
+        {/* SPACER */}
+
+        <div className="h-[08px] opacity-0 select-none">
+          spacer
+        </div>
+
+        {/* ACTIONS */}
+
+        <div className="flex items-center justify-end gap-4">
+
+          <button
+            onClick={() => {
+
+              setSelectedNoteDate(
+                null
+              );
+
+              setNoteInput("");
+            }}
+            className="rounded-[14px] border border-white/[0.05] bg-white/[0.03] px-5 py-3 text-sm font-semibold text-slate-300 transition-all hover:text-white"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={() => {
+
+              if (
+                !selectedNoteDate
+              ) {
+                return;
+              }
+
+              upsertDailyNote(
+                selectedNoteDate,
+                noteInput
+              );
+
+              setSelectedNoteDate(
+                null
+              );
+            }}
+                        className="rounded-[14px] border border-blue-500/20 bg-blue-500/10 px-5 py-3 text-sm font-semibold text-blue-400 transition-all hover:bg-blue-500/20"
+          >
+            Save Notes
+          </button>
+        </div>
+      </div>
+
+      <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+        spacer
+      </div>
+
+    </div>
+
+    <p className="invisible text-[18px] leading-[18px]">
+      spacing
+    </p>
+
+      </div>
+    </div>
+  </div>
+)}
       {selectedDay && (
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-8 backdrop-blur-sm">
@@ -1032,10 +1230,9 @@ trade.exitPrice > 0
                 </div>
               </div>
 
-              <p className="invisible text-[18px] leading-[18px]">
+                            <p className="invisible text-[18px] leading-[18px]">
                 spacing
               </p>
-
             </div>
           </div>
         </div>
