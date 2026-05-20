@@ -76,7 +76,7 @@ function formatAssetType(
 
 export async function parseIBKRCsv(
   file: File
-): Promise<Trade[]> {
+): Promise<NormalizedExecution[]> {
 
   return new Promise((resolve, reject) => {
 
@@ -198,7 +198,7 @@ export async function parseIBKRCsv(
                   return {
 
                     id:
-                      `${ticker}-${index}`,
+  `${formattedDate}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}`,
 
                     date:
                       formattedDate,
@@ -251,23 +251,17 @@ export async function parseIBKRCsv(
           // PAIR EXECUTIONS
           // =================================================
 
-          const pairedTrades =
-            pairTrades(
-              normalizedExecutions,
-              existingTrades
-            );
-
           console.log(
-            "NORMALIZED TRADES"
-          );
+  "NORMALIZED EXECUTIONS"
+);
 
-          console.table(
-            pairedTrades
-          );
+console.table(
+  normalizedExecutions
+);
 
-          resolve(
-            pairedTrades
-          );
+resolve(
+  normalizedExecutions
+);
 
         } catch (error) {
 
