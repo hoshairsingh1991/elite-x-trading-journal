@@ -231,9 +231,16 @@ const rebuiltTrades =
     updatedExecutions
   );
 
-setImportedTrades(
-  rebuiltTrades
-);
+const manualTrades =
+  loadTrades().filter(
+    (trade) =>
+      !trade.contractKey
+  );
+
+setImportedTrades([
+  ...rebuiltTrades,
+  ...manualTrades,
+]);
 
     } catch (error) {
 
