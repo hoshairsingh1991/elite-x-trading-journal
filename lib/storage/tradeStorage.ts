@@ -106,6 +106,85 @@ export function appendTrades(
 
   const existingTrades =
     loadTrades();
+    // ============================================
+// RECONCILE CLOSED POSITIONS
+// ============================================
+
+const reconciledTrades =
+  newTrades.map((newTrade) => {
+
+    // ========================================
+    // ONLY CHECK OPEN IMPORTS
+    // ========================================
+
+    if (
+      !newTrade.isOpen
+    ) {
+
+      return newTrade;
+    }
+
+    // ========================================
+    // FIND MATCHING OPEN TRADE
+    // ========================================
+
+    const matchingTrade =
+      existingTrades.find(
+        (existingTrade) => {
+
+          return (
+            existingTrade.isOpen &&
+            existingTrade.contractKey ===
+              newTrade.contractKey &&
+            existingTrade.quantity ===
+              newTrade.quantity
+          );
+        }
+      );
+
+    // ========================================
+    // NO MATCH
+    // ========================================
+
+    if (!matchingTrade) {
+
+      return newTrade;
+    }
+
+    // ========================================
+    // MERGE LIFECYCLE
+    // ========================================
+
+    return {
+
+      ...matchingTrade,
+
+      exitPrice:
+        newTrade.exitPrice,
+
+      closedAt:
+        newTrade.closedAt,
+
+      isOpen: false,
+
+      status:
+        newTrade.status,
+
+      pnl:
+        newTrade.pnl,
+
+      fees:
+        Number(
+          (
+            matchingTrade.fees +
+            newTrade.fees
+          ).toFixed(2)
+        ),
+
+      updatedAt:
+        new Date().toISOString(),
+    };
+  });
 
   // ============================================
   // DUPLICATE PROTECTION

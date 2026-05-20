@@ -7,6 +7,10 @@ import {
   Trade,
 } from "@/types/trade";
 
+import {
+  loadTrades,
+} from "@/lib/storage/tradeStorage";
+
 // =================================================
 // HELPERS
 // =================================================
@@ -21,6 +25,7 @@ function parseNumber(
     value === null ||
     value === ""
   ) {
+
     return fallback;
   }
 
@@ -136,7 +141,7 @@ export async function parseIBKRCsv(
                     rawDate.slice(6, 8);
 
                   const formattedDate =
-  `${year}-${month}-${day}`;
+                    `${year}-${month}-${day}`;
 
                   const ticker =
                     row.UnderlyingSymbol ||
@@ -147,6 +152,11 @@ export async function parseIBKRCsv(
                     row.Description ||
                     row.Symbol ||
                     ticker;
+
+                  const contractKey =
+                    contract
+                      .replace(/\s+/g, "_")
+                      .toUpperCase();
 
                   // =================================================
                   // FIXED PRICE MAPPING
@@ -197,6 +207,8 @@ export async function parseIBKRCsv(
 
                     contract,
 
+                    contractKey,
+
                     side:
                       row["Buy/Sell"] ===
                       "BUY"
@@ -229,12 +241,20 @@ export async function parseIBKRCsv(
               );
 
           // =================================================
+          // LOAD EXISTING TRADES
+          // =================================================
+
+          const existingTrades =
+            loadTrades();
+
+          // =================================================
           // PAIR EXECUTIONS
           // =================================================
 
           const pairedTrades =
             pairTrades(
-              normalizedExecutions
+              normalizedExecutions,
+              existingTrades
             );
 
           console.log(
