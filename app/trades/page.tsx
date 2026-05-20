@@ -17,6 +17,9 @@ import TradesToolbar from "@/components/trades/TradesToolbar";
 import {
   loadExecutions,
 } from "@/lib/storage/executionStorage";
+import {
+  loadTrades,
+} from "@/lib/storage/tradeStorage";
 
 import { pairTrades }
 from "@/lib/parsers/pairTrades";
@@ -64,6 +67,10 @@ export default function TradesPage() {
 
   useEffect(() => {
 
+  // =========================================
+  // IMPORTED EXECUTION TRADES
+  // =========================================
+
   const storedExecutions =
     loadExecutions();
 
@@ -72,9 +79,31 @@ export default function TradesPage() {
       storedExecutions
     );
 
-  setTrades(
-    rebuiltTrades
-  );
+  // =========================================
+  // MANUAL TRADES
+  // =========================================
+
+  const manualTrades =
+    loadTrades();
+
+  // =========================================
+  // FILTER MANUAL ONLY
+  // =========================================
+
+  const filteredManualTrades =
+    manualTrades.filter(
+      (trade) =>
+        !trade.contractKey
+    );
+
+  // =========================================
+  // COMBINED RENDER LAYER
+  // =========================================
+
+  setTrades([
+    ...rebuiltTrades,
+    ...filteredManualTrades,
+  ]);
 
 }, []);
 
