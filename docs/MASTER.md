@@ -500,6 +500,10 @@ trades are deterministic derived state
 ```
 
 This architecture must remain protected.
+## behavioral-journaling-v1
+
+Stable behavioral journaling layer with hydration-safe calendar note system.
+
 
 ---
 
@@ -570,6 +574,8 @@ Current architecture namespaces execution identities by account:
 id:
 `${accountId}-${formattedDate}-${ticker}-${contractKey}-${side}-${quantity}-${executionPrice}`
 ```
+
+
 
 ---
 
@@ -761,6 +767,13 @@ Current stabilized systems:
 * optical balancing
 * timezone-safe rendering
 * lifecycle continuity rendering
+
+* behavioral journaling integration
+* daily session notes system
+* hydration-safe note rendering
+* calendar note indicators
+* institutional notes modal
+* isolated behavioral metadata layer
 
 ---
 
