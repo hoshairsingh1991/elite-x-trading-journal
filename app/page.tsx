@@ -25,11 +25,13 @@ import {
 } from "@/lib/analytics";
 
 import { parseIBKRCsv } from "@/lib/parsers/ibkrParser";
+import { pairTrades }
+from "@/lib/parsers/pairTrades";
 
 import {
-  appendTrades,
-  loadTrades,
-} from "@/lib/storage/tradeStorage";
+  loadExecutions,
+  appendExecutions,
+} from "@/lib/storage/executionStorage";
 
 import { Trade } from "@/types/trade";
 
@@ -97,23 +99,28 @@ useEffect(() => {
 
   useEffect(() => {
 
-    const storedTrades =
-      loadTrades();
+  const storedExecutions =
+    loadExecutions();
 
-    if (
-      storedTrades.length > 0
-    ) {
+  if (
+    storedExecutions.length > 0
+  ) {
 
-      setImportedTrades(
-        storedTrades
+    const rebuiltTrades =
+      pairTrades(
+        storedExecutions
       );
 
-      return;
-    }
+    setImportedTrades(
+      rebuiltTrades
+    );
 
-    setImportedTrades([]);
+    return;
+  }
 
-  }, []);
+  setImportedTrades([]);
+
+}, []);
 
   // =================================================
   // FILTERED TRADES
@@ -194,14 +201,19 @@ useEffect(() => {
       const parsedTrades =
         await parseIBKRCsv(file);
 
-      const updatedTrades =
-        appendTrades(
-          parsedTrades as Trade[]
-        );
+      const updatedExecutions =
+  appendExecutions(
+    parsedTrades
+  );
 
-      setImportedTrades(
-        updatedTrades
-      );
+const rebuiltTrades =
+  pairTrades(
+    updatedExecutions
+  );
+
+setImportedTrades(
+  rebuiltTrades
+);
 
     } catch (error) {
 

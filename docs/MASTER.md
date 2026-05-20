@@ -52,6 +52,8 @@ Elite X development follows:
 * stability-first architecture
 * local-first development
 * modular systems
+* deterministic rebuild architecture
+* execution-authentic reconciliation
 * surgical edits over aggressive rewrites
 * typography-first UI design
 * spacing-first hierarchy
@@ -67,6 +69,8 @@ The platform intentionally favors:
 * institutional spacing
 * optical balancing
 * calm density
+* broker-authentic accounting
+* deterministic trade rebuilding
 
 over:
 
@@ -74,6 +78,8 @@ over:
 * flashy effects
 * mathematical-only alignment
 * aggressive auto-layout systems
+* synthetic trade mutation
+* append-based reconciliation
 
 ---
 
@@ -85,7 +91,7 @@ prototype dashboard architecture
 
 into:
 
-modular scalable SaaS-grade architecture.
+modular scalable SaaS-grade reconciliation architecture.
 
 The application now behaves as:
 
@@ -93,7 +99,7 @@ institutional local-first trading operating system.
 
 Current project state:
 
-STABLE CHECKPOINT
+STABLE DETERMINISTIC REBUILD CHECKPOINT
 
 ---
 
@@ -181,6 +187,204 @@ Never casually revert to raw UTC parsing.
 
 ---
 
+# Reconciliation Architecture
+
+Elite X now operates on:
+
+```txt
+Deterministic Execution-Based Rebuild Architecture
+```
+
+Core flow:
+
+```txt
+IBKR CSV
+↓
+Normalize Executions
+↓
+Persist Raw Executions
+↓
+FIFO Quantity-Aware Reconciliation Engine
+↓
+Canonical Trade Reconstruction
+↓
+Analytics + UI
+```
+
+This architecture replaced the old:
+
+```txt
+append synthetic trades forever
+```
+
+model.
+
+---
+
+# Source of Truth Architecture
+
+## Executions Are Canonical Truth
+
+Elite X no longer treats:
+
+```txt
+Trade[]
+```
+
+as canonical persistence.
+
+The true source of truth is now:
+
+```txt
+NormalizedExecution[]
+```
+
+Trades are rebuilt deterministically from executions.
+
+This architecture prevents:
+
+* duplicate imports
+* overlapping CSV corruption
+* ghost shorts
+* orphan open positions
+* lifecycle drift
+* synthetic trade mutation
+* append corruption
+* repeated upload corruption
+
+---
+
+# Deterministic Rebuild Rules
+
+Given the same execution set:
+
+```txt
+same executions
+→ same reconstructed trades
+→ every single time
+```
+
+This behavior is now considered:
+
+FOUNDATIONAL ARCHITECTURE
+
+Elite X must NEVER return to:
+
+```txt
+append-based synthetic trade persistence
+```
+
+---
+
+# FIFO Quantity-Aware Accounting
+
+Elite X now supports:
+
+* quantity depletion
+* FIFO matching
+* multi-fill entries
+* aggregated exits
+* partial fills
+* cross-day lifecycle continuity
+* worthless expirations
+* open-position carry-forward
+* open-to-closed lifecycle migration
+* execution-level traceability
+
+The reconciliation engine now behaves much closer to:
+
+```txt
+institutional broker reconciliation systems
+```
+
+than:
+
+```txt
+retail journaling software
+```
+
+---
+
+# Critical Accounting Philosophy
+
+Elite X intentionally prioritizes:
+
+```txt
+execution-authentic accounting
+```
+
+instead of aggressively compressing fills into synthetic position summaries.
+
+This means Elite X may show:
+
+```txt
+multiple execution-derived trade fragments
+```
+
+where systems like Tradelizer show:
+
+```txt
+single averaged position abstraction
+```
+
+Elite X prioritizes:
+
+* broker-traceable execution history
+* deterministic FIFO accounting
+* auditable reconciliation
+* institutional accuracy
+
+over:
+
+* compressed visual simplicity
+* averaged fill abstraction
+* aggressive aggregation
+
+Future UI aggregation layers may later simplify presentation while preserving execution-authentic accounting internally.
+
+---
+
+# Execution Identity Architecture
+
+Execution IDs are now deterministic.
+
+Old broken architecture:
+
+```ts
+id: `${ticker}-${index}`
+```
+
+Problem:
+
+* CSV row ordering changes between exports
+* overlapping ranges produced different IDs
+* duplicate detection failed
+
+Current architecture:
+
+```ts
+id:
+`${formattedDate}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}`
+```
+
+This guarantees:
+
+```txt
+same broker execution
+→ same internal identity
+→ regardless of CSV export range
+```
+
+This architecture permanently solves:
+
+* overlapping import duplication
+* repeated upload duplication
+* ghost short reconstruction
+* duplicated open positions
+* partial overlap corruption
+
+---
+
 # Storage Architecture
 
 Current storage layer:
@@ -189,26 +393,25 @@ Current storage layer:
 localStorage
 ```
 
-Elite X currently operates as:
+Primary canonical storage key:
 
-local-first trading operating system.
+```txt
+elite-x-executions
+```
 
-Stabilized systems:
+Stores:
 
-* centralized trade persistence
-* reload-safe hydration
-* persistent dashboard state
-* timeframe persistence
-* trade editing persistence
-* CSV import persistence
-* analytics persistence
-* calendar persistence
+```txt
+NormalizedExecution[]
+```
 
-Current persistence keys include:
+Trades are now:
 
-* trades
-* selected timeframe
-* analytics state
+```txt
+rebuilt derived state
+```
+
+and are no longer canonical persistence.
 
 ---
 
@@ -217,15 +420,17 @@ Current persistence keys include:
 Completed:
 
 * IBKR CSV parser
-* trade normalization
-* trade pairing engine
+* execution normalization
+* deterministic execution identity
+* FIFO reconciliation engine
+* quantity-aware pairing
 * open trade handling
 * commission normalization
 * account mapping
 * ticker normalization
-* duplicate prevention
 * asset-type normalization
 * canonical date conversion
+* deterministic rebuild system
 
 Supported:
 
@@ -235,7 +440,7 @@ Supported:
 * Forex
 * Crypto
 
-All imported trades MUST normalize into:
+All imported executions MUST normalize into:
 
 ```txt
 YYYY-MM-DD
@@ -261,11 +466,13 @@ Trade system includes:
 * manual trade entry
 * CSV import ingestion
 * modal editing
-* trade reconciliation
+* deterministic trade rebuilding
+* FIFO reconciliation
 * open position support
 * account tracking
 * commission tracking
 * asset-type support
+* cross-day lifecycle continuity
 
 Supported asset types:
 
@@ -280,7 +487,7 @@ Supported asset types:
 
 # Option Architecture
 
-Elite X now supports:
+Elite X supports:
 
 institutional options multiplier handling.
 
@@ -335,8 +542,9 @@ Stabilized systems:
 * calendar synchronization
 * edit integration
 * spacing calibration
+* deterministic rebuild synchronization
 
-Trade rendering now uses:
+Trade rendering uses:
 
 ```ts
 parseLocalDate()
@@ -364,10 +572,11 @@ Current stabilized systems:
 * invisible spacer compensation
 * optical balancing
 * timezone-safe rendering
+* lifecycle continuity rendering
 
 ---
 
-## Calendar Layout Rules
+# Calendar Layout Rules
 
 The calendar intentionally uses:
 
@@ -410,7 +619,7 @@ Avoid aggressive wrapper rewrites.
 
 # P&L Analytics Architecture
 
-P&L Analytics is now considered:
+P&L Analytics is considered:
 
 STABILIZED INSTITUTIONAL MODULE
 
@@ -431,7 +640,7 @@ Current architecture includes:
 
 # Adaptive Aggregation System
 
-Elite X now dynamically aggregates analytics based on selected timeframe.
+Elite X dynamically aggregates analytics based on selected timeframe.
 
 Current behavior:
 
@@ -470,7 +679,7 @@ MTD
 ALL
 ```
 
-Elite X now persists timeframe selection across refreshes using:
+Elite X persists timeframe selection across refreshes using:
 
 ```txt
 localStorage
@@ -484,7 +693,7 @@ production-grade UX behavior.
 
 # Trading Behavior Architecture
 
-Trading Behavior system now uses:
+Trading Behavior system uses:
 
 * isolated weekday cards
 * invisible spacing compensation
@@ -618,6 +827,7 @@ Next likely systems:
 * setup tagging
 * screenshot support
 * execution notes
+* UI aggregation layer
 
 ---
 
@@ -634,6 +844,43 @@ Planned:
 * AI trade review
 * advanced behavior analytics
 * execution grading
+
+---
+
+## Future UI Aggregation Layer
+
+Potential future enhancement:
+
+```txt
+execution-authentic reconciliation internally
++
+aggregated position presentation externally
+```
+
+Example:
+
+Instead of:
+
+```txt
+BUY 1 @ 0.40
+BUY 1 @ 0.46
+BUY 1 @ 0.30
+SELL 3 @ 0.11
+```
+
+UI may later show:
+
+```txt
+AVG ENTRY 0.39
+EXIT 0.11
+QTY 3
+```
+
+But internally:
+
+```txt
+FIFO execution truth must remain preserved
+```
 
 ---
 
@@ -674,6 +921,8 @@ Before modifying any stabilized system:
 6. Protect timezone-safe date systems
 7. Maintain canonical date storage
 8. Preserve safe-zone compensation
+9. Preserve deterministic rebuild behavior
+10. Never reintroduce append-based synthetic trade persistence
 
 Institutional dashboards require:
 
@@ -682,3 +931,54 @@ optical stability
 not merely:
 
 technically valid layout.
+
+---
+
+# Current Stable Milestones
+
+## fifo-stable-v1
+
+First stable FIFO quantity-aware reconciliation engine.
+
+## deterministic-rebuild-v1
+
+First stable deterministic execution-based rebuild architecture.
+
+---
+
+# Safe Reset Command
+
+```js
+localStorage.clear()
+location.reload()
+```
+
+---
+
+# Current Project State
+
+Status:
+
+```txt
+STABLE
+```
+
+Architecture:
+
+```txt
+DETERMINISTIC EXECUTION-BASED RECONCILIATION
+```
+
+Elite X now behaves significantly closer to:
+
+```txt
+professional broker reconciliation infrastructure
+```
+
+than:
+
+```txt
+basic retail journaling software
+```
+
+Major architectural milestone achieved.
