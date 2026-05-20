@@ -344,6 +344,165 @@ Future UI aggregation layers may later simplify presentation while preserving ex
 
 ---
 
+# Reconciliation Override Experiments (FAILED / DO NOT REINTRODUCE)
+
+Elite X experimented with:
+
+manual synthetic reconciliation closures
+for imported open positions.
+
+The attempted architecture introduced:
+
+* synthetic closing executions
+* manual lifecycle overrides
+* unresolved short suppression
+* synthetic close flags
+* reconciliation patching logic
+
+This architecture is currently considered:
+
+UNSTABLE
+
+The experiment produced:
+
+* runaway open position generation
+* duplicate unresolved shorts
+* corrupted lifecycle reconstruction
+* reconciliation ambiguity
+* persistent synthetic execution pollution
+* execution bucket mismatch problems
+* unstable state rebuilds
+
+Critical lesson learned:
+
+Elite X deterministic rebuild architecture is currently stable ONLY when:
+
+```txt
+NormalizedExecution[]
+→ deterministic FIFO rebuild
+→ immutable execution history
+```
+
+The system becomes unstable when introducing:
+
+```txt
+manual synthetic lifecycle mutation
+```
+
+without a dedicated reconciliation subsystem.
+
+---
+
+# Current Official Position Lifecycle Policy
+
+Imported broker executions are currently treated as:
+
+```txt
+IMMUTABLE ACCOUNTING HISTORY
+```
+
+This means:
+
+* imported open positions should NOT be manually force-closed
+* synthetic close executions should NOT be injected
+* unresolved imported lifecycle mismatches are acceptable
+* stability is prioritized over forced reconciliation
+
+This is intentional.
+
+Future reconciliation systems must be designed as:
+
+```txt
+dedicated institutional reconciliation layer
+```
+
+NOT:
+
+```txt
+patches inside pairTrades()
+```
+
+---
+
+# DO NOT REINTRODUCE THESE PATTERNS
+
+The following experimental patterns are considered:
+
+ARCHITECTURALLY UNSAFE
+
+Do NOT casually reintroduce:
+
+```ts
+isSyntheticClose
+```
+
+```ts
+handleResolvePosition()
+```
+
+```ts
+syntheticExecution
+```
+
+```ts
+manual-close-${trade.id}
+```
+
+```ts
+!execution.isSyntheticClose
+```
+
+inside unmatched short handling.
+
+Do NOT attempt:
+
+* synthetic lifecycle overrides
+* synthetic close injections
+* forced open-position mutation
+* reconciliation shortcuts
+* stateful rebuild patching
+* mutable imported accounting
+
+without first designing:
+
+```txt
+true reconciliation ledger architecture
+```
+
+---
+
+# Stable Architectural Boundary
+
+Current stable system boundary:
+
+```txt
+deterministic imported execution rebuilding
+```
+
+NOT:
+
+```txt
+interactive accounting mutation engine
+```
+
+This distinction is critical.
+
+Elite X is currently stable because:
+
+```txt
+executions remain immutable
+```
+
+and:
+
+```txt
+trades are deterministic derived state
+```
+
+This architecture must remain protected.
+
+---
+
 # Execution Identity Architecture
 
 Execution IDs are now deterministic.
@@ -382,6 +541,35 @@ This architecture permanently solves:
 * ghost short reconstruction
 * duplicated open positions
 * partial overlap corruption
+
+## Multi-Account Execution Identity Isolation
+
+Execution identities are now account-scoped.
+
+Previous architecture allowed execution identity collisions across accounts when:
+
+- same ticker
+- same contract
+- same side
+- same quantity
+- same execution price
+- same execution date
+
+occurred in multiple broker accounts.
+
+This caused:
+
+- false duplicate suppression
+- unmatched execution states
+- phantom short positions
+- incomplete FIFO reconstruction
+
+Current architecture namespaces execution identities by account:
+
+```ts
+id:
+`${accountId}-${formattedDate}-${ticker}-${contractKey}-${side}-${quantity}-${executionPrice}`
+```
 
 ---
 

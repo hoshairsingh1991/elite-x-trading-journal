@@ -15,27 +15,30 @@ Delete temp data like trades history
 
 inside browser - inspect - console - 
 
-localStorage.removeItem("elite-x-trades")
+localStorage.clear()
+
 location.reload()
 
 ------------------------------------------------------------------
 
+Latest Stable Checkpoint:
+hybrid-architecture-v1
 
-# MAY 19 2026 — STABLE ANALYTICS CHECKPOINT
+Status:
+PRODUCTION-STABLE HYBRID ARCHITECTURE
 
-## Stabilized Systems
+Includes:
+- deterministic execution rebuild architecture
+- FIFO quantity-aware reconciliation
+- overlapping CSV duplicate protection
+- stable open position handling
+- stable manual trade support
+- stable modal editing
+- stable trade history
+- stable calendar analytics
+- stable localStorage architecture
+- deterministic execution identity
 
-- adaptive P&L aggregation
-- weekly/monthly chart grouping
-- MTD timeframe architecture
-- persistent timeframe state
-- timezone-safe chart rendering
-- option multiplier support
-- trade edit integration
-- calendar edit integration
-- stabilized dashboard spacing systems
-- institutional master.md rewrite
-
-## Current State
-
-Project transitioned into scalable institutional architecture phase.
+Known limitation:
+Imported open positions are currently immutable.
+Synthetic reconciliation overrides are intentionally disabled after failed architecture experiments.
