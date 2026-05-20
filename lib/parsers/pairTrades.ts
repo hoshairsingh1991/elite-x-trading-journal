@@ -4,11 +4,24 @@ import {
 } from "@/types/trade";
 
 // =================================================
+// EXTENDED EXECUTION TYPE
+// =================================================
+
+interface PositionExecution
+  extends NormalizedExecution {
+
+  remainingQuantity?: number;
+
+  fromStorage?: boolean;
+}
+
+// =================================================
 // PAIR EXECUTIONS INTO TRADES
 // =================================================
 
 export function pairTrades(
-  executions: NormalizedExecution[]
+  executions: NormalizedExecution[],
+  existingTrades: Trade[] = []
 ): Trade[] {
 
   const finalTrades: Trade[] = [];
@@ -16,13 +29,94 @@ export function pairTrades(
   const openPositions:
     Record<
       string,
-      NormalizedExecution[]
+      PositionExecution[]
     > = {};
+
+  // =================================================
+  // LOAD EXISTING OPEN POSITIONS
+  // =================================================
+
+  existingTrades.forEach(
+    (trade) => {
+
+      if (
+        !trade.isOpen ||
+        !trade.contractKey
+      ) {
+
+        return;
+      }
+
+      if (
+        !openPositions[
+          trade.contractKey
+        ]
+      ) {
+
+        openPositions[
+          trade.contractKey
+        ] = [];
+      }
+
+      openPositions[
+        trade.contractKey
+      ].push({
+
+        id: trade.id,
+
+        fromStorage: true,
+
+        date:
+          trade.openedAt ||
+          trade.date,
+
+        ticker:
+          trade.ticker,
+
+        contract:
+          trade.contract || "",
+
+        contractKey:
+          trade.contractKey,
+
+        side:
+          trade.side,
+
+        quantity:
+          trade.quantity,
+
+        remainingQuantity:
+          trade.quantity,
+
+        executionPrice:
+          trade.entryPrice,
+
+        executionValue:
+          trade.pnl,
+
+        fees:
+          trade.fees,
+
+        account:
+          trade.account || "",
+
+        assetType:
+          trade.assetType || "",
+
+        multiplier: 100,
+      });
+    }
+  );
+
+  // =================================================
+  // PROCESS EXECUTIONS
+  // =================================================
 
   executions.forEach(
     (execution, index) => {
 
       const contractKey =
+        execution.contractKey ||
         execution.contract;
 
       // =================================================
@@ -50,7 +144,13 @@ export function pairTrades(
 
         openPositions[
           contractKey
-        ].push(execution);
+        ].push({
+
+          ...execution,
+
+          remainingQuantity:
+            execution.quantity,
+        });
 
         return;
       }
@@ -59,24 +159,59 @@ export function pairTrades(
       // SHORT EXIT
       // =================================================
 
-      const entryExecution =
-        openPositions[
-          contractKey
-        ].shift();
+      let remainingExitQuantity =
+        execution.quantity;
 
-      // =================================================
-      // CLOSED TRADE
-      // =================================================
+      while (
+        remainingExitQuantity > 0
+      ) {
 
-      if (entryExecution) {
+        const entryExecution =
+          openPositions[
+            contractKey
+          ][0];
+
+        // =============================================
+        // NO MATCH FOUND
+        // =============================================
+
+        if (!entryExecution) {
+
+          break;
+        }
+
+        // =============================================
+        // DETERMINE MATCH SIZE
+        // =============================================
+
+        const consumeQuantity =
+          Math.min(
+            remainingExitQuantity,
+            entryExecution.remainingQuantity ||
+              entryExecution.quantity
+          );
+
+        // =============================================
+        // CALCULATE PNL
+        // =============================================
 
         const realizedPnL =
-          entryExecution.executionValue +
-          execution.executionValue;
+          (
+            (
+              execution.executionPrice -
+              entryExecution.executionPrice
+            ) *
+            consumeQuantity *
+            execution.multiplier
+          ) -
+          (
+            entryExecution.fees +
+            execution.fees
+          );
 
-        const totalFees =
-          entryExecution.fees +
-          execution.fees;
+        // =============================================
+        // TRADE STATUS
+        // =============================================
 
         let status:
           | "WIN"
@@ -99,10 +234,14 @@ export function pairTrades(
             "BREAKEVEN";
         }
 
+        // =============================================
+        // CREATE CLOSED TRADE
+        // =============================================
+
         finalTrades.push({
 
           id:
-            `${contractKey}-closed-${index}`,
+            `${entryExecution.id}-${index}-${consumeQuantity}`,
 
           // =================================================
           // BASIC INFO
@@ -113,6 +252,8 @@ export function pairTrades(
 
           contract:
             execution.contract,
+
+          contractKey,
 
           side: "LONG",
 
@@ -138,7 +279,7 @@ export function pairTrades(
             execution.executionPrice,
 
           quantity:
-            execution.quantity,
+            consumeQuantity,
 
           // =================================================
           // PERFORMANCE
@@ -151,7 +292,10 @@ export function pairTrades(
 
           fees:
             Number(
-              totalFees.toFixed(2)
+              (
+                entryExecution.fees +
+                execution.fees
+              ).toFixed(2)
             ),
 
           // =================================================
@@ -176,28 +320,54 @@ export function pairTrades(
           updatedAt:
             new Date().toISOString(),
         });
+
+        // =============================================
+        // REDUCE QUANTITIES
+        // =============================================
+
+        remainingExitQuantity -=
+          consumeQuantity;
+
+        entryExecution.remainingQuantity =
+          (
+            entryExecution.remainingQuantity ||
+            entryExecution.quantity
+          ) - consumeQuantity;
+
+        // =============================================
+        // REMOVE FULLY CLOSED POSITION
+        // =============================================
+
+        if (
+          entryExecution.remainingQuantity <= 0
+        ) {
+
+          openPositions[
+            contractKey
+          ].shift();
+        }
       }
 
       // =================================================
       // UNMATCHED SHORT
       // =================================================
 
-      else {
+      if (
+        remainingExitQuantity > 0
+      ) {
 
         finalTrades.push({
 
           id:
             `${contractKey}-open-short-${index}`,
 
-          // =================================================
-          // BASIC INFO
-          // =================================================
-
           ticker:
             execution.ticker,
 
           contract:
             execution.contract,
+
+          contractKey,
 
           side:
             execution.side,
@@ -213,21 +383,13 @@ export function pairTrades(
           account:
             execution.account,
 
-          // =================================================
-          // EXECUTION
-          // =================================================
-
           entryPrice:
             execution.executionPrice,
 
           exitPrice: null,
 
           quantity:
-            execution.quantity,
-
-          // =================================================
-          // PERFORMANCE
-          // =================================================
+            remainingExitQuantity,
 
           pnl:
             -execution.fees,
@@ -235,20 +397,12 @@ export function pairTrades(
           fees:
             execution.fees,
 
-          // =================================================
-          // OPEN POSITION SUPPORT
-          // =================================================
-
           isOpen: true,
 
           openedAt:
             execution.date,
 
           closedAt: null,
-
-          // =================================================
-          // METADATA
-          // =================================================
 
           createdAt:
             new Date().toISOString(),
@@ -272,10 +426,20 @@ export function pairTrades(
       positions.forEach(
         (position, index) => {
 
+          if (
+            (
+              position.remainingQuantity ||
+              position.quantity
+            ) <= 0
+          ) {
+
+            return;
+          }
+
           finalTrades.push({
 
             id:
-              `${contractKey}-remaining-open-${index}`,
+  `${contractKey}-${position.date}-${position.executionPrice}-${position.quantity}`,
 
             // =================================================
             // BASIC INFO
@@ -286,6 +450,8 @@ export function pairTrades(
 
             contract:
               position.contract,
+
+            contractKey,
 
             side:
               position.side,
@@ -311,6 +477,7 @@ export function pairTrades(
             exitPrice: null,
 
             quantity:
+              position.remainingQuantity ||
               position.quantity,
 
             // =================================================

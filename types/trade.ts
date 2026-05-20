@@ -44,6 +44,7 @@ export interface NormalizedExecution {
   ticker: string;
 
   contract: string;
+  contractKey?: string;
 
   side: TradeSide;
 
@@ -76,6 +77,22 @@ export interface Trade {
   ticker: string;
 
   contract?: string;
+  
+  // =================================================
+// POSITION LIFECYCLE
+// =================================================
+
+contractKey?: string;
+
+lifecycleId?: string;
+
+parentTradeId?: string;
+
+remainingQuantity?: number;
+
+holdingDays?: number;
+
+executions?: NormalizedExecution[];
 
   side: TradeSide;
 

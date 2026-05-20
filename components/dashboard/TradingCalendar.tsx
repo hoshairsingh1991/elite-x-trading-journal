@@ -139,9 +139,20 @@ export default function TradingCalendar({
       return trades.filter(
         (trade) => {
 
-          const tradeDate =
+          const effectiveDate =
+  trade.isOpen
+    ? (
+        trade.openedAt ||
+        trade.date
+      )
+    : (
+        trade.closedAt ||
+        trade.date
+      );
+
+const tradeDate =
   parseLocalDate(
-    trade.date
+    effectiveDate
   );
 
           return (
@@ -174,9 +185,20 @@ export default function TradingCalendar({
   currentMonthTrades.forEach(
     (trade) => {
 
-      const tradeDate =
+      const effectiveDate =
+  trade.isOpen
+    ? (
+        trade.openedAt ||
+        trade.date
+      )
+    : (
+        trade.closedAt ||
+        trade.date
+      );
+
+const tradeDate =
   parseLocalDate(
-    trade.date
+    effectiveDate
   );
 
       const day =
@@ -209,9 +231,20 @@ export default function TradingCalendar({
           return false;
         }
 
-        const tradeDate =
+        const effectiveDate =
+  trade.isOpen
+    ? (
+        trade.openedAt ||
+        trade.date
+      )
+    : (
+        trade.closedAt ||
+        trade.date
+      );
+
+const tradeDate =
   parseLocalDate(
-    trade.date
+    effectiveDate
   );
 
         return (
