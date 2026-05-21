@@ -5,6 +5,8 @@ import {
   useState,
 } from "react";
 
+import { supabase } from "@/lib/supabase";
+
 import Sidebar from "@/components/layout/Sidebar";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
@@ -25,6 +27,7 @@ import {
 } from "@/lib/analytics";
 
 import { parseIBKRCsv } from "@/lib/parsers/ibkrParser";
+
 import { pairTrades }
 from "@/lib/parsers/pairTrades";
 
@@ -32,6 +35,7 @@ import {
   loadExecutions,
   appendExecutions,
 } from "@/lib/storage/executionStorage";
+
 import {
   loadTrades,
 } from "@/lib/storage/tradeStorage";
@@ -132,6 +136,26 @@ export default function HomePage() {
   // =================================================
 
   useEffect(() => {
+
+  // =========================================
+  // SUPABASE CONNECTION TEST
+  // =========================================
+
+  const testSupabase = async () => {
+
+    const { data, error } =
+      await supabase
+        .from("test")
+        .select("*");
+
+    console.log(
+      "SUPABASE TEST:",
+      data,
+      error
+    );
+  };
+
+  testSupabase();
 
   // =========================================
   // IMPORTED EXECUTION TRADES
