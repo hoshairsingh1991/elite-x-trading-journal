@@ -296,7 +296,7 @@ export function pairTrades(
           status,
 
           date:
-            entryExecution.date,
+  execution.date,
 
           assetType:
             execution.assetType,
