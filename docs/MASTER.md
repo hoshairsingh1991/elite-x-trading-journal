@@ -1521,6 +1521,94 @@ Persistent filters MUST remain:
 
 ---
 
+# Workflow Persistence Doctrine
+
+Elite X distinguishes between:
+
+```txt
+workflow-state persistence
+```
+
+and:
+
+```txt
+canonical accounting persistence
+```
+
+These are NOT equivalent systems.
+
+---
+
+# Workflow Persistence Scope
+
+Workflow persistence exists ONLY for:
+
+- toolbar filters
+- render preferences
+- temporary UI continuity
+- operator workflow state
+- session continuity ergonomics
+
+Examples include:
+
+```txt
+searchQuery
+statusFilter
+sideFilter
+assetFilter
+fromDate
+toDate
+```
+
+These may persist using:
+
+```txt
+localStorage
+```
+
+because they are:
+
+```txt
+non-canonical presentation state
+```
+
+---
+
+# Protected Persistence Rule
+
+Workflow persistence MUST NEVER:
+- mutate canonical trade data
+- alter rebuild systems
+- modify reconciliation state
+- affect execution continuity
+- create accounting divergence
+- persist synthetic calculations
+- fork canonical execution history
+
+---
+
+# Canonical Persistence Boundary
+
+Only the following may persist as canonical truth:
+
+```txt
+executions
+manual trades
+rebuild state
+reconciliation truth
+```
+
+All workflow persistence must remain:
+
+```txt
+fully resettable
+presentation-layer scoped
+architecturally isolated
+```
+
+
+---
+
 # Protected Architecture Rule
 
 Filtering systems MUST ALWAYS remain:

@@ -51,36 +51,63 @@ export default function HomePage() {
   selectedAccount,
   setSelectedAccount,
 ] = useState("ALL");
+    // =================================================
+  // RANGE PERSISTENCE
   // =================================================
-// RANGE PERSISTENCE
-// =================================================
 
-useEffect(() => {
+  useEffect(() => {
 
-  const savedRange =
-    localStorage.getItem(
-      "elite-x-range"
-    );
+    const storedRange =
+      localStorage.getItem(
+        "elite-x-dashboard-range"
+      );
 
-  if (
-    savedRange
-  ) {
+    if (!storedRange) {
+      return;
+    }
 
     setSelectedRange(
-      savedRange as TimeRange
+      storedRange as TimeRange
     );
-  }
 
-}, []);
+  }, []);
 
-useEffect(() => {
+    const [hasHydrated, setHasHydrated] =
+    useState(false);
 
-  localStorage.setItem(
-    "elite-x-range",
-    selectedRange
-  );
+  useEffect(() => {
 
-}, [selectedRange]);
+    const storedRange =
+      localStorage.getItem(
+        "elite-x-dashboard-range"
+      );
+
+    if (storedRange) {
+
+      setSelectedRange(
+        storedRange as TimeRange
+      );
+    }
+
+    setHasHydrated(true);
+
+  }, []);
+
+  useEffect(() => {
+
+    if (!hasHydrated) {
+      return;
+    }
+
+    localStorage.setItem(
+      "elite-x-dashboard-range",
+      selectedRange
+    );
+
+  }, [
+    selectedRange,
+    hasHydrated,
+  ]);
 
   const [selectedTrade, setSelectedTrade] =
     useState<Trade | null>(null);

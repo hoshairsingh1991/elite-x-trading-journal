@@ -76,6 +76,88 @@ export default function TradesPage() {
   const [toDate, setToDate] =
     useState("");
 
+      // =================================================
+  // FILTER PERSISTENCE
+  // =================================================
+
+  useEffect(() => {
+
+    const storedFilters =
+      localStorage.getItem(
+        "elite-x-trade-filters"
+      );
+
+    if (!storedFilters) {
+      return;
+    }
+
+    const parsed =
+      JSON.parse(
+        storedFilters
+      );
+
+    setSearchQuery(
+      parsed.searchQuery || ""
+    );
+
+    setStatusFilter(
+      parsed.statusFilter || "ALL"
+    );
+
+    setSideFilter(
+      parsed.sideFilter || "ALL"
+    );
+
+    setAssetFilter(
+      parsed.assetFilter || "ALL"
+    );
+
+    setFromDate(
+      parsed.fromDate || ""
+    );
+
+    setToDate(
+      parsed.toDate || ""
+    );
+
+  }, []);
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "elite-x-trade-filters",
+
+      JSON.stringify({
+
+        searchQuery,
+
+        statusFilter,
+
+        sideFilter,
+
+        assetFilter,
+
+        fromDate,
+
+        toDate,
+      })
+    );
+
+  }, [
+
+    searchQuery,
+
+    statusFilter,
+
+    sideFilter,
+
+    assetFilter,
+
+    fromDate,
+
+    toDate,
+  ]);
+
   // =================================================
   // LOAD TRADES
   // =================================================
