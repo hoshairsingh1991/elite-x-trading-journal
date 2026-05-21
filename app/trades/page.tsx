@@ -11,6 +11,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import TradesTable from "@/components/trades/TradesTable";
 
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
+import AddTradeModal from "@/components/trades/AddTradeModal";
 
 import TradesToolbar from "@/components/trades/TradesToolbar";
 
@@ -46,6 +47,15 @@ export default function TradesPage() {
     useState(false);
 
   // =================================================
+  // ADD TRADE MODAL
+  // =================================================
+
+  const [
+    isAddTradeOpen,
+    setIsAddTradeOpen,
+  ] = useState(false);
+
+  // =================================================
   // FILTER STATE
   // =================================================
 
@@ -60,6 +70,11 @@ export default function TradesPage() {
 
   const [assetFilter, setAssetFilter] =
     useState("ALL");
+      const [fromDate, setFromDate] =
+    useState("");
+
+  const [toDate, setToDate] =
+    useState("");
 
   // =================================================
   // LOAD TRADES
@@ -161,7 +176,7 @@ export default function TradesPage() {
             trade.side ===
               sideFilter;
 
-          // =========================================
+                    // =========================================
           // ASSET TYPE
           // =========================================
 
@@ -171,11 +186,31 @@ export default function TradesPage() {
             trade.assetType ===
               assetFilter;
 
+          // =========================================
+          // DATE RANGE
+          // =========================================
+
+          const matchesFromDate =
+
+            !fromDate ||
+
+            trade.date >=
+              fromDate;
+
+          const matchesToDate =
+
+            !toDate ||
+
+            trade.date <=
+              toDate;
+
           return (
             matchesSearch &&
             matchesStatus &&
             matchesSide &&
-            matchesAsset
+            matchesAsset &&
+            matchesFromDate &&
+            matchesToDate
           );
         }
       );
@@ -186,7 +221,10 @@ export default function TradesPage() {
       statusFilter,
       sideFilter,
       assetFilter,
+      fromDate,
+      toDate,
     ]);
+
 
   // =================================================
   // MODAL HANDLERS
@@ -234,11 +272,11 @@ export default function TradesPage() {
 
       <section className="flex min-w-0 flex-1 flex-col overflow-hidden pr-10 pt-4">
 
-        {/* ================================================= */}
+                {/* ================================================= */}
         {/* HEADER */}
         {/* ================================================= */}
 
-        <div className="flex h-[100px] items-center border-b border-white/[0.05] px-8 pb-4">
+        <div className="flex h-[100px] items-center justify-between border-b border-white/[0.05] px-8 pb-4">
 
           <div className="relative left-3">
 
@@ -252,6 +290,21 @@ export default function TradesPage() {
 
             <div className="h-2 opacity-0" />
           </div>
+
+          {/* ================================================= */}
+          {/* ADD TRADE BUTTON */}
+          {/* ================================================= */}
+
+          <button
+            onClick={() =>
+              setIsAddTradeOpen(true)
+            }
+            className="relative right-10 flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
+          >
+
+            Add Trade
+
+          </button>
         </div>
 
         {/* ================================================= */}
@@ -273,23 +326,40 @@ export default function TradesPage() {
               setSearchQuery={
                 setSearchQuery
               }
+
               statusFilter={
                 statusFilter
               }
               setStatusFilter={
                 setStatusFilter
               }
+
               sideFilter={
                 sideFilter
               }
               setSideFilter={
                 setSideFilter
               }
+
               assetFilter={
                 assetFilter
               }
               setAssetFilter={
                 setAssetFilter
+              }
+
+              fromDate={
+                fromDate
+              }
+              setFromDate={
+                setFromDate
+              }
+
+              toDate={
+                toDate
+              }
+              setToDate={
+                setToDate
               }
             />
 
@@ -308,7 +378,7 @@ export default function TradesPage() {
           </div>
         </div>
 
-        {/* ================================================= */}
+                {/* ================================================= */}
         {/* MODAL */}
         {/* ================================================= */}
 
@@ -333,6 +403,17 @@ export default function TradesPage() {
             }
           />
         )}
+
+        {/* ================================================= */}
+        {/* ADD TRADE MODAL */}
+        {/* ================================================= */}
+
+        <AddTradeModal
+          open={isAddTradeOpen}
+          onClose={() =>
+            setIsAddTradeOpen(false)
+          }
+        />
       </section>
     </main>
   );

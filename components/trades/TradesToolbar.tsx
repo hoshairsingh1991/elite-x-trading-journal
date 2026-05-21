@@ -27,6 +27,18 @@ interface TradesToolbarProps {
   setAssetFilter: (
     value: string
   ) => void;
+
+  fromDate: string;
+
+  setFromDate: (
+    value: string
+  ) => void;
+
+  toDate: string;
+
+  setToDate: (
+    value: string
+  ) => void;
 }
 
 export default function TradesToolbar({
@@ -42,6 +54,12 @@ export default function TradesToolbar({
 
   assetFilter,
   setAssetFilter,
+
+  fromDate,
+  setFromDate,
+
+  toDate,
+  setToDate,
 
 }: TradesToolbarProps) {
 
@@ -78,7 +96,7 @@ export default function TradesToolbar({
   // RESET
   // =================================================
 
-  const handleReset = () => {
+    const handleReset = () => {
 
     setSearchQuery("");
 
@@ -87,6 +105,10 @@ export default function TradesToolbar({
     setSideFilter("ALL");
 
     setAssetFilter("ALL");
+
+    setFromDate("");
+
+    setToDate("");
   };
 
   return (
@@ -125,29 +147,14 @@ export default function TradesToolbar({
         {/* TOP ROW */}
         {/* ================================================= */}
 
-        <div className="flex flex-wrap items-center justify-end gap-4">
+        <div className="flex flex-wrap items-center justify-end gap-3">
 
-          {/* ================================================= */}
-          {/* ADD TRADE */}
-          {/* ================================================= */}
-
-          <div className="mr-auto">
-
-            <button
-              onClick={() =>
-                setIsAddTradeOpen(true)
-              }
-              className="h-[50px] rounded-2xl border border-emerald-500/15 bg-emerald-500/10 px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-emerald-400 transition-all hover:bg-emerald-500/15"
-            >
-              + Add Trade
-            </button>
-          </div>
 
           {/* ================================================= */}
           {/* SEARCH */}
           {/* ================================================= */}
 
-          <div className="w-[360px]">
+          <div className="w-[260px]">
 
             <input
               type="text"
@@ -158,7 +165,43 @@ export default function TradesToolbar({
                   e.target.value
                 )
               }
-              className="h-[50px] w-full rounded-2xl border border-white/[0.06] bg-[#0b1220] px-5 text-[14px] font-medium text-white outline-none transition-all placeholder:text-slate-500 focus:border-blue-500/40"
+              className="h-[50px] min-w-[250px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-5 text-center text-[14px] font-medium text-white outline-none transition-all placeholder:text-slate-500 focus:border-blue-500/40"
+            />
+          </div>
+
+          {/* ================================================= */}
+          {/* FROM DATE */}
+          {/* ================================================= */}
+
+          <div className="w-[130px]">
+
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) =>
+                setFromDate(
+                  e.target.value
+                )
+              }
+              className="h-[50px] min-w-[100px] rounded-2xl border border-white/[0.06] bg-[#0b1220] pl-10 text-[13px] font-semibold tracking-[0.08em] text-slate-300 outline-none transition-all [color-scheme:dark] focus:border-blue-500/40"
+            />
+          </div>
+
+          {/* ================================================= */}
+          {/* TO DATE */}
+          {/* ================================================= */}
+
+          <div className="relative flex w-[150px] items-center justify-center">
+
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) =>
+                setToDate(
+                  e.target.value
+                )
+              }
+              className="h-[50px] min-w-[100px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-5 text-center tracking-[0.08em] text-[13px] font-semibold text-slate-300 outline-none transition-all [color-scheme:dark] focus:border-blue-500/40"
             />
           </div>
 
@@ -173,7 +216,7 @@ export default function TradesToolbar({
                 e.target.value
               )
             }
-            className="h-[50px] min-w-[140px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
+            className="h-[50px] min-w-[100px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
           >
             <option value="ALL">
               All Status
@@ -203,7 +246,7 @@ export default function TradesToolbar({
                 e.target.value
               )
             }
-            className="h-[50px] min-w-[140px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
+            className="h-[50px] min-w-[100px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
           >
             <option value="ALL">
               All Sides
@@ -229,7 +272,7 @@ export default function TradesToolbar({
                 e.target.value
               )
             }
-            className="h-[50px] min-w-[160px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
+            className="h-[50px] min-w-[100px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
           >
             <option value="ALL">
               All Assets

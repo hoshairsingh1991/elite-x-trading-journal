@@ -22,7 +22,7 @@ location.reload()
 ------------------------------------------------------------------
 
 Latest Stable Checkpoint:
-git checkout checkpoint/hybrid-architecture-v4
+git checkout checkpoint/hybrid-architecture-v7
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE

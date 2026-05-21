@@ -421,7 +421,7 @@ export default function AddTradeModal({
                                     e.target.value
                                   )
                                 }
-                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
                               />
                             </div>
                           </div>

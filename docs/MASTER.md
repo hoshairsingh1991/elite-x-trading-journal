@@ -1430,6 +1430,114 @@ NOT through:
 
 ---
 
+# Trade History Filtering Architecture
+
+Elite X trade history filtering operates as:
+
+```txt
+pure presentation-layer derived filtering
+```
+
+Filtering MUST NEVER:
+- mutate canonical trades
+- alter execution history
+- modify reconciliation
+- alter accounting semantics
+- create synthetic trade states
+- mutate lifecycle continuity
+
+---
+
+# Canonical Filter Pipeline
+
+Trade history rendering officially follows:
+
+```txt
+canonical trades
+→ search filtering
+→ account filtering
+→ status filtering
+→ side filtering
+→ asset filtering
+→ date-range filtering
+→ render layer
+```
+
+All filtering systems are:
+
+```txt
+non-destructive render derivations
+```
+
+---
+
+# Date Filtering Doctrine
+
+Elite X date filtering uses:
+
+```txt
+canonical YYYY-MM-DD comparison
+```
+
+This intentionally avoids:
+- timezone mutation
+- locale parsing instability
+- Date object drift
+- UTC conversion ambiguity
+
+Date filtering operates exclusively on:
+
+```txt
+canonical realized trade dates
+```
+
+using:
+
+```txt
+trade.date
+```
+
+---
+
+# Toolbar Persistence Philosophy
+
+Trade history filters are considered:
+
+```txt
+workflow-state persistence
+```
+
+NOT:
+```txt
+accounting persistence
+```
+
+Persistent filters MUST remain:
+- UI-scoped
+- non-canonical
+- fully resettable
+- isolated from rebuild systems
+- isolated from reconciliation systems
+
+---
+
+# Protected Architecture Rule
+
+Filtering systems MUST ALWAYS remain:
+
+```txt
+presentation-layer only
+```
+
+They must NEVER:
+- fork accounting state
+- create derived persistence layers
+- alter canonical trade structures
+- modify execution reconstruction
+- introduce hidden trade mutation
+
+
+
 # Canonical Architecture Flow
 
 Elite X officially follows:
