@@ -610,14 +610,40 @@ trades are deterministic derived state
 ```
 
 This architecture must remain protected.
-## behavioral-journaling-v1
 
-Stable behavioral journaling layer with hydration-safe calendar note system.
+# Behavioral Journaling Architecture
 
+Elite X includes isolated behavioral journaling systems
+designed to remain fully separated from canonical accounting architecture.
 
----
+Current stabilized systems include:
+
+* hydration-safe behavioral notes
+* isolated calendar journaling
+* rebuild-independent note persistence
+* institutional notes modal systems
+* behavioral metadata isolation
+* non-accounting journal storage
+* calendar note indicators
+
+Behavioral journaling systems MUST NEVER:
+
+* mutate executions
+* mutate reconstructed trades
+* affect reconciliation
+* affect realized P&L
+* affect analytics calculations
+* interfere with deterministic rebuild behavior
+
+Behavioral journaling is intentionally treated as:
+
+```txt
+non-accounting metadata layer
+```
+
 
 # Execution Identity Architecture
+
 
 Execution IDs are now deterministic.
 
@@ -1220,7 +1246,6 @@ Next likely systems:
 * business expense analytics
 * trade search
 * filtering toolbar
-* account filtering
 * ticker filtering
 * setup tagging
 * screenshot support
@@ -1380,3 +1405,101 @@ basic retail journaling software
 ```
 
 Major architectural milestone achieved.
+
+---
+
+# Multi-Account Presentation Architecture
+
+Elite X supports:
+
+```txt
+multi-account unified portfolio rendering
+```
+
+through:
+
+```txt
+presentation-layer account filtering
+```
+
+NOT through:
+- separate accounting ledgers
+- duplicated rebuild systems
+- mutable account partitioning
+- account-scoped reconciliation mutation
+
+---
+
+# Canonical Architecture Flow
+
+Elite X officially follows:
+
+```txt
+Executions
+→ Deterministic Rebuild
+→ Canonical Trades
+→ Account Filter Layer
+→ Range Filter Layer
+→ Analytics/UI
+```
+
+Imported executions remain:
+
+```txt
+canonical immutable accounting history
+```
+
+Account filtering operates ONLY as:
+
+```txt
+derived render-layer presentation state
+```
+
+---
+
+# Protected Architecture Rule
+
+Account filtering MUST NEVER:
+
+- mutate executions
+- mutate reconstructed trades
+- alter reconciliation
+- create duplicate accounting layers
+- fork deterministic rebuild behavior
+- create account-specific trade persistence
+- introduce synthetic account partitioning
+
+All account views MUST derive from:
+
+```txt
+single canonical trade universe
+```
+
+---
+
+# Current Supported Behavior
+
+Elite X currently supports:
+
+- combined portfolio analytics
+- per-account analytics
+- per-account trade history
+- per-account calendar rendering
+- per-account behavioral aggregation
+- synchronized account-aware dashboard rendering
+
+through:
+
+```txt
+selectedAccount
+→ accountFilteredTrades
+→ rangeFilteredTrades
+→ analytics/UI
+```
+
+This architecture preserves:
+- deterministic rebuild consistency
+- accounting integrity
+- lifecycle synchronization
+- analytics synchronization
+- institutional portfolio scalability

@@ -47,6 +47,10 @@ export default function HomePage() {
 
   const [selectedRange, setSelectedRange] =
   useState<TimeRange>("ALL");
+  const [
+  selectedAccount,
+  setSelectedAccount,
+] = useState("ALL");
   // =================================================
 // RANGE PERSISTENCE
 // =================================================
@@ -143,12 +147,53 @@ useEffect(() => {
 }, []);
 
   // =================================================
+  // AVAILABLE ACCOUNTS
+  // =================================================
+
+  const availableAccounts = [
+
+    "ALL",
+
+    ...Array.from(
+
+      new Set(
+
+        importedTrades
+          .map(
+            (trade) =>
+              trade.account
+          )
+          .filter(Boolean)
+
+      )
+
+    ),
+
+  ];
+
+    // =================================================
+  // ACCOUNT FILTERED TRADES
+  // =================================================
+
+  const accountFilteredTrades =
+
+    selectedAccount === "ALL"
+
+      ? importedTrades
+
+      : importedTrades.filter(
+          (trade) =>
+            trade.account ===
+            selectedAccount
+        );
+
+  // =================================================
   // FILTERED TRADES
   // =================================================
 
   const filteredTrades =
     filterTradesByRange(
-      importedTrades,
+      accountFilteredTrades,
       selectedRange
     );
 
@@ -279,8 +324,44 @@ setImportedTrades([
         {/* TOP HEADER */}
         {/* ================================================= */}
 
-        <div className="flex h-[70px] shrink-0 items-center justify-end gap-4 border-b border-white/[0.05] px-8 pb-4">
+        <div className="flex h-[70px] shrink-0 items-center justify-between gap-4 border-b border-white/[0.05] px-8 pb-4">
 
+                  {/* ================================================= */}
+          {/* ACCOUNT SELECTOR */}
+          {/* ================================================= */}
+
+                    <div className="flex flex-col items-center">
+
+            <p className="mb-2 pl-1 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+              Select Account
+            </p>
+
+            <select
+              value={selectedAccount}
+              onChange={(event) =>
+                setSelectedAccount(
+                  event.target.value
+                )
+              }
+              className="h-[46px] min-w-[130px] rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-center text-[14px] font-bold tracking-[0.08em] text-slate-200 outline-none transition-all hover:bg-[#13203a]"
+            >
+
+              {availableAccounts.map(
+                (account) => (
+
+                  <option
+                    key={account}
+                    value={account}
+                  >
+                    {account}
+                  </option>
+                )
+              )}
+
+            </select>
+          </div>
+
+<div className="flex items-center gap-4">
           {/* ================================================= */}
           {/* CSV BUTTON */}
           {/* ================================================= */}
@@ -317,6 +398,7 @@ setImportedTrades([
             Add Trade
           </button>
         </div>
+        </div>
 
         {/* ================================================= */}
         {/* HEADER GAP */}
@@ -335,6 +417,8 @@ setImportedTrades([
           {/* ================================================= */}
 
           <div className="flex items-start gap-8">
+
+            
 
             {/* ================================================= */}
             {/* LEFT SIDE */}
