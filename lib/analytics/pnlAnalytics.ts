@@ -71,14 +71,18 @@ export function groupDailyPnL(
 
   trades.forEach((trade) => {
 
-    if (!grouped[trade.date]) {
+  const accountingDate =
+    trade.closedAt ||
+    trade.date;
 
-      grouped[trade.date] = 0;
-    }
+  if (!grouped[accountingDate]) {
 
-    grouped[trade.date] +=
-      trade.pnl;
-  });
+    grouped[accountingDate] = 0;
+  }
+
+  grouped[accountingDate] +=
+    trade.pnl;
+});
 
   return Object.entries(grouped)
 

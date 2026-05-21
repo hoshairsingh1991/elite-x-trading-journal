@@ -15,6 +15,35 @@ export type TimeRange =
 
 
 // =================================================
+// LOCAL DATE PARSER
+// =================================================
+
+function parseLocalDate(
+  dateString: string
+) {
+
+  const cleanDate =
+    dateString.includes("T")
+      ? dateString.split("T")[0]
+      : dateString;
+
+  const [
+    year,
+    month,
+    day,
+  ] = cleanDate
+    .split("-")
+    .map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  );
+}
+
+
+// =================================================
 // FILTER TRADES BY RANGE
 // =================================================
 
@@ -38,7 +67,7 @@ export function filterTradesByRange(
     return trades.filter((trade) => {
 
       const tradeDate =
-        new Date(
+        parseLocalDate(
           trade.date
         );
 
@@ -81,7 +110,7 @@ export function filterTradesByRange(
   return trades.filter((trade) => {
 
     const tradeDate =
-      new Date(
+      parseLocalDate(
         trade.date
       );
 

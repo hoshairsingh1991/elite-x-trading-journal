@@ -344,6 +344,116 @@ Future UI aggregation layers may later simplify presentation while preserving ex
 
 ---
 
+# Canonical Trade Date Policy
+
+Elite X officially uses:
+
+```txt
+close-date realized accounting
+```
+
+for all realized P&L systems.
+
+For reconstructed closed trades:
+
+```txt
+trade.date
+```
+
+represents:
+
+```txt
+realized/accounting date
+```
+
+NOT entry date.
+
+Lifecycle metadata:
+
+```txt
+openedAt
+closedAt
+```
+
+exists separately for behavioral and lifecycle analysis.
+
+---
+
+# Realized Analytics Systems
+
+The following systems MUST group by:
+
+```txt
+closedAt || date
+```
+
+- Trading Calendar
+- Daily P&L Distribution
+- Trading Behavior
+- Account Overview
+- Realized P&L analytics
+- Performance aggregation systems
+
+This preserves institutional realized accounting consistency.
+
+---
+
+# Behavioral vs Accounting Separation
+
+Elite X distinguishes between:
+
+```txt
+behavioral trade initiation
+```
+
+and:
+
+```txt
+realized accounting attribution
+```
+
+Behavioral systems MAY use:
+
+```txt
+openedAt
+```
+
+ONLY when explicitly performing:
+
+- entry-session analysis
+- execution timing analysis
+- trade initiation behavior review
+
+Behavioral systems MUST NOT silently drift away from realized accounting semantics.
+
+---
+
+# Protected Architecture Rule
+
+Do NOT reintroduce:
+
+```txt
+entry-date pnl attribution
+```
+
+for realized accounting systems.
+
+This previously caused:
+
+- calendar drift
+- analytics inconsistency
+- weekday mismatch
+- distribution mismatch
+- lifecycle attribution corruption
+
+Elite X now officially standardizes:
+
+```txt
+realized pnl belongs to close date
+```
+
+---
+
 # Reconciliation Override Experiments (FAILED / DO NOT REINTRODUCE)
 
 Elite X experimented with:
@@ -894,17 +1004,104 @@ production-grade UX behavior.
 
 # Trading Behavior Architecture
 
-Trading Behavior system uses:
+Trading Behavior is considered:
 
-* isolated weekday cards
+STABILIZED ANALYTICS MODULE
+
+The system currently operates using:
+
+```txt
+realized close-date attribution
+```
+
+to remain synchronized with:
+
+- Trading Calendar
+- Daily P&L Distribution
+- Account Overview
+- Realized P&L analytics
+
+Trading Behavior intentionally groups realized performance using:
+
+```txt
+closedAt || date
+```
+
+NOT:
+
+```txt
+openedAt
+```
+
+unless explicitly performing behavioral entry-session analysis.
+
+---
+
+# Current Stabilized Systems
+
+Trading Behavior currently includes:
+
+* isolated weekday analytics cards
+* realized weekday performance aggregation
+* realized trade-count aggregation
+* institutional spacing rhythm
 * invisible spacing compensation
-* manual alignment balancing
 * optical row stabilization
-* independent spacing rhythm
+* manual alignment balancing
+* independent card-spacing architecture
+* timezone-safe weekday rendering
+* lifecycle-aware analytics grouping
 
-Do NOT aggressively remove invisible spacing systems.
+---
 
-They are intentional.
+# Protected Layout Rules
+
+Trading Behavior intentionally uses:
+
+* invisible spacer systems
+* optical compensation offsets
+* spacing-safe flex balancing
+* manual row calibration
+* independent rhythm stabilization
+
+These systems are intentional.
+
+Do NOT aggressively remove:
+
+* invisible spacing systems
+* relative alignment compensation
+* optical balancing offsets
+* manual spacing calibration
+
+without fully validating visual rhythm consistency.
+
+---
+
+# Protected Behavioral Rule
+
+Do NOT silently reintroduce:
+
+```txt
+entry-date pnl attribution
+```
+
+inside realized behavioral analytics.
+
+This previously caused:
+
+* calendar mismatch
+* weekday drift
+* trade-count inconsistency
+* analytics desynchronization
+* realized pnl attribution corruption
+
+Elite X officially standardizes:
+
+```txt
+realized pnl belongs to close date
+```
+
+for all realized behavioral aggregation systems.
 
 ---
 

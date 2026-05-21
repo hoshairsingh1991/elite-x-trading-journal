@@ -147,49 +147,67 @@ return new Date(
 }
 
   const weekdays = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-  ];
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+];
 
-  const weekdayStats =
-    weekdays.map((day) => {
+const weekdayStats =
+  weekdays.map((day) => {
 
-      const dayTrades =
-        trades.filter((trade) => {
+    const dayTrades =
+      trades.filter((trade) => {
 
-          const tradeDate =
-            new Date(
-              trade.date
-            );
+        const behaviorDate =
+  trade.closedAt ||
+  trade.date;
 
-          const weekday =
-            tradeDate.toLocaleDateString(
-              "en-US",
-              {
-                weekday: "long",
-              }
-            );
+        const cleanDate =
+          behaviorDate.includes("T")
+            ? behaviorDate.split("T")[0]
+            : behaviorDate;
 
-          return weekday === day;
-        });
+        const [
+          year,
+          month,
+          dayNumber,
+        ] = cleanDate
+          .split("-")
+          .map(Number);
 
-      const pnl =
-        dayTrades.reduce(
-          (sum, trade) =>
-            sum + trade.pnl,
-          0
-        );
+        const tradeDate =
+          new Date(
+            year,
+            month - 1,
+            dayNumber
+          );
 
-      return {
-        day,
-        pnl,
-        trades:
-          dayTrades.length,
-      };
-    });
+        const weekday =
+          tradeDate.toLocaleDateString(
+            "en-US",
+            {
+              weekday: "long",
+            }
+          );
+
+        return weekday === day;
+      });
+
+    const totalPnL =
+      dayTrades.reduce(
+        (sum, trade) =>
+          sum + trade.pnl,
+        0
+      );
+
+    return {
+      day,
+      pnl: totalPnL,
+      trades: dayTrades.length,
+    };
+  });
 
   const maxBehaviorPnL =
     Math.max(
