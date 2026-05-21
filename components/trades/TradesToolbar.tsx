@@ -76,7 +76,7 @@ export default function TradesToolbar({
   // ACTIVE FILTERS
   // =================================================
 
-  const activeFilters = [
+    const activeFilters = [
 
     statusFilter !== "ALL"
       ? statusFilter
@@ -88,6 +88,14 @@ export default function TradesToolbar({
 
     assetFilter !== "ALL"
       ? assetFilter
+      : null,
+
+    fromDate
+      ? `FROM ${fromDate}`
+      : null,
+
+    toDate
+      ? `TO ${toDate}`
       : null,
 
   ].filter(Boolean);
@@ -293,6 +301,15 @@ export default function TradesToolbar({
             <option value="Forex">
               Forex
             </option>
+
+<option value="CRYPTO">
+  Crypto
+</option>
+
+<option value="CFD">
+  CFD
+</option>
+
           </select>
 
           {/* ================================================= */}
@@ -307,44 +324,9 @@ export default function TradesToolbar({
             >
               Reset
             </button>
-          </div>
+                   </div>
         </div>
 
-        {/* ================================================= */}
-        {/* ACTIVE FILTERS */}
-        {/* ================================================= */}
-
-        {(activeFilters.length > 0 ||
-          searchQuery) && (
-
-          <div className="mt-5 flex flex-wrap items-center justify-end gap-3 border-t border-white/[0.05] pt-5">
-
-            {searchQuery && (
-
-              <div className="rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-[8px]">
-
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-400">
-                  Search: {searchQuery}
-                </span>
-              </div>
-            )}
-
-            {activeFilters.map(
-              (filter) => (
-
-                <div
-                  key={filter}
-                  className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-[8px]"
-                >
-
-                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-300">
-                    {filter}
-                  </span>
-                </div>
-              )
-            )}
-          </div>
-        )}
       </div>
 
       {/* ================================================= */}
@@ -352,7 +334,6 @@ export default function TradesToolbar({
       {/* ================================================= */}
 
       <div className="h-4 opacity-0" />
-
     </>
   );
 }
