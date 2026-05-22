@@ -50,7 +50,7 @@ The platform prioritizes:
 Elite X development follows:
 
 * stability-first architecture
-* local-first development
+* cloud-canonical development / cloud-backed deterministic architecture
 * modular systems
 * deterministic rebuild architecture
 * execution-authentic reconciliation
@@ -95,15 +95,30 @@ modular scalable SaaS-grade reconciliation architecture.
 
 The application now behaves as:
 
-institutional local-first trading operating system.
+institutional cloud-canonical execution-ledger platform.
 
 Current project state:
 
 STABLE DETERMINISTIC REBUILD CHECKPOINT
 
+Current architecture milestone:
+
+```txt
+CLOUD-CANONICAL EXECUTION LEDGER STABILIZED
+```
+
+This milestone finalized:
+
+* deterministic cloud reconstruction
+* execution identity stability
+* cross-browser convergence
+* cross-device accounting consistency
+* duplicate upload stability
+* canonical Supabase persistence
+* immutable execution-ledger doctrine
+
 ---
 
-# Current Stable Systems
 
 ## Dashboard Foundation
 
@@ -192,7 +207,7 @@ Never casually revert to raw UTC parsing.
 Elite X now operates on:
 
 ```txt
-Deterministic Execution-Based Rebuild Architecture
+Cloud-Canonical Deterministic Execution Reconstruction
 ```
 
 Core flow:
@@ -202,7 +217,7 @@ IBKR CSV
 ↓
 Normalize Executions
 ↓
-Persist Raw Executions
+Persist Canonical Executions
 ↓
 FIFO Quantity-Aware Reconciliation Engine
 ↓
@@ -428,7 +443,7 @@ Behavioral systems MUST NOT silently drift away from realized accounting semanti
 
 ---
 
-# Protected Architecture Rule
+# Protected Accounting Architecture Rule
 
 Do NOT reintroduce:
 
@@ -663,7 +678,7 @@ Current architecture:
 
 ```ts
 id:
-`${formattedDate}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}`
+`${account}-${executionTimestamp}-${ticker}-${contractKey}-${side}-${quantity}-${executionPrice}-${executionValue}`
 ```
 
 This guarantees:
@@ -682,143 +697,117 @@ This architecture permanently solves:
 * duplicated open positions
 * partial overlap corruption
 
-## Multi-Account Execution Identity Isolation
+## Deterministic Execution Identity v2
 
-Execution identities are now account-scoped.
+Execution identities are now fully deterministic and collision-resistant.
 
-Previous architecture allowed execution identity collisions across accounts when:
+Previous architectures allowed execution collisions when:
 
+- same timestamp
 - same ticker
 - same contract
 - same side
 - same quantity
 - same execution price
-- same execution date
 
-occurred in multiple broker accounts.
+occurred across:
+- split fills
+- duplicated timestamps
+- overlapping exports
+- multiple broker accounts
 
 This caused:
 
 - false duplicate suppression
-- unmatched execution states
-- phantom short positions
+- phantom open positions
 - incomplete FIFO reconstruction
+- execution identity collapse
+- deterministic rebuild instability
 
-Current architecture namespaces execution identities by account:
+Current architecture uses:
 
 ```ts
 id:
-`${accountId}-${formattedDate}-${ticker}-${contractKey}-${side}-${quantity}-${executionPrice}`
+`${account}-${executionTimestamp}-${ticker}-${contractKey}-${side}-${quantity}-${executionPrice}-${executionValue}`
 ```
 
+Execution identity now includes:
 
+* account
+* full execution timestamp
+* ticker
+* contractKey
+* side
+* quantity
+* executionPrice
+* executionValue
+
+This architecture permanently solves:
+
+* duplicate timestamp collisions
+* split-fill identity collapse
+* repeated upload drift
+* overlapping export ambiguity
+* ghost open positions
+* deterministic reconstruction instability
 
 ---
 
-# Storage Architecture
+# Current Persistence Doctrine
 
-Current storage layer:
-
-```txt
-localStorage
-```
-
-Primary canonical storage key:
+Elite X now officially operates on:
 
 ```txt
-elite-x-executions
+cloud-canonical deterministic execution reconstruction
 ```
 
-Stores:
+Canonical accounting truth now exists ONLY in:
+
+```txt
+Supabase execution ledger
+```
+
+Imported executions are persisted as:
 
 ```txt
 NormalizedExecution[]
 ```
 
-Trades are now:
-
-```txt
-rebuilt derived state
-```
-
-and are no longer canonical persistence.
-
----
-
-# Hybrid Cloud Persistence Architecture
-
-Elite X now supports:
-
-```txt
-hybrid local + cloud execution persistence
-```
-
 through:
 
 ```txt
-localStorage
-+
-Supabase
+Supabase executions table
 ```
 
-Execution ingestion currently follows:
+Current canonical flow:
 
 ```txt
 CSV Upload
 ↓
 Normalize Executions
 ↓
-Persist Locally
-↓
 Persist To Supabase
 ↓
-Deterministic Rebuild
+Load Canonical Executions From Supabase
+↓
+Deterministic FIFO Rebuild
+↓
+Canonical Trades
 ↓
 Analytics + UI
 ```
 
----
+This architecture permanently solves:
 
-# Current Persistence Doctrine
+* browser divergence
+* cross-device reconstruction mismatch
+* stale local execution pollution
+* hybrid state drift
+* local reconstruction inconsistency
+* duplicate upload instability
+* domain-level accounting divergence
+* inconsistent open positions
 
-Elite X intentionally operates in:
-
-```txt
-dual-write transitional architecture
-```
-
-during current migration phase.
-
-Imported executions are currently persisted to BOTH:
-
-## Local Persistence
-
-```txt
-localStorage
-```
-
-using:
-
-```txt
-elite-x-executions
-```
-
-AND:
-
-## Cloud Persistence
-
-```txt
-Supabase executions table
-```
-
-This architecture intentionally provides:
-
-* migration safety
-* offline continuity
-* rebuild redundancy
-* rollback protection
-* cloud synchronization foundation
-* deterministic rebuild continuity
 
 ---
 
@@ -860,39 +849,6 @@ Do NOT bypass deterministic rebuild systems by:
 * introducing append-based trade persistence
 * creating mutable trade-ledger architectures
 
----
-
-# Current Hybrid Loading Behavior
-
-Elite X currently performs:
-
-```txt
-local + cloud execution merge
-```
-
-during initialization.
-
-Current flow:
-
-```txt
-local executions
-+
-Supabase executions
-↓
-execution.id dedupe
-↓
-pairTrades()
-↓
-canonical reconstructed trades
-```
-
-This architecture intentionally protects:
-
-* migration continuity
-* duplicate suppression
-* deterministic rebuild consistency
-* cloud synchronization safety
-* local rollback safety
 
 ---
 
@@ -944,7 +900,50 @@ until future manual execution architecture is designed.
 
 ---
 
-# Protected Architecture Rule
+---
+
+# Canonical Reconstruction Loading Behavior
+
+Elite X now performs:
+
+```txt
+single-source canonical cloud reconstruction
+```
+
+during initialization.
+
+Current flow:
+
+```txt
+Supabase executions
+↓
+Deterministic chronological ordering
+↓
+FIFO quantity-aware reconstruction
+↓
+pairTrades()
+↓
+canonical reconstructed trades
+```
+
+All environments now reconstruct from:
+
+```txt
+single immutable cloud execution ledger
+```
+
+This architecture guarantees:
+
+```txt
+same execution ledger
+→ same reconstructed trades
+→ every single time
+```
+
+provided execution identity remains deterministic.
+
+
+# Protected Persistence Architecture Rule
 
 Elite X MUST NEVER evolve toward:
 
@@ -1609,7 +1608,7 @@ STABLE
 Architecture:
 
 ```txt
-DETERMINISTIC EXECUTION-BASED RECONCILIATION
+CLOUD-CANONICAL DETERMINISTIC EXECUTION RECONSTRUCTION
 ```
 
 Elite X now behaves significantly closer to:
@@ -1829,7 +1828,7 @@ architecturally isolated
 
 ---
 
-# Protected Architecture Rule
+# Protected Filtering Architecture Rule
 
 Filtering systems MUST ALWAYS remain:
 
@@ -1873,7 +1872,7 @@ derived render-layer presentation state
 
 ---
 
-# Protected Architecture Rule
+# Protected Account Architecture Rule
 
 Account filtering MUST NEVER:
 
