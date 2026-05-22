@@ -93,6 +93,10 @@ saveExecutionsToSupabase(
     NormalizedExecution[]
 ): Promise<void> {
 
+  // =================================================
+  // FORMAT EXECUTIONS
+  // =================================================
+
   const formattedExecutions =
     executions.map(
       (execution) => ({
@@ -138,12 +142,36 @@ saveExecutionsToSupabase(
       })
     );
 
+  // =================================================
+  // DUPLICATE PROTECTION
+  // =================================================
+
+  const uniqueExecutions =
+    Array.from(
+
+      new Map(
+
+        formattedExecutions.map(
+          (execution) => [
+            execution.id,
+            execution,
+          ]
+        )
+
+      ).values()
+
+    );
+
+  // =================================================
+  // SAVE TO SUPABASE
+  // =================================================
+
   const {
     error,
   } = await supabase
     .from("executions")
     .upsert(
-      formattedExecutions,
+      uniqueExecutions,
       {
         onConflict: "id",
       }

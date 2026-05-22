@@ -128,15 +128,33 @@ export function pairTrades(
   );
 
   // =================================================
-  // PROCESS EXECUTIONS
-  // =================================================
+// PROCESS EXECUTIONS
+// =================================================
 
-  executions.forEach(
-    (execution, index) => {
+const sortedExecutions =
+  [...executions].sort(
+    (a, b) => {
 
-      // =============================================
-      // IGNORE CASH FX
-      // =============================================
+      const dateCompare =
+        new Date(a.date).getTime() -
+        new Date(b.date).getTime();
+
+      if (dateCompare !== 0) {
+        return dateCompare;
+      }
+
+      return a.id.localeCompare(
+        b.id
+      );
+    }
+  );
+
+sortedExecutions.forEach(
+  (execution, index) => {
+
+    // =============================================
+    // IGNORE CASH FX
+    // =============================================
 
       if (
   execution.ticker ===

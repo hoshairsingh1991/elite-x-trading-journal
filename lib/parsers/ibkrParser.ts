@@ -128,6 +128,9 @@ export async function parseIBKRCsv(
                   const rawDate =
                     row["Date/Time"] || "";
 
+                    const executionTimestamp =
+                    rawDate.trim();
+
                   const year =
                     rawDate.slice(0, 4);
 
@@ -195,7 +198,7 @@ export async function parseIBKRCsv(
                   return {
 
                     id:
-  `${row.ClientAccountID || "IBKR"}-${formattedDate}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}`,
+`${row.ClientAccountID || "IBKR"}-${executionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}`,
 
                     date:
                       formattedDate,
