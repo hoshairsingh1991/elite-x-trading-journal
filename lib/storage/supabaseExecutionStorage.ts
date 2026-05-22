@@ -35,10 +35,52 @@ Promise<NormalizedExecution[]> {
     return [];
   }
 
-  return (
-    data as
-    NormalizedExecution[]
-  ) || [];
+  const formattedExecutions =
+    (data || []).map(
+      (execution: any) => ({
+
+        id:
+          execution.id,
+
+        date:
+          execution.date,
+
+        ticker:
+          execution.ticker,
+
+        contract:
+          execution.contract,
+
+        contractKey:
+          execution.contract_key,
+
+        side:
+          execution.side,
+
+        quantity:
+          execution.quantity,
+
+        executionPrice:
+          execution.execution_price,
+
+        executionValue:
+          execution.execution_value,
+
+        fees:
+          execution.fees,
+
+        account:
+          execution.account,
+
+        assetType:
+          execution.asset_type,
+
+        multiplier:
+          execution.multiplier,
+      })
+    );
+
+  return formattedExecutions;
 }
 
 // =====================================================
