@@ -11,6 +11,8 @@ import {
   Wallet,
   BarChart3,
   Settings,
+  NotebookPen,
+  FileSpreadsheet,
 } from "lucide-react";
 
 const navItems = [
@@ -23,6 +25,11 @@ const navItems = [
     title: "Trades",
     icon: CandlestickChart,
     href: "/trades",
+  },
+  {
+    title: "Notes",
+    icon: NotebookPen,
+    href: "/notes",
   },
   {
     title: "Calendar",
@@ -38,6 +45,11 @@ const navItems = [
     title: "Expenses",
     icon: Wallet,
     href: "/expenses",
+  },
+  {
+    title: "IBKR Import",
+    icon: FileSpreadsheet,
+    href: "/ibkr-import",
   },
 ];
 
