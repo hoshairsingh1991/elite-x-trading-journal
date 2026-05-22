@@ -32,11 +32,6 @@ import { pairTrades }
 from "@/lib/parsers/pairTrades";
 
 import {
-  loadExecutions,
-  appendExecutions,
-} from "@/lib/storage/executionStorage";
-
-import {
   loadExecutionsFromSupabase,
   saveExecutionsToSupabase,
 } from "@/lib/storage/supabaseExecutionStorage";
@@ -149,32 +144,8 @@ useEffect(() => {
       // LOAD EXECUTIONS FROM SUPABASE
       // =========================================
 
-      const supabaseExecutions =
+     const storedExecutions =
   await loadExecutionsFromSupabase();
-
-const localExecutions =
-  loadExecutions();
-
-const executionMap =
-  new Map();
-
-[
-  ...localExecutions,
-  ...supabaseExecutions,
-].forEach(
-  (execution) => {
-
-    executionMap.set(
-      execution.id,
-      execution
-    );
-  }
-);
-
-const storedExecutions =
-  Array.from(
-    executionMap.values()
-  );
 
       console.log(
         "SUPABASE EXECUTIONS:",
@@ -337,18 +308,16 @@ const storedExecutions =
       const parsedTrades =
         await parseIBKRCsv(file);
 
-      const updatedExecutions =
-  appendExecutions(
-    parsedTrades
-  );
-
 await saveExecutionsToSupabase(
   parsedTrades
 );
 
+const storedExecutions =
+  await loadExecutionsFromSupabase();
+
 const rebuiltTrades =
   pairTrades(
-    updatedExecutions
+    storedExecutions
   );
 
 const manualTrades =
