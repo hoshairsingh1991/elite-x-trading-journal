@@ -16,8 +16,8 @@ import AddTradeModal from "@/components/trades/AddTradeModal";
 import TradesToolbar from "@/components/trades/TradesToolbar";
 
 import {
-  loadExecutions,
-} from "@/lib/storage/executionStorage";
+  loadExecutionsFromSupabase,
+} from "@/lib/storage/supabaseExecutionStorage";
 import {
   loadTrades,
 } from "@/lib/storage/tradeStorage";
@@ -158,49 +158,55 @@ export default function TradesPage() {
     toDate,
   ]);
 
-  // =================================================
-  // LOAD TRADES
-  // =================================================
+// =================================================
+// LOAD TRADES
+// =================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-  // =========================================
-  // IMPORTED EXECUTION TRADES
-  // =========================================
+  const loadAllTrades =
+    async () => {
 
-  const storedExecutions =
-    loadExecutions();
+      // =========================================
+      // LOAD EXECUTIONS FROM SUPABASE
+      // =========================================
 
-  const rebuiltTrades =
-    pairTrades(
-      storedExecutions
-    );
+      const storedExecutions =
+        await loadExecutionsFromSupabase();
 
-  // =========================================
-  // MANUAL TRADES
-  // =========================================
+      const rebuiltTrades =
+        pairTrades(
+          storedExecutions
+        );
 
-  const manualTrades =
-    loadTrades();
+      // =========================================
+      // MANUAL TRADES
+      // =========================================
 
-  // =========================================
-  // FILTER MANUAL ONLY
-  // =========================================
+      const manualTrades =
+        loadTrades();
 
-  const filteredManualTrades =
-    manualTrades.filter(
-      (trade) =>
-        !trade.contractKey
-    );
+      // =========================================
+      // FILTER MANUAL ONLY
+      // =========================================
 
-  // =========================================
-  // COMBINED RENDER LAYER
-  // =========================================
+      const filteredManualTrades =
+        manualTrades.filter(
+          (trade) =>
+            !trade.contractKey
+        );
 
-  setTrades([
-    ...rebuiltTrades,
-    ...filteredManualTrades,
-  ]);
+      // =========================================
+      // COMBINED RENDER LAYER
+      // =========================================
+
+      setTrades([
+        ...rebuiltTrades,
+        ...filteredManualTrades,
+      ]);
+    };
+
+  loadAllTrades();
 
 }, []);
 
