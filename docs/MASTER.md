@@ -745,6 +745,226 @@ and are no longer canonical persistence.
 
 ---
 
+# Hybrid Cloud Persistence Architecture
+
+Elite X now supports:
+
+```txt
+hybrid local + cloud execution persistence
+```
+
+through:
+
+```txt
+localStorage
++
+Supabase
+```
+
+Execution ingestion currently follows:
+
+```txt
+CSV Upload
+↓
+Normalize Executions
+↓
+Persist Locally
+↓
+Persist To Supabase
+↓
+Deterministic Rebuild
+↓
+Analytics + UI
+```
+
+---
+
+# Current Persistence Doctrine
+
+Elite X intentionally operates in:
+
+```txt
+dual-write transitional architecture
+```
+
+during current migration phase.
+
+Imported executions are currently persisted to BOTH:
+
+## Local Persistence
+
+```txt
+localStorage
+```
+
+using:
+
+```txt
+elite-x-executions
+```
+
+AND:
+
+## Cloud Persistence
+
+```txt
+Supabase executions table
+```
+
+This architecture intentionally provides:
+
+* migration safety
+* offline continuity
+* rebuild redundancy
+* rollback protection
+* cloud synchronization foundation
+* deterministic rebuild continuity
+
+---
+
+# Canonical Cloud Persistence Rule
+
+Supabase persistence stores ONLY:
+
+```txt
+NormalizedExecution[]
+```
+
+NOT:
+
+```txt
+Trade[]
+```
+
+Trades MUST remain:
+
+```txt
+deterministic derived state
+```
+
+through:
+
+```txt
+pairTrades()
+```
+
+This architecture is considered:
+
+FOUNDATIONAL
+
+Do NOT bypass deterministic rebuild systems by:
+
+* directly persisting synthetic trades
+* mutating reconstructed trade objects
+* storing analytics snapshots as canonical truth
+* introducing append-based trade persistence
+* creating mutable trade-ledger architectures
+
+---
+
+# Current Hybrid Loading Behavior
+
+Elite X currently performs:
+
+```txt
+local + cloud execution merge
+```
+
+during initialization.
+
+Current flow:
+
+```txt
+local executions
++
+Supabase executions
+↓
+execution.id dedupe
+↓
+pairTrades()
+↓
+canonical reconstructed trades
+```
+
+This architecture intentionally protects:
+
+* migration continuity
+* duplicate suppression
+* deterministic rebuild consistency
+* cloud synchronization safety
+* local rollback safety
+
+---
+
+# Execution Identity Protection
+
+Execution deduplication now exists at BOTH:
+
+## Local Layer
+
+```txt
+appendExecutions()
+```
+
+AND:
+
+## Cloud Layer
+
+```txt
+PRIMARY KEY(id)
++
+upsert(onConflict: "id")
+```
+
+Duplicate protection MUST remain execution-scoped.
+
+Do NOT move duplicate prevention into:
+
+```txt
+synthetic trade layer
+```
+
+---
+
+# Current Cloud Persistence Boundary
+
+Cloud persistence currently applies ONLY to:
+
+```txt
+imported executions
+```
+
+Manual trade entries currently remain:
+
+```txt
+local-only presentation persistence
+```
+
+until future manual execution architecture is designed.
+
+---
+
+# Protected Architecture Rule
+
+Elite X MUST NEVER evolve toward:
+
+```txt
+mutable trade CRUD architecture
+```
+
+Canonical accounting truth MUST remain:
+
+```txt
+execution-first deterministic reconstruction
+```
+
+Cloud synchronization exists ONLY to transport immutable execution history.
+
+NOT to mutate reconstructed trade state.
+
+
+---
+
 # CSV Import Architecture
 
 Completed:
