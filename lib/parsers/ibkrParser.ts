@@ -198,7 +198,7 @@ export async function parseIBKRCsv(
                   return {
 
                     id:
-`${row.ClientAccountID || "IBKR"}-${executionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}`,
+                   `${row.ClientAccountID || "IBKR"}-${executionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}-${executionValue}`,
 
                     date:
                       formattedDate,
