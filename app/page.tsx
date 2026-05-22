@@ -37,6 +37,11 @@ import {
 } from "@/lib/storage/executionStorage";
 
 import {
+  loadExecutionsFromSupabase,
+  saveExecutionsToSupabase,
+} from "@/lib/storage/supabaseExecutionStorage";
+
+import {
   loadTrades,
 } from "@/lib/storage/tradeStorage";
 
@@ -131,69 +136,84 @@ export default function HomePage() {
   const [importedTrades, setImportedTrades] =
     useState<Trade[]>([]);
 
-  // =================================================
-  // INITIAL LOAD
-  // =================================================
+ // =================================================
+// INITIAL LOAD
+// =================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-  // =========================================
-  // SUPABASE CONNECTION TEST
-  // =========================================
+  const loadAllTrades =
+    async () => {
 
-  const testSupabase = async () => {
+      // =========================================
+      // LOAD EXECUTIONS FROM SUPABASE
+      // =========================================
 
-    const { data, error } =
-      await supabase
-        .from("test")
-        .select("*");
+      const supabaseExecutions =
+  await loadExecutionsFromSupabase();
 
-    console.log(
-      "SUPABASE TEST:",
-      data,
-      error
+const localExecutions =
+  loadExecutions();
+
+const executionMap =
+  new Map();
+
+[
+  ...localExecutions,
+  ...supabaseExecutions,
+].forEach(
+  (execution) => {
+
+    executionMap.set(
+      execution.id,
+      execution
     );
-  };
+  }
+);
 
-  testSupabase();
+const storedExecutions =
+  Array.from(
+    executionMap.values()
+  );
 
-  // =========================================
-  // IMPORTED EXECUTION TRADES
-  // =========================================
+      console.log(
+        "SUPABASE EXECUTIONS:",
+        storedExecutions
+      );
 
-  const storedExecutions =
-    loadExecutions();
+      const rebuiltTrades =
+        pairTrades(
+          storedExecutions
+        );
 
-  const rebuiltTrades =
-    pairTrades(
-      storedExecutions
-    );
+      // =========================================
+      // MANUAL TRADES
+      // =========================================
 
-  // =========================================
-  // MANUAL TRADES
-  // =========================================
+      const manualTrades =
+        loadTrades();
 
-  const manualTrades =
-    loadTrades();
+      // =========================================
+      // REMOVE IMPORTED DUPLICATES
+      // =========================================
 
-  // =========================================
-  // REMOVE IMPORTED DUPLICATES
-  // =========================================
+      const filteredManualTrades =
+        manualTrades.filter(
+          (trade) =>
+            !trade.contractKey
+        );
 
-  const filteredManualTrades =
-    manualTrades.filter(
-      (trade) =>
-        !trade.contractKey
-    );
+      // =========================================
+      // COMBINED RENDER LAYER
+      // =========================================
 
-  // =========================================
-  // COMBINED RENDER LAYER
-  // =========================================
+      setImportedTrades([
+        ...rebuiltTrades,
+        ...filteredManualTrades,
+      ]);
+    };
 
-  setImportedTrades([
-    ...rebuiltTrades,
-    ...filteredManualTrades,
-  ]);
+  loadAllTrades();
 
 }, []);
 
@@ -321,6 +341,10 @@ export default function HomePage() {
   appendExecutions(
     parsedTrades
   );
+
+await saveExecutionsToSupabase(
+  parsedTrades
+);
 
 const rebuiltTrades =
   pairTrades(

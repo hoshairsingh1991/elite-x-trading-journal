@@ -22,7 +22,7 @@ location.reload()
 ------------------------------------------------------------------
 
 Latest Stable Checkpoint:
-git checkout checkpoint/hybrid-architecture-v8
+git checkout checkpoint/hybrid-cloud-persistence-v9
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
@@ -42,3 +42,6 @@ Includes:
 Known limitation:
 Imported open positions are currently immutable.
 Synthetic reconciliation overrides are intentionally disabled after failed architecture experiments.
+
+
+
