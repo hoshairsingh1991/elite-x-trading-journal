@@ -7,9 +7,6 @@ import {
   Trade,
 } from "@/types/trade";
 
-import {
-  loadTrades,
-} from "@/lib/storage/tradeStorage";
 
 // =================================================
 // HELPERS
@@ -239,13 +236,6 @@ export async function parseIBKRCsv(
                   };
                 }
               );
-
-          // =================================================
-          // LOAD EXISTING TRADES
-          // =================================================
-
-          const existingTrades =
-            loadTrades();
 
           // =================================================
           // PAIR EXECUTIONS
