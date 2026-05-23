@@ -50,11 +50,11 @@ export default function EditTradeModal({
     );
 
   const [exitPrice, setExitPrice] =
-    useState(
-      trade.exitPrice
-        ? String(trade.exitPrice)
-        : ""
-    );
+  useState(
+    trade.exitPrice != null
+      ? String(trade.exitPrice)
+      : ""
+  );
 
   const [commission, setCommission] =
     useState(
