@@ -129,7 +129,7 @@ export default function TradesTable({
 
             <div className="relative left-4">
 
-              <h2 className="text-[34px] font-black tracking-tight text-white">
+              <h2 className="text-[34px] font-black tracking-tight text-slate-400">
                 Trade History
               </h2>
 
@@ -140,9 +140,9 @@ export default function TradesTable({
 
             <div className="relative right-6 top-1">
 
-              <span className="text-[14px] font-black uppercase tracking-[0.18em] text-slate-300">
-                {sortedTrades.length} Trades
-              </span>
+              <span className="text-[14px] font-black uppercase tracking-[0.18em] text-white">
+  {sortedTrades.length} Trades
+</span>
             </div>
           </div>
 
@@ -172,7 +172,7 @@ export default function TradesTable({
 
                 <div
                   key={header}
-                  className={`flex h-[50px] items-center justify-center border-b border-white/[0.05] px-5 text-center text-[22px] font-black tracking-tight text-slate-300 ${
+                  className={`flex h-[50px] items-center justify-center border-b border-white/[0.05] px-5 text-center text-[16px] font-bold tracking-[0.02em] text-slate-400 ${
                    header === "Status"
                     ? "relative left-[-12px]"
                     : ""
@@ -224,7 +224,7 @@ export default function TradesTable({
       trade
     )
   }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-200 transition-all hover:bg-white/[0.02]"
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.account ||
     "N/A"}
@@ -238,7 +238,7 @@ export default function TradesTable({
       trade
     )
   }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium tracking-wide text-white transition-all hover:bg-white/[0.02]"
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium tracking-wide text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.ticker}
 </div>
@@ -251,7 +251,7 @@ export default function TradesTable({
       trade
     )
   }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300 transition-all hover:bg-white/[0.02]"
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.openedAt
     ? parseLocalDate(
@@ -275,7 +275,7 @@ export default function TradesTable({
       trade
     )
   }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300 transition-all hover:bg-white/[0.02]"
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.closedAt
     ? parseLocalDate(
@@ -294,23 +294,79 @@ export default function TradesTable({
 {/* HOLDING */}
 
 <div
-  className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-cyan-400"
+  className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center"
 >
 
-  {trade.holdingDays != null
+  {trade.status === "OPEN" ? (
 
-    ? trade.holdingDays === 0
+    <div className="group relative flex items-center justify-center">
 
-      ? "Same Day"
+      {/* LIVE DOT */}
 
-      : `${trade.holdingDays} Days`
+      <div className="h-[12px] w-[12px] rounded-full bg-emerald-400" />
 
-    : trade.status === "OPEN"
+      {/* TOOLTIP */}
 
-      ? "OPEN"
+      <div className="pointer-events-none absolute bottom-[135%] hidden whitespace-nowrap rounded-xl border border-white/[0.06] bg-[#071427] px-4 py-2 text-[12px] font-semibold tracking-[0.03em] text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.35)] group-hover:block">
 
-      : "--"}
+        Position still open for{" "}
 
+        {trade.openedAt
+
+  ? (() => {
+
+      const openedDate =
+        parseLocalDate(
+          trade.openedAt
+        );
+
+      const today =
+        new Date();
+
+      const liveDays =
+        Math.max(
+          0,
+          Math.floor(
+            (
+              today.getTime() -
+              openedDate.getTime()
+            ) /
+            (
+              1000 *
+              60 *
+              60 *
+              24
+            )
+          )
+        );
+
+      return liveDays === 0
+        ? "Same Day"
+        : `${liveDays} Days`;
+
+    })()
+
+  : "OPEN"}
+
+      </div>
+    </div>
+
+  ) : (
+
+    <span className="text-[16px] font-medium text-cyan-400">
+
+      {trade.holdingDays != null
+
+        ? trade.holdingDays === 0
+
+          ? "Same Day"
+
+          : `${trade.holdingDays} Days`
+
+        : "--"}
+
+    </span>
+  )}
 </div>
 
 
@@ -355,7 +411,7 @@ export default function TradesTable({
 
                       {/* ENTRY */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300">
+                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400">
 
                         {trade.entryPrice > 0
                           ? `$${Number(
@@ -366,7 +422,7 @@ export default function TradesTable({
 
                       {/* EXIT */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300">
+                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400">
 
   {trade.exitPrice != null ? (
 
@@ -396,7 +452,7 @@ export default function TradesTable({
 
                       {/* QTY */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[17px] font-medium text-slate-300">
+                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[17px] font-medium text-slate-400">
 
                         {trade.quantity}
                       </div>
@@ -406,9 +462,9 @@ export default function TradesTable({
                       <div
                         className={`flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[18px] font-black tracking-tight ${
                           isWinner
-                            ? "text-emerald-400"
+                            ? "text-emerald-600"
                             : isOpen
-                            ? "text-yellow-400"
+                            ? "text-yellow-600"
                             : "text-red-400"
                         }`}
                       >
@@ -425,7 +481,7 @@ export default function TradesTable({
 
                       {/* COMMISSION */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-semibold text-orange-400">
+                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-semibold text-orange-700">
 
                         $
                         {Number(
@@ -451,7 +507,7 @@ export default function TradesTable({
                             className={`text-[12px] font-bold uppercase tracking-[0.14em] ${
                               isOpen
                                 ? "text-yellow-400"
-                                : "text-slate-300"
+                                : "text-slate-400"
                             }`}
                           >
                             {isOpen
@@ -473,7 +529,7 @@ export default function TradesTable({
                               trade
                             );
                           }}
-                          className="absolute right-2 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-blue-500/20 bg-blue-500/10 text-[13px] text-blue-400 transition-all hover:bg-blue-500/20"
+                          className="absolute right-0 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-blue-500/20 bg-blue-500/10 text-[13px] text-blue-400 transition-all hover:bg-blue-500/20"
                         >
                           ✎
                         </button>

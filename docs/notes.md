@@ -22,7 +22,7 @@ location.reload()
 ------------------------------------------------------------------
 
 Latest Stable Checkpoint:
-git checkout -b checkpoint/lifecycle-intelligence-v10
+ checkpoint/lifecycle-analytics-v11
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE

@@ -60,9 +60,11 @@ function formatXAxisLabel(
   // =============================================
 
   if (
-    selectedRange === "1Y" ||
-    selectedRange === "ALL"
-  ) {
+  selectedRange === "6M" ||
+  selectedRange === "YTD" ||
+  selectedRange === "1Y" ||
+  selectedRange === "ALL"
+) {
 
     const [
       year,
@@ -87,8 +89,10 @@ function formatXAxisLabel(
   // =============================================
 
   if (
-    selectedRange === "30D"
-  ) {
+  selectedRange === "30D" ||
+  selectedRange === "MTD" ||
+  selectedRange === "3M"
+) {
 
     const parts =
       date.split("-");
@@ -285,7 +289,7 @@ const weekdayStats =
 
         <div className="relative left-4">
 
-          <h2 className="text-[34px] font-black tracking-tight text-white">
+          <h2 className="text-[34px] font-black tracking-tight text-slate-400">
             P&L Analytics
           </h2>
 
@@ -584,7 +588,7 @@ const weekdayStats =
 
                                 <div className="relative left-3">
 
-                                  <p className="text-[15px] font-bold text-white">
+                                  <p className="text-[15px] font-bold text-slate-400">
                                     {day.day}
                                   </p>
 

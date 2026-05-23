@@ -361,7 +361,7 @@ useEffect(() => {
 
   return (
 
-    <main className="flex h-screen overflow-hidden bg-[#020617] text-white">
+    <main className="flex h-screen overflow-hidden bg-[#020617] text-slate-400">
 
       {/* ================================================= */}
       {/* SIDEBAR */}
@@ -391,11 +391,11 @@ useEffect(() => {
 
           <div className="relative left-3">
 
-            <h1 className="text-[38px] font-black tracking-tight text-white">
+            <h1 className="text-[38px] font-black tracking-tight text-slate-400">
               Trades
             </h1>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-400">
               Execution history & trade review
             </p>
 
@@ -410,7 +410,7 @@ useEffect(() => {
             onClick={() =>
               setIsAddTradeOpen(true)
             }
-            className="relative right-10 flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
+            className="relative right-10 flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-200 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
           >
 
             Add Trade

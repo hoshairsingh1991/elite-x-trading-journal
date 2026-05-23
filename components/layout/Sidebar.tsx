@@ -74,7 +74,7 @@ export default function Sidebar() {
 
         <div className="flex h-[190px] flex-col items-center justify-center px-6">
 
-          <h1 className="text-[44px] font-black tracking-[-0.04em] text-white">
+          <h1 className="text-[44px] font-black tracking-[-0.04em] text-slate-400">
             EliteX
           </h1>
 
@@ -107,8 +107,8 @@ export default function Sidebar() {
                   href={item.href}
                   className={`group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 transition-all ${
                     isActive
-                      ? "bg-[#0b1730] text-white"
-                      : "text-slate-500 hover:bg-[#0b1730] hover:text-white"
+                      ? "bg-[#0b1730] text-slate-400"
+                      : "text-slate-500 hover:bg-[#0b1730] hover:text-slate-400"
                   }`}
                 >
 
@@ -139,7 +139,7 @@ export default function Sidebar() {
 
         <div className="w-[88%]">
 
-          <button className="group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 text-slate-500 transition-all hover:bg-[#0b1730] hover:text-white">
+          <button className="group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 text-slate-500 transition-all hover:bg-[#0b1730] hover:text-slate-400">
 
             <Settings
               size={22}
