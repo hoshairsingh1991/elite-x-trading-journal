@@ -383,6 +383,9 @@ export function generatePnLAnalytics(
   | "7D"
   | "30D"
   | "MTD"
+  | "3M"
+  | "6M"
+  | "YTD"
   | "1Y"
   | "ALL" = "ALL"
 ): PnLAnalyticsData {
@@ -396,77 +399,91 @@ export function generatePnLAnalytics(
     rawDailyPnL;
 
   // =================================================
-  // ADAPTIVE AGGREGATION
-  // =================================================
+// ADAPTIVE AGGREGATION
+// =================================================
 
-  if (range === "30D") {
+// ================================================
+// WEEKLY AGGREGATION
+// ================================================
 
-    displayPnL =
-      groupWeeklyPnL(
-        rawDailyPnL
-      );
-  }
+if (
+  range === "30D" ||
+  range === "MTD" ||
+  range === "3M"
+) {
 
-  if (
-    range === "1Y" ||
-    range === "ALL"
-  ) {
-
-    displayPnL =
-      groupMonthlyPnL(
-        rawDailyPnL
-      );
-  }
-
-  const cumulativePnL =
-    calculateCumulativePnL(
-      displayPnL
+  displayPnL =
+    groupWeeklyPnL(
+      rawDailyPnL
     );
+}
 
-  const bestDay =
-    calculateBestDay(
-      displayPnL
+// ================================================
+// MONTHLY AGGREGATION
+// ================================================
+
+if (
+  range === "6M" ||
+  range === "YTD" ||
+  range === "1Y" ||
+  range === "ALL"
+) {
+
+  displayPnL =
+    groupMonthlyPnL(
+      rawDailyPnL
     );
+}
 
-  const worstDay =
-    calculateWorstDay(
-      displayPnL
-    );
-
-  const avgDaily =
-    calculateAverageDaily(
-      displayPnL
-    );
-
-  const {
-    streak,
-    streakType,
-  } = calculateStreak(
+const cumulativePnL =
+  calculateCumulativePnL(
     displayPnL
   );
 
-  const volatility =
-    calculateVolatility(
-      displayPnL
-    );
+const bestDay =
+  calculateBestDay(
+    displayPnL
+  );
 
-  return {
+const worstDay =
+  calculateWorstDay(
+    displayPnL
+  );
 
-    dailyPnL:
-      displayPnL,
+const avgDaily =
+  calculateAverageDaily(
+    displayPnL
+  );
 
-    cumulativePnL,
+const {
+  streak,
+  streakType,
+} = calculateStreak(
+  displayPnL
+);
 
-    bestDay,
+const volatility =
+  calculateVolatility(
+    displayPnL
+  );
 
-    worstDay,
+return {
 
-    avgDaily,
+  dailyPnL:
+    displayPnL,
 
-    streak,
+  cumulativePnL,
 
-    streakType,
+  bestDay,
 
-    volatility,
-  };
+  worstDay,
+
+  avgDaily,
+
+  streak,
+
+  streakType,
+
+  volatility,
+};
 }

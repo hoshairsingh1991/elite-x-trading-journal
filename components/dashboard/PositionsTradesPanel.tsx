@@ -86,7 +86,7 @@ export default function PositionsTradesPanel({
 
           <div className="relative left-2">
 
-            <h2 className="text-[30px] font-black tracking-tight text-white">
+            <h2 className="text-[30px] font-black tracking-tight text-slate-400">
               Positions & Trades
             </h2>
 
@@ -292,7 +292,7 @@ export default function PositionsTradesPanel({
 
                                     <div className="flex items-center justify-center gap-1.5">
 
-                                      <h3 className="truncate text-[16px] font-black tracking-tight text-white">
+                                      <h3 className="truncate text-[16px] font-black tracking-tight text-slate-400">
                                         {trade.ticker || "NQ"}
                                       </h3>
 
@@ -336,7 +336,7 @@ export default function PositionsTradesPanel({
                                         Volume
                                       </p>
 
-                                      <p className="mt-1 text-[14px] font-black text-white">
+                                      <p className="mt-1 text-[14px] font-black text-slate-400">
                                         {trade.quantity || 1}
                                       </p>
                                     </div>
@@ -351,7 +351,7 @@ export default function PositionsTradesPanel({
                                         Position
                                       </p>
 
-                                      <p className="mt-1 text-[14px] font-black text-white">
+                                      <p className="mt-1 text-[14px] font-black text-slate-400">
                                         1
                                       </p>
                                     </div>
@@ -379,7 +379,7 @@ export default function PositionsTradesPanel({
 
                                   <div className="relative left-10 text-center">
 
-                                    <p className="text-[14px] font-black text-white">
+                                    <p className="text-[14px] font-black text-slate-400">
                                       $
                                       {trade.entryPrice?.toFixed(
                                         2

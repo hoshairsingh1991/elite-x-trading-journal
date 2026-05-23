@@ -449,7 +449,7 @@ const hasNote =
         }`}
       >
 
-        <span className="text-[14px] font-bold text-white">
+        <span className="relative left-[4px] top-[3px] text-[14px] font-bold text-slate-400">
           {day}
         </span>
         <div
@@ -481,9 +481,9 @@ const hasNote =
 
         {dayData ? (
 
-          <div>
+        <div className="relative left-[4px]">
 
-            <p
+          <p
               className={`text-[16px] font-black tracking-tight ${
                 dayData.pnl >= 0
                   ? "text-emerald-400"
@@ -529,14 +529,14 @@ const hasNote =
                 onClick={
                   goToPreviousMonth
                 }
-                className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-[#0b1730] text-slate-400 transition-all hover:border-blue-500/30 hover:text-white"
+                className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-[#0b1730] text-slate-400 transition-all hover:border-blue-500/30 hover:text-slate-400"
               >
                 <ChevronLeft size={18} />
               </button>
 
               <div>
 
-                <h2 className="text-[36px] font-black tracking-tight text-white">
+                <h2 className="text-[36px] font-black tracking-tight text-slate-400">
                   {monthName}{" "}
                   {currentYear}
                 </h2>
@@ -554,7 +554,7 @@ const hasNote =
                 onClick={
                   goToNextMonth
                 }
-                className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-[#0b1730] text-slate-400 transition-all hover:border-blue-500/30 hover:text-white"
+                className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-[#0b1730] text-slate-400 transition-all hover:border-blue-500/30 hover:text-slate-400"
               >
                 <ChevronRight size={18} />
               </button>
@@ -609,7 +609,7 @@ const hasNote =
                         className={`mt-2 text-[30px] font-black tracking-tight ${
                           stat.negative
                             ? "text-red-400"
-                            : "text-white"
+                            : "text-slate-400"
                         }`}
                       >
                         {stat.value}
@@ -720,7 +720,7 @@ const hasNote =
 
           <div>
 
-            <h2 className="text-[28px] font-black tracking-tight text-white">
+            <h2 className="text-[28px] font-black tracking-tight text-slate-400">
               Session Notes
             </h2>
 
@@ -738,7 +738,7 @@ const hasNote =
 
               setNoteInput("");
             }}
-            className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-white"
+            className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-slate-400"
           >
             <X size={18} />
           </button>
@@ -785,7 +785,7 @@ const hasNote =
 
               setNoteInput("");
             }}
-            className="rounded-[14px] border border-white/[0.05] bg-white/[0.03] px-5 py-3 text-sm font-semibold text-slate-300 transition-all hover:text-white"
+            className="rounded-[14px] border border-white/[0.05] bg-white/[0.03] px-5 py-3 text-sm font-semibold text-slate-300 transition-all hover:text-slate-400"
           >
             Cancel
           </button>
@@ -851,7 +851,7 @@ const hasNote =
 
                     <div>
 
-                      <h2 className="text-[36px] font-black tracking-tight text-white">
+                      <h2 className="text-[36px] font-black tracking-tight text-slate-400">
                         {monthName}{" "}
                         {selectedDay},{" "}
                         {currentYear}
@@ -868,7 +868,7 @@ const hasNote =
                           null
                         )
                       }
-                      className="flex h-[46px] w-[46px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-white"
+                      className="flex h-[46px] w-[46px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-slate-400"
                     >
                       <X size={20} />
                     </button>
@@ -908,7 +908,7 @@ const hasNote =
                           TOTAL TRADES
                         </p>
 
-                        <p className="mt-4 text-[30px] font-black tracking-tight text-white">
+                        <p className="mt-4 text-[30px] font-black tracking-tight text-slate-400">
                           {
                             totalTradesDay
                           }
@@ -921,7 +921,7 @@ const hasNote =
                           COMMISSION
                         </p>
 
-                        <p className="mt-4 text-[30px] font-black tracking-tight text-white">
+                        <p className="mt-4 text-[30px] font-black tracking-tight text-slate-400">
 
                           {totalCommission > 0
                             ? `$${totalCommission.toFixed(
@@ -960,7 +960,7 @@ const hasNote =
                           WIN RATE
                         </p>
 
-                        <p className="text-sm font-bold text-white">
+                        <p className="text-sm font-bold text-slate-400">
                           {wins}W ·{" "}
                           {losses}L ·{" "}
                           {winRate}%
@@ -1095,9 +1095,61 @@ const hasNote =
 
                                     <td className="h-[15px] text-center">
 
-  <div className="flex h-full items-center text-sm font-semibold text-white">
-    {trade.ticker}
-  </div>
+  <div className="flex h-full items-center gap-2 text-sm font-semibold text-slate-400">
+
+  {trade.ticker}
+
+  {/* OPEN POSITION */}
+
+  {trade.status === "OPEN" && (
+
+    <div className="group relative flex items-center justify-center">
+
+      {/* LIVE DOT */}
+
+      <div className="h-[10px] w-[10px] rounded-full bg-emerald-400" />
+
+      {/* TOOLTIP */}
+
+      <div className="pointer-events-none absolute bottom-[140%] left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-xl border border-white/[0.06] bg-[#071427] px-4 py-2 text-[12px] font-semibold tracking-[0.03em] text-slate-300 shadow-[0_0_30px_rgba(0,0,0,0.35)] group-hover:block">
+
+        Position still open
+
+      </div>
+    </div>
+  )}
+
+  {/* MULTI-DAY CLOSED TRADE */}
+
+  {trade.status !== "OPEN" &&
+  trade.holdingDays != null && (
+
+    <div className="group relative flex items-center justify-center">
+
+      {/* HOLD DOT */}
+
+      <div
+  className={`h-[10px] w-[10px] rounded-full ${
+    trade.holdingDays === 0
+      ? "bg-slate-500"
+      : "bg-cyan-400"
+  }`}
+/>
+
+      {/* TOOLTIP */}
+
+      <div className="pointer-events-none absolute bottom-[140%] left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-xl border border-white/[0.06] bg-[#071427] px-4 py-2 text-[12px] font-semibold tracking-[0.03em] text-slate-300 shadow-[0_0_30px_rgba(0,0,0,0.35)] group-hover:block">
+
+        Held for {trade.holdingDays}{" "}
+        {trade.holdingDays === 1
+          ? "Day"
+          : "Days"}
+
+      </div>
+    </div>
+  )}
+
+</div>
 
 </td>
 <td className="py-6 text-sm font-medium text-slate-300">
@@ -1119,14 +1171,14 @@ const hasNote =
                                       }
                                     </td>
 
-                                    <td className="py-6 text-sm text-white">
+                                    <td className="py-6 text-sm text-slate-400">
 
                                       {trade.entryPrice > 0
                                         ? `$${trade.entryPrice}`
                                         : "--"}
                                     </td>
 
-                                    <td className="py-6 text-sm text-white">
+                                    <td className="py-6 text-sm text-slate-400">
 
   {trade.exitPrice != null ? (
 
@@ -1137,7 +1189,7 @@ const hasNote =
 
         <div className="relative left-[-45px] flex items-center justify-center">
 
-  <span className="rounded-full border border-red-500/20 bg-red-500/10 px-4 py-[7px] text-[12px] font-bold tracking-[0.02em] text-red-400">
+  <span className="text-[12px] font-bold tracking-[0.04em] text-red-400">
 
     Expired Worthless
 
@@ -1174,7 +1226,7 @@ const hasNote =
                                       )}
                                     </td>
 
-                                    <td className="py-6 text-sm text-white">
+                                    <td className="py-6 text-sm text-slate-400">
 
                                       {trade.fees > 0
                                         ? `$${trade.fees.toFixed(
@@ -1183,27 +1235,26 @@ const hasNote =
                                         : "--"}
                                     </td>
 
-                                    <td className="py-6 pr-6">
+                                    <td className="relative right-[50px] py-6 text-center">
 
-                                      <span
-                                        className={`rounded-full px-3 py-1 text-[11px] font-bold border ${
-                                          trade.status ===
-                                          "OPEN"
-                                            ? "border-yellow-500/20 bg-yellow-500/10 text-yellow-400"
-                                            : trade.status ===
-                                              "WIN"
-                                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                                            : trade.status ===
-                                              "LOSS"
-                                            ? "border-red-500/20 bg-red-500/10 text-red-400"
-                                            : "border-slate-500/20 bg-slate-500/10 text-slate-400"
-                                        }`}
-                                      >
-                                        {
-                                          trade.status
-                                        }
-                                      </span>
-                                    </td>
+  <span
+  className={`text-[11px] font-bold tracking-[0.04em] ${
+      trade.status ===
+      "OPEN"
+        ? "border-yellow-500/20 bg-yellow-500/10 text-yellow-400"
+        : trade.status ===
+          "WIN"
+        ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+        : trade.status ===
+          "LOSS"
+        ? "border-red-500/20 bg-red-500/10 text-red-400"
+        : "border-slate-500/20 bg-slate-500/10 text-slate-400"
+    }`}
+  >
+    {trade.status}
+  </span>
+
+</td>
                                     <td className="py-6">
 
   <button

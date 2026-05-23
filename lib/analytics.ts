@@ -10,6 +10,9 @@ export type TimeRange =
   | "7D"
   | "30D"
   | "MTD"
+  | "3M"
+  | "6M"
+  | "YTD"
   | "1Y"
   | "ALL";
 
@@ -80,32 +83,7 @@ export function filterTradesByRange(
     });
   }
 
-  let days = 0;
-
-  switch (range) {
-
-    case "1D":
-      days = 1;
-      break;
-
-    case "7D":
-      days = 7;
-      break;
-
-    case "30D":
-      days = 30;
-      break;
-
-    case "1Y":
-      days = 365;
-      break;
-  }
-
-  const cutoffDate = new Date();
-
-  cutoffDate.setDate(
-    now.getDate() - days
-  );
+  if (range === "YTD") {
 
   return trades.filter((trade) => {
 
@@ -115,9 +93,58 @@ export function filterTradesByRange(
       );
 
     return (
-      tradeDate >= cutoffDate
+      tradeDate.getFullYear() ===
+      now.getFullYear()
     );
   });
+}
+
+let days = 0;
+
+switch (range) {
+
+  case "1D":
+    days = 1;
+    break;
+
+  case "7D":
+    days = 7;
+    break;
+
+  case "30D":
+    days = 30;
+    break;
+
+  case "3M":
+    days = 90;
+    break;
+
+  case "6M":
+    days = 180;
+    break;
+
+  case "1Y":
+    days = 365;
+    break;
+}
+
+const cutoffDate = new Date();
+
+cutoffDate.setDate(
+  now.getDate() - days
+);
+
+return trades.filter((trade) => {
+
+  const tradeDate =
+    parseLocalDate(
+      trade.date
+    );
+
+  return (
+    tradeDate >= cutoffDate
+  );
+});
 }
 
 

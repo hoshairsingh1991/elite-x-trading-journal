@@ -342,7 +342,7 @@ setImportedTrades([
 
   return (
 
-    <main className="flex h-screen overflow-hidden bg-[#020617] text-white">
+    <main className="flex h-screen overflow-hidden bg-[#020617] text-slate-300">
 
       {/* ================================================= */}
       {/* SIDEBAR */}
@@ -387,7 +387,7 @@ setImportedTrades([
                   event.target.value
                 )
               }
-              className="h-[46px] min-w-[130px] rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-center text-[14px] font-bold tracking-[0.08em] text-slate-200 outline-none transition-all hover:bg-[#13203a]"
+              className="h-[46px] min-w-[130px] rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-center text-[14px] font-bold tracking-[0.08em]  outline-none transition-all hover:bg-[#13203a]"
             >
 
               {availableAccounts.map(
@@ -434,7 +434,7 @@ setImportedTrades([
             onClick={() =>
               setIsAddTradeOpen(true)
             }
-            className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-white shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
+            className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-300 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
           >
 
             <Plus size={17} />
@@ -482,7 +482,7 @@ setImportedTrades([
 
                     <div className="relative left-4">
 
-                      <h1 className="text-[34px] font-black tracking-tight text-white">
+                      <h1 className="text-[34px] font-black tracking-tight text-slate-300">
                         Account Overview
                       </h1>
 
@@ -491,16 +491,19 @@ setImportedTrades([
                       </p>
                     </div>
 
-                    <div className="relative right-4 flex items-center gap-3">
+                    <div className="relative right-4 flex max-w-[620px] items-center gap-2 overflow-x-auto scrollbar-hide">
 
                       {[
-                        "1D",
+                         "1D",
                         "7D",
                         "30D",
                         "MTD",
+                        "3M",
+                        "6M",
+                        "YTD",
                         "1Y",
                         "ALL",
-                      ].map((range) => (
+                        ].map((range) => (
 
                         <button
                           key={range}
@@ -509,10 +512,10 @@ setImportedTrades([
                               range as TimeRange
                             )
                           }
-                          className={`flex h-[22px] min-w-[40px] items-center justify-center rounded-full px-5 text-[15px] font-black tracking-[0.08em] transition-all ${
+                          className={`flex h-[22px] shrink-0 min-w-[40px] items-center justify-center rounded-full px-4 text-[15px] font-black tracking-[0.08em] transition-all ${
                             selectedRange === range
                               ? "bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.35)]"
-                              : "bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]"
+                              : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
                           }`}
                         >
                           {range}
@@ -578,7 +581,7 @@ setImportedTrades([
                           {item.title}
                         </p>
 
-                        <h2 className="mt-5 text-[50px] font-black leading-none tracking-tight text-white">
+                        <h2 className="mt-5 text-[50px] font-black leading-none tracking-tight text-slate-300">
                           {item.value}
                         </h2>
 
