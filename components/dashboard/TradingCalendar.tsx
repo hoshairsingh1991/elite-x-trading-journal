@@ -1128,11 +1128,29 @@ const hasNote =
 
                                     <td className="py-6 text-sm text-white">
 
-                                      {trade.exitPrice &&
-trade.exitPrice > 0
-  ? `$${trade.exitPrice}`
-  : "--"}
-                                    </td>
+  {trade.exitPrice != null ? (
+
+    trade.exitPrice === 0 &&
+    trade.status === "LOSS"
+
+      ? (
+
+        <div className="relative left-[-45px] flex items-center justify-center">
+
+  <span className="rounded-full border border-red-500/20 bg-red-500/10 px-4 py-[7px] text-[12px] font-bold tracking-[0.02em] text-red-400">
+
+    Expired Worthless
+
+  </span>
+</div>
+
+      ) : (
+
+        `$${trade.exitPrice}`
+      )
+
+  ) : "--"}
+</td>
 
                                     <td
                                       className={`py-6 text-sm font-bold ${

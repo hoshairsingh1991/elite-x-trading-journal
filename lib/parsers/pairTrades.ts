@@ -364,6 +364,36 @@ sortedExecutions.forEach(
           closedAt:
             execution.date,
 
+            holdingDays:
+
+  Math.max(
+
+    0,
+
+    Math.floor(
+
+      (
+        new Date(
+          execution.date
+        ).getTime()
+
+        -
+
+        new Date(
+          entryExecution.date
+        ).getTime()
+
+      ) /
+
+      (
+        1000 *
+        60 *
+        60 *
+        24
+      )
+    )
+  ),
+
           // =================================================
           // METADATA
           // =================================================
@@ -483,6 +513,7 @@ sortedExecutions.forEach(
             execution.date,
 
           closedAt: null,
+          holdingDays: 0,
 
           createdAt:
             new Date().toISOString(),
@@ -602,6 +633,7 @@ sortedExecutions.forEach(
               position.date,
 
             closedAt: null,
+            holdingDays: 0,
 
             // =================================================
             // METADATA

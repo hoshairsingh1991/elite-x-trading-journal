@@ -22,7 +22,7 @@ location.reload()
 ------------------------------------------------------------------
 
 Latest Stable Checkpoint:
-git checkout checkpoint/hybrid-cloud-persistence-v9
+git checkout -b checkpoint/lifecycle-intelligence-v10
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE

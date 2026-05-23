@@ -241,6 +241,10 @@ export default function TradesToolbar({
             <option value="OPEN">
               Open
             </option>
+
+            <option value="EXPIRED_WORTHLESS">
+            Expired Worthless
+            </option>
           </select>
 
           {/* ================================================= */}

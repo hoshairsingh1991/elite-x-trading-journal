@@ -220,7 +220,7 @@ useEffect(() => {
       return trades.filter(
         (trade) => {
 
-          // =========================================
+                  // =========================================
           // SEARCH
           // =========================================
 
@@ -248,29 +248,52 @@ useEffect(() => {
           // STATUS
           // =========================================
 
+          const isExpiredWorthless =
+
+            trade.assetType
+            ?.toUpperCase() ===
+            "OPTIONS" &&
+            trade.exitPrice ===
+              0 &&
+            trade.status ===
+              "LOSS";
+
           const matchesStatus =
+
             statusFilter ===
               "ALL" ||
-            trade.status ===
-              statusFilter;
+
+            (
+              statusFilter ===
+                "EXPIRED_WORTHLESS"
+
+                ? isExpiredWorthless
+
+                : trade.status ===
+                  statusFilter
+            );
 
           // =========================================
           // SIDE
           // =========================================
 
           const matchesSide =
+
             sideFilter ===
               "ALL" ||
+
             trade.side ===
               sideFilter;
 
-                    // =========================================
+          // =========================================
           // ASSET TYPE
           // =========================================
 
           const matchesAsset =
+
             assetFilter ===
               "ALL" ||
+
             trade.assetType ===
               assetFilter;
 

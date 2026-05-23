@@ -152,12 +152,14 @@ export default function TradesTable({
 
           <div className="px-6 pb-6 pt-5">
 
-            <div className="grid auto-rows-[50px] grid-cols-[1.15fr_1.4fr_0.9fr_1fr_0.85fr_0.85fr_0.85fr_0.55fr_1fr_1fr_0.95fr]">
+            <div className="grid auto-rows-[50px] grid-cols-[1.2fr_1fr_1fr_1fr_0.7fr_0.9fr_0.85fr_0.85fr_0.85fr_70px_1fr_1fr_1.15fr]">
 
               {[
-                "Date",
                 "Account",
                 "Symbol",
+                "Open Date",
+                "Close Date",
+                "Holding",
                 "Type",
                 "Side",
                 "Entry",
@@ -170,7 +172,11 @@ export default function TradesTable({
 
                 <div
                   key={header}
-                  className="flex h-[50px] items-center justify-center border-b border-white/[0.05] px-5 text-center text-[22px] font-black tracking-tight text-slate-300"
+                  className={`flex h-[50px] items-center justify-center border-b border-white/[0.05] px-5 text-center text-[22px] font-black tracking-tight text-slate-300 ${
+                   header === "Status"
+                    ? "relative left-[-12px]"
+                    : ""
+                    }`}
                 >
                   {header}
                 </div>
@@ -210,46 +216,103 @@ export default function TradesTable({
                         `trade-${index}`
                       }
                     >
+{/* ACCOUNT */}
 
-                      {/* DATE */}
+<div
+  onClick={() =>
+    onSelectTrade(
+      trade
+    )
+  }
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-200 transition-all hover:bg-white/[0.02]"
+>
+  {trade.account ||
+    "N/A"}
+</div>
 
-                      <div
-                        onClick={() =>
-                          onSelectTrade(
-                            trade
-                          )
-                        }
-                        className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[18px] font-medium text-slate-300 transition-all hover:bg-white/[0.02]"
-                      >
-                        {formattedDate}
-                      </div>
+{/* SYMBOL */}
 
-                      {/* ACCOUNT */}
+<div
+  onClick={() =>
+    onSelectTrade(
+      trade
+    )
+  }
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium tracking-wide text-white transition-all hover:bg-white/[0.02]"
+>
+  {trade.ticker}
+</div>
 
-                      <div
-                        onClick={() =>
-                          onSelectTrade(
-                            trade
-                          )
-                        }
-                        className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-200 transition-all hover:bg-white/[0.02]"
-                      >
-                        {trade.account ||
-                          "N/A"}
-                      </div>
+{/* OPEN DATE */}
 
-                      {/* SYMBOL */}
+<div
+  onClick={() =>
+    onSelectTrade(
+      trade
+    )
+  }
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300 transition-all hover:bg-white/[0.02]"
+>
+  {trade.openedAt
+    ? parseLocalDate(
+        trade.openedAt
+      ).toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }
+      )
+    : "--"}
+</div>
 
-                      <div
-                        onClick={() =>
-                          onSelectTrade(
-                            trade
-                          )
-                        }
-                        className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium tracking-wide text-white transition-all hover:bg-white/[0.02]"
-                      >
-                        {trade.ticker}
-                      </div>
+{/* CLOSE DATE */}
+
+<div
+  onClick={() =>
+    onSelectTrade(
+      trade
+    )
+  }
+  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300 transition-all hover:bg-white/[0.02]"
+>
+  {trade.closedAt
+    ? parseLocalDate(
+        trade.closedAt
+      ).toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }
+      )
+    : "--"}
+</div>
+
+{/* HOLDING */}
+
+<div
+  className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-cyan-400"
+>
+
+  {trade.holdingDays != null
+
+    ? trade.holdingDays === 0
+
+      ? "Same Day"
+
+      : `${trade.holdingDays} Days`
+
+    : trade.status === "OPEN"
+
+      ? "OPEN"
+
+      : "--"}
+
+</div>
+
 
                       {/* TYPE */}
 
@@ -305,17 +368,35 @@ export default function TradesTable({
 
                       <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-300">
 
-                        {trade.exitPrice &&
-trade.exitPrice > 0
-                          ? `$${Number(
-                              trade.exitPrice
-                            ).toFixed(2)}`
-                          : "--"}
-                      </div>
+  {trade.exitPrice != null ? (
+
+    trade.exitPrice === 0 &&
+    trade.status === "LOSS"
+
+      ? (
+
+        <div className="relative left-[0px] flex items-center justify-center">
+
+          <span className="rounded-full border border-red-500/20 bg-red-500/10 px-4 py-[7px] text-[12px] font-bold tracking-[0.02em] text-red-400">
+
+            Expired Worthless
+
+          </span>
+        </div>
+
+      ) : (
+
+        `$${Number(
+          trade.exitPrice
+        ).toFixed(2)}`
+      )
+
+  ) : "--"}
+</div>
 
                       {/* QTY */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-300">
+                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[17px] font-medium text-slate-300">
 
                         {trade.quantity}
                       </div>
@@ -354,7 +435,7 @@ trade.exitPrice > 0
 
                       {/* STATUS */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
+                      <div className="relative left-[-10px] flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
 
                         {/* STATUS BADGE */}
 
@@ -392,7 +473,7 @@ trade.exitPrice > 0
                               trade
                             );
                           }}
-                          className="relative left-2 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-blue-500/20 bg-blue-500/10 text-[13px] text-blue-400 transition-all hover:bg-blue-500/20"
+                          className="absolute right-2 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-blue-500/20 bg-blue-500/10 text-[13px] text-blue-400 transition-all hover:bg-blue-500/20"
                         >
                           ✎
                         </button>
