@@ -2236,3 +2236,187 @@ Typography normalization is now considered:
 ```txt
 production-calibrated UI doctrine
 ```
+
+# Execution-Centric Architecture Doctrine
+
+Elite X no longer uses mutable Trade objects as the canonical source of truth.
+
+The platform has officially transitioned to:
+
+execution-centric architecture
+
+where:
+
+executions
+
+are the immutable canonical ledger.
+
+All platform systems now derive from:
+
+Supabase executions table
+
+including:
+
+- dashboard
+- analytics
+- calendar
+- trade history
+- lifecycle reconstruction
+- open positions
+- P&L systems
+
+---
+
+# Canonical Reconstruction Engine
+
+Elite X reconstructs all trade lifecycles through:
+
+pairTrades()
+
+This is now the central accounting engine.
+
+Trade objects are considered:
+
+derived presentation views
+
+NOT mutable persistence entities.
+
+---
+
+# Manual Trade Doctrine
+
+Manual trades are no longer stored as direct Trade objects.
+
+Manual trades now generate:
+
+synthetic NormalizedExecution lifecycles
+
+which are persisted into:
+
+Supabase executions
+
+and reconstructed identically to broker-imported executions.
+
+This preserves:
+
+- deterministic rebuilds
+- unified analytics
+- unified lifecycle accounting
+- cross-device consistency
+- canonical persistence doctrine
+
+---
+
+# Immutable Ledger Doctrine
+
+Broker-imported executions are treated as:
+
+immutable historical ledger data
+
+Broker trades:
+- cannot be edited
+- cannot be deleted
+- are reconstruction-only
+
+This prevents:
+- accounting drift
+- lifecycle corruption
+- audit inconsistency
+
+---
+
+# Manual Lifecycle Management
+
+Manual trades support:
+
+delete + recreate
+
+NOT mutable trade editing.
+
+Manual lifecycle deletion is restricted ONLY to executions using:
+
+MANUAL-
+
+contractKey namespaces.
+
+This prevents accidental deletion of broker-imported execution history.
+
+---
+
+# Behavioral Cloud Persistence
+
+Elite X now supports cloud persistence for:
+
+- Notes
+- Daily Calendar Notes
+- Execution Ledger
+
+via:
+
+Supabase
+
+This enables:
+- cross-device continuity
+- behavioral journaling persistence
+- cloud-native reconstruction
+- production-safe persistence architecture
+
+---
+
+# Legacy Architecture Status
+
+The following systems are now considered legacy transitional layers:
+
+tradeStorage.ts
+createTrade.ts
+EditTradeModal.tsx
+
+Future development should prioritize:
+
+execution-native workflows
+
+NOT mutable Trade persistence.
+
+---
+
+# Current Platform State
+
+Elite X currently supports:
+
+✅ canonical execution persistence  
+✅ deterministic lifecycle reconstruction  
+✅ hybrid local + cloud synchronization  
+✅ Supabase execution ledger  
+✅ cloud behavioral notes  
+✅ manual execution ingestion  
+✅ immutable broker history  
+✅ lifecycle-safe manual deletion  
+✅ production Vercel deployment  
+
+---
+
+# NEXT PHASE
+
+PHASE 3 — Behavioral & Financial Systems
+
+Planned systems:
+- expense tracking
+- advanced journaling
+- behavioral analytics
+- reminders
+- metadata systems
+- workspace continuity
+- user authentication
+- multi-user architecture
+- role separation
+- institutional reporting
+
+---
+
+Elite X has officially transitioned from:
+
+frontend trading journal
+
+into:
+
+ledger-based trading platform architecture

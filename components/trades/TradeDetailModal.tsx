@@ -4,7 +4,8 @@ import { useState } from "react";
 
 import { Trade } from "@/types/trade";
 
-import EditTradeModal from "@/components/trades/EditTradeModal";
+import { supabase }
+from "@/lib/supabase";
 
 interface TradeDetailModalProps {
   selectedDate: string;
@@ -29,16 +30,6 @@ export default function TradeDetailModal({
     return null;
   }
 
-  // =================================================
-  // EDIT STATE
-  // =================================================
-
-  const [
-    editingTrade,
-    setEditingTrade,
-  ] = useState<Trade | null>(
-    null
-  );
 
   // =================================================
   // DAILY TOTALS
@@ -62,27 +53,54 @@ export default function TradeDetailModal({
       ? "text-emerald-400"
       : "text-red-400";
 
+      const handleDeleteTrade =
+  async (
+    trade: Trade
+  ) => {
+
+    if (
+      !trade.contractKey
+    ) {
+
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Delete this trade lifecycle?"
+      );
+
+    if (!confirmed) {
+
+      return;
+    }
+
+    const {
+      error,
+    } = await supabase
+      .from("executions")
+      .delete()
+      .eq(
+        "contract_key",
+        trade.contractKey
+      );
+
+    if (error) {
+
+      console.error(
+        "FAILED TO DELETE TRADE:",
+        error
+      );
+
+      return;
+    }
+
+    window.location.reload();
+  };
+
   return (
 
     <>
-    
-      {/* ================================================= */}
-      {/* EDIT MODAL */}
-      {/* ================================================= */}
-
-      <EditTradeModal
-        open={
-          !!editingTrade
-        }
-        trade={
-          editingTrade
-        }
-        onClose={() =>
-          setEditingTrade(
-            null
-          )
-        }
-      />
 
       {/* ================================================= */}
       {/* BACKDROP */}
@@ -398,13 +416,13 @@ export default function TradeDetailModal({
 
                           <button
                             onClick={() =>
-                              setEditingTrade(
-                                trade
-                              )
-                            }
-                            className="flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-blue-500/20 bg-blue-500/10 text-[14px] text-blue-400 transition-all hover:bg-blue-500/20"
+  handleDeleteTrade(
+    trade
+  )
+}
+                            className="flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-red-500/20 bg-red-500/10 text-[14px] text-red-400 transition-all hover:bg-red-500/20"
                           >
-                            ✎
+                            ×
                           </button>
                         </div>
                       </div>

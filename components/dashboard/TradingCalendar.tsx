@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
-import EditTradeModal from "@/components/trades/EditTradeModal";
+import { supabase }
+from "@/lib/supabase";
 import {
   getDailyNoteFromSupabase,
   upsertDailyNoteInSupabase,
@@ -93,12 +94,7 @@ const [
 const [mounted, setMounted] =
   useState(false);
 
-const [
-  editingTrade,
-  setEditingTrade,
-] = useState<Trade | null>(
-  null
-);
+
 useEffect(() => {
 
   setMounted(true);
@@ -508,6 +504,58 @@ const hasNote = false;
     );
   }
 
+  // =====================================================
+// DELETE MANUAL TRADE
+// =====================================================
+
+const handleDeleteTrade =
+  async (
+    trade: Trade
+  ) => {
+
+    if (
+      !trade.contractKey?.startsWith(
+        "MANUAL-"
+      )
+    ) {
+
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Delete this manual trade lifecycle?"
+      );
+
+    if (!confirmed) {
+
+      return;
+    }
+
+    const {
+      error,
+    } = await supabase
+      .from("executions")
+      .delete()
+      .eq(
+        "contract_key",
+        trade.contractKey
+      );
+
+    if (error) {
+
+      console.error(
+        "FAILED TO DELETE MANUAL TRADE:",
+        error
+      );
+
+      return;
+    }
+
+    window.location.reload();
+  };
+
+
   return (
     <>
       {/* ===================================================== */}
@@ -677,19 +725,7 @@ const hasNote = false;
         </div>
       </div>
 
-<EditTradeModal
-  open={
-    !!editingTrade
-  }
-  trade={
-    editingTrade
-  }
-  onClose={() =>
-    setEditingTrade(
-      null
-    )
-  }
-/>
+
       {/* ===================================================== */}
       {/* MODAL */}
       {/* ===================================================== */}
@@ -1254,18 +1290,25 @@ const hasNote = false;
   </span>
 
 </td>
-                                    <td className="py-6">
+  <td className="py-6">
 
-  <button
-    onClick={() =>
-      setEditingTrade(
-        trade
-      )
-    }
-    className="relative top-[-10px] flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-blue-500/20 bg-blue-500/10 text-[14px] text-blue-400 transition-all hover:bg-blue-500/20"
-  >
-    ✎
-  </button>
+  {trade.contractKey?.startsWith(
+    "MANUAL-"
+  ) && (
+
+    <button
+      onClick={() =>
+        handleDeleteTrade(
+          trade
+        )
+      }
+      className="relative top-[-10px] flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-red-500/20 bg-red-500/10 text-[14px] text-red-400 transition-all hover:bg-red-500/20"
+    >
+      ×
+    </button>
+
+  )}
+
 </td>
                                   </tr>
 

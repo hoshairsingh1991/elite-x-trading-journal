@@ -6,7 +6,8 @@ import React, {
 
 import { Trade } from "@/types/trade";
 
-import EditTradeModal from "@/components/trades/EditTradeModal";
+import { supabase }
+from "@/lib/supabase";
 
 interface TradesTableProps {
   trades: Trade[];
@@ -49,20 +50,55 @@ export default function TradesTable({
   onSelectTrade,
 }: TradesTableProps) {
 
-  // =================================================
-  // EDIT STATE
-  // =================================================
-
-  const [
-    editingTrade,
-    setEditingTrade,
-  ] = useState<Trade | null>(
-    null
-  );
 
   // =================================================
   // SAFETY
   // =================================================
+
+const handleDeleteTrade =
+  async (
+    trade: Trade
+  ) => {
+
+    if (
+      !trade.contractKey
+    ) {
+
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Delete this trade lifecycle?"
+      );
+
+    if (!confirmed) {
+
+      return;
+    }
+
+    const {
+      error,
+    } = await supabase
+      .from("executions")
+      .delete()
+      .eq(
+        "contract_key",
+        trade.contractKey
+      );
+
+    if (error) {
+
+      console.error(
+        "FAILED TO DELETE TRADE:",
+        error
+      );
+
+      return;
+    }
+
+    window.location.reload();
+  };
 
   const safeTrades =
     Array.isArray(trades)
@@ -95,23 +131,6 @@ export default function TradesTable({
 
     <>
     
-      {/* ================================================= */}
-      {/* EDIT MODAL */}
-      {/* ================================================= */}
-
-      <EditTradeModal
-        open={
-          !!editingTrade
-        }
-        trade={
-          editingTrade
-        }
-        onClose={() =>
-          setEditingTrade(
-            null
-          )
-        }
-      />
 
       {/* ================================================= */}
       {/* TABLE WRAPPER */}
@@ -516,23 +535,30 @@ export default function TradesTable({
                           </span>
                         </div>
 
-                        {/* EDIT BUTTON */}
+                        {/* DELETE BUTTON */}
 
-                        <button
-                          onClick={(
-                            event
-                          ) => {
+{trade.contractKey?.startsWith(
+  "MANUAL-"
+) && (
 
-                            event.stopPropagation();
+  <button
+    onClick={(
+      event
+    ) => {
 
-                            setEditingTrade(
-                              trade
-                            );
-                          }}
-                          className="absolute right-0 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-blue-500/20 bg-blue-500/10 text-[13px] text-blue-400 transition-all hover:bg-blue-500/20"
-                        >
-                          ✎
-                        </button>
+      event.stopPropagation();
+
+      handleDeleteTrade(
+        trade
+      );
+    }}
+    className="absolute right-0 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-red-500/20 bg-red-500/10 text-[13px] text-red-400 transition-all hover:bg-red-500/20"
+  >
+    ×
+  </button>
+
+)}
+
                       </div>
 
                     </React.Fragment>
