@@ -17,9 +17,9 @@ import {
 import { Trade } from "@/types/trade";
 import EditTradeModal from "@/components/trades/EditTradeModal";
 import {
-  getDailyNote,
-  upsertDailyNote,
-} from "@/lib/storage/dailyNotesStorage";
+  getDailyNoteFromSupabase,
+  upsertDailyNoteInSupabase,
+} from "@/lib/storage/supabaseDailyNotesStorage";
 
 const days = [
   "SUN",
@@ -427,11 +427,7 @@ const tradeDate =
     day
   ).padStart(2, "0")}`;
 
-const hasNote =
-  mounted &&
-  !!getDailyNote(
-    formattedDay
-  );
+const hasNote = false;
 
     calendarCells.push(
 
@@ -455,20 +451,23 @@ const hasNote =
         <div
   role="button"
   tabIndex={0}
-  onClick={(event) => {
+  onClick={async (event) => {
 
-    event.stopPropagation();
+  event.stopPropagation();
 
-    setSelectedNoteDate(
+  setSelectedNoteDate(
+    formattedDay
+  );
+
+  const existingNote =
+    await getDailyNoteFromSupabase(
       formattedDay
     );
 
-    setNoteInput(
-      getDailyNote(
-        formattedDay
-      )
-    );
-  }}
+  setNoteInput(
+    existingNote
+  );
+}}
   className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-[7px] transition-all ${
     hasNote
       ? "text-blue-400/80"
@@ -730,7 +729,7 @@ const hasNote =
           </div>
 
           <button
-            onClick={() => {
+            onClick={async () => {
 
               setSelectedNoteDate(
                 null
@@ -777,7 +776,7 @@ const hasNote =
         <div className="flex items-center justify-end gap-4">
 
           <button
-            onClick={() => {
+            onClick={async () => {
 
               setSelectedNoteDate(
                 null
@@ -791,7 +790,7 @@ const hasNote =
           </button>
 
           <button
-            onClick={() => {
+            onClick={async () => {
 
               if (
                 !selectedNoteDate
@@ -799,9 +798,9 @@ const hasNote =
                 return;
               }
 
-              upsertDailyNote(
-                selectedNoteDate,
-                noteInput
+              await upsertDailyNoteInSupabase(
+              selectedNoteDate,
+              noteInput
               );
 
               setSelectedNoteDate(

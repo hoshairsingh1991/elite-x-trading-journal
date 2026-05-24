@@ -26,6 +26,7 @@ export default function TiptapEditor({
 
   const editor =
     useEditor({
+      immediatelyRender: true,
 
       extensions: [
         StarterKit,
@@ -39,7 +40,7 @@ export default function TiptapEditor({
 
         attributes: {
           class:
-  "min-h-full outline-none text-slate-300 text-[15px] leading-8 [&_h1]:text-4xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mb-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mb-4",
+  "h-full min-h-full outline-none text-slate-300 text-[15px] leading-8 [&_h1]:text-4xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mb-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mb-4",
         },
       },
 
@@ -285,10 +286,11 @@ export default function TiptapEditor({
 
       <div className="flex-1 overflow-y-auto pt-6">
 
-        <EditorContent
-          editor={editor}
-        />
-      </div>
+  <EditorContent
+    editor={editor}
+    className="h-full"
+  />
+</div>
     </div>
   );
 }
