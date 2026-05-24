@@ -17,11 +17,11 @@ import {
 import { Note } from "@/types/note";
 
 import {
-  loadNotes,
-  createNote,
-  updateNote,
-  deleteNote,
-} from "@/lib/storage/noteStorage";
+  loadNotesFromSupabase,
+  createNoteInSupabase,
+  updateNoteInSupabase,
+  deleteNoteFromSupabase,
+} from "@/lib/storage/supabaseNoteStorage";
 
 export default function NotesPage() {
 
@@ -39,8 +39,11 @@ export default function NotesPage() {
 
   useEffect(() => {
 
+  async function
+  loadCloudNotes() {
+
     const storedNotes =
-      loadNotes();
+      await loadNotesFromSupabase();
 
     setNotes(
       storedNotes
@@ -54,7 +57,11 @@ export default function NotesPage() {
         storedNotes[0].id
       );
     }
-  }, []);
+  }
+
+  loadCloudNotes();
+
+}, []);
 
   // =================================================
   // SELECTED NOTE
@@ -71,10 +78,15 @@ export default function NotesPage() {
   // CREATE NOTE
   // =================================================
 
-  function handleCreateNote() {
+  async function handleCreateNote() {
 
     const newNote =
-      createNote();
+  await createNoteInSupabase();
+
+if (!newNote) {
+
+  return;
+}
 
     const updatedNotes = [
       newNote,
@@ -94,7 +106,7 @@ export default function NotesPage() {
   // DELETE NOTE
   // =================================================
 
-  function handleDeleteNote() {
+  async function handleDeleteNote() {
 
     if (
       !selectedNote
@@ -103,29 +115,35 @@ export default function NotesPage() {
       return;
     }
 
-    const updatedNotes =
-      deleteNote(
-        selectedNote.id
-      );
+    await deleteNoteFromSupabase(
+  selectedNote.id
+);
 
-    setNotes(
-      updatedNotes
-    );
+const updatedNotes =
+  notes.filter(
+    (note) =>
+      note.id !==
+      selectedNote.id
+  );
 
-    if (
-      updatedNotes.length > 0
-    ) {
+setNotes(
+  updatedNotes
+);
 
-      setSelectedNoteId(
-        updatedNotes[0].id
-      );
+if (
+  updatedNotes.length > 0
+) {
 
-    } else {
+  setSelectedNoteId(
+    updatedNotes[0].id
+  );
 
-      setSelectedNoteId(
-        ""
-      );
-    }
+} else {
+
+  setSelectedNoteId(
+    ""
+  );
+}
   }
 
   // =================================================
@@ -174,9 +192,9 @@ export default function NotesPage() {
       updatedNotes
     );
 
-    updateNote(
-      updatedNote
-    );
+    updateNoteInSupabase(
+  updatedNote
+);
   }
 
   // =================================================
@@ -419,9 +437,10 @@ export default function NotesPage() {
               <div className="relative left-4 mt-8 flex-1 overflow-hidden">
 
   <TiptapEditor
-    content={
-      selectedNote.content
-    }
+  key={selectedNote.id}
+  content={
+    selectedNote.content
+  }
     onChange={(
       value
     ) =>

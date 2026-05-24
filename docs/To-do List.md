@@ -24,41 +24,6 @@ That’s a VERY rational roadmap now.
 ELITE X — TRADE LIFECYCLE ROADMAP
 =============================================
 
-
-[ ] Add reusable lifecycle utility
-    Future use:
-    - trades table
-    - calendar
-    - analytics
-    - behavior systems
-
----------------------------------------------
-
-PHASE 4 — CALENDAR LIFECYCLE VISUALIZATION
----------------------------------------------
-
-[ ] Add lifecycle bubble/badge inside calendar
-
-    Examples:
-    - [4D]
-    - Swing
-    - Overnight
-
-[ ] Trade lifecycle hover/click popup
-
-    Popup content:
-    - Open Date
-    - Close Date
-    - Holding Duration
-    - Net P&L
-
-[ ] Behavioral lifecycle awareness
-    Calendar evolves from:
-    "daily pnl grid"
-
-    into:
-    "trade lifecycle map"
-
 ---------------------------------------------
 
 PHASE 5 — FUTURE LIFECYCLE ANALYTICS
@@ -115,12 +80,6 @@ PHASE 1 — CURRENT PRIORITIES
     - import guidance
     - beginner-safe onboarding
 
-[ ] small workflow/UI refinements
-    - spacing polish
-    - toolbar polish
-    - visual rhythm consistency
-    - safe-zone calibration
-    - sidebar refinement
 
 [ ] reminder / task workspace system
     - trader reminders
@@ -131,13 +90,16 @@ PHASE 1 — CURRENT PRIORITIES
 
 -------------------------------------
 
-PHASE 2 — CLOUD COMPLETION
+# PHASE 2 — CLOUD COMPLETION
+
 -------------------------------------
 
-[ ] manual trades → Supabase
+[ ] manual executions → Supabase execution ledger
     - canonical persistence
-    - deterministic compatibility
+    - deterministic rebuild compatibility
+    - execution-ledger normalization
     - cross-device sync
+    - rebuild-safe architecture
 
 [ ] Notes → Supabase
     - cloud persistence
@@ -147,12 +109,26 @@ PHASE 2 — CLOUD COMPLETION
 [ ] Calendar Notes → Supabase
     - cloud behavioral metadata
     - session journaling continuity
+    - rebuild-independent persistence
 
 [ ] unified behavioral metadata doctrine
     - notes
     - reminders
     - calendar annotations
     - workspace systems
+    - behavioral isolation layer
+
+[ ] user-scoped persistence architecture
+    - auth-safe storage
+    - per-user isolation
+    - Supabase RLS policies
+    - user-bound execution loading
+    - user-bound behavioral metadata
+
+[ ] multi-user onboarding foundation
+    - external tester architecture
+    - account-safe persistence boundaries
+    - production-safe cloud isolation
 
 -------------------------------------
 
