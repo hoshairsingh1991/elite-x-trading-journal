@@ -22,7 +22,7 @@ location.reload()
 ------------------------------------------------------------------
 
 Latest Stable Checkpoint:
-"checkpoint/cloud-behavioral-persistence-v12"
+git checkout -b checkpoint/execution-centric-architecture-v10
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
@@ -44,7 +44,7 @@ Imported open positions are currently immutable.
 Synthetic reconciliation overrides are intentionally disabled after failed architecture experiments.
 
 
-IMPORTANT 
+Very IMPORTANT 
 
 # Calendar Notes — Cloud Architecture Notes
 

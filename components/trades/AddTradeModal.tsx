@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 
-import { createTrade } from "@/lib/trades/createTrade";
+import {
+  createManualExecutions,
+} from "@/lib/trades/createManualExecutions";
 
-import { appendTrades } from "@/lib/storage/tradeStorage";
+import {
+  saveExecutionsToSupabase,
+} from "@/lib/storage/supabaseExecutionStorage";
 
 interface AddTradeModalProps {
 
@@ -39,10 +43,6 @@ export default function AddTradeModal({
   const [commission, setCommission] =
     useState("");
 
-  const [side, setSide] =
-    useState<"LONG" | "SHORT">(
-      "LONG"
-    );
 
   const [assetType, setAssetType] =
     useState("FUTURES");
@@ -61,7 +61,8 @@ export default function AddTradeModal({
   // SAVE TRADE
   // =================================================
 
-  const handleSaveTrade = () => {
+  const handleSaveTrade =
+  async () => {
 
     if (
       !ticker ||
@@ -77,40 +78,38 @@ export default function AddTradeModal({
       return;
     }
 
-    const trade =
-      createTrade({
+    const executions =
+  createManualExecutions({
 
-        ticker,
+    ticker,
 
-        quantity:
-          Number(quantity),
+    quantity:
+      Number(quantity),
 
-        entryPrice:
-          Number(entryPrice),
+    entryPrice:
+      Number(entryPrice),
 
-        exitPrice:
-          Number(exitPrice),
+    exitPrice:
+      Number(exitPrice),
 
-        commission:
-          Number(commission || 0),
+    commission:
+      Number(
+        commission || 0
+      ),
 
-        side,
+    assetType,
 
-        assetType,
+    account,
 
-        account,
+    tradeDate,
+  });
 
-        tradeDate,
-      });
+await saveExecutionsToSupabase(
+  executions
+);
 
-    appendTrades([
-      trade
-    ]);
-
-    onClose();
-
-    window.location.reload();
-  };
+window.location.reload();
+};
 
   if (!open) {
 
@@ -426,43 +425,6 @@ export default function AddTradeModal({
                             </div>
                           </div>
 
-                          {/* POSITION SIDE */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Position Side
-                            </p>
-
-                            <div className="flex h-[60px] w-[190px] items-center justify-center gap-4 rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-2">
-
-                              <button
-                                onClick={() =>
-                                  setSide("LONG")
-                                }
-                                className={`flex h-[32px] w-[68px] items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                  side === "LONG"
-                                    ? "bg-emerald-500 text-white"
-                                    : "bg-white/[0.04] text-slate-400"
-                                }`}
-                              >
-                                Long
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  setSide("SHORT")
-                                }
-                                className={`flex h-[32px] w-[68px] items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                  side === "SHORT"
-                                    ? "bg-red-500 text-white"
-                                    : "bg-white/[0.04] text-slate-400"
-                                }`}
-                              >
-                                Short
-                              </button>
-                            </div>
-                          </div>
 
                           {/* QUANTITY */}
 
