@@ -12,12 +12,40 @@ export async function
 loadExecutionsFromSupabase():
 Promise<NormalizedExecution[]> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return [];
+  }
+
+  // ===================================================
+  // LOAD USER-OWNED EXECUTIONS
+  // ===================================================
+
   const {
     data,
     error,
   } = await supabase
     .from("executions")
     .select("*")
+    .eq(
+      "user_id",
+      user.id
+    )
     .order(
       "date",
       {
@@ -27,32 +55,36 @@ Promise<NormalizedExecution[]> {
 
   if (error) {
 
-  console.error(
-    "FAILED TO LOAD EXECUTIONS FROM SUPABASE:"
-  );
+    console.error(
+      "FAILED TO LOAD EXECUTIONS FROM SUPABASE:"
+    );
 
-  console.error(
-    "MESSAGE:",
-    error.message
-  );
+    console.error(
+      "MESSAGE:",
+      error.message
+    );
 
-  console.error(
-    "DETAILS:",
-    error.details
-  );
+    console.error(
+      "DETAILS:",
+      error.details
+    );
 
-  console.error(
-    "HINT:",
-    error.hint
-  );
+    console.error(
+      "HINT:",
+      error.hint
+    );
 
-  console.error(
-    "CODE:",
-    error.code
-  );
+    console.error(
+      "CODE:",
+      error.code
+    );
 
-  return [];
-}
+    return [];
+  }
+
+  // ===================================================
+  // FORMAT EXECUTIONS
+  // ===================================================
 
   const formattedExecutions =
     (data || []).map(
@@ -112,9 +144,29 @@ saveExecutionsToSupabase(
     NormalizedExecution[]
 ): Promise<void> {
 
-  // =================================================
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return;
+  }
+
+  // ===================================================
   // FORMAT EXECUTIONS
-  // =================================================
+  // ===================================================
 
   const formattedExecutions =
     executions.map(
@@ -158,12 +210,15 @@ saveExecutionsToSupabase(
 
         multiplier:
           execution.multiplier,
+
+        user_id:
+          user.id,
       })
     );
 
-  // =================================================
+  // ===================================================
   // DUPLICATE PROTECTION
-  // =================================================
+  // ===================================================
 
   const uniqueExecutions =
     Array.from(
@@ -181,9 +236,9 @@ saveExecutionsToSupabase(
 
     );
 
-  // =================================================
+  // ===================================================
   // SAVE TO SUPABASE
-  // =================================================
+  // ===================================================
 
   const {
     error,
