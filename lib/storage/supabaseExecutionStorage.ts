@@ -27,13 +27,32 @@ Promise<NormalizedExecution[]> {
 
   if (error) {
 
-    console.error(
-      "FAILED TO LOAD EXECUTIONS FROM SUPABASE:",
-      error
-    );
+  console.error(
+    "FAILED TO LOAD EXECUTIONS FROM SUPABASE:"
+  );
 
-    return [];
-  }
+  console.error(
+    "MESSAGE:",
+    error.message
+  );
+
+  console.error(
+    "DETAILS:",
+    error.details
+  );
+
+  console.error(
+    "HINT:",
+    error.hint
+  );
+
+  console.error(
+    "CODE:",
+    error.code
+  );
+
+  return [];
+}
 
   const formattedExecutions =
     (data || []).map(
