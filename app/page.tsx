@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import Sidebar from "@/components/layout/Sidebar";
+import UserMenu from "@/components/layout/UserMenu";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
@@ -408,7 +409,8 @@ setImportedTrades([
             </select>
           </div>
 
-<div className="flex items-center gap-4">
+<div className="relative right-10 flex items-center gap-4">
+
           {/* ================================================= */}
           {/* CSV BUTTON */}
           {/* ================================================= */}
@@ -444,6 +446,9 @@ setImportedTrades([
 
             Add Trade
           </button>
+
+          <UserMenu />
+
         </div>
         </div>
 
