@@ -476,7 +476,8 @@ window.location.reload();
                             <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                                type="number"
+                              type="number"
+                               step="0.01"
                                 value={entryPrice}
                                 onChange={(e) =>
                                   setEntryPrice(
@@ -500,7 +501,8 @@ window.location.reload();
                             <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                                type="number"
+                              type="number"
+                               step="0.01"
                                 value={exitPrice}
                                 onChange={(e) =>
                                   setExitPrice(
@@ -540,8 +542,9 @@ window.location.reload();
                             <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                                type="number"
-                                value={commission}
+                             type="number"
+                               step="0.01"
+                               value={commission}
                                 onChange={(e) =>
                                   setCommission(
                                     e.target.value

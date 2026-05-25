@@ -12,15 +12,21 @@ import {
   ChevronRight,
   FileText,
   X,
+  Pencil,
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
+
 import { supabase }
 from "@/lib/supabase";
+
 import {
   getDailyNoteFromSupabase,
   upsertDailyNoteInSupabase,
 } from "@/lib/storage/supabaseDailyNotesStorage";
+
+import EditTradeModal
+from "@/components/trades/EditTradeModal";
 
 const days = [
   "SUN",
@@ -93,6 +99,13 @@ const [
 ] = useState("");
 const [mounted, setMounted] =
   useState(false);
+
+  const [
+  editingTrade,
+  setEditingTrade,
+] = useState<Trade | null>(
+  null
+);
 
 
 useEffect(() => {
@@ -1298,13 +1311,13 @@ const handleDeleteTrade =
 
     <button
       onClick={() =>
-        handleDeleteTrade(
+        setEditingTrade(
           trade
         )
       }
-      className="relative top-[-10px] flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-red-500/20 bg-red-500/10 text-[14px] text-red-400 transition-all hover:bg-red-500/20"
+      className="relative top-[-10px] flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-blue-500/20 bg-blue-500/10 text-blue-400 transition-all hover:bg-blue-500/20"
     >
-      ×
+      <Pencil size={14} />
     </button>
 
   )}
@@ -1348,6 +1361,20 @@ const handleDeleteTrade =
           </div>
         </div>
       )}
+          <EditTradeModal
+        open={
+          !!editingTrade
+        }
+        trade={
+          editingTrade
+        }
+        onClose={() =>
+          setEditingTrade(
+            null
+          )
+        }
+      />
+
     </>
   );
 }

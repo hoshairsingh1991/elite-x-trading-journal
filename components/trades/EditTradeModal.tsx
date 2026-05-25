@@ -4,7 +4,15 @@ import { useState } from "react";
 
 import { Trade } from "@/types/trade";
 
-import { updateTrade } from "@/lib/storage/tradeStorage";
+import { supabase } from "@/lib/supabase";
+
+import {
+  createManualExecutions,
+} from "@/lib/trades/createManualExecutions";
+
+import {
+  saveExecutionsToSupabase,
+} from "@/lib/storage/supabaseExecutionStorage";
 
 interface EditTradeModalProps {
 
@@ -77,13 +85,19 @@ export default function EditTradeModal({
     );
 
   const [tradeDate, setTradeDate] =
-    useState(trade.date);
+  useState(
+
+    trade.date.includes("T")
+      ? trade.date.split("T")[0]
+      : trade.date
+
+  );
 
   // =================================================
   // SAVE EDITS
   // =================================================
 
-  const handleSaveTrade = () => {
+  const handleSaveTrade = async () => {
 
     if (
       !ticker ||
@@ -175,57 +189,96 @@ export default function EditTradeModal({
     }
 
     // =================================================
-    // UPDATED TRADE
-    // =================================================
+// MANUAL TRADE SAFETY
+// =================================================
 
-    const updatedTrade: Trade = {
+if (
+  !trade.contractKey?.startsWith(
+    "MANUAL-"
+  )
+) {
 
-      ...trade,
+  alert(
+    "Only manual trades can be edited."
+  );
 
-      ticker,
+  return;
+}
 
-      quantity: qty,
+// =================================================
+// DELETE OLD LIFECYCLE
+// =================================================
 
-      entryPrice: entry,
+const {
+  error: deleteError,
+} = await supabase
+  .from("executions")
+  .delete()
+  .eq(
+    "contract_key",
+    trade.contractKey
+  );
 
-      exitPrice:
-        exitPrice
-          ? exit
-          : null,
+if (deleteError) {
 
-      fees,
+  console.error(
+    "FAILED TO DELETE OLD MANUAL LIFECYCLE:",
+    deleteError
+  );
 
-      side,
+  alert(
+    "Failed to replace manual trade lifecycle."
+  );
 
-      assetType,
+  return;
+}
 
-      account,
+// =================================================
+// CREATE CORRECTED EXECUTIONS
+// =================================================
 
-      date: tradeDate,
+const correctedExecutions =
+  createManualExecutions({
 
-      pnl,
+    ticker,
 
-      status,
+    quantity: qty,
 
-      isOpen:
-        status === "OPEN",
+    entryPrice: entry,
 
-      closedAt:
-        status === "OPEN"
-          ? null
-          : tradeDate,
-    };
+    exitPrice:
+    exitPrice
+    ? exit
+    : entry,
 
-    updateTrade(
-      updatedTrade
-    );
+    commission: fees,
 
-    onClose();
+    assetType,
 
-    window.location.reload();
-  };
+    account,
 
-  return (
+    tradeDate,
+  });
+
+// =================================================
+// SAVE CORRECTED EXECUTIONS
+// =================================================
+
+await saveExecutionsToSupabase(
+  correctedExecutions
+);
+
+// =================================================
+// CLOSE + RELOAD
+// =================================================
+
+onClose();
+
+window.location.reload();
+
+};
+
+return (
 
     <>
     
@@ -320,6 +373,55 @@ export default function EditTradeModal({
                   {/* ================================================= */}
 
                   <div className="flex items-center gap-3">
+
+                    <button
+  onClick={async () => {
+
+    if (
+      !trade.contractKey
+    ) {
+
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Delete this manual trade?"
+      );
+
+    if (!confirmed) {
+
+      return;
+    }
+
+    const {
+      error,
+    } = await supabase
+      .from("executions")
+      .delete()
+      .eq(
+        "contract_key",
+        trade.contractKey
+      );
+
+    if (error) {
+
+      console.error(
+        "FAILED TO DELETE TRADE:",
+        error
+      );
+
+      return;
+    }
+
+    onClose();
+
+    window.location.reload();
+  }}
+  className="flex h-[42px] w-[92px] items-center justify-center rounded-[12px] border border-red-500/20 bg-red-500/10 text-[10px] font-black uppercase tracking-[0.14em] text-red-400 transition-all hover:bg-red-500/20"
+>
+  Delete
+</button>
 
                     <button
                       onClick={handleSaveTrade}
@@ -566,8 +668,9 @@ export default function EditTradeModal({
                             <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                                type="number"
-                                value={entryPrice}
+                              type="number"
+                               step="0.01"
+                               value={entryPrice}
                                 onChange={(e) =>
                                   setEntryPrice(
                                     e.target.value
@@ -587,8 +690,9 @@ export default function EditTradeModal({
                             <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                                type="number"
-                                value={exitPrice}
+                              type="number"
+                              step="0.01"
+                               value={exitPrice}
                                 onChange={(e) =>
                                   setExitPrice(
                                     e.target.value
@@ -609,8 +713,9 @@ export default function EditTradeModal({
                             <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                                type="number"
-                                value={commission}
+                             type="number"
+                             step="0.01"
+                             value={commission}
                                 onChange={(e) =>
                                   setCommission(
                                     e.target.value
