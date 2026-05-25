@@ -2327,19 +2327,186 @@ This prevents:
 
 # Manual Lifecycle Management
 
-Manual trades support:
+Elite X manual trades now operate through:
 
-delete + recreate
+```txt
+execution-native lifecycle replacement
+```
 
-NOT mutable trade editing.
+NOT:
 
-Manual lifecycle deletion is restricted ONLY to executions using:
+```txt
+mutable Trade object mutation
+```
 
+Manual trade editing flow:
+
+```txt
+edit manual trade
+↓
+delete previous manual executions
+↓
+generate corrected synthetic executions
+↓
+persist corrected executions
+↓
+pairTrades() reconstructs canonical lifecycle state
+```
+
+This architecture preserves:
+
+- deterministic rebuild integrity
+- canonical execution accounting
+- cross-device consistency
+- immutable broker execution doctrine
+- lifecycle-safe editing
+- analytics synchronization
+- execution-ledger authenticity
+
+Manual lifecycle deletion is intentionally restricted ONLY to executions using:
+
+```txt
 MANUAL-
+```
 
 contractKey namespaces.
 
-This prevents accidental deletion of broker-imported execution history.
+This prevents:
+
+- accidental deletion of broker-imported executions
+- imported ledger corruption
+- accounting drift
+- immutable history mutation
+
+Imported broker executions remain:
+
+```txt
+immutable historical accounting truth
+```
+
+and are NEVER directly editable.
+
+---
+
+# Fee Reconciliation Integrity
+
+Elite X manual execution generation now preserves:
+
+```txt
+exact fee reconciliation
+```
+
+across synthetic execution lifecycles.
+
+Commission allocation now follows:
+
+```txt
+entryFees + exitFees
+= exact original commission
+```
+
+instead of naïve:
+
+```txt
+commission / 2
+```
+
+rounding.
+
+This prevents:
+
+- fee drift
+- reconciliation mismatch
+- floating rounding leakage
+- lifecycle accounting divergence
+
+Example:
+
+```txt
+2.11
+→ 1.05 + 1.06
+→ exact reconciliation
+```
+
+instead of:
+
+```txt
+2.11
+→ 1.05 + 1.05
+→ 2.10 incorrect drift
+```
+
+This behavior is now considered:
+
+```txt
+ledger-safe accounting doctrine
+```
+
+---
+
+# Manual Options Accounting
+
+Elite X manual execution generation now supports:
+
+```txt
+institutional options multiplier semantics
+```
+
+Manual options trades automatically apply:
+
+```txt
+multiplier = 100
+```
+
+for:
+
+- execution value
+- pnl reconstruction
+- lifecycle accounting
+
+Non-option assets retain:
+
+```txt
+multiplier = 1
+```
+
+This architecture preserves:
+
+- options accounting integrity
+- realistic options P&L
+- broker-authentic reconstruction
+- analytics consistency
+
+---
+
+# Institutional Manual Lifecycle UX
+
+Elite X now supports:
+
+- manual lifecycle editing
+- manual lifecycle deletion
+- execution-native lifecycle replacement
+- calendar-integrated editing
+- trade-table integrated editing
+- lifecycle-safe modal reconciliation
+
+Manual lifecycle editing now behaves as:
+
+```txt
+institutional synthetic execution management
+```
+
+instead of:
+
+```txt
+mutable frontend trade CRUD
+```
+
+This architecture officially transitions Elite X further toward:
+
+```txt
+execution-native trading operating system architecture
+```
 
 ---
 
@@ -2353,29 +2520,55 @@ Elite X now supports cloud persistence for:
 
 via:
 
+```txt
 Supabase
+```
 
 This enables:
+
 - cross-device continuity
 - behavioral journaling persistence
 - cloud-native reconstruction
 - production-safe persistence architecture
+- execution-ledger synchronization
+- deterministic cloud rebuilds
 
 ---
 
 # Legacy Architecture Status
 
-The following systems are now considered legacy transitional layers:
+The following systems are now considered:
 
-tradeStorage.ts
-createTrade.ts
-EditTradeModal.tsx
+```txt
+legacy transitional layers
+```
+
+- tradeStorage.ts
+- createTrade.ts
+
+Trade objects are now treated as:
+
+```txt
+derived presentation state
+```
+
+NOT:
+
+```txt
+canonical persistence truth
+```
 
 Future development should prioritize:
 
+```txt
 execution-native workflows
+```
 
-NOT mutable Trade persistence.
+instead of:
+
+```txt
+mutable Trade persistence
+```
 
 ---
 

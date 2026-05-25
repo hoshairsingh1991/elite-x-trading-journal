@@ -22,7 +22,7 @@ location.reload()
 ------------------------------------------------------------------
 
 Latest Stable Checkpoint:
-git checkout -b checkpoint/execution-centric-architecture-v10
+git checkout -b checkpoint/manual-lifecycle-replacement-v11
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE

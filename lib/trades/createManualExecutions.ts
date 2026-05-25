@@ -57,6 +57,34 @@ NormalizedExecution[] {
   `MANUAL-${ticker.toUpperCase()}-${lifecycleId}`;
 
   // =============================================
+// ASSET MULTIPLIER
+// =============================================
+
+const multiplier =
+  assetType === "OPTIONS"
+    ? 100
+    : 1;
+
+    // =============================================
+// FEE RECONCILIATION
+// =============================================
+
+const entryFees =
+  Number(
+    (
+      commission / 2
+    ).toFixed(2)
+  );
+
+const exitFees =
+  Number(
+    (
+      commission -
+      entryFees
+    ).toFixed(2)
+  );
+
+  // =============================================
   // ENTRY EXECUTION
   // =============================================
 
@@ -85,25 +113,22 @@ NormalizedExecution[] {
         entryPrice,
 
       executionValue:
-        Number(
-          (
-            quantity *
-            entryPrice
-          ).toFixed(2)
-        ),
+      Number(
+     (
+      quantity *
+      entryPrice *
+      multiplier
+    ).toFixed(2)
+    ),
 
       fees:
-        Number(
-          (
-            commission / 2
-          ).toFixed(2)
-        ),
+  entryFees,
 
       account,
 
       assetType,
 
-      multiplier: 1,
+      multiplier,
     };
 
   // =============================================
@@ -135,25 +160,22 @@ NormalizedExecution[] {
         exitPrice,
 
       executionValue:
-        Number(
-          (
-            quantity *
-            exitPrice
-          ).toFixed(2)
-        ),
+      Number(
+     (
+      quantity *
+      exitPrice *
+      multiplier
+    ).toFixed(2)
+    ),
 
       fees:
-        Number(
-          (
-            commission / 2
-          ).toFixed(2)
-        ),
+  exitFees,
 
       account,
 
       assetType,
 
-      multiplier: 1,
+      multiplier,
     };
 
   return [

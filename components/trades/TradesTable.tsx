@@ -9,6 +9,9 @@ import { Trade } from "@/types/trade";
 import { supabase }
 from "@/lib/supabase";
 
+import EditTradeModal
+from "@/components/trades/EditTradeModal";
+
 interface TradesTableProps {
   trades: Trade[];
   onSelectTrade: (
@@ -49,6 +52,12 @@ export default function TradesTable({
   trades,
   onSelectTrade,
 }: TradesTableProps) {
+  const [
+  editingTrade,
+  setEditingTrade,
+] = useState<Trade | null>(
+  null
+);
 
 
   // =================================================
@@ -535,7 +544,7 @@ const handleDeleteTrade =
                           </span>
                         </div>
 
-                        {/* DELETE BUTTON */}
+                        {/* EDIT BUTTON */}
 
 {trade.contractKey?.startsWith(
   "MANUAL-"
@@ -548,13 +557,13 @@ const handleDeleteTrade =
 
       event.stopPropagation();
 
-      handleDeleteTrade(
+      setEditingTrade(
         trade
       );
     }}
-    className="absolute right-0 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-red-500/20 bg-red-500/10 text-[13px] text-red-400 transition-all hover:bg-red-500/20"
+    className="absolute right-0 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-blue-500/20 bg-blue-500/10 text-[13px] text-blue-400 transition-all hover:bg-blue-500/20"
   >
-    ×
+    ✎
   </button>
 
 )}
@@ -568,7 +577,22 @@ const handleDeleteTrade =
             </div>
           </div>
         </div>
-      </div>
+            </div>
+
+      <EditTradeModal
+        open={
+          !!editingTrade
+        }
+        trade={
+          editingTrade
+        }
+        onClose={() =>
+          setEditingTrade(
+            null
+          )
+        }
+      />
+
     </>
   );
 }
