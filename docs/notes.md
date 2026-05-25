@@ -25,7 +25,8 @@ Latest Stable Checkpoint:
 git checkout -b checkpoint/manual-lifecycle-replacement-v11
 
 Latest Stable Checkpoint with USER ID AUTH
-git commit -m "checkpoint/full-saas-isolation-v15"
+git commit -m "checkpoint/profile-system-auth-v10"
+
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
