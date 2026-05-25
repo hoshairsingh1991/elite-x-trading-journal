@@ -5,8 +5,6 @@ import {
   useState,
 } from "react";
 
-import { supabase } from "@/lib/supabase";
-
 import Sidebar from "@/components/layout/Sidebar";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
@@ -15,6 +13,9 @@ import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
 
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 import AddTradeModal from "@/components/trades/AddTradeModal";
+
+
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import {
   calculateAverageWin,
@@ -342,6 +343,8 @@ setImportedTrades([
 
   return (
 
+  <ProtectedRoute>
+
     <main className="flex h-screen overflow-hidden bg-[#020617] text-slate-300">
 
       {/* ================================================= */}
@@ -661,7 +664,10 @@ setImportedTrades([
             setIsAddTradeOpen(false)
           }
         />
+
       </section>
-    </main>
+        </main>
+
+  </ProtectedRoute>
   );
 }
