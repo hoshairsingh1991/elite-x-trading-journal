@@ -10,12 +10,40 @@ export async function
 loadNotesFromSupabase():
 Promise<Note[]> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return [];
+  }
+
+  // ===================================================
+  // LOAD USER NOTES
+  // ===================================================
+
   const {
     data,
     error,
   } = await supabase
     .from("notes")
     .select("*")
+    .eq(
+      "user_id",
+      user.id
+    )
     .order(
       "updated_at",
       {
@@ -65,6 +93,26 @@ export async function
 createNoteInSupabase():
 Promise<Note | null> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return null;
+  }
+
   const newNote: Note = {
 
     id:
@@ -102,6 +150,9 @@ Promise<Note | null> {
 
       updated_at:
         newNote.updatedAt,
+
+      user_id:
+        user.id,
     });
 
   if (error) {
@@ -126,6 +177,26 @@ updateNoteInSupabase(
   note: Note
 ): Promise<void> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return;
+  }
+
   const {
     error,
   } = await supabase
@@ -144,6 +215,10 @@ updateNoteInSupabase(
     .eq(
       "id",
       note.id
+    )
+    .eq(
+      "user_id",
+      user.id
     );
 
   if (error) {
@@ -164,6 +239,26 @@ deleteNoteFromSupabase(
   noteId: string
 ): Promise<void> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return;
+  }
+
   const {
     error,
   } = await supabase
@@ -172,6 +267,10 @@ deleteNoteFromSupabase(
     .eq(
       "id",
       noteId
+    )
+    .eq(
+      "user_id",
+      user.id
     );
 
   if (error) {
