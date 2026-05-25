@@ -19,12 +19,36 @@ export async function
 loadDailyNotesFromSupabase():
 Promise<DailyNote[]> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return [];
+  }
+
   const {
     data,
     error,
   } = await supabase
     .from("daily_notes")
-    .select("*");
+    .select("*")
+    .eq(
+      "user_id",
+      user.id
+    );
 
   if (error) {
 
@@ -50,12 +74,36 @@ getDailyNoteFromSupabase(
   date: string
 ): Promise<string> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return "";
+  }
+
   const {
     data,
     error,
   } = await supabase
     .from("daily_notes")
     .select("note")
+    .eq(
+      "user_id",
+      user.id
+    )
     .eq(
       "date",
       date
@@ -82,6 +130,26 @@ upsertDailyNoteInSupabase(
   note: string
 ): Promise<void> {
 
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return;
+  }
+
   // =========================================
   // DELETE EMPTY NOTES
   // =========================================
@@ -91,6 +159,10 @@ upsertDailyNoteInSupabase(
     await supabase
       .from("daily_notes")
       .delete()
+      .eq(
+        "user_id",
+        user.id
+      )
       .eq(
         "date",
         date
@@ -109,12 +181,16 @@ upsertDailyNoteInSupabase(
     .from("daily_notes")
     .upsert(
       {
+        user_id:
+          user.id,
+
         date,
+
         note,
       },
       {
         onConflict:
-          "date",
+          "user_id,date",
       }
     );
 
