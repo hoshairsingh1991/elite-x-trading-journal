@@ -28,6 +28,11 @@ import {
   TimeRange,
 } from "@/lib/analytics";
 
+import {
+  calculatePnLByCurrency,
+  calculateFeesByCurrency,
+} from "@/lib/analytics/currencyAnalytics";
+
 import { parseIBKRCsv } from "@/lib/parsers/ibkrParser";
 
 import { pairTrades }
@@ -266,9 +271,19 @@ useEffect(() => {
     );
 
   const totalFees =
-    calculateTotalFees(
-      filteredTrades
-    );
+  calculateTotalFees(
+    filteredTrades
+  );
+
+const pnlByCurrency =
+  calculatePnLByCurrency(
+    filteredTrades
+  );
+
+const feesByCurrency =
+  calculateFeesByCurrency(
+    filteredTrades
+  );
 
   // =================================================
   // MODAL HANDLERS
@@ -536,19 +551,19 @@ setImportedTrades([
 
                     {[
                       {
-                        title:
-                          "Total P&L",
+                      title:
+                      "Total P&L",
 
-                        value:
-                          `$${totalPnL.toLocaleString()}`,
+                      value:
+                      Object.entries(
+                      pnlByCurrency
+                      ),
 
-                        sub:
-                          `${totalTrades} total trades`,
+                      sub:
+                      `${totalTrades} total trades`,
 
-                        color:
-                          totalPnL >= 0
-                            ? "text-emerald-400"
-                            : "text-red-400",
+                      color:
+                      "text-slate-300",
                       },
 
                       {
@@ -566,38 +581,87 @@ setImportedTrades([
                       },
 
                       {
-                        title:
-                          "Commissions",
+  title:
+    "Commissions",
 
-                        value:
-                          `$${totalFees.toLocaleString()}`,
+  value:
+    Object.entries(
+      feesByCurrency
+    ),
 
-                        sub:
-                          "Execution & brokerage",
+  sub:
+    "Execution & brokerage",
 
-                        color:
-                          "text-orange-400",
-                      },
-                    ].map((item) => (
+  color:
+    "text-orange-400",
+},
+].map((item) => (
 
-                      <div
-                        key={item.title}
-                        className="flex flex-col"
-                      >
+  <div
+    key={item.title}
+    className="flex flex-col"
+  >
 
-                        <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-slate-500">
-                          {item.title}
-                        </p>
+    <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-slate-500">
+      {item.title}
+    </p>
 
-                        <h2 className="mt-5 text-[50px] font-black leading-none tracking-tight text-slate-300">
-                          {item.value}
-                        </h2>
+    <div className="mt-5 flex flex-col gap-2">
 
-                        <p className={`mt-4 text-[14px] font-bold ${item.color}`}>
-                          {item.sub}
-                        </p>
-                      </div>
-                    ))}
+      {Array.isArray(
+        item.value
+      ) ? (
+
+        item.value.map(
+          (
+            [currency, value]
+          ) => (
+
+            <h2
+              key={currency}
+              className="text-[50px] font-black leading-none tracking-tight text-slate-300"
+            >
+
+              {currency === "USD"
+                ? "$"
+                : currency === "CAD"
+                ? "C$"
+                : currency === "EUR"
+                ? "€"
+                : `${currency} `}
+
+              {Number(
+                value
+              ).toLocaleString(
+                undefined,
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }
+              )}
+
+            </h2>
+          )
+        )
+
+      ) : (
+
+        <h2 className="text-[50px] font-black leading-none tracking-tight text-slate-300">
+
+          {item.value}
+
+        </h2>
+      )}
+
+    </div>
+
+    <p className={`mt-4 text-[14px] font-bold ${item.color}`}>
+      {item.sub}
+    </p>
+
+  </div>
+))}
+                    
                   </div>
                 </div>
               </div>

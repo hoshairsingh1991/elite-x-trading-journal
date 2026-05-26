@@ -84,102 +84,114 @@ const exitFees =
     ).toFixed(2)
   );
 
-  // =============================================
-  // ENTRY EXECUTION
-  // =============================================
+// =============================================
+// ENTRY EXECUTION
+// =============================================
 
-  const entryExecution:
-    NormalizedExecution = {
+const entryExecution:
+  NormalizedExecution = {
 
-      id:
-        crypto.randomUUID(),
+    id:
+      crypto.randomUUID(),
 
-      date:
-        `${tradeDate}T09:30:00.000Z`,
+    date:
+      `${tradeDate}T09:30:00.000Z`,
 
-      ticker:
-        ticker.toUpperCase(),
+    ticker:
+      ticker.toUpperCase(),
 
-      contract:
-        ticker.toUpperCase(),
+    contract:
+      ticker.toUpperCase(),
 
-      contractKey,
+    contractKey,
 
-      side: "LONG",
+    side: "LONG",
 
-      quantity,
+    quantity,
 
-      executionPrice:
-        entryPrice,
+    executionPrice:
+      entryPrice,
 
-      executionValue:
+    executionValue:
       Number(
-     (
-      quantity *
-      entryPrice *
-      multiplier
-    ).toFixed(2)
-    ),
+        (
+          quantity *
+          entryPrice *
+          multiplier
+        ).toFixed(2)
+      ),
 
-      fees:
-  entryFees,
+    fees:
+      entryFees,
 
-      account,
+    currency:
+      "USD",
 
-      assetType,
+    feeCurrency:
+      "USD",
 
-      multiplier,
-    };
+    account,
 
-  // =============================================
-  // EXIT EXECUTION
-  // =============================================
+    assetType,
 
-  const exitExecution:
-    NormalizedExecution = {
+    multiplier,
+  };
 
-      id:
-        crypto.randomUUID(),
+// =============================================
+// EXIT EXECUTION
+// =============================================
 
-      date:
-        `${tradeDate}T16:00:00.000Z`,
+const exitExecution:
+  NormalizedExecution = {
 
-      ticker:
-        ticker.toUpperCase(),
+    id:
+      crypto.randomUUID(),
 
-      contract:
-        ticker.toUpperCase(),
+    date:
+      `${tradeDate}T16:00:00.000Z`,
 
-      contractKey,
+    ticker:
+      ticker.toUpperCase(),
 
-      side: "SHORT",
+    contract:
+      ticker.toUpperCase(),
 
-      quantity,
+    contractKey,
 
-      executionPrice:
-        exitPrice,
+    side: "SHORT",
 
-      executionValue:
+    quantity,
+
+    executionPrice:
+      exitPrice,
+
+    executionValue:
       Number(
-     (
-      quantity *
-      exitPrice *
-      multiplier
-    ).toFixed(2)
-    ),
+        (
+          quantity *
+          exitPrice *
+          multiplier
+        ).toFixed(2)
+      ),
 
-      fees:
-  exitFees,
+    fees:
+      exitFees,
 
-      account,
+    currency:
+      "USD",
 
-      assetType,
+    feeCurrency:
+      "USD",
 
-      multiplier,
-    };
+    account,
 
-  return [
-    entryExecution,
-    exitExecution,
-  ];
+    assetType,
+
+    multiplier,
+  };
+
+return [
+  entryExecution,
+  exitExecution,
+];
 }

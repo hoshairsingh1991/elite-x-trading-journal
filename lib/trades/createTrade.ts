@@ -40,9 +40,9 @@ export function createTrade({
   account = "",
 
   tradeDate =
-  new Date().toLocaleDateString(
-    "en-CA"
-  )
+    new Date().toLocaleDateString(
+      "en-CA"
+    ),
 
 }: CreateTradeParams): Trade {
 
@@ -52,18 +52,26 @@ export function createTrade({
 
   const grossPnl =
     side === "LONG"
-      ? (exitPrice - entryPrice) * quantity
-      : (entryPrice - exitPrice) * quantity;
+      ? (
+          exitPrice -
+          entryPrice
+        ) * quantity
+      : (
+          entryPrice -
+          exitPrice
+        ) * quantity;
 
   const netPnl =
-    grossPnl - commission;
+    grossPnl -
+    commission;
 
   // =================================================
   // STATUS
   // =================================================
 
-  let status: Trade["status"] =
-    "BREAKEVEN";
+  let status:
+    Trade["status"] =
+      "BREAKEVEN";
 
   if (netPnl > 0) {
 
@@ -102,10 +110,6 @@ export function createTrade({
 
     status,
 
-    // =================================================
-    // PURE CALENDAR DATE
-    // =================================================
-
     date:
       tradeDate,
 
@@ -133,20 +137,33 @@ export function createTrade({
       ),
 
     fees:
-      commission,
+      Number(
+        commission.toFixed(2)
+      ),
+
+    currency:
+      "USD",
+
+    feeCurrency:
+      "USD",
 
     // =================================================
     // OPEN POSITION SUPPORT
     // =================================================
 
-    isOpen:
-      false,
+    isOpen: false,
 
     openedAt:
-      timestamp,
+      tradeDate,
 
     closedAt:
-      timestamp,
+      tradeDate,
+
+    // =================================================
+    // JOURNALING
+    // =================================================
+
+    notes: "",
 
     // =================================================
     // METADATA
