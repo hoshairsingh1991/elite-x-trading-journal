@@ -4,7 +4,6 @@ import { pairTrades } from "./pairTrades";
 
 import {
   NormalizedExecution,
-  Trade,
 } from "@/types/trade";
 
 
@@ -159,86 +158,108 @@ export async function parseIBKRCsv(
                       .toUpperCase();
 
                   // =================================================
-                  // FIXED PRICE MAPPING
-                  // =================================================
+// FIXED PRICE MAPPING
+// =================================================
 
-                  const executionPrice =
-                    parseNumber(
-                      row["T. Price"] ||
-                      row["Trade Price"] ||
-                      row["TradePrice"] ||
-                      row["Price"]
-                    );
+const executionPrice =
+  parseNumber(
+    row["T. Price"] ||
+    row["Trade Price"] ||
+    row["TradePrice"] ||
+    row["Price"]
+  );
 
-                  const quantity =
-                    Math.abs(
-                      parseNumber(
-                        row.Quantity
-                      )
-                    );
+const quantity =
+  Math.abs(
+    parseNumber(
+      row.Quantity
+    )
+  );
 
-                  const executionValue =
-                    parseNumber(
-                      row.NetCash
-                    );
+const executionValue =
+  parseNumber(
+    row.NetCash
+  );
 
-                  const fees =
-                    Math.abs(
-                      parseNumber(
-                        row.Commission
-                      )
-                    );
+const fees =
+  Math.abs(
+    parseNumber(
+      row.Commission
+    )
+  );
 
-                  const multiplier =
-                    parseNumber(
-                      row.Multiplier,
-                      100
-                    );
+const multiplier =
+  parseNumber(
+    row.Multiplier,
+    100
+  );
 
-                  return {
+// =================================================
+// CURRENCY
+// =================================================
 
-                    id:
-                   `${row.ClientAccountID || "IBKR"}-${executionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}-${executionValue}`,
+const currency =
+  row.CurrencyPrimary ||
+  row.Currency ||
+  "USD";
 
-                    date:
-                      formattedDate,
+const feeCurrency =
+  row.CommissionCurrency ||
+  currency;
 
-                    ticker,
 
-                    contract,
+// =================================================
+// NORMALIZED EXECUTION
+// =================================================
 
-                    contractKey,
+return {
 
-                    side:
-                      row["Buy/Sell"] ===
-                      "BUY"
-                        ? "LONG"
-                        : "SHORT",
+  id:
+    `${row.ClientAccountID || "IBKR"}-${executionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}-${executionValue}`,
 
-                    quantity,
+  date:
+    formattedDate,
 
-                    executionPrice,
+  ticker,
 
-                    executionValue,
+  contract,
 
-                    fees:
-                      Number(
-                        fees.toFixed(2)
-                      ),
+  contractKey,
 
-                    account:
-                      row.ClientAccountID ||
-                      "IBKR",
+  side:
+    row["Buy/Sell"] ===
+    "BUY"
+      ? "LONG"
+      : "SHORT",
 
-                    assetType:
-                      formatAssetType(
-                        row.AssetClass
-                      ),
+  quantity,
 
-                    multiplier,
-                  };
-                }
-              );
+  executionPrice,
+
+  executionValue,
+
+  fees:
+    Number(
+      fees.toFixed(2)
+    ),
+
+  currency,
+
+  feeCurrency,
+
+  account:
+    row.ClientAccountID ||
+    "IBKR",
+
+  assetType:
+    formatAssetType(
+      row.AssetClass
+    ),
+
+  multiplier,
+};
+}
+);
 
           // =================================================
           // PAIR EXECUTIONS

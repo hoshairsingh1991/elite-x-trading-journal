@@ -56,6 +56,14 @@ export interface NormalizedExecution {
 
   fees: number;
 
+  currency: "USD" | "CAD" | "EUR" | string;
+
+feeCurrency?:
+  "USD" |
+  "CAD" |
+  "EUR" |
+  string;
+
   account: string;
 
   assetType: string;
@@ -132,9 +140,21 @@ executions?: NormalizedExecution[];
 
   pnl: number;
 
-  pnlPercent?: number;
+pnlPercent?: number;
 
-  fees: number;
+fees: number;
+
+currency:
+  "USD" |
+  "CAD" |
+  "EUR" |
+  string;
+
+feeCurrency?:
+  "USD" |
+  "CAD" |
+  "EUR" |
+  string;
 
   // =================================================
   // OPEN POSITION SUPPORT

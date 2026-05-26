@@ -118,10 +118,19 @@ Promise<NormalizedExecution[]> {
           execution.execution_value,
 
         fees:
-          execution.fees,
+  execution.fees,
 
-        account:
-          execution.account,
+currency:
+  execution.currency ||
+  "USD",
+
+feeCurrency:
+  execution.fee_currency ||
+  execution.currency ||
+  "USD",
+
+account:
+  execution.account,
 
         assetType:
           execution.asset_type,
@@ -200,10 +209,16 @@ saveExecutionsToSupabase(
           execution.executionValue,
 
         fees:
-          execution.fees,
+         execution.fees,
+
+        currency:
+        execution.currency,
+
+        fee_currency:
+        execution.feeCurrency,
 
         account:
-          execution.account,
+        execution.account,
 
         asset_type:
           execution.assetType,
