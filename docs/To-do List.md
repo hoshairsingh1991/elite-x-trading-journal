@@ -94,22 +94,6 @@ PHASE 1 — CURRENT PRIORITIES
 
 -------------------------------------
 
-[ ] manual executions → Supabase execution ledger
-    - canonical persistence
-    - deterministic rebuild compatibility
-    - execution-ledger normalization
-    - cross-device sync
-    - rebuild-safe architecture
-
-[ ] Notes → Supabase
-    - cloud persistence
-    - cross-device notes
-    - behavioral workspace continuity
-
-[ ] Calendar Notes → Supabase
-    - cloud behavioral metadata
-    - session journaling continuity
-    - rebuild-independent persistence
 
 [ ] unified behavioral metadata doctrine
     - notes

@@ -40,94 +40,115 @@ export function pairTrades(
     > = {};
 
   // =================================================
-  // LOAD EXISTING OPEN POSITIONS
-  // =================================================
+// LOAD EXISTING OPEN POSITIONS
+// =================================================
 
-  existingTrades.forEach(
-    (trade) => {
+existingTrades.forEach(
+  (trade) => {
 
-      if (
-        !trade.isOpen ||
-        !trade.contractKey
-      ) {
+    if (
+      !trade.isOpen ||
+      !trade.contractKey
+    ) {
 
-        return;
-      }
+      return;
+    }
 
-      if (
-  trade.ticker ===
-    "USD.CAD" ||
-  trade.ticker ===
-    "EUR.CAD" ||
-  trade.ticker ===
-    "EUR.USD"
-) {
+    // =============================================
+    // IGNORE CASH FX
+    // =============================================
 
-  return;
-}
+    if (
+      trade.ticker ===
+        "USD.CAD" ||
 
-      if (
-        !openPositions[
-          trade.contractKey
-        ]
-      ) {
+      trade.ticker ===
+        "EUR.CAD" ||
 
-        openPositions[
-          trade.contractKey
-        ] = [];
-      }
+      trade.ticker ===
+        "EUR.USD"
+    ) {
+
+      return;
+    }
+
+    // =============================================
+    // CREATE POSITION BUCKET
+    // =============================================
+
+    if (
+      !openPositions[
+        trade.contractKey
+      ]
+    ) {
 
       openPositions[
         trade.contractKey
-      ].push({
-
-        id: trade.id,
-
-        fromStorage: true,
-
-        date:
-          trade.openedAt ||
-          trade.date,
-
-        ticker:
-          trade.ticker,
-
-        contract:
-          trade.contract || "",
-
-        contractKey:
-          trade.contractKey,
-
-        side:
-          trade.side,
-
-        quantity:
-          trade.quantity,
-
-        remainingQuantity:
-          trade.quantity,
-
-        executionPrice:
-          trade.entryPrice,
-
-        executionValue:
-          trade.pnl,
-
-        fees:
-          trade.fees,
-
-        account:
-          trade.account || "",
-
-        assetType:
-          trade.assetType || "",
-
-        multiplier: 100,
-      });
+      ] = [];
     }
-  );
 
-  // =================================================
+    // =============================================
+    // HYDRATE OPEN POSITION
+    // =============================================
+
+    openPositions[
+      trade.contractKey
+    ].push({
+
+      id:
+        trade.id,
+
+      fromStorage: true,
+
+      date:
+        trade.openedAt ||
+        trade.date,
+
+      ticker:
+        trade.ticker,
+
+      contract:
+        trade.contract || "",
+
+      contractKey:
+        trade.contractKey,
+
+      side:
+        trade.side,
+
+      quantity:
+        trade.quantity,
+
+      remainingQuantity:
+        trade.quantity,
+
+      executionPrice:
+        trade.entryPrice,
+
+      executionValue:
+        trade.pnl,
+
+      fees:
+        trade.fees,
+
+      currency:
+        trade.currency,
+
+      feeCurrency:
+        trade.feeCurrency,
+
+      account:
+        trade.account || "",
+
+      assetType:
+        trade.assetType || "",
+
+      multiplier: 100,
+    });
+  }
+);
+
+// =================================================
 // PROCESS EXECUTIONS
 // =================================================
 
@@ -323,38 +344,45 @@ sortedExecutions.forEach(
             execution.account,
 
           // =================================================
-          // EXECUTION
-          // =================================================
+// EXECUTION
+// =================================================
 
-          entryPrice:
-            entryExecution.executionPrice,
+entryPrice:
+  entryExecution.executionPrice,
 
-          exitPrice:
-            execution.executionPrice,
+exitPrice:
+  execution.executionPrice,
 
-          quantity:
-            consumeQuantity,
+quantity:
+  consumeQuantity,
 
-          // =================================================
-          // PERFORMANCE
-          // =================================================
+// =================================================
+// PERFORMANCE
+// =================================================
 
-          pnl:
-            Number(
-              realizedPnL.toFixed(2)
-            ),
+pnl:
+  Number(
+    realizedPnL.toFixed(2)
+  ),
 
-          fees:
-            Number(
-              (
-                entryExecution.fees +
-                execution.fees
-              ).toFixed(2)
-            ),
+fees:
+  Number(
 
-          // =================================================
-          // OPEN POSITION SUPPORT
-          // =================================================
+    (
+      entryExecution.fees +
+      execution.fees
+    ).toFixed(2)
+  ),
+
+currency:
+  execution.currency,
+
+feeCurrency:
+  execution.feeCurrency,
+
+// =================================================
+// OPEN POSITION SUPPORT
+// =================================================
 
           isOpen: false,
 
@@ -457,63 +485,219 @@ sortedExecutions.forEach(
         }
       }
 
-      // =================================================
-      // UNMATCHED SHORT
-      // =================================================
+// =================================================
+// UNMATCHED SHORT
+// =================================================
 
-      if (
-        remainingExitQuantity >
-        EPSILON
-      ) {
+if (
+  remainingExitQuantity >
+  EPSILON
+) {
+
+  finalTrades.push({
+
+    id:
+      `${contractKey}-open-short-${index}`,
+
+    ticker:
+      execution.ticker,
+
+    contract:
+      execution.contract,
+
+    contractKey,
+
+    side:
+      execution.side,
+
+    status: "OPEN",
+
+    date:
+      execution.date,
+
+    assetType:
+      execution.assetType,
+
+    account:
+      execution.account,
+
+    // =================================================
+    // EXECUTION
+    // =================================================
+
+    entryPrice:
+      execution.executionPrice,
+
+    exitPrice: null,
+
+    quantity:
+      remainingExitQuantity,
+
+    // =================================================
+    // PERFORMANCE
+    // =================================================
+
+    pnl:
+      -execution.fees,
+
+    fees:
+      execution.fees,
+
+    currency:
+      execution.currency,
+
+    feeCurrency:
+      execution.feeCurrency,
+
+    // =================================================
+    // OPEN POSITION SUPPORT
+    // =================================================
+
+    isOpen: true,
+
+    openedAt:
+      execution.date,
+
+    closedAt: null,
+
+    holdingDays: 0,
+
+    // =================================================
+    // METADATA
+    // =================================================
+
+    createdAt:
+      new Date().toISOString(),
+
+    updatedAt:
+      new Date().toISOString(),
+  });
+}
+}
+);
+
+// =================================================
+// REMAINING OPEN POSITIONS
+// =================================================
+
+Object.entries(
+  openPositions
+).forEach(
+  ([contractKey, positions]) => {
+
+    positions.forEach(
+      (position) => {
+
+        const remainingQuantity =
+          position.remainingQuantity ||
+          position.quantity;
+
+        // =============================================
+        // REMOVE FLOATING DUST
+        // =============================================
+
+        if (
+          Math.abs(
+            remainingQuantity
+          ) < EPSILON
+        ) {
+
+          return;
+        }
+
+        // =============================================
+        // IGNORE CASH FX
+        // =============================================
+
+        if (
+          position.ticker ===
+            "USD.CAD" ||
+
+          position.ticker ===
+            "EUR.CAD" ||
+
+          position.ticker ===
+            "EUR.USD"
+        ) {
+
+          return;
+        }
 
         finalTrades.push({
 
           id:
-            `${contractKey}-open-short-${index}`,
+            `${contractKey}-${position.date}-${position.executionPrice}-${position.quantity}`,
+
+          // =================================================
+          // BASIC INFO
+          // =================================================
 
           ticker:
-            execution.ticker,
+            position.ticker,
 
           contract:
-            execution.contract,
+            position.contract,
 
           contractKey,
 
           side:
-            execution.side,
+            position.side,
 
           status: "OPEN",
 
           date:
-            execution.date,
+            position.date,
 
           assetType:
-            execution.assetType,
+            position.assetType,
 
           account:
-            execution.account,
+            position.account,
+
+          // =================================================
+          // EXECUTION
+          // =================================================
 
           entryPrice:
-            execution.executionPrice,
+            position.executionPrice,
 
           exitPrice: null,
 
           quantity:
-            remainingExitQuantity,
+            remainingQuantity,
+
+          // =================================================
+          // PERFORMANCE
+          // =================================================
 
           pnl:
-            -execution.fees,
+            -position.fees,
 
           fees:
-            execution.fees,
+            position.fees,
+
+          currency:
+            position.currency,
+
+          feeCurrency:
+            position.feeCurrency,
+
+          // =================================================
+          // OPEN POSITION SUPPORT
+          // =================================================
 
           isOpen: true,
 
           openedAt:
-            execution.date,
+            position.date,
 
           closedAt: null,
+
           holdingDays: 0,
+
+          // =================================================
+          // METADATA
+          // =================================================
 
           createdAt:
             new Date().toISOString(),
@@ -522,133 +706,9 @@ sortedExecutions.forEach(
             new Date().toISOString(),
         });
       }
-    }
-  );
+    );
+  }
+);
 
-  // =================================================
-  // REMAINING OPEN POSITIONS
-  // =================================================
-
-  Object.entries(
-    openPositions
-  ).forEach(
-    ([contractKey, positions]) => {
-
-      positions.forEach(
-        (position) => {
-
-          const remainingQuantity =
-            position.remainingQuantity ||
-            position.quantity;
-
-          // =============================================
-          // REMOVE FLOATING DUST
-          // =============================================
-
-          if (
-            Math.abs(
-              remainingQuantity
-            ) < EPSILON
-          ) {
-
-            return;
-          }
-
-          // =============================================
-          // IGNORE CASH FX
-          // =============================================
-
-          if (
-  position.ticker ===
-    "USD.CAD" ||
-  position.ticker ===
-    "EUR.CAD" ||
-  position.ticker ===
-    "EUR.USD"
-) {
-
-  return;
-}
-
-          finalTrades.push({
-
-            id:
-              `${contractKey}-${position.date}-${position.executionPrice}-${position.quantity}`,
-
-            // =================================================
-            // BASIC INFO
-            // =================================================
-
-            ticker:
-              position.ticker,
-
-            contract:
-              position.contract,
-
-            contractKey,
-
-            side:
-              position.side,
-
-            status: "OPEN",
-
-            date:
-              position.date,
-
-            assetType:
-              position.assetType,
-
-            account:
-              position.account,
-
-            // =================================================
-            // EXECUTION
-            // =================================================
-
-            entryPrice:
-              position.executionPrice,
-
-            exitPrice: null,
-
-            quantity:
-              remainingQuantity,
-
-            // =================================================
-            // PERFORMANCE
-            // =================================================
-
-            pnl:
-              -position.fees,
-
-            fees:
-              position.fees,
-
-            // =================================================
-            // OPEN POSITION SUPPORT
-            // =================================================
-
-            isOpen: true,
-
-            openedAt:
-              position.date,
-
-            closedAt: null,
-            holdingDays: 0,
-
-            // =================================================
-            // METADATA
-            // =================================================
-
-            createdAt:
-              new Date().toISOString(),
-
-            updatedAt:
-              new Date().toISOString(),
-          });
-        }
-      );
-    }
-  );
-
-  return finalTrades;
+return finalTrades;
 }

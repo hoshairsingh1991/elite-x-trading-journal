@@ -12,6 +12,10 @@ from "@/lib/supabase";
 import EditTradeModal
 from "@/components/trades/EditTradeModal";
 
+import {
+  formatCurrency,
+} from "@/lib/utils/formatCurrency";
+
 interface TradesTableProps {
   trades: Trade[];
   onSelectTrade: (
@@ -107,6 +111,29 @@ const handleDeleteTrade =
     }
 
     window.location.reload();
+  };
+
+// =================================================
+// MODAL SAFETY
+// =================================================
+
+const handleSelectTrade =
+  (
+    trade: Trade
+  ) => {
+
+    if (
+      !trade.contractKey?.startsWith(
+        "MANUAL-"
+      )
+    ) {
+
+      return;
+    }
+
+    onSelectTrade(
+      trade
+    );
   };
 
   const safeTrades =
@@ -248,10 +275,10 @@ const handleDeleteTrade =
 
 <div
   onClick={() =>
-    onSelectTrade(
-      trade
-    )
-  }
+  handleSelectTrade(
+    trade
+  )
+}
   className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.account ||
@@ -262,10 +289,10 @@ const handleDeleteTrade =
 
 <div
   onClick={() =>
-    onSelectTrade(
-      trade
-    )
-  }
+  handleSelectTrade(
+    trade
+  )
+}
   className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium tracking-wide text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.ticker}
@@ -275,10 +302,10 @@ const handleDeleteTrade =
 
 <div
   onClick={() =>
-    onSelectTrade(
-      trade
-    )
-  }
+  handleSelectTrade(
+    trade
+  )
+}
   className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.openedAt
@@ -299,10 +326,10 @@ const handleDeleteTrade =
 
 <div
   onClick={() =>
-    onSelectTrade(
-      trade
-    )
-  }
+  handleSelectTrade(
+    trade
+  )
+}
   className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.closedAt
@@ -442,22 +469,25 @@ const handleDeleteTrade =
                       <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400">
 
                         {trade.entryPrice > 0
-                          ? `$${Number(
-                              trade.entryPrice
-                            ).toFixed(2)}`
-                          : "--"}
+                        ? formatCurrency(
+                        Number(
+                        trade.entryPrice
+                        ),
+                        trade.currency
+                        )
+                        : "--"}
                       </div>
 
                       {/* EXIT */}
 
                       <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400">
 
-  {trade.exitPrice != null ? (
+                      {trade.exitPrice != null ? (
 
-    trade.exitPrice === 0 &&
-    trade.status === "LOSS"
+                      trade.exitPrice === 0 &&
+                      trade.status === "LOSS"
 
-      ? (
+                      ? (
 
         <div className="relative left-[0px] flex items-center justify-center">
 
@@ -470,9 +500,12 @@ const handleDeleteTrade =
 
       ) : (
 
-        `$${Number(
-          trade.exitPrice
-        ).toFixed(2)}`
+        formatCurrency(
+  Number(
+    trade.exitPrice
+  ),
+  trade.currency
+)
       )
 
   ) : "--"}
@@ -497,24 +530,30 @@ const handleDeleteTrade =
                         }`}
                       >
                         {trade.pnl >= 0
-                          ? "+"
-                          : "-"}
-                        $
-                        {Math.abs(
-                          Number(
-                            trade.pnl
-                          )
-                        ).toLocaleString()}
+  ? "+"
+  : "-"}
+
+{formatCurrency(
+  Math.abs(
+    Number(
+      trade.pnl
+    )
+  ),
+  trade.currency
+)}
                       </div>
 
                       {/* COMMISSION */}
 
                       <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-semibold text-orange-700">
 
-                        $
-                        {Number(
-                          trade.fees
-                        ).toFixed(2)}
+                        {formatCurrency(
+  Number(
+    trade.fees
+  ),
+  trade.feeCurrency ||
+    trade.currency
+)}
                       </div>
 
                       {/* STATUS */}
