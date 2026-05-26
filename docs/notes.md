@@ -23,9 +23,11 @@ location.reload()
 
 Latest Stable Checkpoint:
 git checkout -b checkpoint/manual-lifecycle-replacement-v11
+------------------------------------------------------------------
+
 
 Latest Stable Checkpoint with USER ID AUTH
-git commit -m "checkpoint/profile-system-auth-v10"
+git commit -m "checkpoint/account-overview-multi-currency-v2"
 
 
 Status:
