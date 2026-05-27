@@ -26,23 +26,6 @@ ELITE X — TRADE LIFECYCLE ROADMAP
 
 ---------------------------------------------
 
-PHASE 5 — FUTURE LIFECYCLE ANALYTICS
----------------------------------------------
-
-[ ] Average hold duration
-
-[ ] Best-performing hold duration
-
-[ ] Overnight exposure analytics
-
-[ ] Scalp vs swing classification
-
-[ ] Options expiration behavior analysis
-
-[ ] Behavioral duration analysis
-
----------------------------------------------
-
 IMPORTANT ARCHITECTURE RULE
 ---------------------------------------------
 
@@ -87,65 +70,6 @@ PHASE 1 — CURRENT PRIORITIES
     - preparation notes
     - execution checklist ideas
     - lightweight workflow utility
-
--------------------------------------
-
-# PHASE 2 — CLOUD COMPLETION
-
--------------------------------------
-
-
-[ ] unified behavioral metadata doctrine
-    - notes
-    - reminders
-    - calendar annotations
-    - workspace systems
-    - behavioral isolation layer
-
-[ ] user-scoped persistence architecture
-    - auth-safe storage
-    - per-user isolation
-    - Supabase RLS policies
-    - user-bound execution loading
-    - user-bound behavioral metadata
-
-[ ] multi-user onboarding foundation
-    - external tester architecture
-    - account-safe persistence boundaries
-    - production-safe cloud isolation
-
--------------------------------------
-
-PHASE 3 — MULTI-USER SaaS
--------------------------------------
-
-[ ] Supabase Auth
-    - signup
-    - login
-    - logout
-    - session handling
-
-[ ] user_id architecture
-    - executions
-    - notes
-    - manual trades
-    - calendar notes
-
-[ ] Row-Level Security (RLS)
-    - user isolation
-    - protected data ownership
-    - secure queries
-
-[ ] protected routes
-    - authenticated dashboard
-    - login page
-    - signup page
-
-[ ] friend testing phase
-    - workflow testing
-    - import testing
-    - behavioral feedback
-    - usability feedback
 
 -------------------------------------
 
@@ -560,3 +484,232 @@ IBKR Flex Query Auto Sync
 
 Phase 3:
 Optional live broker streaming later if needed
+
+
+# Elite X — Account Overview Redesign Notes
+
+## Core Vision
+
+Account Overview should feel:
+
+* live
+* institutional
+* informative
+* emotionally engaging
+* execution-focused
+* premium OS-like
+* adaptive to trader state
+
+NOT:
+
+* generic KPI dashboard
+* crypto template
+* static analytics card
+
+---
+
+# Design Philosophy
+
+Elite X should evolve toward:
+
+"Execution Operating System"
+
+instead of:
+
+"Retail Trading Journal"
+
+---
+
+# UX Goals
+
+Users should instantly feel:
+
+* connected to trading performance
+* aware of account state
+* aware of risk/exposure
+* aware of recent performance
+* dashboard is reacting to activity
+
+Dashboard should feel:
+
+* active
+* intelligent
+* responsive
+* data-rich but clean
+
+---
+
+# Current Problem
+
+Current Account Overview was designed for:
+
+* single large KPI values
+
+But multi-currency support changes architecture.
+
+Now:
+
+* data is list-based
+* grouped
+* layered
+* contextual
+
+Current layout no longer matches system complexity.
+
+---
+
+# New Direction
+
+Move away from:
+
+* 3 giant centered KPI columns
+
+Move toward:
+
+* modular institutional panels
+* grouped information blocks
+* compact but dense metrics
+* layered hierarchy
+
+---
+
+# Recommended Layout Direction
+
+## LEFT PANEL — Performance
+
+Multi-currency breakdown:
+
+USD  +$12,420
+CAD  +C$1,840
+EUR  -€220
+
+Should feel:
+
+* compact
+* premium
+* easy to scan
+* accounting-authentic
+
+---
+
+## CENTER PANEL — Trading Stats
+
+Examples:
+
+* Total Trades
+* Win Rate
+* Average Win
+* Average Loss
+* Profit Factor
+
+Should feel:
+
+* analytical
+* structured
+* fast to scan
+
+---
+
+## RIGHT PANEL — Risk / Costs
+
+Examples:
+
+* Fees by Currency
+* Open Positions
+* Largest Win
+* Largest Loss
+* Current Exposure
+
+---
+
+# Adaptive UI Logic
+
+Dashboard should adapt automatically.
+
+Example:
+
+* single-currency user → simpler layout
+* multi-currency user → expanded accounting layout
+* many open trades → emphasize risk/exposure
+
+Dashboard should feel alive.
+
+---
+
+# Important Product Principle
+
+Native currency accounting ALWAYS comes first.
+
+FX conversion becomes:
+
+* optional
+* secondary analytics layer
+
+Never silently convert currencies.
+
+---
+
+# Future FX Layer
+
+Later add:
+
+* Base Currency selector
+* Live FX conversion
+* Approx. Combined Equity
+* Portfolio normalization
+
+But:
+
+* native broker values remain source of truth
+
+---
+
+# Visual Direction
+
+Target feel:
+
+* Bloomberg Terminal
+* modern institutional UI
+* Apple-level polish
+* high information density
+* smooth hierarchy
+* calm but powerful
+
+Avoid:
+
+* flashy crypto dashboard style
+* oversized KPI cards
+* empty spacing
+* gimmicky animations
+
+---
+
+# Future Live Feel Ideas
+
+Potential later enhancements:
+
+* subtle live pulses for open trades
+* dynamic P&L reactions
+* recent activity feed
+* adaptive analytics
+* session-aware metrics
+* account-aware dashboard state
+* real-time sync indicators
+
+---
+
+# Architecture Status
+
+Current infrastructure completed:
+
+* multi-currency accounting
+* CAD/EUR support
+* currency-safe commissions
+* Supabase persistence
+* execution-authentic accounting
+* FX trade filtering
+* protected imported trades
+* deterministic trade reconstruction
+
+Checkpoint:
+checkpoint/multi-currency-accounting-v1

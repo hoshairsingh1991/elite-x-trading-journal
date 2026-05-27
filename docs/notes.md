@@ -28,7 +28,7 @@ git checkout -b checkpoint/manual-lifecycle-replacement-v11
 
 Latest Stable Checkpoint with USER ID AUTH
 git commit -m "checkpoint/account-overview-multi-currency-v2"
-
+checkpoint/broker-execution-enrichment-v10
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE

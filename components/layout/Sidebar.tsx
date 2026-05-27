@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import Image from "next/image";
+
 import { usePathname } from "next/navigation";
 
 import {
@@ -72,22 +74,38 @@ export default function Sidebar() {
         {/* LOGO ZONE */}
         {/* ================================================= */}
 
-        <div className="flex h-[190px] flex-col items-center justify-center px-6">
+        <div className="flex h-[190px] items-center justify-center px-6">
 
-          <h1 className="text-[44px] font-black tracking-[-0.04em] text-slate-400">
-            EliteX
-          </h1>
+          <div className="flex items-center gap-4">
 
-          <p className="mt-2 text-sm font-medium uppercase tracking-[0.18em] text-slate-500">
-            Trading OS
-          </p>
+            <Image
+              src="/logo.svg"
+              alt="Elite X"
+              width={58}
+              height={58}
+              priority
+              className="rounded-2xl"
+            />
+
+            <div className="flex flex-col">
+
+              <h1 className="text-[28px] font-black tracking-[-0.04em] text-white">
+                Elite X
+              </h1>
+
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-blue-400">
+                Trading OS
+              </p>
+
+            </div>
+          </div>
         </div>
 
         {/* ================================================= */}
         {/* NAVIGATION */}
         {/* ================================================= */}
 
-        <nav className="mt-8 flex justify-center">
+        <nav className="mt-4 flex justify-center">
 
           <div className="w-[88%] space-y-4">
 

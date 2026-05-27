@@ -217,6 +217,10 @@ return {
   id:
     `${row.ClientAccountID || "IBKR"}-${executionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}-${executionValue}`,
 
+brokerExecutionId:
+  row.ExecID ||
+  undefined,
+
   date:
     formattedDate,
 

@@ -37,9 +37,12 @@ export type TradeMistake =
 // =================================================
 
 export interface NormalizedExecution {
+
   id: string;
 
   date: string;
+
+  brokerExecutionId?: string;
 
   ticker: string;
 

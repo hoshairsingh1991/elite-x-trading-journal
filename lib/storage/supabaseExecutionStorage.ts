@@ -82,16 +82,19 @@ Promise<NormalizedExecution[]> {
     return [];
   }
 
-  // ===================================================
-  // FORMAT EXECUTIONS
-  // ===================================================
+// ===================================================
+// HYDRATE EXECUTIONS
+// ===================================================
 
-  const formattedExecutions =
+  const hydratedExecutions =
     (data || []).map(
       (execution: any) => ({
 
         id:
           execution.id,
+
+          brokerExecutionId:
+  execution.broker_execution_id,
 
         date:
           execution.date,
@@ -140,7 +143,7 @@ account:
       })
     );
 
-  return formattedExecutions;
+  return hydratedExecutions;
 }
 
 // =====================================================
@@ -173,16 +176,19 @@ saveExecutionsToSupabase(
     return;
   }
 
-  // ===================================================
-  // FORMAT EXECUTIONS
-  // ===================================================
+// ===================================================
+// SERIALIZE EXECUTIONS
+// ===================================================
 
-  const formattedExecutions =
+  const serializedExecutions =
     executions.map(
       (execution) => ({
 
         id:
           execution.id,
+
+          broker_execution_id:
+  execution.brokerExecutionId,
 
         date:
           execution.date,
@@ -240,7 +246,7 @@ saveExecutionsToSupabase(
 
       new Map(
 
-        formattedExecutions.map(
+        serializedExecutions.map(
           (execution) => [
             execution.id,
             execution,
