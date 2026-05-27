@@ -2613,3 +2613,209 @@ frontend trading journal
 into:
 
 ledger-based trading platform architecture
+
+
+# Multi-Currency Architecture (v12)
+
+Elite X now supports:
+
+```txt
+native multi-currency execution accounting
+```
+
+through:
+
+```txt
+execution-level currency persistence
+```
+
+Current supported currencies include:
+
+- USD
+- CAD
+- EUR
+
+Architecture includes:
+
+- execution-native currency tracking
+- fee-currency persistence
+- canonical currency propagation
+- Supabase currency persistence
+- adaptive account overview rendering
+- presentation-layer currency grouping
+
+Execution schema now includes:
+
+```ts
+currency
+feeCurrency
+```
+
+Currency metadata flows through:
+
+```txt
+IBKR CSV
+↓
+NormalizedExecution
+↓
+Supabase persistence
+↓
+Deterministic reconstruction
+↓
+Canonical trades
+↓
+Analytics/UI rendering
+```
+
+This architecture intentionally preserves:
+
+```txt
+native broker accounting truth
+```
+
+instead of:
+
+```txt
+forced synthetic USD conversion
+```
+
+Current account overview rendering intentionally groups metrics by:
+
+```txt
+native accounting currency
+```
+
+Example:
+
+```txt
+USD +15,420
+CAD +466
+EUR -120
+```
+
+instead of silently mixing currencies.
+
+---
+
+# Protected Currency Architecture Rule
+
+Elite X MUST NEVER:
+
+- silently merge currencies
+- synthesize fake FX conversions
+- flatten mixed-currency accounting
+- mutate broker-native currency truth
+- hide native currency attribution
+
+Until institutional FX infrastructure is implemented:
+
+```txt
+native currency truth
+```
+
+is considered:
+
+```txt
+canonical accounting doctrine
+```
+
+Future FX systems must operate as:
+
+```txt
+derived presentation-layer conversion
+```
+
+NOT:
+
+```txt
+canonical accounting mutation
+```
+## multi-currency-native-v12
+
+First stable native multi-currency accounting architecture.
+
+Features stabilized:
+
+- execution-native currency persistence
+- fee currency persistence
+- Supabase currency propagation
+- adaptive account overview rendering
+- mixed-currency portfolio safety
+- native broker currency truth preservation
+
+## Institutional FX Layer
+
+Planned future architecture:
+
+```txt
+native accounting truth
++
+derived FX presentation layer
+```
+
+Planned capabilities:
+
+- historical FX conversion
+- portfolio base-currency rendering
+- realized FX attribution
+- daily FX snapshots
+- broker-native currency preservation
+- institutional portfolio conversion
+
+FX systems MUST remain:
+
+```txt
+presentation-layer derived systems
+```
+
+NOT:
+
+```txt
+canonical accounting mutation
+```
+
+# Canonical Execution Identity Doctrine
+
+Elite X treats broker executions as:
+
+```txt
+globally canonical immutable accounting events
+```
+
+Execution identity MUST remain deterministic across:
+
+- CSV imports
+- IBKR Flex sync
+- future broker APIs
+- backup restores
+- reconciliation passes
+- multi-device sync
+
+The SAME broker execution MUST ALWAYS produce:
+
+```txt
+the same execution ID
+```
+
+regardless of ingestion source.
+
+This architecture guarantees:
+
+- duplicate-safe synchronization
+- reconciliation integrity
+- deterministic lifecycle reconstruction
+- immutable accounting consistency
+
+Elite X MUST NEVER generate:
+
+```txt
+random broker execution identity
+```
+
+for imported broker executions.
+
+Execution identity is considered:
+
+```txt
+canonical accounting infrastructure
+```
