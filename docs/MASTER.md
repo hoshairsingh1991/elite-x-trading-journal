@@ -2794,7 +2794,7 @@ Execution identity MUST remain deterministic across:
 The SAME broker execution MUST ALWAYS produce:
 
 ```txt
-the same execution ID
+the same canonical execution identity
 ```
 
 regardless of ingestion source.
@@ -2818,4 +2818,136 @@ Execution identity is considered:
 
 ```txt
 canonical accounting infrastructure
+```
+
+# Broker-Native Execution Identity Enrichment (v13)
+
+brokerExecutionId is enrichment metadata,
+NOT current canonical accounting identity.
+
+Elite X now supports:
+
+```txt
+broker-native execution identity enrichment
+```
+
+through:
+
+```ts
+brokerExecutionId
+```
+
+persisted on:
+
+```txt
+NormalizedExecution
+```
+
+This architecture introduces:
+
+```txt
+dual execution identity systems
+```
+
+## Canonical Internal Identity
+
+```ts
+execution.id
+```
+
+Used for:
+
+* deterministic rebuilds
+* duplicate prevention
+* FIFO reconciliation
+* lifecycle reconstruction
+* canonical accounting continuity
+
+Current deterministic identity architecture remains unchanged.
+
+---
+
+## Broker-Native Identity
+
+```ts
+brokerExecutionId
+```
+
+Currently sourced from:
+
+```txt
+IBKR ExecID
+```
+
+Used for:
+
+* broker reconciliation
+* auditability
+* sync parity validation
+* broker traceability
+* future broker sync infrastructure
+* ingestion-source normalization
+
+This architecture intentionally preserves:
+
+```txt
+deterministic canonical accounting
+```
+
+while introducing:
+
+```txt
+broker-aware reconciliation enrichment
+```
+
+Elite X intentionally does NOT yet use:
+
+```txt
+brokerExecutionId
+```
+
+as canonical execution identity.
+
+Current architecture prioritizes:
+
+* rebuild stability
+* duplicate safety
+* lifecycle continuity
+* deterministic parity protection
+
+before transitioning toward future:
+
+```txt
+broker-native canonical synchronization
+```
+
+---
+
+# Flex Sync Foundation
+
+The platform is now architecturally prepared for:
+
+* IBKR Flex ingestion
+* overnight synchronization
+* broker-native reconciliation
+* idempotent sync behavior
+* cross-source execution parity
+
+Future ingestion systems MUST guarantee:
+
+```txt
+same broker execution
+→ same canonical execution identity
+```
+
+regardless of source:
+
+* CSV import
+* Flex query
+* future broker APIs
+
+This behavior is considered:
+
+```txt
+FOUNDATIONAL RECONCILIATION DOCTRINE
 ```
