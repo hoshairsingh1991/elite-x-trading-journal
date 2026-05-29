@@ -62,7 +62,7 @@ export default function Sidebar() {
 
   return (
 
-    <aside className="flex h-[calc(100vh-40px)] w-[255px] flex-col justify-between rounded-[32px] border border-white/[0.04] bg-[#07101a] py-7 shadow-[0_0_30px_rgba(0,0,0,0.22)]">
+    <aside className="flex h-full w-[255px] flex-col justify-between rounded-[32px] border border-white/[0.04] bg-[#07101a] py-7 shadow-[0_0_30px_rgba(0,0,0,0.22)]">
 
       {/* ================================================= */}
       {/* TOP SECTION */}
