@@ -627,18 +627,14 @@ transition-all
   "
 >
 
+  <div className="group relative">
+
   <div
-    title={
-      connection.last_sync_status === "success"
-        ? `Sync Successful • ${connection.last_sync_execution_count ?? 0} executions processed`
-        : connection.last_sync_status === "failed"
-        ? `Sync Failed • ${connection.last_sync_error || "Unknown error"}`
-        : "Never Synced"
-    }
     className={`
       h-3.5
       w-3.5
       rounded-full
+      cursor-pointer
       ${
         connection.last_sync_status === "success"
           ? "bg-emerald-600"
@@ -648,6 +644,71 @@ transition-all
       }
     `}
   />
+
+  <div
+    className="
+      pointer-events-none
+      absolute
+      left-1/2
+      top-[-12px]
+      z-50
+      hidden
+      min-w-[220px]
+      -translate-x-1/2
+      -translate-y-full
+      rounded-xl
+      border
+      border-white/[0.08]
+      bg-[#071427]
+      px-3
+      py-2
+      text-[12px]
+      font-medium
+      text-slate-300
+      shadow-[0_0_25px_rgba(0,0,0,0.45)]
+      group-hover:block
+    "
+  >
+
+    {connection.last_sync_status === "success" ? (
+
+  <div className="flex flex-col items-center">
+
+    <div className="text-[14px] font-bold text-emerald-400">
+      Sync Successful
+    </div>
+
+    <div className="mt-1 text-center text-[13px] text-slate-300">
+      {connection.last_sync_execution_count ?? 0} Executions Processed
+    </div>
+
+  </div>
+
+) : connection.last_sync_status === "failed" ? (
+
+  <div className="flex flex-col items-center">
+
+    <div className="text-[14px] font-bold text-red-400">
+      Sync Failed
+    </div>
+
+    <div className="mt-1 max-w-[220px] text-center text-[13px] text-slate-300">
+      {connection.last_sync_error || "Unknown error"}
+    </div>
+
+  </div>
+
+) : (
+
+  <div className="text-center text-[13px] text-slate-400">
+    Never Synced
+  </div>
+
+)}
+
+  </div>
+
+</div>
 
   <span>
     {connection.last_sync_at
