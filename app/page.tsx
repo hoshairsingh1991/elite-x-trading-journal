@@ -571,6 +571,27 @@ setImportedTrades([
   ...manualTrades,
 ]);
 
+await supabase
+  .from("broker_connections")
+  .update({
+    last_sync_at:
+      new Date().toISOString(),
+    last_sync_status:
+      "success",
+    last_sync_error:
+      null,
+    last_sync_execution_count:
+      parsedExecutions.length,
+  })
+  .eq(
+    "broker",
+    "IBKR"
+  )
+  .eq(
+    "is_active",
+    true
+  );
+
 
 if (
   reconstructedTrades.length > 0
