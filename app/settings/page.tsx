@@ -588,10 +588,10 @@ transition-all
 
             <div
               className="
-                w-2
-                h-2
+                w-3
+                h-3
                 rounded-full
-                bg-emerald-400
+                bg-green-700
               "
             />
 
@@ -616,17 +616,50 @@ transition-all
 
         {/* LAST SYNC */}
 
-        <div
-          className="
-            text-center
-            text-zinc-500
-            text-[16px]
-          "
-        >
-          Never
-        </div>
+<div
+  className="
+    flex
+    items-center
+    justify-center
+    gap-2
+    text-zinc-500
+    text-[16px]
+  "
+>
 
-        {/* ACTIONS */}
+  <div
+    title={
+      connection.last_sync_status === "success"
+        ? `Sync Successful • ${connection.last_sync_execution_count ?? 0} executions processed`
+        : connection.last_sync_status === "failed"
+        ? `Sync Failed • ${connection.last_sync_error || "Unknown error"}`
+        : "Never Synced"
+    }
+    className={`
+      h-3.5
+      w-3.5
+      rounded-full
+      ${
+        connection.last_sync_status === "success"
+          ? "bg-emerald-600"
+          : connection.last_sync_status === "failed"
+          ? "bg-red-600"
+          : "bg-zinc-600"
+      }
+    `}
+  />
+
+  <span>
+    {connection.last_sync_at
+      ? new Date(
+          connection.last_sync_at
+        ).toLocaleString()
+      : "Never"}
+  </span>
+
+</div>
+
+{/* ACTIONS */}
 
         <div
           className="
