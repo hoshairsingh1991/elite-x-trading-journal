@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
+
 import {
   NormalizedExecution,
 } from "@/types/trade";
@@ -280,3 +281,4 @@ saveExecutionsToSupabase(
     );
   }
 }
+
