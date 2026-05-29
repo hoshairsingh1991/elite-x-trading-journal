@@ -260,18 +260,14 @@ useEffect(() => {
 
             <div className="h-[10px]" />
 
-           {/* ================================== */}
-{/* PROFILE */}
-{/* ================================== */}
+            {/* ================================== */}
+            {/* PROFILE */}
+            {/* ================================== */}
 
-<button
-  onClick={() => {
-
-    setIsOpen(false);
-
-    window.location.href =
-      "/profile";
-  }}
+            <button
+  onClick={() =>
+    window.location.href = "/profile"
+  }
   className="
     flex w-full items-center
     gap-3
@@ -288,57 +284,58 @@ useEffect(() => {
   "
 >
 
-  <User className="h-4 w-4" />
+              <User className="h-4 w-4" />
 
-  <span>
-    My Profile
-  </span>
+              <span>
+                My Profile
+              </span>
 
-</button>
+            </button>
 
-<div className="h-[2px]" />
+            
 
-{/* ================================== */}
-{/* SETTINGS */}
-{/* ================================== */}
+            <div className="h-[2px]" />
 
-<button
-  onClick={() => {
+            {/* ================================== */}
+            {/* GAP */}
+            {/* ================================== */}
 
-    setIsOpen(false);
+            <div className="h-[10px]" />
 
-    window.location.href =
-      "/settings";
-  }}
-  className="
-    flex w-full items-center
-    gap-3
-    relative left-2
-    rounded-xl
-    border border-transparent
-    px-4 py-3
-    text-[14px]
-    text-slate-300
-    transition-all
-    hover:border-slate-800
-    hover:bg-slate-900/70
-    hover:text-white
-  "
->
+            {/* ================================== */}
+            {/* SETTINGS */}
+            {/* ================================== */}
 
-  <Settings className="h-4 w-4" />
+            <button
+              className="
+                flex w-full items-center
+                gap-3
+                relative left-2
+                rounded-xl
+                border border-transparent
+                px-4 py-3
+                text-[14px]
+                text-slate-300
+                transition-all
+                hover:border-slate-800
+                hover:bg-slate-900/70
+                hover:text-white
+              "
+            >
 
-  <span>
-    Account Settings
-  </span>
+              <Settings className="h-4 w-4" />
 
-</button>
+              <span>
+                Account Settings
+              </span>
 
-{/* ================================== */}
-{/* GAP */}
-{/* ================================== */}
+            </button>
 
-<div className="h-[10px]" />
+            {/* ================================== */}
+            {/* GAP */}
+            {/* ================================== */}
+
+            <div className="h-[10px]" />
 
             {/* ================================== */}
             {/* SIGN OUT */}

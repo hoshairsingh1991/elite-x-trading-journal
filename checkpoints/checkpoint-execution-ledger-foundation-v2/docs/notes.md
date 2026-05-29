@@ -31,8 +31,6 @@ git commit -m "checkpoint/account-overview-multi-currency-v2"
 checkpoint/broker-execution-enrichment-v10
 git checkout -b checkpoint/execution-ledger-architecture-v11
 
-cp -R . checkpoints/checkpoint-execution-ledger-foundation-v2    -  IBKR Live SYnc work now at this checkpoint.
-
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
