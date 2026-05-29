@@ -35,7 +35,7 @@ cp -R . checkpoints/checkpoint-execution-ledger-foundation-v2    -  IBKR Live SY
 
 CHECKPOINT: checkpoint/broker-management-v10
 
-git commit -m "checkpoint/sync-metadata-schema-v14"
+git commit -m "checkpoint/sync-metadata-schema-v15"
 
 
 Status:
