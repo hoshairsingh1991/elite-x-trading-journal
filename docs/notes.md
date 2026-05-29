@@ -33,6 +33,8 @@ git checkout -b checkpoint/execution-ledger-architecture-v11
 
 cp -R . checkpoints/checkpoint-execution-ledger-foundation-v2    -  IBKR Live SYnc work now at this checkpoint.
 
+CHECKPOINT: checkpoint/broker-management-v10
+
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
