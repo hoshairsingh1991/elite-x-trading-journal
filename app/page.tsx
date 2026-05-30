@@ -530,6 +530,17 @@ if (
 const csv =
   data.xml;
 
+  console.log(
+  "CSV TYPE:",
+  typeof csv
+);
+
+console.log(
+  "CSV CONSTRUCTOR:",
+  csv?.constructor?.name
+);
+
+
 const parsedExecutions =
   await parseIBKRCsv(csv);
 
