@@ -71,7 +71,7 @@ function formatAssetType(
 // =================================================
 
 export async function parseIBKRCsv(
-  file: File
+  file: File | string
 ): Promise<NormalizedExecution[]> {
 
   return new Promise((resolve, reject) => {

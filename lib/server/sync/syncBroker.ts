@@ -2,6 +2,10 @@ import {
   fetchFlex,
 } from "@/lib/server/brokers/ibkr/fetchFlex";
 
+import {
+  updateSyncStatus,
+} from "@/lib/server/sync/updateSyncStatus";
+
 export async function
 syncBroker(
   broker: any
@@ -18,14 +22,19 @@ syncBroker(
   ) {
 
     const result =
-  await fetchFlex(
-    broker
-  );
+      await fetchFlex(
+        broker
+      );
 
-console.log(
-  "FETCH RESULT:",
-  result
+    await updateSyncStatus(
+  broker.id,
+  result.executionCount
 );
+
+    console.log(
+      "FETCH RESULT:",
+      result
+    );
   }
 
   return {
