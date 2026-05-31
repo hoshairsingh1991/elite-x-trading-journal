@@ -1,7 +1,7 @@
 "use client";
 
-import UserMenu
-from "@/components/layout/UserMenu";
+import UserMenuV2
+from "@/components/layout/UserMenuV2";
 
 export default function Topbar() {
 
@@ -22,7 +22,11 @@ export default function Topbar() {
       "
     >
 
-      <UserMenu />
+      <UserMenuV2
+        totalTrades={0}
+        totalPnL={0}
+        tradingDays={0}
+      />
 
     </header>
   );

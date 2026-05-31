@@ -325,6 +325,24 @@ const feesByCurrency =
   calculateFeesByCurrency(
     filteredTrades
   );
+useEffect(() => {
+  localStorage.setItem(
+    "elite-x-menu-stats",
+    JSON.stringify({
+      totalTrades,
+      totalPnL,
+      tradingDays: new Set(
+        filteredTrades.map(
+          trade => trade.date
+        )
+      ).size,
+    })
+  );
+}, [
+  totalTrades,
+  totalPnL,
+  filteredTrades.length,
+]);
 
   // =================================================
   // MODAL HANDLERS
