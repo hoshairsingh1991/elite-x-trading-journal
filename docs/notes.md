@@ -37,6 +37,11 @@ CHECKPOINT: checkpoint/broker-management-v10
 
 git commit -m "checkpoint/sync-metadata-schema-v17"
 git commit -m "checkpoint/backend-sync-engine-foundation-v18"
+Your current checkpoint branch is:
+-m "checkpoint/auto-sync-engine-v1"
+And your latest commit on that branch is:
+90b6e36
+Auto-sync engine completed and secured
 
 
 Status:
