@@ -1,4 +1,8 @@
 
+inside page import UserMenu from "@/components/layout/UserMenu"; 
+import UserMenuV2 from "@/components/layout/UserMenuV2";
+
+
 ---------------------------------------------------------------------
 Project location
 
@@ -45,8 +49,14 @@ Auto-sync engine completed and secured
 
 git checkout -b checkpoint/production-sync-verified-v1 - At this point manul sync and auto sync filea are in versal. waiting for setting up auto sync file only. rest is good.
 
+------------------------------------------------------------------
+checkpoint/production-sync-verified-v1.  -       AUto Sync and Mannual SYNC now officaly work here.
 
-
+90b6e36  Auto-sync engine completed and secured 
+f2430f1  Update project notes
+f4cc2ac  Add Vercel cron schedule
+------------------------------------------------------------------
+ git commit -m "checkpoint/usermenu-real-stats-working". -  new user menu 
 
 
 
@@ -302,3 +312,16 @@ Users can connect IBKR accounts and have executions imported automatically witho
 
 Next Phase:
 Multi-currency architecture (USD/CAD separation, commission currencies, FX conversion foundation).
+
+
+<div className="flex justify-center">
+  <div
+    className="
+      w-[95%]
+      overflow-hidden
+      rounded-[22px]
+      border border-white/[0.08]
+      bg-[#081526]/80
+      backdrop-blur-xl
+    "
+  >
