@@ -17,7 +17,7 @@ import {
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import Sidebar from "@/components/layout/Sidebar";
-import UserMenu from "@/components/layout/UserMenu";
+import UserMenuV2 from "@/components/layout/UserMenuV2";
 
 import { supabase } from "@/lib/supabase";
 
@@ -157,7 +157,11 @@ if (profile) {
             </div>
 
             <div className="relative right-[12px]">
-            <UserMenu />
+            <UserMenuV2
+  totalTrades={0}
+  totalPnL={0}
+  tradingDays={0}
+/>
             </div>
 
           </div>

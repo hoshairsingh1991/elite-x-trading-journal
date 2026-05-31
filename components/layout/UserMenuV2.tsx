@@ -18,6 +18,8 @@ import {
 import { supabase } from "@/lib/supabase";
 import { loadProfile } from "@/lib/storage/profileStorage";
 
+
+
 type UserMenuV2Props = {
   totalTrades: number;
   totalPnL: number;
@@ -33,25 +35,53 @@ export default function UserMenuV2({
   const [displayName, setDisplayName] = useState("Elite X User");
   const [email, setEmail] = useState("");
 
+  const [menuStats, setMenuStats] =
+  useState({
+    totalTrades: 0,
+    totalPnL: 0,
+    tradingDays: 0,
+  });
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    async function loadUser() {
-      const { data } = await supabase.auth.getUser();
+ useEffect(() => {
+  async function loadUser() {
+    const { data } =
+      await supabase.auth.getUser();
 
-      if (data.user?.email) {
-        setEmail(data.user.email);
-      }
-
-      const profile = await loadProfile();
-
-      if (profile?.display_name) {
-        setDisplayName(profile.display_name);
-      }
+    if (data.user?.email) {
+      setEmail(
+        data.user.email
+      );
     }
 
-    loadUser();
-  }, []);
+    const profile =
+      await loadProfile();
+
+    if (
+      profile?.display_name
+    ) {
+      setDisplayName(
+        profile.display_name
+      );
+    }
+
+    const storedStats =
+      localStorage.getItem(
+        "elite-x-menu-stats"
+      );
+
+    if (storedStats) {
+      setMenuStats(
+        JSON.parse(
+          storedStats
+        )
+      );
+    }
+  }
+
+  loadUser();
+}, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -76,19 +106,34 @@ export default function UserMenuV2({
 
   const initial = email?.charAt(0)?.toUpperCase() || "E";
 
-  const formattedPnL = `${totalPnL >= 0 ? "+" : "-"}$${Math.abs(
-    totalPnL
-  ).toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  const formattedPnL = `${menuStats.totalPnL >= 0 ? "+" : "-"}$${Math.abs(
+  menuStats.totalPnL
+).toLocaleString(undefined, {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})}`;
 
   const comingSoon = () => alert("Coming Soon");
 
   return (
     <div ref={dropdownRef} className="relative">
       <button
-  onClick={() => setIsOpen(!isOpen)}
+  onClick={() => {
+  const storedStats =
+    localStorage.getItem(
+      "elite-x-menu-stats"
+    );
+
+  if (storedStats) {
+    setMenuStats(
+      JSON.parse(
+        storedStats
+      )
+    );
+  }
+
+  setIsOpen(!isOpen);
+}}
   className="flex items-center gap-3"
 >
   <div className="relative">
@@ -167,7 +212,7 @@ export default function UserMenuV2({
 
     <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center"> 
       <p className="text-[32px] font-black text-white">
-        {totalTrades}
+       {menuStats.totalTrades}
       </p>
 
       <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
@@ -176,18 +221,18 @@ export default function UserMenuV2({
     </div>
 
     <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center">
-      <p className="text-[32px] font-black text-emerald-400">
+      <p className="text-[30px] font-black text-emerald-400">
         {formattedPnL}
       </p>
 
-      <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
-        P&L This Month
+      <p className="mt-1 text-[15px] uppercase tracking-[0.15em] text-slate-500">
+        P&L
       </p>
     </div>
 
     <div className="flex min-h-[90px] flex-col items-center justify-center py-5 text-center">
       <p className="text-[32px] font-black text-white">
-        {tradingDays}
+        {menuStats.tradingDays}
       </p>
 
       <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
