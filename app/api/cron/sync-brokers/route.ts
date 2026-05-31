@@ -6,20 +6,14 @@ export async function GET(
   request: Request
 ) {
 
-  const {
-    searchParams,
-  } = new URL(
-    request.url
-  );
-
-  const secret =
-    searchParams.get(
-      "secret"
+  const authHeader =
+    request.headers.get(
+      "authorization"
     );
 
   if (
-    secret !==
-    process.env.CRON_SECRET
+    authHeader !==
+    `Bearer ${process.env.CRON_SECRET}`
   ) {
 
     return Response.json(

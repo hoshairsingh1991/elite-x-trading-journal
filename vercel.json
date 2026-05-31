@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-brokers",
+      "schedule": "0 22 * * *"
+    },
+    {
+      "path": "/api/cron/sync-brokers",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/sync-brokers",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}
