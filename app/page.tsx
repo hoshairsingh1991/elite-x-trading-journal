@@ -9,7 +9,7 @@ import { useRouter }
 from "next/navigation";
 
 import Sidebar from "@/components/layout/Sidebar";
-import UserMenu from "@/components/layout/UserMenu";
+import UserMenuV2 from "@/components/layout/UserMenuV2";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
@@ -792,7 +792,17 @@ setImportedTrades([
             Add Trade
           </button>
 
-          <UserMenu />
+          <UserMenuV2
+  totalTrades={totalTrades}
+  totalPnL={totalPnL}
+  tradingDays={
+    new Set(
+      filteredTrades.map(
+        trade => trade.date
+      )
+    ).size
+  }
+/>
 
         </div>
         </div>
