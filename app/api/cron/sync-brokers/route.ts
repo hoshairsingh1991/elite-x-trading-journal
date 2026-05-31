@@ -17,6 +17,21 @@ export async function GET(
       "secret"
     );
 
+    console.log(
+  "SECRET RECEIVED:",
+  secret
+);
+
+console.log(
+  "SECRET EXISTS:",
+  !!process.env.CRON_SECRET
+);
+
+console.log(
+  "SECRET LENGTH:",
+  process.env.CRON_SECRET?.length
+);
+
   if (
     secret !==
     process.env.CRON_SECRET
