@@ -1,29 +1,22 @@
+// ELITE X UserMenuV2 - Ground Up Visual Rebuild
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import {
-useEffect,
-useRef,
-useState,
-} from "react";
-
-import {
-User,
-Settings,
-LogOut,
-ChevronRight,
-CreditCard,
-HelpCircle,
-BarChart3,
-Crown,
-ShieldCheck,
-PlugZap,
+  User,
+  Settings,
+  LogOut,
+  ChevronRight,
+  ChevronDown,
+  CreditCard,
+  HelpCircle,
+  Crown,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
-
-import {
-loadProfile,
-} from "@/lib/storage/profileStorage";
+import { loadProfile } from "@/lib/storage/profileStorage";
 
 type UserMenuV2Props = {
   totalTrades: number;
@@ -36,557 +29,482 @@ export default function UserMenuV2({
   totalPnL,
   tradingDays,
 }: UserMenuV2Props) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [displayName, setDisplayName] = useState("Elite X User");
+  const [email, setEmail] = useState("");
 
-    const isPositivePnL =
-  totalPnL >= 0;
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-const formattedPnL =
-  `${isPositivePnL ? "+" : ""}$${Math.abs(
+  useEffect(() => {
+    async function loadUser() {
+      const { data } = await supabase.auth.getUser();
+
+      if (data.user?.email) {
+        setEmail(data.user.email);
+      }
+
+      const profile = await loadProfile();
+
+      if (profile?.display_name) {
+        setDisplayName(profile.display_name);
+      }
+    }
+
+    loadUser();
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  }
+
+  const initial = email?.charAt(0)?.toUpperCase() || "E";
+
+  const formattedPnL = `${totalPnL >= 0 ? "+" : "-"}$${Math.abs(
     totalPnL
   ).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 
-const [
-isOpen,
-setIsOpen,
-] = useState(false);
+  const comingSoon = () => alert("Coming Soon");
 
-const [
-displayName,
-setDisplayName,
-] = useState(
-"Elite X User"
-);
-
-const [
-email,
-setEmail,
-] = useState("");
-
-const dropdownRef =
-useRef<HTMLDivElement>(null);
-
-useEffect(() => {
-
-
-async function loadUser() {
-
-  const {
-    data,
-  } =
-    await supabase.auth.getUser();
-
-  const user =
-    data.user;
-
-  if (
-    user?.email
-  ) {
-
-    setEmail(
-      user.email
-    );
-  }
-
-  const profile =
-    await loadProfile();
-
-  if (
-    profile
-  ) {
-
-    setDisplayName(
-      profile.display_name
-    );
-  }
-}
-
-loadUser();
-
-
-}, []);
-
-useEffect(() => {
-
-
-function handleClickOutside(
-  event: MouseEvent
-) {
-
-  if (
-    dropdownRef.current &&
-    !dropdownRef.current.contains(
-      event.target as Node
-    )
-  ) {
-
-    setIsOpen(false);
-  }
-}
-
-document.addEventListener(
-  "mousedown",
-  handleClickOutside
-);
-
-return () => {
-
-  document.removeEventListener(
-    "mousedown",
-    handleClickOutside
-  );
-};
-
-
-}, []);
-
-async function handleSignOut() {
-
-
-await supabase.auth.signOut();
-
-window.location.href =
-  "/login";
-
-
-}
-
-const initial =
-email.charAt(0).toUpperCase();
-
-function comingSoon() {
-
-
-alert(
-  "Coming Soon"
-);
-
-
-}
-
-return (
-
-
-<div
-  ref={dropdownRef}
-  className="relative left-3"
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+  onClick={() => setIsOpen(!isOpen)}
+  className="flex items-center gap-3"
 >
+  <div className="relative">
 
-  <button
-    onClick={() =>
-      setIsOpen(
-        !isOpen
-      )
-    }
-    className="
-      relative right-3
-      flex items-center justify-center
-      rounded-full
-      border border-white/[0.08]
-      bg-[#071427]
-      p-1
-      transition-all
-      hover:border-blue-500/30
-    "
-  >
-
-    <div
-      className="
-        flex h-10 w-10
-        items-center justify-center
-        rounded-full
-        bg-blue-500/20
-        text-sm font-bold
-        text-blue-400
-      "
-    >
+    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-cyan-400/70 bg-[#071427] font-bold text-white shadow-[0_0_15px_rgba(34,211,238,0.25)]">
       {initial}
     </div>
 
-  </button>
+    <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[#071427] bg-emerald-400" />
 
-  {isOpen && (
+  </div>
+        <ChevronDown
+    size={16}
+    className={`text-slate-400 transition-transform ${
+      isOpen ? "rotate-180" : ""
+    }`}
+  />
+</button>
 
-    <div
-      className="
-        absolute right-0 top-16
-        z-50
-        w-[420px]
-        overflow-hidden
-        rounded-[28px]
-        border border-white/[0.08]
-        bg-[#071427]
-        shadow-[0_30px_80px_rgba(0,0,0,0.65)]
-        backdrop-blur-xl
-      "
-    >
+      {isOpen && (
+        <div className="absolute right-0 top-16 z-50 w-[500px] min-h-[818px] rounded-[36px] border border-white/10 bg-[#071427] p-5 shadow-[0_40px_120px_rgba(0,0,0,0.85)]">
 
-      <div className="p-6">
+          <div className="overflow-hidden rounded-[40px] border border-blue-500/0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.35),transparent_35%),linear-gradient(180deg,#0b1e3b_0%,#071427_100%)] ">
 
-        {/* HEADER */}
+            <div className="px-8 pt-8 pb-10 flex min-h-[200px] flex-col justify-center gap-6">
 
-        <div
-          className="
-            rounded-[24px]
-            border border-white/[0.06]
-            bg-[linear-gradient(180deg,rgba(17,24,39,0.65)_0%,rgba(9,24,45,0.55)_100%)]
-            p-6
-          "
-        >
+ 
 
-          <div className="flex items-center gap-4">
 
-            <div
-              className="
-                flex h-16 w-16
-                items-center justify-center
-                rounded-full
-                bg-blue-500/20
-                text-xl font-black
-                text-blue-400
-              "
-            >
-              {initial}
-            </div>
+<div className="flex items-center gap-12 pl-8">
 
-            <div>
+                <div className="translate-x-5 flex h-20 w-20 items-center justify-center rounded-full border-4 border-violet-400/30 bg-violet-500/20 text-3xl font-black text-violet-300">
+                  {initial}
+                </div>
 
-              <h3 className="text-[18px] font-black text-slate-200">
-                {displayName}
-              </h3>
 
-              <p className="mt-1 text-sm text-slate-400">
-                {email}
-              </p>
+                <div>
+                  <h2 className="text-[26px] font-black text-white">
+                    {displayName}
+                  </h2>
 
-              <div
-                className="
-                  mt-3
-                  inline-flex
-                  items-center
-                  gap-2
-                  rounded-full
-                  border border-blue-500/20
-                  bg-blue-500/10
-                  px-3 py-1
-                  text-[11px]
-                  font-bold
-                  uppercase
-                  tracking-[0.12em]
-                  text-blue-300
-                "
-              >
-                <Crown size={12} />
-                Elite Trader
+                  <p className="mt-1 text-slate-400">{email}</p>
+
+                   {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[4px]" />
+
+                  <div className="mt-4 inline-flex w-[130px] h-8 items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 text-[11px] font-bold uppercase tracking-[0.15em] text-cyan-300">
+                   <Crown
+                     size={15}
+                     style={{ position: "relative", left: "4px" }}
+                      />
+                      Elite Trader
+                    </div>
+                </div>
               </div>
 
-            </div>
 
+
+         <div className="flex justify-center">
+
+
+  <div
+  className="
+    w-[95%]
+    min-h-[90px]
+    overflow-hidden
+    rounded-[22px]
+    border border-white/[0.08]
+    bg-[#081526]/80
+  "
+>
+ <div className="grid min-h-[90px] grid-cols-3">
+
+    <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center"> 
+      <p className="text-[32px] font-black text-white">
+        {totalTrades}
+      </p>
+
+      <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
+        Total Trades
+      </p>
+    </div>
+
+    <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center">
+      <p className="text-[32px] font-black text-emerald-400">
+        {formattedPnL}
+      </p>
+
+      <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
+        P&L This Month
+      </p>
+    </div>
+
+    <div className="flex min-h-[90px] flex-col items-center justify-center py-5 text-center">
+      <p className="text-[32px] font-black text-white">
+        {tradingDays}
+      </p>
+
+      <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
+        Trading Days
+      </p>
+    </div>
+
+  </div>
+</div>
+            </div>
           </div>
 
-        </div>
+             {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
 
-        {/* STATS */}
 
-        <div
-          className="
-            mt-5
-            grid grid-cols-3
-            gap-3
-          "
-        >
+<div className="h-[12px]" />
 
-         {[
-  {
-    value: totalTrades,
-    label: "Trades",
-  },
-  {
-    value: formattedPnL,
-    label: "PnL",
-  },
-  {
-    value: tradingDays,
-    label: "Days",
-  },
-].map(
-            (item) => (
+<div className="mt-4 flex justify-center">
 
-              <div
-                key={item.label}
-                className="
-                  rounded-[18px]
-                  border border-white/[0.06]
-                  bg-white/[0.03]
-                  p-4
-                  text-center
-                "
-              >
+  <div className="w-[95%] min-h-[90px] rounded-[24px] border border-white/10 bg-white/[0.03] flex flex-col justify-center">
 
-                <p className="text-[20px] font-black text-slate-200">
-                  {item.value}
-                </p>
+    <div className="px-6 pt-5 pb-4">
 
-                <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-slate-500">
-                  {item.label}
-                </p>
+            {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
 
-              </div>
-            )
-          )}
+<div className="h-[4px]" />
+
+      <div className="grid grid-cols-[1fr_auto] items-center">
+
+        <div className="relative left-8 flex items-center gap-3">
+
+            
+
+          <Crown
+            className="text-amber-400"
+            size={18}
+          />
+
+
+          <span className="text-[19px] font-semibold text-white">
+            Elite Plan
+          </span>
 
         </div>
 
-        {/* ELITE PLAN */}
-
-        <div
-          className="
-            mt-5
-            rounded-[20px]
-            border border-amber-500/20
-            bg-amber-500/10
-            p-5
-          "
-        >
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="text-sm font-bold text-slate-200">
-                Elite Plan
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                Active
-              </p>
-
-            </div>
-
-            <Crown className="text-amber-400" />
-
-          </div>
-
-        </div>
-
-        {/* SYSTEM STATUS */}
-
-        <div
-          className="
-            mt-4
-            rounded-[20px]
-            border border-emerald-500/20
-            bg-emerald-500/10
-            p-5
-          "
-        >
-
-          <div className="flex items-center gap-3">
-
-            <ShieldCheck
-              size={18}
-              className="text-emerald-400"
-            />
-
-            <div>
-
-              <p className="text-sm font-bold text-slate-200">
-                System Status
-              </p>
-
-              <p className="text-xs text-slate-400">
-                All systems operational
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* ANALYTICS */}
-
-        <button
-          onClick={comingSoon}
-          className="
-            mt-4
-            w-full
-            rounded-[20px]
-            border border-blue-500/20
-            bg-blue-500/10
-            p-5
-            text-left
-            transition-all
-            hover:bg-blue-500/15
-          "
-        >
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="font-bold text-slate-200">
-                Unlock Advanced Analytics
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                Deeper insights coming soon
-              </p>
-
-            </div>
-
-            <BarChart3
-              className="text-blue-400"
-            />
-
-          </div>
-
-        </button>
-
-        {/* NAVIGATION */}
-
-        <div className="mt-5 space-y-2">
-
-          <MenuItem
-            icon={<User size={18} />}
-            title="My Profile"
-            subtitle="Manage profile information"
-            onClick={() => {
-              setIsOpen(false);
-              window.location.href = "/profile";
-            }}
-          />
-
-          <MenuItem
-            icon={<Settings size={18} />}
-            title="Account Settings"
-            subtitle="Preferences and configuration"
-            onClick={() => {
-              setIsOpen(false);
-              window.location.href = "/settings";
-            }}
-          />
-
-          <MenuItem
-            icon={<PlugZap size={18} />}
-            title="Broker Connections"
-            subtitle="Manage connected brokers"
-            onClick={comingSoon}
-          />
-
-          <MenuItem
-            icon={<CreditCard size={18} />}
-            title="Billing & Subscription"
-            subtitle="Manage plan and invoices"
-            onClick={comingSoon}
-          />
-
-          <MenuItem
-            icon={<HelpCircle size={18} />}
-            title="Help & Support"
-            subtitle="Documentation and assistance"
-            onClick={comingSoon}
-          />
-
-        </div>
-
-        {/* SIGN OUT */}
-
-        <button
-          onClick={handleSignOut}
-          className="
-            mt-5
-            flex w-full items-center
-            justify-center
-            gap-3
-            rounded-[18px]
-            border border-red-500/20
-            bg-red-500/10
-            px-5 py-4
-            font-semibold
-            text-red-400
-            transition-all
-            hover:bg-red-500/15
-          "
-        >
-
-          <LogOut size={18} />
-
-          Sign Out
-
-        </button>
+        <div className="relative right-60 rounded-full bg-emerald-500/15 px-5 py-2 text-[15px] font-semibold text-emerald-400">
+  Active
+</div>
 
       </div>
 
     </div>
 
-  )}
+       {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
 
-</div>
+<div className="h-[4px]" />
+
+    <div className="border-t border-white/5" />
+
+    <div className="px-6 py-5">
+
+               {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[6px]" />
+
+      <div className="relative left-8 flex items-center gap-4">
+
+        <div className="h-3.5 w-3.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(34,197,94,0.8)]" />
+
+        <p className="text-[16px] font-medium text-white">
+          All systems operational
+        </p>
 
 
-);
-}
+      </div>
 
-function MenuItem({
-icon,
-title,
-subtitle,
-onClick,
-}: {
-icon: React.ReactNode;
-title: string;
-subtitle: string;
-onClick: () => void;
-}) {
+       {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
 
-return (
-
-<button
-  onClick={onClick}
-  className="
-    flex w-full items-center
-    justify-between
-    rounded-[18px]
-    border border-white/[0.04]
-    bg-white/[0.02]
-    px-4 py-4
-    text-left
-    transition-all
-    hover:border-white/[0.08]
-    hover:bg-white/[0.04]
-  "
->
-
-  <div className="flex items-center gap-4">
-
-    <div className="text-slate-400">
-      {icon}
-    </div>
-
-    <div>
-
-      <p className="font-semibold text-slate-200">
-        {title}
-      </p>
-
-      <p className="text-xs text-slate-500">
-        {subtitle}
-      </p>
+<div className="h-[4px]" />
 
     </div>
 
   </div>
 
-  <ChevronRight
-    size={16}
-    className="text-slate-500"
-  />
-
-</button>
+</div>
 
 
+  {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[12px]" />
+
+          <div className="mt-4 flex justify-center">
+
+  <button
+    onClick={comingSoon}
+    className="flex w-[95%] min-h-[90px] items-center justify-between rounded-[24px] border border-violet-500/20 bg-gradient-to-r from-violet-600/20 to-blue-600/10 p-6 text-left"
+  >
+    <div className="relative left-2 flex items-center gap-4">
+
+      <div className="rounded-2xl bg-violet-500/20 p-5">
+        <Zap className="text-violet-300" />
+      </div>
+
+      <div>
+        <p className="font-bold text-white">
+          Unlock Advanced Analytics
+        </p>
+
+        <p className="mt-1 text-sm text-slate-400">
+          Upgrade to Elite Pro for deeper insights
+        </p>
+      </div>
+
+    </div>
+
+    <ChevronRight className="text-slate-500" />
+
+  </button>
+
+</div>
+
+  {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[12px]" />
+
+<div className="mt-6 flex justify-center">
+
+  <div className="w-[95%] rounded-[24px] border border-white/10 bg-white/[0.03] pb-8">
+  
+  
+   {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[2px]" />
+
+    <Row
+      icon={<User size={22} />}
+      title="My Profile"
+      subtitle="Manage profile information"
+      onClick={() => window.location.href="/profile"}
+    />
+
+     {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[2px]" />
+
+    <Row
+      icon={<Settings size={22} />}
+      title="Account Settings"
+      subtitle="Preferences and configuration"
+      onClick={() => window.location.href="/settings"}
+    />
+ {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[2px]" />
+    <Row
+      icon={<ShieldCheck size={22} />}
+      title="Security"
+      subtitle="Password and account protection"
+      onClick={comingSoon}
+    />
+ {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[2px]" />
+    <Row
+      icon={<CreditCard size={22} />}
+      title="Billing & Subscription"
+      subtitle="Manage plan and invoices"
+      onClick={comingSoon}
+    />
+
+ {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[2px]" />
+
+    <Row
+      icon={<HelpCircle size={22} />}
+      title="Help & Support"
+      subtitle="Documentation and assistance"
+      onClick={comingSoon}
+    />
+
+     {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[2px]" />
+
+    <Row
+      danger
+      icon={<LogOut size={22} />}
+      title="Sign Out"
+      subtitle="Sign out of your account"
+      onClick={handleSignOut}
+    />
+
+
+  </div>
+
+</div>
+
+        </div>
+      </div>
+    )}
+  </div>
 );
+}
+
+
+function Row({
+  icon,
+  title,
+  subtitle,
+  onClick,
+  danger,
+}: any) {
+  return (
+    <button
+      onClick={onClick}
+      className="
+        flex
+        w-full
+        items-center
+        justify-between
+        border-b
+        border-white/5
+        px-7
+        py-6
+        text-left
+        transition-all
+        duration-200
+        hover:bg-white/[0.02]
+        last:border-b-0
+      "
+    >
+
+      <div className="flex items-center gap-5">
+
+        
+
+        <div
+          className={
+            danger
+              ? "flex h-10 w-10 items-center justify-center text-red-400"
+              : "flex h-10 w-10 items-center justify-center text-slate-300"
+          }
+        >
+          {icon}
+          
+        </div>
+
+        <div>
+
+                 {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[6px]" />
+
+          <p
+            className={
+              danger
+                ? "text-[17px] font-semibold text-red-400"
+                : "text-[17px] font-semibold text-white"
+            }
+          >
+            {title}
+          </p>
+
+          {/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[2px]" />
+
+         <p className="mt-1 mb-3 text-sm text-slate-500">
+  {subtitle}
+</p>
+{/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[4px]" />
+
+        </div>
+
+      </div>
+      
+      
+
+      <ChevronRight
+        className="text-slate-500"
+        size={18}
+      />
+    </button>
+  );
 }
