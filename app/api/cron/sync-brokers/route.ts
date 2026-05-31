@@ -32,6 +32,16 @@ console.log(
   process.env.CRON_SECRET?.length
 );
 
+console.log(
+  "RECEIVED LENGTH:",
+  secret?.length
+);
+
+console.log(
+  "SECRETS MATCH:",
+  secret === process.env.CRON_SECRET
+);
+
   if (
     secret !==
     process.env.CRON_SECRET
