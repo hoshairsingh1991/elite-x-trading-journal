@@ -442,29 +442,29 @@ const cumulativePnL =
 
 const bestDay =
   calculateBestDay(
-    displayPnL
+    rawDailyPnL
   );
 
 const worstDay =
   calculateWorstDay(
-    displayPnL
+    rawDailyPnL
   );
 
 const avgDaily =
   calculateAverageDaily(
-    displayPnL
+    rawDailyPnL
   );
 
 const {
   streak,
   streakType,
 } = calculateStreak(
-  displayPnL
+    rawDailyPnL
 );
 
 const volatility =
   calculateVolatility(
-    displayPnL
+    rawDailyPnL
   );
 
 return {

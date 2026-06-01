@@ -183,3 +183,76 @@ checkpoint/usermenu-v2-platform-rollout-v11
 ✅ Production build passing
 
 ✅ Vercel-ready
+
+CHECKPOINT:
+checkpoint/dashboard-metrics-foundation-v1
+
+STATUS:
+
+✅ Execution Ledger Stable
+✅ Cloud Canonical Architecture Stable
+✅ IBKR Manual Sync Working
+✅ IBKR Auto Sync Working
+✅ Duplicate Prevention Working
+✅ Trade Reconstruction Stable
+✅ Manual Trade Add/Edit/Delete Working
+✅ Calendar Stable
+✅ Currency Analytics Layer Exists
+✅ PnL Analytics Engine Exists
+✅ DashboardMetrics.ts Created
+
+DISCOVERIES:
+
+Analytics layer already contains:
+
+- Daily P&L
+- Weekly Aggregation
+- Monthly Aggregation
+- Cumulative P&L
+- Best Day
+- Worst Day
+- Average Daily P&L
+- Streak Engine
+- Volatility Engine
+- Currency P&L Analytics
+- Currency Fee Analytics
+
+NEXT PHASE:
+
+Dashboard Metrics Foundation
+
+Build canonical dashboard metrics service:
+
+lib/dashboard/dashboardMetrics.ts
+
+Goal:
+
+Centralize all dashboard calculations into a single source of truth.
+
+Target Metrics:
+
+- Net P&L
+- Total Trades
+- Winning Trades
+- Losing Trades
+- Win Rate
+- Average Win
+- Average Loss
+- Profit Factor
+- Expectancy
+- Best Day
+- Worst Day
+- Streak
+- Volatility
+- Most Traded Symbol
+- Average Trade Duration
+
+NO UI CHANGES
+
+NO DASHBOARD V2 IMPLEMENTATION
+
+NO FX CONVERSION
+
+NO PAGE.TSX REFACTOR
+
+Architecture first.
