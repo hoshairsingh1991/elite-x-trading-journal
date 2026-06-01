@@ -57,7 +57,9 @@ f2430f1  Update project notes
 f4cc2ac  Add Vercel cron schedule
 ------------------------------------------------------------------
  git commit -m "checkpoint/usermenu-real-stats-working". -  new user menu 
-
+git commit -m "checkpoint/usermenu-v2-premium-final" - new user menu is live and work
+Final usermenu checkpoint/usermenu-v2-global-stats-sync-v10
+git commit -m "UserMenuV2 global stats sync and profile settings integration"
 
 
 Status:

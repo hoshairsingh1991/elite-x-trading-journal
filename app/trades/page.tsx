@@ -15,6 +15,9 @@ import AddTradeModal from "@/components/trades/AddTradeModal";
 
 import TradesToolbar from "@/components/trades/TradesToolbar";
 
+import UserMenuV2
+from "@/components/layout/UserMenuV2";
+
 import {
   loadExecutionsFromSupabase,
 } from "@/lib/storage/supabaseExecutionStorage";
@@ -402,25 +405,34 @@ useEffect(() => {
             <div className="h-2 opacity-0" />
           </div>
 
-          {/* ================================================= */}
-          {/* ADD TRADE BUTTON */}
-          {/* ================================================= */}
-
-          <button
-            onClick={() =>
-              setIsAddTradeOpen(true)
-            }
-            className="relative right-10 flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-200 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
-          >
-
-            Add Trade
-
-          </button>
-        </div>
-
         {/* ================================================= */}
-        {/* CONTENT */}
-        {/* ================================================= */}
+{/* HEADER ACTIONS */}
+{/* ================================================= */}
+
+<div className="relative right-8 flex items-center gap-4">
+
+  <button
+    onClick={() =>
+      setIsAddTradeOpen(true)
+    }
+    className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-200 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
+  >
+    Add Trade
+  </button>
+
+  <UserMenuV2
+    totalTrades={0}
+    totalPnL={0}
+    tradingDays={0}
+  />
+
+</div>
+
+</div>
+
+{/* ================================================= */}
+{/* CONTENT */}
+{/* ================================================= */}
 
         <div className="flex-1 overflow-y-auto pl-8 pr-10 pt-8 pb-8">
 
