@@ -11,6 +11,10 @@ from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import UserMenuV2 from "@/components/layout/UserMenuV2";
 
+import {
+  getDashboardMetrics,
+} from "@/lib/dashboard/dashboardMetrics";
+
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
 import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
@@ -325,6 +329,22 @@ const feesByCurrency =
   calculateFeesByCurrency(
     filteredTrades
   );
+
+  const dashboardMetrics =
+  getDashboardMetrics(
+    filteredTrades
+  );
+
+  console.log(
+  JSON.stringify(
+    dashboardMetrics,
+    null,
+    2
+  )
+);
+
+
+
 useEffect(() => {
   localStorage.setItem(
     "elite-x-menu-stats",
