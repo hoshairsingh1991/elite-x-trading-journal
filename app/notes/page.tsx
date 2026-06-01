@@ -6,8 +6,10 @@ import {
 } from "react";
 
 import Sidebar from "@/components/layout/Sidebar";
-
+import UserMenuV2
+from "@/components/layout/UserMenuV2";
 import TiptapEditor from "@/components/notes/TiptapEditor";
+
 
 import {
   Plus,
@@ -310,9 +312,27 @@ if (
                   }`}
                 >
 
-                  <p className="relative left-2 truncate text-sm font-semibold text-white">
-                    {note.title}
-                  </p>
+                  <div className="flex items-center justify-between px-2">
+
+  <p className="relative left-2 truncate text-sm font-semibold text-white">
+    {note.title}
+  </p>
+
+  {isActive && (
+
+  <div
+  onClick={(e) => {
+    e.stopPropagation();
+    handleDeleteNote();
+  }}
+  className="relative right-2 top-[8px] flex h-7 w-7 items-center justify-center rounded-lg text-red-400 transition-all hover:bg-red-500/10"
+>
+  <Trash2 size={20} />
+</div>
+
+  )}
+
+</div>
 
                   <p className="relative left-2 mt-2 line-clamp-2 text-xs text-slate-500">
                     {note.content
@@ -383,21 +403,21 @@ if (
     {new Date(
       selectedNote.updatedAt
     ).toLocaleString()}
+
   </p>
 
-  <button
-  onClick={
-    handleDeleteNote
-  }
-  className="relative right-0 flex h-[48px] w-[120px] items-center justify-center gap-2 rounded-2xl border border-red-500/20 bg-red-500/10 text-sm font-medium text-red-400 transition-all hover:bg-red-500/20"
->
+  <div className="flex items-center gap-4">
 
-    <Trash2
-      size={17}
+    
+
+    <UserMenuV2
+      totalTrades={0}
+      totalPnL={0}
+      tradingDays={0}
     />
 
-    Delete
-  </button>
+  </div>
+
 </div>
 
 {/* ============================================= */}

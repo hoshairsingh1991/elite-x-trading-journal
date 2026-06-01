@@ -155,21 +155,34 @@ export default function Sidebar() {
 
       <div className="flex justify-center border-t border-white/[0.04] pt-6">
 
-        <div className="w-[88%]">
+  <div className="w-[88%]">
 
-          <button className="group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 text-slate-500 transition-all hover:bg-[#0b1730] hover:text-slate-400">
+    <Link
+      href="/settings"
+      className={`group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 transition-all ${
+        pathname === "/settings"
+          ? "bg-[#0b1730] text-slate-400"
+          : "text-slate-500 hover:bg-[#0b1730] hover:text-slate-400"
+      }`}
+    >
 
-            <Settings
-              size={22}
-              className="group-hover:text-slate-300"
-            />
+      <Settings
+        size={22}
+        className={`${
+          pathname === "/settings"
+            ? "text-blue-400"
+            : "group-hover:text-slate-300"
+        }`}
+      />
 
-            <span className="text-[16px] font-medium">
-              Settings
-            </span>
-          </button>
-        </div>
-      </div>
+      <span className="text-[16px] font-medium">
+        Settings
+      </span>
+
+    </Link>
+
+  </div>
+</div>
     </aside>
   );
 }
