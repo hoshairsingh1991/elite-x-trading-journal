@@ -63,6 +63,7 @@ git commit -m "UserMenuV2 global stats sync and profile settings integration"
 ------------------------------------------------------------------
 CHECKPOINT: checkpoint/dashboard-metrics-foundation-v1 - Dashbaord UI V2 start here, so far we have no changes.
 git commit -m "fix/daily-analytics-source-v1"
+git commit -m "checkpoint/equity-engine-v1" -   V2 in process. 
 
 
 Status:
