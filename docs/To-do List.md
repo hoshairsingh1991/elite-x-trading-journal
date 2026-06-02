@@ -714,9 +714,8 @@ Current infrastructure completed:
 Checkpoint:
 checkpoint/multi-currency-accounting-v1
 
-                                                            IMPORTANT
-
-                                                            # Elite X — Execution Ledger Architecture Plan (v11)
+  IMPORTANT
+ # Elite X — Execution Ledger Architecture Plan (v11)
 
 ## Stable Base
 

@@ -15,6 +15,14 @@ import {
   getDashboardMetrics,
 } from "@/lib/dashboard/dashboardMetrics";
 
+import {
+  generateEquityAnalytics,
+} from "@/lib/analytics/equityAnalytics";
+
+import {
+  groupDailyPnL,
+} from "@/lib/analytics/pnlAnalytics";
+
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
 import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
@@ -334,6 +342,25 @@ const feesByCurrency =
   getDashboardMetrics(
     filteredTrades
   );
+
+  const dailyPnL =
+  groupDailyPnL(
+    filteredTrades
+  );
+
+const equityAnalytics =
+  generateEquityAnalytics(
+    dailyPnL,
+    totalPnL
+  );
+
+  console.log(
+  JSON.stringify(
+    equityAnalytics,
+    null,
+    2
+  )
+);
 
   console.log(
   JSON.stringify(
