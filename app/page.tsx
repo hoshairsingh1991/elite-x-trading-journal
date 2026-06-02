@@ -20,8 +20,16 @@ import {
 } from "@/lib/analytics/equityAnalytics";
 
 import {
+  generateRiskAnalytics,
+} from "@/lib/analytics/riskAnalytics";
+
+import {
   groupDailyPnL,
 } from "@/lib/analytics/pnlAnalytics";
+
+import {
+  generateConsistencyAnalytics,
+} from "@/lib/analytics/consistencyAnalytics";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
@@ -348,10 +356,40 @@ const feesByCurrency =
     filteredTrades
   );
 
+  const averageDailyPnL =
+  dailyPnL.length > 0
+    ? Math.abs(
+        totalPnL /
+        dailyPnL.length
+      )
+    : 0;
+
 const equityAnalytics =
   generateEquityAnalytics(
     dailyPnL,
     totalPnL
+  );
+
+  const riskAnalytics =
+  generateRiskAnalytics(
+    equityAnalytics.currentDrawdown,
+    dashboardMetrics.profitFactor
+  );
+
+  const winningDays =
+  dailyPnL.filter(
+    day => day.pnl > 0
+  ).length;
+
+const totalDays =
+  dailyPnL.length;
+
+const consistencyAnalytics =
+  generateConsistencyAnalytics(
+    winningDays,
+    totalDays,
+    dashboardMetrics.volatility,
+    equityAnalytics.equityCurve
   );
 
   console.log(
@@ -362,9 +400,25 @@ const equityAnalytics =
   )
 );
 
+console.log(
+  JSON.stringify(
+    riskAnalytics,
+    null,
+    2
+  )
+);
+
   console.log(
   JSON.stringify(
     dashboardMetrics,
+    null,
+    2
+  )
+);
+
+console.log(
+  JSON.stringify(
+    consistencyAnalytics,
     null,
     2
   )
