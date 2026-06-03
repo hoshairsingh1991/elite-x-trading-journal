@@ -154,7 +154,7 @@ export default function UserMenuV2({
 </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-16 z-50 w-[500px] min-h-[818px] rounded-[36px] border border-white/10 bg-[#071427] p-5 shadow-[0_40px_120px_rgba(0,0,0,0.85)]">
+        <div className="absolute right-0 top-16 z-50 w-[500px] min-h-[818px] max-h-[80vh] overflow-y-auto rounded-[36px] border border-white/10 bg-[#071427] p-5 shadow-[0_40px_120px_rgba(0,0,0,0.85)]">
 
           <div className="overflow-hidden rounded-[40px] border border-blue-500/0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.35),transparent_35%),linear-gradient(180deg,#0b1e3b_0%,#071427_100%)] ">
 

@@ -11,6 +11,9 @@ from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import UserMenuV2 from "@/components/layout/UserMenuV2";
 
+import DashboardHeader
+from "@/components/dashboard-v2/DashboardHeader";
+
 import {
   getDashboardMetrics,
 } from "@/lib/dashboard/dashboardMetrics";
@@ -93,7 +96,6 @@ import { Trade } from "@/types/trade";
 
 import {
   Upload,
-  Plus,
   RefreshCw,
 } from "lucide-react";
 
@@ -108,6 +110,9 @@ export default function HomePage() {
   selectedAccount,
   setSelectedAccount,
 ] = useState("ALL");
+
+const [isSyncing, setIsSyncing] =
+  useState(false);
 
     // =================================================
   // RANGE PERSISTENCE
@@ -273,29 +278,34 @@ useEffect(() => {
 }, []);
 
   // =================================================
-  // AVAILABLE ACCOUNTS
-  // =================================================
+// AVAILABLE ACCOUNTS
+// =================================================
 
-  const availableAccounts = [
+const availableAccounts: string[] = [
 
-    "ALL",
+  "ALL",
 
-    ...Array.from(
+  ...Array.from(
 
-      new Set(
+    new Set(
 
-        importedTrades
-          .map(
-            (trade) =>
-              trade.account
-          )
-          .filter(Boolean)
+      importedTrades
+        .map(
+          (trade) =>
+            trade.account
+        )
+        .filter(
+          (
+            account
+          ): account is string =>
+            Boolean(account)
+        )
 
-      )
+    )
 
-    ),
+  ),
 
-  ];
+];
 
     // =================================================
   // ACCOUNT FILTERED TRADES
@@ -660,137 +670,138 @@ useEffect(() => {
     };
 
   // =================================================
-  // TEST IBKR FLEX SYNC
-  // =================================================
+// TEST IBKR FLEX SYNC
+// =================================================
 
-  const handleTestIBKRSync =
-    async () => {
+const handleTestIBKRSync =
+  async () => {
 
-      try {
+    if (isSyncing) return;
 
-        console.log(
-          "STARTING IBKR FLEX SYNC..."
+    try {
+
+      setIsSyncing(true);
+
+      console.log(
+        "STARTING IBKR FLEX SYNC..."
+      );
+
+      const response =
+        await fetch(
+          "/api/ibkr/flex",
+          {
+            method: "POST",
+          }
         );
 
-        const response =
-          await fetch(
-            "/api/ibkr/flex",
-            {
-              method: "POST",
-            }
-          );
+      const data =
+        await response.json();
 
-        const data =
-  await response.json();
+      console.log(
+        "IBKR FLEX RESPONSE:",
+        data
+      );
 
-console.log(
-  "IBKR FLEX RESPONSE:",
-  data
-);
-
-if (
-  !data.success
-) {
-
-  console.error(
-    "IBKR SYNC ERROR:",
-    data.error
-  );
-
-  return;
-}
-
-const csv =
-  data.xml;
-
-  console.log(
-  "CSV TYPE:",
-  typeof csv
-);
-
-console.log(
-  "CSV CONSTRUCTOR:",
-  csv?.constructor?.name
-);
-
-
-const parsedExecutions =
-  await parseIBKRCsv(csv);
-
-console.log(
-  "PARSED EXECUTIONS:",
-  parsedExecutions
-);
-
-const reconstructedTrades =
-  pairTrades(
-    parsedExecutions
-  );
-
-console.log(
-  "RECONSTRUCTED TRADES:",
-  reconstructedTrades
-);
-
-await saveExecutionsToSupabase(
-  parsedExecutions
-);
-
-const refreshedExecutions =
-  await loadExecutionsFromSupabase();
-
-const rebuiltTrades =
-  pairTrades(
-    refreshedExecutions
-  );
-
-const manualTrades =
-  loadTrades().filter(
-    (trade) =>
-      !trade.contractKey
-  );
-
-setImportedTrades([
-  ...rebuiltTrades,
-  ...manualTrades,
-]);
-
-await supabase
-  .from("broker_connections")
-  .update({
-    last_sync_at:
-      new Date().toISOString(),
-    last_sync_status:
-      "success",
-    last_sync_error:
-      null,
-    last_sync_execution_count:
-      parsedExecutions.length,
-  })
-  .eq(
-    "broker",
-    "IBKR"
-  )
-  .eq(
-    "is_active",
-    true
-  );
-
-
-if (
-  reconstructedTrades.length > 0
-) {
-
-}
-
-      } catch (error) {
+      if (
+        !data.success
+      ) {
 
         console.error(
-          "IBKR SYNC FAILED:",
-          error
+          "IBKR SYNC ERROR:",
+          data.error
         );
+
+        return;
       }
-    };
+
+      const csv =
+        data.xml;
+
+      console.log(
+        "CSV TYPE:",
+        typeof csv
+      );
+
+      console.log(
+        "CSV CONSTRUCTOR:",
+        csv?.constructor?.name
+      );
+
+      const parsedExecutions =
+        await parseIBKRCsv(csv);
+
+      console.log(
+        "PARSED EXECUTIONS:",
+        parsedExecutions
+      );
+
+      const reconstructedTrades =
+        pairTrades(
+          parsedExecutions
+        );
+
+      console.log(
+        "RECONSTRUCTED TRADES:",
+        reconstructedTrades
+      );
+
+      await saveExecutionsToSupabase(
+        parsedExecutions
+      );
+
+      const refreshedExecutions =
+        await loadExecutionsFromSupabase();
+
+      const rebuiltTrades =
+        pairTrades(
+          refreshedExecutions
+        );
+
+      const manualTrades =
+        loadTrades().filter(
+          (trade) =>
+            !trade.contractKey
+        );
+
+      setImportedTrades([
+        ...rebuiltTrades,
+        ...manualTrades,
+      ]);
+
+      await supabase
+        .from("broker_connections")
+        .update({
+          last_sync_at:
+            new Date().toISOString(),
+          last_sync_status:
+            "success",
+          last_sync_error:
+            null,
+          last_sync_execution_count:
+            parsedExecutions.length,
+        })
+        .eq(
+          "broker",
+          "IBKR"
+        )
+        .eq(
+          "is_active",
+          true
+        );
+
+    } catch (error) {
+
+      console.error(
+        "IBKR SYNC FAILED:",
+        error
+      );
+
+    } finally {
+
+      setIsSyncing(false);
+
+    }
+  };
 
   // =================================================
   // CSV IMPORT
@@ -844,128 +855,45 @@ setImportedTrades([
 
   return (
 
-  <ProtectedRoute>
+<ProtectedRoute>
 
-    <main className="flex h-screen overflow-hidden bg-[#020617] text-slate-300">
+  <main className="flex h-screen overflow-hidden bg-[#020617] text-slate-300">
 
-      {/* ================================================= */}
-      {/* SIDEBAR */}
-      {/* ================================================= */}
+    {/* ================================================= */}
+    {/* SIDEBAR */}
+    {/* ================================================= */}
 
-      <div className="p-4">
-        <Sidebar />
-      </div>
+    <div className="p-4">
+      <Sidebar />
+    </div>
 
-      {/* ================================================= */}
-      {/* SIDEBAR SPACER */}
-      {/* ================================================= */}
+    {/* ================================================= */}
+    {/* SIDEBAR SPACER */}
+    {/* ================================================= */}
 
-      <div className="w-8 shrink-0" />
+    <div className="w-8 shrink-0" />
 
-      {/* ================================================= */}
-      {/* MAIN CONTENT */}
-      {/* ================================================= */}
+    {/* ================================================= */}
+    {/* MAIN CONTENT */}
+    {/* ================================================= */}
 
-      <section className="flex min-w-0 flex-1 flex-col overflow-hidden pr-10 pt-4">
+    <section className="flex min-w-0 flex-1 flex-col overflow-hidden px-10 pt-4">
+
+
+
 
         {/* ================================================= */}
-        {/* TOP HEADER */}
+        {/* SCROLL AREA */}
         {/* ================================================= */}
 
-        <div className="flex h-[70px] shrink-0 items-center justify-between gap-4 border-b border-white/[0.05] px-8 pb-4">
+      <div className="flex-1 overflow-y-auto px-8">
 
-                  {/* ================================================= */}
-          {/* ACCOUNT SELECTOR */}
-          {/* ================================================= */}
-
-                    <div className="flex flex-col items-center">
-
-            <p className="mb-2 pl-1 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
-              Select Account
-            </p>
-
-            <select
-              value={selectedAccount}
-              onChange={(event) =>
-                setSelectedAccount(
-                  event.target.value
-                )
-              }
-              className="h-[46px] min-w-[130px] rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-center text-[14px] font-bold tracking-[0.08em]  outline-none transition-all hover:bg-[#13203a]"
-            >
-
-              {availableAccounts.map(
-                (account) => (
-
-                  <option
-                    key={account}
-                    value={account}
-                  >
-                    {account}
-                  </option>
-                )
-              )}
-
-            </select>
-          </div>
-
-<div className="relative right-10 flex items-center gap-4">
-
-          {/* ================================================= */}
-          {/* IBKR SYNC BUTTON */}
-          {/* ================================================= */}
-
-          <button
-            onClick={
-  handleTestIBKRSync
-}
-            className="flex h-[46px] min-w-[120px] items-center justify-center gap-3 rounded-[18px] border border-emerald-400/20 bg-emerald-500/10 px-6 text-[14px] font-semibold text-emerald-300 transition-all hover:bg-emerald-500/20"
-          >
-
-            <RefreshCw size={17} />
-
-            Sync IBKR
-
-          </button>
-
-
-          {/* ================================================= */}
-          {/* CSV BUTTON */}
-          {/* ================================================= */}
-
-          <label className="flex h-[46px] cursor-pointer items-center gap-3 rounded-[18px] border border-white/[0.06] bg-[#0b1730] px-5 text-[14px] font-semibold text-slate-200 transition-all hover:bg-[#13203a]">
-
-            <Upload size={17} />
-
-            Upload IBKR CSV
-
-            <input
-              type="file"
-              accept=".csv"
-              onChange={
-                handleCSVUpload
-              }
-              className="hidden"
-            />
-          </label>
-
-          {/* ================================================= */}
-          {/* ADD TRADE BUTTON */}
-          {/* ================================================= */}
-
-          <button
-            onClick={() =>
-              setIsAddTradeOpen(true)
-            }
-            className="flex h-[46px] min-w-[150px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-300 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
-          >
-
-            <Plus size={17} />
-
-            Add Trade
-          </button>
-
-          <UserMenuV2
+  <DashboardHeader
+  selectedAccount={selectedAccount}
+  setSelectedAccount={setSelectedAccount}
+  availableAccounts={availableAccounts}
+  selectedRange={selectedRange}
+  setSelectedRange={setSelectedRange}
   totalTrades={totalTrades}
   totalPnL={totalPnL}
   tradingDays={
@@ -975,28 +903,18 @@ setImportedTrades([
       )
     ).size
   }
+  isSyncing={isSyncing}
+  onSync={handleTestIBKRSync}
+  onUpload={handleCSVUpload}
 />
 
-        </div>
-        </div>
+  <div className="h-8 shrink-0" />
 
-        {/* ================================================= */}
-        {/* HEADER GAP */}
-        {/* ================================================= */}
+  {/* ================================================= */}
+  {/* TOP SECTION */}
+  {/* ================================================= */}
 
-        <div className="h-8 shrink-0" />
-
-        {/* ================================================= */}
-        {/* SCROLL AREA */}
-        {/* ================================================= */}
-
-        <div className="flex-1 overflow-y-auto px-8">
-
-          {/* ================================================= */}
-          {/* TOP SECTION */}
-          {/* ================================================= */}
-
-          <div className="flex items-start gap-8">
+  <div className="flex items-start gap-8">
 
             
 

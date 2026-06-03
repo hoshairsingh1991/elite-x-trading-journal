@@ -1,3 +1,18 @@
+
+Net P&L
+Win Rate
+Profit Factor
+Expectancy
+Drawdown
+Calmar
+Consistency
+Trading Score
+Performance Breakdown
+Real Profit
+
+
+
+
 Remaining Known Backlog
 Dashboard V2 UI              🔥 Next
 

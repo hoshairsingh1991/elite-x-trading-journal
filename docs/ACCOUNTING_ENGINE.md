@@ -1121,6 +1121,31 @@ NZD
 HKD
 SGD
 
+FX PRESENTATION LAYER V1
+
+Goal:
+Render dashboard metrics in selected base currency.
+
+Supported:
+USD
+CAD
+EUR
+GBP
+JPY
+AUD
+CHF
+NZD
+HKD
+SGD
+
+Rules:
+
+- Never modify canonical trade data
+- Never modify execution data
+- Never modify stored pnl
+- Conversion happens only in dashboard rendering
+- Native currency remains available for auditability
+
 # Broker-Native Execution Identity Enrichment (v13)
 
 brokerExecutionId is enrichment metadata,
