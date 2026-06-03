@@ -31,6 +31,22 @@ import {
   generateConsistencyAnalytics,
 } from "@/lib/analytics/consistencyAnalytics";
 
+import {
+  generateTradingScoreAnalytics,
+} from "@/lib/analytics/tradingScoreAnalytics";
+
+import {
+  generatePerformanceBreakdownAnalytics,
+} from "@/lib/analytics/performanceBreakdownAnalytics";
+
+import {
+  Expense,
+} from "@/types/expense";
+
+import {
+  generateExpenseAnalytics,
+} from "@/lib/analytics/expenseAnalytics";
+
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
 import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
@@ -356,13 +372,7 @@ const feesByCurrency =
     filteredTrades
   );
 
-  const averageDailyPnL =
-  dailyPnL.length > 0
-    ? Math.abs(
-        totalPnL /
-        dailyPnL.length
-      )
-    : 0;
+  
 
 const equityAnalytics =
   generateEquityAnalytics(
@@ -388,8 +398,28 @@ const consistencyAnalytics =
   generateConsistencyAnalytics(
     winningDays,
     totalDays,
-    dashboardMetrics.volatility,
     equityAnalytics.equityCurve
+  );
+
+  const tradingScoreAnalytics =
+  generateTradingScoreAnalytics(
+    dashboardMetrics.profitFactor,
+    equityAnalytics.calmarRatio,
+    dashboardMetrics.totalTrades,
+    consistencyAnalytics.consistencyScore
+  );
+
+const expenses: Expense[] = [];
+
+const expenseAnalytics =
+  generateExpenseAnalytics(
+    expenses
+  );
+
+const performanceBreakdown =
+  generatePerformanceBreakdownAnalytics(
+    filteredTrades,
+    expenseAnalytics.totalExpenses
   );
 
   console.log(
@@ -419,6 +449,30 @@ console.log(
 console.log(
   JSON.stringify(
     consistencyAnalytics,
+    null,
+    2
+  )
+);
+
+console.log(
+  JSON.stringify(
+    tradingScoreAnalytics,
+    null,
+    2
+  )
+);
+
+console.log(
+  JSON.stringify(
+    performanceBreakdown,
+    null,
+    2
+  )
+);
+
+console.log(
+  JSON.stringify(
+    expenseAnalytics,
     null,
     2
   )
