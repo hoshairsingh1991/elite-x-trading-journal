@@ -286,3 +286,404 @@ Planned:
 * ThinkOrSwim parser
 * TradeStation parser
 * normalized ingestion pipelines
+
+# Elite X Broker Integration Architecture
+
+## Status
+
+Production Verified
+
+Checkpoint:
+
+checkpoint/ibkr-auto-sync-production-v1
+
+---
+
+# Purpose
+
+Elite X uses a broker adapter architecture.
+
+All broker-specific data must normalize into a unified execution ledger before entering application state.
+
+The broker layer is responsible only for:
+
+* broker connectivity
+* execution retrieval
+* normalization
+
+The execution ledger remains broker agnostic.
+
+---
+
+# Current Supported Broker
+
+Interactive Brokers (IBKR)
+
+Integration Status:
+
+✓ Production Verified
+✓ Manual Sync
+✓ Auto Sync
+✓ Multi-Account Architecture Ready
+
+---
+
+# Architectural Principle
+
+Elite X is execution-centric.
+
+The platform does NOT use broker accounting history as the source of truth.
+
+The source of truth is:
+
+Canonical Executions
+
+All analytics, pairing, trade history, open trades, and closed trades derive from executions.
+
+---
+
+# Canonical Execution Ledger
+
+Every broker must normalize executions into:
+
+```txt
+Execution
+↓
+Normalized Execution
+↓
+Execution Ledger
+↓
+Trade Reconstruction
+↓
+Analytics
+```
+
+The execution ledger is the only trusted source for:
+
+* trade pairing
+* open trades
+* closed trades
+* P&L
+* commissions
+* dashboard metrics
+* analytics
+
+---
+
+# Execution Normalization
+
+All imported executions must normalize:
+
+Dates
+
+```txt
+YYYY-MM-DD
+```
+
+Symbols
+
+```txt
+AAPL
+NQM2026
+MESU2026
+```
+
+Quantity
+
+```txt
+Signed Quantity
+```
+
+Commission
+
+```txt
+Canonical Currency Format
+```
+
+Execution Identity
+
+```txt
+Deterministic Unique ID
+```
+
+---
+
+# Supported Asset Classes
+
+Current:
+
+✓ Futures
+✓ Options
+✓ Stocks
+✓ Forex
+✓ Crypto
+
+Future:
+
+✓ CFDs
+✓ Bonds
+✓ Multi-Leg Option Strategies
+
+---
+
+# Historical Investigation
+
+## Activity Flex vs Trade Confirmation Flex
+
+This investigation produced one of the most important architectural discoveries in Elite X.
+
+---
+
+## Trade Confirmation Flex
+
+Characteristics:
+
+* execution-centric
+* deterministic
+* immutable fills
+* lifecycle complete
+
+Suitable for:
+
+✓ trade reconstruction
+✓ pairing
+✓ analytics
+✓ P&L
+✓ execution ledger
+
+---
+
+## Activity Flex
+
+Characteristics:
+
+* accounting-centric
+* position snapshots
+* cost basis adjustments
+* MTM bookkeeping
+* broker reconstruction events
+* carryover inventory
+
+Suitable for:
+
+✓ balances
+✓ deposits
+✓ withdrawals
+✓ dividends
+✓ interest
+✓ account analytics
+
+Not suitable for:
+
+✗ execution reconstruction
+✗ pairing
+✗ trade lifecycle generation
+
+---
+
+# Architectural Decision
+
+Trade Confirmations become:
+
+Canonical Execution Source
+
+Activity Flex becomes:
+
+Supplemental Accounting Source
+
+---
+
+# Current IBKR Auto Sync Architecture
+
+User
+↓
+Broker Account
+↓
+IBKR Flex Query
+↓
+Execution Retrieval
+↓
+Normalization
+↓
+Execution Ledger
+↓
+Trade Reconstruction
+↓
+Analytics
+
+---
+
+# Production Infrastructure
+
+Broker Sync Engine
+
+syncAllBrokers()
+
+Responsibilities:
+
+* process active broker accounts
+* fetch broker executions
+* normalize executions
+* persist executions
+* update sync metadata
+
+---
+
+# Manual Sync
+
+User
+↓
+Sync Button
+↓
+Broker Fetch
+↓
+Execution Import
+
+Purpose:
+
+Immediate synchronization.
+
+---
+
+# Auto Sync
+
+Vercel Cron
+↓
+syncAllBrokers()
+↓
+All Active Brokers
+↓
+Execution Import
+
+Schedule:
+
+6 PM ET
+
+9 PM ET
+
+11 PM ET
+
+Production Verified.
+
+---
+
+# Security Model
+
+Broker credentials remain server-side.
+
+Never expose:
+
+* Flex Tokens
+* Query IDs
+* Service Role Keys
+* Cron Secrets
+
+Client applications never communicate directly with broker APIs.
+
+All broker communication occurs through secure server routes.
+
+---
+
+# Multi-User Architecture
+
+Broker accounts belong to users.
+
+Structure:
+
+User
+↓
+Broker Account
+↓
+Executions
+↓
+Trades
+
+Auto Sync must process:
+
+ALL ACTIVE BROKER ACCOUNTS
+
+Never hardcode user-specific logic.
+
+---
+
+# Current Limitation
+
+Broker onboarding is not yet complete.
+
+Current state:
+
+Happy Account
+✓ Working
+
+New User
+✗ Cannot independently connect broker
+
+---
+
+# Next Phase
+
+Broker Onboarding V1
+
+Requirements:
+
+Add Broker
+
+IBKR Configuration
+
+Account ID
+
+Flex Token
+
+Query ID
+
+Broker Validation
+
+Manual Sync
+
+Auto Sync
+
+No admin intervention.
+
+---
+
+# Future Broker Adapter Layer
+
+Planned:
+
+Tradovate
+
+NinjaTrader
+
+TradeStation
+
+ThinkOrSwim
+
+Future Architecture:
+
+Broker Adapter
+↓
+Execution Normalizer
+↓
+Execution Ledger
+
+Every broker must normalize into the same execution model.
+
+No broker-specific logic may enter the analytics layer.
+
+---
+
+# Core Rule
+
+Never build analytics directly from broker feeds.
+
+Always:
+
+Broker Feed
+↓
+Normalized Execution
+↓
+Execution Ledger
+↓
+Analytics
+
+The execution ledger remains the single source of truth for Elite X.
