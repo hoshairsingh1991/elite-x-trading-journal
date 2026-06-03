@@ -1095,6 +1095,31 @@ Execution identity is considered:
 ```txt
 canonical accounting infrastructure
 ```
+Canonical Accounting Layer
+
+- Native broker currency preserved
+- No FX mutation
+- No synthetic accounting
+- Currency remains attached to execution
+
+Presentation Layer
+
+- User selects Base Currency
+- Dashboard metrics rendered in Base Currency
+- FX conversion occurs only at display time
+
+Supported Base Currencies
+
+USD
+CAD
+EUR
+GBP
+JPY
+AUD
+CHF
+NZD
+HKD
+SGD
 
 # Broker-Native Execution Identity Enrichment (v13)
 
