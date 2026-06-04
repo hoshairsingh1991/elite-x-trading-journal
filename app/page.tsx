@@ -14,6 +14,9 @@ import UserMenuV2 from "@/components/layout/UserMenuV2";
 import DashboardHeader
 from "@/components/dashboard-v2/DashboardHeader";
 
+import KPIGrid
+from "@/components/dashboard-v2/KPIGrid";
+
 import {
   getDashboardMetrics,
 } from "@/lib/dashboard/dashboardMetrics";
@@ -871,7 +874,7 @@ setImportedTrades([
     {/* SIDEBAR SPACER */}
     {/* ================================================= */}
 
-    <div className="w-8 shrink-0" />
+    <div className="w-0 shrink-0" />
 
     {/* ================================================= */}
     {/* MAIN CONTENT */}
@@ -886,7 +889,7 @@ setImportedTrades([
         {/* SCROLL AREA */}
         {/* ================================================= */}
 
-      <div className="flex-1 overflow-y-auto px-8">
+      <div className="flex-1 overflow-y-auto">
 
   <DashboardHeader
   selectedAccount={selectedAccount}
@@ -918,206 +921,46 @@ setImportedTrades([
 
             
 
-            {/* ================================================= */}
-            {/* LEFT SIDE */}
-            {/* ================================================= */}
+          {/* ================================================= */}
+{/* MAIN DASHBOARD CONTENT */}
+{/* ================================================= */}
 
-            <div className="flex w-[68%] flex-col gap-8">
+<div className="flex w-full flex-col gap-8">
 
-              {/* ================================================= */}
-              {/* ACCOUNT OVERVIEW */}
-              {/* ================================================= */}
+  {/* ================================================= */}
+  {/* KPI GRID */}
+  {/* ================================================= */}
 
-              <div className="rounded-[28px] bg-[#071427] p-6 shadow-[0_0_40px_rgba(0,0,0,0.18)]">
-
-                <div className="min-h-[170px] rounded-[24px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] p-8">
-
-                  <div className="flex items-center justify-between border-b border-white/[0.05] pb-6">
-
-                    <div className="relative left-4">
-
-                      <h1 className="text-[34px] font-black tracking-tight text-slate-300">
-                        Account Overview
-                      </h1>
-
-                      <p className="mt-2 text-sm text-slate-500">
-                        Trading performance snapshot
-                      </p>
-                    </div>
-
-                    <div className="relative right-4 flex max-w-[620px] items-center gap-2 overflow-x-auto scrollbar-hide">
-
-                      {[
-                         "1D",
-                        "7D",
-                        "30D",
-                        "MTD",
-                        "3M",
-                        "6M",
-                        "YTD",
-                        "1Y",
-                        "ALL",
-                        ].map((range) => (
-
-                        <button
-                          key={range}
-                          onClick={() =>
-                            setSelectedRange(
-                              range as TimeRange
-                            )
-                          }
-                          className={`flex h-[22px] shrink-0 min-w-[40px] items-center justify-center rounded-full px-4 text-[15px] font-black tracking-[0.08em] transition-all ${
-                            selectedRange === range
-                              ? "bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.35)]"
-                              : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
-                          }`}
-                        >
-                          {range}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="relative left-4 grid grid-cols-3 gap-20 pt-14">
-
-                    {[
-                      {
-                      title:
-                      "Total P&L",
-
-                      value:
-                      Object.entries(
-                      pnlByCurrency
-                      ),
-
-                      sub:
-                      `${totalTrades} total trades`,
-
-                      color:
-                      "text-slate-300",
-                      },
-
-                      {
-                        title:
-                          "Average Win",
-
-                        value:
-                          `$${averageWin.toLocaleString()}`,
-
-                        sub:
-                          `${winRate}% win rate`,
-
-                        color:
-                          "text-emerald-400",
-                      },
-
-                      {
-  title:
-    "Commissions",
-
-  value:
-    Object.entries(
-      feesByCurrency
-    ),
-
-  sub:
-    "Execution & brokerage",
-
-  color:
-    "text-orange-400",
-},
-].map((item) => (
-
-  <div
-    key={item.title}
-    className="flex flex-col"
-  >
-
-    <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-slate-500">
-      {item.title}
-    </p>
-
-    <div className="mt-5 flex flex-col gap-2">
-
-      {Array.isArray(
-        item.value
-      ) ? (
-
-        item.value.map(
-          (
-            [currency, value]
-          ) => (
-
-            <h2
-              key={currency}
-              className="text-[50px] font-black leading-none tracking-tight text-slate-300"
-            >
-
-              {currency === "USD"
-                ? "$"
-                : currency === "CAD"
-                ? "C$"
-                : currency === "EUR"
-                ? "€"
-                : `${currency} `}
-
-              {Number(
-                value
-              ).toLocaleString(
-                undefined,
-                {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }
-              )}
-
-            </h2>
-          )
-        )
-
-      ) : (
-
-        <h2 className="text-[50px] font-black leading-none tracking-tight text-slate-300">
-
-          {item.value}
-
-        </h2>
-      )}
-
-    </div>
-
-    <p className={`mt-4 text-[14px] font-bold ${item.color}`}>
-      {item.sub}
-    </p>
-
-  </div>
-))}
-                    
-                  </div>
-                </div>
-              </div>
-
-              {/* ================================================= */}
-              {/* PNL ANALYTICS */}
-              {/* ================================================= */}
-
-              <PnLAnalytics
-  trades={filteredTrades}
-  selectedRange={selectedRange}
+  <KPIGrid
+  dashboardMetrics={dashboardMetrics}
+  equityAnalytics={equityAnalytics}
+  tradingScoreAnalytics={tradingScoreAnalytics}
 />
-            </div>
 
-            {/* ================================================= */}
-            {/* RIGHT PANEL */}
-            {/* ================================================= */}
+  {/* ================================================= */}
+  {/* PNL ANALYTICS */}
+  {/* ================================================= */}
 
-            <div className="w-[29%] shrink-0 pr-2">
+  <PnLAnalytics
+    trades={filteredTrades}
+    selectedRange={selectedRange}
+  />
 
-              <PositionsTradesPanel
-                trades={filteredTrades}
-              />
-            </div>
-          </div>
+  {/* ================================================= */}
+{/* POSITIONS & TRADES */}
+{/* ================================================= */}
+
+<div className="pr-8">
+
+  <PositionsTradesPanel
+    trades={filteredTrades}
+  />
+
+</div>
+
+</div>
+</div>
+            
 
           {/* ================================================= */}
           {/* CALENDAR */}
