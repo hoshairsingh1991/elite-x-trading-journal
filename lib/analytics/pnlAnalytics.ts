@@ -19,7 +19,11 @@ export interface PnLAnalyticsData {
 
   bestDay: number;
 
-  worstDay: number;
+bestDayDate: string;
+
+worstDay: number;
+
+worstDayDate: string;
 
   avgDaily: number;
 
@@ -241,6 +245,57 @@ export function calculateWorstDay(
 }
 
 // =================================================
+// BEST DAY DATE
+// =================================================
+
+export function calculateBestDayDate(
+  dailyData: DailyPnLData[] = []
+): string {
+
+  if (dailyData.length === 0) {
+    return "";
+  }
+
+  const bestDay =
+    calculateBestDay(
+      dailyData
+    );
+
+  return (
+    dailyData.find(
+      day =>
+        day.pnl === bestDay
+    )?.date || ""
+  );
+}
+
+// =================================================
+// WORST DAY DATE
+// =================================================
+
+export function calculateWorstDayDate(
+  dailyData: DailyPnLData[] = []
+): string {
+
+  if (dailyData.length === 0) {
+    return "";
+  }
+
+  const worstDay =
+    calculateWorstDay(
+      dailyData
+    );
+
+  return (
+    dailyData.find(
+      day =>
+        day.pnl === worstDay
+    )?.date || ""
+  );
+}
+
+
+// =================================================
 // AVERAGE DAILY
 // =================================================
 
@@ -450,6 +505,16 @@ const worstDay =
     rawDailyPnL
   );
 
+  const bestDayDate =
+  calculateBestDayDate(
+    rawDailyPnL
+  );
+
+const worstDayDate =
+  calculateWorstDayDate(
+    rawDailyPnL
+  );
+
 const avgDaily =
   calculateAverageDaily(
     rawDailyPnL
@@ -476,7 +541,11 @@ return {
 
   bestDay,
 
+  bestDayDate,
+
   worstDay,
+
+  worstDayDate,
 
   avgDaily,
 
