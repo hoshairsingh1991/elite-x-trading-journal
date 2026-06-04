@@ -1,5 +1,7 @@
 import KPICard from "./KPICard";
 
+import KPITradingScoreCard from "./KPITradingScoreCard";
+
 type KPIGridProps = {
   dashboardMetrics: {
     netPnL: number;
@@ -11,8 +13,13 @@ type KPIGridProps = {
     avgLoss: number;
     profitFactor: number;
     expectancy: number;
+
     bestDay: number;
+    bestDayDate: string;
+
     worstDay: number;
+    worstDayDate: string;
+
     averageTradeDurationMinutes: number;
   };
 
@@ -21,14 +28,39 @@ type KPIGridProps = {
   };
 
   tradingScoreAnalytics: {
+    profitabilityScore: number;
+    calmarScore: number;
+    reliabilityScore: number;
     tradingScore: number;
   };
+
+  consistencyScore: number;
 };
+
+function formatDate(
+  dateString: string
+) {
+  if (!dateString) {
+    return "";
+  }
+
+  return new Date(
+    dateString
+  ).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
+}
 
 export default function KPIGrid({
   dashboardMetrics,
   equityAnalytics,
   tradingScoreAnalytics,
+  consistencyScore,
 }: KPIGridProps) {
 
 
@@ -135,35 +167,48 @@ const bottomCards = [
 
   {
   title: "Best Day",
-  value: `$${dashboardMetrics.bestDay.toFixed(2)}`,
+
+  value:
+    `$${dashboardMetrics.bestDay.toFixed(2)}`,
+
+  subtitle:
+  formatDate(
+    dashboardMetrics.bestDayDate
+  ),
+
   color:
     dashboardMetrics.bestDay >= 0
       ? "green"
       : "red",
 },
 
-  {
+{
   title: "Worst Day",
-  value: `$${dashboardMetrics.worstDay.toFixed(2)}`,
+
+  value:
+    `$${dashboardMetrics.worstDay.toFixed(2)}`,
+
+  subtitle:
+  formatDate(
+    dashboardMetrics.worstDayDate
+  ),
+
   color:
     dashboardMetrics.worstDay >= 0
       ? "green"
       : "red",
 },
 
-  {
-    title: "Avg TRADE Duration",
-    value: `${Math.round(
-      dashboardMetrics.averageTradeDurationMinutes / 60
-    )}h`,
-  },
+ {
+  title: "Avg Hold",
 
-  {
-    title: "Trading Score",
-    value: String(
-      tradingScoreAnalytics.tradingScore
-    ),
-  },
+  value: `${(
+    dashboardMetrics.averageTradeDurationMinutes /
+    60 /
+    24
+  ).toFixed(1)} Days`,
+},
+
 ];
 
   return (
@@ -288,31 +333,50 @@ const bottomCards = [
   <div className="w-[99%]">
 
     <div
-  className="
-    grid
-    grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr]
-    gap-5
-  "
->
+      className="
+        grid
+        grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr]
+        gap-5
+      "
+    >
 
       {bottomCards.map((card) => (
 
-  <KPICard
-  key={card.title}
-  title={card.title}
-  value={card.value}
-  size="small"
-  valueColor={
-  card.color as
-    | "default"
-    | "green"
-    | "red"
-    | "blue"
-    | undefined
-}
-/>
+        <KPICard
+          key={card.title}
+          title={card.title}
+          value={card.value}
+          subtitle={card.subtitle}
+          size="small"
+          valueColor={
+            card.color as
+              | "default"
+              | "green"
+              | "red"
+              | "blue"
+              | undefined
+          }
+        />
 
-))}
+      ))}
+
+      <KPITradingScoreCard
+        score={
+          tradingScoreAnalytics.tradingScore
+        }
+        profitability={
+          tradingScoreAnalytics.profitabilityScore
+        }
+        consistency={
+          consistencyScore
+        }
+        risk={
+          tradingScoreAnalytics.calmarScore
+        }
+        reliability={
+          tradingScoreAnalytics.reliabilityScore
+        }
+      />
 
     </div>
 

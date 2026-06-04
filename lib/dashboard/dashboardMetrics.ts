@@ -25,7 +25,11 @@ export interface DashboardMetrics {
 
   bestDay: number;
 
-  worstDay: number;
+bestDayDate: string;
+
+worstDay: number;
+
+worstDayDate: string;
 
   streak: number;
 
@@ -388,10 +392,16 @@ export function getDashboardMetrics(
       ),
 
     bestDay:
-      analytics.bestDay,
+  analytics.bestDay,
 
-    worstDay:
-      analytics.worstDay,
+bestDayDate:
+  analytics.bestDayDate,
+
+worstDay:
+  analytics.worstDay,
+
+worstDayDate:
+  analytics.worstDayDate,
 
     streak:
       analytics.streak,

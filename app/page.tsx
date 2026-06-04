@@ -435,63 +435,6 @@ const performanceBreakdown =
     expenseAnalytics.totalExpenses
   );
 
-  console.log(
-  JSON.stringify(
-    equityAnalytics,
-    null,
-    2
-  )
-);
-
-console.log(
-  JSON.stringify(
-    riskAnalytics,
-    null,
-    2
-  )
-);
-
-  console.log(
-  JSON.stringify(
-    dashboardMetrics,
-    null,
-    2
-  )
-);
-
-console.log(
-  JSON.stringify(
-    consistencyAnalytics,
-    null,
-    2
-  )
-);
-
-console.log(
-  JSON.stringify(
-    tradingScoreAnalytics,
-    null,
-    2
-  )
-);
-
-console.log(
-  JSON.stringify(
-    performanceBreakdown,
-    null,
-    2
-  )
-);
-
-console.log(
-  JSON.stringify(
-    expenseAnalytics,
-    null,
-    2
-  )
-);
-
-
 
 useEffect(() => {
   localStorage.setItem(
@@ -935,6 +878,9 @@ setImportedTrades([
   dashboardMetrics={dashboardMetrics}
   equityAnalytics={equityAnalytics}
   tradingScoreAnalytics={tradingScoreAnalytics}
+  consistencyScore={
+    consistencyAnalytics.consistencyScore
+  }
 />
 
   {/* ================================================= */}

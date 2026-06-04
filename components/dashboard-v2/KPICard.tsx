@@ -98,7 +98,7 @@ export default function KPICard({
 <div
   className={`
     translate-x-4
-    -translate-y-2
+    -translate-y-4
     min-h-[18px]
     text-[13px]
     ${subtitleClasses[subtitleColor]}

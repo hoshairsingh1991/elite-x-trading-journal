@@ -62,6 +62,8 @@ git commit -m "fix/daily-analytics-source-v1"
 git commit -m "checkpoint/equity-engine-v1" -   V2 in process. 
 git commit -m "Dashboard V2 foundation complete" -  Background process is compelet. left with Dashboard UI
 git tag dashboard-v2-foundation - 
+
+git commit -m "checkpoint/kpi-grid-v1" - KPI Grid in process
 ------------------------------------------------------------------
 
 
