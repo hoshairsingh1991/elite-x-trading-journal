@@ -69,9 +69,10 @@ git tag checkpoint/kpi-grid-v1
 
 Branch:
 checkpoint/dashboard-v2-kpi-visualization-v11
-
 Commit:
 c2d8fce -  Row 1 and Row 2 is now complete. 80-90% complete.
+
+git commit -m "Dashboard V2 KPI context and hover system"
 ------------------------------------------------------------------
 
 
