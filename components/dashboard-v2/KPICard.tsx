@@ -66,6 +66,14 @@ export default function KPICard({
         border-white/[0.05]
         bg-[#09182d]
         px-5
+
+        transition-all
+        duration-200
+
+        hover:-translate-y-[2px]
+        hover:border-cyan-500/20
+        hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+
         ${
           size === "large"
             ? "h-[170px] py-5"
@@ -125,18 +133,20 @@ export default function KPICard({
         </div>
       )}
 
+      {/* HISTOGRAM */}
+
       {histogram && (
-  <div
-    className="
-      absolute
-      bottom-1
-      left-0
-      right-0
-    "
-  >
-    {histogram}
-  </div>
-)}
+        <div
+          className="
+            absolute
+            bottom-1
+            left-0
+            right-0
+          "
+        >
+          {histogram}
+        </div>
+      )}
 
       {/* SUBTITLE */}
 

@@ -19,19 +19,26 @@ export default function KPITradingScoreCard({
 }: KPITradingScoreCardProps) {
 
   return (
-    <div
-      className="
-        flex
-        h-[118px]
-        flex-col
-        rounded-[18px]
-        border
-        border-white/[0.05]
-        bg-[#09182d]
-        px-5
-        py-4
-      "
-    >
+  <div
+  className="
+    flex
+    h-[118px]
+    flex-col
+    rounded-[18px]
+    border
+    border-white/[0.05]
+    bg-[#09182d]
+    px-5
+    py-4
+
+    transition-all
+    duration-200
+
+    hover:-translate-y-[2px]
+    hover:border-cyan-500/20
+    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+  "
+>
 
       <p
         className="
@@ -143,7 +150,7 @@ export default function KPITradingScoreCard({
 
        <div
   className="
-    -translate-x-10
+    -translate-x-14
     -translate-y-2
     flex
     flex-col
@@ -151,8 +158,8 @@ export default function KPITradingScoreCard({
     text-[13px]
   "
 >
-          <div className="flex justify-between gap-12">
-            <span className="text-slate-400"> 
+          <div className="flex justify-between gap-25">
+            <span className="w-[90px] text-slate-400">
               Profit
             </span>
             <span className="text-emerald-400">
@@ -160,8 +167,8 @@ export default function KPITradingScoreCard({
             </span>
           </div>
 
-          <div className="flex justify-between gap-12">
-            <span className="text-slate-400">
+          <div className="flex justify-between gap-25">
+            <span className="w-[90px] text-slate-400">
               Consistency
             </span>
             <span className="text-blue-400">
@@ -169,8 +176,8 @@ export default function KPITradingScoreCard({
             </span>
           </div>
 
-          <div className="flex justify-between gap-12">
-            <span className="text-slate-400">
+          <div className="flex justify-between gap-25">
+            <span className="w-[90px] text-slate-400">
               Risk
             </span>
             <span className="text-emerald-400">
@@ -178,8 +185,8 @@ export default function KPITradingScoreCard({
             </span>
           </div>
 
-          <div className="flex justify-between gap-12">
-            <span className="text-slate-400">
+          <div className="flex justify-between gap-25">
+            <span className="w-[90px] text-slate-400">
               Reliability
             </span>
             <span className="text-yellow-400">
