@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 type KPIHistogramProps = {
   data: number[];
 };
@@ -5,6 +7,9 @@ type KPIHistogramProps = {
 export default function KPIHistogram({
   data,
 }: KPIHistogramProps) {
+
+  const [isHovered, setIsHovered] =
+    useState(false);
 
   if (data.length < 2) {
     return null;
@@ -26,6 +31,12 @@ export default function KPIHistogram({
         gap-[2px]
         px-3
       "
+      onMouseEnter={() =>
+        setIsHovered(true)
+      }
+      onMouseLeave={() =>
+        setIsHovered(false)
+      }
     >
       {data.map(
         (value, index) => {
@@ -39,13 +50,27 @@ export default function KPIHistogram({
           return (
             <div
               key={index}
-              className="
+              className={`
                 flex-1
                 rounded-t-[1px]
-                bg-violet-500/45
-              "
+                transition-all
+                duration-200
+
+                ${
+                  isHovered
+                    ? "bg-violet-400/80"
+                    : "bg-violet-500/45"
+                }
+              `}
               style={{
-                height: `${height}%`,
+                height: `${
+                  isHovered
+                    ? Math.min(
+                        height * 1.12,
+                        100
+                      )
+                    : height
+                }%`,
               }}
             />
           );
