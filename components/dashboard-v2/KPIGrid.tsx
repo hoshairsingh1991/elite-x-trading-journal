@@ -1,6 +1,7 @@
 import KPICard from "./KPICard";
-
 import KPITradingScoreCard from "./KPITradingScoreCard";
+import KPISparkline from "./KPISparkline";
+import KPIHistogram from "./KPIHistogram";
 
 type KPIGridProps = {
   dashboardMetrics: {
@@ -24,8 +25,9 @@ type KPIGridProps = {
   };
 
   equityAnalytics: {
-    maxDrawdown: number;
-  };
+  maxDrawdown: number;
+  equityCurve: number[];
+};
 
   tradingScoreAnalytics: {
     profitabilityScore: number;
@@ -34,7 +36,16 @@ type KPIGridProps = {
     tradingScore: number;
   };
 
-  consistencyScore: number;
+consistencyScore: number;
+sparklineData: number[];
+winRateTrend: number[];
+profitFactorTrend: number[];
+expectancyTrend: number[];
+bestDayTrend: number[];
+worstDayTrend: number[];
+avgWinLossTrend: number[];
+drawdownTrend: number[];
+
 };
 
 function formatDate(
@@ -61,14 +72,35 @@ export default function KPIGrid({
   equityAnalytics,
   tradingScoreAnalytics,
   consistencyScore,
+  sparklineData,
+  winRateTrend,
+  profitFactorTrend,
+  expectancyTrend,
+  bestDayTrend,
+  worstDayTrend,
+  avgWinLossTrend,
+  drawdownTrend,
 }: KPIGridProps) {
 
 
   const topCards = [
   {
-  title: "Net P&L",
+    title: "Net P&L",
+
+  titleOffset: "translate-y-3",
+  valueOffset: "-translate-y-6",
+  subtitleOffset: "-translate-y-15",
   value: `$${dashboardMetrics.netPnL.toFixed(2)}`,
   subtitle: "",
+
+  sparkline: true,
+  sparklineData: sparklineData,
+
+  sparklineColor:
+    dashboardMetrics.netPnL >= 0
+      ? "#34d399"
+      : "#ef4444",
+
   size: "large" as const,
   color:
     dashboardMetrics.netPnL >= 0
@@ -76,13 +108,18 @@ export default function KPIGrid({
       : "red",
 },
 
-  {
-    title: "Win Rate",
-    value: `${dashboardMetrics.winRate.toFixed(1)}%`,
-    subtitle: `${dashboardMetrics.winningTrades}W / ${dashboardMetrics.losingTrades}L`,
-    size: "large" as const,
-    color: "default" as const,
-  },
+ {
+  title: "Win Rate",
+  value: `${dashboardMetrics.winRate.toFixed(1)}%`,
+  subtitle: `${dashboardMetrics.winningTrades}W / ${dashboardMetrics.losingTrades}L`,
+
+  sparkline: true,
+  sparklineColor: "#8b5cf6",
+  sparklineData: winRateTrend,
+
+  size: "large" as const,
+  color: "default" as const,
+},
 
   {
   title: "Profit Factor",
@@ -110,71 +147,132 @@ export default function KPIGrid({
       ? "yellow"
       : "red",
 
-  size: "large" as const,
+  sparkline: true,
+sparklineColor: "#3b82f6",
+sparklineData: profitFactorTrend,
+
+size: "large" as const,
 
   color: "blue" as const,
 },
 
-  {
-    title: "Expectancy",
-    value: `$${dashboardMetrics.expectancy.toFixed(2)}`,
-    subtitle: "Average per trade",
-    size: "large" as const,
-    color:
-      dashboardMetrics.expectancy >= 0
-        ? "green"
-        : "red",
-  },
+{
+  title: "Expectancy",
 
-  {
-  title: "Avg Win / Avg Loss",
-  value: `$${dashboardMetrics.avgWin.toFixed(2)} / $${dashboardMetrics.avgLoss.toFixed(2)}`,
-  subtitle: "",
+  value: `$${dashboardMetrics.expectancy.toFixed(2)}`,
+
+  subtitle: "Average per trade",
+
+  sparkline: true,
+
+  sparklineColor:
+    dashboardMetrics.expectancy >= 0
+      ? "#34d399"
+      : "#ef4444",
+
+  sparklineData: expectancyTrend,
+
   size: "large" as const,
+
+  color:
+    dashboardMetrics.expectancy >= 0
+      ? "green"
+      : "red",
+},
+
+{
+  title: "Avg Win / Avg Loss",
+
+  value: `$${dashboardMetrics.avgWin.toFixed(2)} / $${dashboardMetrics.avgLoss.toFixed(2)}`,
+
+  subtitle: "",
+
+  histogram: true,
+
+  histogramData: avgWinLossTrend,
+
+  size: "large" as const,
+
   color: "default" as const,
 },
 
   {
-    title: "Max Drawdown",
-    value: `$${equityAnalytics.maxDrawdown.toFixed(2)}`,
-    subtitle: "Peak-to-valley loss",
-    size: "large" as const,
-    color: "red" as const,
-  },
+  title: "Max Drawdown",
+
+  value: `$${equityAnalytics.maxDrawdown.toFixed(2)}`,
+
+  subtitle: "Peak-to-valley loss",
+
+  sparkline: true,
+
+  sparklineColor: "#ef4444",
+
+  sparklineData: drawdownTrend,
+
+  size: "large" as const,
+
+  color: "red" as const,
+},
+
 ];
 
 const bottomCards = [
-  {
-    title: "Total Trades",
-    value: String(
-      dashboardMetrics.totalTrades
-    ),
-  },
+ {
+  title: "Total Trades",
+
+  titleOffset: "translate-y-2",
+  valueOffset: "-translate-y-2",
+  subtitleOffset: "-translate-y-6",
+
+  value: String(
+    dashboardMetrics.totalTrades
+  ),
+},
 
   {
-    title: "Winning Trades",
-    value: String(
-      dashboardMetrics.winningTrades
-    ),
-  },
+  title: "Winning Trades",
 
-  {
-    title: "Losing Trades",
-    value: String(
-      dashboardMetrics.losingTrades
-    ),
-  },
+  titleOffset: "translate-y-2",
+  valueOffset: "-translate-y-2",
+  subtitleOffset: "-translate-y-6",
 
-  {
+  value: String(
+    dashboardMetrics.winningTrades
+  ),
+},
+
+ {
+  title: "Losing Trades",
+
+  titleOffset: "translate-y-2",
+  valueOffset: "-translate-y-2",
+  subtitleOffset: "-translate-y-6",
+
+  value: String(
+    dashboardMetrics.losingTrades
+  ),
+},
+
+{
   title: "Best Day",
+
+  titleOffset: "translate-y-2",
+  valueOffset: "-translate-y-3",
+  subtitleOffset: "-translate-y-8.5",
 
   value:
     `$${dashboardMetrics.bestDay.toFixed(2)}`,
 
   subtitle:
-  formatDate(
-    dashboardMetrics.bestDayDate
-  ),
+    formatDate(
+      dashboardMetrics.bestDayDate
+    ),
+
+  sparkline: true,
+
+  sparklineColor: "#34d399",
+
+  sparklineData: bestDayTrend,
 
   color:
     dashboardMetrics.bestDay >= 0
@@ -185,13 +283,23 @@ const bottomCards = [
 {
   title: "Worst Day",
 
+  titleOffset: "translate-y-2",
+  valueOffset: "-translate-y-3",
+  subtitleOffset: "-translate-y-8.5",
+
   value:
     `$${dashboardMetrics.worstDay.toFixed(2)}`,
 
   subtitle:
-  formatDate(
-    dashboardMetrics.worstDayDate
-  ),
+    formatDate(
+      dashboardMetrics.worstDayDate
+    ),
+
+  sparkline: true,
+
+  sparklineColor: "#ef4444",
+
+  sparklineData: worstDayTrend,
 
   color:
     dashboardMetrics.worstDay >= 0
@@ -201,6 +309,9 @@ const bottomCards = [
 
  {
   title: "Avg Hold",
+  titleOffset: "translate-y-2",
+  valueOffset: "-translate-y-2",
+  subtitleOffset: "-translate-y-6",
 
   value: `${(
     dashboardMetrics.averageTradeDurationMinutes /
@@ -284,13 +395,36 @@ const bottomCards = [
   "
 >
 
-      {topCards.map((card) => (
+{topCards.map((card) => (
 
   <KPICard
     key={card.title}
     title={card.title}
     value={card.value}
     subtitle={card.subtitle}
+
+    titleOffset={card.titleOffset}
+    valueOffset={card.valueOffset}
+    subtitleOffset={card.subtitleOffset}
+
+    sparkline={
+      card.sparkline ? (
+        <KPISparkline
+          data={card.sparklineData}
+          color={card.sparklineColor}
+        />
+      ) : undefined
+    }
+
+histogram={
+  card.histogram ? (
+    <KPIHistogram
+      data={card.histogramData}
+    />
+  ) : undefined
+}
+
+
     subtitleColor={
       card.subtitleColor as
         | "default"
@@ -299,15 +433,17 @@ const bottomCards = [
         | "yellow"
         | undefined
     }
+
     size={card.size}
+
     valueColor={
-  card.color as
-    | "default"
-    | "green"
-    | "red"
-    | "blue"
-    | undefined
-}
+      card.color as
+        | "default"
+        | "green"
+        | "red"
+        | "blue"
+        | undefined
+    }
   />
 
 ))}
@@ -342,21 +478,36 @@ const bottomCards = [
 
       {bottomCards.map((card) => (
 
-        <KPICard
-          key={card.title}
-          title={card.title}
-          value={card.value}
-          subtitle={card.subtitle}
-          size="small"
-          valueColor={
-            card.color as
-              | "default"
-              | "green"
-              | "red"
-              | "blue"
-              | undefined
-          }
-        />
+<KPICard
+  key={card.title}
+  title={card.title}
+  value={card.value}
+  subtitle={card.subtitle}
+
+  titleOffset={card.titleOffset}
+  valueOffset={card.valueOffset}
+  subtitleOffset={card.subtitleOffset}
+
+  sparkline={
+    card.sparkline ? (
+      <KPISparkline
+        data={card.sparklineData}
+        color={card.sparklineColor}
+      />
+    ) : undefined
+  }
+
+  size="small"
+
+  valueColor={
+    card.color as
+      | "default"
+      | "green"
+      | "red"
+      | "blue"
+      | undefined
+  }
+/>
 
       ))}
 

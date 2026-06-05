@@ -64,6 +64,8 @@ git commit -m "Dashboard V2 foundation complete" -  Background process is compel
 git tag dashboard-v2-foundation - 
 
 git commit -m "checkpoint/kpi-grid-v1" - KPI Grid in process
+git commit -m "checkpoint: KPI Grid V1 complete"
+git tag checkpoint/kpi-grid-v1
 ------------------------------------------------------------------
 
 
