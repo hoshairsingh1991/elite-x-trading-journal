@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 type KPISparklineProps = {
   data: number[];
   color?: string;
@@ -10,6 +12,9 @@ export default function KPISparkline({
 
   const gradientId =
   `sparkFill-${color?.replace("#", "")}`;
+
+  const [isHovered, setIsHovered] =
+  useState(false);
 
   if (data.length < 2) {
   return null;
@@ -87,11 +92,17 @@ for (
 }
 
   return (
-  <svg
-    viewBox="0 0 100 100"
-    className="h-[55px] w-full"
-    preserveAspectRatio="none"
-  >
+<svg
+  viewBox="0 0 100 100"
+  className="h-[55px] w-full"
+  preserveAspectRatio="none"
+  onMouseEnter={() =>
+    setIsHovered(true)
+  }
+  onMouseLeave={() =>
+    setIsHovered(false)
+  }
+>
 
     <defs>
       <linearGradient
@@ -104,7 +115,11 @@ for (
         <stop
           offset="0%"
           stopColor={color}
-          stopOpacity="0.28"
+          stopOpacity={
+  isHovered
+    ? 0.45
+    : 0.28
+}
         />    
         <stop
           offset="100%"
@@ -122,14 +137,22 @@ for (
       fill={`url(#${gradientId})`}
     />
 
-    <path
-      d={path}
-      fill="none"
-      stroke={color}
-      strokeWidth="1"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+<path
+  d={path}
+  fill="none"
+  stroke={color}
+  strokeWidth={
+    isHovered
+      ? 1.8
+      : 1
+  }
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  className="
+    transition-all
+    duration-200
+  "
+/>
 
   </svg>
 );
