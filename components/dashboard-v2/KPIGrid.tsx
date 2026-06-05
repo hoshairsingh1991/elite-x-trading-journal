@@ -217,7 +217,7 @@ size: "large" as const,
 ];
 
 const bottomCards = [
- {
+{
   title: "Total Trades",
 
   titleOffset: "translate-y-2",
@@ -227,9 +227,11 @@ const bottomCards = [
   value: String(
     dashboardMetrics.totalTrades
   ),
+
+  subtitle: `${dashboardMetrics.winningTrades}W / ${dashboardMetrics.losingTrades}L`,
 },
 
-  {
+{
   title: "Winning Trades",
 
   titleOffset: "translate-y-2",
@@ -239,9 +241,11 @@ const bottomCards = [
   value: String(
     dashboardMetrics.winningTrades
   ),
+
+  subtitle: `${dashboardMetrics.winRate.toFixed(1)}% Win Rate`,
 },
 
- {
+{
   title: "Losing Trades",
 
   titleOffset: "translate-y-2",
@@ -251,6 +255,11 @@ const bottomCards = [
   value: String(
     dashboardMetrics.losingTrades
   ),
+
+  subtitle: `${(
+    100 -
+    dashboardMetrics.winRate
+  ).toFixed(1)}% Loss Rate`,
 },
 
 {
@@ -307,7 +316,7 @@ const bottomCards = [
       : "red",
 },
 
- {
+{
   title: "Avg Hold",
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-2",
@@ -318,6 +327,8 @@ const bottomCards = [
     60 /
     24
   ).toFixed(1)} Days`,
+
+  subtitle: `${dashboardMetrics.totalTrades} Closed Trades`,
 },
 
 ];
