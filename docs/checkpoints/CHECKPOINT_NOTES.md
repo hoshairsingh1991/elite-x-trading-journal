@@ -256,3 +256,27 @@ NO FX CONVERSION
 NO PAGE.TSX REFACTOR
 
 Architecture first.
+
+
+git checkout -b checkpoint/dashboard-v2-kpi-visualization-v11
+
+git add .
+git commit -m "Dashboard V2 KPI visualization overhaul
+
+- Added KPI sparkline architecture
+- Added unique gradient IDs for sparkline rendering
+- Added Win Rate sparkline
+- Added Profit Factor sparkline
+- Added Expectancy sparkline
+- Added Best Day sparkline
+- Added Worst Day sparkline
+- Added Max Drawdown sparkline (v1 synthetic)
+- Added KPIHistogram component
+- Added Avg Win / Avg Loss histogram visualization
+- Added Trading Score circular gauge
+- Added gradient ring for Trading Score
+- Added /100 score display
+- Added KPI card offset controls
+- Added per-card positioning controls
+- Improved KPI visual hierarchy
+- Refined Dashboard V2 Account Overview layout"

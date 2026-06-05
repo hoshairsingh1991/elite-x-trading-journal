@@ -49,17 +49,97 @@ export default function KPITradingScoreCard({
 
       <div className="flex items-center justify-between">
 
-        <div
+<div
   className="
     translate-x-10
-    text-[36px]
-            font-bold
-            leading-none
-            text-slate-100
-          "
-        >
-          {score}
-        </div>
+    translate-y-3
+  "
+>
+
+  <div className="relative h-[80px] w-[80px]">
+
+    <svg
+      className="absolute inset-0"
+      viewBox="0 0 100 100"
+    >
+      <circle
+        cx="50"
+        cy="50"
+        r="42"
+        fill="none"
+        stroke="#14243d"
+        strokeWidth="8"
+      />
+
+<defs>
+  <linearGradient
+    id="scoreGradient"
+    x1="0%"
+    y1="0%"
+    x2="100%"
+    y2="0%"
+  >
+    <stop
+      offset="0%"
+      stopColor="#2563eb"
+    />
+    <stop
+      offset="100%"
+      stopColor="#34d399"
+    />
+  </linearGradient>
+</defs>
+
+      <circle
+        cx="50"
+        cy="50"
+        r="42"
+        fill="none"
+        stroke="url(#scoreGradient)"
+        strokeWidth="8"
+        strokeLinecap="round"
+        strokeDasharray={264}
+        strokeDashoffset={
+          264 -
+          (264 * score) / 100
+        }
+        transform="rotate(-90 50 50)"
+      />
+    </svg>
+
+<div
+  className="
+    absolute
+    inset-0
+    flex
+    items-center
+    justify-center
+    text-[22px]
+    font-bold
+    text-white
+  "
+>
+  {score}
+</div>
+
+</div>
+
+<div
+  className="
+    translate-x-13
+    -translate-y-5
+    text-center
+    text-[18px]
+    font-medium
+    text-slate-300
+  "
+>
+   / 100
+</div>
+
+
+
+</div>
 
        <div
   className="

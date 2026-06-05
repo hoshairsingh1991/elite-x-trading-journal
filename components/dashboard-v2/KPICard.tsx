@@ -2,6 +2,9 @@ type KPICardProps = {
   title: string;
   value: string;
   subtitle?: string;
+  sparkline?: React.ReactNode;
+  histogram?: React.ReactNode;
+
   size?: "large" | "small";
 
   valueColor?:
@@ -15,15 +18,26 @@ type KPICardProps = {
     | "green"
     | "red"
     | "yellow";
+
+  titleOffset?: string;
+  valueOffset?: string;
+  subtitleOffset?: string;
 };
 
 export default function KPICard({
   title,
   value,
   subtitle,
+  sparkline,
+  histogram,
   size = "large",
+
   valueColor = "default",
   subtitleColor = "default",
+
+  titleOffset = "translate-y-3",
+  valueOffset = "-translate-y-6",
+  subtitleOffset = "-translate-y-15",
 }: KPICardProps) {
 
   const valueClasses = {
@@ -34,15 +48,16 @@ export default function KPICard({
   };
 
   const subtitleClasses = {
-  default: "text-slate-500",
-  green: "text-emerald-400",
-  red: "text-red-400",
-  yellow: "text-yellow-400",
-};
+    default: "text-slate-500",
+    green: "text-emerald-400",
+    red: "text-red-400",
+    yellow: "text-yellow-400",
+  };
 
   return (
     <div
       className={`
+        relative
         flex
         flex-col
         justify-between
@@ -53,60 +68,89 @@ export default function KPICard({
         px-5
         ${
           size === "large"
-  ? "h-[122px] py-5"
-  : "h-[118px] py-4"
+            ? "h-[170px] py-5"
+            : "h-[120px] py-4"
         }
       `}
     >
-    {/* TITLE */}
+      {/* TITLE */}
 
-<p
-  className="
-    translate-x-3
-    translate-y-3
-    text-[13px]
-    font-semibold
-    uppercase
-    tracking-[0.14em]
-    text-slate-500
-  "
->
-  {title}
-</p>
+      <p
+        className={`
+          translate-x-3
+          ${titleOffset}
+          text-[13px]
+          font-semibold
+          uppercase
+          tracking-[0.14em]
+          text-slate-500
+        `}
+      >
+        {title}
+      </p>
 
-{/* VALUE */}
+      {/* VALUE */}
 
-<div
-  className={`
-    translate-x-3
-    translate-y-0
-    font-bold
-    leading-tight
-    ${valueClasses[valueColor]}
-    ${
-      size === "large"
-        ? "text-[32px]"
-        : "text-[24px]"
-    }
-  `}
->
-  {value}
-</div>
+      <div
+        className={`
+          translate-x-3
+          ${valueOffset}
+          font-bold
+          leading-tight
+          ${valueClasses[valueColor]}
+          ${
+            size === "large"
+              ? "text-[32px]"
+              : "text-[24px]"
+          }
+        `}
+      >
+        {value}
+      </div>
 
-{/* SUBTITLE */}
+      {/* SPARKLINE */}
 
-<div
-  className={`
-    translate-x-4
-    -translate-y-4
-    min-h-[18px]
-    text-[13px]
-    ${subtitleClasses[subtitleColor]}
-  `}
->
-  {subtitle ?? ""}
-</div>
+      {sparkline && (
+        <div
+          className="
+            absolute
+            bottom-1
+            left-0
+            right-0
+            px-3
+            pb-1
+          "
+        >
+          {sparkline}
+        </div>
+      )}
 
+      {histogram && (
+  <div
+    className="
+      absolute
+      bottom-1
+      left-0
+      right-0
+    "
+  >
+    {histogram}
+  </div>
+)}
+
+      {/* SUBTITLE */}
+
+      <div
+        className={`
+          translate-x-3.5
+          ${subtitleOffset}
+          min-h-[10px]
+          text-[14px]
+          ${subtitleClasses[subtitleColor]}
+        `}
+      >
+        {subtitle ?? ""}
+      </div>
     </div>
   );
 }

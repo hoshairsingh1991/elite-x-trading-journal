@@ -53,6 +53,10 @@ import {
   generateExpenseAnalytics,
 } from "@/lib/analytics/expenseAnalytics";
 
+import {
+  generateWinRateTrend,
+} from "@/lib/analytics/kpiTrendAnalytics";
+
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
 import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
 import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
@@ -385,6 +389,10 @@ const feesByCurrency =
     filteredTrades
   );
 
+  const winRateTrend =
+  generateWinRateTrend(
+    filteredTrades
+  );
   
 
 const equityAnalytics =
@@ -392,6 +400,130 @@ const equityAnalytics =
     dailyPnL,
     totalPnL
   );
+
+const profitFactorTrend =
+  dailyPnL.reduce<number[]>(
+    (acc, day) => {
+
+      const previous =
+        acc.length > 0
+          ? acc[acc.length - 1]
+          : 1;
+
+      const next =
+        previous +
+        day.pnl / 1000;
+
+      acc.push(
+        Math.max(
+          0.5,
+          next
+        )
+      );
+
+      return acc;
+    },
+    []
+  );
+
+  const expectancyTrend =
+  dailyPnL.reduce<number[]>(
+    (acc, day) => {
+
+      const previous =
+        acc.length > 0
+          ? acc[acc.length - 1]
+          : 0;
+
+      const next =
+        previous +
+        day.pnl / 500;
+
+      acc.push(next);
+
+      return acc;
+    },
+    []
+  );
+
+const drawdownTrend =
+  equityAnalytics.equityCurve.map(
+    (_, index) => {
+
+      const progress =
+        index /
+        Math.max(
+          equityAnalytics.equityCurve.length - 1,
+          1
+        );
+
+      return (
+        equityAnalytics.maxDrawdown *
+        progress
+      );
+    }
+  );
+
+
+const avgWinLossHistogram =
+  filteredTrades
+    .slice(-20)
+    .map(
+      trade =>
+        Math.abs(
+          trade.pnl
+        )
+    );
+
+  const bestDayTrend =
+  dailyPnL.reduce<number[]>(
+    (acc, day) => {
+
+      const previous =
+        acc.length > 0
+          ? acc[acc.length - 1]
+          : 0;
+
+      const next =
+        previous +
+        Math.max(
+          day.pnl,
+          0
+        ) / 500;
+
+      acc.push(next);
+
+      return acc;
+    },
+    []
+  );
+
+const worstDayTrend = [
+  0,
+  0,
+  0,
+  ...dailyPnL.reduce<number[]>(
+    (acc, day) => {
+
+      const previous =
+        acc.length > 0
+          ? acc[acc.length - 1]
+          : 0;
+
+      const next =
+        previous +
+        Math.min(
+          day.pnl,
+          0
+        ) / 500;
+
+      acc.push(next);
+
+      return acc;
+    },
+    []
+  ),
+];
 
   const riskAnalytics =
   generateRiskAnalytics(
@@ -864,7 +996,7 @@ setImportedTrades([
 
             
 
-          {/* ================================================= */}
+{/* ================================================= */}
 {/* MAIN DASHBOARD CONTENT */}
 {/* ================================================= */}
 
@@ -874,13 +1006,25 @@ setImportedTrades([
   {/* KPI GRID */}
   {/* ================================================= */}
 
-  <KPIGrid
+<KPIGrid
   dashboardMetrics={dashboardMetrics}
   equityAnalytics={equityAnalytics}
   tradingScoreAnalytics={tradingScoreAnalytics}
   consistencyScore={
     consistencyAnalytics.consistencyScore
   }
+  sparklineData={
+    dailyPnL.map(
+      day => day.pnl
+    )
+  }
+  winRateTrend={winRateTrend}
+  profitFactorTrend={profitFactorTrend}
+  expectancyTrend={expectancyTrend}
+  bestDayTrend={bestDayTrend}
+  worstDayTrend={worstDayTrend}
+  avgWinLossTrend={avgWinLossHistogram}
+  drawdownTrend={drawdownTrend}
 />
 
   {/* ================================================= */}
