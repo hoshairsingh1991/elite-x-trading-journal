@@ -64,6 +64,11 @@ import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 import AddTradeModal from "@/components/trades/AddTradeModal";
 
+import EquityCurveCard
+from "@/components/dashboard-v2/EquityCurveCard";
+
+import EquitySection
+from "@/components/dashboard-v2/EquitySection";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -1013,7 +1018,7 @@ setImportedTrades([
   consistencyScore={
     consistencyAnalytics.consistencyScore
   }
-  
+
   netPnLSparklineData={dailyPnL}
 
   sparklineData={
@@ -1034,10 +1039,9 @@ setImportedTrades([
   {/* PNL ANALYTICS */}
   {/* ================================================= */}
 
-  <PnLAnalytics
-    trades={filteredTrades}
-    selectedRange={selectedRange}
-  />
+<div className="px-8">
+  <EquitySection />
+</div>
 
   {/* ================================================= */}
 {/* POSITIONS & TRADES */}
