@@ -1,4 +1,38 @@
-export default function EquityCurveCard() {
+import EquityCurveChart
+from "./EquityCurveChart";
+
+import { EquityAnalyticsData }
+from "@/lib/analytics/equityAnalytics";
+
+import { DailyPnLData }
+from "@/lib/analytics/pnlAnalytics";
+
+type EquityCurveCardProps = {
+  equityAnalytics: EquityAnalyticsData;
+  dailyPnL: DailyPnLData[];
+};
+
+export default function EquityCurveCard({
+  equityAnalytics,
+  dailyPnL,
+}: EquityCurveCardProps) {
+
+  const chartData = [
+  {
+    date: "Start",
+    equity: 0,
+  },
+
+  ...equityAnalytics.equityCurve.map(
+    (equity, index) => ({
+      date:
+        dailyPnL[index]?.date ??
+        `${index + 1}`,
+      equity,
+    })
+  ),
+];
+
   return (
     <div
       className="
@@ -39,64 +73,24 @@ export default function EquityCurveCard() {
       {/* ================================================= */}
 
 <div className="mt-7 flex justify-end px-12">
-  <div className="relative bottom-10 flex items-center">
+  <div className="relative bottom-10 right-6">
 
-    <div className="relative right-10">
-      <button
-        className="
-          h-[35px]
-          min-w-[60px]
-          rounded-[14px]
-          border
-          border-cyan-400/20
-          bg-cyan-500/10
-          px-5
-          text-[14px]
-          font-semibold
-          text-cyan-300
-        "
-      >
-        Linear
-      </button>
-    </div>
-
-    <div className="relative right-9.5">
-      <button
-        className="
-          h-[35px]
-          min-w-[100px]
-          rounded-[14px]
-          border
-          border-white/[0.08]
-          bg-white/[0.03]
-          px-5
-          text-[14px]
-          font-semibold
-          text-slate-400
-        "
-      >
-        Logarithmic
-      </button>
-    </div>
-
-    <div className="relative right-6">
-      <button
-        className="
-          h-[35px]
-          min-w-[80px]
-          rounded-[14px]
-          border
-          border-white/[0.08]
-          bg-white/[0.03]
-          px-5
-          text-[14px]
-          font-semibold
-          text-slate-400
-        "
-      >
-        Compare
-      </button>
-    </div>
+    <button
+      className="
+        h-[35px]
+        min-w-[80px]
+        rounded-[14px]
+        border
+        border-cyan-400/20
+        bg-cyan-500/10
+        px-5
+        text-[14px]
+        font-semibold
+        text-cyan-300
+      "
+    >
+      Linear
+    </button>
 
   </div>
 </div>
@@ -107,20 +101,25 @@ export default function EquityCurveCard() {
       {/* CHART PLACEHOLDER */}
       {/* ================================================= */}
 
-      <div className="relative bottom-6 mt-6 px-12">
-<div className="flex justify-center">
-  <div
-    className="
-      h-[320px]
-      w-[95%]
-      rounded-[20px]
-      border
-      border-white/[0.05]
-      bg-white/[0.02]
-    "
-  />
+<div className="relative bottom-6 mt-6 px-12">
+  <div className="flex justify-center">
+    <div
+      className="
+        h-[320px]
+        w-[95%]
+        overflow-hidden
+        rounded-[20px]
+        border
+        border-white/[0.05]
+        bg-white/[0.02]
+      "
+    >
+      <EquityCurveChart
+        data={chartData}
+      />
+    </div>
+  </div>
 </div>
-      </div>
 
 {/* ================================================= */}
 {/* KPI STRIP */}

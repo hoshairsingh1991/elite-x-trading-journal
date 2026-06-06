@@ -1040,7 +1040,10 @@ setImportedTrades([
   {/* ================================================= */}
 
 <div className="px-8">
-  <EquitySection />
+  <EquitySection
+  equityAnalytics={equityAnalytics}
+  dailyPnL={dailyPnL}
+/>
 </div>
 
   {/* ================================================= */}
