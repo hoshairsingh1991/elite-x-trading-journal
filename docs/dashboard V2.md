@@ -46,125 +46,10 @@ Completed:
 
 ---
 
-PHASE 1 – COMPLETE KPI CARD VISUALS
-
-Remaining KPI charts to add:
-
-1. Expectancy
-
-* Green sparkline
-* Independent data source
-* Same layout as Net P&L / Profit Factor
-
-2. Best Day
-
-* Green sparkline
-* Date remains visible
-* May require chart-card layout
-
-3. Worst Day
-
-* Red sparkline
-* Date remains visible
-* May require chart-card layout
-
-4. Max Drawdown
-
-* Red sparkline
-* Risk metric visual
-
-Notes:
-
-* Current Profit Factor trend is temporary placeholder logic.
-* Real Profit Factor trend calculation will be implemented later.
-* Focus now is UI completion and visual consistency.
 
 ---
 
-PHASE 2 – KPI CARD ARCHITECTURE CLEANUP
 
-Current issue:
-
-* Chart cards and non-chart cards use the same layout system.
-* Requires manual subtitle adjustments when charts are added.
-
-Future solution:
-
-Create two card layouts:
-
-Chart KPI Layout:
-
-* Net P&L
-* Win Rate
-* Profit Factor
-* Expectancy
-* Best Day
-* Worst Day
-* Max Drawdown
-
-Simple KPI Layout:
-
-* Total Trades
-* Winning Trades
-* Losing Trades
-* Avg Hold
-
-Benefits:
-
-* No manual subtitle repositioning
-* No repeated offset adjustments
-* Cleaner architecture
-* Easier future maintenance
-
----
-
-PHASE 3 – INTERACTIVE KPI SPARKLINES
-
-Goal:
-Make dashboard feel alive and institutional-grade.
-
-Features:
-
-* Hover state
-* Tooltip
-* Value on hover
-* Date on hover
-* Crosshair / vertical guide
-* Smooth interactions
-
-Example:
-Hover Net P&L chart
-→ Show date
-→ Show P&L value
-→ Highlight chart position
-
----
-
-PHASE 4 – KPI INFO TOOLTIP SYSTEM
-
-Add ⓘ icon to every KPI card.
-
-Tooltip structure:
-
-Definition
-Formula
-Your Calculation
-Interpretation
-
-Examples:
-
-* Net P&L
-* Win Rate
-* Profit Factor
-* Expectancy
-* Max Drawdown
-* Avg Hold
-* Trading Score
-* Calmar Ratio
-* Consistency Score
-
-Goal:
-Transparency + Education + Institutional feel
 
 ---
 
@@ -269,6 +154,257 @@ Future:
 - Build true historical drawdown curve from equity curve.
 - Calculate rolling peak-to-trough drawdown.
 - Replace synthetic trend with actual drawdown history.
+
+---
+To-Do List 
+---
+
+# DASHBOARD V2 — NEXT PHASE ROADMAP
+
+## Current Status
+
+Completed:
+
+### Header
+
+* Dashboard V2 header finalized
+* Account selector styling finalized
+* Strategy selector styling finalized
+* Date range selector styling finalized
+* Upload CSV button finalized
+* Sync IBKR button finalized
+* Profile section finalized
+
+### KPI Row 1
+
+Completed:
+
+* Net P&L
+* Win Rate
+* Profit Factor
+* Expectancy
+* Avg Win / Avg Loss
+* Max Drawdown
+
+### KPI Row 2
+
+Completed:
+
+* Total Trades
+* Winning Trades
+* Losing Trades
+* Best Day
+* Worst Day
+* Avg Hold
+* Trading Score
+
+### KPI Tooltips
+
+Completed:
+
+* MetricInfoTooltip architecture
+* Profit Factor tooltip
+* Expectancy tooltip
+* Trading Score tooltip
+
+### Net P&L Interactive Chart
+
+Completed:
+
+* Dedicated NetPnLSparkline component
+* Hover tracking
+* Dynamic date display
+* Dynamic P&L display
+* Hover indicator dot
+* Mouse-follow tooltip
+* Timezone-safe date parsing
+
+Architecture approved.
+
+---
+
+# IMPORTANT DECISION
+
+Do NOT build:
+
+* ProfitFactorSparkline.tsx
+* ExpectancySparkline.tsx
+* DrawdownSparkline.tsx
+
+at this stage.
+
+Reason:
+
+The target dashboard does not appear to use advanced hover interactions for these KPI charts.
+
+Adding additional hover systems would increase complexity without materially improving usability.
+
+NetPnLSparkline remains the only advanced KPI chart for now.
+
+---
+
+# NEXT PRIORITY
+
+## KPI Sparkline Visual Fidelity Pass
+
+Goal:
+
+Match target dashboard KPI charts more closely.
+
+Review:
+
+### KPISparkline.tsx
+
+Investigate:
+
+* Vertical scaling
+* Chart amplitude
+* Stroke thickness
+* Gradient opacity
+* Chart height
+* Visual contrast
+
+Target outcome:
+
+* More visible trend movement
+* Stronger chart presence
+* Closer match to institutional dashboard reference
+
+---
+
+# VISUAL POLISH AUDIT
+
+Review entire KPI area for consistency.
+
+Check:
+
+### KPI Row 1
+
+* Card spacing
+* Chart alignment
+* Tooltip alignment
+* Title spacing
+* Value spacing
+
+### KPI Row 2
+
+* Card spacing
+* Trading Score balance
+* Text hierarchy
+* Vertical alignment
+
+---
+
+# DASHBOARD V2 PRIORITY ORDER
+
+## Phase 1
+
+KPI Sparkline Visual Refinement
+
+Goal:
+Match target KPI appearance.
+
+---
+
+## Phase 2
+
+Trading Score Visual Refinement
+
+Review:
+
+* Circle sizing
+* Metric spacing
+* Overall balance
+
+Compare directly against target dashboard.
+
+---
+
+## Phase 3
+
+Equity Curve Section
+
+Review:
+
+* Chart proportions
+* Header controls
+* KPI summary row
+* Card spacing
+* Visual hierarchy
+
+This is currently one of the largest differences versus target.
+
+---
+
+## Phase 4
+
+Performance Breakdown Section
+
+Review:
+
+* Donut chart sizing
+* Legend spacing
+* Metric presentation
+* Card proportions
+
+---
+
+## Phase 5
+
+Right Sidebar Refinement
+
+Review:
+
+* Account Overview card
+* Open Positions card
+* Recent Trades card
+
+Match target layout more closely.
+
+---
+
+# ARCHITECTURE RULES
+
+Continue following:
+
+* Full file rewrites preferred
+* Build-safe changes only
+* Dedicated components for advanced functionality
+* Avoid adding conditional complexity to shared components
+* Preserve Dashboard V2 architecture cleanliness
+
+Current reference architecture:
+
+KPISparkline.tsx
+→ Standard KPI charts
+
+NetPnLSparkline.tsx
+→ Advanced interactive KPI charts
+
+Future advanced charts should follow the NetPnLSparkline pattern only when clear user value exists.
+
+---
+
+# CURRENT COMPLETION ESTIMATE
+
+Header:
+100%
+
+KPI Row 1:
+~90%
+
+KPI Row 2:
+~90%
+
+Dashboard V2 Overall:
+~60–65%
+
+Largest remaining work:
+
+* Equity Curve section
+* Performance Breakdown section
+* Right-side dashboard panels
+* Final institutional visual polish
 
 
 

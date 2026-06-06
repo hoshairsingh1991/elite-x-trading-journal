@@ -76,6 +76,7 @@ git commit -m "Dashboard V2 KPI context and hover system"
 On branch checkpoint/dashboard-v2-kpi-visualization-v11
 git commit -m "Dashboard V2 KPI hover interactions"
 git commit -m "Dashboard V2 KPI tooltip system"
+git commit -m "Add interactive Net P&L sparkline tooltip"
 ------------------------------------------------------------------
 
 
