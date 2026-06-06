@@ -333,3 +333,26 @@ Remaining future refinement:
       backdrop-blur-xl
     "
   >
+
+  Dashboard V2 Alignment Rule
+
+When content appears visually too close to the left edge, use:
+
+relative left-*
+
+instead of:
+
+translate-x-*
+
+Reason:
+translate-x caused UserMenu dropdown layering bugs.
+relative left-* achieved the same visual result without breaking overlays.
+
+<div className="flex justify-center">
+  <div
+    className="
+      h-[240px]
+      w-[95%]
+    "
+  />
+</div>

@@ -940,7 +940,7 @@ setImportedTrades([
 
 <ProtectedRoute>
 
-  <main className="flex h-screen overflow-visible bg-[#020617] text-slate-300">
+  <main className="flex h-screen overflow-hidden bg-[#020617] text-slate-300">
 
     {/* ================================================= */}
     {/* SIDEBAR */}
@@ -960,7 +960,7 @@ setImportedTrades([
     {/* MAIN CONTENT */}
     {/* ================================================= */}
 
-    <section className="flex min-w-0 flex-1 flex-col overflow-visible px-10 pt-4">
+    <section className="flex min-w-0 flex-1 flex-col overflow-hidden px-10 pt-4">
 
 
 
