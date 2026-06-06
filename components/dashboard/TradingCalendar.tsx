@@ -575,7 +575,7 @@ const handleDeleteTrade =
       {/* CALENDAR */}
       {/* ===================================================== */}
 
-      <div className="min-h-[780px] w-[calc(100%-24px)] rounded-[32px] bg-[#071427]/00 p-5 shadow-[0_0_60px_rgba(0,0,0,0.30)]">
+      <div className="min-h-[780px] w-full rounded-[32px] bg-[#071427]/00 p-5 shadow-[0_0_60px_rgba(0,0,0,0.30)]">
 
         <div className="rounded-[28px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)] p-8">
 

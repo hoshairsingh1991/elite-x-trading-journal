@@ -85,7 +85,7 @@ function formatCurrency(
   return (
     <div
       className="
-        h-[500px]
+        h-[480px]
         overflow-hidden
         rounded-[22px]
         border
@@ -98,7 +98,7 @@ function formatCurrency(
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[10px]" />
+<div className="h-[12px]" />
 
 
       {/* ================================================= */}
