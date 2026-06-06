@@ -72,6 +72,8 @@ from "@/components/dashboard-v2/EquitySection";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
+import SecondaryMetricsRow from "@/components/dashboard-v2/SecondaryMetricsRow";
+
 import {
   calculateAverageWin,
   calculateTotalFees,
@@ -1041,38 +1043,52 @@ setImportedTrades([
 
 <div className="px-8">
   <EquitySection
-  equityAnalytics={equityAnalytics}
-  dailyPnL={dailyPnL}
-/>
+    equityAnalytics={equityAnalytics}
+    dailyPnL={dailyPnL}
+  />
 </div>
 
-  {/* ================================================= */}
+
+{/* ================================================= */}
+{/* SECONDARY METRICS */}
+{/* ================================================= */}
+
+<div className="relative bottom-[520px] px-8">
+  <div className="w-[72%]">
+    <SecondaryMetricsRow />
+  </div>
+</div>
+
+
+
+{/* ================================================= */}
 {/* POSITIONS & TRADES */}
 {/* ================================================= */}
 
+{/*
 <div className="pr-8">
-
   <PositionsTradesPanel
     trades={filteredTrades}
   />
-
 </div>
+*/}
 
 </div>
 </div>
             
 
-          {/* ================================================= */}
-          {/* CALENDAR */}
-          {/* ================================================= */}
+{/* ================================================= */}
+{/* CALENDAR */}
+{/* ================================================= */}
 
-          <div className="h-10" />
-
-          <TradingCalendar
-            trades={filteredTrades}
-          />
-
-          <div className="h-12" />
+<div className="relative bottom-[500px] px-8">
+  <div className="relative left-6 -mt-8 w-[70%]">
+    <TradingCalendar
+      trades={filteredTrades}
+    />
+  </div>
+</div>
+          <div className="h-0" />
         </div>
 
         {/* ================================================= */}
@@ -1123,7 +1139,7 @@ setImportedTrades([
 
               </div>
 
-             {/* ============================================= */}
+{/* ============================================= */}
 {/* FORM */}
 {/* ============================================= */}
 

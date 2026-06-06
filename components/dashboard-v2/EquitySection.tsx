@@ -8,6 +8,9 @@ from "@/lib/analytics/equityAnalytics";
 import { DailyPnLData }
 from "@/lib/analytics/pnlAnalytics";
 
+import OpenPositionsCard from "./OpenPositionsCard";
+import RecentTradesCard from "./RecentTradesCard";
+
 type EquitySectionProps = {
   equityAnalytics: EquityAnalyticsData;
   dailyPnL: DailyPnLData[];
@@ -45,9 +48,21 @@ export default function EquitySection({
           {/* ACCOUNT & CURRENCY */}
           {/* ================================================= */}
 
-          <div className="flex-1 min-w-0">
-            <AccountCurrencyCard />
-          </div>
+   <div className="flex-1 min-w-0">
+
+  <AccountCurrencyCard />
+
+  
+  <div className="h-[16px]" />
+
+  <OpenPositionsCard />
+
+  <div className="h-[16px]" />
+
+  <RecentTradesCard />
+  
+
+</div>
 
         </div>
       </div>
