@@ -1013,6 +1013,9 @@ setImportedTrades([
   consistencyScore={
     consistencyAnalytics.consistencyScore
   }
+  
+  netPnLSparklineData={dailyPnL}
+
   sparklineData={
     dailyPnL.map(
       day => day.pnl
