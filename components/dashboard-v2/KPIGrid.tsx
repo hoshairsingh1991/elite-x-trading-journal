@@ -3,6 +3,8 @@ import KPITradingScoreCard from "./KPITradingScoreCard";
 import KPISparkline from "./KPISparkline";
 import KPIHistogram from "./KPIHistogram";
 import MetricInfoTooltip from "./MetricInfoTooltip";
+import NetPnLSparkline from "./NetPnLSparkline";
+
 
 type KPIGridProps = {
   dashboardMetrics: {
@@ -38,6 +40,12 @@ type KPIGridProps = {
   };
 
 consistencyScore: number;
+
+netPnLSparklineData: {
+  date: string;
+  pnl: number;
+}[];
+
 sparklineData: number[];
 winRateTrend: number[];
 profitFactorTrend: number[];
@@ -73,6 +81,7 @@ export default function KPIGrid({
   equityAnalytics,
   tradingScoreAnalytics,
   consistencyScore,
+  netPnLSparklineData,
   sparklineData,
   winRateTrend,
   profitFactorTrend,
@@ -87,7 +96,7 @@ export default function KPIGrid({
   const topCards = [
 {
   title: "Net P&L",
-
+  isNetPnL: true,
   tooltip: undefined,
 
   titleOffset: "translate-y-3",
@@ -472,14 +481,26 @@ const bottomCards = [
     valueOffset={card.valueOffset}
     subtitleOffset={card.subtitleOffset}
 
-    sparkline={
-      card.sparkline ? (
-        <KPISparkline
-          data={card.sparklineData}
-          color={card.sparklineColor}
-        />
-      ) : undefined
-    }
+sparkline={
+  card.sparkline ? (
+
+    card.isNetPnL ? (
+
+      <NetPnLSparkline
+        data={netPnLSparklineData}
+      />
+
+    ) : (
+
+      <KPISparkline
+        data={card.sparklineData}
+        color={card.sparklineColor}
+      />
+
+    )
+
+  ) : undefined
+}
 
 histogram={
   card.histogram ? (
