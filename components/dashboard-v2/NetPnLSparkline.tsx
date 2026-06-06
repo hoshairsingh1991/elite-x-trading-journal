@@ -211,7 +211,7 @@ const hoveredPoint =
         px-1.5
         py-0.5
         backdrop-blur-xl
-          text-[11px]
+          text-[14px]
           text-slate-400
         "
       >
@@ -233,7 +233,7 @@ const hoveredPoint =
         px-1.5
         py-0.5
         backdrop-blur-xl
-          text-[12px]
+          text-[14px]
           font-semibold
           ${
             hoveredPoint.pnl >= 0

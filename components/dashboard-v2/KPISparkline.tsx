@@ -20,18 +20,13 @@ export default function KPISparkline({
   return null;
 }
 
-  console.log(
-  "Sparkline:",
-  data.length,
-  data
-);
 
   const smoothedData = data.map((_, index) => {
-    const start = Math.max(0, index - 2);
-    const end = Math.min(
-      data.length,
-      index + 3
-    );
+  const start = Math.max(0, index - 1);
+const end = Math.min(
+  data.length,
+  index + 2
+);
 
     const slice = data.slice(start, end);
 
@@ -117,8 +112,8 @@ for (
           stopColor={color}
           stopOpacity={
   isHovered
-    ? 0.45
-    : 0.28
+    ? 0.50
+    : 0.35
 }
         />    
         <stop
@@ -143,7 +138,7 @@ for (
   stroke={color}
   strokeWidth={
     isHovered
-      ? 1.8
+      ? 1.5
       : 1
   }
   strokeLinecap="round"
