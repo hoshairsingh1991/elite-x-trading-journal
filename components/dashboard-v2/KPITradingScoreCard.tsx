@@ -1,3 +1,5 @@
+import MetricInfoTooltip from "./MetricInfoTooltip";
+
 type KPITradingScoreCardProps = {
   score: number;
 
@@ -40,19 +42,45 @@ export default function KPITradingScoreCard({
   "
 >
 
-      <p
-        className="
-          translate-x-3
-          translate-y-3
-          text-[13px]
-          font-semibold
-          uppercase
-          tracking-[0.14em]
-          text-slate-500
-        "
-      >
-        Trading Score
-      </p>
+<div
+  className="
+    translate-x-3
+    translate-y-3
+    flex
+    items-center
+    gap-2
+  "
+>
+  <p
+    className="
+      text-[13px]
+      font-semibold
+      uppercase
+      tracking-[0.14em]
+      text-slate-500
+    "
+  >
+    Trading Score
+  </p>
+
+  <MetricInfoTooltip
+    definition="Composite trading performance score."
+
+    formula="Profitability + Consistency + Risk + Reliability"
+
+    calculation={`${score} / 100`}
+
+    interpretation={
+      score >= 85
+        ? "Elite"
+        : score >= 70
+        ? "Strong"
+        : score >= 50
+        ? "Average"
+        : "Needs Improvement"
+    }
+  />
+</div>
 
       <div className="flex items-center justify-between">
 
@@ -121,7 +149,7 @@ export default function KPITradingScoreCard({
     flex
     items-center
     justify-center
-    text-[22px]
+    text-[26px]
     font-bold
     text-white
   "
@@ -151,15 +179,15 @@ export default function KPITradingScoreCard({
        <div
   className="
     -translate-x-14
-    -translate-y-2
+    -translate-y-3
     flex
     flex-col
     gap-1.5
-    text-[13px]
+    text-[14px]
   "
 >
           <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-400">
+            <span className="w-[90px] text-slate-350">
               Profit
             </span>
             <span className="text-emerald-400">
@@ -168,7 +196,7 @@ export default function KPITradingScoreCard({
           </div>
 
           <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-400">
+            <span className="w-[90px] text-slate-350">
               Consistency
             </span>
             <span className="text-blue-400">
@@ -177,7 +205,7 @@ export default function KPITradingScoreCard({
           </div>
 
           <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-400">
+            <span className="w-[90px] text-slate-350">
               Risk
             </span>
             <span className="text-emerald-400">
@@ -186,7 +214,7 @@ export default function KPITradingScoreCard({
           </div>
 
           <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-400">
+            <span className="w-[90px] text-slate-350">
               Reliability
             </span>
             <span className="text-yellow-400">

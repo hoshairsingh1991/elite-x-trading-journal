@@ -4,6 +4,7 @@ type KPICardProps = {
   subtitle?: string;
   sparkline?: React.ReactNode;
   histogram?: React.ReactNode;
+  tooltip?: React.ReactNode;
 
   size?: "large" | "small";
 
@@ -30,6 +31,7 @@ export default function KPICard({
   subtitle,
   sparkline,
   histogram,
+  tooltip,
   size = "large",
 
   valueColor = "default",
@@ -58,6 +60,7 @@ export default function KPICard({
     <div
       className={`
         relative
+        hover:z-50
         flex
         flex-col
         justify-between
@@ -83,19 +86,29 @@ export default function KPICard({
     >
       {/* TITLE */}
 
-      <p
-        className={`
-          translate-x-3
-          ${titleOffset}
-          text-[13px]
-          font-semibold
-          uppercase
-          tracking-[0.14em]
-          text-slate-500
-        `}
-      >
-        {title}
-      </p>
+<div
+  className={`
+    translate-x-3
+    ${titleOffset}
+    flex
+    items-center
+    gap-2
+  `}
+>
+  <p
+    className="
+      text-[13px]
+      font-semibold
+      uppercase
+      tracking-[0.14em]
+      text-slate-500
+    "
+  >
+    {title}
+  </p>
+
+  {tooltip}
+</div>
 
       {/* VALUE */}
 
