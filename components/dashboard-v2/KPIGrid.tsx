@@ -2,6 +2,7 @@ import KPICard from "./KPICard";
 import KPITradingScoreCard from "./KPITradingScoreCard";
 import KPISparkline from "./KPISparkline";
 import KPIHistogram from "./KPIHistogram";
+import MetricInfoTooltip from "./MetricInfoTooltip";
 
 type KPIGridProps = {
   dashboardMetrics: {
@@ -84,12 +85,15 @@ export default function KPIGrid({
 
 
   const topCards = [
-  {
-    title: "Net P&L",
+{
+  title: "Net P&L",
+
+  tooltip: undefined,
 
   titleOffset: "translate-y-3",
   valueOffset: "-translate-y-6",
   subtitleOffset: "-translate-y-15",
+
   value: `$${dashboardMetrics.netPnL.toFixed(2)}`,
   subtitle: "",
 
@@ -102,6 +106,7 @@ export default function KPIGrid({
       : "#ef4444",
 
   size: "large" as const,
+
   color:
     dashboardMetrics.netPnL >= 0
       ? "green"
@@ -110,6 +115,7 @@ export default function KPIGrid({
 
  {
   title: "Win Rate",
+   tooltip: undefined,
   value: `${dashboardMetrics.winRate.toFixed(1)}%`,
   subtitle: `${dashboardMetrics.winningTrades}W / ${dashboardMetrics.losingTrades}L`,
 
@@ -121,8 +127,27 @@ export default function KPIGrid({
   color: "default" as const,
 },
 
-  {
+{
   title: "Profit Factor",
+
+  tooltip: (
+    <MetricInfoTooltip
+      definition="Gross profit divided by gross loss."
+      formula="Total Winning P&L ÷ Absolute Total Losing P&L"
+      calculation={dashboardMetrics.profitFactor.toFixed(2)}
+      interpretation={
+        dashboardMetrics.profitFactor >= 2
+          ? "Excellent"
+          : dashboardMetrics.profitFactor >= 1.5
+          ? "Very Good"
+          : dashboardMetrics.profitFactor >= 1.25
+          ? "Good"
+          : dashboardMetrics.profitFactor >= 1
+          ? "Average"
+          : "Poor"
+      }
+    />
+  ),
 
   value:
     dashboardMetrics.profitFactor.toFixed(2),
@@ -159,6 +184,26 @@ size: "large" as const,
 {
   title: "Expectancy",
 
+  tooltip: (
+    <MetricInfoTooltip
+      definition="Average expected profit or loss per trade."
+
+      formula="(Win Rate × Avg Win) − (Loss Rate × Avg Loss)"
+
+      calculation={`$${dashboardMetrics.expectancy.toFixed(2)} per trade`}
+
+      interpretation={
+        dashboardMetrics.expectancy >= 10
+          ? "Strong Edge"
+          : dashboardMetrics.expectancy >= 5
+          ? "Good Edge"
+          : dashboardMetrics.expectancy >= 0
+          ? "Positive Edge"
+          : "Negative Edge"
+      }
+    />
+  ),
+
   value: `$${dashboardMetrics.expectancy.toFixed(2)}`,
 
   subtitle: "Average per trade",
@@ -180,8 +225,11 @@ size: "large" as const,
       : "red",
 },
 
+
+
 {
   title: "Avg Win / Avg Loss",
+   tooltip: undefined,
 
   value: `$${dashboardMetrics.avgWin.toFixed(2)} / $${dashboardMetrics.avgLoss.toFixed(2)}`,
 
@@ -198,7 +246,7 @@ size: "large" as const,
 
   {
   title: "Max Drawdown",
-
+    tooltip: undefined,
   value: `$${equityAnalytics.maxDrawdown.toFixed(2)}`,
 
   subtitle: "Peak-to-valley loss",
@@ -219,7 +267,7 @@ size: "large" as const,
 const bottomCards = [
 {
   title: "Total Trades",
-
+ tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-2",
   subtitleOffset: "-translate-y-6",
@@ -233,7 +281,7 @@ const bottomCards = [
 
 {
   title: "Winning Trades",
-
+ tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-2",
   subtitleOffset: "-translate-y-6",
@@ -247,7 +295,7 @@ const bottomCards = [
 
 {
   title: "Losing Trades",
-
+  tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-2",
   subtitleOffset: "-translate-y-6",
@@ -264,7 +312,7 @@ const bottomCards = [
 
 {
   title: "Best Day",
-
+    tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-3",
   subtitleOffset: "-translate-y-8.5",
@@ -291,7 +339,7 @@ const bottomCards = [
 
 {
   title: "Worst Day",
-
+  tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-3",
   subtitleOffset: "-translate-y-8.5",
@@ -318,6 +366,7 @@ const bottomCards = [
 
 {
   title: "Avg Hold",
+  tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-2",
   subtitleOffset: "-translate-y-6",
@@ -408,11 +457,16 @@ const bottomCards = [
 
 {topCards.map((card) => (
 
-  <KPICard
-    key={card.title}
-    title={card.title}
-    value={card.value}
-    subtitle={card.subtitle}
+<KPICard
+  key={card.title}
+  title={card.title}
+  value={card.value}
+  subtitle={card.subtitle}
+  tooltip={
+    "tooltip" in card
+      ? card.tooltip
+      : undefined
+  }
 
     titleOffset={card.titleOffset}
     valueOffset={card.valueOffset}
@@ -494,6 +548,7 @@ histogram={
   title={card.title}
   value={card.value}
   subtitle={card.subtitle}
+  tooltip={"tooltip" in card ? card.tooltip : undefined}
 
   titleOffset={card.titleOffset}
   valueOffset={card.valueOffset}
