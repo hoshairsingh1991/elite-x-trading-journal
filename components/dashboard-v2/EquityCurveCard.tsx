@@ -32,6 +32,55 @@ export default function EquityCurveCard({
     })
   ),
 ];
+const equityValues =
+  equityAnalytics.equityCurve;
+
+const starting =
+  equityValues.length > 0
+    ? equityValues[0]
+    : 0;
+
+const ending =
+  equityValues.length > 0
+    ? equityValues[
+        equityValues.length - 1
+      ]
+    : 0;
+
+const netChange =
+  ending - starting;
+
+const percentChange =
+  Math.abs(starting) > 0.01
+    ? (
+        (netChange /
+          Math.abs(starting)) *
+        100
+      )
+    : 0;
+
+const high =
+  equityValues.length > 0
+    ? Math.max(...equityValues)
+    : 0;
+
+const low =
+  equityValues.length > 0
+    ? Math.min(...equityValues)
+    : 0;
+
+function formatCurrency(
+  value: number
+) {
+  return value >= 0
+    ? `+$${Math.abs(
+        value
+      ).toFixed(2)}`
+    : `-$${Math.abs(
+        value
+      ).toFixed(2)}`;
+}
+
 
   return (
     <div
@@ -121,30 +170,113 @@ export default function EquityCurveCard({
   </div>
 </div>
 
+{/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[8px]" />
+
 {/* ================================================= */}
 {/* KPI STRIP */}
 {/* ================================================= */}
 
 <div className="mt-6 flex justify-center">
-  <div className="relative left-6 w-[95%]">
-    <div className="grid grid-cols-6 gap-6">
-      {[
-        "Starting",
-        "Ending",
-        "Net Change",
-        "% Change",
-        "High",
-        "Low",
-      ].map((label) => (
-        <div key={label}>
-          <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
-            {label}
-          </p>
+  <div className="relative left-0 w-[95%]">
 
-          <div className="mt-3 h-5 w-20 rounded bg-white/[0.04]" />
-        </div>
-      ))}
+    <div className="grid grid-cols-6 gap-6">
+
+      {/* STARTING */}
+
+      <div className="flex flex-col items-center">
+        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+          Starting
+        </p>
+
+        <p className="mt-4 text-[20px] font-bold text-white">
+          {formatCurrency(starting)}
+        </p>
+      </div>
+
+      {/* ENDING */}
+
+      <div className="flex flex-col items-center">
+        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+          Ending
+        </p>
+
+        <p
+          className={`mt-4 text-[20px] font-bold ${
+            ending >= 0
+              ? "text-emerald-400"
+              : "text-red-400"
+          }`}
+        >
+          {formatCurrency(ending)}
+        </p>
+      </div>
+
+      {/* NET CHANGE */}
+
+      <div className="flex flex-col items-center">
+        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+          Net Change
+        </p>
+
+        <p
+          className={`mt-4 text-[20px] font-bold ${
+            netChange >= 0
+              ? "text-emerald-400"
+              : "text-red-400"
+          }`}
+        >
+          {formatCurrency(netChange)}
+        </p>
+      </div>
+
+      {/* PERCENT CHANGE */}
+
+      <div className="flex flex-col items-center">
+        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+          % Change
+        </p>
+
+        <p
+          className={`mt-4 text-[20px] font-bold ${
+            percentChange >= 0
+              ? "text-emerald-400"
+              : "text-red-400"
+          }`}
+        >
+          {percentChange.toFixed(1)}%
+        </p>
+      </div>
+
+      {/* HIGH */}
+
+      <div className="flex flex-col items-center">
+        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+          High
+        </p>
+
+        <p className="mt-4 text-[20px] font-bold text-emerald-400">
+          {formatCurrency(high)}
+        </p>
+      </div>
+
+      {/* LOW */}
+
+      <div className="flex flex-col items-center">
+        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+          Low
+        </p>
+
+        <p className="mt-4 text-[20px] font-bold text-red-400">
+          {formatCurrency(low)}
+        </p>
+      </div>
+
     </div>
+
   </div>
 </div>
     </div>
