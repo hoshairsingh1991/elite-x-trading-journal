@@ -62,7 +62,14 @@ export default function DashboardHeader({
       {/* LEFT SIDE */}
       {/* ================================================= */}
 
-      <div className="translate-x-3 w-[320px] shrink-0">
+      <div
+  className="
+    relative
+    left-8
+    w-[320px]
+    shrink-0
+  "
+>
 
         <h1 className="text-[24px] font-semibold text-white">
           Overview
@@ -242,7 +249,16 @@ export default function DashboardHeader({
       {/* RIGHT SIDE */}
       {/* ================================================= */}
 
-    <div className="-translate-x-12 mr-4 flex items-center gap-3">
+    <div
+  className="
+    relative
+    right-6
+    mr-4
+    flex
+    items-center
+    gap-3
+  "
+>
 
         {/* CSV */}
 
