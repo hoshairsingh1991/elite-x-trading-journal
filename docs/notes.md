@@ -78,6 +78,7 @@ git commit -m "Dashboard V2 KPI hover interactions"
 git commit -m "Dashboard V2 KPI tooltip system"
 git commit -m "Add interactive Net P&L sparkline tooltip"
 git commit -m "Refine KPI sparkline rendering and visual fidelity"
+git commit -m "Build Dashboard V2 equity section layout and account currency card"
 ------------------------------------------------------------------
 
 
