@@ -3,6 +3,10 @@ import {
 } from "@/lib/analytics/performanceBreakdownAnalytics";
 
 import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
+import {
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -12,11 +16,18 @@ import {
 
 type PerformanceBreakdownCardProps = {
   performanceBreakdownAnalytics: PerformanceBreakdownData;
+  reportingCurrency: string;
 };
 
 export default function PerformanceBreakdownCard({
   performanceBreakdownAnalytics,
+  reportingCurrency,
 }: PerformanceBreakdownCardProps) {
+
+const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
+  );
 
   const donutData = [
     {
@@ -145,10 +156,8 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
   >
 
     <div className="text-[26px] font-bold text-slate-300">
-      $
-      {performanceBreakdownAnalytics.realProfit.toFixed(
-        2
-      )}
+      {currencySymbol}
+{performanceBreakdownAnalytics.realProfit.toFixed(2)}
     </div>
 
     <div
@@ -181,7 +190,8 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
                 </div>
 
                 <span className="text-[15px] font-medium text-slate-300">
-                  ${performanceBreakdownAnalytics.longPnL.toFixed(2)}
+                  {currencySymbol}
+{performanceBreakdownAnalytics.longPnL.toFixed(2)}
                 </span>
               </div>
 
@@ -195,7 +205,8 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
                 </div>
 
                 <span className="text-[15px] font-medium text-slate-300">
-                  ${performanceBreakdownAnalytics.shortPnL.toFixed(2)}
+                  {currencySymbol}
+{performanceBreakdownAnalytics.shortPnL.toFixed(2)}
                 </span>
               </div>
 
@@ -209,7 +220,8 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
                 </div>
 
                 <span className="text-[15px] font-medium text-slate-300">
-                  ${performanceBreakdownAnalytics.commissions.toFixed(2)}
+{currencySymbol}
+{performanceBreakdownAnalytics.commissions.toFixed(2)}
                 </span>
               </div>
 
@@ -223,7 +235,8 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
                 </div>
 
                 <span className="text-[15px] font-medium text-slate-300">
-                  ${performanceBreakdownAnalytics.expenses.toFixed(2)}
+                  {currencySymbol}
+{performanceBreakdownAnalytics.expenses.toFixed(2)}
                 </span>
               </div>
 
@@ -288,7 +301,8 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
         </p>
 
         <p className="mt-3 text-[22px] font-semibold text-emerald-400">
-          ${performanceBreakdownAnalytics.grossPnL.toFixed(2)}
+          {currencySymbol}
+{performanceBreakdownAnalytics.grossPnL.toFixed(2)}
         </p>
 
       </div>

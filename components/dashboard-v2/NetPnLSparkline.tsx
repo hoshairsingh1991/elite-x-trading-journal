@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
 // =================================================
 // LOCAL DATE PARSER
 // =================================================
@@ -36,11 +40,19 @@ type NetPnLSparklineProps = {
     date: string;
     pnl: number;
   }[];
+
+  reportingCurrency: string;
 };
 
 export default function NetPnLSparkline({
   data,
+  reportingCurrency,
 }: NetPnLSparklineProps) {
+
+  const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
+  );
 
   if (data.length < 2) {
     return null;
@@ -242,7 +254,7 @@ const hoveredPoint =
           }
         `}
       >
-        ${hoveredPoint.pnl.toFixed(2)}
+       {`${currencySymbol}${hoveredPoint.pnl.toFixed(2)}`}
       </div>
 
     </div>

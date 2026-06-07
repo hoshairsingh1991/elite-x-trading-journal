@@ -501,9 +501,12 @@ sparkline={
 
     card.isNetPnL ? (
 
-      <NetPnLSparkline
-        data={netPnLSparklineData}
-      />
+<NetPnLSparkline
+  data={netPnLSparklineData}
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
 
     ) : (
 

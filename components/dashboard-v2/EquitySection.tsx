@@ -66,11 +66,15 @@ export default function EquitySection({
           {/* ================================================= */}
 
           <div className="flex-1 min-w-0">
-            <PerformanceBreakdownCard
-              performanceBreakdownAnalytics={
-                performanceBreakdownAnalytics
-              }
-            />
+          <PerformanceBreakdownCard
+          performanceBreakdownAnalytics={
+          performanceBreakdownAnalytics
+          }
+
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
           </div>
 
           {/* ================================================= */}
