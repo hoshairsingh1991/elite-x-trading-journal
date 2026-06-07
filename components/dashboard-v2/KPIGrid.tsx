@@ -275,7 +275,7 @@ size: "large" as const,
 
 const bottomCards = [
 {
-  title: "Total Trades",
+  title: "Closed Trades",
  tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-2",

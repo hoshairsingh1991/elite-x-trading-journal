@@ -1,16 +1,70 @@
-export default function PerformanceBreakdownCard() {
-  return (
-    <div
-      className="
-        h-[480px]
-        overflow-hidden
-        rounded-[22px]
-        border
-        border-white/[0.08]
-        bg-[#081526]/80
-        backdrop-blur-xl
-      "
-    >
+import {
+  PerformanceBreakdownData,
+} from "@/lib/analytics/performanceBreakdownAnalytics";
+
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
+
+type PerformanceBreakdownCardProps = {
+  performanceBreakdownAnalytics: PerformanceBreakdownData;
+};
+
+export default function PerformanceBreakdownCard({
+  performanceBreakdownAnalytics,
+}: PerformanceBreakdownCardProps) {
+
+  const donutData = [
+    {
+      name: "Gross P&L",
+      value:
+        performanceBreakdownAnalytics.grossPnL,
+      color: "#41855a",
+    },
+    {
+      name: "Commissions",
+      value:
+        Math.abs(
+          performanceBreakdownAnalytics.commissions
+        ),
+      color: "#1e6abb",
+    },
+    {
+      name: "Expenses",
+      value:
+        Math.abs(
+          performanceBreakdownAnalytics.expenses
+        ),
+      color: "#bb4086",
+    },
+  ];
+
+  return (  
+<div
+  className="
+    h-[480px]
+    overflow-hidden
+    rounded-[22px]
+    border
+    border-white/[0.08]
+    bg-[#081526]/80
+    backdrop-blur-xl
+
+transition-all
+duration-300
+
+hover:-translate-y-1
+
+hover:border-white/[0.14]
+hover:bg-[#0A1A2E]/80
+
+hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
+  "
+>
       {/* ===================================== */}
       {/* INVISIBLE SPACER */}
       {/* ===================================== */}
@@ -37,69 +91,143 @@ export default function PerformanceBreakdownCard() {
       {/* DONUT + LEGEND */}
       {/* ================================================= */}
 
-      <div className="mt-10 flex justify-center">
+      <div className="mt-14 flex justify-center">
         <div className="w-[90%]">
 
-          <div className="flex items-center justify-center gap-10">
+          <div className="relative top-17 flex items-center justify-center gap-10">
 
             {/* DONUT PLACEHOLDER */}
+<div className="relative h-[220px] w-[220px]">
 
-            <div
-              className="
-                h-[180px]
-                w-[180px]
-                rounded-full
-                border-4
-                border-white/[0.08]
-              "
+  <ResponsiveContainer
+    width="100%"
+    height="100%"
+  >
+
+    <PieChart>
+
+      <Pie
+        data={donutData}
+        dataKey="value"
+        innerRadius={80}
+        outerRadius={110}
+        paddingAngle={3}
+        stroke="none"
+      >
+
+        {donutData.map(
+          (entry, index) => (
+            <Cell
+              key={index}
+              fill={entry.color}
             />
+          )
+        )}
 
-            {/* LEGEND PLACEHOLDER */}
+      </Pie>
 
-            <div className="flex flex-1 flex-col gap-5">
+    </PieChart>
 
-              {Array.from({ length: 5 }).map(
-                (_, index) => (
-                  <div
-                    key={index}
-                    className="
-                      flex
-                      items-center
-                      justify-between
-                    "
-                  >
-                    <div className="flex items-center gap-3">
+  </ResponsiveContainer>
 
-                      <div
-                        className="
-                          h-2.5
-                          w-2.5
-                          rounded-full
-                          bg-white/[0.25]
-                        "
-                      />
+  {/* CENTER LABEL */}
 
-                      <div
-                        className="
-                          h-4
-                          w-24
-                          rounded
-                          bg-white/[0.04]
-                        "
-                      />
-                    </div>
+  <div
+    className="
+      absolute
+      inset-0
+      flex
+      flex-col
+      items-center
+      justify-center
+      pointer-events-none
+    "
+  >
 
-                    <div
-                      className="
-                        h-4
-                        w-16
-                        rounded
-                        bg-white/[0.04]
-                      "
-                    />
-                  </div>
-                )
-              )}
+    <div className="text-[26px] font-bold text-slate-300">
+      $
+      {performanceBreakdownAnalytics.realProfit.toFixed(
+        2
+      )}
+    </div>
+
+    <div
+      className="
+        mt-1
+        text-[12px]
+        uppercase
+        tracking-[0.16em]
+        text-slate-400
+      "
+    >
+      Net P&amp;L
+    </div>
+
+  </div>
+
+</div>
+
+            {/* LEGEND */}
+
+            <div className="relative left-2 w-[260px] flex flex-col gap-6">
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+
+                  <span className="text-[16px] text-slate-400">
+                    Long P&L
+                  </span>
+                </div>
+
+                <span className="text-[15px] font-medium text-slate-300">
+                  ${performanceBreakdownAnalytics.longPnL.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
+
+                  <span className="text-[16px] text-slate-400">
+                    Short P&L
+                  </span>
+                </div>
+
+                <span className="text-[15px] font-medium text-slate-300">
+                  ${performanceBreakdownAnalytics.shortPnL.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+
+                  <span className="text-[16px] text-slate-400">
+                    Commissions
+                  </span>
+                </div>
+
+                <span className="text-[15px] font-medium text-slate-300">
+                  ${performanceBreakdownAnalytics.commissions.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+
+                  <span className="text-[16px] text-slate-400">
+                    Expenses
+                  </span>
+                </div>
+
+                <span className="text-[15px] font-medium text-slate-300">
+                  ${performanceBreakdownAnalytics.expenses.toFixed(2)}
+                </span>
+              </div>
+
+              
 
             </div>
 
@@ -112,53 +240,63 @@ export default function PerformanceBreakdownCard() {
       {/* INVISIBLE SPACER */}
       {/* ===================================== */}
 
-      <div className="h-[35px]" />
+      <div className="h-[130px]" />
 
-      {/* ================================================= */}
-      {/* BOTTOM METRICS */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* BOTTOM METRICS */}
+{/* ================================================= */}
 
-      <div className="flex justify-center">
-        <div className="w-[90%]">
+<div className="flex justify-center">
+  <div className="w-[90%]">
 
-          <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-3 gap-6">
 
-            {Array.from({ length: 3 }).map(
-              (_, index) => (
-                <div
-                  key={index}
-                  className="
-                    flex
-                    flex-col
-                    items-center
-                  "
-                >
-                  <div
-                    className="
-                      h-4
-                      w-24
-                      rounded
-                      bg-white/[0.04]
-                    "
-                  />
+      {/* LONG TRADES */}
 
-                  <div
-                    className="
-                      mt-4
-                      h-7
-                      w-16
-                      rounded
-                      bg-white/[0.04]
-                    "
-                  />
-                </div>
-              )
-            )}
+      <div className="flex flex-col items-center">
 
-          </div>
+        <p className="text-[13px] uppercase tracking-[0.14em] text-slate-500">
+          Long Trades
+        </p>
 
-        </div>
+        <p className="mt-3 text-[22px] font-semibold text-white">
+          {performanceBreakdownAnalytics.longTrades}
+        </p>
+
       </div>
+
+      {/* SHORT TRADES */}
+
+      <div className="flex flex-col items-center">
+
+        <p className="text-[13px] uppercase tracking-[0.14em] text-slate-500">
+          Short Trades
+        </p>
+
+        <p className="mt-3 text-[22px] font-semibold text-white">
+          {performanceBreakdownAnalytics.shortTrades}
+        </p>
+
+      </div>
+
+      {/* GROSS P&L */}
+
+      <div className="flex flex-col items-center">
+
+        <p className="text-[13px] uppercase tracking-[0.14em] text-slate-500">
+          Gross P&amp;L
+        </p>
+
+        <p className="mt-3 text-[22px] font-semibold text-emerald-400">
+          ${performanceBreakdownAnalytics.grossPnL.toFixed(2)}
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
 
     </div>
   );

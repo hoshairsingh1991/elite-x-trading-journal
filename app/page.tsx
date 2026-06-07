@@ -568,7 +568,7 @@ const expenseAnalytics =
     expenses
   );
 
-const performanceBreakdown =
+const performanceBreakdownAnalytics =
   generatePerformanceBreakdownAnalytics(
     filteredTrades,
     expenseAnalytics.totalExpenses
@@ -1042,10 +1042,13 @@ setImportedTrades([
   {/* ================================================= */}
 
 <div className="px-8">
-  <EquitySection
-    equityAnalytics={equityAnalytics}
-    dailyPnL={dailyPnL}
-  />
+ <EquitySection
+  equityAnalytics={equityAnalytics}
+  dailyPnL={dailyPnL}
+  performanceBreakdownAnalytics={
+    performanceBreakdownAnalytics
+  }
+/>
 </div>
 
 

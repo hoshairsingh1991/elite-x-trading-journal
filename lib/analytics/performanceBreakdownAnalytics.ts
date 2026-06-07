@@ -10,11 +10,21 @@ export interface PerformanceBreakdownData {
 
   commissions: number;
 
-  Expenses: number;
+  expenses: number;
 
   netTradingPnL: number;
 
   realProfit: number;
+
+  grossPnL: number;
+
+  longTrades: number;
+
+  shortTrades: number;
+
+  longPercentage: number;
+
+  shortPercentage: number;
 }
 
 // =================================================
@@ -87,7 +97,7 @@ export function calculateCommissions(
 
 export function generatePerformanceBreakdownAnalytics(
   trades: Trade[],
-  Expenses: number
+  expenses: number
 ): PerformanceBreakdownData {
 
   const longPnL =
@@ -109,22 +119,61 @@ export function generatePerformanceBreakdownAnalytics(
   longPnL +
   shortPnL;
 
-  const realProfit =
-    netTradingPnL -
-    Expenses;
+  const grossPnL =
+  netTradingPnL +
+  Math.abs(commissions) +
+  Math.abs(expenses);
 
-  return {
+const realProfit =
+  netTradingPnL -
+  expenses;
 
-    longPnL,
+    const longTrades =
+  trades.filter(
+    trade => trade.side === "LONG"
+  ).length;
 
-    shortPnL,
+const shortTrades =
+  trades.filter(
+    trade => trade.side === "SHORT"
+  ).length;
 
-    commissions,
+const totalDirectionalTrades =
+  longTrades +
+  shortTrades;
 
-    Expenses,
+const longPercentage =
+  totalDirectionalTrades > 0
+    ? (longTrades / totalDirectionalTrades) * 100
+    : 0;
 
-    netTradingPnL,
+const shortPercentage =
+  totalDirectionalTrades > 0
+    ? (shortTrades / totalDirectionalTrades) * 100
+    : 0;
 
-    realProfit,
-  };
+return {
+
+  longPnL,
+
+  shortPnL,
+
+  commissions,
+
+  expenses,
+
+  grossPnL,
+
+  netTradingPnL,
+
+  realProfit,
+
+  longTrades,
+
+  shortTrades,
+
+  longPercentage,
+
+  shortPercentage,
+};
 }

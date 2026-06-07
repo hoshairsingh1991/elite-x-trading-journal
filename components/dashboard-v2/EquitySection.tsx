@@ -1,24 +1,31 @@
 import EquityCurveCard from "./EquityCurveCard";
 import PerformanceBreakdownCard from "./PerformanceBreakdownCard";
 import AccountCurrencyCard from "./AccountCurrencyCard";
-
-import { EquityAnalyticsData }
-from "@/lib/analytics/equityAnalytics";
-
-import { DailyPnLData }
-from "@/lib/analytics/pnlAnalytics";
-
 import OpenPositionsCard from "./OpenPositionsCard";
 import RecentTradesCard from "./RecentTradesCard";
+
+import {
+  EquityAnalyticsData,
+} from "@/lib/analytics/equityAnalytics";
+
+import {
+  DailyPnLData,
+} from "@/lib/analytics/pnlAnalytics";
+
+import {
+  PerformanceBreakdownData,
+} from "@/lib/analytics/performanceBreakdownAnalytics";
 
 type EquitySectionProps = {
   equityAnalytics: EquityAnalyticsData;
   dailyPnL: DailyPnLData[];
+  performanceBreakdownAnalytics: PerformanceBreakdownData;
 };
 
 export default function EquitySection({
   equityAnalytics,
   dailyPnL,
+  performanceBreakdownAnalytics,
 }: EquitySectionProps) {
   return (
     <div className="flex justify-center">
@@ -41,28 +48,30 @@ export default function EquitySection({
           {/* ================================================= */}
 
           <div className="flex-1 min-w-0">
-            <PerformanceBreakdownCard />
+            <PerformanceBreakdownCard
+              performanceBreakdownAnalytics={
+                performanceBreakdownAnalytics
+              }
+            />
           </div>
 
           {/* ================================================= */}
           {/* ACCOUNT & CURRENCY */}
           {/* ================================================= */}
 
-   <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0">
 
-  <AccountCurrencyCard />
+            <AccountCurrencyCard />
 
-  
-  <div className="h-[16px]" />
+            <div className="h-[16px]" />
 
-  <OpenPositionsCard />
+            <OpenPositionsCard />
 
-  <div className="h-[16px]" />
+            <div className="h-[16px]" />
 
-  <RecentTradesCard />
-  
+            <RecentTradesCard />
 
-</div>
+          </div>
 
         </div>
       </div>
