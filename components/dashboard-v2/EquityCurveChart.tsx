@@ -49,11 +49,11 @@ type EquityCurveChartProps = {
 export default function EquityCurveChart({
   data,
 }: EquityCurveChartProps) {
-  return (
-    <ResponsiveContainer
-      width="100%"
-      height="100%"
-    >
+return (
+  <ResponsiveContainer
+    width="100%"
+    height={320}
+  >
       <AreaChart
         data={data}
         margin={{

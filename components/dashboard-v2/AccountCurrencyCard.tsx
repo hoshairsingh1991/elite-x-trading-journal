@@ -179,9 +179,9 @@ export default function AccountCurrencyCard({
         Currency
       </span>
 
-      <span className="text-right text-[11px] uppercase tracking-[0.14em] text-slate-500">
-        P&amp;L
-      </span>
+      <span className="relative right-4 text-right text-[11px] uppercase tracking-[0.14em] text-slate-500">
+        P&L
+        </span>
 
       <span className="relative left-20 text-right text-[12px] uppercase tracking-[0.14em] text-slate-500">
         %
@@ -280,10 +280,9 @@ export default function AccountCurrencyCard({
         Currency
       </span>
 
-      <span className="text-right text-[11px] uppercase tracking-[0.14em] text-slate-500">
-        Commission
+      <span className="relative left-4 text-right text-[11px] uppercase tracking-[0.14em] text-slate-500">
+      Commission
       </span>
-
       <span className="relative left-20 text-right text-[12px] uppercase tracking-[0.14em] text-slate-500">
         %
       </span>

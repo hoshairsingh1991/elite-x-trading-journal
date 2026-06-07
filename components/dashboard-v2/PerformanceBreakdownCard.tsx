@@ -99,10 +99,10 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
             {/* DONUT PLACEHOLDER */}
 <div className="relative h-[220px] w-[220px]">
 
-  <ResponsiveContainer
-    width="100%"
-    height="100%"
-  >
+<ResponsiveContainer
+  width={220}
+  height={220}
+>
 
     <PieChart>
 

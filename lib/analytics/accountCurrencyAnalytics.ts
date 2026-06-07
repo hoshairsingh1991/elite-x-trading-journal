@@ -1,5 +1,14 @@
 import { Trade } from "@/types/trade";
 
+const CURRENCY_ORDER = [
+  "USD",
+  "CAD",
+  "EUR",
+  "GBP",
+  "JPY",
+  "INR",
+];
+
 export interface NativePnLByCurrency {
   currency: string;
   pnl: number;
@@ -84,16 +93,24 @@ export function getAccountCurrencyAnalytics(
       ([currency, pnl]) => ({
         currency,
         pnl,
-        percentage:
-          totalPnL > 0
-            ? Math.round(
-                (Math.abs(pnl) /
-                  totalPnL) *
-                  100
-              )
-            : 0,
+percentage:
+  totalPnL > 0
+    ? Number(
+        (
+          (Math.abs(pnl) /
+            totalPnL) *
+          100
+        ).toFixed(1)
+      )
+    : 0,
       })
     );
+
+    nativePnL.sort(
+  (a, b) =>
+    CURRENCY_ORDER.indexOf(a.currency) -
+    CURRENCY_ORDER.indexOf(b.currency)
+);
 
   const commissions =
     Array.from(
@@ -105,26 +122,38 @@ export function getAccountCurrencyAnalytics(
       ]) => ({
         currency,
         commission,
-        percentage:
-          totalCommissions > 0
-            ? Math.round(
-                (commission /
-                  totalCommissions) *
-                  100
-              )
-            : 0,
+percentage:
+  totalCommissions > 0
+    ? Number(
+        (
+          (commission /
+            totalCommissions) *
+          100
+        ).toFixed(1)
+      )
+    : 0,
       })
     );
 
-  const currenciesTraded =
-    Array.from(
-      new Set(
-        trades.map(
-          (trade) =>
-            trade.currency
-        )
+    commissions.sort(
+  (a, b) =>
+    CURRENCY_ORDER.indexOf(a.currency) -
+    CURRENCY_ORDER.indexOf(b.currency)
+);
+
+const currenciesTraded =
+  Array.from(
+    new Set(
+      trades.map(
+        (trade) =>
+          trade.currency
       )
-    ).sort();
+    )
+  ).sort(
+    (a, b) =>
+      CURRENCY_ORDER.indexOf(a) -
+      CURRENCY_ORDER.indexOf(b)
+  );
 
   return {
     nativePnL,
