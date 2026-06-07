@@ -2,6 +2,10 @@
 
 "use client";
 
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
 // =================================================
 // LOCAL DATE PARSER
 // =================================================
@@ -44,11 +48,20 @@ type EquityCurveChartProps = {
     date: string;
     equity: number;
   }[];
+
+  reportingCurrency: string;
 };
 
 export default function EquityCurveChart({
   data,
+  reportingCurrency,
 }: EquityCurveChartProps) {
+
+const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
+  );
+
 return (
   <ResponsiveContainer
     width="100%"
@@ -115,11 +128,27 @@ return (
   }}
   axisLine={false}
   tickLine={false}
-  tickFormatter={(value: number) =>
-    value >= 0
-      ? `$${Math.round(value)}`
-      : `-$${Math.abs(Math.round(value))}`
-  }
+  tickFormatter={(value: number) => {
+
+    const absValue =
+      Math.abs(value);
+
+    if (absValue >= 1000000) {
+      return `${currencySymbol}${(
+        absValue / 1000000
+      ).toFixed(1)}M`;
+    }
+
+    if (absValue >= 1000) {
+      return `${currencySymbol}${(
+        absValue / 1000
+      ).toFixed(1)}K`;
+    }
+
+    return `${currencySymbol}${Math.round(
+      absValue
+    )}`;
+  }}
 />
 
         {/* TOOLTIP */}

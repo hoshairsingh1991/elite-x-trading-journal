@@ -1,5 +1,10 @@
 import { useMemo } from "react";
 
+import type {
+  Dispatch,
+  SetStateAction,
+} from "react";
+
 import {
   Landmark,
   DollarSign,
@@ -59,12 +64,22 @@ const CURRENCY_INFO = {
   },
 };
 
+
 type AccountCurrencyCardProps = {
   trades: Trade[];
+
+  reportingCurrency: string;
+
+  setReportingCurrency:
+    Dispatch<
+      SetStateAction<string>
+    >;
 };
 
 export default function AccountCurrencyCard({
   trades,
+  reportingCurrency,
+  setReportingCurrency,
 }: AccountCurrencyCardProps) {
 
   const analytics = useMemo(
@@ -437,36 +452,88 @@ export default function AccountCurrencyCard({
 
         <div className="h-[2px]" />
 
-        {/* Reporting Currency */}
+{/* Reporting Currency */}
 
-        <div className="flex items-center justify-between">
-          <div className="relative left-3 flex items-center gap-3">
-            <DollarSign
-              size={15}
-              className="text-slate-500"
-            />
+<div className="flex items-center justify-between">
 
-            <span className="text-[16px] text-slate-400">
-              Reporting Currency
-            </span>
-          </div>
+  <div className="relative left-3 flex items-center gap-3">
+    <DollarSign
+      size={15}
+      className="text-slate-500"
+    />
 
-          <div className="relative right-3 flex items-center gap-2">
-            <span className="text-[15px] font-medium text-slate-200">
-              USD
-            </span>
+    <span className="text-[16px] text-slate-400">
+      Reporting Currency
+    </span>
+  </div>
 
-            <ChevronDown
-              size={14}
-              className="text-slate-500"
-            />
-          </div>
-        </div>
+  <div className="relative right-2">
 
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
+<select
+  value={reportingCurrency}
+  onChange={(e) =>
+    setReportingCurrency(
+      e.target.value
+    )
+    
+  }
+className="
+  w-[72px]
+  h-[20px]
 
-        {/* FX Conversion */}
+  relative
+  top-[2px]
+
+  cursor-pointer
+  
+
+  border-none
+  bg-transparent
+
+  text-right1
+  text-[15px]
+  font-medium
+  text-slate-200
+
+  outline-none
+"
+>
+
+      <option value="USD">
+        USD
+      </option>
+
+      <option value="CAD">
+        CAD
+      </option>
+
+      <option value="EUR">
+        EUR
+      </option>
+
+      <option value="GBP">
+        GBP
+      </option>
+
+      <option value="JPY">
+        JPY
+      </option>
+
+      <option value="INR">
+        INR
+      </option>
+    </select>
+
+ 
+
+  </div>
+
+</div>
+
+<div className="h-[6px]" />
+<div className="h-px bg-white/[0.06]" />
+
+{/* FX Conversion */}
 <div className="h-[4px]" />
         <div className="flex items-center justify-between">
           <div className="relative left-3 flex items-center gap-3">
@@ -485,10 +552,7 @@ export default function AccountCurrencyCard({
               Disabled
             </span>
 
-            <ChevronDown
-              size={14}
-              className="text-slate-500"
-            />
+           
           </div>
         </div>
 
@@ -514,10 +578,7 @@ export default function AccountCurrencyCard({
               Spot Rate
             </span>
 
-            <ChevronDown
-              size={14}
-              className="text-slate-500"
-            />
+          
           </div>
         </div>
 
@@ -543,10 +604,7 @@ export default function AccountCurrencyCard({
               ECB Daily
             </span>
 
-            <ChevronDown
-              size={14}
-              className="text-slate-500"
-            />
+           
           </div>
         </div>
 
@@ -567,7 +625,7 @@ export default function AccountCurrencyCard({
             </span>
           </div>
 
-<div className="relative right-3 flex items-center gap-2">
+<div className="relative -right-3 flex items-center gap-2">
   <span className="text-[15px] font-medium text-slate-200">
     Jun 06, 2026
   </span>

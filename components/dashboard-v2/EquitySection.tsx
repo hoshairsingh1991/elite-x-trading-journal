@@ -5,6 +5,8 @@ import OpenPositionsCard from "./OpenPositionsCard";
 import RecentTradesCard from "./RecentTradesCard";
 import { Trade } from "@/types/trade";
 
+import { Dispatch, SetStateAction } from "react";
+
 import {
   EquityAnalyticsData,
 } from "@/lib/analytics/equityAnalytics";
@@ -22,6 +24,13 @@ type EquitySectionProps = {
   dailyPnL: DailyPnLData[];
   performanceBreakdownAnalytics: PerformanceBreakdownData;
   trades: Trade[];
+
+  reportingCurrency: string;
+
+  setReportingCurrency:
+    Dispatch<
+      SetStateAction<string>
+    >;
 };
 
 export default function EquitySection({
@@ -29,6 +38,8 @@ export default function EquitySection({
   dailyPnL,
   performanceBreakdownAnalytics,
   trades,
+  reportingCurrency,
+  setReportingCurrency,
 }: EquitySectionProps) {
 
   return (
@@ -41,10 +52,13 @@ export default function EquitySection({
           {/* ================================================= */}
 
           <div className="flex-[1.6] min-w-0">
-            <EquityCurveCard
-              equityAnalytics={equityAnalytics}
-              dailyPnL={dailyPnL}
-            />
+<EquityCurveCard
+  equityAnalytics={equityAnalytics}
+  dailyPnL={dailyPnL}
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
           </div>
 
           {/* ================================================= */}
@@ -65,9 +79,15 @@ export default function EquitySection({
 
           <div className="flex-1 min-w-0">
 
-            <AccountCurrencyCard
-            trades={trades}
-            />
+<AccountCurrencyCard
+  trades={trades}
+  reportingCurrency={
+    reportingCurrency
+  }
+  setReportingCurrency={
+    setReportingCurrency
+  }
+/>
 
             <div className="h-[16px]" />
 
