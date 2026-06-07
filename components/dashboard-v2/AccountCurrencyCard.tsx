@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import {
   Landmark,
   DollarSign,
@@ -6,15 +8,78 @@ import {
   Globe,
   Calendar,
   Info,
+  ChevronDown,
 } from "lucide-react";
 
-import { ChevronDown } from "lucide-react";
+import { Trade } from "@/types/trade";
 
-export default function AccountCurrencyCard() {
+import {
+  getAccountCurrencyAnalytics,
+} from "@/lib/analytics/accountCurrencyAnalytics";
+
+// =================================================
+// CURRENCY DISPLAY METADATA
+// =================================================
+
+const CURRENCY_INFO = {
+  USD: {
+    flag: "🇺🇸",
+    name: "United States Dollar",
+    symbol: "$",
+  },
+
+  CAD: {
+    flag: "🇨🇦",
+    name: "Canadian Dollar",
+    symbol: "C$",
+  },
+
+  EUR: {
+    flag: "🇪🇺",
+    name: "Euro",
+    symbol: "€",
+  },
+
+  GBP: {
+    flag: "🇬🇧",
+    name: "British Pound",
+    symbol: "£",
+  },
+
+  JPY: {
+    flag: "🇯🇵",
+    name: "Japanese Yen",
+    symbol: "¥",
+  },
+
+  INR: {
+    flag: "🇮🇳",
+    name: "Indian Rupee",
+    symbol: "₹",
+  },
+};
+
+type AccountCurrencyCardProps = {
+  trades: Trade[];
+};
+
+export default function AccountCurrencyCard({
+  trades,
+}: AccountCurrencyCardProps) {
+
+  const analytics = useMemo(
+    () =>
+      getAccountCurrencyAnalytics(
+        trades
+      ),
+    [trades]
+  );
+
+
   return (
     <div
       className="
-        h-[880px]
+        h-[860px]
         overflow-hidden
         rounded-[22px]
         border
@@ -118,9 +183,9 @@ export default function AccountCurrencyCard() {
         P&amp;L
       </span>
 
-<span className="relative left-20 text-right text-[12px] uppercase tracking-[0.14em] text-slate-500">
-  %
-</span>
+      <span className="relative left-20 text-right text-[12px] uppercase tracking-[0.14em] text-slate-500">
+        %
+      </span>
     </div>
 
     <div
@@ -136,85 +201,59 @@ export default function AccountCurrencyCard() {
     >
       <div className="space-y-2">
 
-        {/* USD */}
-
         <div className="h-[4px]" />
 
-        <div className="grid grid-cols-[170px_110px_180px] items-center">
-          <div className="relative left-3">
-            <div className="text-[14px] font-medium text-slate-200">
-              🇺🇸 USD
+        {analytics.nativePnL.map((item, index) => {
+
+          const info =
+            CURRENCY_INFO[
+              item.currency as keyof typeof CURRENCY_INFO
+            ];
+
+          return (
+            <div key={item.currency}>
+
+              {index > 0 && (
+                <>
+                  <div className="h-[4px]" />
+                  <div className="h-px bg-white/[0.06]" />
+                  <div className="h-[4px]" />
+                </>
+              )}
+
+              <div className="grid grid-cols-[170px_110px_180px] items-center">
+
+                <div className="relative left-3">
+                  <div className="text-[14px] font-medium text-slate-200">
+                    {info?.flag ?? "🏳️"} {item.currency}
+                  </div>
+
+                  <div className="mt-1 text-[14px] text-slate-500">
+                    {info?.name ?? "Unknown Currency"}
+                  </div>
+                </div>
+
+                <div
+                  className={`text-right text-[15px] font-semibold ${
+                    item.pnl >= 0
+                      ? "text-emerald-400"
+                      : "text-rose-400"
+                  }`}
+                >
+                  {item.pnl >= 0 ? "+" : "-"}
+                  {info?.symbol ?? ""}
+                  {Math.abs(item.pnl).toFixed(2)}
+                </div>
+
+                <div className="text-right text-[15px] font-medium text-slate-400">
+                  {item.percentage}%
+                </div>
+
+              </div>
+
             </div>
-
-            <div className="mt-1 text-[14px] text-slate-500">
-              United States Dollar
-            </div>
-          </div>
-
-          <div className="text-right text-[16px] font-semibold text-emerald-400">
-            +$819.23
-          </div>
-
-          <div className="text-right text-[16px] font-medium text-slate-400">
-            65%
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* CAD */}
-
-        <div className="h-[4px]" />
-
-        <div className="grid grid-cols-[170px_110px_180px] items-center">
-          <div className="relative left-3">
-            <div className="text-[14px] font-medium text-slate-200">
-              🇨🇦 CAD
-            </div>
-
-            <div className="mt-1 text-[14px] text-slate-500">
-              Canadian Dollar
-            </div>
-          </div>
-
-          <div className="text-right text-[16px] font-semibold text-emerald-400">
-            +C$458.39
-          </div>
-
-          <div className="text-right text-[16px] font-medium text-slate-400">
-            36%
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* EUR */}
-
-        <div className="h-[4px]" />
-
-        <div className="grid grid-cols-[170px_110px_180px] items-center">
-          <div className="relative left-3">
-            <div className="text-[14px] font-medium text-slate-200">
-              🇪🇺 EUR
-            </div>
-
-            <div className="mt-1 text-[14px] text-slate-500">
-              Euro
-            </div>
-          </div>
-
-          <div className="text-right text-[16px] font-semibold text-rose-400">
-            -€24.01
-          </div>
-
-          <div className="text-right text-[16px] font-medium text-slate-400">
-            -2%
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
+          );
+        })}
 
       </div>
     </div>
@@ -262,86 +301,51 @@ export default function AccountCurrencyCard() {
       "
     >
       <div className="space-y-2">
+<div className="h-[4px]" />
+        {analytics.commissions.map((item, index) => {
 
-        {/* USD */}
+          const info =
+            CURRENCY_INFO[
+              item.currency as keyof typeof CURRENCY_INFO
+            ];
 
-        <div className="h-[4px]" />
+          return (
+            <div key={item.currency}>
 
-        <div className="grid grid-cols-[170px_110px_180px] items-center">
-          <div className="relative left-3">
-            <div className="text-[14px] font-medium text-slate-200">
-              🇺🇸 USD
+              {index > 0 && (
+                <>
+                  <div className="h-[4px]" />
+                  <div className="h-px bg-white/[0.06]" />
+                  <div className="h-[4px]" />
+                </>
+              )}
+
+              <div className="grid grid-cols-[170px_110px_180px] items-center">
+
+                <div className="relative left-3">
+                  <div className="text-[14px] font-medium text-slate-200">
+                    {info?.flag ?? "🏳️"} {item.currency}
+                  </div>
+
+                  <div className="mt-1 text-[14px] text-slate-500">
+                    {info?.name ?? "Unknown Currency"}
+                  </div>
+                </div>
+
+                <div className="text-right text-[15px] font-semibold text-slate-300">
+                  {info?.symbol ?? ""}
+                  {item.commission.toFixed(2)}
+                </div>
+
+                <div className="text-right text-[15px] font-medium text-slate-400">
+                  {item.percentage}%
+                </div>
+
+              </div>
+
             </div>
-
-            <div className="mt-1 text-[14px] text-slate-500">
-              United States Dollar
-            </div>
-          </div>
-
-          <div className="text-right text-[16px] font-semibold text-slate-300">
-            $700.37
-          </div>
-
-          <div className="text-right text-[16px] font-medium text-slate-400">
-            98%
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* CAD */}
-
-        <div className="h-[4px]" />
-
-        <div className="grid grid-cols-[170px_110px_180px] items-center">
-          <div className="relative left-3">
-            <div className="text-[14px] font-medium text-slate-200">
-              🇨🇦 CAD
-            </div>
-
-            <div className="mt-1 text-[14px] text-slate-500">
-              Canadian Dollar
-            </div>
-          </div>
-
-          <div className="text-right text-[16px] font-semibold text-slate-300">
-            C$3.11
-          </div>
-
-          <div className="text-right text-[16px] font-medium text-slate-400">
-            1%
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* EUR */}
-
-        <div className="h-[4px]" />
-
-        <div className="grid grid-cols-[170px_110px_180px] items-center">
-          <div className="relative left-3">
-            <div className="text-[14px] font-medium text-slate-200">
-              🇪🇺 EUR
-            </div>
-
-            <div className="mt-1 text-[14px] text-slate-500">
-              Euro
-            </div>
-          </div>
-
-          <div className="text-right text-[16px] font-semibold text-slate-300">
-            €12.00
-          </div>
-
-          <div className="text-right text-[16px] font-medium text-slate-400">
-            1%
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
+          );
+        })}
 
       </div>
     </div>
@@ -354,48 +358,56 @@ export default function AccountCurrencyCard() {
 
 <div className="relative translate-y-12 mt-10 flex justify-center">
   <div className="w-[90%]">
+
     <div className="mb-4 text-[13px] font-medium uppercase tracking-[0.12em] text-slate-400">
       Currencies Traded
     </div>
-<div className="h-[4px]" />
-<div className="relative left-0 flex flex-wrap gap-3">
-  {[
-    "🇺🇸 USD",
-    "🇨🇦 CAD",
-    "🇪🇺 EUR",
-    "🇬🇧 GBP",
-    "🇯🇵 JPY",
-  ].map((currency) => (
-<div
-  key={currency}
-  className="
-    w-[80px]
-    h-[42px]
 
-    flex
-    items-center
-    justify-center
+    <div className="h-[4px]" />
 
-    rounded-xl
-    border
-    border-white/[0.08]
-    bg-white/[0.04]
+    <div className="relative left-0 flex flex-wrap gap-3">
 
-    text-[16px]
-    font-medium
-    text-slate-300
-  "
->
-  {currency}
-</div>
-  ))}
-</div>
-<div className="h-[4px]" />
+      {analytics.currenciesTraded.map((currency) => {
 
-{/* Divider */}
+        const info =
+          CURRENCY_INFO[
+            currency as keyof typeof CURRENCY_INFO
+          ];
 
-<div className="mt-6 h-px bg-white/[0.06]" />
-    
+        return (
+          <div
+            key={currency}
+            className="
+              w-[68px]
+              h-[38px]
+
+              flex
+              items-center
+              justify-center
+
+              rounded-xl
+              border
+              border-white/[0.08]
+              bg-white/[0.04]
+
+              text-[15px]
+              font-medium
+              text-slate-300
+            "
+          >
+            {info?.flag ?? "🏳️"} {currency}
+          </div>
+        );
+      })}
+
+    </div>
+
+    <div className="h-[4px]" />
+
+    {/* Divider */}
+
+    <div className="mt-6 h-px bg-white/[0.06]" />
+
   </div>
 </div>
 
