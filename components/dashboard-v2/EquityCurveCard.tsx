@@ -1,7 +1,12 @@
 import EquityCurveChart
 from "./EquityCurveChart";
 
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
 import { EquityAnalyticsData }
+
 from "@/lib/analytics/equityAnalytics";
 
 import { DailyPnLData }
@@ -10,11 +15,13 @@ from "@/lib/analytics/pnlAnalytics";
 type EquityCurveCardProps = {
   equityAnalytics: EquityAnalyticsData;
   dailyPnL: DailyPnLData[];
+  reportingCurrency: string;
 };
 
 export default function EquityCurveCard({
   equityAnalytics,
   dailyPnL,
+  reportingCurrency,
 }: EquityCurveCardProps) {
 
   const chartData = [
@@ -69,14 +76,20 @@ const low =
     ? Math.min(...equityValues)
     : 0;
 
+const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
+  );
+
+
 function formatCurrency(
   value: number
 ) {
   return value >= 0
-    ? `+$${Math.abs(
+    ? `+${currencySymbol}${Math.abs(
         value
       ).toFixed(2)}`
-    : `-$${Math.abs(
+    : `-${currencySymbol}${Math.abs(
         value
       ).toFixed(2)}`;
 }
@@ -122,7 +135,7 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
           </h3>
 
           <p className="mt-2 text-[15px] text-slate-500">
-            Net Account Value (USD)
+            Net Account Value ({reportingCurrency})
           </p>
         </div>
       </div>
@@ -173,9 +186,14 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
         bg-white/[0.02]
       "
     >
-      <EquityCurveChart
-        data={chartData}
-      />
+
+<EquityCurveChart
+  data={chartData}
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
+
     </div>
   </div>
 </div>

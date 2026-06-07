@@ -8,6 +8,11 @@ import {
 import { useRouter }
 from "next/navigation";
 
+import {
+  convertTradesToReportingCurrency,
+} from "@/lib/fx/convertTradesToReportingCurrency";
+
+
 import Sidebar from "@/components/layout/Sidebar";
 import UserMenuV2 from "@/components/layout/UserMenuV2";
 
@@ -120,10 +125,17 @@ export default function HomePage() {
 
   const [selectedRange, setSelectedRange] =
   useState<TimeRange>("ALL");
+
   const [
   selectedAccount,
   setSelectedAccount,
 ] = useState("ALL");
+
+const [
+  reportingCurrency,
+  setReportingCurrency,
+] = useState("USD");
+
 
 const [isSyncing, setIsSyncing] =
   useState(false);
@@ -347,6 +359,18 @@ const availableAccounts: string[] = [
       selectedRange
     );
 
+// =================================================
+// REPORTING CURRENCY
+// =================================================
+
+
+const reportingTrades =
+  convertTradesToReportingCurrency(
+    filteredTrades,
+    reportingCurrency
+  );
+
+
   // =================================================
   // ANALYTICS
   // =================================================
@@ -386,14 +410,14 @@ const feesByCurrency =
     filteredTrades
   );
 
-  const dashboardMetrics =
+const dashboardMetrics =
   getDashboardMetrics(
-    filteredTrades
+    reportingTrades
   );
 
-  const dailyPnL =
+const dailyPnL =
   groupDailyPnL(
-    filteredTrades
+    reportingTrades
   );
 
   const winRateTrend =
@@ -570,7 +594,7 @@ const expenseAnalytics =
 
 const performanceBreakdownAnalytics =
   generatePerformanceBreakdownAnalytics(
-    filteredTrades,
+    reportingTrades,
     expenseAnalytics.totalExpenses
   );
 
@@ -1014,6 +1038,8 @@ setImportedTrades([
   {/* ================================================= */}
 
 <KPIGrid
+  reportingCurrency={reportingCurrency}
+
   dashboardMetrics={dashboardMetrics}
   equityAnalytics={equityAnalytics}
   tradingScoreAnalytics={tradingScoreAnalytics}
@@ -1049,6 +1075,8 @@ setImportedTrades([
     performanceBreakdownAnalytics
   }
   trades={filteredTrades}
+  reportingCurrency={reportingCurrency}
+  setReportingCurrency={setReportingCurrency}
 />
 </div>
 

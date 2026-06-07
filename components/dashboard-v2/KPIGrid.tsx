@@ -4,9 +4,15 @@ import KPISparkline from "./KPISparkline";
 import KPIHistogram from "./KPIHistogram";
 import MetricInfoTooltip from "./MetricInfoTooltip";
 import NetPnLSparkline from "./NetPnLSparkline";
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
 
 
 type KPIGridProps = {
+
+  reportingCurrency: string;
+
   dashboardMetrics: {
     netPnL: number;
     totalTrades: number;
@@ -78,6 +84,7 @@ function formatDate(
 
 export default function KPIGrid({
   dashboardMetrics,
+  reportingCurrency,
   equityAnalytics,
   tradingScoreAnalytics,
   consistencyScore,
@@ -92,6 +99,10 @@ export default function KPIGrid({
   drawdownTrend,
 }: KPIGridProps) {
 
+  const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
+  );
 
   const topCards = [
 {
@@ -103,7 +114,7 @@ export default function KPIGrid({
   valueOffset: "-translate-y-6",
   subtitleOffset: "-translate-y-15",
 
-  value: `$${dashboardMetrics.netPnL.toFixed(2)}`,
+  value: `${currencySymbol}${dashboardMetrics.netPnL.toFixed(2)}`,
   subtitle: "",
 
   sparkline: true,
@@ -213,7 +224,7 @@ size: "large" as const,
     />
   ),
 
-  value: `$${dashboardMetrics.expectancy.toFixed(2)}`,
+  value: `${currencySymbol}${dashboardMetrics.expectancy.toFixed(2)}`,
 
   subtitle: "Average per trade",
 
@@ -240,7 +251,10 @@ size: "large" as const,
   title: "Avg Win / Avg Loss",
    tooltip: undefined,
 
-  value: `$${dashboardMetrics.avgWin.toFixed(2)} / $${dashboardMetrics.avgLoss.toFixed(2)}`,
+  value:
+`${currencySymbol}${dashboardMetrics.avgWin.toFixed(2)}
+ /
+${currencySymbol}${dashboardMetrics.avgLoss.toFixed(2)}`,
 
   subtitle: "",
 
@@ -256,7 +270,8 @@ size: "large" as const,
   {
   title: "Max Drawdown",
     tooltip: undefined,
-  value: `$${equityAnalytics.maxDrawdown.toFixed(2)}`,
+  value:
+`${currencySymbol}${equityAnalytics.maxDrawdown.toFixed(2)}`,
 
   subtitle: "Peak-to-valley loss",
 
@@ -327,7 +342,7 @@ const bottomCards = [
   subtitleOffset: "-translate-y-8.5",
 
   value:
-    `$${dashboardMetrics.bestDay.toFixed(2)}`,
+`${currencySymbol}${dashboardMetrics.bestDay.toFixed(2)}`,
 
   subtitle:
     formatDate(
@@ -354,7 +369,7 @@ const bottomCards = [
   subtitleOffset: "-translate-y-8.5",
 
   value:
-    `$${dashboardMetrics.worstDay.toFixed(2)}`,
+`${currencySymbol}${dashboardMetrics.worstDay.toFixed(2)}`,
 
   subtitle:
     formatDate(
