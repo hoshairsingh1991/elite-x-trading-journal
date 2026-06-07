@@ -172,23 +172,25 @@ return (
       }
     );
   }}
-  formatter={(value) => {
 
-    const numericValue =
-      Number(value);
+formatter={(value) => {
 
-    const formatted =
-      numericValue >= 0
-        ? `$${numericValue.toFixed(2)}`
-        : `-$${Math.abs(
-            numericValue
-          ).toFixed(2)}`;
+  const numericValue =
+    Number(value);
 
-    return [
-      formatted,
-      "Equity",
-    ];
-  }}
+  const formatted =
+    numericValue >= 0
+      ? `${currencySymbol}${numericValue.toFixed(2)}`
+      : `-${currencySymbol}${Math.abs(
+          numericValue
+        ).toFixed(2)}`;
+
+  return [
+    formatted,
+    "Equity",
+  ];
+}}
+
   contentStyle={{
     background: "#0f172a",
     border:

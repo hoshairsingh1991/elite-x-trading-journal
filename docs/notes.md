@@ -87,6 +87,8 @@ git commit -m "Dashboard V2 performance breakdown donut and hover polish" -  Equ
 checkpoint/dashboard-v2-account-currency-ui-v14 -  Account & Currecy UI is now complete
 checkpoint/account-currency-live-data-v1
 Commit: 4be6bcd. -  Now we have working account/currency card
+git commit -m "Account & Currency card finalized and chart warnings resolved" - Accouhnt currency few adjustments. 
+git commit -m "Reporting currency system v1 complete" -  FX conversion works locally now. 
 ------------------------------------------------------------------
 
 Status:

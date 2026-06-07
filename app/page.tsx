@@ -136,6 +136,33 @@ const [
   setReportingCurrency,
 ] = useState("USD");
 
+// =================================================
+// REPORTING CURRENCY PERSISTENCE
+// =================================================
+
+useEffect(() => {
+
+  const savedCurrency =
+    localStorage.getItem(
+      "reportingCurrency"
+    );
+
+  if (savedCurrency) {
+    setReportingCurrency(
+      savedCurrency
+    );
+  }
+
+}, []);
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "reportingCurrency",
+    reportingCurrency
+  );
+
+}, [reportingCurrency]);
 
 const [isSyncing, setIsSyncing] =
   useState(false);
