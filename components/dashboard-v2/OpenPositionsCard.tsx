@@ -2,7 +2,7 @@ export default function OpenPositionsCard() {
   return (
     <div
       className="
-        h-[320px]
+        h-[220px]
         overflow-hidden
         rounded-[22px]
         border
