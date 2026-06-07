@@ -82,8 +82,10 @@ git commit -m "Build Dashboard V2 equity section layout and account currency car
 git commit -m "checkpoint/equity-curve-card-v1-complete"
 git commit -m "Dashboard V2 layout parity checkpoint" - dashboard UI almost complete here
 git checkout 80fce77
+git commit -m "Dashboard V2 performance breakdown donut and hover polish" -  Equity curve and performnace breakdown i now complete.
 ------------------------------------------------------------------
-
+checkpoint/dashboard-v2-account-currency-ui-v14 -  Account & Currecy UI is now complete
+------------------------------------------------------------------
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE

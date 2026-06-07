@@ -1056,7 +1056,7 @@ setImportedTrades([
 {/* SECONDARY METRICS */}
 {/* ================================================= */}
 
-<div className="relative bottom-[520px] px-8">
+<div className="relative bottom-[880px] px-8">
   <div className="w-[72%]">
     <SecondaryMetricsRow />
   </div>
@@ -1084,7 +1084,7 @@ setImportedTrades([
 {/* CALENDAR */}
 {/* ================================================= */}
 
-<div className="relative bottom-[500px] px-8">
+<div className="relative bottom-[860px] px-8">
   <div className="relative left-6 -mt-8 w-[70%]">
     <TradingCalendar
       trades={filteredTrades}
