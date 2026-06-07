@@ -80,6 +80,8 @@ git commit -m "Add interactive Net P&L sparkline tooltip"
 git commit -m "Refine KPI sparkline rendering and visual fidelity"
 git commit -m "Build Dashboard V2 equity section layout and account currency card"
 git commit -m "checkpoint/equity-curve-card-v1-complete"
+git commit -m "Dashboard V2 layout parity checkpoint" - dashboard UI almost complete here
+git checkout 80fce77
 ------------------------------------------------------------------
 
 
@@ -334,6 +336,18 @@ Remaining future refinement:
       backdrop-blur-xl
     "
   >
+
+For effect 
+
+transition-all
+duration-300
+
+hover:-translate-y-1
+
+hover:border-white/[0.14]
+hover:bg-[#0A1A2E]/80
+
+hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
   Dashboard V2 Alignment Rule
 

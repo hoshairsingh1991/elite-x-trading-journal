@@ -83,17 +83,27 @@ function formatCurrency(
 
 
   return (
-    <div
-      className="
-        h-[480px]
-        overflow-hidden
-        rounded-[22px]
-        border
-        border-white/[0.08]
-        bg-[#081526]/80
-        backdrop-blur-xl
-      "
-    >
+<div
+  className="
+    h-[480px]
+    overflow-hidden
+    rounded-[22px]
+    border
+    border-white/[0.08]
+    bg-[#081526]/80
+    backdrop-blur-xl
+
+transition-all
+duration-300
+
+hover:-translate-y-1
+
+hover:border-white/[0.14]
+hover:bg-[#0A1A2E]/80
+
+hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
+  "
+>
 {/* ===================================== */}
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
@@ -174,7 +184,7 @@ function formatCurrency(
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[8px]" />
+<div className="h-[0px]" />
 
 {/* ================================================= */}
 {/* KPI STRIP */}
