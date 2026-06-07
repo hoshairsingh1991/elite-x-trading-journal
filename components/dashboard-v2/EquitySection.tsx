@@ -3,6 +3,7 @@ import PerformanceBreakdownCard from "./PerformanceBreakdownCard";
 import AccountCurrencyCard from "./AccountCurrencyCard";
 import OpenPositionsCard from "./OpenPositionsCard";
 import RecentTradesCard from "./RecentTradesCard";
+import { Trade } from "@/types/trade";
 
 import {
   EquityAnalyticsData,
@@ -20,13 +21,16 @@ type EquitySectionProps = {
   equityAnalytics: EquityAnalyticsData;
   dailyPnL: DailyPnLData[];
   performanceBreakdownAnalytics: PerformanceBreakdownData;
+  trades: Trade[];
 };
 
 export default function EquitySection({
   equityAnalytics,
   dailyPnL,
   performanceBreakdownAnalytics,
+  trades,
 }: EquitySectionProps) {
+
   return (
     <div className="flex justify-center">
       <div className="w-[98%]">
@@ -61,7 +65,9 @@ export default function EquitySection({
 
           <div className="flex-1 min-w-0">
 
-            <AccountCurrencyCard />
+            <AccountCurrencyCard
+            trades={trades}
+            />
 
             <div className="h-[16px]" />
 

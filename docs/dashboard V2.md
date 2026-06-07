@@ -134,26 +134,6 @@ CURRENT PRIORITY ORDER
 10. Real Analytics Trend Calculations
 
 
-KPI Sparkline Edge Case
-
-Current behavior:
-- Sparklines require 2+ data points.
-- Today filter may produce only 1 day of data.
-- Charts intentionally hide when insufficient data exists.
-
-Future improvement:
-- Display a subtle flat line or "Insufficient data" state for 1-point datasets.
-
-Max Drawdown V1
-
-Current:
-- Synthetic drawdown trend.
-- Used to complete KPI row visuals.
-
-Future:
-- Build true historical drawdown curve from equity curve.
-- Calculate rolling peak-to-trough drawdown.
-- Replace synthetic trend with actual drawdown history.
 
 ---
 To-Do List 
@@ -175,37 +155,6 @@ Completed:
 * Sync IBKR button finalized
 * Profile section finalized
 
-### KPI Row 1
-
-Completed:
-
-* Net P&L
-* Win Rate
-* Profit Factor
-* Expectancy
-* Avg Win / Avg Loss
-* Max Drawdown
-
-### KPI Row 2
-
-Completed:
-
-* Total Trades
-* Winning Trades
-* Losing Trades
-* Best Day
-* Worst Day
-* Avg Hold
-* Trading Score
-
-### KPI Tooltips
-
-Completed:
-
-* MetricInfoTooltip architecture
-* Profit Factor tooltip
-* Expectancy tooltip
-* Trading Score tooltip
 
 ### Net P&L Interactive Chart
 
@@ -245,30 +194,9 @@ NetPnLSparkline remains the only advanced KPI chart for now.
 
 # NEXT PRIORITY
 
-## KPI Sparkline Visual Fidelity Pass
 
-Goal:
-
-Match target dashboard KPI charts more closely.
-
-Review:
 
 ### KPISparkline.tsx
-
-Investigate:
-
-* Vertical scaling
-* Chart amplitude
-* Stroke thickness
-* Gradient opacity
-* Chart height
-* Visual contrast
-
-Target outcome:
-
-* More visible trend movement
-* Stronger chart presence
-* Closer match to institutional dashboard reference
 
 ---
 
@@ -277,89 +205,6 @@ Target outcome:
 Review entire KPI area for consistency.
 
 Check:
-
-### KPI Row 1
-
-* Card spacing
-* Chart alignment
-* Tooltip alignment
-* Title spacing
-* Value spacing
-
-### KPI Row 2
-
-* Card spacing
-* Trading Score balance
-* Text hierarchy
-* Vertical alignment
-
----
-
-# DASHBOARD V2 PRIORITY ORDER
-
-## Phase 1
-
-KPI Sparkline Visual Refinement
-
-Goal:
-Match target KPI appearance.
-
----
-
-## Phase 2
-
-Trading Score Visual Refinement
-
-Review:
-
-* Circle sizing
-* Metric spacing
-* Overall balance
-
-Compare directly against target dashboard.
-
----
-
-## Phase 3
-
-Equity Curve Section
-
-Review:
-
-* Chart proportions
-* Header controls
-* KPI summary row
-* Card spacing
-* Visual hierarchy
-
-This is currently one of the largest differences versus target.
-
----
-
-## Phase 4
-
-Performance Breakdown Section
-
-Review:
-
-* Donut chart sizing
-* Legend spacing
-* Metric presentation
-* Card proportions
-
----
-
-## Phase 5
-
-Right Sidebar Refinement
-
-Review:
-
-* Account Overview card
-* Open Positions card
-* Recent Trades card
-
-Match target layout more closely.
 
 ---
 
@@ -383,45 +228,8 @@ NetPnLSparkline.tsx
 
 Future advanced charts should follow the NetPnLSparkline pattern only when clear user value exists.
 
----
-
-# CURRENT COMPLETION ESTIMATE
-
-Header:
-100%
-
-KPI Row 1:
-~90%
-
-KPI Row 2:
-~90%
-
-Dashboard V2 Overall:
-~60–65%
-
-Largest remaining work:
-
-* Equity Curve section
-* Performance Breakdown section
-* Right-side dashboard panels
-* Final institutional visual polish
 
 
-
-
-
-
-
-
-
-
-
-
-
-Remaining Known Backlog
-Dashboard V2 UI              🔥 Next
-
-Expenses CRUD                Later
 
 FX Presentation Layer        During Dashboard V2
 
