@@ -2,24 +2,34 @@
 
 ## Overview
 
-The Account & Currency card evolved from a simple informational widget into the foundation of Elite X's multi-currency reporting architecture.
+The Account & Currency system evolved from a simple informational dashboard card into a complete multi-currency reporting architecture for Elite X Trading Journal.
 
-The goal was not simply to display account currencies, but to build a future-proof reporting system capable of supporting:
+The goal was to support traders operating in different base currencies while maintaining a single analytics engine and a single dashboard architecture.
 
-* USD traders
-* CAD traders
-* EUR traders
-* GBP traders
-* JPY traders
-* INR traders
+Supported reporting currencies:
 
-using a single analytics engine.
+* USD
+* CAD
+* EUR
+* GBP
+* JPY
+* INR
+
+The system now supports live FX conversion, reporting currency persistence, centralized conversion logic, and dashboard-wide currency-aware analytics.
 
 ---
 
-# Phase 1 — Account & Currency Card
+# Reporting Currency V1
 
-## New Dashboard Card
+## Objective
+
+Allow users to view all dashboard analytics in a selected reporting currency.
+
+The original implementation used static FX rates while establishing the long-term architecture required for future live exchange rates.
+
+---
+
+# Phase 1 — Account & Currency Dashboard Card
 
 Created:
 
@@ -29,12 +39,13 @@ components/dashboard-v2/AccountCurrencyCard.tsx
 
 Purpose:
 
-* Account currency breakdown
+* Native P&L by currency
+* Commission tracking by currency
 * Currency allocation display
 * Reporting currency selection
-* Future FX integration entry point
+* FX configuration visibility
 
-This card sits inside:
+Integrated inside:
 
 ```text
 components/dashboard-v2/EquitySection.tsx
@@ -59,27 +70,24 @@ lib/analytics/accountCurrencyAnalytics.ts
 
 Purpose:
 
-Aggregate trade data by currency.
+Aggregate trade activity by currency.
 
 Calculates:
 
 * P&L by currency
-* Commission by currency
-* Percentage allocation
-* Currency distribution
+* Commission totals by currency
+* Currency allocation percentages
+* Currency distribution analytics
 
 Outputs dashboard-ready analytics.
 
 Example:
 
-USD:
-+$819.23
-
-CAD:
-+C$458.39
-
-EUR:
--€24.01
+```text
+USD   +$819.23
+CAD   +C$458.39
+EUR   -€24.01
+```
 
 ---
 
@@ -93,23 +101,28 @@ lib/fx/fxConversion.ts
 
 Purpose:
 
-Centralized FX conversion utilities.
+Centralized currency conversion layer.
 
-Contains:
+Responsibilities:
 
-* exchange rate lookup
-* currency conversion helpers
-* future live FX integration hooks
+* FX rate lookup
+* Currency conversion helpers
+* Reporting currency conversion logic
+* Future live FX integration hooks
 
-Current version uses static conversion rates.
+Architecture intentionally separates:
 
-Architecture intentionally designed so rate source can later be replaced with:
+```text
+Dashboard
+↓
+Analytics
+↓
+Conversion Layer
+↓
+Rate Source
+```
 
-* live FX API
-* historical FX database
-* Supabase FX table
-
-without changing analytics logic.
+allowing future FX sources to be swapped without rewriting analytics.
 
 ---
 
@@ -121,18 +134,17 @@ lib/fx/convertTradesToReportingCurrency.ts
 
 Purpose:
 
-Convert all trade-level values into selected reporting currency before analytics are calculated.
+Convert all trade-level monetary values into the selected reporting currency before analytics calculations occur.
 
 Converts:
 
 * pnl
-* commissions
 * fees
-
-This file became the central reporting currency transformation layer.
+* commissions
 
 Flow:
 
+```text
 Trades
 ↓
 Currency Conversion
@@ -142,6 +154,9 @@ Reporting Currency
 Analytics Engine
 ↓
 Dashboard
+```
+
+This became the single source of truth for reporting currency transformations.
 
 ---
 
@@ -153,20 +168,26 @@ lib/fx/currencyFormatting.ts
 
 Purpose:
 
-Centralized currency symbol management.
+Centralized currency formatting.
 
-Supported:
+Supported symbols:
 
+```text
 USD → $
 CAD → C$
 EUR → €
 GBP → £
 JPY → ¥
 INR → ₹
-
-All dashboard components now use this helper.
+```
 
 No dashboard component should hardcode currency symbols.
+
+All formatting flows through:
+
+```ts
+getCurrencySymbol()
+```
 
 ---
 
@@ -178,16 +199,18 @@ Implemented inside:
 components/dashboard-v2/AccountCurrencyCard.tsx
 ```
 
-Added dropdown:
+Added selector:
 
-* USD
-* CAD
-* EUR
-* GBP
-* JPY
-* INR
+```text
+USD
+CAD
+EUR
+GBP
+JPY
+INR
+```
 
-State created in:
+State lives in:
 
 ```text
 app/page.tsx
@@ -200,7 +223,7 @@ const [
 ] = useState("USD");
 ```
 
-Reporting currency is propagated through the dashboard via props.
+Reporting currency propagates through the dashboard via props.
 
 ---
 
@@ -212,51 +235,47 @@ Implemented:
 app/page.tsx
 ```
 
-Added:
+Persistence mechanism:
 
 ```ts
 localStorage
 ```
 
-persistence.
-
 Behavior:
 
-User selects INR
+```text
+Select INR
 ↓
-Refresh page
+Refresh Page
 ↓
 Still INR
+```
 
 No database required.
 
 Future migration path:
 
+```text
 localStorage
 ↓
 Supabase User Preferences
+```
 
 ---
 
 # Phase 6 — Dashboard Integration
 
-Reporting currency was wired into all major dashboard analytics.
+Reporting currency was integrated into all major dashboard analytics.
 
-Files touched:
+Files modified:
 
 ```text
 app/page.tsx
-```
-
-```text
 components/dashboard-v2/EquitySection.tsx
-```
-
-```text
 components/dashboard-v2/KPIGrid.tsx
 ```
 
-Analytics are now calculated against converted trades.
+Analytics now operate on converted trades instead of assuming USD.
 
 ---
 
@@ -277,13 +296,7 @@ Converted:
 * Worst Day
 * Expectancy
 
-from hardcoded USD display to dynamic reporting currency display.
-
-All values now use:
-
-```text
-getCurrencySymbol()
-```
+from fixed USD display to reporting-currency-aware display.
 
 ---
 
@@ -293,34 +306,16 @@ Created:
 
 ```text
 components/dashboard-v2/EquityCurveCard.tsx
-```
-
-Created:
-
-```text
 components/dashboard-v2/EquityCurveChart.tsx
 ```
 
 Reporting currency support added to:
 
 * KPI strip
-* Chart axis
-* Tooltip values
+* Axis formatting
+* Tooltip formatting
 
-Fixed:
-
-Hardcoded "$" values.
-
-Now displays:
-
-USD:
-$1.5K
-
-CAD:
-C$1.5K
-
-INR:
-₹103K
+Removed hardcoded USD assumptions.
 
 ---
 
@@ -332,19 +327,15 @@ Modified:
 components/dashboard-v2/NetPnLSparkline.tsx
 ```
 
-Fixed tooltip formatting.
+Added dynamic reporting currency formatting.
 
-Before:
+Example:
 
-$123.45
-
-After:
-
-₹123.45
-C$123.45
-€123.45
-
-based on selected reporting currency.
+```text
+USD → $123.45
+CAD → C$123.45
+INR → ₹123.45
+```
 
 ---
 
@@ -356,99 +347,269 @@ Modified:
 components/dashboard-v2/PerformanceBreakdownCard.tsx
 ```
 
-Removed hardcoded USD values.
-
 Converted:
 
 * Net P&L
+* Gross P&L
 * Long P&L
 * Short P&L
 * Commissions
 * Expenses
-* Gross P&L
 
-to reporting currency aware formatting.
+to reporting-currency-aware formatting.
+
+---
+
+# Reporting Currency V2 — Live FX Rates
+
+## Objective
+
+Replace static exchange rates with live FX rates while preserving the existing Reporting Currency V1 architecture.
+
+No dashboard rewrites.
+
+No analytics rewrites.
+
+No KPI rewrites.
+
+Only the FX rate source changed.
+
+---
+
+# Live FX Provider
+
+Created:
+
+```text
+lib/fx/fxRateProvider.ts
+```
+
+Responsibilities:
+
+* Live FX retrieval
+* Local caching
+* Fallback handling
+* FX normalization
+
+Supported currencies:
+
+```text
+USD
+CAD
+EUR
+GBP
+JPY
+INR
+```
+
+---
+
+# API Route
+
+Created:
+
+```text
+app/api/fx-rates/route.ts
+```
+
+Purpose:
+
+Prevent browser CORS issues and centralize FX retrieval.
+
+Flow:
+
+```text
+Dashboard
+↓
+fxRateProvider
+↓
+/api/fx-rates
+↓
+Frankfurter
+↓
+ECB Reference Rates
+```
+
+---
+
+# FX Data Source
+
+Provider:
+
+```text
+Frankfurter API
+```
+
+Underlying source:
+
+```text
+European Central Bank (ECB)
+```
+
+Conversion method:
+
+```text
+Daily Reference Rates
+```
+
+---
+
+# Local FX Cache
+
+Implemented inside:
+
+```text
+lib/fx/fxRateProvider.ts
+```
+
+Storage:
+
+```ts
+localStorage
+```
+
+Cache duration:
+
+```text
+12 Hours
+```
+
+Purpose:
+
+* Reduce API requests
+* Improve dashboard performance
+* Maintain responsiveness
+
+---
+
+# Fallback Architecture
+
+Created:
+
+```ts
+FALLBACK_RATES
+```
+
+Purpose:
+
+If:
+
+* Frankfurter fails
+* Network fails
+* API unavailable
+* Cache corrupted
+
+then dashboard continues functioning using safe fallback rates.
+
+Flow:
+
+```text
+Live Rates
+↓
+Cache
+↓
+Fallback Rates
+```
+
+No dashboard failure occurs.
 
 ---
 
 # Final Architecture
 
-Current flow:
+Current production flow:
 
+```text
 Trades
 ↓
 Trade Currency
 ↓
-FX Conversion Layer
+Live FX Conversion Layer
 ↓
 Reporting Currency
 ↓
 Analytics Engine
 ↓
 Dashboard Components
+```
 
-This architecture supports future:
+Detailed flow:
 
-* Live FX rates
-* Historical FX rates
-* Multi-currency manual trade entry
-* User-specific reporting preferences
+```text
+Dashboard
+↓
+Analytics
+↓
+convertTradesToReportingCurrency()
+↓
+fxRateProvider
+↓
+/api/fx-rates
+↓
+Frankfurter
+↓
+ECB Reference Rates
+```
 
-without redesigning analytics.
+---
+
+# Account & Currency Card Enhancements
+
+Added:
+
+```text
+FX Conversion      Enabled ●
+Conversion Method  Daily Reference
+FX Rate Source     ECB
+Last Updated       Dynamic Daily Date
+```
+
+Additional improvements:
+
+* Reporting currency persistence
+* Live FX visibility
+* Improved dropdown usability
+* Dynamic date display
+* Multi-currency reporting subtitle
+* Improved visual hierarchy
 
 ---
 
 # Files Created
 
 ```text
-lib/fx/fxConversion.ts
-```
-
-```text
-lib/fx/convertTradesToReportingCurrency.ts
-```
-
-```text
-lib/fx/currencyFormatting.ts
-```
-
-```text
-lib/analytics/accountCurrencyAnalytics.ts
-```
-
-```text
 components/dashboard-v2/AccountCurrencyCard.tsx
-```
 
-```text
 components/dashboard-v2/EquityCurveCard.tsx
-```
 
-```text
 components/dashboard-v2/EquityCurveChart.tsx
+
+lib/analytics/accountCurrencyAnalytics.ts
+
+lib/fx/fxConversion.ts
+
+lib/fx/convertTradesToReportingCurrency.ts
+
+lib/fx/currencyFormatting.ts
+
+lib/fx/fxRateProvider.ts
+
+app/api/fx-rates/route.ts
 ```
 
 ---
 
-# Files Modified
+# Major Files Modified
 
 ```text
 app/page.tsx
-```
 
-```text
 components/dashboard-v2/EquitySection.tsx
-```
 
-```text
 components/dashboard-v2/KPIGrid.tsx
-```
 
-```text
 components/dashboard-v2/NetPnLSparkline.tsx
-```
 
-```text
 components/dashboard-v2/PerformanceBreakdownCard.tsx
 ```
 
@@ -460,34 +621,59 @@ Reporting Currency V1
 
 Status:
 
+```text
 COMPLETE
+```
 
-Supports:
-
-* USD
-* CAD
-* EUR
-* GBP
-* JPY
-* INR
-
-Persistence:
-
-* localStorage
-
-Deployment:
-
-* Production (main)
-* Commit: 8343c86
-
-Future Phase:
+---
 
 Reporting Currency V2
 
-Planned:
+Status:
 
+```text
+COMPLETE
+```
+
+Features:
+
+* Multi-currency reporting
 * Live FX rates
+* ECB integration
+* Frankfurter integration
+* Reporting currency persistence
+* Dashboard-wide currency conversion
+* Dynamic formatting
+* Local FX caching
+* Fallback rate protection
+
+Deployment:
+
+```text
+Production
+```
+
+Commit:
+
+```text
+639e0ac
+```
+
+Checkpoint:
+
+```text
+checkpoint/reporting-currency-v2-complete
+```
+
+---
+
+# Future Phase — Reporting Currency V3
+
+Potential future enhancements:
+
 * Historical FX rates
-* Supabase FX storage
 * Trade-date FX conversion
-* User preference persistence
+* Supabase FX storage
+* User preference synchronization
+* Multi-currency broker account support
+* Audit-grade currency accounting
