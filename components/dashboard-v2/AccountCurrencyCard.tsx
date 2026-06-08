@@ -82,6 +82,16 @@ export default function AccountCurrencyCard({
   setReportingCurrency,
 }: AccountCurrencyCardProps) {
 
+  const todayDate =
+  new Date().toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    }
+  );
+
   const analytics = useMemo(
     () =>
       getAccountCurrencyAnalytics(
@@ -92,12 +102,15 @@ export default function AccountCurrencyCard({
 
 
   return (
-    <div
-      className="
-        h-[860px]
-        overflow-hidden
-        rounded-[22px]
-        border
+  <div
+  className="
+    relative
+    z-50
+
+    h-[860px]
+    overflow-hidden
+    rounded-[22px]
+    border
         border-white/[0.08]
         bg-[#081526]/80
         backdrop-blur-xl
@@ -124,7 +137,7 @@ export default function AccountCurrencyCard({
       </h3>
 
       <p className="mt-2 text-[14px] text-slate-500">
-        Native currency accounting
+        Multi-currency reporting
       </p>
     </div>
 
@@ -209,7 +222,7 @@ export default function AccountCurrencyCard({
         rounded-[18px]
         border
         border-white/[0.10]
-        bg-white/[0.04]
+        bg-white/[0.02]
         px-7
         py-5
       "
@@ -309,7 +322,7 @@ export default function AccountCurrencyCard({
         rounded-[18px]
         border
         border-white/[0.10]
-        bg-white/[0.04]
+        bg-white/[0.02]
         px-7
         py-5
       "
@@ -402,7 +415,7 @@ export default function AccountCurrencyCard({
               rounded-xl
               border
               border-white/[0.08]
-              bg-white/[0.04]
+              bg-white/[0.02]
 
               text-[15px]
               font-medium
@@ -443,7 +456,7 @@ export default function AccountCurrencyCard({
         rounded-[18px]
         border
         border-white/[0.10]
-        bg-white/[0.04]
+        bg-white/[0.02]
 
         p-5
       "
@@ -475,28 +488,26 @@ export default function AccountCurrencyCard({
     setReportingCurrency(
       e.target.value
     )
-    
   }
-className="
-  w-[72px]
-  h-[20px]
+  className="
+    w-[60px]
+    h-[20px]
 
-  relative
-  top-[2px]
+    relative
+    left-0
+    top-[2px]
 
-  cursor-pointer
-  
+    cursor-pointer
 
-  border-none
-  bg-transparent
+    border-none
+    bg-transparent
 
-  text-right1
-  text-[15px]
-  font-medium
-  text-slate-200
+    text-[15px]
+    font-medium
+    text-slate-200
 
-  outline-none
-"
+    outline-none
+  "
 >
 
       <option value="USD">
@@ -546,19 +557,32 @@ className="
               FX Conversion
             </span>
           </div>
+<div className="relative right-3 flex items-center gap-2">
 
-          <div className="relative right-3 flex items-center gap-2">
-            <span className="text-[15px] font-medium text-amber-400">
-              Disabled
-            </span>
+  <span className="text-[15px] font-medium text-emerald-400">
+    Enabled
+  </span>
 
-           
-          </div>
+  <div
+    className="
+      relative
+      left-0
+
+      h-2
+      w-2
+      rounded-full
+      bg-emerald-400
+    "
+  />
+
+</div>
         </div>
 
         <div className="h-[4px]" />
         <div className="h-px bg-white/[0.06]" />
 <div className="h-[4px]" />
+
+
         {/* Conversion Method */}
 
         <div className="flex items-center justify-between">
@@ -575,7 +599,7 @@ className="
 
           <div className="relative right-3 flex items-center gap-2">
             <span className="text-[15px] font-medium text-slate-200">
-              Spot Rate
+              Daily Reference
             </span>
 
           
@@ -601,7 +625,7 @@ className="
 
           <div className="relative right-3 flex items-center gap-2">
             <span className="text-[15px] font-medium text-slate-200">
-              ECB Daily
+              ECB
             </span>
 
            
@@ -626,9 +650,9 @@ className="
           </div>
 
 <div className="relative -right-3 flex items-center gap-2">
-  <span className="text-[15px] font-medium text-slate-200">
-    Jun 06, 2026
-  </span>
+<span className="text-[15px] font-medium text-slate-200">
+  {todayDate}
+</span>
 
   <div className="w-[14px]" />
 </div>
@@ -646,22 +670,29 @@ className="
         rounded-[16px]
         border
         border-blue-500/[0.12]
-        bg-blue-500/[0.04]
+        bg-blue-500/[0.02]
         p-4
       "
     >
       <div className="flex items-start gap-3">
-        <Info
-          size={18}
-          className="mt-0.5 shrink-0 text-blue-400"
-        />
+<Info
+  size={18}
+  className="
+    relative
+
+    left-1
+    top-0.5
+
+    shrink-0
+    text-blue-400
+  "
+/>
 
         <p className="text-[14px] leading-relaxed text-slate-400">
-          Dashboard metrics including P&amp;L,
-          equity curve, performance analytics,
-          and KPI calculations will use the
-          selected reporting currency once
-          FX conversion is enabled.
+Dashboard metrics including P&L, equity curve,
+performance analytics, and KPI calculations
+are displayed using the selected reporting
+currency and live FX rates.
         </p>
       </div>
     </div>

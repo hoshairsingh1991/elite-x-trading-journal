@@ -1,16 +1,14 @@
-export const FX_RATES = {
-  USD: 1,
+import {
+  FxRates,
+  FALLBACK_RATES,
+} from "./fxRateProvider";
 
-  CAD: 0.73,
+// =================================================
+// DEFAULT FX RATES
+// =================================================
 
-  EUR: 1.14,
-
-  GBP: 1.34,
-
-  JPY: 0.0068,
-
-  INR: 0.012,
-} as const;
+export const FX_RATES: FxRates =
+  FALLBACK_RATES;
 
 // =================================================
 // CONVERT AMOUNT
@@ -19,7 +17,8 @@ export const FX_RATES = {
 export function convertAmount(
   amount: number,
   fromCurrency: string,
-  toCurrency: string
+  toCurrency: string,
+  rates: FxRates = FX_RATES
 ): number {
 
   if (
@@ -29,13 +28,13 @@ export function convertAmount(
   }
 
   const fromRate =
-    FX_RATES[
-      fromCurrency as keyof typeof FX_RATES
+    rates[
+      fromCurrency as keyof FxRates
     ];
 
   const toRate =
-    FX_RATES[
-      toCurrency as keyof typeof FX_RATES
+    rates[
+      toCurrency as keyof FxRates
     ];
 
   // Unknown currency

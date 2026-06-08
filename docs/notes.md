@@ -89,6 +89,7 @@ checkpoint/account-currency-live-data-v1
 Commit: 4be6bcd. -  Now we have working account/currency card
 git commit -m "Account & Currency card finalized and chart warnings resolved" - Accouhnt currency few adjustments. 
 git commit -m "Reporting currency system v1 complete" -  FX conversion works locally now. 
+git commit -m "Complete reporting currency dashboard integration" - FX conversion works withut any bug now but locally
 ------------------------------------------------------------------
 
 Status:
