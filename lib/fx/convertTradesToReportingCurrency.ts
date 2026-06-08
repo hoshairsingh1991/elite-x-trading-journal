@@ -4,13 +4,19 @@ import {
   convertAmount,
 } from "./fxConversion";
 
+import {
+  FxRates,
+  FALLBACK_RATES,
+} from "./fxRateProvider";
+
 // =================================================
 // CONVERT TRADES TO REPORTING CURRENCY
 // =================================================
 
 export function convertTradesToReportingCurrency(
   trades: Trade[],
-  reportingCurrency: string
+  reportingCurrency: string,
+  rates: FxRates = FALLBACK_RATES
 ): Trade[] {
 
   return trades.map(
@@ -21,14 +27,16 @@ export function convertTradesToReportingCurrency(
       pnl: convertAmount(
         trade.pnl,
         trade.currency,
-        reportingCurrency
+        reportingCurrency,
+        rates
       ),
 
       fees: convertAmount(
         trade.fees,
         trade.feeCurrency ??
           trade.currency,
-        reportingCurrency
+        reportingCurrency,
+        rates
       ),
 
       currency:

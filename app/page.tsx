@@ -9,6 +9,12 @@ import { useRouter }
 from "next/navigation";
 
 import {
+  getFxRates,
+  FxRates,
+  FALLBACK_RATES,
+} from "@/lib/fx/fxRateProvider";
+
+import {
   convertTradesToReportingCurrency,
 } from "@/lib/fx/convertTradesToReportingCurrency";
 
@@ -79,6 +85,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import SecondaryMetricsRow from "@/components/dashboard-v2/SecondaryMetricsRow";
 
+
 import {
   calculateAverageWin,
   calculateTotalFees,
@@ -136,6 +143,13 @@ const [
   setReportingCurrency,
 ] = useState("USD");
 
+const [
+  fxRates,
+  setFxRates,
+] = useState<FxRates>(
+  FALLBACK_RATES
+);
+
 // =================================================
 // REPORTING CURRENCY PERSISTENCE
 // =================================================
@@ -166,6 +180,26 @@ useEffect(() => {
 
 const [isSyncing, setIsSyncing] =
   useState(false);
+
+// =================================================
+// FX RATES
+// =================================================
+
+useEffect(() => {
+
+  async function loadFxRates() {
+
+    const rates =
+      await getFxRates();
+
+    setFxRates(
+      rates
+    );
+  }
+
+  loadFxRates();
+
+}, []);
 
     // =================================================
   // RANGE PERSISTENCE
@@ -289,10 +323,7 @@ useEffect(() => {
      const storedExecutions =
   await loadExecutionsFromSupabase();
 
-      console.log(
-        "SUPABASE EXECUTIONS:",
-        storedExecutions
-      );
+  
 
       const rebuiltTrades =
         pairTrades(
@@ -394,7 +425,8 @@ const availableAccounts: string[] = [
 const reportingTrades =
   convertTradesToReportingCurrency(
     filteredTrades,
-    reportingCurrency
+    reportingCurrency,
+    fxRates
   );
 
 
