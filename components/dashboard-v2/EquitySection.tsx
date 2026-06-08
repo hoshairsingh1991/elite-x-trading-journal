@@ -95,11 +95,15 @@ export default function EquitySection({
 
             <div className="h-[16px]" />
 
-            <OpenPositionsCard />
+<OpenPositionsCard
+  trades={trades}
+/>
 
-            <div className="h-[16px]" />
+<div className="h-[16px]" />
 
-            <RecentTradesCard />
+<RecentTradesCard
+  trades={trades}
+/>
 
           </div>
 
