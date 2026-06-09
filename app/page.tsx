@@ -434,10 +434,10 @@ const reportingTrades =
   // ANALYTICS
   // =================================================
 
-  const totalPnL =
-    calculateTotalPnL(
-      filteredTrades
-    );
+const totalPnL =
+  calculateTotalPnL(
+    reportingTrades
+  );
 
   const totalTrades =
     calculateTotalTrades(

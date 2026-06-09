@@ -18,6 +18,10 @@ import {
 import { supabase } from "@/lib/supabase";
 import { loadProfile } from "@/lib/storage/profileStorage";
 
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
 
 
 type UserMenuV2Props = {
@@ -106,7 +110,18 @@ export default function UserMenuV2({
 
   const initial = email?.charAt(0)?.toUpperCase() || "E";
 
-  const formattedPnL = `${menuStats.totalPnL >= 0 ? "+" : "-"}$${Math.abs(
+  const reportingCurrency =
+  localStorage.getItem(
+    "reportingCurrency"
+  ) || "USD";
+
+const formattedPnL = `${
+  menuStats.totalPnL >= 0
+    ? "+"
+    : "-"
+}${getCurrencySymbol(
+  reportingCurrency
+)}${Math.abs(
   menuStats.totalPnL
 ).toLocaleString(undefined, {
   minimumFractionDigits: 2,
@@ -214,7 +229,7 @@ export default function UserMenuV2({
  <div className="grid min-h-[90px] grid-cols-3">
 
     <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center"> 
-      <p className="text-[32px] font-black text-white">
+      <p className="text-[22px] font-black text-white">
        {menuStats.totalTrades}
       </p>
 
@@ -224,7 +239,7 @@ export default function UserMenuV2({
     </div>
 
     <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center">
-      <p className="text-[30px] font-black text-emerald-400">
+      <p className="text-[20px] font-black text-emerald-400">
         {formattedPnL}
       </p>
 
@@ -234,7 +249,7 @@ export default function UserMenuV2({
     </div>
 
     <div className="flex min-h-[90px] flex-col items-center justify-center py-5 text-center">
-      <p className="text-[32px] font-black text-white">
+      <p className="text-[22px] font-black text-white">
         {menuStats.tradingDays}
       </p>
 
