@@ -42,6 +42,7 @@ import {
 
 import {
   groupDailyPnL,
+  generatePnLAnalytics,
 } from "@/lib/analytics/pnlAnalytics";
 
 import {
@@ -84,6 +85,10 @@ from "@/components/dashboard-v2/EquitySection";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import SecondaryMetricsRow from "@/components/dashboard-v2/SecondaryMetricsRow";
+
+import {
+  generateSecondaryMetricsAnalytics,
+} from "@/lib/analytics/secondaryMetricsAnalytics";
 
 
 import {
@@ -479,6 +484,12 @@ const dailyPnL =
     reportingTrades
   );
 
+  const pnlAnalytics =
+  generatePnLAnalytics(
+    reportingTrades,
+    selectedRange
+  );
+
   const winRateTrend =
   generateWinRateTrend(
     filteredTrades
@@ -642,6 +653,11 @@ const consistencyAnalytics =
     equityAnalytics.calmarRatio,
     dashboardMetrics.totalTrades,
     consistencyAnalytics.consistencyScore
+  );
+
+  const secondaryMetricsAnalytics =
+  generateSecondaryMetricsAnalytics(
+    reportingTrades
   );
 
 const expenses: Expense[] = [];
@@ -1146,7 +1162,16 @@ setImportedTrades([
 
 <div className="relative bottom-[860px] px-8">
   <div className="w-[72%]">
-    <SecondaryMetricsRow />
+
+<SecondaryMetricsRow
+  pnlAnalytics={pnlAnalytics}
+  consistencyAnalytics={consistencyAnalytics}
+  equityAnalytics={equityAnalytics}
+  secondaryMetricsAnalytics={
+    secondaryMetricsAnalytics
+  }
+/>
+
   </div>
 </div>
 
