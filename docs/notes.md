@@ -92,6 +92,11 @@ git commit -m "Reporting currency system v1 complete" -  FX conversion works loc
 git commit -m "Complete reporting currency dashboard integration" - FX conversion works withut any bug now but locally
 git push origin checkpoint/reporting-currency-v2-complete -  FX Conversion now works, 100% complete.
 ------------------------------------------------------------------
+8285a4d
+Complete Dashboard V2 positions and trades cards  - Open/recent trades card work here 100%
+------------------------------------------------------------------
+
+
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
