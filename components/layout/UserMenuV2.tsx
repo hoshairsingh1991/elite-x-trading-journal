@@ -35,6 +35,8 @@ export default function UserMenuV2({
   totalPnL,
   tradingDays,
 }: UserMenuV2Props) {
+
+
   const [isOpen, setIsOpen] = useState(false);
   const [displayName, setDisplayName] = useState("Elite X User");
   const [email, setEmail] = useState("");
@@ -45,6 +47,11 @@ export default function UserMenuV2({
     totalPnL: 0,
     tradingDays: 0,
   });
+
+const [
+  reportingCurrency,
+  setReportingCurrency,
+] = useState("USD");
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +91,17 @@ export default function UserMenuV2({
     }
   }
 
+const storedCurrency =
+  localStorage.getItem(
+    "reportingCurrency"
+  );
+
+if (storedCurrency) {
+  setReportingCurrency(
+    storedCurrency
+  );
+}
+
   loadUser();
 }, []);
 
@@ -110,10 +128,7 @@ export default function UserMenuV2({
 
   const initial = email?.charAt(0)?.toUpperCase() || "E";
 
-  const reportingCurrency =
-  localStorage.getItem(
-    "reportingCurrency"
-  ) || "USD";
+
 
 const formattedPnL = `${
   menuStats.totalPnL >= 0
@@ -149,6 +164,17 @@ const formattedPnL = `${
       )
     );
   }
+
+const storedCurrency =
+  localStorage.getItem(
+    "reportingCurrency"
+  );
+
+if (storedCurrency) {
+  setReportingCurrency(
+    storedCurrency
+  );
+}
 
   setIsOpen(!isOpen);
 }}
