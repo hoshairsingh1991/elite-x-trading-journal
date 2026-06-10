@@ -96,6 +96,7 @@ git push origin checkpoint/reporting-currency-v2-complete -  FX Conversion now w
 Complete Dashboard V2 positions and trades cards  - Open/recent trades card work here 100%
 git tag checkpoint/usermenu-currency-sync-fix _ Usermenuv2 now sync with account and currency data
 git commit -m "Dashboard V2 secondary metrics analytics" - just left with AVG R Multiple and tooltip. rest works fine at this point.
+git tag checkpoint-dashboard-v2-secondary-metrics-final-v1. -  secondary metric card is now complete 100%
 ------------------------------------------------------------------
 
 
