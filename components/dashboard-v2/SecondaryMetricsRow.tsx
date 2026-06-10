@@ -192,16 +192,24 @@ else if (
 {/* STREAK */}
 
 <div
-  className="
-    relative
-    z-20
-    h-[110px]
-    rounded-[22px]
-    border
-    border-white/[0.08]
-    bg-[#081526]/80
-    backdrop-blur-xl
-  "
+className="
+  relative
+  hover:z-[100]
+  h-[110px]
+  rounded-[22px]
+  border
+  border-white/[0.08]
+  bg-[#081526]/80
+  backdrop-blur-xl
+
+  transition-all
+  duration-300
+
+  hover:-translate-y-1
+  hover:border-white/[0.14]
+  hover:bg-[#0A1A2E]/80
+  hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
+"
 >
   <div
     className="
@@ -260,7 +268,16 @@ className="
   rounded-[22px]
   border
   border-white/[0.08]
-  bg-[#081526]
+  bg-[#081526]/80
+  backdrop-blur-xl
+
+  transition-all
+  duration-300
+
+  hover:-translate-y-1
+  hover:border-white/[0.14]
+  hover:bg-[#0A1A2E]/80
+  hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
 "
 >
   <div
@@ -325,16 +342,24 @@ className="
 {/* CONSISTENCY */}
 
 <div
-  className="
-    relative
-    hover:z-[100]
-    h-[110px]
-    rounded-[22px]
-    border
-    border-white/[0.08]
-    bg-[#081526]/80
-    backdrop-blur-xl
-  "
+className="
+  relative
+  hover:z-[100]
+  h-[110px]
+  rounded-[22px]
+  border
+  border-white/[0.08]
+  bg-[#081526]/80
+  backdrop-blur-xl
+
+  transition-all
+  duration-300
+
+  hover:-translate-y-1
+  hover:border-white/[0.14]
+  hover:bg-[#0A1A2E]/80
+  hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
+"
 >
   <div
     className="
@@ -399,16 +424,24 @@ className="
 {/* MOST TRADED */}
 
 <div
-  className="
-    relative
-    hover:z-[100]
-    h-[110px]
-    rounded-[22px]
-    border
-    border-white/[0.08]
-    bg-[#081526]/80
-    backdrop-blur-xl
-  "
+className="
+  relative
+  hover:z-[100]
+  h-[110px]
+  rounded-[22px]
+  border
+  border-white/[0.08]
+  bg-[#081526]/80
+  backdrop-blur-xl
+
+  transition-all
+  duration-300
+
+  hover:-translate-y-1
+  hover:border-white/[0.14]
+  hover:bg-[#0A1A2E]/80
+  hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
+"
 >
   <div
     className="
@@ -458,16 +491,24 @@ className="
 {/* TRADE FREQUENCY */}
 
 <div
-  className="
-    relative
-    hover:z-[100]
-    h-[110px]
-    rounded-[22px]
-    border
-    border-white/[0.08]
-    bg-[#081526]/80
-    backdrop-blur-xl
-  "
+className="
+  relative
+  hover:z-[100]
+  h-[110px]
+  rounded-[22px]
+  border
+  border-white/[0.08]
+  bg-[#081526]/80
+  backdrop-blur-xl
+
+  transition-all
+  duration-300
+
+  hover:-translate-y-1
+  hover:border-white/[0.14]
+  hover:bg-[#0A1A2E]/80
+  hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
+"
 >
   <div
     className="
@@ -521,16 +562,24 @@ className="
 {/* CALMAR RATIO */}
 
 <div
-  className="
-    relative
-    hover:z-[100]
-    h-[110px]
-    rounded-[22px]
-    border
-    border-white/[0.08]
-    bg-[#081526]/80
-    backdrop-blur-xl
-  "
+className="
+  relative
+  hover:z-[100]
+  h-[110px]
+  rounded-[22px]
+  border
+  border-white/[0.08]
+  bg-[#081526]/80
+  backdrop-blur-xl
+
+  transition-all
+  duration-300
+
+  hover:-translate-y-1
+  hover:border-white/[0.14]
+  hover:bg-[#0A1A2E]/80
+  hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
+"
 >
   <div
     className="
