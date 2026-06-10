@@ -54,20 +54,22 @@ export default function MetricInfoTooltip({
 
       {isOpen && (
 <div
-   className="
-    absolute
-    left-0
-    top-10
-    z-50
-    w-[350px]
+ className="
+  absolute
+  left-0
+  top-10
+  z-[9999]
+  isolate
+  will-change-transform
+  bg-[#081526]
+    w-[680px]
     rounded-[16px]
     border
-    border-white/10
-    bg-[#040d1a]/20
-    backdrop-blur-3xl
+    border-cyan-500/20
+    bg-[#081526]
     px-5
     py-4
-    shadow-[0_0_30px_rgba(0,0,0,0.45)]
+    shadow-[0_12px_40px_rgba(0,0,0,0.55)]
   "
 >
 <div

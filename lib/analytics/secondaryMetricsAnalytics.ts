@@ -1,8 +1,14 @@
 import { Trade } from "@/types/trade";
 
 export interface SecondaryMetricsAnalyticsData {
+
   mostTradedTicker: string;
+
   mostTradedTradeCount: number;
+
+  tradeFrequency: number;
+
+  activeTradingDays: number;
 }
 
 // =================================================
@@ -47,6 +53,44 @@ export function calculateMostTradedTicker(
 }
 
 // =================================================
+// ACTIVE TRADING DAYS
+// =================================================
+
+export function calculateActiveTradingDays(
+  trades: Trade[]
+): number {
+
+  return new Set(
+    trades.map(
+      (trade) =>
+        trade.closedAt ||
+        trade.date
+    )
+  ).size;
+}
+
+// =================================================
+// TRADE FREQUENCY
+// =================================================
+
+export function calculateTradeFrequency(
+  totalTrades: number,
+  activeTradingDays: number
+): number {
+
+  if (
+    activeTradingDays === 0
+  ) {
+    return 0;
+  }
+
+  return (
+    totalTrades /
+    activeTradingDays
+  );
+}
+
+// =================================================
 // MASTER ANALYTICS
 // =================================================
 
@@ -62,8 +106,27 @@ export function generateSecondaryMetricsAnalytics(
       trades
     );
 
+  const activeTradingDays =
+    calculateActiveTradingDays(
+      trades
+    );
+
+  const tradeFrequency =
+    calculateTradeFrequency(
+      trades.length,
+      activeTradingDays
+    );
+
   return {
-    mostTradedTicker: ticker,
-    mostTradedTradeCount: tradeCount,
+
+    mostTradedTicker:
+      ticker,
+
+    mostTradedTradeCount:
+      tradeCount,
+
+    tradeFrequency,
+
+    activeTradingDays,
   };
 }

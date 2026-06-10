@@ -456,7 +456,7 @@ const bottomCards = [
             text-slate-400
           "
         >
-          Base Currency: USD
+          
         </div>
 
       </div>

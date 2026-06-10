@@ -14,6 +14,26 @@ import {
   SecondaryMetricsAnalyticsData,
 } from "@/lib/analytics/secondaryMetricsAnalytics";
 
+import {
+  Repeat,
+} from "lucide-react";
+
+import { Shield } from "lucide-react";
+
+import { BarChart3 } from "lucide-react";
+
+import { Crosshair } from "lucide-react";
+
+import { Target } from "lucide-react";
+
+import { LocateFixed } from "lucide-react";
+
+import { Activity } from "lucide-react";
+
+import { Flame } from "lucide-react";
+
+import MetricInfoTooltip from "./MetricInfoTooltip";
+
 type SecondaryMetricsRowProps = {
   pnlAnalytics: PnLAnalyticsData;
   consistencyAnalytics: ConsistencyAnalyticsData;
@@ -33,7 +53,12 @@ export default function SecondaryMetricsRow({
       ? "Winning Days"
       : "Losing Days";
 
-      const consistencyScore =
+const streakColor =
+  pnlAnalytics.streakType === "WINNING"
+    ? "text-emerald-400"
+    : "text-red-400";
+
+const consistencyScore =
   consistencyAnalytics.consistencyScore;
 
 const consistencyLabel =
@@ -45,7 +70,7 @@ const consistencyLabel =
     ? "Fair"
     : "Poor";
 
-    let consistencyColor =
+let consistencyColor =
   "text-red-400";
 
 if (
@@ -64,10 +89,10 @@ else if (
   consistencyScore >= 50
 ) {
   consistencyColor =
-    "text-yellow-400";
+    "text-sky-500";
 }
 
-    const calmarRatio =
+const calmarRatio =
   equityAnalytics.calmarRatio;
 
 const calmarLabel =
@@ -79,7 +104,7 @@ const calmarLabel =
     ? "Fair"
     : "Poor";
 
-    let calmarColor =
+let calmarColor =
   "text-red-400";
 
 if (
@@ -98,7 +123,7 @@ else if (
   calmarRatio >= 0.5
 ) {
   calmarColor =
-    "text-yellow-400";
+    "text-sky-500";
 }
 
     const mostTradedTicker =
@@ -106,6 +131,12 @@ else if (
 
 const mostTradedTradeCount =
   secondaryMetricsAnalytics.mostTradedTradeCount;
+
+  const tradeFrequency =
+  secondaryMetricsAnalytics.tradeFrequency;
+
+const activeTradingDays =
+  secondaryMetricsAnalytics.activeTradingDays;
 
   const volatility =
   pnlAnalytics.volatility;
@@ -149,7 +180,7 @@ else if (
     "Moderate";
 
   volatilityColor =
-    "text-yellow-400";
+    "text-sky-500";
 }
 
   return (
@@ -158,238 +189,411 @@ else if (
 
         <div className="grid grid-cols-6 gap-4">
 
-          {/* STREAK */}
+{/* STREAK */}
 
-          <div
-            className="
-              h-[110px]
-              rounded-[22px]
-              border
-              border-white/[0.08]
-              bg-[#081526]/80
-              backdrop-blur-xl
-            "
-          >
-            <div
-              className="
-                flex
-                h-full
-                flex-col
-                items-center
-                justify-center
-                text-center
-              "
-            >
-              <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
-                Streak
-              </p>
+<div
+  className="
+    relative
+    z-20
+    h-[110px]
+    rounded-[22px]
+    border
+    border-white/[0.08]
+    bg-[#081526]/80
+    backdrop-blur-xl
+  "
+>
+  <div
+    className="
+      flex
+      h-full
+      items-center
+      justify-center
+    "
+  >
+    {/* ICON */}
 
-              <p className="mt-2 text-[28px] font-semibold text-white">
-                {pnlAnalytics.streak}
-              </p>
+    <div className="relative right-4 shrink-0">
+      <Flame
+        className={`h-6 w-6 ${streakColor}`}
+        strokeWidth={2}
+      />
+    </div>
 
-              <p className="mt-2 text-[13px] text-slate-400">
-                {streakLabel}
-              </p>
-            </div>
-          </div>
+    {/* TEXT */}
+
+    <div
+      className="
+        ml-4
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+      <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
+        Streak
+      </p>
+
+      <div className="relative right-1.5 flex flex-col items-center">
+        <p className="mt-1 text-[28px] font-semibold text-white">
+          {pnlAnalytics.streak}
+        </p>
+
+        <p className={`mt-1 text-[14px] ${streakColor}`}>
+          {streakLabel}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
           {/* RISK STATUS */}
 
-          <div
-            className="
-              h-[110px]
-              rounded-[22px]
-              border
-              border-white/[0.08]
-              bg-[#081526]/80
-              backdrop-blur-xl
-            "
-          >
-            <div
-              className="
-                flex
-                h-full
-                flex-col
-                items-center
-                justify-center
-                text-center
-              "
-            >
-<p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
-  Volatility
-</p>
+{/* VOLATILITY */}
 
-<p className="mt-3 text-[24px] font-semibold text-white">
-  <span
-  className={
-    volatilityColor
-  }
+<div
+className="
+  relative
+  hover:z-[100]
+  h-[110px]
+  rounded-[22px]
+  border
+  border-white/[0.08]
+  bg-[#081526]
+"
 >
-  {volatilityLabel}
-</span>
+  <div
+    className="
+      flex
+      h-full
+      items-center
+      justify-center
+    "
+  >
+    {/* ICON */}
+
+    <div className="relative right-4 shrink-0">
+      <Activity
+        className={`h-6 w-6 ${volatilityColor}`}
+        strokeWidth={2}
+      />
+    </div>
+
+    {/* TEXT */}
+
+    <div
+      className="
+        ml-4
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+<div className="flex items-center gap-1.5">
+  <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
+    Volatility
+  </p>
+
+  <MetricInfoTooltip
+    definition="Measures how much your daily realized P&L fluctuates over the selected period."
+
+    formula="Standard Deviation (σ) of Daily Realized P&L"
+
+    calculation="Calculated from the standard deviation of your daily realized P&L values within the selected date range."
+
+    interpretation="Lower values indicate more stable results. Higher values indicate greater day-to-day variability in trading performance."
+  />
+</div>
+
+      <div className="relative right-1.5 flex flex-col items-center">
+        <p
+          className={`mt-1 text-[24px] font-semibold ${volatilityColor}`}
+        >
+          {volatilityLabel}
+        </p>
+
+        <p className="mt-1 text-[14px] text-slate-400">
+  σ {volatility.toFixed(0)}
 </p>
-
-<p className="mt-1 text-[13px] text-slate-400">
- σ = {volatility.toFixed(0)}
-</p>
-            </div>
-          </div>
-
-          {/* CONSISTENCY */}
-
-          <div
-            className="
-              h-[110px]
-              rounded-[22px]
-              border
-              border-white/[0.08]
-              bg-[#081526]/80
-              backdrop-blur-xl
-            "
-          >
-            <div
-              className="
-                flex
-                h-full
-                flex-col
-                items-center
-                justify-center
-                text-center
-              "
-            >
-              <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
-                Consistency
-              </p>
-
-<p
-  className={`mt-3 text-[24px] font-semibold ${consistencyColor}`}
->
-  {consistencyLabel}
-</p>
-
-<p className="mt-1 text-[13px] text-slate-400">
-  Score: {consistencyScore}/100
-</p>
-
-
-            </div>
-          </div>
-
-
-          {/* MOST TRADED */}
-
-          <div
-            className="
-              h-[110px]
-              rounded-[22px]
-              border
-              border-white/[0.08]
-              bg-[#081526]/80
-              backdrop-blur-xl
-            "
-          >
-            <div
-              className="
-                flex
-                h-full
-                flex-col
-                items-center
-                justify-center
-                text-center
-              "
-            >
-              <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
-                Most Traded
-              </p>
-
-<p className="mt-3 text-[24px] font-semibold text-white">
-  {mostTradedTicker}
-</p>
-
-<p className="mt-1 text-[13px] text-slate-400">
-  {mostTradedTradeCount} Trades
-</p>
-            </div>
-          </div>
-
-          {/* AVG R MULTIPLE */}
-
-          <div
-            className="
-              h-[110px]
-              rounded-[22px]
-              border
-              border-white/[0.08]
-              bg-[#081526]/80
-              backdrop-blur-xl
-            "
-          >
-            <div
-              className="
-                flex
-                h-full
-                flex-col
-                items-center
-                justify-center
-                text-center
-              "
-            >
-              <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
-                Avg R Multiple
-              </p>
-
-              <p className="mt-3 text-[24px] font-semibold text-white">
-                1.42R
-              </p>
-
-              <p className="mt-1 text-[13px] text-emerald-400">
-                --
-              </p>
-            </div>
-          </div>
-
-          {/* CALMAR RATIO */}
-
-          <div
-            className="
-              h-[110px]
-              rounded-[22px]
-              border
-              border-white/[0.08]
-              bg-[#081526]/80
-              backdrop-blur-xl
-            "
-          >
-            <div
-              className="
-                flex
-                h-full
-                flex-col
-                items-center
-                justify-center
-                text-center
-              "
-            >
-              <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
-                Calmar Ratio
-              </p>
-
-<p className="mt-3 text-[24px] font-semibold text-white">
-  {calmarRatio.toFixed(2)}
-</p>
-
-<p
-  className={`mt-1 text-[13px] ${calmarColor}`}
->
-  {calmarLabel}
-</p>
-            </div>
-          </div>
-
-        </div>
-
       </div>
     </div>
-  );
+  </div>
+</div>
+
+{/* CONSISTENCY */}
+
+<div
+  className="
+    relative
+    hover:z-[100]
+    h-[110px]
+    rounded-[22px]
+    border
+    border-white/[0.08]
+    bg-[#081526]/80
+    backdrop-blur-xl
+  "
+>
+  <div
+    className="
+      flex
+      h-full
+      items-center
+      justify-center
+    "
+  >
+    {/* ICON */}
+
+    <div className="relative right-4 shrink-0">
+<LocateFixed
+  className={`h-6 w-6 ${consistencyColor}`}
+  strokeWidth={2}
+/>
+    </div>
+
+    {/* TEXT */}
+
+    <div
+      className="
+        ml-4
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+<div className="flex items-center gap-1.5">
+  <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
+    Consistency
+  </p>
+
+  <MetricInfoTooltip
+    definition="Measures how consistently your trading produces stable results over time."
+
+    formula="Composite Consistency Score (0–100)"
+
+    calculation="Computed from your win/loss distribution and equity curve stability across the selected period."
+
+    interpretation="Higher scores indicate more disciplined and repeatable trading performance."
+  />
+</div>
+
+      <div className="relative right-1.5 flex flex-col items-center">
+        <p
+          className={`mt-1 text-[24px] font-semibold ${consistencyColor}`}
+        >
+          {consistencyLabel}
+        </p>
+
+        <p className="mt-1 text-[14px] text-slate-400">
+          Score: {consistencyScore}/100
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{/* MOST TRADED */}
+
+<div
+  className="
+    relative
+    hover:z-[100]
+    h-[110px]
+    rounded-[22px]
+    border
+    border-white/[0.08]
+    bg-[#081526]/80
+    backdrop-blur-xl
+  "
+>
+  <div
+    className="
+      flex
+      h-full
+      items-center
+      justify-center
+    "
+  >
+    {/* ICON */}
+
+    <div className="relative right-4 shrink-0">
+      <BarChart3
+        className="h-6 w-6 text-cyan-400"
+        strokeWidth={2}
+      />
+    </div>
+
+    {/* TEXT */}
+
+    <div
+      className="
+        ml-4
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+      <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
+        Most Traded
+      </p>
+
+      <div className="relative right-1.5 flex flex-col items-center">
+        <p className="mt-1 text-[24px] font-semibold text-white">
+          {mostTradedTicker}
+        </p>
+
+        <p className="mt-1 text-[14px] text-slate-400">
+          {mostTradedTradeCount} Trades
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* TRADE FREQUENCY */}
+
+<div
+  className="
+    relative
+    hover:z-[100]
+    h-[110px]
+    rounded-[22px]
+    border
+    border-white/[0.08]
+    bg-[#081526]/80
+    backdrop-blur-xl
+  "
+>
+  <div
+    className="
+      flex
+      h-full
+      items-center
+      justify-center
+    "
+  >
+    {/* ICON */}
+
+    <div className="relative right-4 shrink-0">
+      <Repeat
+        className="h-6 w-6 text-cyan-400"
+        strokeWidth={2}
+      />
+    </div>
+
+    {/* TEXT */}
+
+    <div
+      className="
+        ml-4
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+      {/* TITLE */}
+
+      <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
+        Trade Frequency
+      </p>
+
+      {/* VALUE + SUBTITLE */}
+
+      <div className="relative right-1.5 flex flex-col items-center">
+        <p className="mt-1 text-[24px] font-semibold text-white">
+          {tradeFrequency.toFixed(1)} per Day
+        </p>
+
+        <p className="mt-1 text-[14px] text-slate-400">
+          {activeTradingDays} Trading Days
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* CALMAR RATIO */}
+
+<div
+  className="
+    relative
+    hover:z-[100]
+    h-[110px]
+    rounded-[22px]
+    border
+    border-white/[0.08]
+    bg-[#081526]/80
+    backdrop-blur-xl
+  "
+>
+  <div
+    className="
+      flex
+      h-full
+      items-center
+      justify-center
+    "
+  >
+    {/* ICON */}
+
+    <div className="relative right-4 shrink-0">
+      <Shield
+        className={`h-6 w-6 ${calmarColor}`}
+        strokeWidth={2}
+      />
+    </div>
+
+    {/* TEXT */}
+
+    <div
+      className="
+        ml-4
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+<div className="flex items-center gap-1.5">
+  <p className="text-[12px] uppercase tracking-[0.12em] text-slate-500">
+    Calmar Ratio
+  </p>
+
+  <MetricInfoTooltip
+    definition="Measures return achieved relative to maximum drawdown."
+
+    formula="Total Return ÷ Maximum Drawdown"
+
+    calculation="Calculated using your realized trading performance and maximum drawdown over the selected period."
+
+    interpretation="Higher values indicate stronger risk-adjusted performance by generating more return for each unit of drawdown."
+  />
+</div>
+
+      <div className="relative right-1.5 flex flex-col items-center">
+        <p className="mt-1 text-[24px] font-semibold text-white">
+          {calmarRatio.toFixed(2)}
+        </p>
+
+        <p className={`mt-1 text-[14px] ${calmarColor}`}>
+          {calmarLabel}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* END OF GRID */}
+</div>
+
+</div>
+
+</div>
+);
 }
