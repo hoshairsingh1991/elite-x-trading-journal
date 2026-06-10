@@ -20,11 +20,28 @@ export default function KPITradingScoreCard({
   reliability,
 }: KPITradingScoreCardProps) {
 
+  const getScoreColor = (value: number) => {
+  if (value >= 80) {
+    return "text-emerald-400";
+  }
+
+  if (value >= 65) {
+    return "text-green-400";
+  }
+
+  if (value >= 50) {
+    return "text-sky-500";
+  }
+
+  return "text-red-400";
+};
+
   return (
   <div
   className="
     flex
     h-[118px]
+    z-[9999]
     flex-col
     rounded-[18px]
     border
@@ -190,36 +207,36 @@ export default function KPITradingScoreCard({
             <span className="w-[90px] text-slate-350">
               Profit
             </span>
-            <span className="text-emerald-400">
-              {profitability}
-            </span>
+<span className={getScoreColor(profitability)}>
+  {profitability}
+</span>
           </div>
 
           <div className="flex justify-between gap-25">
             <span className="w-[90px] text-slate-350">
               Consistency
             </span>
-            <span className="text-blue-400">
-              {consistency}
-            </span>
+            <span className={getScoreColor(consistency)}>
+  {consistency}
+</span>
           </div>
 
           <div className="flex justify-between gap-25">
             <span className="w-[90px] text-slate-350">
               Risk
             </span>
-            <span className="text-emerald-400">
-              {risk}
-            </span>
+            <span className={getScoreColor(risk)}>
+  {risk}
+</span>
           </div>
 
           <div className="flex justify-between gap-25">
             <span className="w-[90px] text-slate-350">
               Reliability
             </span>
-            <span className="text-yellow-400">
-              {reliability}
-            </span>
+            <span className={getScoreColor(reliability)}>
+  {reliability}
+</span>
           </div>
         </div>
 
