@@ -98,6 +98,7 @@ git tag checkpoint/usermenu-currency-sync-fix _ Usermenuv2 now sync with account
 git commit -m "Dashboard V2 secondary metrics analytics" - just left with AVG R Multiple and tooltip. rest works fine at this point.
 git commit -m "Dashboard V2: finalize secondary metrics row UI and interactions" -  secondary metric card is now complete 100%
 git tag checkpoint-dashboard-v2-secondary-metrics-v2
+git commit -m "Dashboard V2: refactor layout, remove translate-y hacks, integrate secondary metrics and calendar into EquitySection, and add bottom footer spacing"
 ------------------------------------------------------------------
 
 

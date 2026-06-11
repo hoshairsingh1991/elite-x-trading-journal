@@ -575,9 +575,42 @@ const handleDeleteTrade =
       {/* CALENDAR */}
       {/* ===================================================== */}
 
-      <div className="h-auto w-full rounded-[32px] bg-[#071427]/00 px-5 pt-5 pb-7 shadow-[0_0_60px_rgba(0,0,0,0.30)]">
+      <div
+  className="
+    h-auto
+    w-full
+    rounded-[32px]
 
-       <div className="rounded-[28px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)] px-8 pt-8 pb-10">
+    bg-[#071427]/00
+
+    p-5
+
+    shadow-[0_0_60px_rgba(0,0,0,0.30)]
+
+    transition-all
+    duration-300
+
+    hover:-translate-y-1
+  "
+>
+
+       <div
+  className="
+    rounded-[28px]
+    border
+    border-white/[0.03]
+
+    bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)]
+
+    p-8
+
+    transition-all
+    duration-300
+
+    hover:border-white/[0.08]
+    hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
+  "
+>
 
           {/* HEADER */}
 
@@ -749,7 +782,7 @@ const handleDeleteTrade =
 
 {selectedNoteDate && (
 
-  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm">
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm">
 
     <div className="w-full max-w-[560px] rounded-[32px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-8 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
 
@@ -879,7 +912,7 @@ const handleDeleteTrade =
 )}
       {selectedDay && (
 
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-8 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 p-8 backdrop-blur-sm">
 
           <div className="w-full max-w-[1280px] rounded-[38px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-10 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
 
