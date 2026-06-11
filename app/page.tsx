@@ -1167,11 +1167,12 @@ setImportedTrades([
       }
     />
   }
-  tradingCalendar={
-    <TradingCalendar
-      trades={filteredTrades}
-    />
-  }
+tradingCalendar={
+  <TradingCalendar
+    trades={reportingTrades}
+    reportingCurrency={reportingCurrency}
+  />
+}
 />
 </div>
 

@@ -28,6 +28,9 @@ import {
 import EditTradeModal
 from "@/components/trades/EditTradeModal";
 
+import { getCurrencySymbol } from "@/lib/fx/currencyFormatting";
+
+
 const days = [
   "SUN",
   "MON",
@@ -40,6 +43,7 @@ const days = [
 
 interface TradingCalendarProps {
   trades: Trade[];
+  reportingCurrency: string;
 }
 // =====================================================
 // LOCAL DATE PARSER
@@ -78,6 +82,7 @@ function parseLocalDate(
 
 export default function TradingCalendar({
   trades,
+  reportingCurrency,
 }: TradingCalendarProps) {
 
   const [currentDate, setCurrentDate] =
@@ -99,6 +104,9 @@ const [
 ] = useState("");
 const [mounted, setMounted] =
   useState(false);
+
+  const [noteDates, setNoteDates] =
+  useState<Set<string>>(new Set());
 
   const [
   editingTrade,
@@ -436,7 +444,8 @@ const tradeDate =
     day
   ).padStart(2, "0")}`;
 
-const hasNote = false;
+const hasNote =
+  noteDates.has(formattedDay);
 
     calendarCells.push(
 
@@ -464,23 +473,20 @@ const hasNote = false;
 
   event.stopPropagation();
 
-  setSelectedNoteDate(
+setNoteInput("");
+
+const existingNote =
+  await getDailyNoteFromSupabase(
     formattedDay
   );
 
-  const existingNote =
-    await getDailyNoteFromSupabase(
-      formattedDay
-    );
-
-  setNoteInput(
-    existingNote
-  );
+setNoteInput(existingNote);
+setSelectedNoteDate(formattedDay);
 }}
   className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-[7px] transition-all ${
     hasNote
-      ? "text-blue-400/80"
-      : "text-slate-600 hover:text-slate-400"
+  ? "border border-blue-500/20 bg-blue-500/10 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.25)]"
+  : "text-slate-600 hover:text-slate-400"
   }`}
 >
   <FileText size={12} />
@@ -498,10 +504,9 @@ const hasNote = false;
                   : "text-red-400"
               }`}
             >
-              {dayData.pnl >= 0
-                ? "+"
-                : ""}
-              ${dayData.pnl.toFixed(2)}
+              {dayData.pnl >= 0 ? "+" : ""}
+{getCurrencySymbol(reportingCurrency)}
+{dayData.pnl.toFixed(2)}
             </p>
 
             <p className="mt-1 text-[11px] font-semibold text-slate-300">
@@ -658,27 +663,15 @@ const handleDeleteTrade =
             <div className="relative right-4 top-2 flex items-center gap-10">
 
               {[
-                {
-                  label:
-                    "Monthly P&L",
-                  value: `$${monthlyPnL.toFixed(2)}`,
-                  negative:
-                    monthlyPnL < 0,
-                },
+  {
+    label: "Trading Days",
+    value: tradingDays,
+  },
 
-                {
-                  label:
-                    "Trading Days",
-                  value:
-                    tradingDays,
-                },
-
-                {
-                  label:
-                    "Total Trades",
-                  value:
-                    totalTrades,
-                },
+  {
+    label: "Total Trades",
+    value: totalTrades,
+  }, 
               ].map(
                 (
                   stat,
@@ -698,21 +691,14 @@ const handleDeleteTrade =
                         {stat.label}
                       </p>
 
-                      <p
-                        className={`mt-2 text-[30px] font-black tracking-tight ${
-                          stat.negative
-                            ? "text-red-400"
-                            : "text-slate-400"
-                        }`}
-                      >
-                        {stat.value}
-                      </p>
+                     <p className="mt-2 text-[30px] font-black tracking-tight text-slate-400">
+  {stat.value}
+</p>
                     </div>
 
-                    {index !==
-                      2 && (
-                      <div className="h-10 w-px bg-white/[0.06]" />
-                    )}
+                    {index !== 1 && (
+  <div className="h-10 w-px bg-white/[0.06]" />
+)}
                   </div>
                 )
               )}
@@ -884,6 +870,18 @@ const handleDeleteTrade =
               selectedNoteDate,
               noteInput
               );
+
+              setNoteDates((prev) => {
+  const next = new Set(prev);
+
+  if (noteInput.trim()) {
+    next.add(selectedNoteDate);
+  } else {
+    next.delete(selectedNoteDate);
+  }
+
+  return next;
+});
 
               setSelectedNoteDate(
                 null
@@ -1294,26 +1292,16 @@ const handleDeleteTrade =
                                           : "text-red-400"
                                       }`}
                                     >
-                                      {Number(
-                                        trade.pnl
-                                      ) >= 0
-                                        ? "+"
-                                        : ""}
-                                      $
-                                      {Number(
-                                        trade.pnl
-                                      ).toFixed(
-                                        2
-                                      )}
+                                      {Number(trade.pnl) >= 0 ? "+" : ""}
+{getCurrencySymbol(reportingCurrency)}
+{Number(trade.pnl).toFixed(2)}
                                     </td>
 
                                     <td className="py-6 text-sm text-slate-400">
 
                                       {trade.fees > 0
-                                        ? `$${trade.fees.toFixed(
-                                            2
-                                          )}`
-                                        : "--"}
+  ? `${getCurrencySymbol(reportingCurrency)}${trade.fees.toFixed(2)}`
+  : "--"}
                                     </td>
 
                                     <td className="relative right-[50px] py-6 text-center">
