@@ -21,6 +21,7 @@ import { supabase }
 from "@/lib/supabase";
 
 import {
+  loadDailyNotesFromSupabase,
   getDailyNoteFromSupabase,
   upsertDailyNoteInSupabase,
 } from "@/lib/storage/supabaseDailyNotesStorage";
@@ -107,6 +108,21 @@ const [mounted, setMounted] =
 
   const [noteDates, setNoteDates] =
   useState<Set<string>>(new Set());
+
+  useEffect(() => {
+  async function loadNoteDates() {
+    const notes =
+      await loadDailyNotesFromSupabase();
+
+    setNoteDates(
+      new Set(
+        notes.map((note) => note.date)
+      )
+    );
+  }
+
+  loadNoteDates();
+}, []);
 
   const [
   editingTrade,
