@@ -43,6 +43,11 @@ export default function SettingsPage() {
   ] = useState<any>(null);
 
   const [
+  modalMode,
+  setModalMode,
+] = useState<"add" | "edit">("edit");
+
+  const [
     editAccountAlias,
     setEditAccountAlias,
   ] = useState("");
@@ -57,54 +62,214 @@ export default function SettingsPage() {
     setEditFlexToken,
   ] = useState("");
 
+  const [
+  editBrokerAccountId,
+  setEditBrokerAccountId,
+] = useState("");
+
+const [
+  isSyncing,
+  setIsSyncing,
+] = useState(false);
+
+// =====================================
+// SYNC ALL BROKERS
+// =====================================
+
+const handleSyncNow = async () => {
+
+  try {
+
+    setIsSyncing(true);
+
+    const response =
+      await fetch(
+        "/api/sync-all-brokers",
+        {
+          method: "POST",
+        }
+      );
+
+    const data =
+      await response.json();
+
+    console.log(
+      "SYNC RESULT:",
+      data
+    );
+
+// Refresh the page to reload broker data
+window.location.reload();
+
+  } catch (error) {
+
+    console.error(
+      "SYNC FAILED:",
+      error
+    );
+
+  } finally {
+
+    setIsSyncing(false);
+
+  }
+
+};
+
+// =====================================
+// SAVE BROKER
+// =====================================
+
+const handleSaveBroker = async () => {
+
   // =====================================
-  // SAVE BROKER
+  // ADD NEW BROKER
   // =====================================
 
-  const handleSaveBroker = async () => {
+  if (modalMode === "add") {
 
-    if (!selectedBroker) {
-      return;
-    }
+    const {
+      data: authData,
+    } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from("broker_connections")
-      .update({
-        account_alias: editAccountAlias,
-        flex_query_id: editQueryId,
-        flex_token: editFlexToken,
-      })
-      .eq("id", selectedBroker.id);
+    const user =
+      authData.user;
 
-    if (error) {
+    if (!user) {
 
       console.error(
-        "BROKER UPDATE ERROR:",
-        error
+        "NO AUTHENTICATED USER"
       );
 
       return;
     }
 
-    setBrokerConnections(
-      brokerConnections.map(
-        (broker) =>
-          broker.id === selectedBroker.id
-            ? {
-                ...broker,
-                account_alias:
-                  editAccountAlias,
-                flex_query_id:
-                  editQueryId,
-                flex_token:
-                  editFlexToken,
-              }
-            : broker
-      )
-    );
+    const {
+      data: newBroker,
+      error,
+    } = await supabase
+      .from("broker_connections")
+
+
+.insert({
+  user_id: user.id,
+
+  broker: "IBKR",
+
+  account_alias:
+    editAccountAlias.trim(),
+
+  broker_account_id:
+    editBrokerAccountId.trim(),
+
+  flex_query_id:
+    editQueryId.trim(),
+
+  flex_token:
+    editFlexToken.trim(),
+
+  is_active: true,
+})
+
+      .select()
+      .single();
+
+   if (error) {
+
+  console.error(
+    "BROKER INSERT ERROR:",
+    error
+  );
+
+  return;
+}
+
+    setBrokerConnections([
+      ...brokerConnections,
+      newBroker,
+    ]);
 
     setIsEditModalOpen(false);
-  };
+
+    return;
+  }
+
+  // =====================================
+  // EDIT EXISTING BROKER
+  // =====================================
+
+  if (!selectedBroker) {
+    return;
+  }
+
+  const { error } =
+    await supabase
+      .from("broker_connections")
+
+
+.update({
+  account_alias:
+    editAccountAlias.trim(),
+
+  broker_account_id:
+    editBrokerAccountId.trim(),
+
+  flex_query_id:
+    editQueryId.trim(),
+
+  flex_token:
+    editFlexToken.trim(),
+})
+
+      .eq(
+        "id",
+        selectedBroker.id
+      );
+
+  if (error) {
+
+    console.error(
+      "BROKER UPDATE ERROR:",
+      error
+    );
+
+    return;
+  }
+
+  setBrokerConnections(
+
+    brokerConnections.map(
+      (broker) =>
+
+        broker.id ===
+        selectedBroker.id
+
+          ? {
+
+              ...broker,
+
+              account_alias:
+                editAccountAlias,
+
+              flex_query_id:
+                editQueryId,
+
+              flex_token:
+                editFlexToken,
+
+            }
+
+          : broker
+
+    )
+
+  );
+
+  setIsEditModalOpen(
+    false
+  );
+
+};
 
 
 
@@ -380,26 +545,116 @@ transition-all
 
             </div>
 
-            <button
+ <div
   className="
-  relative
-  right-[25px]
-  inline-flex
-  items-center
-  justify-center
-  w-[150px]
-  h-[40px]
-  rounded-xl
-  bg-blue-600
-  hover:bg-blue-500
-  transition-all
-  text-[20px]
-  font-semibold
-  tracking-[-0.01em]
-"
-            >
-              + Add Broker
-            </button>
+    relative
+    right-[25px]
+    flex
+    items-center
+    gap-3
+  "
+>
+
+  <button
+  onClick={handleSyncNow}
+  disabled={isSyncing}
+  className="
+    inline-flex
+    items-center
+    justify-center
+    w-[140px]
+    h-[40px]
+    rounded-xl
+    border
+    border-white/10
+    text-[18px]
+    font-semibold
+    transition-all
+    disabled:opacity-50
+  "
+>
+  <svg
+className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
+  isSyncing ? "animate-spin" : ""
+}`}
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M4 4v6h6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M20 20v-6h-6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M20 9a8 8 0 00-13.66-5.66L4 6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M4 15a8 8 0 0013.66 5.66L20 18"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+
+  <span>
+    {isSyncing
+      ? "Syncing..."
+      : "Sync Now"}
+  </span>
+</button>
+
+  <button
+    onClick={() => {
+
+      setModalMode("add");
+
+      setSelectedBroker(null);
+
+      setEditAccountAlias("");
+
+      setEditQueryId("");
+
+      setEditFlexToken("");
+
+      setEditBrokerAccountId("");
+
+      setIsEditModalOpen(true);
+
+    }}
+    className="
+      inline-flex
+      items-center
+      justify-center
+      w-[150px]
+      h-[40px]
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-500
+      transition-all
+      text-[20px]
+      font-semibold
+      tracking-[-0.01em]
+    "
+  >
+    + Add Broker
+  </button>
+
+</div>
 
           </div>
 
@@ -562,8 +817,20 @@ transition-all
             text-zinc-400
           "
         >
-          {connection.account_alias ||
-            "Primary"}
+          <>
+{connection.account_alias || "Primary"}
+
+<span
+  className="
+    ml-2
+    text-[16px]
+    font-mono
+    text-zinc-600
+  "
+>
+  • {connection.broker_account_id}
+</span>
+</>
         </div>
 
         {/* STATUS */}
@@ -732,40 +999,35 @@ transition-all
         >
 
           <button
-            className="
-              text-blue-400
-              hover:text-blue-300
-              text-[16px]
-              transition-all
-            "
-          >
-            Sync
-          </button>
+onClick={() => {
 
-          <button
-  onClick={() => {
+  setModalMode("edit");
 
-   setSelectedBroker(
-  connection
-);
+  setSelectedBroker(
+    connection
+  );
 
-setEditAccountAlias(
-  connection.account_alias || ""
-);
+  setEditAccountAlias(
+    connection.account_alias || ""
+  );
 
-setEditQueryId(
-  connection.flex_query_id || ""
-);
+  setEditBrokerAccountId(
+    connection.broker_account_id || ""
+  );
 
-setEditFlexToken(
-  connection.flex_token || ""
-);
+  setEditQueryId(
+    connection.flex_query_id || ""
+  );
 
-setIsEditModalOpen(
-  true
-);
+  setEditFlexToken(
+    connection.flex_token || ""
+  );
 
-  }}
+  setIsEditModalOpen(
+    true
+  );
+
+}}
   className="
     text-zinc-400
     hover:text-white
@@ -1245,13 +1507,61 @@ setIsEditModalOpen(
 
       </div>
 
-      {/* ===================================== */}
+{/* ===================================== */}
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
 <div className="h-[12px]" />
 
-      {/* QUERY ID */}
+{/* BROKER ACCOUNT ID */}
+
+<div>
+
+  <label
+    className="
+      relative
+      left-[10px]
+      block
+      text-[20px]
+      font-medium
+      text-white
+      mb-3
+    "
+  >
+    Broker Account ID
+  </label>
+
+  <input
+    value={editBrokerAccountId}
+    onChange={(e) =>
+      setEditBrokerAccountId(
+        e.target.value
+      )
+    }
+    placeholder="e.g. U18458305"
+    className="
+      relative
+      left-[10px]
+      w-[95%]
+      rounded-xl
+      bg-[#050816]
+      border
+      border-white/10
+      px-4
+      py-4
+      text-white
+    "
+  />
+
+</div>
+
+{/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+<div className="h-[12px]" />
+
+{/* QUERY ID */}
 
 <div>
 
@@ -1393,7 +1703,9 @@ setIsEditModalOpen(
     transition-all
   "
 >
-  Save Changes
+  {modalMode === "add"
+  ? "Add Broker"
+  : "Save Changes"}
 </button>
 
       </div>
