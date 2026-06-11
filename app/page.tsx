@@ -82,6 +82,7 @@ from "@/components/dashboard-v2/EquityCurveCard";
 import EquitySection
 from "@/components/dashboard-v2/EquitySection";
 
+
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import SecondaryMetricsRow from "@/components/dashboard-v2/SecondaryMetricsRow";
@@ -1094,19 +1095,17 @@ setImportedTrades([
 
   <div className="h-8 shrink-0" />
 
-  {/* ================================================= */}
-  {/* TOP SECTION */}
-  {/* ================================================= */}
-
-  <div className="flex items-start gap-8">
-
-            
-
 {/* ================================================= */}
-{/* MAIN DASHBOARD CONTENT */}
+{/* TOP SECTION */}
 {/* ================================================= */}
 
-<div className="flex w-full flex-col gap-8">
+<div>
+
+  {/* ================================================= */}
+  {/* MAIN DASHBOARD CONTENT */}
+  {/* ================================================= */}
+
+  <div className="flex w-full flex-col gap-6">
 
   {/* ================================================= */}
   {/* KPI GRID */}
@@ -1138,9 +1137,9 @@ setImportedTrades([
   drawdownTrend={drawdownTrend}
 />
 
-  {/* ================================================= */}
-  {/* PNL ANALYTICS */}
-  {/* ================================================= */}
+{/* ================================================= */}
+{/* PNL ANALYTICS */}
+{/* ================================================= */}
 
 <div className="px-8">
 <EquitySection
@@ -1151,30 +1150,30 @@ setImportedTrades([
   }
   trades={filteredTrades}
   reportingCurrency={reportingCurrency}
-  setReportingCurrency={setReportingCurrency}
-/>
-</div>
-
-
-{/* ================================================= */}
-{/* SECONDARY METRICS */}
-{/* ================================================= */}
-
-<div className="relative bottom-[860px] px-8">
-  <div className="w-[72%]">
-
-<SecondaryMetricsRow
-  pnlAnalytics={pnlAnalytics}
-  consistencyAnalytics={consistencyAnalytics}
-  equityAnalytics={equityAnalytics}
-  secondaryMetricsAnalytics={
-    secondaryMetricsAnalytics
+  setReportingCurrency={
+    setReportingCurrency
+  }
+  secondaryMetrics={
+    <SecondaryMetricsRow
+      pnlAnalytics={pnlAnalytics}
+      consistencyAnalytics={
+        consistencyAnalytics
+      }
+      equityAnalytics={
+        equityAnalytics
+      }
+      secondaryMetricsAnalytics={
+        secondaryMetricsAnalytics
+      }
+    />
+  }
+  tradingCalendar={
+    <TradingCalendar
+      trades={filteredTrades}
+    />
   }
 />
-
-  </div>
 </div>
-
 
 
 {/* ================================================= */}
@@ -1189,27 +1188,15 @@ setImportedTrades([
 </div>
 */}
 
-</div>
-</div>
-            
+</div> {/* closes flex w-full flex-col gap-6 */}
+</div> {/* closes TOP SECTION wrapper */}
+
+<div className="h-6 shrink-0" />
+</div> {/* closes scroll area */}
 
 {/* ================================================= */}
-{/* CALENDAR */}
+{/* TRADE DETAIL MODAL */}
 {/* ================================================= */}
-
-<div className="relative bottom-[840px] px-8">
-  <div className="relative left-6 -mt-8 w-[70%]">
-    <TradingCalendar
-      trades={filteredTrades}
-    />
-  </div>
-</div>
-          <div className="h-0" />
-        </div>
-
-        {/* ================================================= */}
-        {/* TRADE DETAIL MODAL */}
-        {/* ================================================= */}
 
         {isModalOpen &&
           selectedTrade && (

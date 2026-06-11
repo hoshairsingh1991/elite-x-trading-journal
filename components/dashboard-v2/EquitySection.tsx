@@ -5,7 +5,11 @@ import OpenPositionsCard from "./OpenPositionsCard";
 import RecentTradesCard from "./RecentTradesCard";
 import { Trade } from "@/types/trade";
 
-import { Dispatch, SetStateAction } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  ReactNode,
+} from "react";
 
 import {
   EquityAnalyticsData,
@@ -31,6 +35,9 @@ type EquitySectionProps = {
     Dispatch<
       SetStateAction<string>
     >;
+
+  secondaryMetrics: ReactNode;
+  tradingCalendar: ReactNode;
 };
 
 export default function EquitySection({
@@ -40,75 +47,90 @@ export default function EquitySection({
   trades,
   reportingCurrency,
   setReportingCurrency,
+  secondaryMetrics,
+  tradingCalendar,
 }: EquitySectionProps) {
 
-  return (
-    <div className="flex justify-center">
-      <div className="w-[98%]">
-        <div className="flex gap-6">
+return (
+  <div className="flex justify-center">
+    <div className="w-[98%]">
+      <div className="flex gap-6">
 
-          {/* ================================================= */}
-          {/* EQUITY CURVE */}
-          {/* ================================================= */}
+        {/* ================================================= */}
+        {/* LEFT COLUMN */}
+        {/* ================================================= */}
 
-          <div className="flex-[1.6] min-w-0">
-<EquityCurveCard
-  equityAnalytics={equityAnalytics}
-  dailyPnL={dailyPnL}
-  reportingCurrency={
-    reportingCurrency
-  }
-/>
-          </div>
+        <div className="flex-[2.6] min-w-0 flex flex-col gap-6">
 
-          {/* ================================================= */}
-          {/* PERFORMANCE BREAKDOWN */}
-          {/* ================================================= */}
+          {/* Top Row */}
 
-          <div className="flex-1 min-w-0">
-          <PerformanceBreakdownCard
-          performanceBreakdownAnalytics={
-          performanceBreakdownAnalytics
-          }
+          <div className="flex gap-6">
 
-  reportingCurrency={
-    reportingCurrency
-  }
-/>
-          </div>
+            {/* EQUITY CURVE */}
 
-          {/* ================================================= */}
-          {/* ACCOUNT & CURRENCY */}
-          {/* ================================================= */}
+            <div className="flex-[1.6] min-w-0">
+              <EquityCurveCard
+                equityAnalytics={equityAnalytics}
+                dailyPnL={dailyPnL}
+                reportingCurrency={reportingCurrency}
+              />
+            </div>
 
-          <div className="flex-1 min-w-0">
+            {/* PERFORMANCE BREAKDOWN */}
 
-<AccountCurrencyCard
-  trades={trades}
-  reportingCurrency={
-    reportingCurrency
-  }
-  setReportingCurrency={
-    setReportingCurrency
-  }
-/>
-
-            <div className="h-[16px]" />
-
-<OpenPositionsCard
-  trades={trades}
-/>
-
-<div className="h-[16px]" />
-
-<RecentTradesCard
-  trades={trades}
-/>
+            <div className="flex-1 min-w-0">
+              <PerformanceBreakdownCard
+                performanceBreakdownAnalytics={
+                  performanceBreakdownAnalytics
+                }
+                reportingCurrency={
+                  reportingCurrency
+                }
+              />
+            </div>
 
           </div>
+
+          {/* SECONDARY METRICS */}
+
+          {secondaryMetrics}
+
+          {/* TRADING CALENDAR */}
+
+          {tradingCalendar}
 
         </div>
+
+        {/* ================================================= */}
+        {/* RIGHT COLUMN */}
+        {/* ================================================= */}
+
+        <div className="flex-1 min-w-0">
+
+          <AccountCurrencyCard
+            trades={trades}
+            reportingCurrency={reportingCurrency}
+            setReportingCurrency={
+              setReportingCurrency
+            }
+          />
+
+          <div className="h-[16px]" />
+
+          <OpenPositionsCard
+            trades={trades}
+          />
+
+          <div className="h-[16px]" />
+
+          <RecentTradesCard
+            trades={trades}
+          />
+
+        </div>
+
       </div>
     </div>
-  );
+  </div>
+);
 }
