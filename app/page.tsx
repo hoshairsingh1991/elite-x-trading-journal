@@ -854,26 +854,28 @@ useEffect(() => {
       }
     };
 
-  // =================================================
-// TEST IBKR FLEX SYNC
+// =================================================
+// MANUAL MULTI-BROKER SYNC
 // =================================================
 
 const handleTestIBKRSync =
   async () => {
 
-    if (isSyncing) return;
+    if (isSyncing) {
+      return;
+    }
 
     try {
 
       setIsSyncing(true);
 
       console.log(
-        "STARTING IBKR FLEX SYNC..."
+        "STARTING MULTI-BROKER SYNC..."
       );
 
       const response =
         await fetch(
-          "/api/ibkr/flex",
+          "/api/sync-all-brokers",
           {
             method: "POST",
           }
@@ -882,57 +884,19 @@ const handleTestIBKRSync =
       const data =
         await response.json();
 
-      console.log(
-        "IBKR FLEX RESPONSE:",
-        data
-      );
-
-      if (
-        !data.success
-      ) {
+      if (!data.success) {
 
         console.error(
-          "IBKR SYNC ERROR:",
-          data.error
+          "SYNC FAILED:",
+          data
         );
 
         return;
       }
 
-      const csv =
-        data.xml;
-
-      console.log(
-        "CSV TYPE:",
-        typeof csv
-      );
-
-      console.log(
-        "CSV CONSTRUCTOR:",
-        csv?.constructor?.name
-      );
-
-      const parsedExecutions =
-        await parseIBKRCsv(csv);
-
-      console.log(
-        "PARSED EXECUTIONS:",
-        parsedExecutions
-      );
-
-      const reconstructedTrades =
-        pairTrades(
-          parsedExecutions
-        );
-
-      console.log(
-        "RECONSTRUCTED TRADES:",
-        reconstructedTrades
-      );
-
-      await saveExecutionsToSupabase(
-        parsedExecutions
-      );
+      // =====================================
+      // RELOAD CANONICAL EXECUTIONS
+      // =====================================
 
       const refreshedExecutions =
         await loadExecutionsFromSupabase();
@@ -942,42 +906,33 @@ const handleTestIBKRSync =
           refreshedExecutions
         );
 
+      // =====================================
+      // RELOAD MANUAL TRADES
+      // =====================================
+
       const manualTrades =
         loadTrades().filter(
           (trade) =>
             !trade.contractKey
         );
 
+      // =====================================
+      // REFRESH DASHBOARD
+      // =====================================
+
       setImportedTrades([
         ...rebuiltTrades,
         ...manualTrades,
       ]);
 
-      await supabase
-        .from("broker_connections")
-        .update({
-          last_sync_at:
-            new Date().toISOString(),
-          last_sync_status:
-            "success",
-          last_sync_error:
-            null,
-          last_sync_execution_count:
-            parsedExecutions.length,
-        })
-        .eq(
-          "broker",
-          "IBKR"
-        )
-        .eq(
-          "is_active",
-          true
-        );
+      console.log(
+        "MULTI-BROKER SYNC COMPLETE"
+      );
 
     } catch (error) {
 
       console.error(
-        "IBKR SYNC FAILED:",
+        "MULTI-BROKER SYNC FAILED:",
         error
       );
 
@@ -986,6 +941,7 @@ const handleTestIBKRSync =
       setIsSyncing(false);
 
     }
+
   };
 
   // =================================================
