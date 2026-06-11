@@ -445,7 +445,7 @@ const hasNote = false;
         onClick={() =>
           setSelectedDay(day)
         }
-        className={`relative flex h-[92px] flex-col justify-between rounded-[16px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
+        className={`relative flex h-[99px] flex-col justify-between rounded-[16px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
           dayData
             ? getDayIntensity(
                 dayData.pnl
@@ -575,9 +575,9 @@ const handleDeleteTrade =
       {/* CALENDAR */}
       {/* ===================================================== */}
 
-      <div className="min-h-[600px] w-full rounded-[32px] bg-[#071427]/00 p-5 shadow-[0_0_60px_rgba(0,0,0,0.30)]">
+      <div className="h-auto w-full rounded-[32px] bg-[#071427]/00 px-5 pt-5 pb-7 shadow-[0_0_60px_rgba(0,0,0,0.30)]">
 
-        <div className="rounded-[28px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)] p-8">
+       <div className="rounded-[28px] border border-white/[0.03] bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)] px-8 pt-8 pb-10">
 
           {/* HEADER */}
 
