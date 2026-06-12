@@ -31,7 +31,7 @@ const currencySymbol =
 
   const donutData = [
     {
-      name: "Gross P&L",
+      name: "Trading P&L",
       value:
         performanceBreakdownAnalytics.grossPnL,
       color: "#41855a",
@@ -44,14 +44,7 @@ const currencySymbol =
         ),
       color: "#1e6abb",
     },
-    {
-      name: "Expenses",
-      value:
-        Math.abs(
-          performanceBreakdownAnalytics.expenses
-        ),
-      color: "#bb4086",
-    },
+
   ];
 
   return (  
@@ -157,7 +150,7 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
     <div className="text-[26px] font-bold text-slate-300">
       {currencySymbol}
-{performanceBreakdownAnalytics.realProfit.toFixed(2)}
+{performanceBreakdownAnalytics.netTradingPnL.toFixed(2)}
     </div>
 
     <div
@@ -221,27 +214,12 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
                 <span className="text-[15px] font-medium text-slate-300">
 {currencySymbol}
-{performanceBreakdownAnalytics.commissions.toFixed(2)}
+{Math.abs(
+  performanceBreakdownAnalytics.commissions
+).toFixed(2)}
                 </span>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-
-                  <span className="text-[16px] text-slate-400">
-                    Expenses
-                  </span>
-                </div>
-
-                <span className="text-[15px] font-medium text-slate-300">
-                  {currencySymbol}
-{performanceBreakdownAnalytics.expenses.toFixed(2)}
-                </span>
-              </div>
-
               
-
             </div>
 
           </div>

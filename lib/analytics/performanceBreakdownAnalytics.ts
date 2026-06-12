@@ -3,27 +3,18 @@ import {
 } from "@/types/trade";
 
 export interface PerformanceBreakdownData {
-
   longPnL: number;
-
   shortPnL: number;
 
   commissions: number;
 
-  expenses: number;
-
   netTradingPnL: number;
-
-  realProfit: number;
-
   grossPnL: number;
 
   longTrades: number;
-
   shortTrades: number;
 
   longPercentage: number;
-
   shortPercentage: number;
 }
 
@@ -96,8 +87,7 @@ export function calculateCommissions(
 // =================================================
 
 export function generatePerformanceBreakdownAnalytics(
-  trades: Trade[],
-  expenses: number
+  trades: Trade[]
 ): PerformanceBreakdownData {
 
   const longPnL =
@@ -119,14 +109,10 @@ export function generatePerformanceBreakdownAnalytics(
   longPnL +
   shortPnL;
 
-  const grossPnL =
+const grossPnL =
   netTradingPnL +
-  Math.abs(commissions) +
-  Math.abs(expenses);
+  Math.abs(commissions);
 
-const realProfit =
-  netTradingPnL -
-  expenses;
 
     const longTrades =
   trades.filter(
@@ -160,13 +146,11 @@ return {
 
   commissions,
 
-  expenses,
 
   grossPnL,
 
   netTradingPnL,
 
-  realProfit,
 
   longTrades,
 
