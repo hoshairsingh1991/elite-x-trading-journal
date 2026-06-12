@@ -99,6 +99,9 @@ git commit -m "Dashboard V2 secondary metrics analytics" - just left with AVG R 
 git commit -m "Dashboard V2: finalize secondary metrics row UI and interactions" -  secondary metric card is now complete 100%
 git tag checkpoint-dashboard-v2-secondary-metrics-v2
 git commit -m "Dashboard V2: refactor layout, remove translate-y hacks, integrate secondary metrics and calendar into EquitySection, and add bottom footer spacing"
+git commit -m "Broker Sync: add multi-account onboarding, sync UX improvements, and settings enhancements"
+
+git tag checkpoint-broker-sync-multi-account-v1 ---- Multi account now work in IBKR. SYnc now work for all accounts.
 ------------------------------------------------------------------
 
 

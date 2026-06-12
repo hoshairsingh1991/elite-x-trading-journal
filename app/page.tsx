@@ -460,7 +460,7 @@ const totalPnL =
       filteredTrades
     );
 
-  const totalFees =
+const totalFees =
   calculateTotalFees(
     filteredTrades
   );
@@ -661,17 +661,10 @@ const consistencyAnalytics =
     reportingTrades
   );
 
-const expenses: Expense[] = [];
-
-const expenseAnalytics =
-  generateExpenseAnalytics(
-    expenses
-  );
 
 const performanceBreakdownAnalytics =
   generatePerformanceBreakdownAnalytics(
-    reportingTrades,
-    expenseAnalytics.totalExpenses
+    reportingTrades
   );
 
 
