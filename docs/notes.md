@@ -103,8 +103,8 @@ git commit -m "Broker Sync: add multi-account onboarding, sync UX improvements, 
 
 git tag checkpoint-broker-sync-multi-account-v1 ---- Multi account now work in IBKR. SYnc now work for all accounts.
 ------------------------------------------------------------------
-
-
+git commit -m "Refactor performance breakdown and decouple dashboard from expenses" - Expense page strat here
+------------------------------------------------------------------
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
