@@ -125,8 +125,8 @@ export default function Sidebar() {
                   href={item.href}
                   className={`group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 transition-all ${
                     isActive
-                      ? "bg-[#0b1730] text-slate-400"
-                      : "text-slate-500 hover:bg-[#0b1730] hover:text-slate-400"
+  ? "bg-[#0b1730]"
+  : "hover:bg-[#0b1730]"
                   }`}
                 >
 
@@ -139,9 +139,15 @@ export default function Sidebar() {
                     }`}
                   />
 
-                  <span className="text-[16px] font-medium">
-                    {item.title}
-                  </span>
+                  <span
+  className={`text-[16px] font-medium ${
+    isActive
+      ? "text-slate-300"
+      : "text-slate-500 group-hover:text-slate-300"
+  }`}
+>
+  {item.title}
+</span>
                 </Link>
               );
             })}
