@@ -2,15 +2,20 @@
 
 import Sidebar from "@/components/layout/Sidebar";
 
+import { useState } from "react";
+
 import ExpensesHeader from "@/components/expenses/ExpensesHeader";
 import ExpenseKpiGrid from "@/components/expenses/ExpenseKpiGrid";
 import ExpensesOverviewSection from "@/components/expenses/ExpensesOverviewSection";
 import ManualExpensesTable from "@/components/expenses/ManualExpensesTable";
 import ExpensesIntelligenceSection from "@/components/expenses/ExpensesIntelligenceSection";
 import TaxDeductibleSummary from "@/components/expenses/TaxDeductibleSummary";
-
+import AddExpenseDrawer from "@/components/expenses/AddExpenseDrawer";
 
 export default function ExpensePage() {
+
+  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+
   return (
     <main className="flex h-screen overflow-x-hidden overflow-y-hidden bg-[#020817]">
       {/* Sidebar */}
@@ -76,7 +81,9 @@ export default function ExpensePage() {
   <div className="grid grid-cols-12 gap-6">
     {/* Left */}
     <div className="col-span-9">
-      <ManualExpensesTable />
+      <ManualExpensesTable
+  onAddExpense={() => setIsAddExpenseOpen(true)}
+/>
     </div>
 
     {/* Right */}
@@ -91,6 +98,10 @@ export default function ExpensePage() {
 </div>
         </div>
       </section>
+      <AddExpenseDrawer
+  open={isAddExpenseOpen}
+  onClose={() => setIsAddExpenseOpen(false)}
+/>
     </main>
   );
 }

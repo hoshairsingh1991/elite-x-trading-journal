@@ -9,7 +9,14 @@ import {
   Trash2,
 } from "lucide-react";
 
-export default function ManualExpensesTable() {
+type ManualExpensesTableProps = {
+  onAddExpense: () => void;
+};
+
+export default function ManualExpensesTable({
+  onAddExpense,
+}: ManualExpensesTableProps) {
+
   /* =====================================================
      FINE TUNING
      ===================================================== */
@@ -170,32 +177,33 @@ const recurringX = "-translate-x-5";
           </button>
         </div>
 
-        {/* Add Expense */}
-        <button
-          className={`
-            flex
-            ${addButtonWidth}
-            ${addButtonHeight}
-            items-center
-            justify-center
-            gap-2
+{/* Add Expense */}
+<button
+  onClick={() => onAddExpense()}
+  className={`
+    flex
+    ${addButtonWidth}
+    ${addButtonHeight}
+    items-center
+    justify-center
+    gap-2
 
-            rounded-xl
-            bg-blue-600
-            text-[13px]
-            font-semibold
-            text-white
+    rounded-xl
+    bg-blue-600
+    text-[13px]
+    font-semibold
+    text-white
 
-            transition
-            hover:bg-blue-500
+    transition
+    hover:bg-blue-500
 
-            ${addButtonX}
-            ${addButtonY}
-          `}
-        >
-          <Plus className="h-4 w-4" />
-          Add Expense
-        </button>
+    ${addButtonX}
+    ${addButtonY}
+  `}
+>
+  <Plus className="h-4 w-4" />
+  Add Expense
+</button>
       </div>
 
       <div className="h-5" />
