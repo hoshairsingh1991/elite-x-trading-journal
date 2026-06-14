@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
+
 import {
-  Brain,
+  CalendarClock,
   Flame,
   Gauge,
   ShieldCheck,
@@ -65,26 +67,38 @@ const burnMetricsY = "translate-y-6";
 const burnMetricsWidth = "w-[90%]";
 
 
-/* =====================================================
-   SMART INSIGHTS FINE TUNING
-   ===================================================== */
 
-const insightsHeaderX = "translate-x-2";
-const insightsHeaderY = "translate-y-2";
-
-const insightsListX = "translate-x-4";
-const insightsListY = "translate-y-8";
-
-const insightsWidth = "w-[88%]";
 
 /* =====================================================
-   SMART INSIGHTS DOT FINE TUNING
+   UPCOMING RENEWALS FINE TUNING
    ===================================================== */
 
-const insightsDotX = "translate-x-0";
-const insightsDotY = "translate-y-2";
+const renewalsHeaderX = "translate-x-2";
+const renewalsHeaderY = "translate-y-2";
 
-    /* =====================================================
+const renewalsButtonX = "-translate-x-4";
+const renewalsButtonY = "translate-y-0";
+
+const renewalsListX = "translate-x-4";
+const renewalsListY = "translate-y-7";
+
+const renewalsWidth = "w-[90%]";
+
+const renewalIconX = "translate-x-0";
+const renewalIconY = "translate-y-0";
+
+const renewalIconSize = 24;
+
+const renewalNameX = "translate-x-2";
+const renewalNameY = "translate-y-0";
+
+const renewalDateX = "translate-x-0";
+const renewalDateY = "translate-y-0";
+
+const renewalDaysX = "translate-x-0";
+const renewalDaysY = "translate-y-0";
+
+  /* =====================================================
    AVG COST PER TRADE FINE TUNING
    ===================================================== */
 
@@ -130,8 +144,11 @@ const metricsWidth = "w-[90%]";
  const cardClass =
   "group flex h-[220px] flex-col rounded-[22px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-200 hover:-translate-y-[1px] hover:border-white/20 hover:bg-white/[0.045]";
 
+const renewalBoxSize = "h-7 w-7"; // try h-7 w-7, h-8 w-8, h-9 w-9
+
   return (
     <div className="grid grid-cols-6 gap-5">
+
 
         
 
@@ -658,115 +675,337 @@ const metricsWidth = "w-[90%]";
 </div>
 
 {/* ================================================= */}
-{/* Smart Insights */}
+{/* Upcoming Renewals */}
 {/* ================================================= */}
 
 <div className={`${cardClass} px-6 py-6`}>
   {/* Header */}
   <div
     className={`
-      flex items-center gap-2
+      flex items-center justify-between
 
-      ${insightsHeaderX}
-      ${insightsHeaderY}
+      ${renewalsHeaderX}
+      ${renewalsHeaderY}
     `}
   >
-    <Brain className="h-4 w-4 text-blue-400" />
+    <div className="flex items-center gap-2">
+      <CalendarClock className="h-4 w-4 text-slate-400" />
 
-    <span className="text-[13px] font-semibold text-white">
-      Smart Insights
-    </span>
+      <span className="text-[13px] font-semibold text-white">
+        Upcoming Renewals
+      </span>
+    </div>
+
+    <button
+className={`
+  flex
+  h-6
+  w-[56px]
+  items-center
+  justify-center
+
+  rounded-lg
+  border
+  border-white/10
+  bg-white/[0.02]
+
+  text-[10px]
+  font-medium
+  text-slate-300
+
+  transition-all
+  hover:border-white/20
+  hover:bg-white/[0.05]
+
+  ${renewalsButtonX}
+  ${renewalsButtonY}
+`}
+    >
+      View All
+    </button>
   </div>
 
-  {/* Insights List */}
+  {/* Body */}
   <div
     className={`
       mt-6
-      space-y-4
 
-      ${insightsWidth}
-      ${insightsListX}
-      ${insightsListY}
+      ${renewalsWidth}
+      ${renewalsListX}
+      ${renewalsListY}
     `}
   >
-    <div className="flex items-start gap-3">
-      <div
+    {/* TradingView */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+
+
+<div
   className={`
-    h-2
-    w-2
-    shrink-0
-    rounded-full
-    bg-emerald-400
+    flex
+    ${renewalBoxSize}
+    items-center
+    justify-center
+    rounded-lg
+    bg-white
 
-    ${insightsDotX}
-    ${insightsDotY}
+    ${renewalIconX}
+    ${renewalIconY}
   `}
+>
+
+
+<Image
+  src="/icons/expenses/tradingview.png"
+  alt="TradingView"
+width={renewalIconSize}
+height={renewalIconSize}
 />
+</div>
 
-      <div>
-        <p className="text-[12px] font-medium text-white">
-          82% Tax Deductible
-        </p>
+        <span
+          className={`
+            ml-3
+            text-[12px]
+            font-medium
+            text-white
 
-        <p className="mt-1 text-[11px] text-slate-400">
-          Most business expenses qualify for deductions.
-        </p>
+            ${renewalNameX}
+            ${renewalNameY}
+          `}
+        >
+          TradingView
+        </span>
+      </div>
+
+      <div className="flex items-center gap-5">
+        <span
+          className={`
+            text-[11px]
+            text-slate-400
+
+            ${renewalDateX}
+            ${renewalDateY}
+          `}
+        >
+          Jun 18, 2026
+        </span>
+
+        <span
+          className={`
+            min-w-[55px]
+            text-right
+            text-[11px]
+            font-semibold
+            text-orange-400
+
+            ${renewalDaysX}
+            ${renewalDaysY}
+          `}
+        >
+          7 days
+        </span>
       </div>
     </div>
-<div className="h-1" />
-    <div className="flex items-start gap-3">
-      <div
+
+    <div className="h-[12px]" />
+
+{/* CME */}
+<div className="flex items-center justify-between">
+  <div className="flex items-center">
+
+   <div
   className={`
-    h-2
-    w-2
-    shrink-0
-    rounded-full
-    bg-blue-400
+    flex
+    ${renewalBoxSize}
+    items-center
+    justify-center
+    rounded-lg
+    bg-white
 
-    ${insightsDotX}
-    ${insightsDotY}
+    ${renewalIconX}
+    ${renewalIconY}
   `}
-/>
-
-      <div>
-        <p className="text-[12px] font-medium text-white">
-          Commission Costs Improving
-        </p>
-
-        <p className="mt-1 text-[11px] text-slate-400">
-          Trading costs are 5.2% lower than last month.
-        </p>
-      </div>
+>
+      <span className="text-[10px] font-bold tracking-tight text-sky-700">
+        CME
+      </span>
     </div>
-<div className="h-1" />
-    <div className="flex items-start gap-3">
-      <div
+
+<span
   className={`
-    h-2
-    w-2
-    shrink-0
-    rounded-full
-    bg-yellow-400
+    ml-3
+    text-[12px]
+    font-medium
+    text-white
 
-    ${insightsDotX}
-    ${insightsDotY}
+    ${renewalNameX}
+    ${renewalNameY}
   `}
-/>
+>
+  CME Market Data
+</span>
+  </div>
 
-      <div>
-        <p className="text-[12px] font-medium text-white">
-          Subscription Review
-        </p>
+  <div className="flex items-center gap-5">
+    <span className="text-[11px] text-slate-400">
+      Jun 25, 2026
+    </span>
 
-        <p className="mt-1 text-[11px] text-slate-400">
-          Consider consolidating recurring software expenses.
-        </p>
-      </div>
-    </div>
+    <span className="min-w-[55px] text-right text-[11px] font-semibold text-orange-400">
+      14 days
+    </span>
   </div>
 </div>
-        </div>
-      
-    
+
+<div className="h-[12px]" />
+
+{/* DigitalOcean */}
+<div className="flex items-center justify-between">
+  <div className="flex items-center">
+<div
+  className={`
+    flex
+    ${renewalBoxSize}
+    items-center
+    justify-center
+    rounded-lg
+    bg-[#0069FF]
+    p-1
+
+    ${renewalIconX}
+    ${renewalIconY}
+  `}
+>
+      <Image
+        src="/icons/expenses/digitalocean.png"
+        alt="DigitalOcean"
+        width={renewalIconSize}
+        height={renewalIconSize}
+        className="object-contain"
+      />
+    </div>
+
+    <span
+      className={`
+        ml-3
+        text-[12px]
+        font-medium
+        text-white
+
+        ${renewalNameX}
+        ${renewalNameY}
+      `}
+    >
+      DigitalOcean VPS
+    </span>
+  </div>
+
+  <div className="flex items-center gap-5">
+    <span
+      className={`
+        text-[11px]
+        text-slate-400
+
+        ${renewalDateX}
+        ${renewalDateY}
+      `}
+    >
+      Jul 2, 2026
+    </span>
+
+    <span
+      className={`
+        min-w-[55px]
+        text-right
+        text-[11px]
+        font-semibold
+        text-orange-400
+
+        ${renewalDaysX}
+        ${renewalDaysY}
+      `}
+    >
+      21 days
+    </span>
+  </div>
+</div>
+
+<div className="h-[12px]" />
+
+{/* NinjaTrader */}
+<div className="flex items-center justify-between">
+  <div className="flex items-center">
+<div
+  className={`
+    flex
+    ${renewalBoxSize}
+    items-center
+    justify-center
+    rounded-lg
+    bg-[#0069FF]
+    p-1
+
+    ${renewalIconX}
+    ${renewalIconY}
+  `}
+>
+      <Image
+        src="/icons/expenses/ninjatrader.png"
+        alt="NinjaTrader"
+        width={renewalIconSize}
+        height={renewalIconSize}
+        className="object-contain"
+      />
+    </div>
+
+    <span
+      className={`
+        ml-3
+        text-[12px]
+        font-medium
+        text-white
+
+        ${renewalNameX}
+        ${renewalNameY}
+      `}
+    >
+      NinjaTrader
+    </span>
+  </div>
+
+  <div className="flex items-center gap-5">
+    <span
+      className={`
+        text-[11px]
+        text-slate-400
+
+        ${renewalDateX}
+        ${renewalDateY}
+      `}
+    >
+      Jul 6, 2026
+    </span>
+
+    <span
+      className={`
+        min-w-[55px]
+        text-right
+        text-[11px]
+        font-semibold
+        text-orange-400
+
+        ${renewalDaysX}
+        ${renewalDaysY}
+      `}
+    >
+      25 days
+    </span>
+  </div>
+</div>
+  </div>
+</div>
+    </div>
+       
   );
 }

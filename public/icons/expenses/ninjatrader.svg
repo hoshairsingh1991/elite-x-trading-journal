@@ -1,0 +1,11 @@
+<Image
+  src="/icons/expenses/ninjatrader.svg"
+  alt="NinjaTrader"
+  width={36}
+  height={36}
+  className={`
+    rounded-lg
+    ${renewalIconX}
+    ${renewalIconY}
+  `}
+/>
