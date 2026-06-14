@@ -7,18 +7,20 @@ import ExpenseKpiGrid from "@/components/expenses/ExpenseKpiGrid";
 import ExpensesOverviewSection from "@/components/expenses/ExpensesOverviewSection";
 import ManualExpensesTable from "@/components/expenses/ManualExpensesTable";
 import ExpensesIntelligenceSection from "@/components/expenses/ExpensesIntelligenceSection";
+import TaxDeductibleSummary from "@/components/expenses/TaxDeductibleSummary";
+
 
 export default function ExpensePage() {
   return (
-    <main className="flex min-h-screen bg-[#020817]">
+    <main className="flex h-screen overflow-x-hidden overflow-y-hidden bg-[#020817]">
       {/* Sidebar */}
       <div className="p-4">
         <Sidebar />
       </div>
 
-      {/* Main Content */}
-      <section className="flex min-w-0 flex-1 flex-col overflow-visible pt-10">
-        <div className="flex-1 overflow-visible">
+     {/* Main Content */}
+<section className="flex min-w-0 flex-1 flex-col overflow-hidden pt-4 pr-10">
+  <div className="flex-1 overflow-y-auto overflow-x-hidden">
           {/* Approved Dashboard-style width wrapper */}
           
 <div className="flex justify-center">
@@ -64,15 +66,27 @@ export default function ExpensePage() {
   <ExpensesOverviewSection />
 </div>
 
+<div className="h-6" />
+
 {/* ================================================= */}
-{/* MANUAL EXPENSES TABLE (TEMP HIDDEN) */}
+{/* MANUAL EXPENSES + TAX SUMMARY */}
 {/* ================================================= */}
 
-{/*
-<div className="mt-8 pb-10">
-  <ManualExpensesTable />
+<div className="pb-10">
+  <div className="grid grid-cols-12 gap-6">
+    {/* Left */}
+    <div className="col-span-9">
+      <ManualExpensesTable />
+    </div>
+
+    {/* Right */}
+    <div className="col-span-3">
+      <TaxDeductibleSummary />
+    </div>
+
+    <div className="h-0" />
+  </div>
 </div>
-*/}
   </div>
 </div>
         </div>
