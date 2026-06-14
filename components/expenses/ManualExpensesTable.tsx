@@ -27,7 +27,7 @@ export default function ManualExpensesTable() {
   const addButtonY = "translate-y-3";
 
   const tableX = "translate-x-4";
-  const tableY = "-translate-y-3";
+  const tableY = "-translate-y-4";
 
   const addButtonWidth = "w-[120px]";
   const addButtonHeight = "h-[38px]";
@@ -70,14 +70,22 @@ const recurringX = "-translate-x-5";
     max-w-full
     min-w-0
 
+    overflow-hidden
+
     rounded-3xl
     border
     border-white/10
+
     bg-[#0B1220]
 
-    p-6
+    transition-all
+    duration-300
 
-    overflow-hidden
+    hover:-translate-y-0.5
+    hover:border-white/15
+    hover:shadow-[0_8px_30px_rgba(0,0,0,0.25)]
+
+    p-6
   "
 >
   <div className="mx-auto w-[98%]">

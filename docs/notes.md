@@ -109,6 +109,7 @@ git tag checkpoint-expenses-overview-ui
 git commit -m "feat(expenses): redesign KPI and intelligence dashboard with premium UI" _ row 1,2 and 3 is complete here.. UI only
 git commit -m "Checkpoint: Finalize Expenses Overview UI polish and premium layout"
 git commit -m "refine(expenses): polish Upcoming Renewals UI"
+git commit -m "Finalize Expenses page UI and tax summary layout"
 ------------------------------------------------------------------
 
 Status:

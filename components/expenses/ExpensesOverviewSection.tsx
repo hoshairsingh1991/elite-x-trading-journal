@@ -57,11 +57,11 @@ const manualButtonY = "translate-y-0";
 
 // Title
 const breakdownTitleX = "translate-x-4";
-const breakdownTitleY = "translate-y-1";
+const breakdownTitleY = "translate-y-0";
 
 // Info icon
 const breakdownInfoX = "-translate-x-62";
-const breakdownInfoY = "translate-y-1";
+const breakdownInfoY = "translate-y-0";
 
 // Donut chart
 const breakdownChartX = "-translate-x-30";
@@ -78,11 +78,11 @@ const breakdownLegendY = "-translate-y-28";
 
 // Title
 const recurringTitleX = "translate-x-4";
-const recurringTitleY = "translate-y-1";
+const recurringTitleY = "translate-y-0";
 
 // Info icon
 const recurringInfoX = "-translate-x-85";
-const recurringInfoY = "translate-y-1";
+const recurringInfoY = "translate-y-0";
 
 // Donut
 const recurringChartX = "-translate-x-30";
