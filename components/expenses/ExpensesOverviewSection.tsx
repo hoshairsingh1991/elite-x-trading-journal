@@ -10,6 +10,12 @@ import {
 
 export default function ExpensesOverviewSection() {
 
+// =====================================================
+// Expense Sources Fine Tuning
+// =====================================================
+
+const sourcesX = "translate-x-2";
+const sourcesY = "translate-y-0";
 
 // =====================================================
 // Auto Expense Source Fine Tuning
@@ -62,7 +68,7 @@ const breakdownChartX = "-translate-x-30";
 const breakdownChartY = "translate-y-10";
 
 // Legend
-const breakdownLegendX = "translate-x-55";
+const breakdownLegendX = "translate-x-56";
 const breakdownLegendY = "-translate-y-28";
 
 
@@ -100,7 +106,7 @@ const recurringLegendY = "-translate-y-20";
   const legendY = "translate-y-1";
 
   const chartX = "translate-x-0";
-  const chartY = "translate-y-2";
+  const chartY = "translate-y-3";
 
 return (
   <div className="grid grid-cols-13 gap-5">
@@ -109,7 +115,7 @@ return (
 {/* Expenses Over Time */}
 {/* ================================================= */}
 
-<div className="col-span-5 rounded-[20px] border border-white/10 bg-white/[0.03] p-6">
+<div className="col-span-5 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
   {/* Header */}
   <div className="flex items-center justify-between">
     <div className={`${titleX} ${titleY}`}>
@@ -155,7 +161,7 @@ return (
 
   {/* Chart */}
   <div className={`mt-5 flex justify-center ${chartX} ${chartY}`}>
-    <div className="relative h-[270px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+    <div className="relative h-[260px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
 
       {/* Horizontal Grid */}
       <div className="absolute left-14 right-4 top-6 border-t border-white/5" />
@@ -229,7 +235,7 @@ return (
 {/* Expense Breakdown */}
 {/* ================================================= */}
 
-<div className="col-span-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-6">
+<div className="col-span-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
   {/* Top Spacer */}
   <div className="h-2" />
 
@@ -247,7 +253,7 @@ return (
   </div>
 
   {/* Spacer */}
-  <div className="h-6" />
+  <div className="h-4" />
 
   {/* Donut */}
   <div
@@ -342,7 +348,7 @@ return (
 {/* Recurring */}
 {/* ================================================= */}
 
-<div className="col-span-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-6">
+<div className="col-span-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
   {/* Top Spacer */}
   <div className="h-2" />
 
@@ -423,25 +429,24 @@ return (
 
 <div className="col-span-2 flex flex-col">
   {/* Header */}
-  <div className="mb-5 flex items-center justify-between">
+  <div className={`mb-5 flex items-center justify-between ${sourcesX} ${sourcesY}`}>
     <h3 className="text-[18px] font-semibold text-white">
       Expense Sources
     </h3>
 
-    <Info className="h-4 w-4 text-slate-500" />
   </div>
 
   {/* Cards */}
-  <div className="flex flex-1 flex-col gap-5">
-<div className="h-0" />
+  <div className="flex flex-1 flex-col gap-4">
+
  {/* ================================================= */}
 {/* Auto Card */}
 {/* ================================================= */}
 
-<div className="flex-1 rounded-[20px] border border-violet-500/20 bg-gradient-to-br from-violet-500/8 via-violet-500/3 to-transparent p-5">
+<div className="flex-1 rounded-[20px] border border-violet-500/20 bg-gradient-to-br from-violet-500/8 via-violet-500/3 to-transparent p-5 transition-all duration-300 hover:-translate-y-[2px] hover:border-violet-400/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.10)]">
 
   {/* Top Row */}
-  <div className="flex items-start justify-between">
+  <div className="relative flex items-start justify-between">
 
 <div className={`${autoIconX} ${autoIconY}`}>
   <div className="flex h-[34px] w-[52px] items-center justify-center">
@@ -449,8 +454,8 @@ return (
   </div>
 </div>
 
-<div className="absolute right-4 top-14">
-  <span className="flex h-6 w-12 items-center justify-center rounded-md border border-white/10 bg-white/5 text-[9px] font-bold uppercase tracking-[0.03em] text-slate-200">
+<div className="absolute right-4 top-2">
+  <span className="flex h-5 w-11 items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.02] text-[9px] font-bold uppercase tracking-[0.03em] text-slate-300">
     <span className="translate-y-[1px]">
       AUTO
     </span>
@@ -483,7 +488,7 @@ return (
 {/* Manual Card */}
 {/* ================================================= */}
 
-<div className="flex-1 rounded-[20px] border border-blue-500/20 bg-gradient-to-br from-blue-500/8 via-blue-500/3 to-transparent p-5">
+<div className="flex-1 rounded-[20px] border border-blue-500/20 bg-gradient-to-br from-blue-500/8 via-blue-500/3 to-transparent p-5 transition-all duration-300 hover:-translate-y-[2px] hover:border-blue-400/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.10)]">
 
   {/* Top Row */}
   <div className="relative flex items-start justify-between">
@@ -495,7 +500,7 @@ return (
 </div>
 
 <div className={`absolute ${manualBadgeX} ${manualBadgeY}`}>
-  <span className="flex h-6 w-14 items-center justify-center rounded-md border border-white/10 bg-white/5 text-[9px] font-bold uppercase tracking-[0.03em] text-slate-200">
+  <span className="flex h-5 w-13 items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.02] text-[9px] font-bold uppercase tracking-[0.03em] text-slate-300">
     <span className="translate-y-[1px]">
       MANUAL
     </span>

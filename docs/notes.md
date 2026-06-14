@@ -107,6 +107,7 @@ git commit -m "Refactor performance breakdown and decouple dashboard from expens
 git commit -m "Expenses UI: refine overview cards and align layout with target design"
 git tag checkpoint-expenses-overview-ui
 git commit -m "feat(expenses): redesign KPI and intelligence dashboard with premium UI" _ row 1,2 and 3 is complete here.. UI only
+git commit -m "Checkpoint: Expenses dashboard UI refinement and alignment pass"
 ------------------------------------------------------------------
 
 Status:
