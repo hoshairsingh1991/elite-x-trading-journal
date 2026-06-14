@@ -21,7 +21,7 @@ const autoIconY = "translate-y-14";
 const autoBadgeX = "-translate-x-3";
 const autoBadgeY = "translate-y-0";
 
-const autoTextX = "translate-x-25";
+const autoTextX = "translate-x-22";
 const autoTextY = "-translate-y-4";
 
 const autoButtonX = "translate-x-16";
@@ -34,14 +34,16 @@ const autoButtonY = "translate-y-0";
 const manualIconX = "translate-x-6";
 const manualIconY = "translate-y-14";
 
-const manualBadgeX = "-translate-x-4";
-const manualBadgeY = "translate-y-1";
+const manualBadgeX = "translate-x-60";
+const manualBadgeY = "translate-y-2";
 
-const manualTextX = "translate-x-25";
+const manualTextX = "translate-x-22";
 const manualTextY = "-translate-y-4";
 
 const manualButtonX = "translate-x-16";
 const manualButtonY = "translate-y-0";
+
+
 
   // =====================================================
 // Expense Breakdown Fine Tuning
@@ -60,7 +62,7 @@ const breakdownChartX = "-translate-x-30";
 const breakdownChartY = "translate-y-10";
 
 // Legend
-const breakdownLegendX = "translate-x-60";
+const breakdownLegendX = "translate-x-55";
 const breakdownLegendY = "-translate-y-28";
 
 
@@ -82,7 +84,7 @@ const recurringChartY = "translate-y-10";
 
 // Legend
 const recurringLegendX = "translate-x-60";
-const recurringLegendY = "-translate-y-24";
+const recurringLegendY = "-translate-y-20";
 
   // =====================================================
   // Expenses Over Time Fine Tuning
@@ -91,135 +93,137 @@ const recurringLegendY = "-translate-y-24";
   const titleX = "translate-x-4";
   const titleY = "translate-y-0";
 
-  const controlsX = "-translate-x-5";
-  const controlsY = "translate-y-1";
+  const controlsX = "-translate-x-4";
+  const controlsY = "translate-y-2";
 
-  const legendX = "translate-x-4";
-  const legendY = "translate-y-0";
+  const legendX = "translate-x-2";
+  const legendY = "translate-y-1";
 
   const chartX = "translate-x-0";
-  const chartY = "translate-y-0";
+  const chartY = "translate-y-2";
 
 return (
-
-  
   <div className="grid grid-cols-13 gap-5">
 
-    
-    {/* ================================================= */}
-    {/* Expenses Over Time */}
-    {/* ================================================= */}
+{/* ================================================= */}
+{/* Expenses Over Time */}
+{/* ================================================= */}
 
-    <div className="col-span-5 rounded-[20px] border border-white/10 bg-white/[0.03] p-6">
-      {/* Top Spacer */}
-      <div className="h-2" />
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className={`${titleX} ${titleY}`}>
-          <h3 className="text-[18px] font-semibold text-white">
-            Expenses Over Time
-          </h3>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 ${controlsX} ${controlsY}`}
-        >
-<button
-  className="
-    flex
-    h-[32px]          /* <-- Adjust height here */
-    w-[32px]          /* <-- Adjust width here */
-    items-center
-    justify-center
-    rounded-[12px]
-    bg-white/5
-    text-[13px]
-    font-medium
-    text-slate-300
-    transition
-    hover:bg-white/10
-  "
->
-  M
-</button>
-
-<button
-  className="
-    flex
-    h-[32px]
-    w-[32px]
-    items-center
-    justify-center
-    rounded-[12px]
-    bg-white/5
-    text-[13px]
-    font-medium
-    text-slate-300
-    transition
-    hover:bg-white/10
-  "
->
-  Q
-</button>
-
-<button
-  className="
-    flex
-    h-[32px]
-    w-[32px]
-    items-center
-    justify-center
-    rounded-[12px]
-    bg-blue-500
-    text-[13px]
-    font-semibold
-    text-white
-    transition
-    hover:bg-blue-400
-  "
->
-  Y
-</button>
-        </div>
-      </div>
-
-      {/* Spacer */}
-      <div className="h-" />
-
-{/* Legend */}
-<div
-  className={`flex flex-wrap items-center gap-2 ${legendX} ${legendY}`}
->
-<span className="rounded-full px-4 py-2 text-[14px] font-medium text-blue-300">
-  ● Manual Expenses
-</span>
-
-<span className="rounded-full px-4 py-2 text-[14px] font-medium text-violet-300">
-  ● Commissions
-</span>
-
-<span className="rounded-full px-4 py-2 text-[14px] font-medium text-emerald-300">
-  ● Total Costs
-</span>
-</div>
-
-      {/* Spacer */}
-      <div className="h-2" />
-
-      {/* Chart */}
-      <div className={`flex justify-center ${chartX} ${chartY}`}>
-        <div className="flex h-[270px] w-[96%] items-center justify-center rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
-          <BarChart3 className="h-14 w-14 text-slate-600" />
-        </div>
-      </div>
-
-      {/* Bottom Spacer */}
-      
+<div className="col-span-5 rounded-[20px] border border-white/10 bg-white/[0.03] p-6">
+  {/* Header */}
+  <div className="flex items-center justify-between">
+    <div className={`${titleX} ${titleY}`}>
+      <h3 className="text-[18px] font-semibold text-white">
+        Expenses Over Time
+      </h3>
     </div>
 
-    {/* KEEP THE REST OF YOUR FILE (Expense Breakdown, Recurring, Expense Sources)
-        EXACTLY AS IT IS BELOW THIS LINE */}
+    <div className={`flex items-center gap-2 ${controlsX} ${controlsY}`}>
+      <button className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-[12px] font-medium text-slate-300">
+        M
+      </button>
+
+      <button className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-[12px] font-medium text-slate-300">
+        Q
+      </button>
+
+      <button className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500 text-[12px] font-semibold text-white">
+        Y
+      </button>
+    </div>
+  </div>
+
+  {/* Legend */}
+  <div
+    className={`mt-3 flex items-center gap-5 text-[12px] ${legendX} ${legendY}`}
+  >
+    <div className="flex items-center gap-2 text-blue-300">
+      <span className="h-2 w-2 rounded-full bg-blue-400" />
+      Manual Expenses
+    </div>
+
+    <div className="flex items-center gap-2 text-violet-300">
+      <span className="h-2 w-2 rounded-full bg-violet-400" />
+      Commissions
+    </div>
+
+    <div className="flex items-center gap-2 text-emerald-300">
+      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+      Total Costs
+    </div>
+  </div>
+
+  {/* Chart */}
+  <div className={`mt-5 flex justify-center ${chartX} ${chartY}`}>
+    <div className="relative h-[270px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+
+      {/* Horizontal Grid */}
+      <div className="absolute left-14 right-4 top-6 border-t border-white/5" />
+      <div className="absolute left-14 right-4 top-[68px] border-t border-white/5" />
+      <div className="absolute left-14 right-4 top-[110px] border-t border-white/5" />
+      <div className="absolute left-14 right-4 top-[152px] border-t border-white/5" />
+      <div className="absolute left-14 right-4 top-[194px] border-t border-white/5" />
+      <div className="absolute left-14 right-4 bottom-8 border-t border-white/5" />
+
+      {/* Y Axis */}
+      <div className="absolute left-14 top-6 bottom-8 w-px bg-white/5" />
+
+      {/* Y Labels */}
+      <div className="absolute left-3 top-2 flex h-[215px] flex-col justify-between text-[10px] text-slate-500">
+        <span>C$2.5K</span>
+        <span>C$2.0K</span>
+        <span>C$1.5K</span>
+        <span>C$1.0K</span>
+        <span>C$500</span>
+        <span>C$0</span>
+      </div>
+
+{/* Bottom Axis */}
+<div className="absolute left-14 right-4 bottom-8 h-px bg-white/5" />
+
+{/* Bars */}
+<div className="absolute bottom-8 left-20 right-8 flex items-end justify-between">
+  {[
+    { month: "Jan", manual: 55, comm: 18 },
+    { month: "Feb", manual: 70, comm: 22 },
+    { month: "Mar", manual: 50, comm: 16 },
+    { month: "Apr", manual: 82, comm: 24 },
+    { month: "May", manual: 96, comm: 30 },
+    { month: "Jun", manual: 78, comm: 22 },
+  ].map((item) => (
+    <div key={item.month} className="flex flex-col items-center">
+      {/* Dot + Bar Group */}
+      <div className="relative flex flex-col items-center">
+        {/* Floating dot */}
+        <div className="absolute -top-5 h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
+
+        {/* Stacked bars */}
+        <div className="flex flex-col">
+          <div
+            className="w-7 rounded-t bg-violet-700/70"
+            style={{ height: `${item.comm}px` }}
+          />
+
+          <div
+            className="w-7 bg-blue-700/75"
+            style={{ height: `${item.manual}px` }}
+          />
+        </div>
+      </div>
+
+      {/* Month */}
+      <span className="mt-3 text-[11px] text-slate-500">
+        {item.month}
+      </span>
+    </div>
+  ))}
+</div>
+    </div>
+  </div>
+</div>
+
+{/* KEEP THE REST OF YOUR FILE (Expense Breakdown, Recurring, Expense Sources)
+    EXACTLY AS IT IS BELOW THIS LINE */}
 
 {/* ================================================= */}
 {/* Expense Breakdown */}
@@ -249,10 +253,28 @@ return (
   <div
     className={`flex justify-center ${breakdownChartX} ${breakdownChartY}`}
   >
-    <div className="flex h-[170px] w-[170px] items-center justify-center rounded-full border-[16px] border-blue-500/70">
-      <div className="text-center">
-        <div className="text-[28px] font-bold text-white">72%</div>
-        <div className="mt-1 text-[12px] text-slate-400">
+    <div
+      className="relative flex h-[140px] w-[140px] items-center justify-center rounded-full"
+      style={{
+        background: `
+          conic-gradient(
+            #2563eb 0% 34%,
+            #7c3aed 34% 56%,
+            #f97316 56% 72%,
+            #fbbf24 72% 82%,
+            #10b981 82% 93%,
+            #64748b 93% 100%
+          )
+        `,
+      }}
+    >
+      {/* Inner Cutout */}
+      <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-[#061325]">
+        <div className="text-[34px] font-bold leading-none text-white">
+          72%
+        </div>
+
+        <div className="mt-2 text-[12px] text-slate-400">
           Total
         </div>
       </div>
@@ -264,42 +286,54 @@ return (
 
   {/* Legend */}
   <div
-    className={`mx-auto max-w-[200px] space-y-3 text-[15px] ${breakdownLegendX} ${breakdownLegendY}`}
+    className={`mx-auto max-w-[220px] space-y-2 text-[14px] ${breakdownLegendX} ${breakdownLegendY}`}
   >
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+        <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
         Software
       </span>
-
-      <span className="text-white">42%</span>
+      <span className="text-white">34%</span>
     </div>
-<div className="h-1" />
+
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
-        Data
+        <span className="h-2.5 w-2.5 rounded-full bg-violet-600" />
+        Market Data
       </span>
-
-      <span className="text-white">28%</span>
+      <span className="text-white">22%</span>
     </div>
-<div className="h-1" />
+
+    <div className="flex items-center justify-between">
+      <span className="flex items-center gap-2 text-slate-300">
+        <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+        Brokerage Fees
+      </span>
+      <span className="text-white">16%</span>
+    </div>
+
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
         Education
       </span>
-
-      <span className="text-white">18%</span>
+      <span className="text-white">10%</span>
     </div>
-<div className="h-1" />
+
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+        Infrastructure
+      </span>
+      <span className="text-white">11%</span>
+    </div>
+
+    <div className="flex items-center justify-between">
+      <span className="flex items-center gap-2 text-slate-300">
+        <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
         Other
       </span>
-
-      <span className="text-white">12%</span>
+      <span className="text-white">7%</span>
     </div>
   </div>
 </div>
@@ -328,22 +362,33 @@ return (
   {/* Spacer */}
   <div className="h-6" />
 
-  {/* Donut */}
+{/* Donut */}
+<div
+  className={`flex justify-center ${recurringChartX} ${recurringChartY}`}
+>
   <div
-    className={`flex justify-center ${recurringChartX} ${recurringChartY}`}
+    className="relative flex h-[140px] w-[140px] items-center justify-center rounded-full"
+    style={{
+      background: `
+        conic-gradient(
+          #10b981 0% 81%,
+          #64748b 81% 100%
+        )
+      `,
+    }}
   >
-    <div className="flex h-[170px] w-[170px] items-center justify-center rounded-full border-[16px] border-emerald-500/70">
-      <div className="text-center">
-        <div className="text-[28px] font-bold text-white">
-          81%
-        </div>
+    {/* Inner Cutout */}
+    <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-[#061325]">
+      <div className="text-[34px] font-bold leading-none text-white">
+        81%
+      </div>
 
-        <div className="mt-1 text-[12px] text-slate-400">
-          Active
-        </div>
+      <div className="mt-2 text-[12px] text-slate-400">
+        Active
       </div>
     </div>
   </div>
+</div>
 
   {/* Spacer */}
   <div className="h-6" />
@@ -360,7 +405,7 @@ return (
 
       <span className="text-white">81%</span>
     </div>
-<div className="h-4" />
+<div className="h-2" />
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
@@ -393,20 +438,22 @@ return (
 {/* Auto Card */}
 {/* ================================================= */}
 
-<div className="flex-1 rounded-[20px] border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent p-5">
+<div className="flex-1 rounded-[20px] border border-violet-500/20 bg-gradient-to-br from-violet-500/8 via-violet-500/3 to-transparent p-5">
 
   {/* Top Row */}
   <div className="flex items-start justify-between">
 
 <div className={`${autoIconX} ${autoIconY}`}>
   <div className="flex h-[34px] w-[52px] items-center justify-center">
-    <RefreshCw className="h-8 w-8 text-violet-300" />
+    <RefreshCw className="h-7 w-7 text-violet-300" />
   </div>
 </div>
 
-<div className={`${autoBadgeX} ${autoBadgeY}`}>
-  <span className="rounded-md px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
-    AUTO
+<div className="absolute right-4 top-14">
+  <span className="flex h-6 w-12 items-center justify-center rounded-md border border-white/10 bg-white/5 text-[9px] font-bold uppercase tracking-[0.03em] text-slate-200">
+    <span className="translate-y-[1px]">
+      AUTO
+    </span>
   </span>
 </div>
 
@@ -436,20 +483,22 @@ return (
 {/* Manual Card */}
 {/* ================================================= */}
 
-<div className="flex-1 rounded-[20px] border border-blue-500/20 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent p-5">
+<div className="flex-1 rounded-[20px] border border-blue-500/20 bg-gradient-to-br from-blue-500/8 via-blue-500/3 to-transparent p-5">
 
   {/* Top Row */}
-  <div className="flex items-start justify-between">
+  <div className="relative flex items-start justify-between">
 
 <div className={`${manualIconX} ${manualIconY}`}>
   <div className="flex h-[34px] w-[52px] items-center justify-center">
-    <CircleDollarSign className="h-8 w-8 text-blue-300" />
+    <CircleDollarSign className="h-7 w-7 text-blue-300" />
   </div>
 </div>
 
-<div className={`${autoBadgeX} ${autoBadgeY}`}>
-  <span className="rounded-md px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
-    MANUAL
+<div className={`absolute ${manualBadgeX} ${manualBadgeY}`}>
+  <span className="flex h-6 w-14 items-center justify-center rounded-md border border-white/10 bg-white/5 text-[9px] font-bold uppercase tracking-[0.03em] text-slate-200">
+    <span className="translate-y-[1px]">
+      MANUAL
+    </span>
   </span>
 </div>
 

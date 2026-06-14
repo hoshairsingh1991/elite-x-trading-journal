@@ -106,6 +106,7 @@ git tag checkpoint-broker-sync-multi-account-v1 ---- Multi account now work in I
 git commit -m "Refactor performance breakdown and decouple dashboard from expenses" - Expense page strat here
 git commit -m "Expenses UI: refine overview cards and align layout with target design"
 git tag checkpoint-expenses-overview-ui
+git commit -m "feat(expenses): redesign KPI and intelligence dashboard with premium UI" _ row 1,2 and 3 is complete here.. UI only
 ------------------------------------------------------------------
 
 Status:
