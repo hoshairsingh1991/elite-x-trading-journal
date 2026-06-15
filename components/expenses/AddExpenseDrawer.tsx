@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, ChevronDown } from "lucide-react";
-import { saveExpense } from "@/lib/storage/supabaseExpenseStorage";
+import {
+  saveExpense,
+  updateExpense,
+} from "@/lib/storage/supabaseExpenseStorage";
+
 
 type AddExpenseDrawerProps = {
   open: boolean;
   onClose: () => void;
+  onSaveSuccess: () => void;
+  editingExpense?: any | null;
 };
 
 const headerPaddingX = "px-7";
@@ -44,7 +50,7 @@ const basicSectionX = "translate-x-0";
 const basicSectionY = "translate-y-0";
 
 const basicHeaderX = "translate-x-3";
-const basicHeaderY = "translate-y-3";
+const basicHeaderY = "translate-y-4";
 
 const expenseNameX = "translate-x-3";
 const expenseNameY = "translate-y-4";
@@ -199,9 +205,11 @@ const saveButtonHeight = "h-10";
 export default function AddExpenseDrawer({
   open,
   onClose,
+  onSaveSuccess,
+  editingExpense,
 }: AddExpenseDrawerProps) {
 
-  // ==========================================
+// ==========================================
 // FORM STATE
 // ==========================================
 
@@ -241,6 +249,79 @@ const [notes, setNotes] =
   useState("");
 
   // ==========================================
+// EDIT MODE PREFILL
+// ==========================================
+
+useEffect(() => {
+if (!editingExpense) {
+  setExpenseName("");
+  setCategory("");
+  setVendor("");
+  setExpenseDate("");
+  setDescription("");
+
+  setOriginalAmount("");
+  setBilledCurrency("USD");
+
+  setPaymentMethod("");
+
+  setIsRecurring(false);
+  setFrequency("");
+  setStartDate("");
+
+  setIsTaxDeductible(true);
+  setDeductiblePercent("100");
+
+  setNotes("");
+
+  return;
+}
+
+  setExpenseName(editingExpense.expense_name ?? "");
+  setCategory(editingExpense.category ?? "");
+  setVendor(editingExpense.vendor ?? "");
+  setExpenseDate(editingExpense.expense_date ?? "");
+
+  setDescription(editingExpense.description ?? "");
+
+  setOriginalAmount(
+    editingExpense.original_amount?.toString() ?? ""
+  );
+
+  setBilledCurrency(
+    editingExpense.billed_currency ?? "USD"
+  );
+
+  setPaymentMethod(
+    editingExpense.payment_method ?? ""
+  );
+
+  setIsRecurring(
+    editingExpense.is_recurring ?? false
+  );
+
+  setFrequency(
+    editingExpense.frequency ?? ""
+  );
+
+  setStartDate(
+    editingExpense.start_date ?? ""
+  );
+
+  setIsTaxDeductible(
+    editingExpense.is_tax_deductible ?? true
+  );
+
+  setDeductiblePercent(
+    editingExpense.deductible_percent?.toString() ?? "100"
+  );
+
+  setNotes(
+    editingExpense.notes ?? ""
+  );
+}, [editingExpense]);
+
+// ==========================================
 // SAVE
 // ==========================================
 
@@ -256,37 +337,47 @@ async function handleSave() {
     return;
   }
 
-  try {
-    await saveExpense({
-      expense_name: expenseName,
-      expense_date: expenseDate,
+try {
+const expenseData = {
+  expense_name: expenseName,
+  expense_date: expenseDate,
 
-      category,
-      description,
+  category,
+  description,
 
-      original_amount: parseFloat(originalAmount),
-      billed_currency: billedCurrency,
+  original_amount: parseFloat(originalAmount),
+  billed_currency: billedCurrency,
 
-      vendor,
-      account: "General",
-      payment_method: paymentMethod,
+  vendor,
+  account: "General",
+  payment_method: paymentMethod,
 
-      is_recurring: isRecurring,
-      frequency: frequency || null,
-      start_date: startDate || null,
+  is_recurring: isRecurring,
+  frequency: frequency || null,
+  start_date: startDate || null,
 
-      is_tax_deductible: isTaxDeductible,
-      deductible_percent: parseFloat(deductiblePercent),
+  is_tax_deductible: isTaxDeductible,
+  deductible_percent: parseFloat(deductiblePercent),
 
-      notes,
-      receipt_url: null,
-    });
+  notes,
+  receipt_url: null,
+};
 
-    onClose();
-  } catch (error) {
-    console.error(error);
-    alert("Failed to save expense.");
-  }
+if (editingExpense?.id) {
+  await updateExpense(
+    editingExpense.id,
+    expenseData
+  );
+} else {
+  await saveExpense(expenseData);
+}
+
+  onSaveSuccess();
+  onClose();
+} catch (error) {
+  console.error(error);
+  alert("Failed to save expense.");
+}
 }
 
 const inputCenter =
@@ -326,13 +417,15 @@ const label =
       <h2
         className={`${titleSize} font-bold leading-none tracking-tight text-white transform ${titleX} ${titleY}`}
       >
-        Add Expense
+        {editingExpense ? "Edit Expense" : "Add Expense"}
       </h2>
 
       <p
         className={`mt-2 ${subtitleSize} text-slate-400 transform ${subtitleX} ${subtitleY}`}
       >
-        Record a new business or trading expense
+        {editingExpense
+  ? "Update an existing business or trading expense"
+  : "Record a new business or trading expense"}
       </p>
     </div>
 
@@ -820,7 +913,9 @@ onChange={(e) => setDeductiblePercent(e.target.value)}
   onClick={handleSave}
   className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 font-semibold text-white`}
 >
-  Save Expense
+  {editingExpense
+  ? "Update Expense"
+  : "Save Expense"}
 </button>
     </div>
   </div>

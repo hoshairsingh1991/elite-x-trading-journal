@@ -1,5 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+import {
+  loadExpenses,
+  deleteExpense,
+} from "@/lib/storage/supabaseExpenseStorage";
+
+import { getCurrencySymbol } from "@/lib/fx/currencyFormatting";
+
 import {
   CalendarDays,
   ChevronDown,
@@ -11,11 +20,49 @@ import {
 
 type ManualExpensesTableProps = {
   onAddExpense: () => void;
+  onEditExpense: (expense: any) => void;
+  refreshKey: number;
 };
 
 export default function ManualExpensesTable({
   onAddExpense,
+  onEditExpense,
+  refreshKey,
 }: ManualExpensesTableProps) {
+
+  const [expenses, setExpenses] = useState<any[]>([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+const ITEMS_PER_PAGE = 5;
+
+const totalExpenses = expenses.length;
+
+const totalPages = Math.max(
+  1,
+  Math.ceil(totalExpenses / ITEMS_PER_PAGE)
+);
+
+const startItem =
+  totalExpenses === 0
+    ? 0
+    : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+
+const endItem = Math.min(
+  currentPage * ITEMS_PER_PAGE,
+  totalExpenses
+);
+
+async function fetchExpenses() {
+  const data = await loadExpenses();
+  setExpenses(data);
+}
+
+useEffect(() => {
+  fetchExpenses();
+}, [refreshKey]);
+
+const paginationInfoX = "translate-x-6";
 
   /* =====================================================
      FINE TUNING
@@ -34,7 +81,7 @@ export default function ManualExpensesTable({
   const addButtonY = "translate-y-3";
 
   const tableX = "translate-x-4";
-  const tableY = "-translate-y-4";
+  const tableY = "-translate-y-2";
 
   const addButtonWidth = "w-[120px]";
   const addButtonHeight = "h-[38px]";
@@ -387,70 +434,14 @@ const recurringX = "-translate-x-5";
     <span className="text-center">Actions</span>
   </div>
 
-  {[
-    {
-      date: "Jun 11, 2026",
-      expense: "TradingView Monthly",
-      category: "Software",
-      vendor: "TradingView",
-      original: "$29.99 USD",
-      reporting: "C$41.12",
-      recurring: "Monthly",
-      deductible: "Yes",
-      account: "Trading",
-      payment: "Credit Card",
-    },
-    {
-      date: "Jun 10, 2026",
-      expense: "DigitalOcean VPS",
-      category: "Infrastructure",
-      vendor: "DigitalOcean",
-      original: "$15.00 USD",
-      reporting: "C$20.61",
-      recurring: "Monthly",
-      deductible: "Yes",
-      account: "Trading",
-      payment: "Visa",
-    },
-    {
-      date: "Jun 8, 2026",
-      expense: "Rogers Internet",
-      category: "Infrastructure",
-      vendor: "Rogers",
-      original: "$89.95 CAD",
-      reporting: "C$89.95",
-      recurring: "Monthly",
-      deductible: "Yes",
-      account: "Business",
-      payment: "Bank",
-    },
-    {
-      date: "Jun 6, 2026",
-      expense: "NinjaTrader Lifetime",
-      category: "Software",
-      vendor: "NinjaTrader",
-      original: "$999 USD",
-      reporting: "C$1,370",
-      recurring: "One-Time",
-      deductible: "Yes",
-      account: "Trading",
-      payment: "Credit Card",
-    },
-    {
-      date: "Jun 5, 2026",
-      expense: "Bookmap Monthly",
-      category: "Software",
-      vendor: "Bookmap",
-      original: "$49 USD",
-      reporting: "C$67",
-      recurring: "Monthly",
-      deductible: "Yes",
-      account: "Trading",
-      payment: "Visa",
-    },
-  ].map((row) => (
+{expenses
+  .slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  )
+  .map((row) => (
     <div
-      key={row.expense}
+      key={row.id}
       className={`
         grid
         grid-cols-[1fr_2fr_1.3fr_1.3fr_1.3fr_1.5fr_1fr_1.2fr_1fr_1.3fr_0.8fr]
@@ -473,7 +464,13 @@ const recurringX = "-translate-x-5";
       `}
     >
       <span className="flex items-center justify-center">
-  {row.date}
+  {new Date(
+  `${row.expense_date}T12:00:00`
+).toLocaleDateString("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+})}
 </span>
 
 <span
@@ -488,7 +485,7 @@ const recurringX = "-translate-x-5";
     ${expenseX}
   `}
 >
-  {row.expense}
+  {row.expense_name}
 </span>
 
 <span
@@ -524,7 +521,8 @@ const recurringX = "-translate-x-5";
     ${originalAmountX}
   `}
 >
-  {row.original}
+  {getCurrencySymbol(row.billed_currency)}
+{Number(row.original_amount).toFixed(2)}
 </span>
 
 <span
@@ -536,7 +534,7 @@ const recurringX = "-translate-x-5";
     ${reportingAmountX}
   `}
 >
-  {row.reporting}
+  —
 </span>
 
 <span
@@ -548,7 +546,9 @@ const recurringX = "-translate-x-5";
     ${recurringX}
   `}
 >
-  {row.recurring}
+  {row.is_recurring
+  ? row.frequency ?? "Recurring"
+  : "One-Time"}
 </span>
 
 <span
@@ -563,7 +563,7 @@ const recurringX = "-translate-x-5";
     ${deductibleX}
   `}
 >
-  {row.deductible}
+  {row.is_tax_deductible ? "Yes" : "No"}
 </span>
 
       <span>{row.account}</span>
@@ -580,23 +580,88 @@ const recurringX = "-translate-x-5";
     ${expenseX}
   `}
 >
-  {row.payment}
+  {row.payment_method ?? "—"}
 </span>
 
       
 
       <div className="flex items-center justify-center gap-3">
-        <button className="text-slate-400 transition hover:text-white">
-          <Pencil size={actionIconSize} />
-        </button>
+<button
+  onClick={() => onEditExpense(row)}
+  className="text-slate-400 transition hover:text-white"
+>
+  <Pencil size={actionIconSize} />
+</button>
 
-        <button className="text-red-500 transition hover:text-red-400">
-          <Trash2 size={actionIconSize} />
-        </button>
+<button
+  onClick={async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${row.expense_name}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteExpense(row.id);
+      await fetchExpenses();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete expense.");
+    }
+  }}
+  className="text-red-500 transition hover:text-red-400"
+>
+  <Trash2 size={actionIconSize} />
+</button>
+
       </div>
     </div>
   ))}
 </div>
+
+{/* ================================================= */}
+{/* Pagination Footer */}
+{/* ================================================= */}
+
+<div className="mt-4 flex items-center justify-between px-4 text-sm text-slate-400">
+<span
+  className={`transform ${paginationInfoX}`}
+>
+  Showing {startItem}–{endItem} of {totalExpenses} expenses
+</span>
+
+  <div className="flex items-center gap-4">
+    <button
+      onClick={() =>
+        setCurrentPage((p) => Math.max(1, p - 1))
+      }
+      disabled={currentPage === 1}
+      className="disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      ← Previous
+    </button>
+
+    <span>
+      Page {currentPage} of {totalPages}
+    </span>
+
+    <button
+      onClick={() =>
+        setCurrentPage((p) =>
+          Math.min(totalPages, p + 1)
+        )
+      }
+      disabled={currentPage === totalPages}
+      className="disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      Next →
+    </button>
+  </div>
+</div>
+{/* Spacer */}
+  <div className="h-2" />
     </div>
     </div>
   );

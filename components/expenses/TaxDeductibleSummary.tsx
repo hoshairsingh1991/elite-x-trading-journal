@@ -10,13 +10,13 @@ export default function TaxDeductibleSummary() {
    FINE TUNING
    ===================================================== */
 
-const cardHeight = "h-[355px]";
+const cardHeight = "h-[380px]";
 
 const headerX = "translate-x-2";
 const headerY = "translate-y-2";
 
 const topSectionX = "translate-x-4";
-const topSectionY = "translate-y-8";
+const topSectionY = "translate-y-12";
 
 const leftPanelWidth = "w-[35%]";
 const rightPanelWidth = "w-[40%]";
@@ -27,7 +27,7 @@ const ringOuter = 170;
 const ringInner = 126;
 
 const legendX = "translate-x-6";
-const legendY = "translate-y-22";
+const legendY = "translate-y-30";
 
 /* =====================================================
    POSITION CONTROLS

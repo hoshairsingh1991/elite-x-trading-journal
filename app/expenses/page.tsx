@@ -16,6 +16,12 @@ export default function ExpensePage() {
 
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
 
+  const [refreshKey, setRefreshKey] =
+  useState(0);
+
+  const [editingExpense, setEditingExpense] =
+  useState<any | null>(null);
+
   return (
     <main className="flex h-screen overflow-x-hidden overflow-y-hidden bg-[#020817]">
       {/* Sidebar */}
@@ -81,8 +87,16 @@ export default function ExpensePage() {
   <div className="grid grid-cols-12 gap-6">
     {/* Left */}
     <div className="col-span-9">
-      <ManualExpensesTable
-  onAddExpense={() => setIsAddExpenseOpen(true)}
+<ManualExpensesTable
+  onAddExpense={() => {
+    setEditingExpense(null);
+    setIsAddExpenseOpen(true);
+  }}
+  onEditExpense={(expense) => {
+    setEditingExpense(expense);
+    setIsAddExpenseOpen(true);
+  }}
+  refreshKey={refreshKey}
 />
     </div>
 
@@ -98,9 +112,17 @@ export default function ExpensePage() {
 </div>
         </div>
       </section>
-      <AddExpenseDrawer
+<AddExpenseDrawer
   open={isAddExpenseOpen}
-  onClose={() => setIsAddExpenseOpen(false)}
+  onClose={() => {
+    setEditingExpense(null);
+    setIsAddExpenseOpen(false);
+  }}
+onSaveSuccess={() => {
+  setEditingExpense(null);
+  setRefreshKey((prev) => prev + 1);
+}}
+  editingExpense={editingExpense}
 />
     </main>
   );
