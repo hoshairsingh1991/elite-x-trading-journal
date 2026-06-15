@@ -877,13 +877,13 @@ height={renewalIconSize}
     ${renewalIconY}
   `}
 >
-      <Image
-        src="/icons/expenses/digitalocean.png"
-        alt="DigitalOcean"
-        width={renewalIconSize}
-        height={renewalIconSize}
-        className="object-contain"
-      />
+<Image
+  src="/icons/expenses/digitalocean.png"
+  alt="DigitalOcean"
+  width={renewalIconSize}
+  height={renewalIconSize}
+  className="h-auto w-auto object-contain"
+/>
     </div>
 
     <span

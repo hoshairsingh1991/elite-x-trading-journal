@@ -111,6 +111,7 @@ git commit -m "Checkpoint: Finalize Expenses Overview UI polish and premium layo
 git commit -m "refine(expenses): polish Upcoming Renewals UI"
 git commit -m "Finalize Expenses page UI and tax summary layout"
 git commit -m "Refine Add Expense drawer layout and premium form architecture"
+git commit -m "feat(expenses): wire Add Expense drawer to Supabase with recurring and tax controls" -  Add expense now save in supabase.. nothing wired yet on expense page. 
 ------------------------------------------------------------------
 
 Status:

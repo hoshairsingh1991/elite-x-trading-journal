@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { X, ChevronDown } from "lucide-react";
+import { saveExpense } from "@/lib/storage/supabaseExpenseStorage";
 
 type AddExpenseDrawerProps = {
   open: boolean;
@@ -199,6 +201,93 @@ export default function AddExpenseDrawer({
   onClose,
 }: AddExpenseDrawerProps) {
 
+  // ==========================================
+// FORM STATE
+// ==========================================
+
+const [expenseName, setExpenseName] = useState("");
+const [category, setCategory] = useState("");
+const [vendor, setVendor] = useState("");
+const [expenseDate, setExpenseDate] = useState("");
+
+const [description, setDescription] = useState("");
+
+const [originalAmount, setOriginalAmount] =
+  useState("");
+
+const [billedCurrency, setBilledCurrency] =
+  useState("USD");
+
+const [paymentMethod, setPaymentMethod] =
+  useState("");
+
+const [isRecurring, setIsRecurring] =
+  useState(false);
+
+
+const [frequency, setFrequency] =
+  useState("");
+
+const [startDate, setStartDate] =
+  useState("");
+
+const [isTaxDeductible, setIsTaxDeductible] =
+  useState(true);
+
+const [deductiblePercent, setDeductiblePercent] =
+  useState("100");
+
+const [notes, setNotes] =
+  useState("");
+
+  // ==========================================
+// SAVE
+// ==========================================
+
+async function handleSave() {
+  if (
+    !expenseName ||
+    !category ||
+    !expenseDate ||
+    !originalAmount ||
+    !billedCurrency
+  ) {
+    alert("Please complete all required fields.");
+    return;
+  }
+
+  try {
+    await saveExpense({
+      expense_name: expenseName,
+      expense_date: expenseDate,
+
+      category,
+      description,
+
+      original_amount: parseFloat(originalAmount),
+      billed_currency: billedCurrency,
+
+      vendor,
+      account: "General",
+      payment_method: paymentMethod,
+
+      is_recurring: isRecurring,
+      frequency: frequency || null,
+      start_date: startDate || null,
+
+      is_tax_deductible: isTaxDeductible,
+      deductible_percent: parseFloat(deductiblePercent),
+
+      notes,
+      receipt_url: null,
+    });
+
+    onClose();
+  } catch (error) {
+    console.error(error);
+    alert("Failed to save expense.");
+  }
+}
 
 const inputCenter =
   "h-[50px] w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
@@ -283,6 +372,8 @@ const label =
     <label className={label}>Expense Name *</label>
 
 <input
+  value={expenseName}
+  onChange={(e) => setExpenseName(e.target.value)}
   className={`${expenseNameWidth} ${expenseNameHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 ${expenseNameTextIndent} text-sm text-white outline-none`}
   placeholder="Enter expense name"
 />
@@ -294,10 +385,11 @@ const label =
       <label className={label}>Category *</label>
 
 <div className="relative">
-  <select
-    defaultValue=""
-    className={`${inputCenter} ${categoryWidth} ${categoryHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-  >
+<select
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+  className={`${inputCenter} ${categoryWidth} ${categoryHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+>
     <option value="" disabled>
       Select category
     </option>
@@ -320,10 +412,11 @@ const label =
   <label className={label}>Vendor</label>
 
   <div className="relative">
-    <select
-      defaultValue=""
-      className={`${inputCenter} ${vendorWidth} ${vendorHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-    >
+<select
+  value={vendor}
+  onChange={(e) => setVendor(e.target.value)}
+  className={`${inputCenter} ${vendorWidth} ${vendorHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+>
       <option value="" disabled>
         Select vendor
       </option>
@@ -348,26 +441,33 @@ const label =
 </div>
 
 {/* Expense Date */}
-  <div className="mb-5 grid grid-cols-2 gap-5">
-    <div className={`transform ${expenseDateX} ${expenseDateY}`}>
-      <label className={label}>Expense Date *</label>
+<div className="mb-5 grid grid-cols-2 gap-5">
+  <div className={`transform ${expenseDateX} ${expenseDateY}`}>
+    <label className={label}>Expense Date *</label>
 
-      <input
-       className={`${inputCenter} ${expenseDateWidth} ${expenseDateHeight}`}
-        placeholder="Jun 11, 2026"
-      />
-    </div>
-
-    <div />
+<input
+  type="date"
+  value={expenseDate}
+  onChange={(e) => setExpenseDate(e.target.value)}
+  className={`${expenseDateWidth} ${expenseDateHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center text-sm text-white outline-none`}
+  style={{
+    colorScheme: "dark",
+  }}
+/>
   </div>
 
-  {/* Description */}
+  <div />
+</div>
+
+{/* Description */}
   <div
     className={`transform ${descriptionX} ${descriptionY}`}
   >
     <label className={label}>Description</label>
 
 <textarea
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
   className="h-24 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] pl-8 pr-4 pt-4 pb-4 text-sm text-white outline-none"
   placeholder="Enter a brief description (optional)"
 />
@@ -396,20 +496,26 @@ const label =
     <div className={`transform ${originalAmountX} ${originalAmountY}`}>
       <label className={label}>Original Amount *</label>
 
-      <input
-       className={`${inputCenter} ${originalAmountWidth} ${originalAmountHeight}`}
-        placeholder="0.00"
-      />
+<input
+  type="number"
+  step="0.01"
+  min="0"
+  value={originalAmount}
+  onChange={(e) => setOriginalAmount(e.target.value)}
+  className={`${inputCenter} ${originalAmountWidth} ${originalAmountHeight}`}
+  placeholder="0.00"
+/>
     </div>
 
 <div className={`transform ${billedCurrencyX} ${billedCurrencyY}`}>
   <label className={label}>Billed Currency *</label>
 
 <div className="relative">
-  <select
-    defaultValue=""
-    className={`${inputCenter} ${billedCurrencyWidth} ${billedCurrencyHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-  >
+<select
+  value={billedCurrency}
+  onChange={(e) => setBilledCurrency(e.target.value)}
+  className={`${inputCenter} ${billedCurrencyWidth} ${billedCurrencyHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+>
     <option value="" disabled>
       Select currency
     </option>
@@ -437,7 +543,7 @@ const label =
 {/* ===================== BUSINESS ===================== */}
 
 <section
-  className={`mb-8 pt-7 transform ${businessSectionX} ${businessSectionY}`}
+  className={`relative z-10 mb-8 pt-7 transform ${businessSectionX} ${businessSectionY}`}
 >
   <h3
     className={`mb-5 text-lg font-semibold text-white transform ${businessHeaderX} ${businessHeaderY}`}
@@ -463,10 +569,11 @@ const label =
       <label className={label}>Payment Method *</label>
 
       <div className="relative">
-        <select
-          defaultValue=""
-          className={`${inputCenter} ${paymentMethodWidth} ${paymentMethodHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-        >
+<select
+  value={paymentMethod}
+  onChange={(e) => setPaymentMethod(e.target.value)}
+  className={`${inputCenter} ${paymentMethodWidth} ${paymentMethodHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+>
           <option value="" disabled>
             Select payment method
           </option>
@@ -498,33 +605,68 @@ const label =
           Enable recurring expense
         </span>
 
-        {/* Toggle */}
-    <button
-      type="button"
-      className="relative h-6 w-11 rounded-full bg-slate-600 transition-colors"
-    >
-      <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform" />
-    </button>
+{/* Toggle Test */}
+<button
+  type="button"
+  onClick={() => setIsRecurring((prev) => !prev)}
+  className={`relative h-6 w-11 rounded-full transition-colors ${
+    isRecurring ? "bg-blue-600" : "bg-slate-600"
+  }`}
+>
+  <span
+    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${
+      isRecurring ? "right-1" : "left-1"
+    }`}
+  />
+</button>
   </div>
 </div>
 
-    <div className={`transform ${frequencyX} ${frequencyY}`}>
-      <label className={label}>Frequency</label>
+<div className={`transform ${frequencyX} ${frequencyY}`}>
+  <label className={label}>Frequency</label>
 
-      <input
-        className={`${inputCenter} ${frequencyWidth} ${frequencyHeight}`}
-        placeholder="Monthly"
-      />
-    </div>
+  <div className="relative">
+    <select
+      value={frequency}
+      onChange={(e) => setFrequency(e.target.value)}
+      disabled={!isRecurring}
+      className={`${inputCenter} ${frequencyWidth} ${frequencyHeight} appearance-none pr-10 ${
+        !isRecurring ? "cursor-not-allowed opacity-50" : ""
+      }`}
+    >
+      <option value="" disabled>
+        Select frequency
+      </option>
 
-    <div className={`transform ${startDateX} ${startDateY}`}>
-      <label className={label}>Start Date</label>
+      <option value="Daily">Daily</option>
+      <option value="Weekly">Weekly</option>
+      <option value="Monthly">Monthly</option>
+      <option value="Quarterly">Quarterly</option>
+      <option value="Yearly">Yearly</option>
+    </select>
 
-      <input
-       className={`${inputCenter} ${startDateWidth} ${startDateHeight}`}
-        placeholder="Jun 11, 2026"
-      />
-    </div>
+<ChevronDown
+  className="pointer-events-none absolute right-1 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+/>
+  </div>
+</div>
+
+<div className={`transform ${startDateX} ${startDateY}`}>
+  <label className={label}>Start Date</label>
+
+  <input
+    type="date"
+    value={startDate}
+    onChange={(e) => setStartDate(e.target.value)}
+    disabled={!isRecurring}
+    className={`${startDateWidth} ${startDateHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none ${
+      !isRecurring ? "cursor-not-allowed opacity-50" : ""
+    }`}
+    style={{
+      colorScheme: "dark",
+    }}
+  />
+</div>
   </div>
 </section>
 
@@ -539,7 +681,7 @@ const label =
 {/* ===================== TAX ===================== */}
 
 <section
-  className={`mb-8 pt-7 transform ${taxSectionX} ${taxSectionY}`}
+  className={`relative z-1 mb-8 pt-7 transform ${taxSectionX} ${taxSectionY}`}
 >
   <h3
     className={`mb-5 text-lg font-semibold text-white transform ${taxHeaderX} ${taxHeaderY}`}
@@ -548,27 +690,40 @@ const label =
   </h3>
 
   <div className="grid grid-cols-2 gap-5">
-{/* Tax Deductible Toggle */}
-<div
-  className={`transform ${taxDeductibleX} ${taxDeductibleY}`}
->
-  <label className={label}>Tax Deductible</label>
-
-  <div
-    className={`${taxDeductibleWidth} ${taxDeductibleHeight} flex items-center justify-between`}
-  >
-    <span className="text-sm text-slate-300">
-      Eligible for tax deduction
-    </span>
-
-    <button
-      type="button"
-      className="relative h-6 w-11 rounded-full bg-blue-600 transition-colors"
+    {/* Tax Deductible Toggle */}
+    <div
+      className={`transform ${taxDeductibleX} ${taxDeductibleY}`}
     >
-      <span className="absolute right-1 top-1 h-4 w-4 rounded-full bg-white transition-all" />
-    </button>
-  </div>
-</div>
+      <label className={label}>Tax Deductible</label>
+
+      <div
+        className={`${taxDeductibleWidth} ${taxDeductibleHeight} flex items-center justify-between`}
+      >
+        <span className="text-sm text-slate-300">
+          Eligible for tax deduction
+        </span>
+
+        <button
+          type="button"
+          onClick={() =>
+            setIsTaxDeductible((prev) => !prev)
+          }
+          className={`relative h-6 w-11 rounded-full transition-colors ${
+            isTaxDeductible
+              ? "bg-blue-600"
+              : "bg-slate-600"
+          }`}
+        >
+<span
+  className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${
+    isTaxDeductible
+      ? "right-1"
+      : "left-1"
+  }`}
+/>
+        </button>
+      </div>
+    </div>
 
     {/* Deductible Percentage */}
     <div
@@ -577,7 +732,18 @@ const label =
       <label className={label}>Deductible %</label>
 
       <input
-        className={`${inputCenter} ${deductiblePercentWidth} ${deductiblePercentHeight}`}
+        type="number"
+        min="0"
+        max="100"
+        step="0.01"
+       value={deductiblePercent}
+onChange={(e) => setDeductiblePercent(e.target.value)}
+        disabled={!isTaxDeductible}
+        className={`${inputCenter} ${deductiblePercentWidth} ${deductiblePercentHeight} ${
+          !isTaxDeductible
+            ? "cursor-not-allowed opacity-50"
+            : ""
+        }`}
         placeholder="100"
       />
     </div>
@@ -586,6 +752,7 @@ const label =
 
 {/* Spacer */}
 <div className="h-2" />
+
 {/* ===================== NOTES DIVIDER ===================== */}
 
 <div
@@ -606,10 +773,12 @@ const label =
   <div className={`transform ${notesX} ${notesY}`}>
     <label className={label}>Notes</label>
 
-    <textarea
-      className={`${notesWidth} ${notesHeight} resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white outline-none`}
-      placeholder="Add any notes..."
-    />
+<textarea
+  value={notes}
+  onChange={(e) => setNotes(e.target.value)}
+  className={`${notesWidth} ${notesHeight} resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white outline-none`}
+  placeholder="Add any notes..."
+/>
   </div>
 
   <div
@@ -647,11 +816,12 @@ const label =
     </div>
 
     <div className={`flex-1 transform ${saveButtonX} ${saveButtonY}`}>
-      <button
-        className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 font-semibold text-white`}
-      >
-        Save Expense
-      </button>
+<button
+  onClick={handleSave}
+  className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 font-semibold text-white`}
+>
+  Save Expense
+</button>
     </div>
   </div>
 </div>
