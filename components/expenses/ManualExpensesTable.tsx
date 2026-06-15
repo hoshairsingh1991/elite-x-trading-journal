@@ -30,13 +30,34 @@ export default function ManualExpensesTable({
   refreshKey,
 }: ManualExpensesTableProps) {
 
-  const [expenses, setExpenses] = useState<any[]>([]);
-
-  const [currentPage, setCurrentPage] = useState(1);
+const [expenses, setExpenses] = useState<any[]>([]);
+const [currentPage, setCurrentPage] = useState(1);
+const [searchQuery, setSearchQuery] = useState("");
 
 const ITEMS_PER_PAGE = 5;
 
-const totalExpenses = expenses.length;
+// =====================================================
+// FILTERED EXPENSES
+// =====================================================
+
+const filteredExpenses = expenses.filter((expense) => {
+  const query = searchQuery.trim().toLowerCase();
+
+  if (!query) {
+    return true;
+  }
+
+  return (
+    expense.expense_name?.toLowerCase().includes(query) ||
+    expense.vendor?.toLowerCase().includes(query)
+  );
+});
+
+// =====================================================
+// PAGINATION
+// =====================================================
+
+const totalExpenses = filteredExpenses.length;
 
 const totalPages = Math.max(
   1,
@@ -53,6 +74,10 @@ const endItem = Math.min(
   totalExpenses
 );
 
+// =====================================================
+// LOAD EXPENSES
+// =====================================================
+
 async function fetchExpenses() {
   const data = await loadExpenses();
   setExpenses(data);
@@ -64,9 +89,9 @@ useEffect(() => {
 
 const paginationInfoX = "translate-x-6";
 
-  /* =====================================================
-     FINE TUNING
-     ===================================================== */
+/* =====================================================
+   FINE TUNING
+   ===================================================== */
 
   const toolbarX = "translate-x-3";
   const toolbarY = "translate-y-0";
@@ -287,18 +312,23 @@ const recurringX = "-translate-x-5";
   <div className="flex w-[90%] items-center">
     <Search className="h-4 w-4 shrink-0 text-slate-500" />
 
-    <input
-      placeholder="Search expenses..."
-      className="
-        ml-2
-        w-full
-        bg-transparent
-        text-[13px]
-        text-white
-        outline-none
-        placeholder:text-slate-500
-      "
-    />
+<input
+  value={searchQuery}
+  onChange={(e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  }}
+  placeholder="Search expenses..."
+  className="
+    ml-2
+    w-full
+    bg-transparent
+    text-[13px]
+    text-white
+    outline-none
+    placeholder:text-slate-500
+  "
+/>
   </div>
 </div>
 
@@ -434,7 +464,7 @@ const recurringX = "-translate-x-5";
     <span className="text-center">Actions</span>
   </div>
 
-{expenses
+{filteredExpenses
   .slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
