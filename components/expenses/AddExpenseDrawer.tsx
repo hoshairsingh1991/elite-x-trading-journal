@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 
 type AddExpenseDrawerProps = {
   open: boolean;
@@ -32,6 +32,9 @@ const headerDividerY = "translate-y-2";
 // BASIC INFORMATION
 // =========================
 
+const expenseNameTextIndent = "indent-[6px]";
+
+const descriptionPaddingX = "px-5";
 
 const basicDividerY = "translate-y-0";
 
@@ -279,10 +282,10 @@ const label =
   >
     <label className={label}>Expense Name *</label>
 
-    <input
-      className={`${expenseNameWidth} ${expenseNameHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none`}
-      placeholder="Enter expense name"
-    />
+<input
+  className={`${expenseNameWidth} ${expenseNameHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 ${expenseNameTextIndent} text-sm text-white outline-none`}
+  placeholder="Enter expense name"
+/>
   </div>
 
   {/* Category + Vendor */}
@@ -290,23 +293,61 @@ const label =
     <div className={`transform ${categoryX} ${categoryY}`}>
       <label className={label}>Category *</label>
 
-      <input
-       className={`${inputCenter} ${categoryWidth} ${categoryHeight}`}
-        placeholder="Select category"
-      />
+<div className="relative">
+  <select
+    defaultValue=""
+    className={`${inputCenter} ${categoryWidth} ${categoryHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+  >
+    <option value="" disabled>
+      Select category
+    </option>
+
+    <option value="Software">Software</option>
+    <option value="Market Data">Market Data</option>
+    <option value="Brokerage Fees">Brokerage Fees</option>
+    <option value="Education">Education</option>
+    <option value="Infrastructure">Infrastructure</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <ChevronDown
+    className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+  />
+</div>
     </div>
 
-    <div className={`transform ${vendorX} ${vendorY}`}>
-      <label className={label}>Vendor</label>
+<div className={`transform ${vendorX} ${vendorY}`}>
+  <label className={label}>Vendor</label>
 
-      <input
-        className={`${inputCenter} ${vendorWidth} ${vendorHeight}`}
-        placeholder="Select or enter vendor"
-      />
-    </div>
+  <div className="relative">
+    <select
+      defaultValue=""
+      className={`${inputCenter} ${vendorWidth} ${vendorHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+    >
+      <option value="" disabled>
+        Select vendor
+      </option>
+
+      <option value="TradingView">TradingView</option>
+      <option value="Bookmap">Bookmap</option>
+      <option value="Rithmic">Rithmic</option>
+      <option value="CQG">CQG</option>
+      <option value="Interactive Brokers">Interactive Brokers</option>
+      <option value="NinjaTrader">NinjaTrader</option>
+      <option value="Edgeful">Edgeful</option>
+      <option value="TradeZella">TradeZella</option>
+      <option value="Udemy">Udemy</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <ChevronDown
+      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+    />
   </div>
+</div>
+</div>
 
-  {/* Expense Date */}
+{/* Expense Date */}
   <div className="mb-5 grid grid-cols-2 gap-5">
     <div className={`transform ${expenseDateX} ${expenseDateY}`}>
       <label className={label}>Expense Date *</label>
@@ -326,10 +367,10 @@ const label =
   >
     <label className={label}>Description</label>
 
-    <textarea
-      className={`${descriptionWidth} ${descriptionHeight} resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white outline-none`}
-      placeholder="Enter a brief description (optional)"
-    />
+<textarea
+  className="h-24 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] pl-8 pr-4 pt-4 pb-4 text-sm text-white outline-none"
+  placeholder="Enter a brief description (optional)"
+/>
   </div>
 </section>
 
@@ -343,7 +384,7 @@ const label =
 {/* ===================== FINANCIAL ===================== */}
 
 <section
-  className={`mb-8 pt-7 transform ${financialSectionX} ${financialSectionY}`}
+  className={`relative z-50 mb-8 pt-7 transform ${financialSectionX} ${financialSectionY}`}
 >
   <h3
     className={`mb-5 text-lg font-semibold text-white transform ${financialHeaderX} ${financialHeaderY}`}
@@ -361,14 +402,31 @@ const label =
       />
     </div>
 
-    <div className={`transform ${billedCurrencyX} ${billedCurrencyY}`}>
-      <label className={label}>Billed Currency *</label>
+<div className={`transform ${billedCurrencyX} ${billedCurrencyY}`}>
+  <label className={label}>Billed Currency *</label>
 
-      <input
-        className={`${inputCenter} ${billedCurrencyWidth} ${billedCurrencyHeight}`}
-        placeholder="USD"
-      />
-    </div>
+<div className="relative">
+  <select
+    defaultValue=""
+    className={`${inputCenter} ${billedCurrencyWidth} ${billedCurrencyHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+  >
+    <option value="" disabled>
+      Select currency
+    </option>
+
+    <option value="USD">🇺🇸 USD</option>
+    <option value="CAD">🇨🇦 CAD</option>
+    <option value="EUR">🇪🇺 EUR</option>
+    <option value="GBP">🇬🇧 GBP</option>
+    <option value="JPY">🇯🇵 JPY</option>
+    <option value="INR">🇮🇳 INR</option>
+  </select>
+
+  <ChevronDown
+    className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+  />
+</div>
+</div>
   </div>
 </section>
 
@@ -388,35 +446,59 @@ const label =
   </h3>
 
   <div className="grid grid-cols-2 gap-5">
-    <div className={`transform ${accountX} ${accountY}`}>
-      <label className={label}>Account *</label>
+{/* Account */}
+<div className={`transform ${accountX} ${accountY}`}>
+  <label className={label}>Account *</label>
 
-<input
-  className={`${inputCenter} ${accountWidth} ${accountHeight}`}
-  placeholder="Select account"
-/>
-    </div>
+  <input
+    value="General"
+    disabled
+    readOnly
+    className={`${inputCenter} ${accountWidth} ${accountHeight} cursor-not-allowed rounded-xl border border-white/10 bg-white/[0.02] text-slate-400 opacity-80`}
+  />
+</div>
 
+    {/* Payment Method */}
     <div className={`transform ${paymentMethodX} ${paymentMethodY}`}>
       <label className={label}>Payment Method *</label>
 
-      <input
-        className={`${inputCenter} ${paymentMethodWidth} ${paymentMethodHeight}`}
-        placeholder="Credit Card"
-      />
+      <div className="relative">
+        <select
+          defaultValue=""
+          className={`${inputCenter} ${paymentMethodWidth} ${paymentMethodHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+        >
+          <option value="" disabled>
+            Select payment method
+          </option>
+
+          <option value="Credit Card">💳 Credit Card</option>
+          <option value="Bank Account">🏦 Bank Account</option>
+          <option value="Cash">💵 Cash</option>
+          <option value="Debit Card">💸 Debit Card</option>
+          <option value="PayPal">📱 PayPal</option>
+          <option value="Wire Transfer">🧾 Wire Transfer</option>
+          <option value="Other">📦 Other</option>
+        </select>
+
+        <ChevronDown
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+        />
+      </div>
     </div>
   </div>
 
   <div className="mt-5 grid grid-cols-3 gap-5">
-<div className={`transform ${recurringX} ${recurringY}`}>
-  <label className={label}>Recurring</label>
+    <div className={`transform ${recurringX} ${recurringY}`}>
+      <label className={label}>Recurring</label>
 
-  <div
-    className={`${recurringWidth} ${recurringHeight} flex items-center justify-between`}
-  >
-    <span className="text-sm text-slate-300">Enable recurring expense</span>
+      <div
+        className={`${recurringWidth} ${recurringHeight} flex items-center justify-between`}
+      >
+        <span className="text-sm text-slate-300">
+          Enable recurring expense
+        </span>
 
-    {/* Toggle */}
+        {/* Toggle */}
     <button
       type="button"
       className="relative h-6 w-11 rounded-full bg-slate-600 transition-colors"

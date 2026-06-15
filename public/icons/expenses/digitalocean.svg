@@ -1,0 +1,11 @@
+<Image
+  src="/icons/expenses/digitalocean.svg"
+  alt="DigitalOcean VPS"
+  width={36}
+  height={36}
+  className={`
+    rounded-lg
+    ${renewalIconX}
+    ${renewalIconY}
+  `}
+/>
