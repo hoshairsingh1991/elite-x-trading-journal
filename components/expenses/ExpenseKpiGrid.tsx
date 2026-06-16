@@ -9,9 +9,18 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import type { Expense } from "@/lib/types/expense";
+
 import ExpenseKpiCard from "./ExpenseKpiCard";
 
-export default function ExpenseKpiGrid() {
+interface ExpenseKpiGridProps {
+  expenses: Expense[];
+}
+
+export default function ExpenseKpiGrid({
+  expenses,
+}: ExpenseKpiGridProps) {
+  
   return (
     <div className="grid grid-cols-6 gap-5">
       <ExpenseKpiCard

@@ -8,7 +8,15 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-export default function ExpensesOverviewSection() {
+import type { Expense } from "@/lib/types/expense";
+
+interface ExpensesOverviewSectionProps {
+  expenses: Expense[];
+}
+
+export default function ExpensesOverviewSection({
+  expenses,
+}: ExpensesOverviewSectionProps) {
 
 // =====================================================
 // Expense Sources Fine Tuning

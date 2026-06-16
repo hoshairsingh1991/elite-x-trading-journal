@@ -67,7 +67,9 @@ useEffect(() => {
 {/* ================================================= */}
 
 <div className="relative z-10 mt-10">
-  <ExpenseKpiGrid />
+  <ExpenseKpiGrid
+  expenses={expenses}
+/>
 </div>
 
 <div className="h-6" />
@@ -77,7 +79,9 @@ useEffect(() => {
 {/* ================================================= */}
 
 <div className="relative z-10 mt-8">
-  <ExpensesIntelligenceSection />
+  <ExpensesIntelligenceSection
+  expenses={expenses}
+/>
 </div>
 
 <div className="h-6" />
@@ -87,7 +91,9 @@ useEffect(() => {
 {/* ================================================= */}
 
 <div className="relative z-0 mt-8">
-  <ExpensesOverviewSection />
+  <ExpensesOverviewSection
+  expenses={expenses}
+/>
 </div>
 
 <div className="h-6" />
@@ -116,7 +122,9 @@ useEffect(() => {
 
     {/* Right */}
     <div className="col-span-3">
-      <TaxDeductibleSummary />
+      <TaxDeductibleSummary
+  expenses={expenses}
+/>
     </div>
 
     <div className="h-0" />

@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 
+import type { Expense } from "@/lib/types/expense";
+
 import {
   CalendarClock,
   Flame,
@@ -11,7 +13,13 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-export default function ExpensesIntelligenceSection() {
+interface ExpensesIntelligenceSectionProps {
+  expenses: Expense[];
+}
+
+export default function ExpensesIntelligenceSection({
+  expenses,
+}: ExpensesIntelligenceSectionProps) {
 
     /* =====================================================
    PROFIT RETENTION FINE TUNING

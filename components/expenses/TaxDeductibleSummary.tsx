@@ -1,10 +1,36 @@
 "use client";
 
+import type { Expense } from "@/lib/types/expense";
+
+import {
+  generateExpenseAnalytics,
+} from "@/lib/analytics/expenseAnalytics";
+
+interface TaxDeductibleSummaryProps {
+  expenses: Expense[];
+}
+
+export default function TaxDeductibleSummary({
+  expenses,
+}: TaxDeductibleSummaryProps) {
 
 
-export default function TaxDeductibleSummary() {
-  const ringPercent = 82.1;
+const analytics =
+  generateExpenseAnalytics(
+    expenses
+  );
 
+const deductibleAmount =
+  analytics.taxDeductibleAmount;
+
+const nonDeductibleAmount =
+  analytics.nonDeductibleAmount;
+
+const ringPercent =
+  analytics.deductiblePercent;
+
+const estimatedTaxSavings =
+  deductibleAmount * 0.30;
 
 /* =====================================================
    FINE TUNING
@@ -34,7 +60,7 @@ const legendY = "translate-y-30";
    ===================================================== */
 
 // Donut
-const donutX = "-translate-x-5";
+const donutX = "-translate-x-14";
 const donutY = "translate-y-0";
 
 // Tax Deductible Total
@@ -50,12 +76,12 @@ const savingsValueX = "translate-x-4";
 const savingsValueY = "translate-y-2";
 
 // Bottom Legend - Deductible
-const legendDeductibleAmountX = "-translate-x-15";
-const legendDeductiblePercentX = "-translate-x-10";
+const legendDeductibleAmountX = "-translate-x-30";
+const legendDeductiblePercentX = "-translate-x-20";
 
 // Bottom Legend - Non-Deductible
-const legendNonDeductibleAmountX = "-translate-x-18";
-const legendNonDeductiblePercentX = "-translate-x-10";
+const legendNonDeductibleAmountX = "-translate-x-30.5";
+const legendNonDeductiblePercentX = "-translate-x-20";
 
 // Label: Tax Deductible Total
 const deductibleLabelX = "translate-x-4";
@@ -159,7 +185,7 @@ return (
     ${deductibleValueY}
   `}
 >
-  C$1,054.66
+${deductibleAmount.toFixed(2)}
 </div>
         </div>
 
@@ -199,7 +225,7 @@ return (
     ${savingsValueY}
   `}
 >
-  C$316.40
+ ${estimatedTaxSavings.toFixed(2)}
 </div>
         </div>
       </div>
@@ -239,7 +265,7 @@ return (
             }}
           >
             <div className="text-[18px] font-bold text-white">
-              {ringPercent}%
+              {ringPercent.toFixed(1)}%
             </div>
 
             <div className="mt-1 text-[12px] text-slate-400">
@@ -281,7 +307,7 @@ return (
     ${legendDeductibleAmountX}
   `}
 >
-  C$1,054.66
+  ${deductibleAmount.toFixed(2)}
 </span>
 
 <span
@@ -293,7 +319,7 @@ return (
     ${legendDeductiblePercentX}
   `}
 >
-  82.1%
+  {ringPercent.toFixed(1)}%
 </span>
         </div>
       </div>
@@ -316,7 +342,7 @@ return (
     ${legendNonDeductibleAmountX}
   `}
 >
-  C$230.15
+  ${nonDeductibleAmount.toFixed(2)}
 </span>
 
 <span
@@ -328,7 +354,7 @@ return (
     ${legendNonDeductiblePercentX}
   `}
 >
-  17.9%
+  {(100 - ringPercent).toFixed(1)}%
 </span>
         </div>
       </div>
