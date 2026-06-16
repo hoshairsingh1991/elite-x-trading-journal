@@ -114,6 +114,8 @@ git commit -m "Refine Add Expense drawer layout and premium form architecture"
 git commit -m "feat(expenses): wire Add Expense drawer to Supabase with recurring and tax controls" -  Add expense now save in supabase.. nothing wired yet on expense page. 
 git commit -m "feat(expenses): complete Manual Expenses CRUD with edit, delete, pagination, auto-refresh, and drawer improvements" - add/edit/deleted expense works now 100%.
 f126461 refactor(expenses): centralize expense state and introduce shared Expense type
+git commit -m "checkpoint: expenses tax deductible summary wired -  tax deductable summary is wired now and live
+git commit -m "checkpoint: expenses analytics foundation -  updates notes
 ------------------------------------------------------------------
 
 Status:
