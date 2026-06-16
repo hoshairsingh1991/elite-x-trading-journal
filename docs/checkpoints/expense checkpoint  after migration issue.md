@@ -446,3 +446,41 @@ Components receive data and render it.
 Supabase remains the source of truth.
 
  ========================================================= =========================================================
+
+ git add .
+
+git commit -m "checkpoint: expenses analytics foundation
+
+- Wired ExpensePage expenses state into analytics components
+- Added expense analytics engine foundation
+- Added total expense calculations
+- Added recurring expense calculations
+- Added tax deductible calculations
+- Added non-deductible calculations
+- Added deductible percentage calculations
+- Added generateExpenseAnalytics() master function
+- Wired TaxDeductibleSummary to live expense data
+- Replaced hardcoded deductible metrics with analytics
+- Added estimated tax savings calculation
+- Validated ExpensePage -> Analytics -> UI architecture
+- Preserved existing expense CRUD system
+- Build clean"
+ ========================================================= =========================================================
+git add .
+
+git commit -m "checkpoint: expense kpi grid v1
+
+- Wired Manual Expenses KPI to live expense analytics
+- Wired Recurring Costs KPI to live expense analytics
+- Wired Tax Deductible KPI to live expense analytics
+- Replaced hardcoded KPI values with analytics calculations
+- Added live expense record count display
+- Added deductible percentage display
+- Replaced placeholder financial metrics with Coming Soon states
+- Marked Commissions as Phase 2
+- Marked Trading Costs as Phase 2
+- Marked Net P&L After Costs as Phase 2
+- Preserved existing UI layout and styling
+- Build clean"
+
+ ========================================================= =========================================================
