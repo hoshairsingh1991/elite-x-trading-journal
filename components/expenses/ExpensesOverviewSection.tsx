@@ -8,6 +8,11 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+import {
+  calculateRecurringBreakdown,
+  calculateCategoryBreakdown,
+} from "@/lib/analytics/expenseAnalytics";
+
 import type { Expense } from "@/lib/types/expense";
 
 interface ExpensesOverviewSectionProps {
@@ -17,6 +22,58 @@ interface ExpensesOverviewSectionProps {
 export default function ExpensesOverviewSection({
   expenses,
 }: ExpensesOverviewSectionProps) {
+
+  const recurringData =
+  calculateRecurringBreakdown(
+    expenses
+  );
+
+  const categoryData =
+  calculateCategoryBreakdown(
+    expenses
+  );
+
+  const software =
+  categoryData.find(
+    item =>
+      item.category ===
+      "Software"
+  );
+
+const marketData =
+  categoryData.find(
+    item =>
+      item.category ===
+      "Market Data"
+  );
+
+const brokerageFees =
+  categoryData.find(
+    item =>
+      item.category ===
+      "Brokerage Fees"
+  );
+
+const education =
+  categoryData.find(
+    item =>
+      item.category ===
+      "Education"
+  );
+
+const infrastructure =
+  categoryData.find(
+    item =>
+      item.category ===
+      "Infrastructure"
+  );
+
+const other =
+  categoryData.find(
+    item =>
+      item.category ===
+      "Other"
+  );
 
 // =====================================================
 // Expense Sources Fine Tuning
@@ -285,7 +342,11 @@ return (
       {/* Inner Cutout */}
       <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-[#061325]">
         <div className="text-[34px] font-bold leading-none text-white">
-          72%
+          {
+  categoryData[0]
+    ?.percentage
+    .toFixed(0) ?? "0"
+}%
         </div>
 
         <div className="mt-2 text-[12px] text-slate-400">
@@ -307,7 +368,7 @@ return (
         <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
         Software
       </span>
-      <span className="text-white">34%</span>
+      <span className="text-white">{software?.percentage.toFixed(0) ?? 0}%</span>
     </div>
 
     <div className="flex items-center justify-between">
@@ -315,7 +376,7 @@ return (
         <span className="h-2.5 w-2.5 rounded-full bg-violet-600" />
         Market Data
       </span>
-      <span className="text-white">22%</span>
+      <span className="text-white">{marketData?.percentage.toFixed(0) ?? 0}%</span>
     </div>
 
     <div className="flex items-center justify-between">
@@ -323,7 +384,7 @@ return (
         <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
         Brokerage Fees
       </span>
-      <span className="text-white">16%</span>
+      <span className="text-white">{brokerageFees?.percentage.toFixed(0) ?? 0}%</span>
     </div>
 
     <div className="flex items-center justify-between">
@@ -331,7 +392,7 @@ return (
         <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
         Education
       </span>
-      <span className="text-white">10%</span>
+      <span className="text-white">{education?.percentage.toFixed(0) ?? 0}%</span>
     </div>
 
     <div className="flex items-center justify-between">
@@ -339,7 +400,7 @@ return (
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
         Infrastructure
       </span>
-      <span className="text-white">11%</span>
+      <span className="text-white">{infrastructure?.percentage.toFixed(0) ?? 0}%</span>
     </div>
 
     <div className="flex items-center justify-between">
@@ -347,7 +408,7 @@ return (
         <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
         Other
       </span>
-      <span className="text-white">7%</span>
+      <span className="text-white">{other?.percentage.toFixed(0) ?? 0}%</span>
     </div>
   </div>
 </div>
@@ -394,7 +455,7 @@ return (
     {/* Inner Cutout */}
     <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-[#061325]">
       <div className="text-[34px] font-bold leading-none text-white">
-        81%
+        {recurringData.recurringPercent.toFixed(0)}%
       </div>
 
       <div className="mt-2 text-[12px] text-slate-400">
@@ -417,7 +478,7 @@ return (
         Recurring
       </span>
 
-      <span className="text-white">81%</span>
+      <span className="text-white">{recurringData.recurringPercent.toFixed(0)}%</span>
     </div>
 <div className="h-2" />
     <div className="flex items-center justify-between">
@@ -426,7 +487,7 @@ return (
         One-Time
       </span>
 
-      <span className="text-white">19%</span>
+      <span className="text-white">{recurringData.oneTimePercent.toFixed(0)}%</span>
     </div>
   </div>
 </div>

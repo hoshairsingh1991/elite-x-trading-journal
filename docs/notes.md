@@ -117,6 +117,7 @@ f126461 refactor(expenses): centralize expense state and introduce shared Expens
 git commit -m "checkpoint: expenses tax deductible summary wired -  tax deductable summary is wired now and live
 git commit -m "checkpoint: expenses analytics foundation -  updates notes
 git commit -m "checkpoint: expense kpi grid v1 -  Expense KPIgrid now work.  not comission/tradeing cost and net Pnl yet
+git commit -m "checkpoint: expenses overview analytics v1
 ------------------------------------------------------------------
 
 Status:

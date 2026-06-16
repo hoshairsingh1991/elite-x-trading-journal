@@ -1,6 +1,7 @@
 import type { Expense } from "@/lib/types/expense";
 
 export interface ExpenseAnalyticsData {
+
   totalExpenses: number;
 
   recurringExpenses: number;
@@ -10,6 +11,25 @@ export interface ExpenseAnalyticsData {
   nonDeductibleAmount: number;
 
   deductiblePercent: number;
+}
+
+
+export interface CategoryBreakdownItem {
+  category: string;
+  amount: number;
+  percentage: number;
+}
+
+export interface RecurringBreakdownData {
+  recurringAmount: number;
+  oneTimeAmount: number;
+  recurringPercent: number;
+  oneTimePercent: number;
+}
+
+export interface MonthlyExpenseData {
+  month: string;
+  amount: number;
 }
 
 // =================================================
@@ -116,6 +136,130 @@ export function calculateDeductiblePercent(
     deductible /
     total
   ) * 100;
+}
+
+// =================================================
+// CATEGORY BREAKDOWN
+// =================================================
+
+export function calculateCategoryBreakdown(
+  expenses: Expense[]
+): CategoryBreakdownItem[] {
+
+  const total =
+    calculateTotalExpenses(
+      expenses
+    );
+
+  if (total === 0) {
+    return [];
+  }
+
+const grouped:
+  Record<string, number> = {
+
+    Software: 0,
+
+    "Market Data": 0,
+
+    "Brokerage Fees": 0,
+
+    Education: 0,
+
+    Infrastructure: 0,
+
+    Other: 0,
+  };
+
+  expenses.forEach(
+    (expense) => {
+
+      const category =
+        expense.category ||
+        "Other";
+
+      grouped[category] =
+        (grouped[category] || 0) +
+        expense.original_amount;
+    }
+  );
+
+  return Object.entries(
+    grouped
+  )
+    .map(
+      ([category, amount]) => ({
+        category,
+        amount,
+        percentage:
+          (amount / total) * 100,
+      })
+    )
+    .sort(
+      (a, b) =>
+        b.amount - a.amount
+    );
+}
+
+// =================================================
+// RECURRING BREAKDOWN
+// =================================================
+
+export function calculateRecurringBreakdown(
+  expenses: Expense[]
+): RecurringBreakdownData {
+
+  const recurringAmount =
+    expenses
+      .filter(
+        expense =>
+          expense.is_recurring
+      )
+      .reduce(
+        (total, expense) =>
+          total +
+          expense.original_amount,
+        0
+      );
+
+  const oneTimeAmount =
+    expenses
+      .filter(
+        expense =>
+          !expense.is_recurring
+      )
+      .reduce(
+        (total, expense) =>
+          total +
+          expense.original_amount,
+        0
+      );
+
+  const total =
+    recurringAmount +
+    oneTimeAmount;
+
+  return {
+    recurringAmount,
+
+    oneTimeAmount,
+
+    recurringPercent:
+      total > 0
+        ? (
+            recurringAmount /
+            total
+          ) * 100
+        : 0,
+
+    oneTimePercent:
+      total > 0
+        ? (
+            oneTimeAmount /
+            total
+          ) * 100
+        : 0,
+  };
 }
 
 // =================================================
