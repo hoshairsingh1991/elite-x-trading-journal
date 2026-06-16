@@ -2,7 +2,10 @@
 
 import Sidebar from "@/components/layout/Sidebar";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { loadExpenses } from "@/lib/storage/supabaseExpenseStorage";
+import type { Expense } from "@/lib/types/expense";
 
 import ExpensesHeader from "@/components/expenses/ExpensesHeader";
 import ExpenseKpiGrid from "@/components/expenses/ExpenseKpiGrid";
@@ -16,11 +19,21 @@ export default function ExpensePage() {
 
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
 
-  const [refreshKey, setRefreshKey] =
-  useState(0);
 
-  const [editingExpense, setEditingExpense] =
-  useState<any | null>(null);
+const [editingExpense, setEditingExpense] =
+  useState<Expense | null>(null);
+
+const [expenses, setExpenses] =
+  useState<Expense[]>([]);
+
+const reloadExpenses = async () => {
+  const data = await loadExpenses();
+  setExpenses(data);
+};
+
+useEffect(() => {
+  void reloadExpenses();
+}, []);
 
   return (
     <main className="flex h-screen overflow-x-hidden overflow-y-hidden bg-[#020817]">
@@ -88,6 +101,7 @@ export default function ExpensePage() {
     {/* Left */}
     <div className="col-span-9">
 <ManualExpensesTable
+  expenses={expenses}
   onAddExpense={() => {
     setEditingExpense(null);
     setIsAddExpenseOpen(true);
@@ -96,7 +110,7 @@ export default function ExpensePage() {
     setEditingExpense(expense);
     setIsAddExpenseOpen(true);
   }}
-  refreshKey={refreshKey}
+  onExpensesChanged={reloadExpenses}
 />
     </div>
 
@@ -120,7 +134,7 @@ export default function ExpensePage() {
   }}
 onSaveSuccess={() => {
   setEditingExpense(null);
-  setRefreshKey((prev) => prev + 1);
+  void reloadExpenses();
 }}
   editingExpense={editingExpense}
 />

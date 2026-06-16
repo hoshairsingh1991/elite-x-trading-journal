@@ -6,13 +6,14 @@ import {
   saveExpense,
   updateExpense,
 } from "@/lib/storage/supabaseExpenseStorage";
+import type { Expense } from "@/lib/types/expense";
 
 
 type AddExpenseDrawerProps = {
   open: boolean;
   onClose: () => void;
   onSaveSuccess: () => void;
-  editingExpense?: any | null;
+  editingExpense?: Expense | null;
 };
 
 const headerPaddingX = "px-7";
@@ -319,7 +320,7 @@ if (!editingExpense) {
   setNotes(
     editingExpense.notes ?? ""
   );
-}, [editingExpense]);
+}, [editingExpense, open]);
 
 // ==========================================
 // SAVE

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
-  loadExpenses,
   deleteExpense,
 } from "@/lib/storage/supabaseExpenseStorage";
 
 import { getCurrencySymbol } from "@/lib/fx/currencyFormatting";
+import type { Expense } from "@/lib/types/expense";
 
 import {
   CalendarDays,
@@ -19,18 +19,20 @@ import {
 } from "lucide-react";
 
 type ManualExpensesTableProps = {
+  expenses: Expense[];
   onAddExpense: () => void;
-  onEditExpense: (expense: any) => void;
-  refreshKey: number;
+  onEditExpense: (expense: Expense) => void;
+  onExpensesChanged: () => void;
 };
 
 export default function ManualExpensesTable({
+  expenses,
   onAddExpense,
   onEditExpense,
-  refreshKey,
+  onExpensesChanged,
 }: ManualExpensesTableProps) {
 
-const [expenses, setExpenses] = useState<any[]>([]);
+
 const [currentPage, setCurrentPage] = useState(1);
 const [searchQuery, setSearchQuery] = useState("");
 const [categoryFilter, setCategoryFilter] = useState("All");
@@ -159,18 +161,6 @@ const endItem = Math.min(
   totalExpenses
 );
 
-// =====================================================
-// LOAD EXPENSES
-// =====================================================
-
-async function fetchExpenses() {
-  const data = await loadExpenses();
-  setExpenses(data);
-}
-
-useEffect(() => {
-  fetchExpenses();
-}, [refreshKey]);
 
 const paginationInfoX = "translate-x-6";
 
@@ -295,43 +285,6 @@ const recurringX = "-translate-x-5";
             All Expenses
           </button>
 
-          <button
-  className={`
-    flex
-    ${tabWidth}
-    ${tabHeight}
-    items-center
-    justify-center
-
-    rounded-xl
-    bg-blue-600
-
-    text-[13px]
-    font-semibold
-    text-white
-  `}
->
-            Recurring
-          </button>
-
-          <button
-  className={`
-    flex
-    ${tabWidth}
-    ${tabHeight}
-    items-center
-    justify-center
-
-    rounded-xl
-    bg-blue-600
-
-    text-[13px]
-    font-semibold
-    text-white
-  `}
->
-            One-Time
-          </button>
         </div>
 
 {/* Add Expense */}
@@ -490,15 +443,19 @@ className={`
   >
     <option value="All">Vendor</option>
 
-    {[...new Set(
-      expenses
-        .map((expense) => expense.vendor)
-        .filter(Boolean)
-    )].map((vendor) => (
-      <option key={vendor} value={vendor}>
-        {vendor}
-      </option>
-    ))}
+{[
+  ...new Set(
+    expenses
+      .map((expense) => expense.vendor)
+      .filter(
+        (vendor): vendor is string => vendor !== null
+      )
+  ),
+].map((vendor) => (
+  <option key={vendor} value={vendor}>
+    {vendor}
+  </option>
+))}
   </select>
 
   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -929,13 +886,13 @@ className={`
       return;
     }
 
-    try {
-      await deleteExpense(row.id);
-      await fetchExpenses();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to delete expense.");
-    }
+try {
+  await deleteExpense(row.id);
+  onExpensesChanged();
+} catch (error) {
+  console.error(error);
+  alert("Failed to delete expense.");
+}
   }}
   className="text-red-500 transition hover:text-red-400"
 >
