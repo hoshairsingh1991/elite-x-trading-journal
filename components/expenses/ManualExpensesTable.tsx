@@ -33,6 +33,13 @@ export default function ManualExpensesTable({
 const [expenses, setExpenses] = useState<any[]>([]);
 const [currentPage, setCurrentPage] = useState(1);
 const [searchQuery, setSearchQuery] = useState("");
+const [categoryFilter, setCategoryFilter] = useState("All");
+const [vendorFilter, setVendorFilter] = useState("All");
+const [paymentFilter, setPaymentFilter] = useState("All");
+const [taxFilter, setTaxFilter] = useState("All");
+const [recurringFilter, setRecurringFilter] = useState("All");
+const [dateFilter, setDateFilter] = useState("All");
+
 
 const ITEMS_PER_PAGE = 5;
 
@@ -41,17 +48,95 @@ const ITEMS_PER_PAGE = 5;
 // =====================================================
 
 const filteredExpenses = expenses.filter((expense) => {
+  // -----------------------------
+  // Search Filter
+  // -----------------------------
   const query = searchQuery.trim().toLowerCase();
 
-  if (!query) {
-    return true;
-  }
-
-  return (
+  const matchesSearch =
+    !query ||
     expense.expense_name?.toLowerCase().includes(query) ||
-    expense.vendor?.toLowerCase().includes(query)
-  );
+    expense.vendor?.toLowerCase().includes(query);
+
+// -----------------------------
+// Category Filter
+// -----------------------------
+const matchesCategory =
+  categoryFilter === "All" ||
+  expense.category === categoryFilter;
+
+// -----------------------------
+// Vendor Filter
+// -----------------------------
+const matchesVendor =
+  vendorFilter === "All" ||
+  expense.vendor === vendorFilter;
+
+// -----------------------------
+// Payment Filter
+// -----------------------------
+const matchesPayment =
+  paymentFilter === "All" ||
+  expense.payment_method === paymentFilter;
+
+  // -----------------------------
+// Tax Filter
+// -----------------------------
+const matchesTax =
+  taxFilter === "All" ||
+  (taxFilter === "Yes" &&
+    expense.is_tax_deductible === true) ||
+  (taxFilter === "No" &&
+    expense.is_tax_deductible === false);
+
+    // -----------------------------
+// Recurring Filter
+// -----------------------------
+const matchesRecurring =
+  recurringFilter === "All" ||
+  (recurringFilter === "One-Time" &&
+    expense.is_recurring === false) ||
+  (expense.is_recurring === true &&
+    expense.frequency === recurringFilter);
+
+    // -----------------------------
+// Date Filter
+// -----------------------------
+const matchesDate =
+  dateFilter === "All" ||
+  (() => {
+    const expenseDate = new Date(
+      `${expense.expense_date}T12:00:00`
+    );
+
+    const today = new Date();
+
+    const days =
+      dateFilter === "365"
+        ? 365
+        : Number(dateFilter);
+
+    const cutoff = new Date();
+
+    cutoff.setDate(today.getDate() - days);
+
+    return expenseDate >= cutoff;
+  })();
+
+// -----------------------------
+// Final Result
+// -----------------------------
+return (
+  matchesSearch &&
+  matchesCategory &&
+  matchesVendor &&
+  matchesPayment &&
+  matchesTax &&
+  matchesRecurring &&
+  matchesDate
+);
 });
+
 
 // =====================================================
 // PAGINATION
@@ -116,7 +201,7 @@ const paginationInfoX = "translate-x-6";
   const tabWidth = "w-[100px]";
 const tabHeight = "h-[36px]";
 
-const searchWidth = "w-[160px]";
+const searchWidth = "w-[180px]";
 const filterWidth = "w-[105px]";
 const dateFilterWidth = "w-[150px]";
 
@@ -316,7 +401,7 @@ const recurringX = "-translate-x-5";
   value={searchQuery}
   onChange={(e) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   }}
   placeholder="Search expenses..."
   className="
@@ -327,76 +412,287 @@ const recurringX = "-translate-x-5";
     text-white
     outline-none
     placeholder:text-slate-500
+
+    indent-[8px]
   "
 />
   </div>
 </div>
 
-  {/* Centered Filters */}
-  {[
-    "Category",
-    "Vendor",
-    "Account",
-    "Payment",
-    "Tax",
-    "Recurring",
-  ].map((item) => (
-    <button
-      key={item}
-      className={`
-        relative
-        flex
-        ${filterWidth}
-        ${filterHeight}
-        items-center
-        justify-center
+{/* Centered Filters */}
 
-        rounded-xl
-        border
-        border-white/10
-        bg-white/[0.03]
+{/* Category */}
+<div className="relative">
+  <select
+    value={categoryFilter}
+    onChange={(e) => {
+      setCategoryFilter(e.target.value);
+      setCurrentPage(1);
+    }}
+className={`
+  appearance-none
+  ${filterWidth}
+  ${filterHeight}
 
-        text-[13px]
-        text-slate-300
+  rounded-xl
+  border
+  border-white/10
+  bg-white/[0.03]
 
-        transition
-        hover:bg-white/[0.05]
-      `}
-    >
-      <span className="-translate-x-3">{item}</span>
+  pr-10
+  text-[13px]
+  text-slate-300
+  outline-none
 
-      <ChevronDown className="absolute right-3 h-4 w-4 text-slate-400" />
-    </button>
-  ))}
+  indent-[12px]
+`}
+  >
+    <option value="All">Category</option>
+    <option value="Software">Software</option>
+    <option value="Infrastructure">Infrastructure</option>
+    <option value="Market Data">Market Data</option>
+    <option value="Brokerage Fees">Brokerage Fees</option>
+    <option value="Education">Education</option>
+    <option value="Other">Other</option>
+  </select>
 
-  {/* Date */}
-  <button
+  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+</div>
+
+{/* Vendor */}
+<div className="relative">
+  <select
+    value={vendorFilter}
+    onChange={(e) => {
+      setVendorFilter(e.target.value);
+      setCurrentPage(1);
+    }}
     className={`
-      relative
-      flex
-      ${dateFilterWidth}
+      appearance-none
+      ${filterWidth}
       ${filterHeight}
-      items-center
-      justify-center
 
       rounded-xl
       border
       border-white/10
       bg-white/[0.03]
 
+      pr-10
+      indent-[16px]
+
       text-[13px]
       text-slate-300
+      outline-none
 
       transition
       hover:bg-white/[0.05]
     `}
   >
-    <CalendarDays className="absolute left-3 h-4 w-4 text-slate-400" />
+    <option value="All">Vendor</option>
 
-    <span>Last 30 Days</span>
+    {[...new Set(
+      expenses
+        .map((expense) => expense.vendor)
+        .filter(Boolean)
+    )].map((vendor) => (
+      <option key={vendor} value={vendor}>
+        {vendor}
+      </option>
+    ))}
+  </select>
 
-    <ChevronDown className="absolute right-3 h-4 w-4 text-slate-400" />
-  </button>
+  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+</div>
+
+{/* Account */}
+<button
+  className={`
+    relative
+    flex
+    ${filterWidth}
+    ${filterHeight}
+    items-center
+    justify-center
+
+    rounded-xl
+    border
+    border-white/10
+    bg-white/[0.03]
+
+    text-[13px]
+    text-slate-300
+
+    transition
+    hover:bg-white/[0.05]
+  `}
+>
+  <span className="-translate-x-3">Account</span>
+
+  <ChevronDown className="absolute right-3 h-4 w-4 text-slate-400" />
+</button>
+
+{/* Payment */}
+<div className="relative">
+  <select
+    value={paymentFilter}
+    onChange={(e) => {
+      setPaymentFilter(e.target.value);
+      setCurrentPage(1);
+    }}
+    className={`
+      appearance-none
+      ${filterWidth}
+      ${filterHeight}
+
+      rounded-xl
+      border
+      border-white/10
+      bg-white/[0.03]
+
+      pr-10
+      indent-[14px]
+
+      text-[13px]
+      text-slate-300
+      outline-none
+
+      transition
+      hover:bg-white/[0.05]
+    `}
+  >
+    <option value="All">Payment</option>
+    <option value="Credit Card">Credit Card</option>
+    <option value="Debit Card">Debit Card</option>
+    <option value="Bank Transfer">Bank Transfer</option>
+    <option value="Cash">Cash</option>
+    <option value="PayPal">PayPal</option>
+    <option value="Wire Transfer">Wire Transfer</option>
+    <option value="Crypto">Crypto</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+</div>
+
+{/* Tax */}
+<div className="relative">
+  <select
+    value={taxFilter}
+    onChange={(e) => {
+      setTaxFilter(e.target.value);
+      setCurrentPage(1);
+    }}
+    className={`
+      appearance-none
+      ${filterWidth}
+      ${filterHeight}
+
+      rounded-xl
+      border
+      border-white/10
+      bg-white/[0.03]
+
+      pr-10
+      indent-[30px]
+
+      text-[13px]
+      text-slate-300
+      outline-none
+
+      transition
+      hover:bg-white/[0.05]
+    `}
+  >
+<option value="All">Tax</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+  </select>
+
+  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+</div>
+
+{/* Recurring */}
+<div className="relative">
+  <select
+    value={recurringFilter}
+    onChange={(e) => {
+      setRecurringFilter(e.target.value);
+      setCurrentPage(1);
+    }}
+    className={`
+      appearance-none
+      ${filterWidth}
+      ${filterHeight}
+
+      rounded-xl
+      border
+      border-white/10
+      bg-white/[0.03]
+
+      pr-10
+      indent-[14px]
+
+      text-[13px]
+      text-slate-300
+      outline-none
+
+      transition
+      hover:bg-white/[0.05]
+    `}
+  >
+    <option value="All">Recurring</option>
+    <option value="One-Time">One-Time</option>
+    <option value="Daily">Daily</option>
+    <option value="Weekly">Weekly</option>
+    <option value="Monthly">Monthly</option>
+    <option value="Quarterly">Quarterly</option>
+    <option value="Yearly">Yearly</option>
+  </select>
+
+  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+</div>
+
+{/* Date */}
+<div className="relative">
+  <CalendarDays className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+  <select
+    value={dateFilter}
+    onChange={(e) => {
+      setDateFilter(e.target.value);
+      setCurrentPage(1);
+    }}
+    className={`
+      appearance-none
+
+      ${dateFilterWidth}
+      ${filterHeight}
+
+      rounded-xl
+      border
+      border-white/10
+      bg-white/[0.03]
+
+      pr-10
+      indent-[40px]
+
+      text-[13px]
+      text-slate-300
+      outline-none
+
+      transition
+      hover:bg-white/[0.05]
+    `}
+  >
+    <option value="All">All Time</option>
+    <option value="7">Last 7 Days</option>
+    <option value="30">Last 30 Days</option>
+    <option value="90">Last 90 Days</option>
+    <option value="365">This Year</option>
+  </select>
+
+  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+</div>
 </div>
 
 <div className="h-6" />

@@ -401,3 +401,23 @@ relative left-* achieved the same visual result without breaking overlays.
     "
   />
 </div>
+
+<input
+  value={searchQuery}
+  onChange={(e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  }}
+  placeholder="Search expenses..."
+  className="
+    ml-2
+    w-full
+    bg-transparent
+    text-[13px]
+    text-white
+    outline-none
+    placeholder:text-slate-500
+
+    indent-[8px]
+  "
+/>
