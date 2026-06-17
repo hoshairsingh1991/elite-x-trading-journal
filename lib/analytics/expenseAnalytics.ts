@@ -263,6 +263,118 @@ export function calculateRecurringBreakdown(
 }
 
 // =================================================
+// WEEKLY EXPENSES
+// =================================================
+
+export interface WeeklyExpenseData {
+  week: string;
+  amount: number;
+}
+
+export function calculateWeeklyExpenses(
+  expenses: Expense[]
+): WeeklyExpenseData[] {
+
+  const grouped:
+    Record<string, number> = {};
+
+  expenses.forEach((expense) => {
+
+    const date =
+      new Date(
+        expense.expense_date +
+        "T12:00:00"
+      );
+
+    const week =
+      Math.ceil(
+        date.getDate() / 7
+      );
+
+    const key = `W${week}`;
+
+    grouped[key] =
+      (grouped[key] || 0) +
+      expense.original_amount;
+  });
+
+  return [
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W5",
+  ].map(
+    (week) => ({
+      week,
+      amount:
+        grouped[week] || 0,
+    })
+  );
+}
+
+// =================================================
+// MONTHLY EXPENSES
+// =================================================
+
+export interface MonthlyExpenseData {
+  month: string;
+  amount: number;
+}
+
+export function calculateMonthlyExpenses(
+  expenses: Expense[]
+): MonthlyExpenseData[] {
+
+  const grouped:
+    Record<string, number> = {};
+
+  expenses.forEach(
+    (expense) => {
+
+      const date =
+        new Date(
+          expense.expense_date +
+          "T12:00:00"
+        );
+
+      const month =
+        date.toLocaleString(
+          "en-US",
+          {
+            month: "short",
+          }
+        );
+
+      grouped[month] =
+        (grouped[month] || 0) +
+        expense.original_amount;
+    }
+  );
+
+  return [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ].map(
+    (month) => ({
+      month,
+      amount:
+        grouped[month] || 0,
+    })
+  );
+}
+
+// =================================================
 // MASTER ANALYTICS
 // =================================================
 

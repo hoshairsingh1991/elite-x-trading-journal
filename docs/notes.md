@@ -119,6 +119,7 @@ git commit -m "checkpoint: expenses analytics foundation -  updates notes
 git commit -m "checkpoint: expense kpi grid v1 -  Expense KPIgrid now work.  not comission/tradeing cost and net Pnl yet
 git commit -m "checkpoint: expenses overview analytics v1
 git commit -m "checkpoint: expenses sources v1
+git commit -m "checkpoint: expenses overview charts and period toggle"
 ------------------------------------------------------------------
 
 Status:

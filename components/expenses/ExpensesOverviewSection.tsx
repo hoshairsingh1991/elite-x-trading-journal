@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
   ArrowRight,
   BarChart3,
   CircleDollarSign,
@@ -10,6 +15,8 @@ import {
 import {
   calculateRecurringBreakdown,
   calculateCategoryBreakdown,
+  calculateMonthlyExpenses,
+  calculateWeeklyExpenses,
 } from "@/lib/analytics/expenseAnalytics";
 
 import type { Expense } from "@/lib/types/expense";
@@ -22,15 +29,74 @@ export default function ExpensesOverviewSection({
   expenses,
 }: ExpensesOverviewSectionProps) {
 
+  const [hoveredMonth, setHoveredMonth] =
+  useState<string | null>(null);
+
+  const [viewMode, setViewMode] =
+  useState<"MONTHLY" | "YEARLY">(
+    "YEARLY"
+  );
+
+  const [animateChart, setAnimateChart] =
+  useState(false);
+
+  useEffect(() => {
+  setAnimateChart(true);
+}, []);
+
   const recurringData =
   calculateRecurringBreakdown(
     expenses
   );
 
+  
+
   const categoryData =
   calculateCategoryBreakdown(
     expenses
   );
+
+  const monthlyData =
+  calculateMonthlyExpenses(
+    expenses
+  );
+
+  const weeklyData =
+  calculateWeeklyExpenses(
+    expenses
+  );
+
+const chartData =
+  viewMode === "MONTHLY"
+    ? weeklyData.map(item => ({
+        label: item.week,
+        amount: item.amount,
+      }))
+    : monthlyData.map(item => ({
+        label: item.month,
+        amount: item.amount,
+      }));
+
+const maxMonthlyExpense =
+  Math.max(
+    ...chartData.map(
+      item => item.amount
+    ),
+    1
+  );
+
+  const chartMax =
+  Math.ceil(
+    maxMonthlyExpense / 100
+  ) * 100;
+
+const hoveredData =
+  chartData.find(
+    item =>
+      item.label ===
+      hoveredMonth
+  );
+
 
   const totalManualExpenses =
   expenses.reduce(
@@ -81,6 +147,21 @@ const other =
       item.category ===
       "Other"
   );
+
+// =================================================
+// PERIOD TOGGLE
+// =================================================
+
+const periodToggleWidth = "w-[130px]";
+const periodToggleHeight = "h-[36px]";
+
+const periodTogglePadding = "p-1";
+
+const periodButtonGap = "gap-0";
+
+const activeButtonWidth = "w-[82px]";
+const inactiveButtonWidth = "w-[82px]";
+
 
 // =====================================================
 // Expense Sources Fine Tuning
@@ -196,19 +277,71 @@ return (
       </h3>
     </div>
 
-    <div className={`flex items-center gap-2 ${controlsX} ${controlsY}`}>
-      <button className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-[12px] font-medium text-slate-300">
-        M
-      </button>
+<div
+  className={`
+    flex
 
-      <button className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-[12px] font-medium text-slate-300">
-        Q
-      </button>
+    ${periodToggleWidth}
+    ${periodToggleHeight}
 
-      <button className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500 text-[12px] font-semibold text-white">
-        Y
-      </button>
-    </div>
+    overflow-hidden
+
+    rounded-xl
+    border
+    border-white/10
+
+    bg-white/[0.03]
+
+    ${controlsX}
+    ${controlsY}
+  `}
+>
+<button
+  onClick={() =>
+    setViewMode("MONTHLY")
+  }
+  className={`
+    flex-1
+
+    text-[12px]
+
+    transition-all
+    duration-200
+
+    ${
+      viewMode === "MONTHLY"
+        ? "bg-blue-500/80 font-semibold text-white"
+        : "font-medium text-slate-400"
+    }
+  `}
+>
+  Monthly
+</button>
+
+<button
+  onClick={() =>
+    setViewMode("YEARLY")
+  }
+  className={`
+    flex-1
+
+    text-[12px]
+
+    transition-all
+    duration-200
+
+    ${
+      viewMode === "YEARLY"
+        ? "bg-blue-500/80 font-semibold text-white"
+        : "font-medium text-slate-400"
+    }
+  `}
+>
+  Yearly
+</button>
+</div>
+
+
   </div>
 
   {/* Legend */}
@@ -235,6 +368,7 @@ return (
   <div className={`mt-5 flex justify-center ${chartX} ${chartY}`}>
     <div className="relative h-[280px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
 
+
       {/* Horizontal Grid */}
       <div className="absolute left-14 right-4 top-6 border-t border-white/5" />
       <div className="absolute left-14 right-4 top-[68px] border-t border-white/5" />
@@ -246,52 +380,104 @@ return (
       {/* Y Axis */}
       <div className="absolute left-14 top-6 bottom-8 w-px bg-white/5" />
 
-      {/* Y Labels */}
-      <div className="absolute left-3 top-2 flex h-[215px] flex-col justify-between text-[10px] text-slate-500">
-        <span>C$2.5K</span>
-        <span>C$2.0K</span>
-        <span>C$1.5K</span>
-        <span>C$1.0K</span>
-        <span>C$500</span>
-        <span>C$0</span>
-      </div>
+{/* Y Labels */}
+<div className="absolute left-3 top-2 flex h-[215px] flex-col justify-between text-[10px] text-slate-500">
+  <span>${chartMax.toFixed(0)}</span>
+  <span>${(chartMax * 0.8).toFixed(0)}</span>
+  <span>${(chartMax * 0.6).toFixed(0)}</span>
+  <span>${(chartMax * 0.4).toFixed(0)}</span>
+  <span>${(chartMax * 0.2).toFixed(0)}</span>
+  <span>$0</span>
+</div>
 
 {/* Bottom Axis */}
 <div className="absolute left-14 right-4 bottom-8 h-px bg-white/5" />
 
 {/* Bars */}
 <div className="absolute bottom-8 left-20 right-8 flex items-end justify-between">
-  {[
-    { month: "Jan", manual: 55, comm: 18 },
-    { month: "Feb", manual: 70, comm: 22 },
-    { month: "Mar", manual: 50, comm: 16 },
-    { month: "Apr", manual: 82, comm: 24 },
-    { month: "May", manual: 96, comm: 30 },
-    { month: "Jun", manual: 78, comm: 22 },
-  ].map((item) => (
-    <div key={item.month} className="flex flex-col items-center">
+ {chartData.map((item) => (
+    <div
+  key={item.label}
+  className="flex flex-col items-center"
+  onMouseEnter={() =>
+    setHoveredMonth(item.label)
+  }
+  onMouseLeave={() =>
+    setHoveredMonth(null)
+  }
+>
       {/* Dot + Bar Group */}
-      <div className="relative flex flex-col items-center">
-        {/* Floating dot */}
-        <div className="absolute -top-5 h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
+<div className="group relative flex flex-col items-center">
+
+  {hoveredMonth === item.label && (
+    <div className="absolute -top-16 z-20">
+      <div className="rounded-lg px-3 py-2">
+        <div className="text-center text-[11px] text-slate-400">
+          {item.label}
+        </div>
+
+        <div className="mt-1 text-center text-[15px] font-semibold text-white">
+          ${item.amount.toFixed(2)}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Floating dot */}
+        <div className="
+  absolute
+  -top-3.5
+
+  h-2.5
+  w-2.5
+
+  rounded-full
+
+  bg-emerald-400
+
+  shadow-[0_0_10px_rgba(52,211,153,0.9)]
+
+  transition-all
+  duration-200
+
+  group-hover:scale-125
+" />
 
         {/* Stacked bars */}
         <div className="flex flex-col">
           <div
             className="w-7 rounded-t bg-violet-700/70"
-            style={{ height: `${item.comm}px` }}
+            style={{ height: `0px` }}
           />
 
           <div
-            className="w-7 bg-blue-700/75"
-            style={{ height: `${item.manual}px` }}
+  className="
+    w-7
+    bg-blue-700/75
+    transition-all
+duration-700
+
+    transition-all
+    duration-200
+
+    hover:bg-blue-500/90
+    hover:shadow-[0_0_20px_rgba(59,130,246,0.35)]
+  "
+            style={{
+  height: animateChart
+    ? `${Math.max(
+        (item.amount / maxMonthlyExpense) * 180,
+        4
+      )}px`
+    : "0px",
+}}
           />
         </div>
       </div>
 
       {/* Month */}
       <span className="mt-3 text-[11px] text-slate-500">
-        {item.month}
+        {item.label}
       </span>
     </div>
   ))}
@@ -444,19 +630,32 @@ return (
 >
   <div
     className="relative flex h-[140px] w-[140px] items-center justify-center rounded-full"
-    style={{
-      background: `
-        conic-gradient(
-          #10b981 0% 81%,
-          #64748b 81% 100%
-        )
-      `,
-    }}
+style={{
+  background: `
+    conic-gradient(
+      #10b981 0% ${
+        animateChart
+          ? recurringData.recurringPercent
+          : 0
+      }%,
+      #64748b ${
+        animateChart
+          ? recurringData.recurringPercent
+          : 0
+      }% 100%
+    )
+  `,
+  transition: "all 700ms ease",
+}}
   >
     {/* Inner Cutout */}
     <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-[#061325]">
       <div className="text-[34px] font-bold leading-none text-white">
-        {recurringData.recurringPercent.toFixed(0)}%
+        {(
+  animateChart
+    ? recurringData.recurringPercent
+    : 0
+).toFixed(0)}%
       </div>
 
       <div className="mt-2 text-[12px] text-slate-400">
