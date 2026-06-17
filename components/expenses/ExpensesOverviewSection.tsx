@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BarChart3,
   CircleDollarSign,
-  Info,
   RefreshCw,
 } from "lucide-react";
 
@@ -31,6 +30,14 @@ export default function ExpensesOverviewSection({
   const categoryData =
   calculateCategoryBreakdown(
     expenses
+  );
+
+  const totalManualExpenses =
+  expenses.reduce(
+    (total, expense) =>
+      total +
+      expense.original_amount,
+    0
   );
 
   const software =
@@ -226,7 +233,7 @@ return (
 
   {/* Chart */}
   <div className={`mt-5 flex justify-center ${chartX} ${chartY}`}>
-    <div className="relative h-[260px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+    <div className="relative h-[280px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
 
       {/* Horizontal Grid */}
       <div className="absolute left-14 right-4 top-6 border-t border-white/5" />
@@ -312,9 +319,6 @@ return (
       </h3>
     </div>
 
-    <div className={`${breakdownInfoX} ${breakdownInfoY}`}>
-      <Info className="h-4 w-4 text-slate-500" />
-    </div>
   </div>
 
   {/* Spacer */}
@@ -370,7 +374,8 @@ return (
       </span>
       <span className="text-white">{software?.percentage.toFixed(0) ?? 0}%</span>
     </div>
-
+  {/* Top Spacer */}
+  <div className="h-1" />
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-violet-600" />
@@ -378,7 +383,7 @@ return (
       </span>
       <span className="text-white">{marketData?.percentage.toFixed(0) ?? 0}%</span>
     </div>
-
+<div className="h-1" />
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
@@ -386,7 +391,7 @@ return (
       </span>
       <span className="text-white">{brokerageFees?.percentage.toFixed(0) ?? 0}%</span>
     </div>
-
+<div className="h-1" />
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
@@ -394,7 +399,7 @@ return (
       </span>
       <span className="text-white">{education?.percentage.toFixed(0) ?? 0}%</span>
     </div>
-
+<div className="h-1" />
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -402,7 +407,7 @@ return (
       </span>
       <span className="text-white">{infrastructure?.percentage.toFixed(0) ?? 0}%</span>
     </div>
-
+<div className="h-1" />
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-2 text-slate-300">
         <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
@@ -427,10 +432,6 @@ return (
       <h3 className="text-[18px] font-semibold text-white">
         Recurring
       </h3>
-    </div>
-
-    <div className={`${recurringInfoX} ${recurringInfoY}`}>
-      <Info className="h-4 w-4 text-slate-500" />
     </div>
   </div>
 
@@ -540,15 +541,15 @@ return (
     </div>
 
     <div className="mt-1 text-[13px] text-slate-400">
-      Trade Commissions
+      Trade Analytics
     </div>
 <div className="h-2" />
     <div className="mt-3 text-[28px] font-bold leading-none text-white">
-      C$356.44
+      Coming Soon
     </div>
 
     <div className="mt-2 text-[14px] text-slate-400">
-      This Period
+      Phase 2
     </div>
   </div>
 </div>
@@ -589,7 +590,7 @@ return (
     </div>
 <div className="h-2" />
     <div className="mt-3 text-[28px] font-bold leading-none text-white">
-      C$1,284.17
+      ${totalManualExpenses.toFixed(2)}
     </div>
 
     <div className="mt-2 text-[14px] text-slate-400">

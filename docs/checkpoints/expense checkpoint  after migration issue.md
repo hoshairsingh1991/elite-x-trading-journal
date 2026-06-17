@@ -484,3 +484,38 @@ git commit -m "checkpoint: expense kpi grid v1
 - Build clean"
 
  ========================================================= =========================================================
+
+ git add .
+
+git commit -m "checkpoint: expenses overview analytics v1
+
+- Added category breakdown analytics
+- Added recurring breakdown analytics
+- Added fixed category architecture with zero-value support
+- Wired recurring donut to live expense data
+- Wired recurring legend percentages to live expense data
+- Wired expense breakdown donut to live expense data
+- Wired Software category percentage
+- Wired Market Data category percentage
+- Wired Brokerage Fees category percentage
+- Wired Education category percentage
+- Wired Infrastructure category percentage
+- Wired Other category percentage
+- Validated category analytics against live Supabase expenses
+- Preserved existing UI layout
+- Build clean"
+ ========================================================= =========================================================
+git add .
+
+git commit -m "checkpoint: expenses sources v1
+
+- Wired Manual Expenses source card to live expense data
+- Added live manual expense total calculation
+- Removed placeholder manual expense values
+- Converted Auto Calculated card to Coming Soon state
+- Removed fake commission values from expense sources
+- Added Phase 2 trade analytics placeholder
+- Preserved existing UI layout
+- Build clean"
+  ========================================================= =========================================================
+  
