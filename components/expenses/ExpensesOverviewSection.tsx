@@ -217,12 +217,11 @@ const breakdownInfoX = "-translate-x-62";
 const breakdownInfoY = "translate-y-0";
 
 // Donut chart
-const breakdownChartX = "-translate-x-30";
-const breakdownChartY = "translate-y-10";
+const breakdownChartX = "-translate-x-34";
+const breakdownChartY = "translate-y-16";
 
-// Legend
-const breakdownLegendX = "translate-x-56";
-const breakdownLegendY = "-translate-y-28";
+const breakdownLegendX = "translate-x-52";
+const breakdownLegendY = "-translate-y-20";
 
 
 // =====================================================
@@ -255,11 +254,11 @@ const recurringLegendY = "-translate-y-20";
   const controlsX = "-translate-x-4";
   const controlsY = "translate-y-2";
 
-  const legendX = "translate-x-2";
-  const legendY = "translate-y-1";
+  const legendX = "translate-x-4";
+  const legendY = "-translate-y-1";
 
   const chartX = "translate-x-0";
-  const chartY = "translate-y-3";
+  const chartY = "-translate-y-1";
 
 return (
   <div className="grid grid-cols-13 gap-5">
@@ -366,7 +365,7 @@ return (
 
   {/* Chart */}
   <div className={`mt-5 flex justify-center ${chartX} ${chartY}`}>
-    <div className="relative h-[280px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+    <div className="relative h-[260px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
 
 
       {/* Horizontal Grid */}
@@ -381,7 +380,7 @@ return (
       <div className="absolute left-14 top-6 bottom-8 w-px bg-white/5" />
 
 {/* Y Labels */}
-<div className="absolute left-3 top-2 flex h-[215px] flex-col justify-between text-[10px] text-slate-500">
+<div className="absolute left-4 top-4 flex h-[215px] flex-col justify-between text-[10px] text-slate-500">
   <span>${chartMax.toFixed(0)}</span>
   <span>${(chartMax * 0.8).toFixed(0)}</span>
   <span>${(chartMax * 0.6).toFixed(0)}</span>
@@ -473,18 +472,26 @@ duration-700
 }}
           />
         </div>
+        
       </div>
 
       {/* Month */}
       <span className="mt-3 text-[11px] text-slate-500">
         {item.label}
       </span>
+      
     </div>
+    
   ))}
+  
 </div>
+  
     </div>
+    
   </div>
+  
 </div>
+
 
 {/* KEEP THE REST OF YOUR FILE (Expense Breakdown, Recurring, Expense Sources)
     EXACTLY AS IT IS BELOW THIS LINE */}
@@ -508,7 +515,7 @@ duration-700
   </div>
 
   {/* Spacer */}
-  <div className="h-4" />
+  <div className="h-0" />
 
   {/* Donut */}
   <div
@@ -547,7 +554,7 @@ duration-700
   </div>
 
   {/* Spacer */}
-  <div className="h-6" />
+
 
   {/* Legend */}
   <div

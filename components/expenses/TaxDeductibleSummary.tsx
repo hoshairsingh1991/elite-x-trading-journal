@@ -36,7 +36,7 @@ const estimatedTaxSavings =
    FINE TUNING
    ===================================================== */
 
-const cardHeight = "h-[380px]";
+const cardHeight = "h-[340px]";
 
 const headerX = "translate-x-2";
 const headerY = "translate-y-2";
@@ -53,7 +53,7 @@ const ringOuter = 170;
 const ringInner = 126;
 
 const legendX = "translate-x-6";
-const legendY = "translate-y-30";
+const legendY = "translate-y-20";
 
 /* =====================================================
    POSITION CONTROLS
@@ -65,7 +65,7 @@ const donutY = "translate-y-0";
 
 // Tax Deductible Total
 const deductibleCardX = "translate-x-0";
-const deductibleCardY = "translate-y-2";
+const deductibleCardY = "translate-y-0";
 const deductibleValueX = "translate-x-4";
 const deductibleValueY = "translate-y-2";
 
