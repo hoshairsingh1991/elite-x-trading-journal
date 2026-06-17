@@ -519,3 +519,20 @@ git commit -m "checkpoint: expenses sources v1
 - Build clean"
   ========================================================= =========================================================
   
+  git add .
+
+git commit -m "feat(expenses): wire upcoming renewals card with live recurring expense analytics"
+
+✓ Live recurring expense detection
+✓ Renewal date calculation
+✓ Weekly / Monthly / Quarterly / Yearly support
+✓ Vendor logos
+✓ Scrollable list
+✓ Sorted by nearest renewal
+✓ Urgency color coding
+✓ Compact date formatting
+✓ Dashboard-style day display
+
+ ========================================================= =========================================================
+
+ 

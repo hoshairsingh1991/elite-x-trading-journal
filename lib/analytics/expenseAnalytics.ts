@@ -49,7 +49,91 @@ export function calculateUpcomingRenewals(
   expenses: any[]
 ): UpcomingRenewal[] {
 
-  return [];
+  const today = new Date();
+
+  const renewals = expenses
+    .filter(
+      expense =>
+        expense.is_recurring &&
+        expense.start_date &&
+        expense.frequency
+    )
+    .map(expense => {
+
+      const renewalDate =
+        new Date(expense.start_date);
+
+      while (
+        renewalDate < today
+      ) {
+
+        switch (
+          expense.frequency
+        ) {
+
+          case "Weekly":
+            renewalDate.setDate(
+              renewalDate.getDate() + 7
+            );
+            break;
+
+          case "Monthly":
+            renewalDate.setMonth(
+              renewalDate.getMonth() + 1
+            );
+            break;
+
+          case "Quarterly":
+            renewalDate.setMonth(
+              renewalDate.getMonth() + 3
+            );
+            break;
+
+          case "Yearly":
+            renewalDate.setFullYear(
+              renewalDate.getFullYear() + 1
+            );
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      const daysRemaining =
+        Math.ceil(
+          (
+            renewalDate.getTime() -
+            today.getTime()
+          ) /
+          (1000 * 60 * 60 * 24)
+        );
+
+      return {
+        expenseName:
+          expense.expense_name,
+
+        vendor:
+          expense.vendor,
+
+        amount:
+          expense.original_amount,
+
+        renewalDate:
+          renewalDate
+            .toISOString()
+            .split("T")[0],
+
+        daysRemaining,
+      };
+    })
+    .sort(
+      (a, b) =>
+        a.daysRemaining -
+        b.daysRemaining
+    );
+
+  return renewals;
 }
 
 // =================================================

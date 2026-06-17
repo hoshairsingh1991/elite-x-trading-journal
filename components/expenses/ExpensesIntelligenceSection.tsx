@@ -5,6 +5,10 @@ import Image from "next/image";
 import type { Expense } from "@/lib/types/expense";
 
 import {
+  calculateUpcomingRenewals,
+} from "@/lib/analytics/expenseAnalytics";
+
+import {
   CalendarClock,
   Flame,
   Gauge,
@@ -20,6 +24,45 @@ interface ExpensesIntelligenceSectionProps {
 export default function ExpensesIntelligenceSection({
   expenses,
 }: ExpensesIntelligenceSectionProps) {
+
+  const upcomingRenewals =
+    calculateUpcomingRenewals(
+      expenses
+    );
+
+    const vendorIcons: Record<string, string> = {
+  
+  TradingView:
+    "/icons/expenses/tradingview.png",
+
+  DigitalOcean:
+    "/icons/expenses/digitalocean.png",
+
+  NinjaTrader:
+    "/icons/expenses/ninjatrader.png",
+
+  CME:
+    "/icons/expenses/cme.png",
+};
+
+const getRenewalColor = (
+  daysRemaining: number
+) => {
+
+  if (daysRemaining <= 14) {
+    return "text-red-400";
+  }
+
+  if (daysRemaining <= 30) {
+    return "text-orange-400";
+  }
+
+  if (daysRemaining <= 90) {
+    return "text-yellow-400";
+  }
+
+  return "text-slate-400";
+};
 
     /* =====================================================
    PROFIT RETENTION FINE TUNING
@@ -95,15 +138,15 @@ const renewalsWidth = "w-[90%]";
 const renewalIconX = "translate-x-0";
 const renewalIconY = "translate-y-0";
 
-const renewalIconSize = 25;
+const renewalIconSize = 24;
 
 const renewalNameX = "translate-x-2";
 const renewalNameY = "translate-y-0";
 
-const renewalDateX = "-translate-x-1";
+const renewalDateX = "-translate-x-0";
 const renewalDateY = "translate-y-0";
 
-const renewalDaysX = "-translate-x-3";
+const renewalDaysX = "-translate-x-8";
 const renewalDaysY = "translate-y-0";
 
   /* =====================================================
@@ -152,7 +195,7 @@ const metricsWidth = "w-[90%]";
  const cardClass =
   "group flex h-[220px] flex-col rounded-[22px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-200 hover:-translate-y-[1px] hover:border-white/20 hover:bg-white/[0.045]";
 
-const renewalBoxSize = "h-7 w-7"; // try h-7 w-7, h-8 w-8, h-9 w-9
+const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 
   return (
     <div className="grid grid-cols-6 gap-5">
@@ -721,277 +764,123 @@ const renewalBoxSize = "h-7 w-7"; // try h-7 w-7, h-8 w-8, h-9 w-9
     ${renewalsListY}
   `}
 >
-    {/* TradingView */}
-    <div className="flex items-center justify-between">
-      <div className="flex items-center">
+{upcomingRenewals.map(
+  (renewal, index) => (
+    <div
+      key={`${renewal.expenseName}-${index}`}
+    >
+      <div className="flex items-center justify-between">
 
+        <div className="flex items-center">
 
-<div
-  className={`
-    flex
-    ${renewalBoxSize}
-    items-center
-    justify-center
-    rounded-lg
-    bg-white
+          <div
+            className={`
+              flex
+              ${renewalBoxSize}
+              items-center
+              justify-center
+              rounded-lg
+              bg-white
 
-    ${renewalIconX}
-    ${renewalIconY}
-  `}
->
-
-
+              ${renewalIconX}
+              ${renewalIconY}
+            `}
+          >
+            {vendorIcons[
+              renewal.vendor
+            ] ? (
 <Image
-  src="/icons/expenses/tradingview.png"
-  alt="TradingView"
-width={renewalIconSize}
-height={renewalIconSize}
+  src={
+    vendorIcons[
+      renewal.vendor
+    ]
+  }
+  alt={
+    renewal.vendor
+  }
+  width={
+    renewalIconSize
+  }
+  height={
+    renewalIconSize
+  }
+  className="h-[18px] w-[18px] object-contain"
 />
-</div>
+            ) : (
+              <CalendarClock className="h-4 w-4 text-slate-500" />
+            )}
+          </div>
 
-        <span
-          className={`
-            ml-3
-            text-[12px]
-            font-medium
-            text-white
+          <span
+            className={`
+              ml-3
+              text-[12px]
+              font-medium
+              text-white
 
-            ${renewalNameX}
-            ${renewalNameY}
-          `}
-        >
-          TradingView
-        </span>
-      </div>
+              ${renewalNameX}
+              ${renewalNameY}
+            `}
+          >
+            {renewal.expenseName}
+          </span>
 
-      <div className="flex items-center gap-5">
-        <span
-          className={`
-            text-[11px]
-            text-slate-400
+        </div>
 
-            ${renewalDateX}
-            ${renewalDateY}
-          `}
-        >
-          Jun 18, 2026
-        </span>
+        <div className="flex items-center gap-5">
 
-        <span
-          className={`
-            min-w-[55px]
-            text-right
-            text-[11px]
-            font-semibold
-            text-orange-400
+          <span
+            className={`
+              text-[11px]
+              text-slate-400
 
-            ${renewalDaysX}
-            ${renewalDaysY}
-          `}
-        >
-          7 days
-        </span>
-      </div>
-    </div>
-
-    <div className="h-[12px]" />
-
-{/* CME */}
-<div className="flex items-center justify-between">
-  <div className="flex items-center">
-
-   <div
-  className={`
-    flex
-    ${renewalBoxSize}
-    items-center
-    justify-center
-    rounded-lg
-    bg-white
-
-    ${renewalIconX}
-    ${renewalIconY}
-  `}
->
-      <span className="text-[10px] font-bold tracking-tight text-sky-700">
-        CME
-      </span>
-    </div>
+              ${renewalDateX}
+              ${renewalDateY}
+            `}
+          >
+            {new Date(
+              renewal.renewalDate
+            ).toLocaleDateString(
+  "en-US",
+  {
+    month: "short",
+    day: "numeric",
+  }
+)}
+          </span>
 
 <span
   className={`
-    ml-3
-    text-[12px]
-    font-medium
-    text-white
+    min-w-[55px]
+    text-right
+    text-[11px]
+    font-semibold
 
-    ${renewalNameX}
-    ${renewalNameY}
+    ${getRenewalColor(
+      renewal.daysRemaining
+    )}
+
+    ${renewalDaysX}
+    ${renewalDaysY}
   `}
 >
-  CME Market Data
-</span>
-  </div>
+            {renewal.daysRemaining}d
+          </span>
 
-  <div className="flex items-center gap-5">
-    <span className="text-[11px] text-slate-400">
-      Jun 25, 2026
-    </span>
+        </div>
 
-    <span className="min-w-[55px] text-right text-[11px] font-semibold text-orange-400">
-      14 days
-    </span>
-  </div>
-</div>
+      </div>
 
-<div className="h-[12px]" />
-
-{/* DigitalOcean */}
-<div className="flex items-center justify-between">
-  <div className="flex items-center">
-<div
-  className={`
-    flex
-    ${renewalBoxSize}
-    items-center
-    justify-center
-    rounded-lg
-    bg-[#0069FF]
-    p-1
-
-    ${renewalIconX}
-    ${renewalIconY}
-  `}
->
-<Image
-  src="/icons/expenses/digitalocean.png"
-  alt="DigitalOcean"
-  width={renewalIconSize}
-  height={renewalIconSize}
-  className="h-auto w-auto object-contain"
-/>
+      {index <
+        upcomingRenewals.length -
+          1 && (
+        <div className="h-[12px]" />
+      )}
     </div>
-
-    <span
-      className={`
-        ml-3
-        text-[12px]
-        font-medium
-        text-white
-
-        ${renewalNameX}
-        ${renewalNameY}
-      `}
-    >
-      DigitalOcean VPS
-    </span>
-  </div>
-
-  <div className="flex items-center gap-5">
-    <span
-      className={`
-        text-[11px]
-        text-slate-400
-
-        ${renewalDateX}
-        ${renewalDateY}
-      `}
-    >
-      Jul 2, 2026
-    </span>
-
-    <span
-      className={`
-        min-w-[55px]
-        text-right
-        text-[11px]
-        font-semibold
-        text-orange-400
-
-        ${renewalDaysX}
-        ${renewalDaysY}
-      `}
-    >
-      21 days
-    </span>
-  </div>
-</div>
-
-<div className="h-[12px]" />
-
-{/* NinjaTrader */}
-<div className="flex items-center justify-between">
-  <div className="flex items-center">
-<div
-  className={`
-    flex
-    ${renewalBoxSize}
-    items-center
-    justify-center
-    rounded-lg
-    bg-[#0069FF]
-    p-1
-
-    ${renewalIconX}
-    ${renewalIconY}
-  `}
->
-      <Image
-        src="/icons/expenses/ninjatrader.png"
-        alt="NinjaTrader"
-        width={renewalIconSize}
-        height={renewalIconSize}
-        className="object-contain"
-      />
-    </div>
-
-    <span
-      className={`
-        ml-3
-        text-[12px]
-        font-medium
-        text-white
-
-        ${renewalNameX}
-        ${renewalNameY}
-      `}
-    >
-      NinjaTrader
-    </span>
-  </div>
-
-  <div className="flex items-center gap-5">
-    <span
-      className={`
-        text-[11px]
-        text-slate-400
-
-        ${renewalDateX}
-        ${renewalDateY}
-      `}
-    >
-      Jul 6, 2026
-    </span>
-
-    <span
-      className={`
-        min-w-[55px]
-        text-right
-        text-[11px]
-        font-semibold
-        text-orange-400
-
-        ${renewalDaysX}
-        ${renewalDaysY}
-      `}
-    >
-      25 days
-    </span>
-  </div>
-</div>
-  </div>
+  )
+)}
 </div>
     </div>
-       
+    </div>   
   );
 }
