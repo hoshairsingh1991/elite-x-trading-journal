@@ -121,6 +121,7 @@ git commit -m "checkpoint: expenses overview analytics v1
 git commit -m "checkpoint: expenses sources v1
 git commit -m "checkpoint: expenses overview charts and period toggle"
 git commit -m "feat(expenses): complete expenses over time analytics and period toggle"
+git commit -m "feat(expenses): add expense over time analytics and prepare upcoming renewals"
 ------------------------------------------------------------------
 
 Status:

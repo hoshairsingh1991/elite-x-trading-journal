@@ -32,6 +32,26 @@ export interface MonthlyExpenseData {
   amount: number;
 }
 
+export interface UpcomingRenewal {
+  expenseName: string;
+  vendor: string;
+  amount: number;
+
+  renewalDate: string;
+  daysRemaining: number;
+}
+
+// =================================================
+// UPCOMING RENEWALS
+// =================================================
+
+export function calculateUpcomingRenewals(
+  expenses: any[]
+): UpcomingRenewal[] {
+
+  return [];
+}
+
 // =================================================
 // TOTAL EXPENSES
 // =================================================

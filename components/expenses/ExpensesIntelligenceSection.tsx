@@ -95,15 +95,15 @@ const renewalsWidth = "w-[90%]";
 const renewalIconX = "translate-x-0";
 const renewalIconY = "translate-y-0";
 
-const renewalIconSize = 24;
+const renewalIconSize = 25;
 
 const renewalNameX = "translate-x-2";
 const renewalNameY = "translate-y-0";
 
-const renewalDateX = "translate-x-0";
+const renewalDateX = "-translate-x-1";
 const renewalDateY = "translate-y-0";
 
-const renewalDaysX = "translate-x-0";
+const renewalDaysX = "-translate-x-3";
 const renewalDaysY = "translate-y-0";
 
   /* =====================================================
@@ -704,45 +704,23 @@ const renewalBoxSize = "h-7 w-7"; // try h-7 w-7, h-8 w-8, h-9 w-9
       </span>
     </div>
 
-    <button
-className={`
-  flex
-  h-6
-  w-[56px]
-  items-center
-  justify-center
-
-  rounded-lg
-  border
-  border-white/10
-  bg-white/[0.02]
-
-  text-[10px]
-  font-medium
-  text-slate-300
-
-  transition-all
-  hover:border-white/20
-  hover:bg-white/[0.05]
-
-  ${renewalsButtonX}
-  ${renewalsButtonY}
-`}
-    >
-      View All
-    </button>
   </div>
 
-  {/* Body */}
-  <div
-    className={`
-      mt-6
+{/* Body */}
+<div
+  className={`
+    mt-6
 
-      ${renewalsWidth}
-      ${renewalsListX}
-      ${renewalsListY}
-    `}
-  >
+    max-h-[145px]
+    overflow-y-auto
+
+    pr-2
+
+    ${renewalsWidth}
+    ${renewalsListX}
+    ${renewalsListY}
+  `}
+>
     {/* TradingView */}
     <div className="flex items-center justify-between">
       <div className="flex items-center">
