@@ -21,12 +21,27 @@ import {
 
 import type { Expense } from "@/lib/types/expense";
 
+import {
+  BusinessCostAnalyticsData,
+} from "@/lib/analytics/businessCostAnalytics";
+
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
 interface ExpensesOverviewSectionProps {
   expenses: Expense[];
+
+  businessCostAnalytics:
+    BusinessCostAnalyticsData;
+
+  reportingCurrency: string;
 }
 
 export default function ExpensesOverviewSection({
   expenses,
+  businessCostAnalytics,
+  reportingCurrency,
 }: ExpensesOverviewSectionProps) {
 
   const [hoveredMonth, setHoveredMonth] =
@@ -59,6 +74,11 @@ export default function ExpensesOverviewSection({
   const monthlyData =
   calculateMonthlyExpenses(
     expenses
+  );
+
+  const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
   );
 
   const weeklyData =
@@ -742,21 +762,24 @@ style={{
 
   {/* Text Block */}
   <div className={`${autoTextX} ${autoTextY}`}>
-    <div className="mt-4 text-[16px] font-medium text-slate-300">
-      Auto Calculated
-    </div>
+<div className="mt-4 text-[16px] font-medium text-slate-300">
+  Broker Commissions
+</div>
 
-    <div className="mt-1 text-[13px] text-slate-400">
-      Trade Analytics
-    </div>
+<div className="mt-1 text-[13px] text-slate-400">
+  Imported From Trade History
+</div>
+
 <div className="h-2" />
-    <div className="mt-3 text-[28px] font-bold leading-none text-white">
-      Coming Soon
-    </div>
 
-    <div className="mt-2 text-[14px] text-slate-400">
-      Phase 2
-    </div>
+<div className="mt-3 text-[28px] font-bold leading-none text-white">
+  {currencySymbol}
+  {businessCostAnalytics.commissions.toFixed(2)}
+</div>
+
+<div className="mt-2 text-[14px] text-slate-400">
+  Auto Calculated
+</div>
   </div>
 </div>
 
@@ -796,7 +819,8 @@ style={{
     </div>
 <div className="h-2" />
     <div className="mt-3 text-[28px] font-bold leading-none text-white">
-      ${totalManualExpenses.toFixed(2)}
+      {currencySymbol}
+{totalManualExpenses.toFixed(2)}
     </div>
 
     <div className="mt-2 text-[14px] text-slate-400">

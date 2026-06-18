@@ -578,4 +578,14 @@ Remaining:
 
  ========================================================= =========================================================
 
- 
+git commit -m "feat(expenses): add reporting currency support and FX conversion"
+
+Checkpoint Notes
+Completed
+Reporting Currency Infrastructure
+Expenses page now reads the Dashboard reporting currency from localStorage
+FX rates loaded on Expenses page
+Reporting currency displayed in Expenses header
+Header automatically reflects Dashboard currency selection
+
+ ========================================================= =========================================================
