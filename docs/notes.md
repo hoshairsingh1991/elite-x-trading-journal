@@ -124,6 +124,7 @@ git commit -m "feat(expenses): complete expenses over time analytics and period 
 git commit -m "feat(expenses): add expense over time analytics and prepare upcoming renewals"
 
 git commit -m "feat(expenses): wire upcoming renewals card with live recurring expense analytics" -
+git commit -m "feat(expenses): add commission analytics and reporting currency support"
 ------------------------------------------------------------------
 
 Status:

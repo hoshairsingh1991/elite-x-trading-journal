@@ -10,6 +10,14 @@ import { getCurrencySymbol } from "@/lib/fx/currencyFormatting";
 import type { Expense } from "@/lib/types/expense";
 
 import {
+  convertAmount,
+} from "@/lib/fx/fxConversion";
+
+import {
+  FxRates,
+} from "@/lib/fx/fxRateProvider";
+
+import {
   CalendarDays,
   ChevronDown,
   Pencil,
@@ -20,6 +28,11 @@ import {
 
 type ManualExpensesTableProps = {
   expenses: Expense[];
+
+  reportingCurrency: string;
+
+  fxRates: FxRates;
+
   onAddExpense: () => void;
   onEditExpense: (expense: Expense) => void;
   onExpensesChanged: () => void;
@@ -27,6 +40,8 @@ type ManualExpensesTableProps = {
 
 export default function ManualExpensesTable({
   expenses,
+  reportingCurrency,
+  fxRates,
   onAddExpense,
   onEditExpense,
   onExpensesChanged,
@@ -43,7 +58,7 @@ const [recurringFilter, setRecurringFilter] = useState("All");
 const [dateFilter, setDateFilter] = useState("All");
 
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 // =====================================================
 // FILTERED EXPENSES
@@ -817,7 +832,16 @@ className={`
     ${reportingAmountX}
   `}
 >
-  —
+  {getCurrencySymbol(
+    reportingCurrency
+  )}
+
+  {convertAmount(
+    row.original_amount,
+    row.billed_currency,
+    reportingCurrency,
+    fxRates
+  ).toFixed(2)}
 </span>
 
 <span

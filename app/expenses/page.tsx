@@ -232,6 +232,12 @@ const businessCostAnalytics =
     <div className="col-span-9">
 <ManualExpensesTable
   expenses={expenses}
+  reportingCurrency={
+    reportingCurrency
+  }
+  fxRates={
+    fxRates
+  }
   onAddExpense={() => {
     setEditingExpense(null);
     setIsAddExpenseOpen(true);
@@ -246,8 +252,11 @@ const businessCostAnalytics =
 
     {/* Right */}
     <div className="col-span-3">
-      <TaxDeductibleSummary
-  expenses={expenses}
+<TaxDeductibleSummary
+  expenses={reportingExpenses}
+  reportingCurrency={
+    reportingCurrency
+  }
 />
     </div>
 

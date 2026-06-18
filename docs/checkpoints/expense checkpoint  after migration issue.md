@@ -535,4 +535,47 @@ git commit -m "feat(expenses): wire upcoming renewals card with live recurring e
 
  ========================================================= =========================================================
 
+ git add .
+
+git commit -m "feat(expenses): add commission analytics and reporting currency support"
+
+Expenses Module Checkpoint
+
+Completed:
+- Live commission analytics from trade history
+- Business cost analytics layer
+- Trading Costs KPI
+- Net Business Profit KPI
+- Reporting currency integration
+- FX rates integration
+- Global reporting currency sync with Dashboard
+- Expense currency conversion layer
+- KPI Grid fully FX-aware
+
+Architecture:
+Expenses
+↓
+convertExpensesToReportingCurrency()
+↓
+Expense Analytics
+↓
+KPI Grid
+
+Trades
+↓
+convertTradesToReportingCurrency()
+↓
+Performance Analytics
+↓
+Business Cost Analytics
+
+Remaining:
+1. TaxDeductibleSummary FX conversion
+2. ExpensesIntelligenceSection FX conversion
+3. ExpensesOverviewSection FX conversion
+4. ManualExpensesTable reporting currency support
+5. Expense Sources analytics
+
+ ========================================================= =========================================================
+
  

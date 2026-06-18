@@ -6,18 +6,29 @@ import {
   generateExpenseAnalytics,
 } from "@/lib/analytics/expenseAnalytics";
 
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
 interface TaxDeductibleSummaryProps {
   expenses: Expense[];
+  reportingCurrency: string;
 }
 
 export default function TaxDeductibleSummary({
   expenses,
+  reportingCurrency,
 }: TaxDeductibleSummaryProps) {
 
 
 const analytics =
   generateExpenseAnalytics(
     expenses
+  );
+
+const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
   );
 
 const deductibleAmount =
@@ -185,7 +196,8 @@ return (
     ${deductibleValueY}
   `}
 >
-${deductibleAmount.toFixed(2)}
+{currencySymbol}
+{deductibleAmount.toFixed(2)}
 </div>
         </div>
 
@@ -225,7 +237,8 @@ ${deductibleAmount.toFixed(2)}
     ${savingsValueY}
   `}
 >
- ${estimatedTaxSavings.toFixed(2)}
+ {currencySymbol}
+{estimatedTaxSavings.toFixed(2)}
 </div>
         </div>
       </div>
@@ -307,7 +320,8 @@ ${deductibleAmount.toFixed(2)}
     ${legendDeductibleAmountX}
   `}
 >
-  ${deductibleAmount.toFixed(2)}
+  {currencySymbol}
+{deductibleAmount.toFixed(2)}
 </span>
 
 <span
@@ -342,7 +356,8 @@ ${deductibleAmount.toFixed(2)}
     ${legendNonDeductibleAmountX}
   `}
 >
-  ${nonDeductibleAmount.toFixed(2)}
+  {currencySymbol}
+{nonDeductibleAmount.toFixed(2)}
 </span>
 
 <span
