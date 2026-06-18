@@ -7,6 +7,34 @@ import { useEffect, useState } from "react";
 import { loadExpenses } from "@/lib/storage/supabaseExpenseStorage";
 import type { Expense } from "@/lib/types/expense";
 
+import { Trade } from "@/types/trade";
+
+import {
+  loadTradesForAnalytics,
+} from "@/lib/trades/loadTradesForAnalytics";
+
+import {
+  generatePerformanceBreakdownAnalytics,
+} from "@/lib/analytics/performanceBreakdownAnalytics";
+
+import {
+  generateBusinessCostAnalytics,
+} from "@/lib/analytics/businessCostAnalytics";
+
+import {
+  convertTradesToReportingCurrency,
+} from "@/lib/fx/convertTradesToReportingCurrency";
+
+import {
+  convertExpensesToReportingCurrency,
+} from "@/lib/fx/convertExpensesToReportingCurrency";
+
+import {
+  getFxRates,
+  FxRates,
+  FALLBACK_RATES,
+} from "@/lib/fx/fxRateProvider";
+
 import ExpensesHeader from "@/components/expenses/ExpensesHeader";
 import ExpenseKpiGrid from "@/components/expenses/ExpenseKpiGrid";
 import ExpensesOverviewSection from "@/components/expenses/ExpensesOverviewSection";
@@ -26,14 +54,100 @@ const [editingExpense, setEditingExpense] =
 const [expenses, setExpenses] =
   useState<Expense[]>([]);
 
+  const [trades, setTrades] =
+  useState<Trade[]>([]);
+
+  const [
+  reportingCurrency,
+  setReportingCurrency,
+] = useState("USD");
+
+const [
+  fxRates,
+  setFxRates,
+] = useState<FxRates>(
+  FALLBACK_RATES
+);
+
 const reloadExpenses = async () => {
   const data = await loadExpenses();
   setExpenses(data);
 };
 
+const reloadTrades = async () => {
+
+  const data =
+    await loadTradesForAnalytics();
+
+  setTrades(data);
+};
+
 useEffect(() => {
+
   void reloadExpenses();
+  void reloadTrades();
+
 }, []);
+
+useEffect(() => {
+
+  const savedCurrency =
+    localStorage.getItem(
+      "reportingCurrency"
+    );
+
+  if (savedCurrency) {
+
+    setReportingCurrency(
+      savedCurrency
+    );
+  }
+
+}, []);
+
+useEffect(() => {
+
+  async function loadFxRates() {
+
+    const rates =
+      await getFxRates();
+
+    setFxRates(
+      rates
+    );
+  }
+
+  loadFxRates();
+
+}, []);
+
+const reportingTrades =
+  convertTradesToReportingCurrency(
+    trades,
+    reportingCurrency,
+    fxRates
+  );
+
+  const reportingExpenses =
+  convertExpensesToReportingCurrency(
+    expenses,
+    reportingCurrency,
+    fxRates
+  );
+
+const performanceBreakdownAnalytics =
+  generatePerformanceBreakdownAnalytics(
+    reportingTrades
+  );
+
+const businessCostAnalytics =
+  generateBusinessCostAnalytics(
+    expenses,
+    reportingTrades,
+    performanceBreakdownAnalytics.netTradingPnL
+  );
+
+
 
   return (
     <main className="flex h-screen overflow-x-hidden overflow-y-hidden bg-[#020817]">
@@ -57,7 +171,11 @@ useEffect(() => {
 {/* ================================================= */}
 
 <div className="relative z-[1000]">
-  <ExpensesHeader />
+  <ExpensesHeader
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
 </div>
 
 <div className="h-6" />
@@ -68,8 +186,14 @@ useEffect(() => {
 
 <div className="relative z-10 mt-10">
   <ExpenseKpiGrid
-  expenses={expenses}
-/>
+    expenses={reportingExpenses}
+    businessCostAnalytics={
+      businessCostAnalytics
+    }
+    reportingCurrency={
+      reportingCurrency
+    }
+  />
 </div>
 
 <div className="h-6" />

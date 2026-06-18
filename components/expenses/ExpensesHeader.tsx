@@ -51,7 +51,27 @@ const dateIconY = "translate-y-0";
 const dateChevronX = "-translate-x-1";
 const dateChevronY = "translate-y-0";
 
-export default function ExpensesHeader() {
+interface ExpensesHeaderProps {
+  reportingCurrency: string;
+}
+
+export default function ExpensesHeader({
+  reportingCurrency,
+}: ExpensesHeaderProps) {
+
+  const CURRENCY_FLAGS: Record<
+  string,
+  string
+> = {
+  USD: "🇺🇸",
+  CAD: "🇨🇦",
+  EUR: "🇪🇺",
+  GBP: "🇬🇧",
+  JPY: "🇯🇵",
+  INR: "🇮🇳",
+};
+
+
   /* =====================================================
      EASY UI TUNING
      ===================================================== */
@@ -132,17 +152,21 @@ export default function ExpensesHeader() {
     </span>
 
     <div className="mt-[2px] flex items-center gap-1.5">
-      <span>🇨🇦</span>
+<span>
+  {
+    CURRENCY_FLAGS[
+      reportingCurrency
+    ] ?? "💱"
+  }
+</span>
 
-      <span className="text-[15px] font-semibold text-white">
-        CAD
-      </span>
+<span className="text-[15px] font-semibold text-white">
+  {reportingCurrency}
+</span>
     </div>
   </div>
 
-  <ChevronDown
-  className={`h-4 w-4 text-slate-500 ${reportingChevronX} ${reportingChevronY}`}
-/>
+
 </div>
         </button>
 
