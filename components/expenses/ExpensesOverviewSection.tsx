@@ -21,6 +21,8 @@ import {
 
 import type { Expense } from "@/lib/types/expense";
 
+import { Trade } from "@/types/trade";
+
 import {
   BusinessCostAnalyticsData,
 } from "@/lib/analytics/businessCostAnalytics";
@@ -29,8 +31,14 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import {
+  calculateMonthlyCommissions,
+} from "@/lib/analytics/businessCostAnalytics";
+
 interface ExpensesOverviewSectionProps {
   expenses: Expense[];
+
+  trades: Trade[];
 
   businessCostAnalytics:
     BusinessCostAnalyticsData;
@@ -40,6 +48,7 @@ interface ExpensesOverviewSectionProps {
 
 export default function ExpensesOverviewSection({
   expenses,
+  trades,
   businessCostAnalytics,
   reportingCurrency,
 }: ExpensesOverviewSectionProps) {
@@ -76,6 +85,11 @@ export default function ExpensesOverviewSection({
     expenses
   );
 
+  const monthlyCommissions =
+  calculateMonthlyCommissions(
+    trades
+  );
+
   const currencySymbol =
   getCurrencySymbol(
     reportingCurrency
@@ -88,19 +102,52 @@ export default function ExpensesOverviewSection({
 
 const chartData =
   viewMode === "MONTHLY"
-    ? weeklyData.map(item => ({
-        label: item.week,
-        amount: item.amount,
-      }))
-    : monthlyData.map(item => ({
-        label: item.month,
-        amount: item.amount,
-      }));
+
+    ? weeklyData.map(
+        (item) => ({
+
+          label:
+            item.week,
+
+          manualExpenses:
+            item.amount,
+
+          commissions: 0,
+
+          totalCosts:
+            item.amount,
+        })
+      )
+
+    : monthlyData.map(
+        (item) => {
+
+          const commissions =
+            monthlyCommissions[
+              item.month
+            ] || 0;
+
+          return {
+
+            label:
+              item.month,
+
+            manualExpenses:
+              item.amount,
+
+            commissions,
+
+            totalCosts:
+              item.amount +
+              commissions,
+          };
+        }
+      );
 
 const maxMonthlyExpense =
   Math.max(
     ...chartData.map(
-      item => item.amount
+      item => item.totalCosts
     ),
     1
   );
@@ -167,6 +214,61 @@ const other =
       item.category ===
       "Other"
   );
+
+/* =====================================================
+   TOOLTIP FINE TUNING
+   ===================================================== */
+
+const tooltipX = "translate-x-0";
+const tooltipY = "translate-y-0";
+
+const tooltipCardX = "translate-x-0";
+const tooltipCardY = "translate-y-0";
+
+const monthX = "translate-x-3";
+const monthY = "translate-y-1";
+
+const topDividerX = "translate-x-0";
+const topDividerY = "translate-y-1";
+
+const manualRowX = "translate-x-2";
+const manualRowY = "translate-y-1";
+
+const manualDotX = "translate-x-0";
+const manualDotY = "translate-y-0";
+
+const manualLabelX = "translate-x-0";
+const manualLabelY = "translate-y-0";
+
+const manualValueX = "-translate-x-6";
+const manualValueY = "translate-y-0";
+
+const commissionRowX = "translate-x-2";
+const commissionRowY = "translate-y-1";
+
+const commissionDotX = "translate-x-0";
+const commissionDotY = "translate-y-0";
+
+const commissionLabelX = "translate-x-0";
+const commissionLabelY = "translate-y-0";
+
+const commissionValueX = "-translate-x-6";
+const commissionValueY = "translate-y-0";
+
+const bottomDividerX = "translate-x-0";
+const bottomDividerY = "translate-y-1";
+
+const totalRowX = "translate-x-2";
+const totalRowY = "translate-y-1";
+
+const totalDotX = "translate-x-0";
+const totalDotY = "translate-y-0";
+
+const totalLabelX = "translate-x-0";
+const totalLabelY = "translate-y-0";
+
+const totalValueX = "-translate-x-5";
+const totalValueY = "translate-y-0";
 
 // =================================================
 // PERIOD TOGGLE
@@ -372,15 +474,12 @@ return (
       Manual Expenses
     </div>
 
-    <div className="flex items-center gap-2 text-violet-300">
-      <span className="h-2 w-2 rounded-full bg-violet-400" />
+    <div className="flex items-center gap-2 text-emerald-500">
+      <span className="h-2 w-2 rounded-full bg-emerald-600/80" />
       Commissions
     </div>
 
-    <div className="flex items-center gap-2 text-emerald-300">
-      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-      Total Costs
-    </div>
+
   </div>
 
   {/* Chart */}
@@ -428,46 +527,257 @@ return (
       {/* Dot + Bar Group */}
 <div className="group relative flex flex-col items-center">
 
-  {hoveredMonth === item.label && (
-    <div className="absolute -top-16 z-20">
-      <div className="rounded-lg px-3 py-2">
-        <div className="text-center text-[11px] text-slate-400">
-          {item.label}
+{hoveredMonth === item.label && (
+  <div
+    className={`
+      absolute
+      z-20
+
+      -top-20
+
+      ${tooltipX}
+      ${tooltipY}
+    `}
+  >
+    <div
+      className={`
+        rounded-2xl
+        border
+        border-white/10
+        bg-black/75
+        backdrop-blur-xl
+        shadow-[0_10px_40px_rgba(0,0,0,0.45)]
+
+        px-5
+        py-4
+
+        min-w-[200px]
+
+        ${tooltipCardX}
+        ${tooltipCardY}
+      `}
+    >
+      {/* Month */}
+      <div
+        className={`
+          mb-3
+          text-[18px]
+          font-semibold
+          text-white
+
+          ${monthX}
+          ${monthY}
+        `}
+      >
+        {item.label}
+      </div>
+
+      {/* Divider */}
+      <div
+        className={`
+          mb-3
+          border-t
+          border-white/10
+
+          ${topDividerX}
+          ${topDividerY}
+        `}
+      />
+
+      {/* Content */}
+      <div className="space-y-3">
+
+        {/* Manual */}
+        <div
+          className={`
+            flex
+            items-center
+            justify-between
+
+            ${manualRowX}
+            ${manualRowY}
+          `}
+        >
+          <div className="flex items-center gap-2">
+            <div
+              className={`
+                h-3
+                w-3
+                rounded-full
+                bg-emerald-600
+
+                ${manualDotX}
+                ${manualDotY}
+              `}
+            />
+
+            <span
+              className={`
+                text-[14px]
+                text-slate-300
+
+                ${manualLabelX}
+                ${manualLabelY}
+              `}
+            >
+              Manual
+            </span>
+          </div>
+
+          <span
+            className={`
+              font-medium
+              text-white
+
+              ${manualValueX}
+              ${manualValueY}
+            `}
+          >
+            {currencySymbol}
+            {item.manualExpenses.toFixed(2)}
+          </span>
         </div>
 
-        <div className="mt-1 text-center text-[15px] font-semibold text-white">
-          ${item.amount.toFixed(2)}
+        {/* Commissions */}
+        <div
+          className={`
+            flex
+            items-center
+            justify-between
+
+            ${commissionRowX}
+            ${commissionRowY}
+          `}
+        >
+          <div className="flex items-center gap-2">
+            <div
+              className={`
+                h-3
+                w-3
+                rounded-full
+                bg-sky-500
+
+                ${commissionDotX}
+                ${commissionDotY}
+              `}
+            />
+
+            <span
+              className={`
+                text-[14px]
+                text-slate-300
+
+                ${commissionLabelX}
+                ${commissionLabelY}
+              `}
+            >
+              Commissions
+            </span>
+          </div>
+
+          <span
+            className={`
+              font-medium
+              text-white
+
+              ${commissionValueX}
+              ${commissionValueY}
+            `}
+          >
+            {currencySymbol}
+            {item.commissions.toFixed(2)}
+          </span>
         </div>
+
+        {/* Divider */}
+        <div
+          className={`
+            my-2
+            border-t
+            border-white/10
+
+            ${bottomDividerX}
+            ${bottomDividerY}
+          `}
+        />
+
+        {/* Total */}
+        <div
+          className={`
+            flex
+            items-center
+            justify-between
+
+            ${totalRowX}
+            ${totalRowY}
+          `}
+        >
+          <div className="flex items-center gap-2">
+            <div
+              className={`
+                h-3
+                w-3
+                rounded-full
+                bg-violet-500
+
+                ${totalDotX}
+                ${totalDotY}
+              `}
+            />
+
+            <span
+              className={`
+                text-[15px]
+                font-medium
+                text-white
+
+                ${totalLabelX}
+                ${totalLabelY}
+              `}
+            >
+              Total
+            </span>
+          </div>
+
+          <span
+            className={`
+              text-[18px]
+              font-semibold
+              text-white
+
+              ${totalValueX}
+              ${totalValueY}
+            `}
+          >
+            {currencySymbol}
+            {item.totalCosts.toFixed(2)}
+          </span>
+          
+        </div>
+        <div className="h-2" />
       </div>
     </div>
-  )}
+  </div>
+)}
 
-  {/* Floating dot */}
-        <div className="
-  absolute
-  -top-3.5
 
-  h-2.5
-  w-2.5
-
-  rounded-full
-
-  bg-emerald-400
-
-  shadow-[0_0_10px_rgba(52,211,153,0.9)]
-
-  transition-all
-  duration-200
-
-  group-hover:scale-125
-" />
 
         {/* Stacked bars */}
         <div className="flex flex-col">
-          <div
-            className="w-7 rounded-t bg-violet-700/70"
-            style={{ height: `0px` }}
-          />
+<div
+  className="w-7 rounded-t bg-emerald-600/80"
+  style={{
+    height: animateChart
+      ? `${Math.max(
+          (
+            item.commissions /
+            maxMonthlyExpense
+          ) * 180,
+          0
+        )}px`
+      : "0px",
+  }}
+/>
 
           <div
   className="
@@ -485,7 +795,7 @@ duration-700
             style={{
   height: animateChart
     ? `${Math.max(
-        (item.amount / maxMonthlyExpense) * 180,
+        (item.manualExpenses / maxMonthlyExpense) * 180,
         4
       )}px`
     : "0px",

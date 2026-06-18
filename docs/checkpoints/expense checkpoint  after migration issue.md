@@ -589,3 +589,13 @@ Reporting currency displayed in Expenses header
 Header automatically reflects Dashboard currency selection
 
  ========================================================= =========================================================
+
+ git commit -m "feat(expenses): add reporting currency support across overview analytics"
+
+ Expenses Header
+Expense KPI Grid
+Tax Deductible Summary
+Manual Expenses Table
+Expense Sources Card
+
+ ========================================================= =========================================================

@@ -217,6 +217,7 @@ const businessCostAnalytics =
 <div className="relative z-0 mt-8">
 <ExpensesOverviewSection
   expenses={reportingExpenses}
+  trades={reportingTrades}
   businessCostAnalytics={
     businessCostAnalytics
   }

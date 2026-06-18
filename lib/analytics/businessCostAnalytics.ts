@@ -33,6 +33,41 @@ return trades.reduce(
 }
 
 // =================================================
+// MONTHLY COMMISSIONS
+// =================================================
+
+export function calculateMonthlyCommissions(
+  trades: Trade[]
+): Record<string, number> {
+
+  const grouped:
+    Record<string, number> = {};
+
+  trades.forEach((trade) => {
+
+    const date =
+      new Date(
+        trade.date +
+        "T12:00:00"
+      );
+
+    const month =
+      date.toLocaleString(
+        "en-US",
+        {
+          month: "short",
+        }
+      );
+
+    grouped[month] =
+      (grouped[month] || 0) +
+      Math.abs(trade.fees);
+  });
+
+  return grouped;
+}
+
+// =================================================
 // TOTAL BUSINESS COSTS
 // =================================================
 
