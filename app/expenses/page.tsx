@@ -135,15 +135,35 @@ const reportingTrades =
     fxRates
   );
 
+  const selectedYear = 2026;
+
+const filteredExpenses =
+  reportingExpenses.filter(
+    expense =>
+      new Date(
+        expense.expense_date
+      ).getFullYear() ===
+      selectedYear
+  );
+
+const filteredTrades =
+  reportingTrades.filter(
+    trade =>
+      new Date(
+        trade.date
+      ).getFullYear() ===
+      selectedYear
+  );
+
 const performanceBreakdownAnalytics =
   generatePerformanceBreakdownAnalytics(
-    reportingTrades
+    filteredTrades
   );
 
 const businessCostAnalytics =
   generateBusinessCostAnalytics(
-    expenses,
-    reportingTrades,
+    filteredExpenses,
+    filteredTrades,
     performanceBreakdownAnalytics.netTradingPnL
   );
 
@@ -186,7 +206,7 @@ const businessCostAnalytics =
 
 <div className="relative z-10 mt-10">
   <ExpenseKpiGrid
-    expenses={reportingExpenses}
+    expenses={filteredExpenses}
     businessCostAnalytics={
       businessCostAnalytics
     }
@@ -204,7 +224,7 @@ const businessCostAnalytics =
 
 <div className="relative z-10 mt-8">
   <ExpensesIntelligenceSection
-  expenses={expenses}
+  expenses={filteredExpenses}
 />
 </div>
 
@@ -216,8 +236,8 @@ const businessCostAnalytics =
 
 <div className="relative z-0 mt-8">
 <ExpensesOverviewSection
-  expenses={reportingExpenses}
-  trades={reportingTrades}
+ expenses={filteredExpenses}
+trades={filteredTrades}
   businessCostAnalytics={
     businessCostAnalytics
   }
@@ -260,7 +280,7 @@ const businessCostAnalytics =
     {/* Right */}
     <div className="col-span-3">
 <TaxDeductibleSummary
-  expenses={reportingExpenses}
+  expenses={filteredExpenses}
   reportingCurrency={
     reportingCurrency
   }

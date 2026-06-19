@@ -642,4 +642,16 @@ git commit -m "feat(expenses): complete monthly and yearly expenses over time an
 
  ========================================================= =========================================================
 
+ git commit -m "feat(expenses): complete expenses over time analytics and year filtering foundation"
+ ✅ Expenses Over Time Card
+✅ Monthly View
+✅ Weekly Commissions
+✅ Tooltip Sync
+✅ Hover Interactions
+✅ Correct Color Mapping
+✅ Year Filtering Foundation
+✅ Analytics now respect selected year
+
+ ========================================================= =========================================================
+
  
