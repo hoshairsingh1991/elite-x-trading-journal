@@ -129,6 +129,7 @@ git commit -m "feat(expenses): add reporting currency support and FX conversion"
 
 git commit -m "feat(expenses): add reporting currency support across overview analytics"
 git commit -m "feat(expenses): complete expenses overview analytics and tooltip system"
+git commit -m "feat(expenses): polish expenses over time interactions and tooltip sync"
 ------------------------------------------------------------------
 
 Status:

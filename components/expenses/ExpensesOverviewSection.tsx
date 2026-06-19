@@ -56,6 +56,15 @@ export default function ExpensesOverviewSection({
   const [hoveredMonth, setHoveredMonth] =
   useState<string | null>(null);
 
+  const [
+  hoveredSeries,
+  setHoveredSeries,
+] = useState<
+  "manual" |
+  "commission" |
+  null
+>(null);
+
   const [viewMode, setViewMode] =
   useState<"MONTHLY" | "YEARLY">(
     "YEARLY"
@@ -240,7 +249,7 @@ const manualDotY = "translate-y-0";
 const manualLabelX = "translate-x-0";
 const manualLabelY = "translate-y-0";
 
-const manualValueX = "-translate-x-6";
+const manualValueX = "-translate-x-4";
 const manualValueY = "translate-y-0";
 
 const commissionRowX = "translate-x-2";
@@ -252,7 +261,7 @@ const commissionDotY = "translate-y-0";
 const commissionLabelX = "translate-x-0";
 const commissionLabelY = "translate-y-0";
 
-const commissionValueX = "-translate-x-6";
+const commissionValueX = "-translate-x-4";
 const commissionValueY = "translate-y-0";
 
 const bottomDividerX = "translate-x-0";
@@ -261,13 +270,11 @@ const bottomDividerY = "translate-y-1";
 const totalRowX = "translate-x-2";
 const totalRowY = "translate-y-1";
 
-const totalDotX = "translate-x-0";
-const totalDotY = "translate-y-0";
 
-const totalLabelX = "translate-x-0";
+const totalLabelX = "translate-x-2";
 const totalLabelY = "translate-y-0";
 
-const totalValueX = "-translate-x-5";
+const totalValueX = "-translate-x-4";
 const totalValueY = "translate-y-0";
 
 // =================================================
@@ -604,35 +611,51 @@ return (
                 h-3
                 w-3
                 rounded-full
-                bg-emerald-600
+                bg-blue-500
 
                 ${manualDotX}
                 ${manualDotY}
               `}
             />
 
-            <span
-              className={`
-                text-[14px]
-                text-slate-300
+<span
+  className={`
+    text-[14px]
 
-                ${manualLabelX}
-                ${manualLabelY}
-              `}
-            >
+    transition-all
+    duration-200
+
+    ${
+      hoveredSeries === "manual"
+        ? "text-blue-300"
+        : "text-slate-300"
+    }
+
+    ${manualLabelX}
+    ${manualLabelY}
+  `}
+>
               Manual
             </span>
           </div>
 
-          <span
-            className={`
-              font-medium
-              text-white
+<span
+  className={`
+    font-medium
 
-              ${manualValueX}
-              ${manualValueY}
-            `}
-          >
+    transition-all
+    duration-200
+
+    ${
+      hoveredSeries === "manual"
+        ? "text-blue-300 drop-shadow-[0_0_10px_rgba(96,165,250,0.55)]"
+        : "text-white"
+    }
+
+    ${manualValueX}
+    ${manualValueY}
+  `}
+>
             {currencySymbol}
             {item.manualExpenses.toFixed(2)}
           </span>
@@ -655,7 +678,7 @@ return (
                 h-3
                 w-3
                 rounded-full
-                bg-sky-500
+                bg-emerald-500
 
                 ${commissionDotX}
                 ${commissionDotY}
@@ -665,7 +688,11 @@ return (
             <span
               className={`
                 text-[14px]
-                text-slate-300
+                ${
+  hoveredSeries === "commission"
+    ? "text-emerald-300"
+    : "text-slate-300"
+}
 
                 ${commissionLabelX}
                 ${commissionLabelY}
@@ -678,7 +705,11 @@ return (
           <span
             className={`
               font-medium
-              text-white
+              ${
+  hoveredSeries === "commission"
+    ? "text-emerald-300 drop-shadow-[0_0_10px_rgba(16,185,129,0.55)]"
+    : "text-white"
+}
 
               ${commissionValueX}
               ${commissionValueY}
@@ -713,17 +744,7 @@ return (
           `}
         >
           <div className="flex items-center gap-2">
-            <div
-              className={`
-                h-3
-                w-3
-                rounded-full
-                bg-violet-500
 
-                ${totalDotX}
-                ${totalDotY}
-              `}
-            />
 
             <span
               className={`
@@ -765,7 +786,24 @@ return (
         {/* Stacked bars */}
         <div className="flex flex-col">
 <div
-  className="w-7 rounded-t bg-emerald-600/80"
+  onMouseEnter={() =>
+    setHoveredSeries("commission")
+  }
+  onMouseLeave={() =>
+    setHoveredSeries(null)
+  }
+  className="
+    w-7
+    rounded-t
+
+    bg-emerald-600/80
+
+    transition-all
+    duration-200
+
+    hover:bg-emerald-500/90
+    hover:shadow-[0_0_20px_rgba(16,185,129,0.35)]
+  "
   style={{
     height: animateChart
       ? `${Math.max(
@@ -779,7 +817,13 @@ return (
   }}
 />
 
-          <div
+<div
+  onMouseEnter={() =>
+    setHoveredSeries("manual")
+  }
+  onMouseLeave={() =>
+    setHoveredSeries(null)
+  }
   className="
     w-7
     bg-blue-700/75

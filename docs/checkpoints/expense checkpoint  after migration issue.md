@@ -599,3 +599,27 @@ Manual Expenses Table
 Expense Sources Card
 
  ========================================================= =========================================================
+
+
+git commit -m "feat(expenses): complete expenses overview analytics and tooltip system"
+
+ ========================================================= =========================================================
+
+ git commit -m "feat(expenses): polish expenses over time interactions and tooltip sync"
+
+ ✅ Expenses Over Time tooltip redesign
+✅ Manual bar hover glow
+✅ Commission bar hover glow
+✅ Tooltip ↔ chart synchronization
+✅ Manual row reacts to Manual hover
+✅ Commission row reacts to Commission hover
+✅ Tooltip color mapping corrected
+   - Manual = Blue
+   - Commission = Emerald
+✅ Removed misleading Total dot
+✅ Improved tooltip readability
+✅ Preserved FX support
+
+ ========================================================= =========================================================
+
+ 
