@@ -622,4 +622,24 @@ git commit -m "feat(expenses): complete expenses overview analytics and tooltip 
 
  ========================================================= =========================================================
 
+git commit -m "feat(expenses): complete monthly and yearly expenses over time analytics"
+
+✅ Expenses Over Time - Yearly View
+✅ Expenses Over Time - Monthly View
+✅ Manual Expense Bars
+✅ Commission Bars
+✅ Total Cost Calculations
+✅ Weekly Commission Aggregation
+✅ Monthly Commission Aggregation
+✅ Tooltip Synchronization
+✅ Hover Interactions
+✅ Correct Color Mapping
+   - Manual = Blue
+   - Commissions = Emerald
+✅ Removed Total Dot
+✅ Reporting Currency Support
+✅ FX Conversion Support
+
+ ========================================================= =========================================================
+
  

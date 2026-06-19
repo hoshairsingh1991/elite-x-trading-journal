@@ -33,6 +33,7 @@ import {
 
 import {
   calculateMonthlyCommissions,
+calculateWeeklyCommissions,
 } from "@/lib/analytics/businessCostAnalytics";
 
 interface ExpensesOverviewSectionProps {
@@ -99,6 +100,11 @@ export default function ExpensesOverviewSection({
     trades
   );
 
+  const weeklyCommissions =
+  calculateWeeklyCommissions(
+    trades
+  );
+
   const currencySymbol =
   getCurrencySymbol(
     reportingCurrency
@@ -112,21 +118,30 @@ export default function ExpensesOverviewSection({
 const chartData =
   viewMode === "MONTHLY"
 
-    ? weeklyData.map(
-        (item) => ({
+? weeklyData.map(
+    (item) => {
 
-          label:
-            item.week,
+      const commissions =
+        weeklyCommissions[
+          item.week
+        ] || 0;
 
-          manualExpenses:
-            item.amount,
+      return {
 
-          commissions: 0,
+        label:
+          item.week,
 
-          totalCosts:
-            item.amount,
-        })
-      )
+        manualExpenses:
+          item.amount,
+
+        commissions,
+
+        totalCosts:
+          item.amount +
+          commissions,
+      };
+    }
+  )
 
     : monthlyData.map(
         (item) => {

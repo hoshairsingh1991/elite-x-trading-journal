@@ -68,6 +68,40 @@ export function calculateMonthlyCommissions(
 }
 
 // =================================================
+// WEEKLY COMMISSIONS
+// =================================================
+
+export function calculateWeeklyCommissions(
+  trades: Trade[]
+): Record<string, number> {
+
+  const grouped:
+    Record<string, number> = {};
+
+  trades.forEach((trade) => {
+
+    const date =
+      new Date(
+        trade.date +
+        "T12:00:00"
+      );
+
+    const week =
+      Math.ceil(
+        date.getDate() / 7
+      );
+
+    const key = `W${week}`;
+
+    grouped[key] =
+      (grouped[key] || 0) +
+      Math.abs(trade.fees);
+  });
+
+  return grouped;
+}
+
+// =================================================
 // TOTAL BUSINESS COSTS
 // =================================================
 
