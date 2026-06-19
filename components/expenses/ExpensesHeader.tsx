@@ -8,6 +8,8 @@ import {
 
 import UserMenuV2 from "@/components/layout/UserMenuV2";
 
+import DateRangePicker from "@/components/shared/DateRangePicker";
+
 /* =====================================================
    REPORTING CURRENCY FINE TUNING
    ===================================================== */
@@ -248,71 +250,7 @@ export default function ExpensesHeader({
 {/* Date Range */}
 {/* ============================================= */}
 
-<button
-  type="button"
-  className={`
-    ${dateWidth}
-    ${dateHeight}
-
-    rounded-2xl
-    border
-    border-white/10
-    bg-white/[0.03]
-
-    px-5
-
-    transition-all
-    duration-200
-
-    hover:border-white/20
-    hover:bg-white/[0.05]
-
-    flex
-    items-center
-    justify-center
-  `}
->
-  <div className="flex w-full items-center justify-between">
-    {/* Left Side */}
-    <div
-      className={`
-        flex
-        items-center
-        gap-3
-
-        ${dateContentX}
-        ${dateContentY}
-      `}
-    >
-      <CalendarDays
-        className={`
-          h-4
-          w-4
-          text-slate-400
-
-          ${dateIconX}
-          ${dateIconY}
-        `}
-      />
-
-      <span className="text-[15px] font-medium text-white">
-        Jun 1 – Jun 11, 2026
-      </span>
-    </div>
-
-    {/* Chevron */}
-    <ChevronDown
-      className={`
-        h-4
-        w-4
-        text-slate-500
-
-        ${dateChevronX}
-        ${dateChevronY}
-      `}
-    />
-  </div>
-</button>
+<DateRangePicker />
 
 {/* ============================================= */}
 {/* USER MENU */}

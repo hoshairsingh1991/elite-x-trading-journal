@@ -643,15 +643,40 @@ git commit -m "feat(expenses): complete monthly and yearly expenses over time an
  ========================================================= =========================================================
 
  git commit -m "feat(expenses): complete expenses over time analytics and year filtering foundation"
- ✅ Expenses Over Time Card
-✅ Monthly View
-✅ Weekly Commissions
-✅ Tooltip Sync
-✅ Hover Interactions
-✅ Correct Color Mapping
-✅ Year Filtering Foundation
-✅ Analytics now respect selected year
+
+Branch State:
+
+Expenses Module
+├─ KPI Grid ✅
+├─ FX Conversion ✅
+├─ Tax Summary ✅
+├─ Expense Sources ✅
+├─ Expense Breakdown ✅
+├─ Recurring Card ✅
+├─ Expenses Over Time ✅
+│  ├─ Monthly View ✅
+│  ├─ Yearly View ✅
+│  ├─ Commissions ✅
+│  ├─ Tooltips ✅
+│  └─ Year Filtering Foundation ✅
+├─ Manual Expense Table ✅
+└─ Intelligence Section ⏳
+
+Known Bugs:
+1. Daily recurring + start date freezes page
+2. Recurring engine not generating future expenses yet
+
+Next Major Task:
+Wire ExpensesHeader date controls into selectedYear/dateRange filtering.
 
  ========================================================= =========================================================
 
- 
+git commit -m "feat(shared): build reusable DateRangePicker UI component"
+
+✓ Reusable
+✓ Shared component
+✓ Matches Elite X design language
+✓ Close enough to target design
+✓ Ready for wiring
+
+========================================================= =========================================================

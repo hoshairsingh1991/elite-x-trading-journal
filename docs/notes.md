@@ -134,6 +134,9 @@ git commit -m "feat(expenses): polish expenses over time interactions and toolti
 git commit -m "feat(expenses): complete monthly and yearly expenses over time analytics"
 
 git commit -m "feat(expenses): complete expenses over time analytics and year filtering foundation"
+
+git commit -m "feat(shared): build reusable DateRangePicker UI component"
+
 ------------------------------------------------------------------
 
 Status:
