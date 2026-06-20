@@ -6,6 +6,8 @@ import { useState } from "react";
 
 import { Calendar as CalendarIcon } from "lucide-react";
 
+import type { DateRange } from "react-day-picker";
+
 import {
   Popover,
   PopoverContent,
@@ -14,10 +16,31 @@ import {
 
 import { Calendar } from "@/components/ui/calendar";
 
-export default function DateRangePicker() {
+interface DateRangePickerProps {
 
-  const [open, setOpen] =
-    useState(false);
+  selectedPreset: string;
+
+  onDateRangeChange: (
+    preset: string,
+    startDate: Date | null,
+    endDate: Date | null
+  ) => void;
+
+}
+
+export default function DateRangePicker({
+
+  selectedPreset,
+  onDateRangeChange,
+
+}: DateRangePickerProps) {
+
+const [open, setOpen] =
+  useState(false);
+
+
+const [dateRange, setDateRange] =
+  useState<DateRange | undefined>();
 
     /* =====================================================
    DATE BUTTON CONTENT
@@ -36,7 +59,7 @@ const dateValueY = "translate-y-0";
    DATE BUTTON SIZE
    ===================================================== */
 
-const dateButtonWidth = "w-[180px]";
+const dateButtonWidth = "w-[200px]";
 const dateButtonHeight = "h-[50px]";
 
 
@@ -59,7 +82,7 @@ const presetListY = "translate-y-5";
    ===================================================== */
 
 const dividerX = "translate-x-0";
-const dividerY = "-translate-y-45";
+const dividerY = "-translate-y-38";
 
 /* =====================================================
    RESET
@@ -149,7 +172,7 @@ const calendarAreaY = "translate-y-2";
     ${dateValueY}
   `}
 >
-  All Time
+  {selectedPreset}
 </span>
         </button>
 
@@ -251,9 +274,155 @@ const calendarAreaY = "translate-y-2";
   "This Quarter",
   "YTD",
   "Last Year",
+  "All Time",
 ].map((item) => (
   <div key={item}>
 <button
+onClick={() => {
+
+  const today =
+    new Date();
+
+  let startDate:
+    Date | null = null;
+
+  let endDate:
+    Date | null = today;
+
+  switch (item) {
+
+    case "Today":
+
+      startDate =
+        new Date(today);
+
+      break;
+
+    case "This Week": {
+
+      startDate =
+        new Date(today);
+
+      startDate.setDate(
+        today.getDate() -
+        today.getDay()
+      );
+
+      break;
+    }
+
+    case "This Month":
+
+      startDate =
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          1
+        );
+
+      break;
+
+    case "Last 30 Days":
+
+      startDate =
+        new Date(today);
+
+      startDate.setDate(
+        today.getDate() - 30
+      );
+
+      break;
+
+    case "Last Month":
+
+      startDate =
+        new Date(
+          today.getFullYear(),
+          today.getMonth() - 1,
+          1
+        );
+
+      endDate =
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          0
+        );
+
+      break;
+
+    case "This Quarter": {
+
+      const quarterStartMonth =
+        Math.floor(
+          today.getMonth() / 3
+        ) * 3;
+
+      startDate =
+        new Date(
+          today.getFullYear(),
+          quarterStartMonth,
+          1
+        );
+
+      break;
+    }
+
+    case "YTD":
+
+      startDate =
+        new Date(
+          today.getFullYear(),
+          0,
+          1
+        );
+
+      break;
+
+    case "Last Year":
+
+      startDate =
+        new Date(
+          today.getFullYear() - 1,
+          0,
+          1
+        );
+
+      endDate =
+        new Date(
+          today.getFullYear() - 1,
+          11,
+          31
+        );
+
+      break;
+
+    case "All Time":
+
+      startDate = null;
+      endDate = null;
+
+      break;
+  }
+
+  setDateRange(
+  startDate && endDate
+    ? {
+        from: startDate,
+        to: endDate,
+      }
+    : undefined
+);
+
+  onDateRangeChange(
+    item,
+    startDate,
+    endDate
+  );
+
+  setOpen(false);
+
+}}
   className="
     text-left
     text-[15px]
@@ -297,16 +466,28 @@ hover:tracking-[0.01em]
     ${resetY}
   `}
 >
-  <button
-    className="
-      text-[14px]
-      text-slate-500
+<button
+  onClick={() => {
 
-      hover:text-white
-    "
-  >
-    Reset
-  </button>
+    setDateRange(
+      undefined
+    );
+
+    onDateRangeChange(
+      "All Time",
+      null,
+      null
+    );
+
+  }}
+  className="
+    text-[14px]
+    text-slate-500
+    hover:text-white
+  "
+>
+  Reset
+</button>
 </div>
 </div>
     </div>
@@ -326,10 +507,24 @@ hover:tracking-[0.01em]
     ${calendarAreaY}
   `}
 >
-      <Calendar
-        mode="range"
-        numberOfMonths={2}
-      />
+     <Calendar
+  mode="range"
+  numberOfMonths={2}
+  selected={dateRange}
+onSelect={(range) => {
+
+  setDateRange(
+    range
+  );
+
+  onDateRangeChange(
+    "Custom",
+    range?.from ?? null,
+    range?.to ?? null
+  );
+
+}}
+/>
     </div>
   </div>
 </PopoverContent>

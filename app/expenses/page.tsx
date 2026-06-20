@@ -69,6 +69,21 @@ const [
   FALLBACK_RATES
 );
 
+const [
+  selectedPreset,
+  setSelectedPreset,
+] = useState("All Time");
+
+const [
+  startDate,
+  setStartDate,
+] = useState<Date | null>(null);
+
+const [
+  endDate,
+  setEndDate,
+] = useState<Date | null>(null);
+
 const reloadExpenses = async () => {
   const data = await loadExpenses();
   setExpenses(data);
@@ -121,6 +136,60 @@ useEffect(() => {
 
 }, []);
 
+useEffect(() => {
+
+  const savedFilter =
+    localStorage.getItem(
+      "expensesDateFilter"
+    );
+
+  if (!savedFilter) {
+    return;
+  }
+
+  const parsed =
+    JSON.parse(savedFilter);
+
+  setSelectedPreset(
+    parsed.selectedPreset ??
+      "All Time"
+  );
+
+  setStartDate(
+    parsed.startDate
+      ? new Date(
+          parsed.startDate
+        )
+      : null
+  );
+
+  setEndDate(
+    parsed.endDate
+      ? new Date(
+          parsed.endDate
+        )
+      : null
+  );
+
+}, []);
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "expensesDateFilter",
+    JSON.stringify({
+      selectedPreset,
+      startDate,
+      endDate,
+    })
+  );
+
+}, [
+  selectedPreset,
+  startDate,
+  endDate,
+]);
+
 const reportingTrades =
   convertTradesToReportingCurrency(
     trades,
@@ -128,31 +197,59 @@ const reportingTrades =
     fxRates
   );
 
-  const reportingExpenses =
+const reportingExpenses =
   convertExpensesToReportingCurrency(
     expenses,
     reportingCurrency,
     fxRates
   );
 
-  const selectedYear = 2026;
-
 const filteredExpenses =
   reportingExpenses.filter(
-    expense =>
-      new Date(
-        expense.expense_date
-      ).getFullYear() ===
-      selectedYear
+    expense => {
+
+      if (
+        !startDate ||
+        !endDate
+      ) {
+        return true;
+      }
+
+      const expenseDate =
+        new Date(
+          expense.expense_date +
+          "T12:00:00"
+        );
+
+      return (
+        expenseDate >= startDate &&
+        expenseDate <= endDate
+      );
+    }
   );
 
 const filteredTrades =
   reportingTrades.filter(
-    trade =>
-      new Date(
-        trade.date
-      ).getFullYear() ===
-      selectedYear
+    trade => {
+
+      if (
+        !startDate ||
+        !endDate
+      ) {
+        return true;
+      }
+
+      const tradeDate =
+        new Date(
+          trade.date +
+          "T12:00:00"
+        );
+
+      return (
+        tradeDate >= startDate &&
+        tradeDate <= endDate
+      );
+    }
   );
 
 const performanceBreakdownAnalytics =
@@ -167,6 +264,11 @@ const businessCostAnalytics =
     performanceBreakdownAnalytics.netTradingPnL
   );
 
+console.log({
+  selectedPreset,
+  startDate,
+  endDate,
+});
 
 
   return (
@@ -191,10 +293,33 @@ const businessCostAnalytics =
 {/* ================================================= */}
 
 <div className="relative z-[1000]">
-  <ExpensesHeader
+<ExpensesHeader
   reportingCurrency={
     reportingCurrency
   }
+
+  selectedPreset={
+    selectedPreset
+  }
+
+  onDateRangeChange={(
+    preset,
+    start,
+    end
+  ) => {
+
+    setSelectedPreset(
+      preset
+    );
+
+    setStartDate(
+      start
+    );
+
+    setEndDate(
+      end
+    );
+  }}
 />
 </div>
 

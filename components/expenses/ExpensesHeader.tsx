@@ -55,10 +55,20 @@ const dateChevronY = "translate-y-0";
 
 interface ExpensesHeaderProps {
   reportingCurrency: string;
+
+  selectedPreset: string;
+
+  onDateRangeChange: (
+    preset: string,
+    startDate: Date | null,
+    endDate: Date | null
+  ) => void;
 }
 
 export default function ExpensesHeader({
   reportingCurrency,
+  selectedPreset,
+  onDateRangeChange,
 }: ExpensesHeaderProps) {
 
   const CURRENCY_FLAGS: Record<
@@ -250,7 +260,14 @@ export default function ExpensesHeader({
 {/* Date Range */}
 {/* ============================================= */}
 
-<DateRangePicker />
+<DateRangePicker
+  selectedPreset={
+    selectedPreset
+  }
+  onDateRangeChange={
+    onDateRangeChange
+  }
+/>
 
 {/* ============================================= */}
 {/* USER MENU */}
