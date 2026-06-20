@@ -9,6 +9,10 @@ import {
 } from "@/lib/analytics/expenseAnalytics";
 
 import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
+import {
   CalendarClock,
   Flame,
   Gauge,
@@ -17,18 +21,31 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import type {
+  BusinessIntelligenceMetrics,
+} from "@/lib/analytics/businessCostAnalytics";
+
 interface ExpensesIntelligenceSectionProps {
   expenses: Expense[];
+  metrics: BusinessIntelligenceMetrics;
+  reportingCurrency: string;
 }
 
 export default function ExpensesIntelligenceSection({
   expenses,
+  metrics,
+  reportingCurrency,
 }: ExpensesIntelligenceSectionProps) {
 
   const upcomingRenewals =
     calculateUpcomingRenewals(
       expenses
     );
+
+const currencySymbol =
+  getCurrencySymbol(
+    reportingCurrency
+  );
 
     const vendorIcons: Record<string, string> = {
   
@@ -386,22 +403,22 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
     <div className="text-[38px] font-bold leading-none text-white">
-      C$3.42
-    </div>
+  {currencySymbol}
+  {metrics.avgCostPerTrade.toFixed(2)}
+</div>
 
-    <p
-      className={`
-        mt-2
-        text-[13px]
-        font-medium
-        text-emerald-400
+   <p
+  className={`
+    mt-2
+    text-[13px]
+    text-slate-400
 
-        ${avgTrendX}
-        ${avgTrendY}
-      `}
-    >
-      ↓ 5.2% vs last month
-    </p>
+    ${avgTrendX}
+    ${avgTrendY}
+  `}
+>
+  Business cost per closed trade
+</p>
   </div>
 
   {/* Metrics */}
@@ -416,29 +433,40 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
     <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Commission / Trade</span>
-      <span>C$1.19</span>
+    <span>Commission / Trade</span>
+<span>
+  {currencySymbol}
+  {metrics.commissionPerTrade.toFixed(2)}
+</span>
     </div>
 
     <div className="h-[6px]" />
 
     <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Software / Trade</span>
-      <span>C$1.28</span>
+      <span>Expense / Trade</span>
+<span>
+  {currencySymbol}
+  {metrics.expensePerTrade.toFixed(2)}
+</span>
     </div>
 
     <div className="h-[6px]" />
 
     <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Other / Trade</span>
-      <span>C$0.95</span>
+     <span>Total Trades</span>
+<span>
+  {metrics.totalTrades}
+</span>
     </div>
 
     <div className="my-3 h-px bg-white/10" />
  <div className="h-[6px]" />
     <div className="flex justify-between text-[11px] font-semibold text-white">
-      <span>Total Business Cost</span>
-      <span>C$3.42</span>
+      <span>Total Cost</span>
+<span>
+  {currencySymbol}
+  {metrics.avgCostPerTrade.toFixed(2)}
+</span>
     </div>
   </div>
 </div>

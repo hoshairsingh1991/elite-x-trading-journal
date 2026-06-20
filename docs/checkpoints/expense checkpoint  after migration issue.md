@@ -732,3 +732,22 @@ ARCHITECTURE
 ✓ Reusable across Reports
 ========================================================= =========================================================
 
+git commit -m "feat(expenses): wire business intelligence metrics foundation
+
+- add BusinessIntelligenceMetrics analytics interface
+- add generateBusinessIntelligenceMetrics()
+- implement avg cost per trade calculations
+- implement commission per trade calculations
+- implement expense per trade calculations
+- add monthly burn architecture
+- add projected annual burn architecture
+- add profit retention architecture
+- add expense efficiency architecture
+- wire business intelligence metrics into ExpensePage
+- pass metrics into ExpensesIntelligenceSection
+- connect Avg Cost / Trade card to live analytics
+- integrate reporting currency symbol support
+- remove hardcoded Avg Cost card values
+- preserve historical vs forecasting data separation"
+
+========================================================= =========================================================

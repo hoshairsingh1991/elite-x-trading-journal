@@ -14,6 +14,27 @@ export interface BusinessCostAnalyticsData {
   netBusinessProfit: number;
 }
 
+export interface BusinessIntelligenceMetrics {
+
+  expenseEfficiency: number;
+
+  avgCostPerTrade: number;
+
+  commissionPerTrade: number;
+
+  expensePerTrade: number;
+
+  profitRetention: number;
+
+  monthlyBurn: number;
+
+  projectedAnnualBurn: number;
+
+  totalTrades: number;
+
+  monthsCovered: number;
+}
+
 // =================================================
 // COMMISSIONS
 // =================================================
@@ -171,5 +192,150 @@ export function generateBusinessCostAnalytics(
     totalBusinessCosts,
 
     netBusinessProfit,
+  };
+}
+
+// =================================================
+// BUSINESS INTELLIGENCE METRICS
+// =================================================
+
+export function generateBusinessIntelligenceMetrics(
+  expenses: Expense[],
+  trades: Trade[],
+  netTradingPnL: number
+): BusinessIntelligenceMetrics {
+
+  const totalExpenses =
+    calculateTotalExpenses(
+      expenses
+    );
+
+  const totalCommissions =
+    calculateTotalCommissions(
+      trades
+    );
+
+  const totalTrades =
+    trades.length;
+
+  const netBusinessProfit =
+    calculateNetBusinessProfit(
+      expenses,
+      netTradingPnL
+    );
+
+  const expenseEfficiency =
+    totalExpenses > 0
+      ? netTradingPnL /
+        totalExpenses
+      : 0;
+
+  const commissionPerTrade =
+    totalTrades > 0
+      ? totalCommissions /
+        totalTrades
+      : 0;
+
+  const expensePerTrade =
+    totalTrades > 0
+      ? totalExpenses /
+        totalTrades
+      : 0;
+
+  const avgCostPerTrade =
+    totalTrades > 0
+      ? (
+          totalCommissions +
+          totalExpenses
+        ) /
+        totalTrades
+      : 0;
+
+  const profitRetention =
+    netTradingPnL > 0
+      ? (
+          netBusinessProfit /
+          netTradingPnL
+        ) * 100
+      : 0;
+
+  let monthsCovered = 1;
+
+  if (expenses.length > 0) {
+
+    const dates =
+      expenses.map(
+        (expense) =>
+          new Date(
+            expense.expense_date +
+            "T12:00:00"
+          )
+      );
+
+    const earliest =
+      new Date(
+        Math.min(
+          ...dates.map(
+            (date) =>
+              date.getTime()
+          )
+        )
+      );
+
+    const latest =
+      new Date(
+        Math.max(
+          ...dates.map(
+            (date) =>
+              date.getTime()
+          )
+        )
+      );
+
+    monthsCovered =
+      (
+        latest.getFullYear() -
+        earliest.getFullYear()
+      ) *
+        12 +
+      (
+        latest.getMonth() -
+        earliest.getMonth()
+      ) +
+      1;
+
+    monthsCovered =
+      Math.max(
+        1,
+        monthsCovered
+      );
+  }
+
+  const monthlyBurn =
+    totalExpenses /
+    monthsCovered;
+
+  const projectedAnnualBurn =
+    monthlyBurn * 12;
+
+  return {
+
+    expenseEfficiency,
+
+    avgCostPerTrade,
+
+    commissionPerTrade,
+
+    expensePerTrade,
+
+    profitRetention,
+
+    monthlyBurn,
+
+    projectedAnnualBurn,
+
+    totalTrades,
+
+    monthsCovered,
   };
 }

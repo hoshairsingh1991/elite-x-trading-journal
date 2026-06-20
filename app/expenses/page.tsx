@@ -19,6 +19,7 @@ import {
 
 import {
   generateBusinessCostAnalytics,
+  generateBusinessIntelligenceMetrics,
 } from "@/lib/analytics/businessCostAnalytics";
 
 import {
@@ -264,11 +265,12 @@ const businessCostAnalytics =
     performanceBreakdownAnalytics.netTradingPnL
   );
 
-console.log({
-  selectedPreset,
-  startDate,
-  endDate,
-});
+  const businessIntelligenceMetrics =
+  generateBusinessIntelligenceMetrics(
+    filteredExpenses,
+    filteredTrades,
+    performanceBreakdownAnalytics.netTradingPnL
+  );
 
 
   return (
@@ -350,6 +352,8 @@ console.log({
 <div className="relative z-10 mt-8">
   <ExpensesIntelligenceSection
   expenses={reportingExpenses}
+  metrics={businessIntelligenceMetrics}
+  reportingCurrency={reportingCurrency}
 />
 </div>
 
