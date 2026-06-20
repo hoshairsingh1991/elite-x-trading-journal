@@ -349,7 +349,7 @@ console.log({
 
 <div className="relative z-10 mt-8">
   <ExpensesIntelligenceSection
-  expenses={filteredExpenses}
+  expenses={reportingExpenses}
 />
 </div>
 

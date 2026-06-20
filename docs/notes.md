@@ -136,7 +136,9 @@ git commit -m "feat(expenses): complete monthly and yearly expenses over time an
 git commit -m "feat(expenses): complete expenses over time analytics and year filtering foundation"
 
 git commit -m "feat(shared): build reusable DateRangePicker UI component"
+git commit -m "feat(expenses): wire date range filtering and persistence"
 
+git commit -m "feat(expenses): add reusable date range filtering architecture"
 ------------------------------------------------------------------
 
 Status:

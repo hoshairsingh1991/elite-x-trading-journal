@@ -680,3 +680,55 @@ git commit -m "feat(shared): build reusable DateRangePicker UI component"
 ✓ Ready for wiring
 
 ========================================================= =========================================================
+
+git commit -m "feat(expenses): wire date range filtering and persistence"
+✓ Shared DateRangePicker created
+✓ Expenses page wired to DateRangePicker
+✓ Presets calculate real dates
+✓ Custom range selection works
+✓ Expenses filtering works
+✓ Trades filtering works
+✓ KPI cards update
+✓ Charts update
+✓ All Time = all data
+✓ Filter persists via localStorage
+✓ Outside days hidden (clean calendar)
+✓ Build passing
+
+========================================================= =========================================================
+
+git commit -m "feat(expenses): add reusable date range filtering architecture"
+DATE RANGE PICKER V1
+
+✓ Shared DateRangePicker component
+✓ ShadCN Calendar integration
+✓ Preset date ranges
+✓ Custom date range selection
+✓ Parent-owned filter architecture
+✓ Expense filtering
+✓ Trade filtering
+✓ KPI filtering
+✓ Analytics filtering
+✓ Tax summary filtering
+✓ Manual expense table filtering
+✓ LocalStorage persistence
+✓ All Time support
+✓ Calendar cleanup
+✓ Hidden outside days
+✓ Production verified
+
+BUSINESS INTELLIGENCE
+
+✓ Upcoming Renewals isolated from date filters
+✓ Operational widgets separated from historical widgets
+✓ Renewal forecasting uses full dataset
+✓ Historical analytics uses filtered dataset
+
+ARCHITECTURE
+
+✓ Reusable across Dashboard
+✓ Reusable across Trade History
+✓ Reusable across Analytics
+✓ Reusable across Reports
+========================================================= =========================================================
+
