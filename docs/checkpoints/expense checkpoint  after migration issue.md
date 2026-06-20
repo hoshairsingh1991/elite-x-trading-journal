@@ -773,3 +773,35 @@ git commit -m "feat(expenses): wire avg cost and profit retention intelligence c
 - preserve presentation-only component architecture"
 ========================================================= =========================================================
 
+git commit -m "feat(expenses): implement monthly burn analytics and business lifetime tracking"
+
+✓ Wired Monthly Burn card to live analytics
+
+✓ Replaced mock Monthly Burn data
+
+✓ Added businessStartDate metric
+
+✓ Added activeMonths metric
+
+✓ Monthly Burn now uses:
+  Total Expenses ÷ Active Months
+
+✓ Active Months calculated from:
+  First Expense Date → Today
+
+✓ Removed fake Daily Avg metrics
+
+✓ Removed fake Projected Month-End metrics
+
+✓ Replaced placeholder burn calculations with transparent business metrics
+
+✓ Monthly Burn card now displays:
+  - Business Started
+  - Active Months
+  - Calculation Method
+  - Monthly Average
+
+✓ Monthly Burn doctrine finalized and validated
+
+========================================================= =========================================================
+

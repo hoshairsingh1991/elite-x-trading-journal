@@ -141,6 +141,9 @@ git commit -m "feat(expenses): wire date range filtering and persistence"
 git commit -m "feat(expenses): add reusable date range filtering architecture"
 git commit -m "feat(expenses): wire business intelligence metrics foundation
 git commit -m "feat(expenses): wire avg cost and profit retention intelligence cards
+
+git commit -m "feat(expenses): implement monthly burn analytics and business lifetime tracking"
+
 ------------------------------------------------------------------
 
 Status:

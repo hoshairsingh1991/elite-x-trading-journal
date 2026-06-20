@@ -123,8 +123,11 @@ const projectedValueX = "translate-x-5";
 const projectedValueY = "translate-y-4";
 
 const projectedMetricsX = "translate-x-4";
-const projectedMetricsY = "translate-y-6";
+const projectedMetricsY = "translate-y-16";
 const projectedMetricsWidth = "w-[90%]";
+
+const projectedSubtitleX = "translate-x-0";
+const projectedSubtitleY = "translate-y-2";
 
 
 /* =====================================================
@@ -144,7 +147,7 @@ const burnChartX = "translate-x-54";
 const burnChartY = "-translate-y-7";
 
 const burnMetricsX = "translate-x-4";
-const burnMetricsY = "translate-y-6";
+const burnMetricsY = "translate-y-12";
 const burnMetricsWidth = "w-[90%]";
 
 
@@ -619,12 +622,22 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
     <div className="text-[38px] font-bold leading-none text-white">
-      C$5,873
-    </div>
+  {currencySymbol}
+  {metrics.projectedAnnualBurn.toFixed(0)}
+</div>
 
-    <p className="mt-2 text-[13px] text-slate-400">
-      Based on current run rate
-    </p>
+    <p
+  className={`
+    mt-2
+    text-[13px]
+    text-slate-400
+
+    ${projectedSubtitleX}
+    ${projectedSubtitleY}
+  `}
+>
+  Based on current run rate
+</p>
   </div>
 
   {/* Breakdown */}
@@ -639,37 +652,30 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
     <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Software</span>
-      <span>C$2,100</span>
-    </div>
+  <span>Monthly Burn</span>
+  <span>
+    {currencySymbol}
+    {metrics.monthlyBurn.toFixed(2)}
+  </span>
+</div>
 
-    <div className="h-[6px]" />
-
-    <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Market Data</span>
-      <span>C$1,050</span>
-    </div>
-
-    <div className="h-[6px]" />
-
-    <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Commissions</span>
-      <span>C$1,420</span>
-    </div>
-
-    <div className="h-[6px]" />
-
-    <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Other</span>
-      <span>C$1,303</span>
-    </div>
-
-    <div className="my-3 h-px bg-white/10" />
 <div className="h-[6px]" />
-    <div className="flex justify-between text-[11px] font-semibold text-white">
-      <span>Projected Total</span>
-      <span>C$5,873</span>
-    </div>
+
+<div className="flex justify-between text-[11px] text-slate-400">
+  <span>Active Months</span>
+  <span>
+    {metrics.activeMonths}
+  </span>
+</div>
+
+<div className="h-[6px]" />
+
+<div className="flex justify-between text-[11px] text-slate-400">
+  <span>Method</span>
+  <span>
+    Monthly Avg × 12
+  </span>
+</div>
   </div>
 </div>
 
@@ -704,46 +710,24 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
     <div className="text-[38px] font-bold leading-none text-white">
-      C$273
-    </div>
+  {currencySymbol}
+  {metrics.monthlyBurn.toFixed(2)}
+</div>
 
-    <p
-      className={`
-        mt-2
-        text-[13px]
-        font-medium
-        text-emerald-400
+   <p
+  className={`
+    mt-2
+    text-[13px]
+    text-slate-400
 
-        ${burnTrendX}
-        ${burnTrendY}
-      `}
-    >
-      Stable over last 90 days
-    </p>
+    ${burnTrendX}
+    ${burnTrendY}
+  `}
+>
+  Average monthly operating cost
+</p>
   </div>
 
-  {/* Mini Burn Chart */}
-  <div
-    className={`
-      mt-5
-      flex
-      h-12
-      items-end
-      gap-1
-
-      ${burnChartX}
-      ${burnChartY}
-    `}
-  >
-    <div className="h-3 w-2 rounded bg-red-500/60" />
-    <div className="h-5 w-2 rounded bg-red-500/60" />
-    <div className="h-7 w-2 rounded bg-orange-500/70" />
-    <div className="h-6 w-2 rounded bg-orange-500/70" />
-    <div className="h-8 w-2 rounded bg-yellow-500/70" />
-    <div className="h-9 w-2 rounded bg-yellow-500/70" />
-    <div className="h-10 w-2 rounded bg-emerald-500/70" />
-    <div className="h-11 w-2 rounded bg-emerald-500/80" />
-  </div>
 
   {/* Footer Metrics */}
   <div
@@ -756,24 +740,41 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
       ${burnMetricsY}
     `}
   >
-    <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Daily Avg</span>
-      <span>C$9.10</span>
-    </div>
+   <div className="flex justify-between text-[11px] text-slate-400">
+  <span>Business Started</span>
+  <span>
+    {metrics.businessStartDate}
+  </span>
+</div>
 
-    <div className="h-[6px]" />
-
-    <div className="flex justify-between text-[11px] text-slate-400">
-      <span>30-Day Total</span>
-      <span>C$273</span>
-    </div>
-
-    <div className="my-3 h-px bg-white/10" />
 <div className="h-[6px]" />
-    <div className="flex justify-between text-[11px] font-semibold text-white">
-      <span>Projected Month-End</span>
-      <span>C$281</span>
-    </div>
+
+<div className="flex justify-between text-[11px] text-slate-400">
+  <span>Active Months</span>
+  <span>
+    {metrics.activeMonths}
+  </span>
+</div>
+
+<div className="h-[6px]" />
+
+<div className="flex justify-between text-[11px] text-slate-400">
+  <span>Method</span>
+  <span>
+    Total Expenses ÷ Active Months
+  </span>
+</div>
+
+<div className="my-3 h-px bg-white/10" />
+<div className="h-[6px]" />
+
+<div className="flex justify-between text-[11px] font-semibold text-white">
+  <span>Monthly Average</span>
+  <span>
+    {currencySymbol}
+    {metrics.monthlyBurn.toFixed(2)}
+  </span>
+</div>
   </div>
 </div>
 

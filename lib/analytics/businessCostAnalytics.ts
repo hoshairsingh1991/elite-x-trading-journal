@@ -30,13 +30,20 @@ export interface BusinessIntelligenceMetrics {
 
  projectedAnnualBurn: number;
 
+ monthlyRecurringExpenses: number;
+
+activeSubscriptions: number;
+
 netBusinessProfit: number;
 
 totalExpenses: number;
 
 totalTrades: number;
 
-monthsCovered: number;
+activeMonths: number;
+
+businessStartDate: string;
+
 }
 
 // =================================================
@@ -263,64 +270,88 @@ export function generateBusinessIntelligenceMetrics(
         ) * 100
       : 0;
 
-  let monthsCovered = 1;
+      const recurringExpenses =
+  expenses.filter(
+    expense => expense.is_recurring
+  );
 
-  if (expenses.length > 0) {
+  const monthlyRecurringExpenses =
+  recurringExpenses.reduce(
+    (
+      total,
+      expense
+    ) =>
+      total +
+      expense.original_amount,
+    0
+  );
 
-    const dates =
-      expenses.map(
-        (expense) =>
-          new Date(
-            expense.expense_date +
-            "T12:00:00"
-          )
-      );
+const activeSubscriptions =
+  recurringExpenses.length;
 
-    const earliest =
-      new Date(
-        Math.min(
-          ...dates.map(
-            (date) =>
-              date.getTime()
-          )
+  let activeMonths = 1;
+
+let businessStartDate = "-";
+
+if (expenses.length > 0) {
+
+  const dates =
+    expenses.map(
+      (expense) =>
+        new Date(
+          expense.expense_date +
+          "T12:00:00"
         )
-      );
+    );
 
-    const latest =
-      new Date(
-        Math.max(
-          ...dates.map(
-            (date) =>
-              date.getTime()
-          )
+  const earliest =
+    new Date(
+      Math.min(
+        ...dates.map(
+          (date) =>
+            date.getTime()
         )
-      );
+      )
+    );
 
-    monthsCovered =
-      (
-        latest.getFullYear() -
-        earliest.getFullYear()
-      ) *
-        12 +
-      (
-        latest.getMonth() -
-        earliest.getMonth()
-      ) +
-      1;
+  const today =
+    new Date();
 
-    monthsCovered =
-      Math.max(
-        1,
-        monthsCovered
-      );
-  }
+  activeMonths =
+    (
+      today.getFullYear() -
+      earliest.getFullYear()
+    ) *
+      12 +
+    (
+      today.getMonth() -
+      earliest.getMonth()
+    ) +
+    1;
+
+  activeMonths =
+    Math.max(
+      1,
+      activeMonths
+    );
+
+  businessStartDate =
+    earliest.toLocaleString(
+      "en-US",
+      {
+        month: "short",
+        year: "numeric",
+      }
+    );
+}
 
   const monthlyBurn =
-    totalExpenses /
-    monthsCovered;
+  totalExpenses /
+  activeMonths;
 
   const projectedAnnualBurn =
-    monthlyBurn * 12;
+  monthlyRecurringExpenses *
+  12;
 
   return {
 
@@ -338,12 +369,18 @@ export function generateBusinessIntelligenceMetrics(
 
     projectedAnnualBurn,
 
+    monthlyRecurringExpenses,
+
+activeSubscriptions,
+
 netBusinessProfit,
 
 totalExpenses,
 
 totalTrades,
 
-monthsCovered,
+activeMonths,
+
+businessStartDate,
   };
 }

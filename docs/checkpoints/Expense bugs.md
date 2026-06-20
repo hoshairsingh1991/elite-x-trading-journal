@@ -357,3 +357,362 @@ rather than Expense CRUD or Supabase.
 Most likely area:
 
 Recurring date expansion logic.
+
+
+
+
+# EXPENSES MODULE - PROJECTED ANNUAL BURN ARCHITECTURE REVIEW
+
+## Status
+
+DEFERRED
+
+No implementation changes should be made at this time.
+
+The current Projected Annual Burn card remains functional, but the calculation methodology is not yet finalized.
+
+---
+
+# CURRENT IMPLEMENTATION
+
+Current Formula:
+
+```text
+Monthly Burn × 12
+```
+
+Where:
+
+```text
+Monthly Burn
+=
+Total Expenses
+÷
+Months Covered
+```
+
+Example:
+
+```text
+Total Expenses = $46.46
+
+Months Covered = 6
+
+Monthly Burn = $7.74
+
+Projected Annual Burn
+=
+$7.74 × 12
+=
+$92.88
+```
+
+The mathematics are correct.
+
+However, the metric may not accurately represent future operating costs.
+
+---
+
+# DISCOVERY
+
+During implementation review, a major architectural issue was identified.
+
+Recurring expenses are currently treated as metadata only.
+
+Example:
+
+```text
+TradingView
+$7.82
+Recurring = Yes
+Frequency = Monthly
+Start Date = Jun 20
+```
+
+Current system stores:
+
+```text
+1 expense record
+```
+
+Analytics currently treat that as:
+
+```text
+$7.82
+```
+
+only.
+
+No future occurrences are generated.
+
+---
+
+# WHY THIS MATTERS
+
+Forecasting depends entirely on how recurring expenses are represented.
+
+At present:
+
+```text
+Recurring expenses
+≠
+future expense occurrences
+```
+
+Therefore any annual forecast is inherently incomplete.
+
+---
+
+# EVALUATED APPROACHES
+
+## Option 1
+
+Historical Annualization
+
+Formula:
+
+```text
+Monthly Burn × 12
+```
+
+Pros:
+
+```text
+Simple
+
+Already implemented
+
+Uses historical spending
+```
+
+Cons:
+
+```text
+One-time expenses distort forecast
+
+Does not represent future obligations
+
+Can understate or overstate true operating costs
+```
+
+Example:
+
+```text
+Monitor Purchase = $300
+
+Annual forecast increases dramatically
+
+Even though monitor is not recurring
+```
+
+Result:
+
+Not ideal.
+
+---
+
+## Option 2
+
+Recurring Expenses × 12
+
+Formula:
+
+```text
+Monthly Recurring Expenses
+×
+12
+```
+
+Pros:
+
+```text
+Easy to understand
+
+Future focused
+
+Ignores one-time purchases
+```
+
+Cons:
+
+```text
+Assumes every recurring expense remains active
+for a full 12 months
+
+Ignores actual start dates
+
+Ignores billing schedule timing
+```
+
+Example:
+
+```text
+Subscription added today
+
+System assumes 12 future billings
+
+May not be accurate depending on forecast window
+```
+
+Result:
+
+Better than historical annualization, but still imperfect.
+
+---
+
+## Option 3
+
+True 365-Day Forecast
+
+Formula:
+
+```text
+Calculate all expected recurring billings
+during the next 365 days.
+```
+
+Uses:
+
+```text
+is_recurring
+
+frequency
+
+start_date
+```
+
+Pros:
+
+```text
+Most accurate
+
+Supports Monthly
+
+Supports Quarterly
+
+Supports Yearly
+
+Uses actual recurring schedule
+```
+
+Cons:
+
+```text
+Depends on recurring architecture
+
+Requires finalized recurring expense model
+```
+
+Result:
+
+Preferred long-term solution.
+
+---
+
+# BLOCKING ISSUE
+
+The recurring expense architecture has not yet been finalized.
+
+Current roadmap contains:
+
+```text
+BUG #2
+
+Recurring expenses are not actually recurring.
+```
+
+Planned V2 behavior:
+
+```text
+TradingView
+
+Feb 13
+Mar 13
+Apr 13
+May 13
+Jun 13
+...
+```
+
+Future occurrences must be represented either as:
+
+```text
+A)
+Virtual generated occurrences
+```
+
+or
+
+```text
+B)
+Real generated expense records
+```
+
+This decision will directly impact:
+
+```text
+Projected Annual Burn
+
+Monthly Burn
+
+Expenses Over Time
+
+Recurring Costs
+
+Tax Reporting
+
+Forecasting
+
+Year-End Reports
+```
+
+---
+
+# FINAL DECISION
+
+For now:
+
+```text
+DO NOT redesign Projected Annual Burn.
+```
+
+Keep current implementation temporarily.
+
+Current card remains:
+
+```text
+Projected Annual Burn
+
+Based on current run rate
+
+Method:
+Monthly Avg × 12
+```
+
+until recurring architecture is finalized.
+
+---
+
+# FUTURE REVISIT TRIGGER
+
+Revisit Projected Annual Burn ONLY AFTER:
+
+```text
+Daily Recurring Expense Crash fixed
+
+Recurring Expense Engine designed
+
+Recurring Expense Engine implemented
+
+Recurring occurrence generation validated
+```
+
+At that point:
+
+```text
+Projected Annual Burn
+```
+
+should be rebuilt using actual recurring billing schedules and next-365-day forecasting.
+
+This will produce a business metric that accurately reflects future operating costs rather than historical spending patterns.
