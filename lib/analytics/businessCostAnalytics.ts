@@ -28,11 +28,15 @@ export interface BusinessIntelligenceMetrics {
 
   monthlyBurn: number;
 
-  projectedAnnualBurn: number;
+ projectedAnnualBurn: number;
 
-  totalTrades: number;
+netBusinessProfit: number;
 
-  monthsCovered: number;
+totalExpenses: number;
+
+totalTrades: number;
+
+monthsCovered: number;
 }
 
 // =================================================
@@ -334,8 +338,12 @@ export function generateBusinessIntelligenceMetrics(
 
     projectedAnnualBurn,
 
-    totalTrades,
+netBusinessProfit,
 
-    monthsCovered,
+totalExpenses,
+
+totalTrades,
+
+monthsCovered,
   };
 }

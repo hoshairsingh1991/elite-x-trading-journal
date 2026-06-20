@@ -47,6 +47,19 @@ const currencySymbol =
     reportingCurrency
   );
 
+  const retentionPercentage =
+  Math.min(
+    100,
+    Math.max(
+      0,
+      metrics.profitRetention
+    )
+  );
+
+const retentionDegrees =
+  (retentionPercentage / 100) *
+  360;
+
     const vendorIcons: Record<string, string> = {
   
   TradingView:
@@ -86,16 +99,16 @@ const getRenewalColor = (
    ===================================================== */
 
 const profitHeaderX = "translate-x-2";
-const profitHeaderY = "-translate-y-4";
+const profitHeaderY = "translate-y-2";
 
-const profitValueX = "translate-x-6";
-const profitValueY = "-translate-y-8";
+const profitValueX = "translate-x-4";
+const profitValueY = "translate-y-4";
 
-const profitDonutX = "-translate-x-3";
-const profitDonutY = "translate-y-4";
+const profitSubtitleX = "translate-x-0";
+const profitSubtitleY = "translate-y-2";
 
 const profitMetricsX = "translate-x-4";
-const profitMetricsY = "-translate-y-2";
+const profitMetricsY = "translate-y-12";
 const profitMetricsWidth = "w-[90%]";
 
 
@@ -173,7 +186,7 @@ const renewalDaysY = "translate-y-0";
 const avgHeaderX = "translate-x-2";
 const avgHeaderY = "translate-y-2";
 
-const avgTrendX = "translate-x-0";
+const avgTrendX = "-translate-x-2";
 const avgTrendY = "translate-y-2";
 
 const avgValueX = "translate-x-6";
@@ -494,19 +507,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     </div>
 
     {/* Donut Placeholder */}
-    <div
-      className={`
-        h-18
-        w-18
-        rounded-full
-        border-[6px]
-        border-emerald-400/80
-        border-r-emerald-400/20
 
-        ${profitDonutX}
-        ${profitDonutY}
-      `}
-    />
   </div>
 
   {/* Main Value */}
@@ -517,12 +518,21 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
     <div className="text-[38px] font-bold leading-none text-white">
-      92.8%
-    </div>
+  {metrics.profitRetention.toFixed(1)}%
+</div>
 
-    <p className="mt-2 text-[13px] font-medium text-emerald-400">
-      ↑ 2.4% vs last 30 days
-    </p>
+    <p
+  className={`
+    mt-2
+    text-[13px]
+    text-slate-400
+
+    ${profitSubtitleX}
+    ${profitSubtitleY}
+  `}
+>
+  Percent of profit retained after expenses
+</p>
   </div>
 
   {/* Metrics */}
@@ -537,29 +547,43 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
     <div className="flex justify-between text-[11px] text-slate-400">
-      <span>Gross P&amp;L</span>
-      <span className="text-white">C$22.6k</span>
+      <span>Net P&amp;L</span>
+      <span className="text-white">
+  {currencySymbol}
+  {(
+    metrics.netBusinessProfit +
+    metrics.totalExpenses
+  ).toFixed(2)}
+</span>
     </div>
 
     <div className="h-[6px]" />
 
     <div className="flex justify-between text-[11px] text-slate-400">
       <span>Expenses</span>
-      <span className="text-red-400">C$1.6k</span>
+      <span className="text-red-400">
+  {currencySymbol}
+  {metrics.totalExpenses.toFixed(2)}
+</span>
     </div>
 
     <div className="h-[6px]" />
 
     <div className="flex justify-between text-[11px] text-slate-400">
       <span>Net Retained</span>
-      <span className="text-emerald-400">C$21.0k</span>
+      <span className="text-emerald-400">
+  {currencySymbol}
+  {metrics.netBusinessProfit.toFixed(2)}
+</span>
     </div>
 
     <div className="my-3 h-px bg-white/10" />
 <div className="h-[6px]" />
     <div className="flex justify-between text-[11px] font-semibold text-white">
       <span>Retention Rate</span>
-      <span>92.8%</span>
+      <span>
+  {metrics.profitRetention.toFixed(1)}%
+</span>
     </div>
   </div>
 </div>

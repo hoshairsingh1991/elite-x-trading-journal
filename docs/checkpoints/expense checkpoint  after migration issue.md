@@ -751,3 +751,25 @@ git commit -m "feat(expenses): wire business intelligence metrics foundation
 - preserve historical vs forecasting data separation"
 
 ========================================================= =========================================================
+
+git commit -m "feat(expenses): wire avg cost and profit retention intelligence cards
+
+- add BusinessIntelligenceMetrics interface
+- add generateBusinessIntelligenceMetrics analytics layer
+- implement avg cost per trade calculations
+- implement commission per trade calculations
+- implement expense per trade calculations
+- implement profit retention calculations
+- expose net business profit analytics
+- expose total expense analytics
+- wire business intelligence metrics into ExpensePage
+- connect Avg Cost / Trade card to live analytics
+- connect Profit Retention card to live analytics
+- add reporting currency support for intelligence cards
+- remove hardcoded KPI values
+- replace fake trend indicators with contextual descriptions
+- correct Gross P&L label to Net Trading P&L
+- add subtitle positioning controls
+- preserve presentation-only component architecture"
+========================================================= =========================================================
+
