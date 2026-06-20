@@ -12,6 +12,8 @@ export interface BusinessCostAnalyticsData {
   totalBusinessCosts: number;
 
   netBusinessProfit: number;
+
+  netTradingPnL: number;
 }
 
 export interface BusinessIntelligenceMetrics {
@@ -35,6 +37,8 @@ export interface BusinessIntelligenceMetrics {
 activeSubscriptions: number;
 
 netBusinessProfit: number;
+
+netTradingPnL: number;
 
 totalExpenses: number;
 
@@ -203,6 +207,8 @@ export function generateBusinessCostAnalytics(
     totalBusinessCosts,
 
     netBusinessProfit,
+
+    netTradingPnL,
   };
 }
 
@@ -374,6 +380,8 @@ if (expenses.length > 0) {
 activeSubscriptions,
 
 netBusinessProfit,
+
+netTradingPnL,
 
 totalExpenses,
 

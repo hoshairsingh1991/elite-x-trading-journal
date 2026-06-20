@@ -805,3 +805,62 @@ git commit -m "feat(expenses): implement monthly burn analytics and business lif
 
 ========================================================= =========================================================
 
+git commit -m "feat(expenses): complete business intelligence analytics cards"
+
+✓ Expense Efficiency card fully wired
+
+✓ Removed fake score system (94/100)
+
+✓ Removed fake sparkline chart
+
+✓ Added live Expense Efficiency calculation
+
+✓ Added Net Trading P&L metric
+
+✓ Added Business Profit metric
+
+✓ Added Total Expenses metric
+
+✓ Added Return On Expenses metric
+
+✓ Expense Efficiency formula:
+  Net Trading P&L ÷ Total Expenses
+
+✓ Profit Retention card wired
+
+✓ Avg Cost / Trade card wired
+
+✓ Monthly Burn card wired
+
+✓ Projected Annual Burn card wired
+
+✓ Added businessStartDate analytics
+
+✓ Added activeMonths analytics
+
+✓ Monthly Burn doctrine finalized:
+  Total Expenses ÷ Active Months
+
+✓ Active Months:
+  First Expense Date → Today
+
+✓ Reporting Currency support added to all Intelligence cards
+
+✓ Subtitle X/Y controls added to Expense Efficiency card
+
+✓ All Business Intelligence calculations centralized in:
+  lib/analytics/businessCostAnalytics.ts
+
+✓ ExpensesIntelligenceSection now presentation-only
+
+✓ Historical metrics use:
+  filteredExpenses
+  filteredTrades
+
+✓ Upcoming Renewals continues using:
+  reportingExpenses
+
+✓ Expenses Intelligence Section V1 Complete
+
+========================================================= =========================================================
+

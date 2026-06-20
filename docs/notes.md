@@ -144,6 +144,9 @@ git commit -m "feat(expenses): wire avg cost and profit retention intelligence c
 
 git commit -m "feat(expenses): implement monthly burn analytics and business lifetime tracking"
 
+
+git commit -m "feat(expenses): complete business intelligence analytics cards"
+
 ------------------------------------------------------------------
 
 Status:

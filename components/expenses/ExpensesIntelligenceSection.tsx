@@ -211,9 +211,12 @@ const headerY = "translate-y-2";
 const statusX = "-translate-x-4";
 const statusY = "translate-y-2";
 
-// Main score block (94/100 + Excellent)
-const scoreX = "translate-x-8";
+
+const scoreX = "translate-x-4";
 const scoreY = "translate-y-5";
+
+const scoreTrendX = "translate-x-0";
+const scoreTrendY = "translate-y-1";
 
 // Sparkline
 const sparklineX = "translate-x-2";
@@ -221,7 +224,7 @@ const sparklineY = "translate-y-3";
 
 // Metrics section
 const metricsX = "translate-x-4";
-const metricsY = "translate-y-6";
+const metricsY = "translate-y-10";
 const metricsWidth = "w-[90%]";
 
 
@@ -233,12 +236,6 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
   return (
     <div className="grid grid-cols-6 gap-5">
 
-
-        
-
-{/* ================================================= */}
-{/* Expense Efficiency */}
-{/* ================================================= */}
 
 
 <div className={`${cardClass} px-6 py-6`}>
@@ -277,52 +274,34 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
   </div>
 
   {/* ============================================= */}
-  {/* Score + Sparkline */}
-  {/* ============================================= */}
+{/* Main Value */}
+{/* ============================================= */}
 
-  <div className="mt-6 flex items-end justify-between">
-    <div
-      className={`
-        ${scoreX}
-        ${scoreY}
-      `}
-    >
-      <div className="text-[42px] font-bold leading-none text-white">
-        94
-        <span className="text-[22px] text-slate-500">
-          /100
-        </span>
-      </div>
+<div
+  className={`
+    mt-6
 
-      <p className="mt-2 text-[13px] font-medium text-emerald-400">
-        Excellent
-      </p>
-    </div>
-
-    {/* Sparkline */}
-    <div
-      className={`
-        flex
-        h-14
-        w-20
-        items-end
-        gap-1
-        opacity-70
-
-        ${sparklineX}
-        ${sparklineY}
-      `}
-    >
-      <div className="h-3 w-1 rounded bg-emerald-500" />
-      <div className="h-5 w-1 rounded bg-emerald-500" />
-      <div className="h-4 w-1 rounded bg-emerald-500" />
-      <div className="h-7 w-1 rounded bg-emerald-500" />
-      <div className="h-6 w-1 rounded bg-emerald-500" />
-      <div className="h-9 w-1 rounded bg-emerald-500" />
-      <div className="h-8 w-1 rounded bg-emerald-500" />
-      <div className="h-12 w-1 rounded bg-emerald-500" />
-    </div>
+    ${scoreX}
+    ${scoreY}
+  `}
+>
+  <div className="text-[42px] font-bold leading-none text-white">
+    {metrics.expenseEfficiency.toFixed(1)}x
   </div>
+
+  <p
+  className={`
+    mt-2
+    text-[13px]
+    text-slate-400
+
+    ${scoreTrendX}
+    ${scoreTrendY}
+  `}
+>
+  Profit generated per $1 spent
+</p>
+</div>
 
 {/* ============================================= */}
 {/* Metrics */}
@@ -338,51 +317,45 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     ${metricsY}
   `}
 >
-  {/* Tax Efficiency */}
-  <div className="flex items-center justify-between text-[11px] text-slate-400">
-    <span>Tax Efficiency</span>
-    <span>92/100</span>
+  <div className="flex justify-between text-[11px] text-slate-400">
+    <span>Net Trading P&amp;L</span>
+    <span>
+      {currencySymbol}
+      {metrics.netTradingPnL.toFixed(2)}
+    </span>
   </div>
 
-  <div className="mt-1 h-1.5 rounded-full bg-white/5">
-    <div className="h-1.5 w-[88%] rounded-full bg-emerald-400" />
+  <div className="h-[6px]" />
+
+  <div className="flex justify-between text-[11px] text-slate-400">
+    <span>Business Profit</span>
+    <span>
+      {currencySymbol}
+      {metrics.netBusinessProfit.toFixed(2)}
+    </span>
   </div>
 
-  <div className="h-[4px]" />
+  <div className="h-[6px]" />
 
-  {/* Recurring Ratio */}
-  <div className="flex items-center justify-between text-[11px] text-slate-400">
-    <span>Recurring Ratio</span>
-    <span>88/100</span>
+  <div className="flex justify-between text-[11px] text-slate-400">
+    <span>Total Expenses</span>
+    <span>
+      {currencySymbol}
+      {metrics.totalExpenses.toFixed(2)}
+    </span>
   </div>
 
-  <div className="mt-1 h-1.5 rounded-full bg-white/5">
-    <div className="h-1.5 w-[84%] rounded-full bg-emerald-400" />
+  <div className="my-3 h-px bg-white/10" />
+
+  <div className="h-[6px]" />
+
+  <div className="flex justify-between text-[11px] font-semibold text-white">
+    <span>Return On Expenses</span>
+    <span>
+      {metrics.expenseEfficiency.toFixed(1)}x
+    </span>
   </div>
 
-  <div className="h-[4px]" />
-
-  {/* Commission Impact */}
-  <div className="flex items-center justify-between text-[11px] text-slate-400">
-    <span>Commission Impact</span>
-    <span>90/100</span>
-  </div>
-
-  <div className="mt-1 h-1.5 rounded-full bg-white/5">
-    <div className="h-1.5 w-[86%] rounded-full bg-emerald-400" />
-  </div>
-
-  <div className="h-[4px]" />
-
-  {/* Vendor Diversification */}
-  <div className="flex items-center justify-between text-[11px] text-slate-400">
-    <span>Vendor Diversification</span>
-    <span>96/100</span>
-  </div>
-
-  <div className="mt-1 h-1.5 rounded-full bg-white/5">
-    <div className="h-1.5 w-[92%] rounded-full bg-emerald-400" />
-  </div>
 </div>
 </div>
 
