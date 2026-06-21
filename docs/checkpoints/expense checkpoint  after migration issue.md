@@ -873,3 +873,11 @@ git commit -m "feat(expenses): add intelligence card tooltips"
 ✓ Monthly Burn
 ========================================================= =========================================================
 
+git commit -m "fix(expenses): resolve daily recurring expense infinite loop"
+
+✓ Daily recurring expenses save correctly
+✓ Page remains responsive
+✓ Upcoming Renewals continues working
+✓ Crash eliminated
+
+========================================================= =========================================================

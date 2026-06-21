@@ -71,6 +71,12 @@ export function calculateUpcomingRenewals(
           expense.frequency
         ) {
 
+          case "Daily":
+  renewalDate.setDate(
+    renewalDate.getDate() + 1
+  );
+  break;
+
           case "Weekly":
             renewalDate.setDate(
               renewalDate.getDate() + 7
