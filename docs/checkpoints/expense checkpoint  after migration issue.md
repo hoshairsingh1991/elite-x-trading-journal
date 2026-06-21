@@ -901,4 +901,53 @@ Remaining:
 git commit -m "feat(expenses): complete recurring expense engine with catch-up generation and soft delete protection"
 ========================================================= =========================================================
 git commit -m "feat(expenses): complete recurring expense engine"
+
+✓ Recurring expense architecture
+
+✓ recurring_group_id support
+
+✓ Historical backfill generation
+
+✓ Daily / Weekly / Monthly / Quarterly / Yearly recurrence
+
+✓ Auto catch-up generation on Expenses page load
+
+✓ Duplicate occurrence prevention
+
+✓ Soft delete architecture (is_deleted)
+
+✓ Deleted occurrence protection
+
+✓ Individual occurrence editing
+
+✓ Individual occurrence deletion
+
+✓ Self-healing recurring chains
+
+✓ AddExpenseDrawer recurring workflow finalized
+
+✓ Tax Deductible toggle default OFF
+
+✓ Expense Date as single recurring source of truth
+
+✓ Accountant/CRA-safe recurring expense records
+========================================================= =========================================================
+git commit -m "feat(expenses): finalize overview section layout and breakdown cards"
+
+Expenses Overview Section V2
+
+✓ Rebalanced layout using 3.8fr / 2fr / 2fr / 2fr grid
+✓ Expense Breakdown converted to dynamic sorted rows
+✓ Vendor Breakdown converted to dynamic vendor analytics
+✓ Vendor card fixed-height architecture (6 rows)
+✓ Placeholder vendor rows for visual consistency
+✓ Recurring Costs card redesigned
+✓ Centralized X/Y adjustment system added
+✓ Centralized row spacing controls added
+✓ Expense categories now sort by spend amount
+✓ Vendor rows now sort by spend amount
+✓ Removed duplicated hardcoded breakdown structures
+✓ Consistent card alignment across overview section
+✓ Institutional dashboard spacing improvements
+✓ Ready for future progress-bar enhancement
 ========================================================= =========================================================

@@ -41,6 +41,12 @@ export interface UpcomingRenewal {
   daysRemaining: number;
 }
 
+export interface VendorBreakdownItem {
+  vendor: string;
+  amount: number;
+  percentage: number;
+}
+
 // =================================================
 // UPCOMING RENEWALS
 // =================================================
@@ -156,6 +162,7 @@ export function calculateTotalExpenses(
     0
   );
 }
+
 
 // =================================================
 // RECURRING EXPENSES
@@ -310,6 +317,57 @@ const grouped:
         b.amount - a.amount
     );
 }
+
+// =================================================
+// VENDOR BREAKDOWN
+// =================================================
+
+export function calculateVendorBreakdown(
+  expenses: Expense[]
+): VendorBreakdownItem[] {
+
+  const total =
+    calculateTotalExpenses(
+      expenses
+    );
+
+  if (total === 0) {
+    return [];
+  }
+
+  const grouped:
+    Record<string, number> = {};
+
+  expenses.forEach(
+    (expense) => {
+
+      const vendor =
+        expense.vendor?.trim() ||
+        "Other Vendors";
+
+      grouped[vendor] =
+        (grouped[vendor] || 0) +
+        expense.original_amount;
+    }
+  );
+
+  return Object.entries(
+    grouped
+  )
+    .map(
+      ([vendor, amount]) => ({
+        vendor,
+        amount,
+        percentage:
+          (amount / total) * 100,
+      })
+    )
+    .sort(
+      (a, b) =>
+        b.amount - a.amount
+    );
+}
+
 
 // =================================================
 // RECURRING BREAKDOWN

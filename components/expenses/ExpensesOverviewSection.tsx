@@ -15,6 +15,7 @@ import {
 import {
   calculateRecurringBreakdown,
   calculateCategoryBreakdown,
+  calculateVendorBreakdown,
   calculateMonthlyExpenses,
   calculateWeeklyExpenses,
 } from "@/lib/analytics/expenseAnalytics";
@@ -83,10 +84,13 @@ export default function ExpensesOverviewSection({
     expenses
   );
 
-  
-
   const categoryData =
   calculateCategoryBreakdown(
+    expenses
+  );
+
+  const vendorData =
+  calculateVendorBreakdown(
     expenses
   );
 
@@ -197,7 +201,7 @@ const hoveredData =
     0
   );
 
-  const software =
+const software =
   categoryData.find(
     item =>
       item.category ===
@@ -238,6 +242,71 @@ const other =
       item.category ===
       "Other"
   );
+
+
+// =================================================
+// SORTED EXPENSE BREAKDOWN
+// =================================================
+
+const expenseRows = [
+  {
+    name: "Market Data",
+    amount: marketData?.amount ?? 0,
+    percentage: marketData?.percentage ?? 0,
+    color: "bg-violet-500",
+  },
+  {
+    name: "Software",
+    amount: software?.amount ?? 0,
+    percentage: software?.percentage ?? 0,
+    color: "bg-blue-600",
+  },
+  {
+    name: "Brokerage Fees",
+    amount: brokerageFees?.amount ?? 0,
+    percentage: brokerageFees?.percentage ?? 0,
+    color: "bg-orange-500",
+  },
+  {
+    name: "Education",
+    amount: education?.amount ?? 0,
+    percentage: education?.percentage ?? 0,
+    color: "bg-amber-400",
+  },
+  {
+    name: "Infrastructure",
+    amount: infrastructure?.amount ?? 0,
+    percentage: infrastructure?.percentage ?? 0,
+    color: "bg-emerald-500",
+  },
+  {
+    name: "Other",
+    amount: other?.amount ?? 0,
+    percentage: other?.percentage ?? 0,
+    color: "bg-slate-500",
+  },
+];
+
+const sortedExpenseRows =
+  [...expenseRows].sort(
+    (a, b) =>
+      b.amount - a.amount
+  );
+
+  const vendorRows = [
+  ...vendorData.slice(0, 6),
+
+  ...Array(
+    Math.max(
+      0,
+      6 - vendorData.length
+    )
+  ).fill({
+    vendor: "—",
+    amount: 0,
+    percentage: 0,
+  }),
+].slice(0, 6);
 
 /* =====================================================
    TOOLTIP FINE TUNING
@@ -306,47 +375,20 @@ const periodButtonGap = "gap-0";
 const activeButtonWidth = "w-[82px]";
 const inactiveButtonWidth = "w-[82px]";
 
+// =================================================
+// Vednor Breakdwon
+// =================================================
 
-// =====================================================
-// Expense Sources Fine Tuning
-// =====================================================
+const vendorTitleX = "translate-x-[14px]";
+const vendorTitleY = "translate-y-[0px]";
 
-const sourcesX = "translate-x-2";
-const sourcesY = "translate-y-0";
+const vendorListX = "translate-x-[20px]";
+const vendorListY = "translate-y-[10px]";
 
-// =====================================================
-// Auto Expense Source Fine Tuning
-// =====================================================
+const vendorRowSpacing = "h-2";
 
-const autoIconX = "translate-x-6";
-const autoIconY = "translate-y-14";
-
-const autoBadgeX = "-translate-x-3";
-const autoBadgeY = "translate-y-0";
-
-const autoTextX = "translate-x-22";
-const autoTextY = "-translate-y-4";
-
-const autoButtonX = "translate-x-16";
-const autoButtonY = "translate-y-0";
-
-// =====================================================
-// Manual Expense Source Fine Tuning
-// =====================================================
-
-const manualIconX = "translate-x-6";
-const manualIconY = "translate-y-14";
-
-const manualBadgeX = "translate-x-60";
-const manualBadgeY = "translate-y-2";
-
-const manualTextX = "translate-x-22";
-const manualTextY = "-translate-y-4";
-
-const manualButtonX = "translate-x-16";
-const manualButtonY = "translate-y-0";
-
-
+const vendorAmountWidth = "w-[70px]";
+const vendorPercentWidth = "w-[40px]";
 
   // =====================================================
 // Expense Breakdown Fine Tuning
@@ -356,37 +398,28 @@ const manualButtonY = "translate-y-0";
 const breakdownTitleX = "translate-x-4";
 const breakdownTitleY = "translate-y-0";
 
-// Info icon
-const breakdownInfoX = "-translate-x-62";
-const breakdownInfoY = "translate-y-0";
+const breakdownListX = "translate-x-[20px]";
+const breakdownListY = "translate-y-[10px]";
 
-// Donut chart
-const breakdownChartX = "-translate-x-34";
-const breakdownChartY = "translate-y-16";
+const breakdownRowGap = "space-y-2";
 
-const breakdownLegendX = "translate-x-52";
-const breakdownLegendY = "-translate-y-20";
+const breakdownRowSpacing = "h-2";
+
+const breakdownAmountWidth = "w-[70px]";
+const breakdownPercentWidth = "w-[40px]";
 
 
 // =====================================================
 // Recurring Fine Tuning
 // =====================================================
 
-// Title
-const recurringTitleX = "translate-x-4";
-const recurringTitleY = "translate-y-0";
+const recurringTitleX = "translate-x-[14px]";
+const recurringTitleY = "translate-y-[0px]";
 
-// Info icon
-const recurringInfoX = "-translate-x-85";
-const recurringInfoY = "translate-y-0";
+const recurringListX = "translate-x-[20px]";
+const recurringListY = "translate-y-[0px]";
 
-// Donut
-const recurringChartX = "-translate-x-30";
-const recurringChartY = "translate-y-10";
-
-// Legend
-const recurringLegendX = "translate-x-60";
-const recurringLegendY = "-translate-y-20";
+const recurringRowSpacing = "h-2";
 
   // =====================================================
   // Expenses Over Time Fine Tuning
@@ -405,13 +438,18 @@ const recurringLegendY = "-translate-y-20";
   const chartY = "-translate-y-1";
 
 return (
-  <div className="grid grid-cols-13 gap-5">
+  <div
+  className="grid gap-5"
+  style={{
+    gridTemplateColumns: "3.8fr 2fr 2fr 2fr",
+  }}
+>
 
 {/* ================================================= */}
 {/* Expenses Over Time */}
 {/* ================================================= */}
 
-<div className="col-span-5 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className=" rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
   {/* Header */}
   <div className="flex items-center justify-between">
     <div className={`${titleX} ${titleY}`}>
@@ -889,7 +927,8 @@ duration-700
 {/* Expense Breakdown */}
 {/* ================================================= */}
 
-<div className="col-span-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+
   {/* Top Spacer */}
   <div className="h-2" />
 
@@ -900,111 +939,187 @@ duration-700
         Expense Breakdown
       </h3>
     </div>
-
   </div>
 
   {/* Spacer */}
-  <div className="h-0" />
+  <div className="h-4" />
 
-  {/* Donut */}
+  {/* Category List */}
   <div
-    className={`flex justify-center ${breakdownChartX} ${breakdownChartY}`}
+    className={`
+      w-[90%]
+      mx-auto
+      ${breakdownListX}
+      ${breakdownListY}
+    `}
   >
-    <div
-      className="relative flex h-[140px] w-[140px] items-center justify-center rounded-full"
-      style={{
-        background: `
-          conic-gradient(
-            #2563eb 0% 34%,
-            #7c3aed 34% 56%,
-            #f97316 56% 72%,
-            #fbbf24 72% 82%,
-            #10b981 82% 93%,
-            #64748b 93% 100%
-          )
-        `,
-      }}
-    >
-      {/* Inner Cutout */}
-      <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-[#061325]">
-        <div className="text-[34px] font-bold leading-none text-white">
-          {
-  categoryData[0]
-    ?.percentage
-    .toFixed(0) ?? "0"
-}%
+
+    {sortedExpenseRows.map((row, index) => (
+
+      <div key={row.name}>
+
+        <div className="flex items-center justify-between">
+
+          {/* Left */}
+          <div className="flex items-center gap-3">
+
+            <span
+              className={`h-3 w-3 rounded-full ${row.color}`}
+            />
+
+            <span className="text-[15px] text-slate-300">
+              {row.name}
+            </span>
+
+          </div>
+
+          {/* Right */}
+          <div className="flex items-center gap-5">
+
+            <span
+              className={`${breakdownAmountWidth} text-right text-[15px] text-white`}
+            >
+              {currencySymbol}
+              {row.amount.toFixed(0)}
+            </span>
+
+            <span
+              className={`${breakdownPercentWidth} text-right text-[15px] text-slate-400`}
+            >
+              {row.percentage.toFixed(0)}%
+            </span>
+
+          </div>
+
         </div>
 
-        <div className="mt-2 text-[12px] text-slate-400">
-          Total
-        </div>
+        {index < 5 && (
+          <>
+            <div className={breakdownRowSpacing} />
+            <div className="border-t border-white/[0.03]" />
+            <div className={breakdownRowSpacing} />
+          </>
+        )}
+
       </div>
-    </div>
+
+    ))}
+
   </div>
 
-  {/* Spacer */}
-
-
-  {/* Legend */}
-  <div
-    className={`mx-auto max-w-[220px] space-y-2 text-[14px] ${breakdownLegendX} ${breakdownLegendY}`}
-  >
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
-        Software
-      </span>
-      <span className="text-white">{software?.percentage.toFixed(0) ?? 0}%</span>
-    </div>
-  {/* Top Spacer */}
-  <div className="h-1" />
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-violet-600" />
-        Market Data
-      </span>
-      <span className="text-white">{marketData?.percentage.toFixed(0) ?? 0}%</span>
-    </div>
-<div className="h-1" />
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
-        Brokerage Fees
-      </span>
-      <span className="text-white">{brokerageFees?.percentage.toFixed(0) ?? 0}%</span>
-    </div>
-<div className="h-1" />
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-        Education
-      </span>
-      <span className="text-white">{education?.percentage.toFixed(0) ?? 0}%</span>
-    </div>
-<div className="h-1" />
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-        Infrastructure
-      </span>
-      <span className="text-white">{infrastructure?.percentage.toFixed(0) ?? 0}%</span>
-    </div>
-<div className="h-1" />
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
-        Other
-      </span>
-      <span className="text-white">{other?.percentage.toFixed(0) ?? 0}%</span>
-    </div>
-  </div>
 </div>
 
 {/* ================================================= */}
-{/* Recurring */}
+{/* Vendor Breakdown */}
 {/* ================================================= */}
 
-<div className="col-span-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+
+  {/* Top Spacer */}
+  <div className="h-2" />
+
+  {/* Header */}
+  <div className="flex items-center justify-between">
+    <div className={`${vendorTitleX} ${vendorTitleY}`}>
+      <h3 className="text-[18px] font-semibold text-white">
+        Vendor Breakdown
+      </h3>
+    </div>
+  </div>
+
+  {/* Spacer */}
+  <div className="h-4" />
+
+  {/* Vendor List */}
+  <div
+    className={`
+      w-[90%]
+      mx-auto
+      ${vendorListX}
+      ${vendorListY}
+    `}
+  >
+
+   {vendorRows.map(
+  (vendor, index) => (
+
+        <div key={`${vendor.vendor}-${index}`}>
+
+          <div className="flex items-center justify-between">
+
+            {/* Left */}
+            <div className="flex items-center gap-3">
+
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${
+                  vendor.amount > 0
+                    ? "bg-blue-500"
+                    : "bg-slate-600"
+                }`}
+              />
+
+              <span
+                className={`text-[15px] ${
+                  vendor.amount > 0
+                    ? "text-slate-300"
+                    : "text-slate-500"
+                }`}
+              >
+                {vendor.vendor}
+              </span>
+
+            </div>
+
+            {/* Right */}
+            <div className="flex items-center gap-4">
+
+              <span
+                className={`${vendorAmountWidth} text-right text-[15px] ${
+                  vendor.amount > 0
+                    ? "text-white"
+                    : "text-slate-500"
+                }`}
+              >
+                {currencySymbol}
+                {vendor.amount.toFixed(0)}
+              </span>
+
+              <span
+                className={`${vendorPercentWidth} text-right text-[15px] ${
+                  vendor.amount > 0
+                    ? "text-slate-400"
+                    : "text-slate-600"
+                }`}
+              >
+                {vendor.percentage.toFixed(0)}%
+              </span>
+
+            </div>
+
+          </div>
+
+          {index < 5 && (
+            <>
+              <div className={vendorRowSpacing} />
+              <div className="border-t border-white/[0.03]" />
+              <div className={vendorRowSpacing} />
+            </>
+          )}
+
+        </div>
+
+      ))}
+
+  </div>
+
+</div>
+
+{/* ================================================= */}
+{/* Recurring Costs */}
+{/* ================================================= */}
+
+<div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+
   {/* Top Spacer */}
   <div className="h-2" />
 
@@ -1012,193 +1127,115 @@ duration-700
   <div className="flex items-center justify-between">
     <div className={`${recurringTitleX} ${recurringTitleY}`}>
       <h3 className="text-[18px] font-semibold text-white">
-        Recurring
+        Recurring Costs
       </h3>
     </div>
   </div>
 
   {/* Spacer */}
-  <div className="h-6" />
+  <div className="h-4" />
 
-{/* Donut */}
-<div
-  className={`flex justify-center ${recurringChartX} ${recurringChartY}`}
->
   <div
-    className="relative flex h-[140px] w-[140px] items-center justify-center rounded-full"
-style={{
-  background: `
-    conic-gradient(
-      #10b981 0% ${
-        animateChart
-          ? recurringData.recurringPercent
-          : 0
-      }%,
-      #64748b ${
-        animateChart
-          ? recurringData.recurringPercent
-          : 0
-      }% 100%
-    )
-  `,
-  transition: "all 700ms ease",
-}}
+    className={`
+      w-[92%]
+      mx-auto
+      ${recurringListX}
+      ${recurringListY}
+    `}
   >
-    {/* Inner Cutout */}
-    <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-[#061325]">
-      <div className="text-[34px] font-bold leading-none text-white">
-        {(
-  animateChart
-    ? recurringData.recurringPercent
-    : 0
-).toFixed(0)}%
+
+    {/* Recurring Spend */}
+    <div className="flex items-center gap-4">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+        <RefreshCw className="h-5 w-5 text-emerald-400" />
       </div>
 
-      <div className="mt-2 text-[12px] text-slate-400">
-        Active
+      <div>
+        <div className="text-[14px] text-slate-400">
+          Recurring Spend
+        </div>
+
+        <div className="text-[18px] font-semibold text-emerald-400">
+          {currencySymbol}
+          {recurringData.recurringAmount.toFixed(2)}
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-  {/* Spacer */}
-  <div className="h-6" />
+    <div className={recurringRowSpacing} />
+    <div className="border-t border-white/[0.04]" />
+    <div className={recurringRowSpacing} />
 
-  {/* Legend */}
-  <div
-    className={`mx-auto max-w-[180px] space-y-3 text-[15px] ${recurringLegendX} ${recurringLegendY}`}
-  >
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-        Recurring
-      </span>
+    {/* One-Time Spend */}
+    <div className="flex items-center gap-4">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+        <CircleDollarSign className="h-5 w-5 text-slate-300" />
+      </div>
 
-      <span className="text-white">{recurringData.recurringPercent.toFixed(0)}%</span>
-    </div>
-<div className="h-2" />
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-slate-300">
-        <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
-        One-Time
-      </span>
+      <div>
+        <div className="text-[14px] text-slate-400">
+          One-Time Spend
+        </div>
 
-      <span className="text-white">{recurringData.oneTimePercent.toFixed(0)}%</span>
-    </div>
-  </div>
-</div>
-
-{/* ================================================= */}
-{/* Expense Sources */}
-{/* ================================================= */}
-
-<div className="col-span-2 flex flex-col">
-  {/* Header */}
-  <div className={`mb-5 flex items-center justify-between ${sourcesX} ${sourcesY}`}>
-    <h3 className="text-[18px] font-semibold text-white">
-      Expense Sources
-    </h3>
-
-  </div>
-
-  {/* Cards */}
-  <div className="flex flex-1 flex-col gap-4">
-
- {/* ================================================= */}
-{/* Auto Card */}
-{/* ================================================= */}
-
-<div className="flex-1 rounded-[20px] border border-violet-500/20 bg-gradient-to-br from-violet-500/8 via-violet-500/3 to-transparent p-5 transition-all duration-300 hover:-translate-y-[2px] hover:border-violet-400/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.10)]">
-
-  {/* Top Row */}
-  <div className="relative flex items-start justify-between">
-
-<div className={`${autoIconX} ${autoIconY}`}>
-  <div className="flex h-[34px] w-[52px] items-center justify-center">
-    <RefreshCw className="h-7 w-7 text-violet-300" />
-  </div>
-</div>
-
-<div className="absolute right-4 top-2">
-  <span className="flex h-5 w-11 items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.02] text-[9px] font-bold uppercase tracking-[0.03em] text-slate-300">
-    <span className="translate-y-[1px]">
-      AUTO
-    </span>
-  </span>
-</div>
-
-  </div>
-
-  {/* Text Block */}
-  <div className={`${autoTextX} ${autoTextY}`}>
-<div className="mt-4 text-[16px] font-medium text-slate-300">
-  Broker Commissions
-</div>
-
-<div className="mt-1 text-[13px] text-slate-400">
-  Imported From Trade History
-</div>
-
-<div className="h-2" />
-
-<div className="mt-3 text-[28px] font-bold leading-none text-white">
-  {currencySymbol}
-  {businessCostAnalytics.commissions.toFixed(2)}
-</div>
-
-<div className="mt-2 text-[14px] text-slate-400">
-  Auto Calculated
-</div>
-  </div>
-</div>
-
-{/* ================================================= */}
-{/* Manual Card */}
-{/* ================================================= */}
-
-<div className="flex-1 rounded-[20px] border border-blue-500/20 bg-gradient-to-br from-blue-500/8 via-blue-500/3 to-transparent p-5 transition-all duration-300 hover:-translate-y-[2px] hover:border-blue-400/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.10)]">
-
-  {/* Top Row */}
-  <div className="relative flex items-start justify-between">
-
-<div className={`${manualIconX} ${manualIconY}`}>
-  <div className="flex h-[34px] w-[52px] items-center justify-center">
-    <CircleDollarSign className="h-7 w-7 text-blue-300" />
-  </div>
-</div>
-
-<div className={`absolute ${manualBadgeX} ${manualBadgeY}`}>
-  <span className="flex h-5 w-13 items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.02] text-[9px] font-bold uppercase tracking-[0.03em] text-slate-300">
-    <span className="translate-y-[1px]">
-      MANUAL
-    </span>
-  </span>
-</div>
-
-  </div>
-
-  {/* Text Block */}
-  <div className={`${manualTextX} ${manualTextY}`}>
-    <div className="mt-4 text-[16px] font-medium text-slate-300">
-      Manual Expenses
+        <div className="text-[18px] font-semibold text-white">
+          {currencySymbol}
+          {recurringData.oneTimeAmount.toFixed(2)}
+        </div>
+      </div>
     </div>
 
-    <div className="mt-1 text-[13px] text-slate-400">
-      Total Manual Expenses
-    </div>
-<div className="h-2" />
-    <div className="mt-3 text-[28px] font-bold leading-none text-white">
-      {currencySymbol}
-{totalManualExpenses.toFixed(2)}
+    <div className={recurringRowSpacing} />
+    <div className="border-t border-white/[0.04]" />
+    <div className={recurringRowSpacing} />
+
+    {/* Active Subscriptions */}
+    <div className="flex items-center gap-4">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+        <BarChart3 className="h-5 w-5 text-slate-300" />
+      </div>
+
+      <div>
+        <div className="text-[14px] text-slate-400">
+          Active Subscriptions
+        </div>
+
+        <div className="text-[18px] font-semibold text-white">
+          {expenses.filter(expense => expense.is_recurring).length}
+        </div>
+      </div>
     </div>
 
-    <div className="mt-2 text-[14px] text-slate-400">
-      This Period
+    <div className={recurringRowSpacing} />
+    <div className="border-t border-white/[0.04]" />
+    <div className={recurringRowSpacing} />
+
+    {/* Monthly Commitment */}
+    <div className="flex items-center gap-4">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+        <ArrowRight className="h-5 w-5 text-slate-300" />
+      </div>
+
+      <div>
+        <div className="text-[14px] text-slate-400">
+          Monthly Commitment
+        </div>
+
+        <div className="text-[18px] font-semibold text-emerald-400">
+          {currencySymbol}
+          {recurringData.recurringAmount.toFixed(2)}
+          <span className="ml-1 text-[15px] text-slate-400">
+            /mo
+          </span>
+        </div>
+      </div>
     </div>
+
   </div>
+
 </div>
+
+
   </div>
-</div>
-</div>
+
   );
 }
