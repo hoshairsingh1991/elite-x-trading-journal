@@ -93,24 +93,15 @@ if (
         .limit(1);
 
     if (existing && existing.length > 0) {
-      console.log(
-        date,
-        "EXISTS"
-      );
+      
     } else {
-      console.log(
-        date,
-        "MISSING"
-      );
+      
 
       missingDates.push(date);
     }
   }
 
-  console.log(
-    "Missing Dates:",
-    missingDates
-  );
+
 
 for (const date of missingDates) {
 
@@ -191,10 +182,7 @@ for (const date of missingDates) {
 
   } else {
 
-    console.log(
-      "CREATED:",
-      date
-    );
+    
   }
 }
 

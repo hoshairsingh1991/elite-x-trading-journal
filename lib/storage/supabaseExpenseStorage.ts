@@ -23,6 +23,7 @@ export type SaveExpenseInput = {
   is_template?: boolean;
   is_generated?: boolean;
   is_active?: boolean;
+  is_deleted?: boolean;
 
   is_tax_deductible?: boolean;
   deductible_percent?: number;
@@ -97,6 +98,9 @@ const {
     is_active:
       expense.is_active ?? true,
 
+      is_deleted:
+  expense.is_deleted ?? false,
+
     is_tax_deductible:
       expense.is_tax_deductible ?? true,
 
@@ -145,6 +149,7 @@ const { data, error } = await supabase
   .from("expenses")
   .select("*")
   .eq("user_id", user.id)
+  .eq("is_deleted", false)
   .order("expense_date", {
     ascending: false,
   });
@@ -240,11 +245,13 @@ export async function deleteExpense(
     return;
   }
 
-  const { error } = await supabase
-    .from("expenses")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
+ const { error } = await supabase
+  .from("expenses")
+  .update({
+    is_deleted: true,
+  })
+  .eq("id", id)
+  .eq("user_id", user.id);
 
   if (error) {
     console.error(

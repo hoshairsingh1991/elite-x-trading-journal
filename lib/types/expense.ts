@@ -23,6 +23,7 @@ export type Expense = {
   is_template: boolean;
   is_generated: boolean;
   is_active: boolean;
+  is_deleted: boolean;
 
   is_tax_deductible: boolean;
   deductible_percent: number;

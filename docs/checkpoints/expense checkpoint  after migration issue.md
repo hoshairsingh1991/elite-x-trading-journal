@@ -883,3 +883,19 @@ git commit -m "fix(expenses): resolve daily recurring expense infinite loop"
 ========================================================= =========================================================
 
 git commit -m "feat(expenses): implement recurring expense generation engine"
+
+Recurring Engine V1
+
+STATUS: 95% COMPLETE
+
+Remaining:
+
+1. Auto catch-up generation on page load
+
+2. Protect manually deleted occurrences from regeneration
+
+3. Validate yearly tax export includes generated occurrences
+
+========================================================= =========================================================
+
+git commit -m "feat(expenses): complete recurring expense engine with catch-up generation and soft delete protection"

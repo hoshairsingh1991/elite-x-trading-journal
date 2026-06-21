@@ -30,6 +30,9 @@ import {
   convertExpensesToReportingCurrency,
 } from "@/lib/fx/convertExpensesToReportingCurrency";
 
+import { generateRecurringOccurrences }
+from "@/lib/expenses/generateRecurringOccurrences";
+
 import {
   getFxRates,
   FxRates,
@@ -98,10 +101,50 @@ const reloadTrades = async () => {
   setTrades(data);
 };
 
+const catchUpRecurringExpenses =
+  async (
+    loadedExpenses: Expense[]
+  ) => {
+
+    for (const expense of loadedExpenses) {
+
+      if (
+        expense.is_recurring &&
+        !expense.is_generated &&
+        !expense.is_deleted &&
+        expense.is_active
+      ) {
+
+
+        await generateRecurringOccurrences(
+          expense
+        );
+      }
+    }
+  };
+
 useEffect(() => {
 
-  void reloadExpenses();
-  void reloadTrades();
+  async function initializePage() {
+
+    const loadedExpenses =
+      await loadExpenses();
+
+    await catchUpRecurringExpenses(
+      loadedExpenses
+    );
+
+    const refreshedExpenses =
+      await loadExpenses();
+
+    setExpenses(
+      refreshedExpenses
+    );
+
+    await reloadTrades();
+  }
+
+  void initializePage();
 
 }, []);
 
