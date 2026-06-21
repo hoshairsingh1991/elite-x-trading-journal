@@ -19,6 +19,11 @@ export type Expense = {
   frequency: string | null;
   start_date: string | null;
 
+  recurring_group_id: string | null;
+  is_template: boolean;
+  is_generated: boolean;
+  is_active: boolean;
+
   is_tax_deductible: boolean;
   deductible_percent: number;
 

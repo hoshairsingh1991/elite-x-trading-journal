@@ -1,27 +1,39 @@
 import { supabase } from "@/lib/supabase";
 
 export type SaveExpenseInput = {
+
   expense_name: string;
   expense_date: string;
+
   category: string;
   description?: string;
+
   original_amount: number;
   billed_currency: string;
+
   vendor?: string;
   account?: string;
   payment_method?: string;
+
   is_recurring?: boolean;
   frequency?: string | null;
   start_date?: string | null;
+
+  recurring_group_id?: string | null;
+  is_template?: boolean;
+  is_generated?: boolean;
+  is_active?: boolean;
+
   is_tax_deductible?: boolean;
   deductible_percent?: number;
+
   notes?: string;
   receipt_url?: string | null;
 };
 
 export async function saveExpense(
   expense: SaveExpenseInput
-): Promise<void> {
+) {
   // ==========================================
   // AUTHENTICATED USER
   // ==========================================
@@ -43,46 +55,74 @@ export async function saveExpense(
 // SAVE EXPENSE
 // ==========================================
 
-  const { error } = await supabase
-    .from("expenses")
-    .insert({
-      user_id: user.id,
+const {
+  data,
+  error: expenseError,
+} = await supabase
+  .from("expenses")
+  .insert({
+    user_id: user.id,
 
-      expense_name: expense.expense_name,
-      expense_date: expense.expense_date,
+    expense_name: expense.expense_name,
+    expense_date: expense.expense_date,
 
-      category: expense.category,
-      description: expense.description ?? null,
+    category: expense.category,
+    description: expense.description ?? null,
 
-      original_amount: expense.original_amount,
-      billed_currency: expense.billed_currency,
+    original_amount: expense.original_amount,
+    billed_currency: expense.billed_currency,
 
-      vendor: expense.vendor ?? null,
-      account: expense.account ?? "General",
-      payment_method: expense.payment_method ?? null,
+    vendor: expense.vendor ?? null,
+    account: expense.account ?? "General",
+    payment_method: expense.payment_method ?? null,
 
-      is_recurring: expense.is_recurring ?? false,
-      frequency: expense.frequency ?? null,
-      start_date: expense.start_date ?? null,
+    is_recurring:
+      expense.is_recurring ?? false,
 
-      is_tax_deductible:
-        expense.is_tax_deductible ?? true,
+    frequency:
+      expense.frequency ?? null,
 
-      deductible_percent:
-        expense.deductible_percent ?? 100,
+    start_date:
+      expense.start_date ?? null,
 
-      notes: expense.notes ?? null,
-      receipt_url: expense.receipt_url ?? null,
-    });
+    recurring_group_id:
+      expense.recurring_group_id ?? null,
 
-  if (error) {
-    console.error(
-      "FAILED TO SAVE EXPENSE:",
-      error.message
-    );
+    is_template:
+      expense.is_template ?? false,
 
-    throw error;
-  }
+    is_generated:
+      expense.is_generated ?? false,
+
+    is_active:
+      expense.is_active ?? true,
+
+    is_tax_deductible:
+      expense.is_tax_deductible ?? true,
+
+    deductible_percent:
+      expense.deductible_percent ?? 100,
+
+    notes:
+      expense.notes ?? null,
+
+    receipt_url:
+      expense.receipt_url ?? null,
+  })
+  .select()
+  .single();
+
+if (expenseError) {
+  console.error(
+    "FAILED TO SAVE EXPENSE:",
+    expenseError.message
+  );
+
+  throw expenseError;
+}
+
+return data;
+
 }
 
 // ==========================================
@@ -101,13 +141,13 @@ export async function loadExpenses() {
     return [];
   }
 
-  const { data, error } = await supabase
-    .from("expenses")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("expense_date", {
-      ascending: false,
-    });
+const { data, error } = await supabase
+  .from("expenses")
+  .select("*")
+  .eq("user_id", user.id)
+  .order("expense_date", {
+    ascending: false,
+  });
 
   if (error) {
     console.error(

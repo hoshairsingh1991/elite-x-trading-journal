@@ -8,6 +8,9 @@ import {
 } from "@/lib/storage/supabaseExpenseStorage";
 import type { Expense } from "@/lib/types/expense";
 
+import { generateRecurringOccurrences }
+from "@/lib/expenses/generateRecurringOccurrences";
+
 
 type AddExpenseDrawerProps = {
   open: boolean;
@@ -237,8 +240,6 @@ const [isRecurring, setIsRecurring] =
 const [frequency, setFrequency] =
   useState("");
 
-const [startDate, setStartDate] =
-  useState("");
 
 const [isTaxDeductible, setIsTaxDeductible] =
   useState(true);
@@ -268,7 +269,6 @@ if (!editingExpense) {
 
   setIsRecurring(false);
   setFrequency("");
-  setStartDate("");
 
   setIsTaxDeductible(true);
   setDeductiblePercent("100");
@@ -305,9 +305,7 @@ if (!editingExpense) {
     editingExpense.frequency ?? ""
   );
 
-  setStartDate(
-    editingExpense.start_date ?? ""
-  );
+
 
   setIsTaxDeductible(
     editingExpense.is_tax_deductible ?? true
@@ -339,6 +337,12 @@ async function handleSave() {
   }
 
 try {
+  const recurringGroupId =
+  editingExpense?.recurring_group_id
+    ? editingExpense.recurring_group_id
+    : isRecurring
+      ? crypto.randomUUID()
+      : null;
 const expenseData = {
   expense_name: expenseName,
   expense_date: expenseDate,
@@ -355,7 +359,15 @@ const expenseData = {
 
   is_recurring: isRecurring,
   frequency: frequency || null,
-  start_date: startDate || null,
+  start_date: expenseDate,
+
+  recurring_group_id: recurringGroupId,
+
+is_template: false,
+
+is_generated: false,
+
+is_active: true,
 
   is_tax_deductible: isTaxDeductible,
   deductible_percent: parseFloat(deductiblePercent),
@@ -365,12 +377,28 @@ const expenseData = {
 };
 
 if (editingExpense?.id) {
+
   await updateExpense(
     editingExpense.id,
     expenseData
   );
+
 } else {
-  await saveExpense(expenseData);
+
+  const savedExpense =
+    await saveExpense(
+      expenseData
+    );
+
+  if (
+    savedExpense &&
+    savedExpense.is_recurring
+  ) {
+
+    await generateRecurringOccurrences(
+      savedExpense
+    );
+  }
 }
 
   onSaveSuccess();
@@ -745,22 +773,7 @@ const label =
   </div>
 </div>
 
-<div className={`transform ${startDateX} ${startDateY}`}>
-  <label className={label}>Start Date</label>
 
-  <input
-    type="date"
-    value={startDate}
-    onChange={(e) => setStartDate(e.target.value)}
-    disabled={!isRecurring}
-    className={`${startDateWidth} ${startDateHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none ${
-      !isRecurring ? "cursor-not-allowed opacity-50" : ""
-    }`}
-    style={{
-      colorScheme: "dark",
-    }}
-  />
-</div>
   </div>
 </section>
 
