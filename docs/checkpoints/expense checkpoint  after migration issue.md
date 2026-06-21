@@ -864,3 +864,12 @@ git commit -m "feat(expenses): complete business intelligence analytics cards"
 
 ========================================================= =========================================================
 
+git commit -m "feat(expenses): add intelligence card tooltips"
+
+✓ Expense Efficiency
+✓ Avg Cost / Trade
+✓ Profit Retention
+✓ Projected Annual Burn
+✓ Monthly Burn
+========================================================= =========================================================
+

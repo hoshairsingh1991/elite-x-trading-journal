@@ -146,6 +146,7 @@ git commit -m "feat(expenses): implement monthly burn analytics and business lif
 
 
 git commit -m "feat(expenses): complete business intelligence analytics cards"
+git commit -m "feat(expenses): add intelligence card tooltips"
 
 ------------------------------------------------------------------
 

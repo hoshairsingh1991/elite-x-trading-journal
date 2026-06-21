@@ -322,16 +322,33 @@ onClick={() => {
 
       break;
 
-    case "Last 30 Days":
+   case "Last 30 Days":
 
-      startDate =
-        new Date(today);
+  startDate =
+    new Date(today);
 
-      startDate.setDate(
-        today.getDate() - 30
-      );
+  startDate.setDate(
+    today.getDate() - 30
+  );
 
-      break;
+  startDate.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  endDate =
+    new Date(today);
+
+  endDate.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  break;
 
     case "Last Month":
 

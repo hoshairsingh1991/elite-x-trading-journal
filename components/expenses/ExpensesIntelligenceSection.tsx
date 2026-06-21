@@ -12,6 +12,8 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import MetricInfoTooltip from "@/components/dashboard-v2/MetricInfoTooltip";
+
 import {
   CalendarClock,
   Flame,
@@ -244,20 +246,28 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
   {/* ============================================= */}
 
   <div className="flex items-start justify-between">
-    <div
-      className={`
-        flex items-center gap-2
+   <div
+  className={`
+    flex items-center gap-2
 
-        ${headerX}
-        ${headerY}
-      `}
-    >
-      <Gauge className="h-4 w-4 text-cyan-400" />
+    ${headerX}
+    ${headerY}
+  `}
+>
+  <Gauge className="h-4 w-4 text-cyan-400" />
 
-      <span className="text-[13px] font-semibold text-white">
-        Expense Efficiency
-      </span>
-    </div>
+  <span className="text-[13px] font-semibold text-white">
+    Expense Efficiency
+  </span>
+
+<MetricInfoTooltip
+  definition="Measures how much trading profit was generated for every $1 spent on business expenses."
+  formula="Net Trading P&L ÷ Total Expenses"
+  calculation={`${currencySymbol}${metrics.netTradingPnL.toFixed(2)} ÷ ${currencySymbol}${metrics.totalExpenses.toFixed(2)} = ${metrics.expenseEfficiency.toFixed(1)}x`}
+  interpretation={`Every $1 spent on the trading business generated ${metrics.expenseEfficiency.toFixed(1)}x in trading profit.`}
+  className="translate-x-0 translate-y-0"
+/>
+</div>
 
     <span
       className={`
@@ -367,19 +377,27 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
   {/* Header */}
   <div className="flex items-center gap-2">
     <div
-      className={`
-        flex items-center gap-2
+  className={`
+    flex items-center gap-2
 
-        ${avgHeaderX}
-        ${avgHeaderY}
-      `}
-    >
-      <Target className="h-4 w-4 text-emerald-400" />
+    ${avgHeaderX}
+    ${avgHeaderY}
+  `}
+>
+  <Target className="h-4 w-4 text-emerald-400" />
 
-      <span className="text-[13px] font-semibold text-white">
-        Avg Cost / Trade
-      </span>
-    </div>
+  <span className="text-[13px] font-semibold text-white">
+    Avg Cost / Trade
+  </span>
+
+  <MetricInfoTooltip
+  definition="Average business cost incurred for every closed trade."
+  formula="(Commissions + Manual Expenses) ÷ Total Trades"
+  calculation={`${currencySymbol}${metrics.avgCostPerTrade.toFixed(2)} per trade across ${metrics.totalTrades} closed trades`}
+  interpretation={`Each closed trade costs an average of ${currencySymbol}${metrics.avgCostPerTrade.toFixed(2)} in commissions and operating expenses.`}
+  className="translate-x-0 translate-y-0"
+/>
+</div>
   </div>
 
   {/* Value */}
@@ -467,20 +485,28 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 <div className={`${cardClass} px-6 py-6`}>
   {/* Header */}
   <div className="flex items-center justify-between">
-    <div
-      className={`
-        flex items-center gap-2
+   <div
+  className={`
+    flex items-center gap-2
 
-        ${profitHeaderX}
-        ${profitHeaderY}
-      `}
-    >
-      <ShieldCheck className="h-4 w-4 text-violet-400" />
+    ${profitHeaderX}
+    ${profitHeaderY}
+  `}
+>
+  <ShieldCheck className="h-4 w-4 text-violet-400" />
 
-      <span className="text-[13px] font-semibold text-white">
-        Profit Retention
-      </span>
-    </div>
+  <span className="text-[13px] font-semibold text-white">
+    Profit Retention
+  </span>
+
+  <MetricInfoTooltip
+    definition="Shows the percentage of trading profits retained after business expenses."
+    formula="(Net Business Profit ÷ Net Trading P&L) × 100"
+    calculation={`(${currencySymbol}${metrics.netBusinessProfit.toFixed(2)} ÷ ${currencySymbol}${metrics.netTradingPnL.toFixed(2)}) × 100 = ${metrics.profitRetention.toFixed(1)}%`}
+    interpretation={`${metrics.profitRetention.toFixed(1)}% of trading profits were retained after business expenses.`}
+    className="translate-x-0 translate-y-0"
+  />
+</div>
 
     {/* Donut Placeholder */}
 
@@ -572,19 +598,27 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
   {/* Header */}
   <div className="flex items-center gap-2">
     <div
-      className={`
-        flex items-center gap-2
+  className={`
+    flex items-center gap-2
 
-        ${projectedHeaderX}
-        ${projectedHeaderY}
-      `}
-    >
-      <TrendingUp className="h-4 w-4 text-orange-400" />
+    ${projectedHeaderX}
+    ${projectedHeaderY}
+  `}
+>
+  <TrendingUp className="h-4 w-4 text-orange-400" />
 
-      <span className="text-[13px] font-semibold text-white">
-        Projected Annual
-      </span>
-    </div>
+  <span className="text-[13px] font-semibold text-white">
+    Projected Annual
+  </span>
+
+  <MetricInfoTooltip
+    definition="Estimated recurring business costs over the next 12 months based on active subscriptions."
+    formula="Monthly Recurring Expenses × 12"
+    calculation={`${currencySymbol}${metrics.monthlyRecurringExpenses.toFixed(2)} × 12 = ${currencySymbol}${metrics.projectedAnnualBurn.toFixed(2)}`}
+    interpretation={`Based on current recurring subscriptions, projected annual spending is ${currencySymbol}${metrics.projectedAnnualBurn.toFixed(2)}.`}
+    className="translate-x-0 translate-y-0"
+  />
+</div>
   </div>
 
   {/* Value */}
@@ -659,20 +693,28 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 <div className={`${cardClass} px-6 py-6`}>
   {/* Header */}
   <div className="flex items-center gap-2">
-    <div
-      className={`
-        flex items-center gap-2
+   <div
+  className={`
+    flex items-center gap-2
 
-        ${burnHeaderX}
-        ${burnHeaderY}
-      `}
-    >
-      <Flame className="h-4 w-4 text-red-400" />
+    ${burnHeaderX}
+    ${burnHeaderY}
+  `}
+>
+  <Flame className="h-4 w-4 text-red-400" />
 
-      <span className="text-[13px] font-semibold text-white">
-        Monthly Burn
-      </span>
-    </div>
+  <span className="text-[13px] font-semibold text-white">
+    Monthly Burn
+  </span>
+
+  <MetricInfoTooltip
+    definition="Average monthly operating cost since expense tracking began."
+    formula="Total Expenses ÷ Active Months"
+    calculation={`${currencySymbol}${metrics.totalExpenses.toFixed(2)} ÷ ${metrics.activeMonths} = ${currencySymbol}${metrics.monthlyBurn.toFixed(2)}`}
+    interpretation={`The business spends an average of ${currencySymbol}${metrics.monthlyBurn.toFixed(2)} per month since expense tracking began.`}
+    className="translate-x-0 translate-y-0"
+  />
+</div>
   </div>
 
   {/* Value */}

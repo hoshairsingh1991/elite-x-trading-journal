@@ -5,11 +5,15 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+
+
 type MetricInfoTooltipProps = {
   definition: string;
   formula: string;
   calculation: string;
   interpretation: string;
+
+  className?: string;
 };
 
 export default function MetricInfoTooltip({
@@ -17,7 +21,9 @@ export default function MetricInfoTooltip({
   formula,
   calculation,
   interpretation,
+  className,
 }: MetricInfoTooltipProps) {
+  
   const [isOpen, setIsOpen] = useState(false);
   const [portalReady, setPortalReady] =
     useState(false);
@@ -202,15 +208,17 @@ style={{
   return (
     <>
       <div
-        ref={triggerRef}
-        className="
-          relative
-          -translate-x-1
-          -translate-y-0.5
-        "
-        onMouseEnter={openTooltip}
-        onMouseLeave={closeTooltip}
-      >
+  ref={triggerRef}
+  className={`
+    relative
+    -translate-x-1
+    -translate-y-0.5
+
+    ${className ?? ""}
+  `}
+  onMouseEnter={openTooltip}
+  onMouseLeave={closeTooltip}
+>
         <button
           type="button"
           className="
