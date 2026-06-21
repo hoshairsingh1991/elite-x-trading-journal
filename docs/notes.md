@@ -150,6 +150,7 @@ git commit -m "feat(expenses): add intelligence card tooltips"
 git commit -m "fix(expenses): resolve daily recurring expense infinite loop"
 git commit -m "feat(expenses): implement recurring expense generation engine"
 git commit -m "feat(expenses): complete recurring expense engine with catch-up generation and soft delete protection"
+git commit -m "feat(expenses): complete recurring expense engine"
 
 ------------------------------------------------------------------
 

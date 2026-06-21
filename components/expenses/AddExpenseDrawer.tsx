@@ -242,7 +242,7 @@ const [frequency, setFrequency] =
 
 
 const [isTaxDeductible, setIsTaxDeductible] =
-  useState(true);
+  useState(false);
 
 const [deductiblePercent, setDeductiblePercent] =
   useState("100");
@@ -270,7 +270,7 @@ if (!editingExpense) {
   setIsRecurring(false);
   setFrequency("");
 
-  setIsTaxDeductible(true);
+  setIsTaxDeductible(false);
   setDeductiblePercent("100");
 
   setNotes("");
@@ -308,8 +308,8 @@ if (!editingExpense) {
 
 
   setIsTaxDeductible(
-    editingExpense.is_tax_deductible ?? true
-  );
+  editingExpense.is_tax_deductible ?? false
+);
 
   setDeductiblePercent(
     editingExpense.deductible_percent?.toString() ?? "100"
