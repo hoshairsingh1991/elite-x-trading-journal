@@ -614,7 +614,7 @@ return (
           ${confidenceTextY}
         `}
       >
-        High Confidence
+        Profile Configured
       </span>
     </div>
 
