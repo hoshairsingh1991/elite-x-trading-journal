@@ -1005,3 +1005,73 @@ git commit -m "feat(tax): add tax profile persistence and drawer foundation"
 ✅ Edit button wiring
 ✅ Tax Settings drawer foundation
 ========================================================= =========================================================
+git commit -m "feat(tax): complete tax settings drawer v1"
+CHECKPOINT: TAX SETTINGS DRAWER V1 COMPLETE
+
+Completed:
+
+- Created TaxSettingsDrawer.tsx
+- Added Country selection
+  - Canada
+  - United States
+  - Other
+
+- Added Province / State support
+  - Canadian provinces
+  - US states
+  - Free text for Other
+
+- Added Tax Entity Types
+  - Individual
+  - Sole Proprietorship
+  - Corporation
+  - Partnership
+  - Trust
+  - Other
+
+- Added Marginal Tax Rate input
+
+- Added Tax Rate Preset Buttons
+  - 20%
+  - 30%
+  - 40%
+  - 50%
+
+- Added selected preset highlighting
+
+- Replaced hardcoded tax years with dynamic year generation
+  - Current Year ± 5 years
+
+- Added Reset button
+
+Supabase Fixes:
+
+- Fixed duplicate tax profile issue
+- Removed duplicate rows
+- Added UNIQUE constraint on user_tax_profiles.user_id
+- Updated upsert with onConflict: "user_id"
+
+Result:
+- One user = one tax profile
+- Save works
+- Load works
+- Refresh persistence works
+
+Tax Deductible Summary Fix:
+
+Added entity type display formatter
+
+Display values:
+- Sole Proprietorship → Sole Prop.
+- Corporation → Corp.
+- Partnership → Partner.
+
+Database values remain unchanged.
+
+Status:
+
+✅ Tax Settings Drawer complete
+✅ Persistence complete
+✅ Summary card integration complete
+✅ Ready for next Expenses module enhancements
+========================================================= =========================================================

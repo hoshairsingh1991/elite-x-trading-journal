@@ -1,31 +1,171 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import {
-  TaxProfile,
-} from "@/lib/types/taxProfile";
+import { X, ChevronDown } from "lucide-react";
 
 import {
   loadTaxProfile,
   saveTaxProfile,
 } from "@/lib/storage/supabaseTaxProfileStorage";
 
+// ==========================================
+// TYPES
+// ==========================================
+
 interface TaxSettingsDrawerProps {
   open: boolean;
-
   onClose: () => void;
-
   onSaved: () => void;
 }
+
+// ==========================================
+// HEADER
+// ==========================================
+
+const headerPaddingX = "px-7";
+const headerPaddingTop = "pt-6";
+const headerPaddingBottom = "pb-5";
+
+const titleX = "translate-x-2";
+const titleY = "translate-y-2";
+
+const subtitleX = "translate-x-2";
+const subtitleY = "translate-y-2";
+
+const closeButtonX = "-translate-x-2";
+const closeButtonY = "translate-y-2";
+
+const titleSize = "text-[28px]";
+const subtitleSize = "text-[14px]";
+
+const closeButtonSize = "h-8 w-8";
+const closeIconSize = 20;
+
+const headerDividerY = "translate-y-2";
+
+// ==========================================
+// TAX PROFILE SECTION
+// ==========================================
+
+const taxProfileSectionX = "translate-x-0";
+const taxProfileSectionY = "translate-y-0";
+
+const taxProfileHeaderX = "translate-x-3";
+const taxProfileHeaderY = "translate-y-4";
+
+const countryX = "translate-x-3";
+const countryY = "translate-y-6";
+const countryWidth = "w-full";
+const countryHeight = "h-[50px]";
+
+const provinceX = "translate-x-3";
+const provinceY = "translate-y-8";
+const provinceWidth = "w-full";
+const provinceHeight = "h-[50px]";
+
+const entityTypeX = "translate-x-3";
+const entityTypeY = "translate-y-10";
+const entityTypeWidth = "w-full";
+const entityTypeHeight = "h-[50px]";
+
+const taxRateX = "translate-x-3";
+const taxRateY = "translate-y-12";
+const taxRateWidth = "w-full";
+const taxRateHeight = "h-[50px]";
+
+const taxYearX = "translate-x-3";
+const taxYearY = "translate-y-14";
+const taxYearWidth = "w-full";
+const taxYearHeight = "h-[50px]";
+
+// ==========================================
+// PREVIEW CARD
+// ==========================================
+
+const previewCardX = "translate-x-3";
+const previewCardY = "translate-y-16";
+
+// ==========================================
+// ADVANCED SETTINGS
+// ==========================================
+
+const advancedDividerY = "translate-y-18";
+
+const advancedHeaderX = "translate-x-3";
+const advancedHeaderY = "translate-y-20";
+
+const advancedCardX = "translate-x-3";
+const advancedCardY = "translate-y-22";
+
+// ==========================================
+// FOOTER
+// ==========================================
+
+const footerX = "translate-x-0";
+const footerY = "-translate-y-4";
+
+const cancelButtonX = "translate-x-22";
+const cancelButtonY = "translate-y-2";
+const cancelButtonWidth = "w-[120px]";
+const cancelButtonHeight = "h-10";
+
+const saveButtonX = "translate-x-22";
+const saveButtonY = "translate-y-2";
+const saveButtonWidth = "w-[140px]";
+const saveButtonHeight = "h-10";
+
+// ==========================================
+// OPTIONS
+// ==========================================
+
+const CANADA_PROVINCES = [
+  "Ontario",
+  "Alberta",
+  "British Columbia",
+  "Quebec",
+  "Manitoba",
+  "Saskatchewan",
+  "Nova Scotia",
+  "New Brunswick",
+  "Newfoundland and Labrador",
+  "Prince Edward Island",
+  "Yukon",
+  "Northwest Territories",
+  "Nunavut",
+];
+
+const US_STATES = [
+  "California",
+  "Texas",
+  "Florida",
+  "New York",
+  "Washington",
+  "Nevada",
+  "Illinois",
+  "Arizona",
+  "Georgia",
+  "North Carolina",
+];
+
+const currentYear =
+  new Date().getFullYear();
+
+const taxYears =
+  Array.from(
+    { length: 11 },
+    (_, i) =>
+      currentYear - 5 + i
+  );
+
+// ==========================================
+// COMPONENT
+// ==========================================
 
 export default function TaxSettingsDrawer({
   open,
   onClose,
   onSaved,
 }: TaxSettingsDrawerProps) {
-
-
   const [country, setCountry] =
     useState("Canada");
 
@@ -50,14 +190,11 @@ export default function TaxSettingsDrawer({
   const [saving, setSaving] =
     useState(false);
 
-
-
   useEffect(() => {
     if (!open) return;
 
     async function fetchProfile() {
       try {
-
         setLoading(true);
 
         const profile =
@@ -66,131 +203,481 @@ export default function TaxSettingsDrawer({
         if (!profile) return;
 
         setCountry(
-          profile.country
+          profile.country ?? "Canada"
         );
 
         setCountryCode(
-          profile.country_code
+          profile.country_code ?? "CA"
         );
 
         setProvince(
-          profile.province
+          profile.province ?? "Ontario"
         );
 
         setEntityType(
-          profile.entity_type
+          profile.entity_type ??
+            "Individual"
         );
 
         setTaxRate(
-          profile.tax_rate
+          Number(
+            profile.tax_rate ?? 30
+          )
         );
 
         setTaxYear(
-          profile.tax_year
+          Number(
+            profile.tax_year ?? 2026
+          )
         );
-
       } catch (error) {
-
-        console.error(
-          "Failed to load tax profile:",
-          error
-        );
-
+        console.error(error);
       } finally {
-
         setLoading(false);
-
       }
     }
 
     fetchProfile();
-
   }, [open]);
 
   async function handleSave() {
-    try {
+  try {
+    setSaving(true);
 
-      setSaving(true);
+    await saveTaxProfile({
+      country,
+      country_code: countryCode,
+      province,
+      entity_type: entityType,
+      tax_rate: Number(taxRate),
+      tax_year: Number(taxYear),
+    });
 
-      await saveTaxProfile({
-        country,
-        country_code: countryCode,
-
-        province,
-
-        entity_type: entityType,
-
-        tax_rate: taxRate,
-
-        tax_year: taxYear,
-      });
-
-      onSaved();
-      onClose();
-
-    } catch (error) {
-
-      console.error(
-        "Failed to save tax profile:",
-        error
-      );
-
-    } finally {
-
-      setSaving(false);
-
-    }
+    onSaved();
+    onClose();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setSaving(false);
   }
+}
+
+function handleReset() {
+  setCountry("Canada");
+
+  setCountryCode("CA");
+
+  setProvince("Ontario");
+
+  setEntityType("Individual");
+
+  setTaxRate(30);
+
+  setTaxYear(
+    new Date().getFullYear()
+  );
+}
+
+  const inputCenter =
+    "h-[50px] w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
+
+  const label =
+    "mb-2.5 block text-[14px] font-medium text-slate-200";
+
+  const estimatedSavings =
+    (1000 * Number(taxRate || 0)) /
+    100;
 
   return (
-  <>
+    <>
+      <div
+        onClick={onClose}
+        className={`fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm transition-all duration-300 ${
+          open
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
+        }`}
+      />
+
+      <aside
+        className={`fixed right-0 top-0 z-[9999] h-screen w-[520px] max-w-[96vw] border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
+          open
+            ? "translate-x-0"
+            : "translate-x-full"
+        }`}
+      >
+        <div className="flex h-full flex-col">
+
+{/* HEADER */}
+
+<div
+  className={`${headerPaddingX} ${headerPaddingTop} ${headerPaddingBottom}`}
+>
+  <div className="flex items-start justify-between">
+    <div>
+      <h2
+        className={`${titleSize} font-bold leading-none tracking-tight text-white transform ${titleX} ${titleY}`}
+      >
+        Tax Settings
+      </h2>
+
+      <p
+        className={`mt-2 ${subtitleSize} text-slate-400 transform ${subtitleX} ${subtitleY}`}
+      >
+        Configure tax profile assumptions
+      </p>
+    </div>
+
     <div
-      onClick={onClose}
-      className={`fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm transition-all duration-300 ${
-        open
-          ? "pointer-events-auto opacity-100"
-          : "pointer-events-none opacity-0"
-      }`}
+      className={`transform ${closeButtonX} ${closeButtonY}`}
+    >
+      <button
+        onClick={onClose}
+        className={`flex ${closeButtonSize} items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-slate-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white`}
+      >
+        <X size={closeIconSize} />
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  className={`border-b border-white/10 transform ${headerDividerY}`}
+/>
+
+<div className="flex-1 overflow-y-auto">
+  <div className="mx-auto w-[95%] px-5 py-6">
+
+<section
+  className={`mb-10 transform ${taxProfileSectionX} ${taxProfileSectionY}`}
+>
+  <h3
+    className={`mb-6 text-[13px] font-semibold uppercase tracking-[0.18em] text-slate-400 transform ${taxProfileHeaderX} ${taxProfileHeaderY}`}
+  >
+    Tax Profile
+  </h3>
+  {/* COUNTRY */}
+
+<div
+  className={`mb-5 transform ${countryX} ${countryY}`}
+>
+  <label className={label}>
+    Country
+  </label>
+
+  <div className="relative">
+    <select
+      value={country}
+      onChange={(e) => {
+        const value =
+          e.target.value;
+
+        setCountry(value);
+
+        if (value === "Canada") {
+          setCountryCode("CA");
+          setProvince("Ontario");
+        } else if (
+          value ===
+          "United States"
+        ) {
+          setCountryCode("US");
+          setProvince(
+            "California"
+          );
+        } else {
+          setCountryCode(
+            "OTHER"
+          );
+          setProvince("");
+        }
+      }}
+      className={`${inputCenter} ${countryWidth} ${countryHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+    >
+      <option value="Canada">
+        🇨🇦 Canada
+      </option>
+
+      <option value="United States">
+        🇺🇸 United States
+      </option>
+
+      <option value="Other">
+        🌍 Other
+      </option>
+    </select>
+
+    <ChevronDown
+      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+    />
+  </div>
+</div>
+
+{/* PROVINCE / STATE */}
+
+<div
+  className={`mb-5 transform ${provinceX} ${provinceY}`}
+>
+  <label className={label}>
+    Province / State
+  </label>
+
+  {country === "Other" ? (
+    <input
+      value={province}
+      onChange={(e) =>
+        setProvince(
+          e.target.value
+        )
+      }
+      className={`${inputCenter} ${provinceWidth} ${provinceHeight}`}
+      placeholder="Enter region or state"
+    />
+  ) : (
+    <div className="relative">
+      <select
+        value={province}
+        onChange={(e) =>
+          setProvince(
+            e.target.value
+          )
+        }
+        className={`${inputCenter} ${provinceWidth} ${provinceHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+      >
+        {(country ===
+        "Canada"
+          ? CANADA_PROVINCES
+          : US_STATES
+        ).map((item) => (
+          <option
+            key={item}
+            value={item}
+          >
+            {item}
+          </option>
+        ))}
+      </select>
+
+      <ChevronDown
+        className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+      />
+    </div>
+  )}
+</div>
+
+{/* ENTITY TYPE */}
+
+<div
+  className={`mb-5 transform ${entityTypeX} ${entityTypeY}`}
+>
+  <label className={label}>
+    Tax Entity Type
+  </label>
+
+  <div className="relative">
+    <select
+      value={entityType}
+      onChange={(e) =>
+        setEntityType(
+          e.target.value
+        )
+      }
+      className={`${inputCenter} ${entityTypeWidth} ${entityTypeHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+    >
+     <option value="Individual">
+  Individual
+</option>
+
+<option value="Sole Proprietorship">
+  Sole Proprietorship
+</option>
+
+<option value="Corporation">
+  Corporation
+</option>
+
+<option value="Partnership">
+  Partnership
+</option>
+
+<option value="Trust">
+  Trust
+</option>
+
+<option value="Other">
+  Other
+</option>
+    </select>
+
+    <ChevronDown
+      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+    />
+  </div>
+</div>
+
+{/* TAX RATE */}
+
+<div
+  className={`mb-5 transform ${taxRateX} ${taxRateY}`}
+>
+  <label className={label}>
+    Marginal Tax Rate
+  </label>
+
+  <div className="relative">
+    <input
+      type="number"
+      min="0"
+      max="100"
+      step="0.01"
+      value={taxRate}
+      onChange={(e) =>
+        setTaxRate(
+          Number(
+            e.target.value
+          )
+        )
+      }
+      className={`${inputCenter} ${taxRateWidth} ${taxRateHeight}`}
+      placeholder="30"
     />
 
-    <aside
-      className={`fixed right-0 top-0 z-[9999] h-screen w-[500px] max-w-[96vw] border-l border-white/10 bg-[#0B1220] transition-transform duration-300 ${
-        open
-          ? "translate-x-0"
-          : "translate-x-full"
-      }`}
+    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+      %
+    </span>
+  </div>
+
+  <p className="mt-3 text-xs text-slate-500">
+    Used to estimate tax
+    savings from deductible
+    expenses.
+  </p>
+  <div className="mt-3 flex gap-2">
+  {[20, 30, 40, 50].map((rate) => (
+    <button
+      key={rate}
+      type="button"
+      onClick={() =>
+        setTaxRate(rate)
+      }
+      className={`h-[36px] w-[70px] rounded-lg border text-xs font-medium transition-all ${
+  taxRate === rate
+    ? "border-blue-500 bg-blue-500/15 text-blue-300"
+    : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]"
+}`}
     >
-      <div className="flex items-center justify-between border-b border-white/10 p-6">
-        <div>
-          <div className="text-lg font-semibold text-white">
-            Tax Settings
-          </div>
+      {rate}%
+    </button>
+  ))}
+</div>
+</div>
 
-          <div className="mt-1 text-sm text-slate-400">
-            Configure tax profile assumptions
-          </div>
-        </div>
+{/* TAX YEAR */}
 
-        <button
-          onClick={onClose}
-          className="rounded-lg border border-white/10 px-3 py-2 text-sm text-white hover:bg-white/5"
-        >
-          Close
-        </button>
-      </div>
+<div
+  className={`mb-5 transform ${taxYearX} ${taxYearY}`}
+>
+  <label className={label}>
+    Tax Year
+  </label>
 
-            <div className="p-6">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-          <div className="text-sm text-slate-400">
-            Country
-          </div>
+  <div className="relative">
+    <select
+      value={taxYear}
+      onChange={(e) =>
+        setTaxYear(
+          Number(
+            e.target.value
+          )
+        )
+      }
+      className={`${inputCenter} ${taxYearWidth} ${taxYearHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
+    >
+      {taxYears.map((year) => (
+  <option
+    key={year}
+    value={year}
+  >
+    {year}
+  </option>
+))}
+    </select>
 
-          <div className="mt-2 text-white">
-            {country}
-          </div>
-        </div>
-      </div>
-    </aside>
-  </>
-);
+    <ChevronDown
+      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+    />
+  </div>
+</div>
+
+</section>
+
+
+
+{/* BOTTOM SPACER */}
+
+<div className="h-8" />
+
+{/* CLOSE BODY WRAPPER */}
+
+</div>
+
+{/* CLOSE SCROLLABLE BODY */}
+
+</div>
+
+{/* FOOTER */}
+
+<div
+  className={`border-t border-white/10 bg-[#07111d] px-8 py-5 transform ${footerX} ${footerY}`}
+>
+  <div className="flex gap-4">
+  <div
+    className={`transform ${cancelButtonX} ${cancelButtonY}`}
+  >
+    <button
+      onClick={onClose}
+      className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-xl border border-white/10 text-white transition-all duration-200 hover:bg-white/[0.04]`}
+    >
+      Cancel
+    </button>
+  </div>
+
+  <div
+    className={`transform ${cancelButtonX} ${cancelButtonY}`}
+  >
+    <button
+      type="button"
+      onClick={handleReset}
+      className="h-10 w-[120px] rounded-xl border border-white/10 text-white transition-all duration-200 hover:bg-white/[0.04]"
+    >
+      Reset
+    </button>
+  </div>
+
+  <div
+    className={`flex-1 transform ${saveButtonX} ${saveButtonY}`}
+  >
+      <button
+        onClick={handleSave}
+        disabled={
+          loading || saving
+        }
+        className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 font-semibold text-white transition-all duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
+      >
+        {saving
+          ? "Saving..."
+          : "Save Changes"}
+      </button>
+    </div>
+  </div>
+</div>
+
+{/* CLOSE FLEX CONTAINER */}
+
+</div>
+
+</aside>
+
+</>
+  );
 }

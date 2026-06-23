@@ -157,6 +157,10 @@ git commit -m "feat(expenses): finalize overview section layout and breakdown ca
 git commit -m "feat(expenses): complete Tax Deductible Summary redesign with KPI cards, deductible donut, tax profile, calculation basis, disclaimer, and tuning controls"
 
 git commit -m "feat(expenses): complete Tax Deductible Summary redesign and interactions"
+
+git commit -m "feat(tax): add tax profile persistence and drawer foundation"
+git commit -m "feat(tax): complete tax settings drawer v1"
+
 ------------------------------------------------------------------
 
 Status:

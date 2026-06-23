@@ -65,9 +65,10 @@ export async function saveTaxProfile(
     return;
   }
 
-  const { error } = await supabase
-    .from("user_tax_profiles")
-    .upsert({
+const { error } = await supabase
+  .from("user_tax_profiles")
+  .upsert(
+    {
       user_id: user.id,
 
       country: profile.country,
@@ -82,7 +83,11 @@ export async function saveTaxProfile(
       tax_year: profile.tax_year,
 
       updated_at: new Date().toISOString(),
-    });
+    },
+    {
+      onConflict: "user_id",
+    }
+  );
 
   if (error) {
     console.error(

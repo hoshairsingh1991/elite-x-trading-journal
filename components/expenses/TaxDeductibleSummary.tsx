@@ -381,7 +381,7 @@ const divider3Height = "h-9";
    YEAR
    ===================================================== */
 
-const yearSectionX = "translate-x-20";
+const yearSectionX = "translate-x-18";
 const yearSectionY = "translate-y-1";
 const yearSectionWidth = "w-auto";
 
@@ -505,7 +505,23 @@ const disclaimerTextY = "-translate-y-9";
 
 const disclaimerTextFontSize = "text-[11px]";
 
+function getEntityTypeDisplay(
+  entityType?: string
+) {
+  switch (entityType) {
+    case "Sole Proprietorship":
+      return "Sole Prop.";
 
+    case "Corporation":
+      return "Corp.";
+
+    case "Partnership":
+      return "Partner.";
+
+    default:
+      return entityType ?? "Individual";
+  }
+}
 
 return (
   <div
@@ -1177,7 +1193,9 @@ return (
           ${entityValueY}
         `}
       >
-        {taxProfile?.entity_type ?? "Individual"}
+        {getEntityTypeDisplay(
+  taxProfile?.entity_type
+)}
       </div>
 
       <div
