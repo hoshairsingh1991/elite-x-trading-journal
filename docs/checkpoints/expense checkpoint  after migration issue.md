@@ -982,6 +982,7 @@ What We Finished
 ========================================================= =========================================================
 
 git commit -m "feat(expenses): complete Tax Deductible Summary redesign and interactions"
+
 Checkpoint Notes
 
 Checkpoint: Tax Deductible Summary V1 Final
@@ -994,4 +995,13 @@ Disclaimer redesigned
 Consistent icon system implemented
 Full positioning control architecture added
 Ready for Edit Tax Profile workflow
+========================================================= =========================================================
+git commit -m "feat(tax): add tax profile persistence and drawer foundation"
+✅ user_tax_profiles table
+✅ Tax profile types
+✅ Supabase storage layer
+✅ Auto-create default profile
+✅ Tax card reads from profile
+✅ Edit button wiring
+✅ Tax Settings drawer foundation
 ========================================================= =========================================================

@@ -24,9 +24,22 @@ import {
   generateExpenseAnalytics,
 } from "@/lib/analytics/expenseAnalytics";
 
+import TaxSettingsDrawer from "./TaxSettingsDrawer";
+
 import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
+
+import { useEffect, useState } from "react";
+
+import {
+  TaxProfile,
+} from "@/lib/types/taxProfile";
+
+import {
+  loadTaxProfile,
+  saveTaxProfile,
+} from "@/lib/storage/supabaseTaxProfileStorage";
 
 interface TaxDeductibleSummaryProps {
   expenses: Expense[];
@@ -37,6 +50,62 @@ export default function TaxDeductibleSummary({
   expenses,
   reportingCurrency,
 }: TaxDeductibleSummaryProps) {
+
+  const [taxProfile, setTaxProfile] =
+  useState<TaxProfile | null>(null);
+
+  const [isTaxSettingsOpen, setIsTaxSettingsOpen] =
+  useState(false);
+
+
+ useEffect(() => {
+  async function fetchTaxProfile() {
+    try {
+
+      const profile =
+        await loadTaxProfile();
+
+     if (profile) {
+
+  setTaxProfile(profile);
+
+} else {
+
+  console.log(
+    "NO TAX PROFILE FOUND - CREATING DEFAULT PROFILE"
+  );
+
+  await saveTaxProfile({
+    country: "Canada",
+    country_code: "CA",
+
+    province: "Ontario",
+
+    entity_type: "Individual",
+
+    tax_rate: 30,
+
+    tax_year: 2026,
+  });
+
+  const newProfile =
+    await loadTaxProfile();
+
+  if (newProfile) {
+    setTaxProfile(newProfile);
+  }
+}
+
+    } catch (error) {
+      console.error(
+        "Failed to load tax profile:",
+        error
+      );
+    }
+  }
+
+  fetchTaxProfile();
+}, []);
 
 
 const analytics =
@@ -58,7 +127,8 @@ const nonDeductibleAmount =
 const ringPercent =
   analytics.deductiblePercent;
 
-const TAX_RATE = 30;
+const TAX_RATE =
+  taxProfile?.tax_rate ?? 30;
 
 const estimatedTaxBenefit =
   deductibleAmount *
@@ -439,23 +509,22 @@ const disclaimerTextFontSize = "text-[11px]";
 
 return (
   <div
-  className="
-    h-[570px]
-    rounded-3xl
-    border
-    border-white/10
-    bg-[#0B1220]
-    p-8
+    className="
+      h-[570px]
+      rounded-3xl
+      border
+      border-white/10
+      bg-[#0B1220]
+      p-8
 
-    transition-all
-    duration-300
-    ease-out
+      transition-all
+      duration-300
 
-    hover:-translate-y-1
-    hover:border-white/20
-    hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)]
-  "
->
+      hover:border-white/20
+      hover:bg-[#0D1526]
+      hover:shadow-[0_16px_40px_rgba(0,0,0,0.30)]
+    "
+  >
    {/* HEADER */}
 
 <div
@@ -536,35 +605,35 @@ return (
     {/* EDIT BUTTON */}
 
     <button
-      className={`
-        ${editButtonWidth}
-        ${editButtonHeight}
+  onClick={() =>
+    setIsTaxSettingsOpen(true)
+  }
+  className={`
+    ${editButtonWidth}
+    ${editButtonHeight}
 
-        flex
-        items-center
-        justify-center
-        gap-2
+    rounded-xl
+    border
+    border-white/10
+    px-3
+    py-1.5
 
-        rounded-2xl
-        border
-        border-white/10
-        bg-white/[0.02]
+    text-[12px]
+    font-medium
+    text-white
 
-        text-white
+    transition-colors
+    hover:bg-white/5
 
-        transition-colors
-        hover:bg-white/[0.04]
-
-        ${editButtonX}
-        ${editButtonY}
-      `}
-    >
-      <Pencil className="h-4 w-4" />
-
-      <span className="text-[14px] font-medium">
-        Edit
-      </span>
-    </button>
+    ${editButtonX}
+    ${editButtonY}
+  `}
+>
+  <div className="flex items-center justify-center gap-2">
+    <Pencil className="h-3.5 w-3.5" />
+    Edit
+  </div>
+</button>
 
   </div>
 </div>
@@ -1032,7 +1101,7 @@ return (
           ${provinceValueY}
         `}
       >
-        Ontario
+        {taxProfile?.province ?? "Ontario"}
       </div>
 
       <div
@@ -1108,7 +1177,7 @@ return (
           ${entityValueY}
         `}
       >
-        Individual
+        {taxProfile?.entity_type ?? "Individual"}
       </div>
 
       <div
@@ -1184,7 +1253,7 @@ return (
           ${yearValueY}
         `}
       >
-        2026
+        {taxProfile?.tax_year ?? 2026}
 </div>
 
 <div
@@ -1508,8 +1577,23 @@ return (
       Actual tax treatment may vary by country, province/state, and accountant.
     </div>
 
-  </div>
+   </div>
 </div>
+
+<TaxSettingsDrawer
+  open={isTaxSettingsOpen}
+  onClose={() =>
+    setIsTaxSettingsOpen(false)
+  }
+  onSaved={async () => {
+    const profile =
+      await loadTaxProfile();
+
+    if (profile) {
+      setTaxProfile(profile);
+    }
+  }}
+/>
 
 </div>
 
