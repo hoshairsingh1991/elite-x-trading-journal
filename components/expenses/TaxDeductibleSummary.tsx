@@ -133,10 +133,10 @@ const leftColumnGap = "gap-3";
    ===================================================== */
 
 const deductibleCardX = "translate-x-3";
-const deductibleCardY = "translate-y-5";
+const deductibleCardY = "translate-y-4";
 
 const deductibleCardWidth = "w-full";
-const deductibleCardHeight = "h-[100px]";
+const deductibleCardHeight = "h-[95px]";
 
 const deductibleTitleX = "translate-x-6";
 const deductibleTitleY = "translate-y-2";
@@ -164,7 +164,7 @@ const benefitCardX = "translate-x-3";
 const benefitCardY = "translate-y-5";
 
 const benefitCardWidth = "w-full";
-const benefitCardHeight = "h-[100px]";
+const benefitCardHeight = "h-[95px]";
 
 const benefitTitleX = "translate-x-6";
 const benefitTitleY = "translate-y-2";
@@ -189,7 +189,7 @@ const benefitSubtitleFontSize = "text-[12px]";
    ===================================================== */
 
 const donutContainerX = "translate-x-0";
-const donutContainerY = "translate-y-8";
+const donutContainerY = "translate-y-6";
 
 const donutContainerWidth = "w-[45%]";
 const donutContainerHeight = "h-auto";
@@ -215,7 +215,7 @@ const donutBottomTextFontSize = "text-[14px]";
    ===================================================== */
 
 const taxProfileX = "translate-x-3";
-const taxProfileY = "translate-y-9";
+const taxProfileY = "translate-y-8";
 
 const taxProfileWidth = "w-[95%]";
 const taxProfileHeight = "h-[90px]";
@@ -336,7 +336,7 @@ const yearLabelFontSize = "text-[10px]";
 /* CARD */
 
 const calculationCardX = "translate-x-3";
-const calculationCardY = "translate-y-13";
+const calculationCardY = "translate-y-11";
 
 const calculationCardWidth = "w-[95%]";
 const calculationCardHeight = "h-[100px]";
@@ -418,13 +418,13 @@ const calculationResultLabelY = "translate-y-2";
    ===================================================== */
 
 const disclaimerX = "translate-x-3";
-const disclaimerY = "translate-y-17";
+const disclaimerY = "translate-y-15";
 
 const disclaimerWidth = "w-[95%]";
-const disclaimerHeight = "h-[80px]";
+const disclaimerHeight = "h-[60px]";
 
 const disclaimerIconX = "translate-x-4";
-const disclaimerIconY = "translate-y-4";
+const disclaimerIconY = "translate-y-2";
 
 const disclaimerIconSize = "h-10 w-10";
 
@@ -433,21 +433,29 @@ const disclaimerTextWidth = "w-[85%]";
 const disclaimerTextX = "translate-x-16";
 const disclaimerTextY = "-translate-y-9";
 
-const disclaimerTextFontSize = "text-[12px]";
+const disclaimerTextFontSize = "text-[11px]";
 
 
 
 return (
   <div
-    className="
-      h-[610px]
-      rounded-3xl
-      border
-      border-white/10
-      bg-[#0B1220]
-      p-8
-    "
-  >
+  className="
+    h-[570px]
+    rounded-3xl
+    border
+    border-white/10
+    bg-[#0B1220]
+    p-8
+
+    transition-all
+    duration-300
+    ease-out
+
+    hover:-translate-y-1
+    hover:border-white/20
+    hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)]
+  "
+>
    {/* HEADER */}
 
 <div

@@ -58,7 +58,7 @@ const [recurringFilter, setRecurringFilter] = useState("All");
 const [dateFilter, setDateFilter] = useState("All");
 
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 10;
 
 // =====================================================
 // FILTERED EXPENSES
