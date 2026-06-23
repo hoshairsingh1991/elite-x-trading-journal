@@ -951,3 +951,32 @@ Expenses Overview Section V2
 ✓ Institutional dashboard spacing improvements
 ✓ Ready for future progress-bar enhancement
 ========================================================= =========================================================
+
+git commit -m "feat(expenses): complete Tax Deductible Summary redesign with KPI cards, deductible donut, tax profile, calculation basis, disclaimer, and tuning controls"
+What We Finished
+
+✅ Header redesign
+
+✅ High Confidence badge
+
+✅ Edit button placeholder
+
+✅ Tax Deductible Total card
+
+✅ Estimated Tax Benefit card
+
+✅ Premium icons
+
+✅ Donut visualization
+
+✅ Tax Profile redesign
+
+✅ Calculation Basis redesign
+
+✅ Disclaimer redesign
+
+✅ Full tuning architecture (X/Y controls)
+
+✅ Consistent visual language across Expenses page
+
+========================================================= =========================================================

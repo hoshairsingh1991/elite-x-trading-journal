@@ -152,6 +152,11 @@ git commit -m "feat(expenses): implement recurring expense generation engine"
 git commit -m "feat(expenses): complete recurring expense engine with catch-up generation and soft delete protection"
 git commit -m "feat(expenses): complete recurring expense engine"
 
+git commit -m "feat(expenses): finalize overview section layout and breakdown cards"
+
+git commit -m "feat(expenses): complete Tax Deductible Summary redesign with KPI cards, deductible donut, tax profile, calculation basis, disclaimer, and tuning controls"
+
+
 ------------------------------------------------------------------
 
 Status:

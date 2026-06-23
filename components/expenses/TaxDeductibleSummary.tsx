@@ -2,6 +2,24 @@
 
 import type { Expense } from "@/lib/types/expense";
 
+import { Calculator } from "lucide-react";
+
+import { TrendingUp } from "lucide-react";
+
+import { BadgeDollarSign } from "lucide-react";
+import { PiggyBank } from "lucide-react";
+import { FileText } from "lucide-react";
+
+import { ShieldCheck, Pencil } from "lucide-react";
+
+import {
+  Percent,
+  MapPin,
+  User,
+  Calendar,
+} from "lucide-react";
+
+
 import {
   generateExpenseAnalytics,
 } from "@/lib/analytics/expenseAnalytics";
@@ -40,340 +58,1452 @@ const nonDeductibleAmount =
 const ringPercent =
   analytics.deductiblePercent;
 
-const estimatedTaxSavings =
-  deductibleAmount * 0.30;
+const TAX_RATE = 30;
+
+const estimatedTaxBenefit =
+  deductibleAmount *
+  (TAX_RATE / 100);
+
+const monthlyTaxBenefit =
+  estimatedTaxBenefit / 12;
 
 /* =====================================================
-   FINE TUNING
+   CONFIDENCE BADGE
    ===================================================== */
 
-const cardHeight = "h-[340px]";
 
-const headerX = "translate-x-2";
-const headerY = "translate-y-2";
 
-const topSectionX = "translate-x-4";
-const topSectionY = "translate-y-12";
+const confidenceIconX = "translate-x-0";
+const confidenceIconY = "translate-y-0";
 
-const leftPanelWidth = "w-[35%]";
-const rightPanelWidth = "w-[40%]";
+const confidenceIconSize = "h-5 w-5";
 
-const metricCardHeight = "h-[80px]";
+const confidenceTextX = "translate-x-0";
+const confidenceTextY = "translate-y-0";
 
-const ringOuter = 170;
-const ringInner = 126;
+const confidenceTextFontSize = "text-[14px]";
 
-const legendX = "translate-x-6";
-const legendY = "translate-y-20";
+const confidenceBadgeWidth = "w-38";
+const confidenceBadgeHeight = "h-10";
+
+const confidenceBadgeX = "-translate-x-3";
+const confidenceBadgeY = "translate-y-2";
 
 /* =====================================================
-   POSITION CONTROLS
+   HEADER
    ===================================================== */
 
-// Donut
-const donutX = "-translate-x-14";
-const donutY = "translate-y-0";
+const headerContainerX = "translate-x-0";
+const headerContainerY = "translate-y-0";
 
-// Tax Deductible Total
-const deductibleCardX = "translate-x-0";
-const deductibleCardY = "translate-y-0";
-const deductibleValueX = "translate-x-4";
+const titleX = "translate-x-4";
+const titleY = "translate-y-2";
+
+
+
+
+const editButtonX = "-translate-x-4";
+const editButtonY = "translate-y-2";
+
+const editButtonWidth = "w-18";
+const editButtonHeight = "h-10";
+
+/* =====================================================
+   TOP SECTION
+   ===================================================== */
+
+const topSectionX = "translate-x-0";
+const topSectionY = "translate-y-0";
+
+const topSectionWidth = "w-[96%]";
+const topSectionGap = "gap-0";
+
+/* =====================================================
+   LEFT COLUMN
+   ===================================================== */
+
+const leftColumnX = "translate-x-0";
+const leftColumnY = "translate-y-0";
+
+const leftColumnWidth = "w-[48%]";
+const leftColumnGap = "gap-3";
+
+/* =====================================================
+   DEDUCTIBLE CARD
+   ===================================================== */
+
+const deductibleCardX = "translate-x-3";
+const deductibleCardY = "translate-y-5";
+
+const deductibleCardWidth = "w-full";
+const deductibleCardHeight = "h-[100px]";
+
+const deductibleTitleX = "translate-x-6";
+const deductibleTitleY = "translate-y-2";
+
+const deductibleValueX = "translate-x-6";
 const deductibleValueY = "translate-y-2";
 
-// Estimated Tax Savings
-const savingsCardX = "translate-x-0";
-const savingsCardY = "translate-y-0";
-const savingsValueX = "translate-x-4";
-const savingsValueY = "translate-y-2";
+const deductibleSubtitleX = "translate-x-6";
+const deductibleSubtitleY = "translate-y-2";
 
-// Bottom Legend - Deductible
-const legendDeductibleAmountX = "-translate-x-30";
-const legendDeductiblePercentX = "-translate-x-20";
+const deductibleIconX = "translate-x-2";
+const deductibleIconY = "translate-y-6";
 
-// Bottom Legend - Non-Deductible
-const legendNonDeductibleAmountX = "-translate-x-30.5";
-const legendNonDeductiblePercentX = "-translate-x-20";
+const deductibleIconSize = "h-12 w-12";
 
-// Label: Tax Deductible Total
-const deductibleLabelX = "translate-x-4";
-const deductibleLabelY = "translate-y-2";
+const deductibleValueFontSize = "text-[26px]";
 
-// Label: Estimated Tax Savings
-const savingsLabelX = "translate-x-4";
-const savingsLabelY = "translate-y-2";
+const deductibleSubtitleFontSize = "text-[12px]";
+
+/* =====================================================
+   BENEFIT CARD
+   ===================================================== */
+
+const benefitCardX = "translate-x-3";
+const benefitCardY = "translate-y-5";
+
+const benefitCardWidth = "w-full";
+const benefitCardHeight = "h-[100px]";
+
+const benefitTitleX = "translate-x-6";
+const benefitTitleY = "translate-y-2";
+
+const benefitValueX = "translate-x-6";
+const benefitValueY = "translate-y-2";
+
+const benefitSubtitleX = "translate-x-6";
+const benefitSubtitleY = "translate-y-2";
+
+const benefitIconX = "translate-x-2";
+const benefitIconY = "translate-y-6";
+
+const benefitIconSize = "h-12 w-12";
+
+const benefitValueFontSize = "text-[26px]";
+
+const benefitSubtitleFontSize = "text-[12px]";
+
+/* =====================================================
+   DONUT SECTION
+   ===================================================== */
+
+const donutContainerX = "translate-x-0";
+const donutContainerY = "translate-y-8";
+
+const donutContainerWidth = "w-[45%]";
+const donutContainerHeight = "h-auto";
+
+const donutOuterSize = 160;
+const donutInnerSize = 135;
+
+const donutPercentX = "translate-x-0";
+const donutPercentY = "-translate-y-0";
+
+const donutLabelX = "translate-x-0";
+const donutLabelY = "-translate-y-0";
+
+const donutBottomTextX = "translate-x-0";
+const donutBottomTextY = "translate-y-4";
+
+const donutPercentFontSize = "text-[28px]";
+const donutLabelFontSize = "text-[14px]";
+const donutBottomTextFontSize = "text-[14px]";
+
+/* =====================================================
+   TAX PROFILE CARD
+   ===================================================== */
+
+const taxProfileX = "translate-x-3";
+const taxProfileY = "translate-y-9";
+
+const taxProfileWidth = "w-[95%]";
+const taxProfileHeight = "h-[90px]";
+
+/* =====================================================
+   TAX RATE
+   ===================================================== */
+
+const taxRateSectionX = "translate-x-4";
+const taxRateSectionY = "translate-y-1";
+const taxRateSectionWidth = "w-auto";
+
+const taxRateIconX = "translate-x-0";
+const taxRateIconY = "-translate-y-1";
+const taxRateIconSize = "h-8 w-8";
+const taxRateIconSvgSize = "h-3.5 w-3.5";
+
+const taxRateValueX = "translate-x-0";
+const taxRateValueY = "translate-y-0";
+const taxRateValueFontSize = "text-[15px]";
+
+const taxRateLabelX = "translate-x-0";
+const taxRateLabelY = "translate-y-0";
+const taxRateLabelFontSize = "text-[10px]";
+
+/* =====================================================
+   DIVIDER 1
+   ===================================================== */
+
+const divider1X = "translate-x-6";
+const divider1Y = "translate-y-0";
+const divider1Height = "h-9";
+
+/* =====================================================
+   PROVINCE
+   ===================================================== */
+
+const provinceSectionX = "translate-x-8";
+const provinceSectionY = "translate-y-1";
+const provinceSectionWidth = "w-auto";
+
+const provinceIconX = "translate-x-1";
+const provinceIconY = "-translate-y-1";
+const provinceIconSize = "h-8 w-8";
+const provinceIconSvgSize = "h-3.5 w-3.5";
+
+const provinceValueX = "translate-x-0";
+const provinceValueY = "translate-y-0";
+const provinceValueFontSize = "text-[15px]";
+
+const provinceLabelX = "translate-x-0";
+const provinceLabelY = "translate-y-0";
+const provinceLabelFontSize = "text-[10px]";
+
+/* =====================================================
+   DIVIDER 2
+   ===================================================== */
+
+const divider2X = "translate-x-12";
+const divider2Y = "translate-y-0";
+const divider2Height = "h-9";
+
+/* =====================================================
+   ENTITY
+   ===================================================== */
+
+const entitySectionX = "translate-x-13";
+const entitySectionY = "translate-y-1";
+const entitySectionWidth = "w-auto";
+
+const entityIconX = "translate-x-1";
+const entityIconY = "-translate-y-1";
+const entityIconSize = "h-8 w-8";
+const entityIconSvgSize = "h-3.5 w-3.5";
+
+const entityValueX = "translate-x-0";
+const entityValueY = "translate-y-0";
+const entityValueFontSize = "text-[15px]";
+
+const entityLabelX = "translate-x-0";
+const entityLabelY = "translate-y-0";
+const entityLabelFontSize = "text-[10px]";
+
+/* =====================================================
+   DIVIDER 3
+   ===================================================== */
+
+const divider3X = "translate-x-16";
+const divider3Y = "translate-y-0";
+const divider3Height = "h-9";
+
+/* =====================================================
+   YEAR
+   ===================================================== */
+
+const yearSectionX = "translate-x-20";
+const yearSectionY = "translate-y-1";
+const yearSectionWidth = "w-auto";
+
+const yearIconX = "translate-x-0";
+const yearIconY = "-translate-y-1";
+const yearIconSize = "h-8 w-8";
+const yearIconSvgSize = "h-3.5 w-3.5";
+
+const yearValueX = "translate-x-0";
+const yearValueY = "translate-y-0";
+const yearValueFontSize = "text-[15px]";
+
+const yearLabelX = "translate-x-0";
+const yearLabelY = "translate-y-0";
+const yearLabelFontSize = "text-[10px]";
+
+
+/* =====================================================
+   CALCULATION BASIS V2
+   ===================================================== */
+
+/* CARD */
+
+const calculationCardX = "translate-x-3";
+const calculationCardY = "translate-y-13";
+
+const calculationCardWidth = "w-[95%]";
+const calculationCardHeight = "h-[100px]";
+
+/* HEADER ROW */
+
+const calculationHeaderX = "translate-x-3";
+const calculationHeaderY = "-translate-y-10";
+
+/* ICON */
+
+const calculationIconX = "translate-x-0";
+const calculationIconY = "translate-y-16";
+
+const calculationIconSize = "h-12 w-12";
+
+/* TITLE */
+
+const calculationTitleX = "translate-x-4";
+const calculationTitleY = "translate-y-8";
+
+const calculationTitleFontSize = "text-[16px]";
+
+/* INFO ICON */
+
+const calculationInfoX = "translate-x-64";
+const calculationInfoY = "translate-y-8";
+
+/* FORMULA ROW */
+
+const calculationBoxesX = "-translate-x-3";
+const calculationBoxesY = "-translate-y-3";
+
+/* AMOUNT BOX */
+
+const calculationAmountWidth = "w-[70px]";
+const calculationAmountHeight = "h-[30px]";
+
+const calculationAmountBoxX = "translate-x-0";
+const calculationAmountBoxY = "translate-y-0";
+
+const calculationAmountLabelX = "translate-x-0";
+const calculationAmountLabelY = "translate-y-2";
+
+/* MULTIPLY */
+
+const calculationMultiplyX = "translate-x-0";
+const calculationMultiplyY = "translate-y-0";
+
+/* TAX BOX */
+
+const calculationTaxWidth = "w-[55px]";
+const calculationTaxHeight = "h-[30px]";
+
+const calculationTaxBoxX = "translate-x-0";
+const calculationTaxBoxY = "translate-y-0";
+
+const calculationTaxLabelX = "translate-x-0";
+const calculationTaxLabelY = "translate-y-2";
+
+/* EQUALS */
+
+const calculationEqualsX = "translate-x-0";
+const calculationEqualsY = "translate-y-0";
+
+/* RESULT BOX */
+
+const calculationResultWidth = "w-[90px]";
+const calculationResultHeight = "h-[30px]";
+
+const calculationResultBoxX = "translate-x-0";
+const calculationResultBoxY = "translate-y-0";
+
+const calculationResultLabelX = "translate-x-0";
+const calculationResultLabelY = "translate-y-2";
+
+/* =====================================================
+   DISCLAIMER V2
+   ===================================================== */
+
+const disclaimerX = "translate-x-3";
+const disclaimerY = "translate-y-17";
+
+const disclaimerWidth = "w-[95%]";
+const disclaimerHeight = "h-[80px]";
+
+const disclaimerIconX = "translate-x-4";
+const disclaimerIconY = "translate-y-4";
+
+const disclaimerIconSize = "h-10 w-10";
+
+const disclaimerTextWidth = "w-[85%]";
+
+const disclaimerTextX = "translate-x-16";
+const disclaimerTextY = "-translate-y-9";
+
+const disclaimerTextFontSize = "text-[12px]";
+
+
 
 return (
   <div
-    className={`
-      ${cardHeight}
-
+    className="
+      h-[610px]
       rounded-3xl
       border
       border-white/10
       bg-[#0B1220]
-
-      p-6
-
-      transition-all
-      duration-300
-
-      hover:-translate-y-0.5
-      hover:border-white/15
-      hover:shadow-[0_8px_30px_rgba(0,0,0,0.25)]
-    `}
+      p-8
+    "
   >
-    {/* ============================== */}
-    {/* Header */}
-    {/* ============================== */}
+   {/* HEADER */}
 
-    <div
-      className={`
-        flex items-center gap-2
-
-        ${headerX}
-        ${headerY}
-      `}
-    >
-      <h3 className="text-[14px] font-semibold text-white">
-        Tax Deductible Summary
-      </h3>
-
-      
-    </div>
-
-    {/* ============================== */}
-    {/* Main */}
-    {/* ============================== */}
-
-    <div
-      className={`
-        mt-8
-        flex
-        justify-between
-        gap-6
-
-        ${topSectionX}
-        ${topSectionY}
-      `}
-    >
-      {/* LEFT */}
-
-      <div className={`${leftPanelWidth} flex flex-col gap-5`}>
 <div
   className={`
-    ${metricCardHeight}
+    flex
+    items-center
+    justify-between
+
+    ${headerContainerX}
+    ${headerContainerY}
+  `}
+>
+  {/* TITLE */}
+
+  <h3
+    className={`
+      text-[16px]
+      font-semibold
+      text-white
+
+      ${titleX}
+      ${titleY}
+    `}
+  >
+    Tax Deductible Summary
+  </h3>
+
+  {/* ACTIONS */}
+
+  <div className="flex items-center gap-4">
+
+    {/* HIGH CONFIDENCE */}
+
+    <div
+      className={`
+        ${confidenceBadgeWidth}
+        ${confidenceBadgeHeight}
+
+        flex
+        items-center
+        justify-center
+        gap-2
+
+        rounded-2xl
+        border
+        border-emerald-500/25
+        bg-emerald-500/10
+
+        ${confidenceBadgeX}
+        ${confidenceBadgeY}
+      `}
+    >
+      <ShieldCheck
+        className={`
+          ${confidenceIconSize}
+          text-emerald-400
+
+          ${confidenceIconX}
+          ${confidenceIconY}
+        `}
+      />
+
+      <span
+        className={`
+          ${confidenceTextFontSize}
+
+          font-medium
+          text-emerald-400
+
+          ${confidenceTextX}
+          ${confidenceTextY}
+        `}
+      >
+        High Confidence
+      </span>
+    </div>
+
+    {/* EDIT BUTTON */}
+
+    <button
+      className={`
+        ${editButtonWidth}
+        ${editButtonHeight}
+
+        flex
+        items-center
+        justify-center
+        gap-2
+
+        rounded-2xl
+        border
+        border-white/10
+        bg-white/[0.02]
+
+        text-white
+
+        transition-colors
+        hover:bg-white/[0.04]
+
+        ${editButtonX}
+        ${editButtonY}
+      `}
+    >
+      <Pencil className="h-4 w-4" />
+
+      <span className="text-[14px] font-medium">
+        Edit
+      </span>
+    </button>
+
+  </div>
+</div>
+
+{/* TOP SECTION */}
+
+<div
+  className={`
+    ${topSectionWidth}
+    mx-auto
+
+    ${topSectionX}
+    ${topSectionY}
+  `}
+>
+  <div className="flex items-start justify-between">
+
+    {/* LEFT SIDE */}
+
+    <div
+      className={`
+        ${leftColumnWidth}
+
+        flex
+        flex-col
+        gap-3
+
+        ${leftColumnX}
+        ${leftColumnY}
+      `}
+    >
+
+      {/* DEDUCTIBLE CARD */}
+
+<div
+  className={`
+    ${deductibleCardWidth}
+    ${deductibleCardHeight}
+
     rounded-2xl
     border
     border-white/10
     bg-white/[0.02]
-    px-5
-    py-4
 
     ${deductibleCardX}
     ${deductibleCardY}
   `}
 >
-<p
+  <div className="flex h-full">
+
+    {/* ICON */}
+
+    <div
+      className={`
+        flex
+
+        ${deductibleIconX}
+        ${deductibleIconY}
+      `}
+    >
+     <div
   className={`
-    text-[12px]
-    text-slate-400
+    ${deductibleIconSize}
 
-    ${deductibleLabelX}
-    ${deductibleLabelY}
-  `}
->
-  Tax Deductible Total
-</p>
-
-<div
-  className={`
-    mt-4
-    text-[28px]
-    font-bold
-    text-white
-
-    ${deductibleValueX}
-    ${deductibleValueY}
-  `}
->
-{currencySymbol}
-{deductibleAmount.toFixed(2)}
-</div>
-        </div>
-
-        <div
-          className={`
-            ${metricCardHeight}
-
-            rounded-2xl
-            border
-            border-white/10
-            bg-white/[0.02]
-
-            px-5
-            py-4
-          `}
-        >
-<p
-  className={`
-    text-[12px]
-    text-slate-400
-
-    ${savingsLabelX}
-    ${savingsLabelY}
-  `}
->
-  Estimated Tax Savings
-</p>
-
-<div
-  className={`
-    mt-4
-    text-[28px]
-    font-bold
-    text-emerald-400
-
-    ${savingsValueX}
-    ${savingsValueY}
-  `}
->
- {currencySymbol}
-{estimatedTaxSavings.toFixed(2)}
-</div>
-        </div>
-      </div>
-
-      {/* RIGHT */}
-
-<div
-  className={`
-    ${rightPanelWidth}
     flex
     items-center
     justify-center
 
-    ${donutX}
-    ${donutY}
+    rounded-full
+    border
+    border-emerald-500/20
+    bg-emerald-500/10
   `}
 >
-<div
-  className="relative flex items-center justify-center rounded-full"
-  style={{
-    width: ringOuter,
-    height: ringOuter,
-
-    background: `conic-gradient(
-      #34d399 ${ringPercent * 3.6}deg,
-      rgba(148,163,184,.25) 0deg
-    )`,
-
-    boxShadow: "0 0 18px rgba(52, 211, 153, 0.12)"
-  }}
->
-          <div
-            className="flex flex-col items-center justify-center rounded-full bg-[#0B1220]"
-            style={{
-              width: ringInner,
-              height: ringInner,
-            }}
-          >
-            <div className="text-[18px] font-bold text-white">
-              {ringPercent.toFixed(1)}%
-            </div>
-
-            <div className="mt-1 text-[12px] text-slate-400">
-              Deductible
-            </div>
-          </div>
-        </div>
-      </div>
+  <FileText className="h-6 w-6 text-emerald-400" />
+</div>
     </div>
 
-    {/* ============================== */}
-    {/* Legend */}
-    {/* ============================== */}
+    {/* CONTENT */}
+
+    <div className="flex flex-col">
+
+      <div
+        className={`
+          text-[14px]
+          font-medium
+          text-slate-300
+
+          ${deductibleTitleX}
+          ${deductibleTitleY}
+        `}
+      >
+        Tax Deductible Total
+      </div>
+
+      <div
+        className={`
+          ${deductibleValueFontSize}
+
+          font-bold
+          text-emerald-400
+
+          ${deductibleValueX}
+          ${deductibleValueY}
+        `}
+      >
+        {currencySymbol}
+        {deductibleAmount.toFixed(2)}
+      </div>
+
+      <div
+        className={`
+          ${deductibleSubtitleFontSize}
+
+          text-slate-400
+
+          ${deductibleSubtitleX}
+          ${deductibleSubtitleY}
+        `}
+      >
+        Total deductible expenses
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+{/* BENEFIT CARD */}
+
+<div
+  className={`
+    ${benefitCardWidth}
+    ${benefitCardHeight}
+
+    rounded-2xl
+    border
+    border-white/10
+    bg-white/[0.02]
+
+    ${benefitCardX}
+    ${benefitCardY}
+  `}
+>
+  <div className="flex h-full">
+
+    {/* ICON */}
 
     <div
       className={`
-        mt-10
-        space-y-4
+        flex
 
-        ${legendX}
-        ${legendY}
+        ${benefitIconX}
+        ${benefitIconY}
       `}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-3 w-3 rounded-full bg-emerald-400" />
-
-          <span className="text-[13px] font-medium text-white">
-            Deductible
-          </span>
-        </div>
-
-        <div className="flex gap-6 text-[13px]">
-<span
+     <div
   className={`
-    font-medium
-    text-white
+    ${benefitIconSize}
 
-    ${legendDeductibleAmountX}
+    flex
+    items-center
+    justify-center
+
+    rounded-full
+    border
+    border-emerald-500/20
+    bg-emerald-500/10
   `}
 >
-  {currencySymbol}
-{deductibleAmount.toFixed(2)}
-</span>
+  <TrendingUp className="h-6 w-6 text-emerald-400" />
+</div>
+    </div>
 
-<span
-  className={`
-    w-12
-    text-right
-    text-slate-400
+    {/* CONTENT */}
 
-    ${legendDeductiblePercentX}
-  `}
->
-  {ringPercent.toFixed(1)}%
-</span>
-        </div>
+    <div className="flex flex-col">
+
+      <div
+        className={`
+          text-[14px]
+          font-medium
+          text-slate-300
+
+          ${benefitTitleX}
+          ${benefitTitleY}
+        `}
+      >
+        Estimated Tax Benefit
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-3 w-3 rounded-full bg-slate-500" />
+      <div
+        className={`
+          ${benefitValueFontSize}
 
-          <span className="text-[13px] font-medium text-slate-300">
-            Non-Deductible
-          </span>
-        </div>
+          font-bold
+          text-emerald-400
 
-        <div className="flex gap-6 text-[13px]">
-<span
+          ${benefitValueX}
+          ${benefitValueY}
+        `}
+      >
+        {currencySymbol}
+        {estimatedTaxBenefit.toFixed(2)}
+      </div>
+
+      <div
+        className={`
+          ${benefitSubtitleFontSize}
+
+          text-slate-400
+
+          ${benefitSubtitleX}
+          ${benefitSubtitleY}
+        `}
+      >
+        ≈ {currencySymbol}
+        {monthlyTaxBenefit.toFixed(2)}
+        / month
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+{/* DONUT */}
+
+<div
   className={`
-    font-medium
-    text-slate-300
+    ${donutContainerWidth}
 
-    ${legendNonDeductibleAmountX}
+    flex
+    flex-col
+    items-center
+
+    ${donutContainerX}
+    ${donutContainerY}
   `}
 >
-  {currencySymbol}
-{nonDeductibleAmount.toFixed(2)}
-</span>
 
-<span
+  {/* DONUT RING */}
+
+  <div
+    className="relative flex items-center justify-center rounded-full"
+    style={{
+      width: donutOuterSize,
+      height: donutOuterSize,
+
+      background: `conic-gradient(
+        #34d399 ${ringPercent * 3.6}deg,
+        rgba(148,163,184,.25) 0deg
+      )`,
+
+      boxShadow:
+        "0 0 30px rgba(52,211,153,.15)",
+    }}
+  >
+    <div
+      className="absolute rounded-full bg-[#0B1220]"
+      style={{
+        width: donutInnerSize,
+        height: donutInnerSize,
+      }}
+    />
+
+    <div className="absolute flex flex-col items-center">
+
+      <div
+        className={`
+          ${donutPercentFontSize}
+          font-bold
+          text-white
+
+          ${donutPercentX}
+          ${donutPercentY}
+        `}
+      >
+        {ringPercent.toFixed(0)}%
+      </div>
+
+      <div
+        className={`
+          ${donutLabelFontSize}
+          text-slate-400
+
+          ${donutLabelX}
+          ${donutLabelY}
+        `}
+      >
+        Deductible
+      </div>
+
+    </div>
+  </div>
+
+  {/* BOTTOM LABEL */}
+
+  <div
+    className={`
+      ${donutBottomTextFontSize}
+      text-slate-400
+
+      ${donutBottomTextX}
+      ${donutBottomTextY}
+    `}
+  >
+    of total expenses
+  </div>
+
+</div>
+
+</div>
+</div>
+
+{/* TAX PROFILE */}
+
+<div
   className={`
-    w-12
-    text-right
-    text-slate-400
+    ${taxProfileWidth}
+    mx-auto
 
-    ${legendNonDeductiblePercentX}
+    ${taxProfileX}
+    ${taxProfileY}
   `}
 >
-  {(100 - ringPercent).toFixed(1)}%
-</span>
-        </div>
+  <div
+    className={`
+      ${taxProfileHeight}
+
+      rounded-2xl
+      border
+      border-white/10
+      bg-white/[0.02]
+
+      flex
+      items-center
+      justify-between
+    `}
+  >
+
+   <div className="flex items-center justify-between h-full">
+
+  {/* TAX RATE */}
+
+  <div
+    className={`
+      ${taxRateSectionWidth}
+
+      flex items-center gap-3 px-4
+
+      ${taxRateSectionX}
+      ${taxRateSectionY}
+    `}
+  >
+    <div
+      className={`
+        ${taxRateIconSize}
+
+        flex items-center justify-center
+
+        rounded-full
+        border border-emerald-500/20
+        bg-emerald-500/10
+
+        ${taxRateIconX}
+        ${taxRateIconY}
+      `}
+    >
+      <Percent
+        className={`
+          ${taxRateIconSvgSize}
+          text-emerald-400
+        `}
+      />
+    </div>
+
+    <div>
+      <div
+        className={`
+          ${taxRateValueFontSize}
+          font-semibold
+          text-white
+          leading-none
+
+          ${taxRateValueX}
+          ${taxRateValueY}
+        `}
+      >
+        {TAX_RATE}%
+      </div>
+
+      <div
+        className={`
+          mt-0.5
+          text-slate-400
+
+          ${taxRateLabelFontSize}
+
+          ${taxRateLabelX}
+          ${taxRateLabelY}
+        `}
+      >
+        Tax Rate
       </div>
     </div>
   </div>
+
+  <div
+    className={`
+      ${divider1Height}
+      w-px
+      bg-white/10
+
+      ${divider1X}
+      ${divider1Y}
+    `}
+  />
+
+  {/* PROVINCE */}
+
+  <div
+    className={`
+      ${provinceSectionWidth}
+
+      flex items-center gap-3 px-4
+
+      ${provinceSectionX}
+      ${provinceSectionY}
+    `}
+  >
+    <div
+      className={`
+        ${provinceIconSize}
+
+        flex items-center justify-center
+
+        rounded-full
+        border border-emerald-500/20
+        bg-emerald-500/10
+
+        ${provinceIconX}
+        ${provinceIconY}
+      `}
+    >
+      <MapPin
+        className={`
+          ${provinceIconSvgSize}
+          text-emerald-400
+        `}
+      />
+    </div>
+
+    <div>
+      <div
+        className={`
+          ${provinceValueFontSize}
+          font-semibold
+          text-white
+          leading-none
+
+          ${provinceValueX}
+          ${provinceValueY}
+        `}
+      >
+        Ontario
+      </div>
+
+      <div
+        className={`
+          mt-0.5
+          text-slate-400
+
+          ${provinceLabelFontSize}
+
+          ${provinceLabelX}
+          ${provinceLabelY}
+        `}
+      >
+        Province
+      </div>
+    </div>
+  </div>
+
+  <div
+    className={`
+      ${divider2Height}
+      w-px
+      bg-white/10
+
+      ${divider2X}
+      ${divider2Y}
+    `}
+  />
+
+  {/* ENTITY */}
+
+  <div
+    className={`
+      ${entitySectionWidth}
+
+      flex items-center gap-3 px-4
+
+      ${entitySectionX}
+      ${entitySectionY}
+    `}
+  >
+    <div
+      className={`
+        ${entityIconSize}
+
+        flex items-center justify-center
+
+        rounded-full
+        border border-emerald-500/20
+        bg-emerald-500/10
+
+        ${entityIconX}
+        ${entityIconY}
+      `}
+    >
+      <User
+        className={`
+          ${entityIconSvgSize}
+          text-emerald-400
+        `}
+      />
+    </div>
+
+    <div>
+      <div
+        className={`
+          ${entityValueFontSize}
+          font-semibold
+          text-white
+          leading-none
+
+          ${entityValueX}
+          ${entityValueY}
+        `}
+      >
+        Individual
+      </div>
+
+      <div
+        className={`
+          mt-0.5
+          text-slate-400
+
+          ${entityLabelFontSize}
+
+          ${entityLabelX}
+          ${entityLabelY}
+        `}
+      >
+        Entity Type
+      </div>
+    </div>
+  </div>
+
+  <div
+    className={`
+      ${divider3Height}
+      w-px
+      bg-white/10
+
+      ${divider3X}
+      ${divider3Y}
+    `}
+  />
+
+  {/* YEAR */}
+
+  <div
+    className={`
+      ${yearSectionWidth}
+
+      flex items-center gap-3 px-4
+
+      ${yearSectionX}
+      ${yearSectionY}
+    `}
+  >
+    <div
+      className={`
+        ${yearIconSize}
+
+        flex items-center justify-center
+
+        rounded-full
+        border border-emerald-500/20
+        bg-emerald-500/10
+
+        ${yearIconX}
+        ${yearIconY}
+      `}
+    >
+      <Calendar
+        className={`
+          ${yearIconSvgSize}
+          text-emerald-400
+        `}
+      />
+    </div>
+
+    <div>
+      <div
+        className={`
+          ${yearValueFontSize}
+          font-semibold
+          text-white
+          leading-none
+
+          ${yearValueX}
+          ${yearValueY}
+        `}
+      >
+        2026
+</div>
+
+<div
+  className={`
+    mt-0.5
+    text-slate-400
+
+        ${yearLabelFontSize}
+
+        ${yearLabelX}
+        ${yearLabelY}
+      `}
+    >
+      Tax Year
+    </div>
+  </div>
+
+  </div> {/* YEAR SECTION */}
+
+</div> {/* h-full row */}
+
+</div> {/* tax profile card */}
+
+</div> {/* tax profile wrapper */}
+
+{/* CALCULATION BASIS */}
+
+<div
+  className={`
+    ${calculationCardWidth}
+    mx-auto
+
+    ${calculationCardX}
+    ${calculationCardY}
+  `}
+>
+  <div
+    className={`
+      ${calculationCardHeight}
+
+      rounded-2xl
+      border
+      border-white/10
+      bg-white/[0.02]
+    `}
+  >
+
+    {/* HEADER */}
+
+    <div
+      className={`
+        flex
+        items-center
+
+        ${calculationHeaderX}
+        ${calculationHeaderY}
+      `}
+    >
+
+    <div
+  className={`
+    ${calculationIconSize}
+
+    flex
+    items-center
+    justify-center
+
+    rounded-full
+    border
+    border-sky-500/20
+    bg-sky-500/10
+
+    ${calculationIconX}
+    ${calculationIconY}
+  `}
+>
+  <Calculator className="h-6 w-6 text-sky-400" />
+</div>
+
+      <div
+        className={`
+          ${calculationTitleFontSize}
+          font-semibold
+          text-white
+
+          ${calculationTitleX}
+          ${calculationTitleY}
+        `}
+      >
+        Calculation Basis
+      </div>
+
+    </div>
+
+    {/* FORMULA */}
+
+    <div
+      className={`
+        flex
+        items-center
+        justify-center
+        gap-3
+
+        ${calculationBoxesX}
+        ${calculationBoxesY}
+      `}
+    >
+
+      {/* AMOUNT */}
+
+      <div className="flex flex-col items-center">
+
+        <div
+          className={`
+            ${calculationAmountWidth}
+            ${calculationAmountHeight}
+
+            flex
+            items-center
+            justify-center
+
+            rounded-lg
+            border
+            border-white/10
+            bg-white/[0.03]
+
+            ${calculationAmountBoxX}
+            ${calculationAmountBoxY}
+          `}
+        >
+          <span className="text-[13px] font-semibold text-white">
+            {currencySymbol}
+            {deductibleAmount.toFixed(2)}
+          </span>
+        </div>
+
+        <div
+          className={`
+            text-[11px]
+            text-slate-500
+
+            ${calculationAmountLabelX}
+            ${calculationAmountLabelY}
+          `}
+        >
+          Deductible Expenses
+        </div>
+
+      </div>
+
+      {/* MULTIPLY */}
+
+      <div
+        className={`
+          text-[18px]
+          text-slate-500
+
+          ${calculationMultiplyX}
+          ${calculationMultiplyY}
+        `}
+      >
+        ×
+      </div>
+
+      {/* TAX */}
+
+      <div className="flex flex-col items-center">
+
+        <div
+          className={`
+            ${calculationTaxWidth}
+            ${calculationTaxHeight}
+
+            flex
+            items-center
+            justify-center
+
+            rounded-lg
+            border
+            border-white/10
+            bg-white/[0.03]
+
+            ${calculationTaxBoxX}
+            ${calculationTaxBoxY}
+          `}
+        >
+          <span className="text-[13px] font-semibold text-white">
+            {TAX_RATE}%
+          </span>
+        </div>
+
+        <div
+          className={`
+            text-[11px]
+            text-slate-500
+
+            ${calculationTaxLabelX}
+            ${calculationTaxLabelY}
+          `}
+        >
+          Tax Rate
+        </div>
+
+      </div>
+
+      {/* EQUALS */}
+
+      <div
+        className={`
+          text-[18px]
+          text-slate-500
+
+          ${calculationEqualsX}
+          ${calculationEqualsY}
+        `}
+      >
+        =
+      </div>
+
+      {/* RESULT */}
+
+      <div className="flex flex-col items-center">
+
+        <div
+          className={`
+            ${calculationResultWidth}
+            ${calculationResultHeight}
+
+            flex
+            items-center
+            justify-center
+
+            rounded-lg
+            border
+            border-emerald-500/20
+            bg-emerald-500/5
+
+            ${calculationResultBoxX}
+            ${calculationResultBoxY}
+          `}
+        >
+          <span className="text-[13px] font-semibold text-emerald-400">
+            {currencySymbol}
+            {estimatedTaxBenefit.toFixed(2)}
+          </span>
+        </div>
+
+        <div
+          className={`
+            text-[11px]
+            text-slate-500
+
+            ${calculationResultLabelX}
+            ${calculationResultLabelY}
+          `}
+        >
+          Estimated Tax Benefit
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+{/* DISCLAIMER */}
+
+<div
+  className={`
+    ${disclaimerWidth}
+    mx-auto
+
+    ${disclaimerX}
+    ${disclaimerY}
+  `}
+>
+  <div
+    className={`
+      ${disclaimerHeight}
+
+      rounded-2xl
+      border
+      border-white/10
+      bg-white/[0.02]
+    `}
+  >
+
+    {/* ICON */}
+
+    <div
+      className={`
+        ${disclaimerIconSize}
+
+        flex
+        items-center
+        justify-center
+
+        ${disclaimerIconX}
+        ${disclaimerIconY}
+      `}
+    >
+      <ShieldCheck className="h-7 w-7 text-slate-400" />
+    </div>
+
+    {/* TEXT */}
+
+    <div
+      className={`
+        ${disclaimerTextWidth}
+
+        ${disclaimerTextFontSize}
+        leading-6
+        text-slate-300
+
+        ${disclaimerTextX}
+        ${disclaimerTextY}
+      `}
+    >
+      Estimates are based on your configured tax profile and deductible expenses.
+      Actual tax treatment may vary by country, province/state, and accountant.
+    </div>
+
+  </div>
+</div>
+
+</div>
+
 );
 }
