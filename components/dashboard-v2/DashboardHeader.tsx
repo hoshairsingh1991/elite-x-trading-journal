@@ -56,7 +56,7 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
 
   return (
-    <div className="grid h-[60px] grid-cols-[320px_1fr_auto] items-center border-b border-white/[0.05]">
+    <div className="grid h-[58px] grid-cols-[320px_1fr_auto] items-center border-b border-white/[0.05]">
 
       {/* ================================================= */}
       {/* LEFT SIDE */}
@@ -65,16 +65,16 @@ export default function DashboardHeader({
       <div
         className="
           relative
-          left-6
-          w-[300px]
+          left-8
+          w-[290px]
           shrink-0
         "
       >
-        <h1 className="text-[23px] font-semibold text-white">
+        <h1 className="text-[22px] font-semibold leading-none text-white">
           Overview
         </h1>
 
-        <p className="mt-1.5 text-[14px] text-slate-500">
+        <p className="mt-1 text-[14px] text-slate-500">
           Your trading performance at a glance
         </p>
       </div>
@@ -95,10 +95,10 @@ export default function DashboardHeader({
               setSelectedAccount(event.target.value)
             }
             className="
-              h-[40px]
-              min-w-[136px]
+              h-[38px]
+              min-w-[132px]
               appearance-none
-              rounded-[14px]
+              rounded-[13px]
               border
               border-white/[0.06]
               bg-[#0b1730]
@@ -124,7 +124,7 @@ export default function DashboardHeader({
           </select>
 
           <ChevronDown
-            size={15}
+            size={14}
             className="
               pointer-events-none
               absolute
@@ -143,9 +143,9 @@ export default function DashboardHeader({
           disabled
           className="
             relative
-            h-[40px]
-            min-w-[146px]
-            rounded-[14px]
+            h-[38px]
+            min-w-[142px]
+            rounded-[13px]
             border
             border-white/[0.06]
             bg-[#0b1730]
@@ -159,7 +159,7 @@ export default function DashboardHeader({
           All Strategies
 
           <ChevronDown
-            size={15}
+            size={14}
             className="
               pointer-events-none
               absolute
@@ -182,10 +182,10 @@ export default function DashboardHeader({
               )
             }
             className="
-              h-[40px]
-              min-w-[146px]
+              h-[38px]
+              min-w-[142px]
               appearance-none
-              rounded-[14px]
+              rounded-[13px]
               border
               border-white/[0.06]
               bg-[#0b1730]
@@ -224,7 +224,7 @@ export default function DashboardHeader({
           </select>
 
           <ChevronDown
-            size={15}
+            size={14}
             className="
               pointer-events-none
               absolute
@@ -246,8 +246,8 @@ export default function DashboardHeader({
       <div
         className="
           relative
-          right-5
-          mr-3
+          right-4
+          mr-2
           flex
           items-center
           gap-3
@@ -259,13 +259,13 @@ export default function DashboardHeader({
         <label
           className="
             flex
-            h-[40px]
-            w-[170px]
+            h-[38px]
+            w-[160px]
             cursor-pointer
             items-center
             justify-center
-            gap-2.5
-            rounded-[14px]
+            gap-2
+            rounded-[13px]
             border
             border-white/[0.06]
             bg-[#0b1730]
@@ -276,7 +276,7 @@ export default function DashboardHeader({
             hover:bg-[#13203a]
           "
         >
-          <Upload size={16} />
+          <Upload size={15} />
 
           UPLOAD IBKR CSV
 
@@ -295,12 +295,12 @@ export default function DashboardHeader({
           disabled={isSyncing}
           className="
             flex
-            h-[40px]
-            w-[114px]
+            h-[38px]
+            w-[108px]
             items-center
             justify-center
-            gap-2.5
-            rounded-[14px]
+            gap-2
+            rounded-[13px]
             border
             border-emerald-400/20
             bg-emerald-500/10
@@ -315,7 +315,7 @@ export default function DashboardHeader({
           "
         >
           <RefreshCw
-            size={16}
+            size={15}
             className={
               isSyncing
                 ? "animate-spin"

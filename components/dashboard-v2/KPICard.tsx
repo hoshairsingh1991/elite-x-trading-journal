@@ -57,19 +57,19 @@ export default function KPICard({
   };
 
   return (
-   <div
-  className={`
-    relative
-    overflow-hidden
-    hover:z-50
-    flex
-    flex-col
+    <div
+      className={`
+        relative
+        overflow-hidden
+        hover:z-50
+        flex
+        flex-col
         justify-between
-        rounded-[18px]
+        rounded-[16px]
         border
         border-white/[0.05]
         bg-[#09182d]
-        px-5
+        px-4
 
         transition-all
         duration-200
@@ -79,51 +79,51 @@ export default function KPICard({
         hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
 
         ${
-  size === "large"
-    ? "h-[130px] py-4"
-    : "h-[110px] py-4"
-}
+          size === "large"
+            ? "h-[126px] py-3.5"
+            : "h-[106px] py-3.5"
+        }
       `}
     >
       {/* TITLE */}
 
-<div
-  className={`
-    translate-x-3
-    ${titleOffset}
-    flex
-    items-center
-    gap-2
-  `}
->
-  <p
-    className="
-      text-[10px]
-      font-semibold
-      uppercase
-      tracking-[0.14em]
-      text-slate-500
-    "
-  >
-    {title}
-  </p>
+      <div
+        className={`
+          translate-x-2.5
+          ${titleOffset}
+          flex
+          items-center
+          gap-2
+        `}
+      >
+        <p
+          className="
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-[0.12em]
+            text-slate-500
+          "
+        >
+          {title}
+        </p>
 
-  {tooltip}
-</div>
+        {tooltip}
+      </div>
 
       {/* VALUE */}
 
       <div
         className={`
-          translate-x-3
+          translate-x-2.5
           ${valueOffset}
           font-bold
-          leading-tight
+          leading-none
           ${valueClasses[valueColor]}
           ${
             size === "large"
-              ? "text-[24px]"
-              : "text-[20px]"
+              ? "text-[23px]"
+              : "text-[19px]"
           }
         `}
       >
@@ -136,11 +136,11 @@ export default function KPICard({
         <div
           className="
             absolute
-            bottom-1
+            bottom-0
             left-0
             right-0
-            px-3
-            pb-1
+            px-2
+            pb-0.5
           "
         >
           {sparkline}
@@ -153,7 +153,7 @@ export default function KPICard({
         <div
           className="
             absolute
-            bottom-1
+            bottom-0
             left-0
             right-0
           "
@@ -166,10 +166,11 @@ export default function KPICard({
 
       <div
         className={`
-          translate-x-3
+          translate-x-2.5
           ${subtitleOffset}
           min-h-[8px]
           text-[12px]
+          leading-none
           ${subtitleClasses[subtitleColor]}
         `}
       >

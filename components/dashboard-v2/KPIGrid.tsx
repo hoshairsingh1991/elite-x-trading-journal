@@ -416,68 +416,70 @@ const bottomCards = [
   return (
     <div className="flex justify-center">
 
-  <div
-    className="
-      w-[98%]
-      rounded-[24px]
-      border
-      border-white/[0.05]
-      bg-[#081526]
-      px-6
-      pt-5
-      pb-6
-    "
-  >
-      {/* ================================================= */}
-      {/* HEADER */}
-      {/* ================================================= */}
+      <div
+        className="
+          w-[98%]
+          rounded-[22px]
+          border
+          border-white/[0.05]
+          bg-[#081526]
+          px-5
+          pt-4
+          pb-5
+        "
+      >
+<div className="h-1" />
 
-      <div className="mb-6 translate-x-2 flex items-center gap-2">
+{/* ================================================= */}
+{/* HEADER */}
+{/* ================================================= */}
 
-        <h2
-          className="
-            text-[21px]
-            font-semibold
-            text-white
-          "
-        >
-          Account Overview
-        </h2>
+<div className="mb-5 translate-x-4 flex items-center gap-2">
 
-        <div
-          className="
-            rounded-full
-            border
-            border-white/[0.05]
-            bg-[#0b1730]
-            px-3
-            py-1
-            text-[10px]
-            font-semibold
-            uppercase
-            tracking-[0.12em]
-            text-slate-400
-          "
-        >
-        </div>
-
-      </div>
-
-          {/* ================================================= */}
-      {/* TOP ROW */}
-      {/* ================================================= */}
-
-      <div className="flex justify-center">
-
-        <div className="w-[98%]">
+          <h2
+            className="
+              text-[20px]
+              font-semibold
+              text-white
+            "
+          >
+            Account Overview
+          </h2>
 
           <div
             className="
-              grid
-              grid-cols-[1fr_1fr_1fr_1fr_1.25fr_1.25fr]
-              gap-4
+              rounded-full
+              border
+              border-white/[0.05]
+              bg-[#0b1730]
+              px-2.5
+              py-0.5
+              text-[10px]
+              font-semibold
+              uppercase
+              tracking-[0.10em]
+              text-slate-400
             "
           >
+          </div>
+
+        </div>
+<div className="h-1" />
+        {/* ================================================= */}
+        {/* TOP ROW */}
+        {/* ================================================= */}
+
+        <div className="flex justify-center">
+
+          <div className="w-[98%]">
+
+            <div
+              className="
+                grid
+                grid-cols-[1fr_1fr_1fr_1fr_1.25fr_1.25fr]
+                gap-3.5
+              "
+            >
 
 {topCards.map((card) => (
 
@@ -562,7 +564,7 @@ histogram={
 {/* ROW GAP */}
 {/* ================================================= */}
 
-<div className="h-4" />
+<div className="h-3.5" />
 
 {/* ================================================= */}
 {/* BOTTOM ROW */}
@@ -576,7 +578,7 @@ histogram={
       className="
         grid
         grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr]
-        gap-4
+        gap-3.5
       "
     >
 

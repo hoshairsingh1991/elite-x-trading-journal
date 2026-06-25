@@ -182,7 +182,7 @@ if (storedCurrency) {
 >
   <div className="relative">
 
-    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/70 bg-[#071427] font-bold text-white shadow-[0_0_15px_rgba(34,211,238,0.25)]">
+    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/70 bg-[#071427] font-bold text-white shadow-[0_0_15px_rgba(34,211,238,0.25)]">
   {initial}
 </div>
 

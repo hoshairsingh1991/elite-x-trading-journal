@@ -33,3 +33,60 @@ No architectural changes or refactoring.
 No UI redesign—visual calibration only.
 
 ========================================================= ================================================================================================
+
+git commit -m "feat(dashboard): calibrate Dashboard V2 for 100% zoom baseline and polish KPI section"
+
+feat(dashboard): calibrate Dashboard V2 for 100% zoom baseline and fix KPI polish
+
+- Calibrated Dashboard Header for new 100% zoom design baseline
+- Reduced overall header visual weight and standardized control sizing
+- Calibrated KPI Grid spacing for improved density
+- Reworked KPI card proportions for 100% zoom
+- Reduced large KPI card height to 130px
+- Reduced small KPI card height to 110px
+- Rebalanced KPI typography and content spacing
+- Calibrated Trading Score card to match updated KPI sizing
+- Fixed Best Day / Worst Day timezone parsing bug by replacing UTC date parsing with local date construction
+- Fixed KPI sparkline overflow by clipping card contents with overflow-hidden
+- Improved Worst Day sparkline visual presentation by reversing display trend without mutating source data
+- Dashboard now follows the new 100% zoom calibration standard while preserving the existing institutional design language
+
+========================================================= ================================================================================================
+
+git commit -m "Refine dashboard layout for 100% zoom (sidebar, header, KPI cards, equity curve)"
+
+Checkpoint Summary
+
+✅ Sidebar recalibrated for 100% zoom
+
+Width reduced (200 → 180)
+Navigation font reduced (15 → 14)
+Navigation proportions balanced
+
+✅ Dashboard Header
+
+Height reduced (60 → 56)
+Typography and controls recalibrated
+Alignment improved
+
+✅ Account Overview (KPI Section)
+
+Card heights reduced
+Typography scaled
+Trading Score card redesigned
+Header spacing refined
+Graph overflow fixed
+Best/Worst Day date bug fixed
+Worst Day sparkline orientation improved
+
+✅ Equity Curve
+
+Card height reduced
+Header and controls recalibrated
+Chart container resized
+Chart typography refined
+KPI strip resized
+Overall proportions matched to the new 100% zoom baseline
+
+========================================================= ================================================================================================
+

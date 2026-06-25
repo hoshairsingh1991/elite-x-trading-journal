@@ -95,7 +95,7 @@ export default function Sidebar() {
     translate-y-[22px]
     flex
     h-[calc(100vh-40px)]
-    w-[200px]
+    w-[180px]
     flex-col
     overflow-hidden
     rounded-[30px]
@@ -195,7 +195,7 @@ export default function Sidebar() {
         />
 
         <span
-          className={`text-[15px] font-medium ${
+          className={`text-[14px] font-medium ${
             isActive
               ? "text-white"
               : "text-slate-400 transition-colors group-hover:text-slate-200"
@@ -210,7 +210,7 @@ const className = `
   group
   flex
   h-[46px]
-  w-[180px]
+  w-[170px]
   translate-x-0
   items-center
   justify-start
@@ -278,7 +278,7 @@ return (
             className="text-slate-500 transition-colors group-hover:text-slate-300"
           />
 
-          <span className="text-[15px] font-medium text-slate-400 transition-colors group-hover:text-slate-200">
+          <span className="text-[14px] font-medium text-slate-400 transition-colors group-hover:text-slate-200">
             {item.title}
           </span>
         </div>
@@ -288,7 +288,7 @@ return (
         group
         flex
         h-[46px]
-        w-[180px]
+        w-[170px]
         -translate-x-0
         translate-y-6
         items-center
@@ -345,7 +345,7 @@ return (
           />
 
           <span
-            className={`text-[15px] font-medium ${
+            className={`text-[14px] font-medium ${
               isActive
                 ? "text-white"
                 : "text-slate-400 transition-colors group-hover:text-slate-200"
@@ -360,7 +360,7 @@ return (
         group
         flex
         h-[46px]
-        w-[180px]
+        w-[170px]
         -translate-x-0
         translate-y-6
         items-center

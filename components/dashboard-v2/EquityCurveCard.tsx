@@ -98,43 +98,43 @@ function formatCurrency(
   return (
 <div
   className="
-    h-[480px]
+    h-[400px]
     overflow-hidden
-    rounded-[22px]
+    rounded-[20px]
     border
-    border-white/[0.08]
+    border-white/[0.06]
     bg-[#081526]/80
     backdrop-blur-xl
 
-transition-all
-duration-300
+    transition-all
+    duration-300
 
-hover:-translate-y-1
+    hover:-translate-y-1
 
-hover:border-white/[0.14]
-hover:bg-[#0A1A2E]/80
+    hover:border-white/[0.12]
+    hover:bg-[#0A1A2E]/80
 
-hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
+    hover:shadow-[0_18px_36px_rgba(0,0,0,0.22)]
   "
 >
 {/* ===================================== */}
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[12px]" />
+<div className="h-[8px]" />
 
 
       {/* ================================================= */}
       {/* HEADER */}
       {/* ================================================= */}
 
-      <div className="px-8 pt-7">
-        <div className="relative left-4">
-          <h3 className="text-[16px] font-semibold text-white">
+      <div className="px-7 pt-5">
+        <div className="relative left-3">
+          <h3 className="text-[15px] font-semibold text-white">
             Equity Curve
           </h3>
 
-          <p className="mt-2 text-[15px] text-slate-500">
+          <p className="mt-1.5 text-[14px] text-slate-500">
             Net Account Value ({reportingCurrency})
           </p>
         </div>
@@ -144,21 +144,26 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
       {/* CONTROLS */}
       {/* ================================================= */}
 
-<div className="mt-7 flex justify-end px-12">
-  <div className="relative bottom-10 right-6">
+<div className="mt-5 flex justify-end px-10">
+  <div className="relative bottom-8 right-5">
 
     <button
       className="
-        h-[35px]
-        min-w-[80px]
-        rounded-[14px]
+        h-[32px]
+        min-w-[74px]
+        rounded-[12px]
         border
         border-cyan-400/20
         bg-cyan-500/10
-        px-5
-        text-[14px]
+        px-4
+        text-[13px]
         font-semibold
         text-cyan-300
+
+        transition-all
+        duration-200
+
+        hover:bg-cyan-500/15
       "
     >
       Linear
@@ -167,20 +172,18 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
   </div>
 </div>
 
+{/* ================================================= */}
+{/* CHART PLACEHOLDER */}
+{/* ================================================= */}
 
-
-      {/* ================================================= */}
-      {/* CHART PLACEHOLDER */}
-      {/* ================================================= */}
-
-<div className="relative bottom-6 mt-6 px-12">
+<div className="relative bottom-5 mt-5 px-10">
   <div className="flex justify-center">
     <div
       className="
-        h-[320px]
+        h-[275px]
         w-[95%]
         overflow-hidden
-        rounded-[20px]
+        rounded-[18px]
         border
         border-white/[0.05]
         bg-white/[0.02]
@@ -198,29 +201,23 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
   </div>
 </div>
 
-{/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-<div className="h-[0px]" />
-
 {/* ================================================= */}
 {/* KPI STRIP */}
 {/* ================================================= */}
 
-<div className="mt-6 flex justify-center">
-  <div className="relative left-0 w-[95%]">
+<div className="relative -top-2 mt-5 flex justify-center">
+  <div className="w-[95%]">
 
-    <div className="grid grid-cols-6 gap-6">
+    <div className="grid grid-cols-6 gap-4">
 
       {/* STARTING */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           Starting
         </p>
 
-        <p className="mt-4 text-[20px] font-bold text-white">
+        <p className="mt-3 text-[16px] font-bold text-white">
           {formatCurrency(starting)}
         </p>
       </div>
@@ -228,12 +225,12 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
       {/* ENDING */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           Ending
         </p>
 
         <p
-          className={`mt-4 text-[20px] font-bold ${
+          className={`mt-3 text-[16px] font-bold ${
             ending >= 0
               ? "text-emerald-400"
               : "text-red-400"
@@ -246,12 +243,12 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
       {/* NET CHANGE */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           Net Change
         </p>
 
         <p
-          className={`mt-4 text-[20px] font-bold ${
+          className={`mt-3 text-[16px] font-bold ${
             netChange >= 0
               ? "text-emerald-400"
               : "text-red-400"
@@ -264,12 +261,12 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
       {/* PERCENT CHANGE */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           % Change
         </p>
 
         <p
-          className={`mt-4 text-[20px] font-bold ${
+          className={`mt-3 text-[16px] font-bold ${
             percentChange >= 0
               ? "text-emerald-400"
               : "text-red-400"
@@ -282,11 +279,11 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
       {/* HIGH */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           High
         </p>
 
-        <p className="mt-4 text-[20px] font-bold text-emerald-400">
+        <p className="mt-3 text-[16px] font-bold text-emerald-400">
           {formatCurrency(high)}
         </p>
       </div>
@@ -294,11 +291,11 @@ hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]
       {/* LOW */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[12px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           Low
         </p>
 
-        <p className="mt-4 text-[20px] font-bold text-red-400">
+        <p className="mt-3 text-[16px] font-bold text-red-400">
           {formatCurrency(low)}
         </p>
       </div>
