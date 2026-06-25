@@ -227,11 +227,11 @@ const className = `
 
    if (item.href === "#") {
  return (
-  <div className="flex justify-center">
-    <button
-      key={item.title}
-      className={className}
-    >
+  <div
+    key={item.title}
+    className="flex justify-center"
+  >
+    <button className={className}>
       {content}
     </button>
   </div>
@@ -239,9 +239,11 @@ const className = `
 }
 
 return (
-  <div className="flex justify-center">
+  <div
+    key={item.title}
+    className="flex justify-center"
+  >
     <Link
-      key={item.title}
       href={item.href}
       className={className}
     >

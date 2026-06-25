@@ -167,6 +167,7 @@ git commit -m "feat(tax): finalize tax profile settings and deductible summary i
 git commit -m "docs(standards): finalize EliteX platform doctrine and 100% zoom design system"
 git commit -m "feat(ui): finalize Sidebar V1 with 100% zoom calibration and premium navigation polish"
 git commit -m "refactor(dashboard): calibrate dashboard header for 100% zoom baseline"
+git commit -m "feat(dashboard): calibrate Dashboard V2 for 100% zoom baseline and polish KPI section"
 
 ------------------------------------------------------------------
 

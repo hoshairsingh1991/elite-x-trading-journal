@@ -38,8 +38,8 @@ export default function KPICard({
   subtitleColor = "default",
 
   titleOffset = "translate-y-3",
-  valueOffset = "-translate-y-6",
-  subtitleOffset = "-translate-y-15",
+  valueOffset = "-translate-y-5",
+  subtitleOffset = "-translate-y-13",
 }: KPICardProps) {
 
   const valueClasses = {
@@ -57,12 +57,13 @@ export default function KPICard({
   };
 
   return (
-    <div
-      className={`
-        relative
-        hover:z-50
-        flex
-        flex-col
+   <div
+  className={`
+    relative
+    overflow-hidden
+    hover:z-50
+    flex
+    flex-col
         justify-between
         rounded-[18px]
         border
@@ -78,10 +79,10 @@ export default function KPICard({
         hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
 
         ${
-          size === "large"
-            ? "h-[170px] py-5"
-            : "h-[120px] py-4"
-        }
+  size === "large"
+    ? "h-[130px] py-4"
+    : "h-[110px] py-4"
+}
       `}
     >
       {/* TITLE */}
@@ -97,7 +98,7 @@ export default function KPICard({
 >
   <p
     className="
-      text-[13px]
+      text-[10px]
       font-semibold
       uppercase
       tracking-[0.14em]
@@ -121,8 +122,8 @@ export default function KPICard({
           ${valueClasses[valueColor]}
           ${
             size === "large"
-              ? "text-[32px]"
-              : "text-[24px]"
+              ? "text-[24px]"
+              : "text-[20px]"
           }
         `}
       >
@@ -165,10 +166,10 @@ export default function KPICard({
 
       <div
         className={`
-          translate-x-3.5
+          translate-x-3
           ${subtitleOffset}
-          min-h-[10px]
-          text-[14px]
+          min-h-[8px]
+          text-[12px]
           ${subtitleClasses[subtitleColor]}
         `}
       >

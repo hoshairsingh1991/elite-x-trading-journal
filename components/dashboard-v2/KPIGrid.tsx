@@ -70,8 +70,14 @@ function formatDate(
     return "";
   }
 
+  const [year, month, day] = dateString
+    .split("-")
+    .map(Number);
+
   return new Date(
-    dateString
+    year,
+    month - 1,
+    day
   ).toLocaleDateString(
     "en-US",
     {
@@ -112,7 +118,7 @@ export default function KPIGrid({
 
   titleOffset: "translate-y-3",
   valueOffset: "-translate-y-6",
-  subtitleOffset: "-translate-y-15",
+  subtitleOffset: "-translate-y-13",
 
   value: `${currencySymbol}${dashboardMetrics.netPnL.toFixed(2)}`,
   subtitle: "",
@@ -293,8 +299,8 @@ const bottomCards = [
   title: "Closed Trades",
  tooltip: undefined,
   titleOffset: "translate-y-2",
-  valueOffset: "-translate-y-2",
-  subtitleOffset: "-translate-y-6",
+  valueOffset: "-translate-y-3",
+  subtitleOffset: "-translate-y-8",
 
   value: String(
     dashboardMetrics.totalTrades
@@ -307,8 +313,8 @@ const bottomCards = [
   title: "Winning Trades",
  tooltip: undefined,
   titleOffset: "translate-y-2",
-  valueOffset: "-translate-y-2",
-  subtitleOffset: "-translate-y-6",
+  valueOffset: "-translate-y-3",
+  subtitleOffset: "-translate-y-8",
 
   value: String(
     dashboardMetrics.winningTrades
@@ -321,8 +327,8 @@ const bottomCards = [
   title: "Losing Trades",
   tooltip: undefined,
   titleOffset: "translate-y-2",
-  valueOffset: "-translate-y-2",
-  subtitleOffset: "-translate-y-6",
+  valueOffset: "-translate-y-3",
+  subtitleOffset: "-translate-y-8",
 
   value: String(
     dashboardMetrics.losingTrades
@@ -339,7 +345,7 @@ const bottomCards = [
     tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-3",
-  subtitleOffset: "-translate-y-8.5",
+  subtitleOffset: "-translate-y-9",
 
   value:
 `${currencySymbol}${dashboardMetrics.bestDay.toFixed(2)}`,
@@ -366,7 +372,7 @@ const bottomCards = [
   tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-3",
-  subtitleOffset: "-translate-y-8.5",
+  subtitleOffset: "-translate-y-9",
 
   value:
 `${currencySymbol}${dashboardMetrics.worstDay.toFixed(2)}`,
@@ -380,7 +386,7 @@ const bottomCards = [
 
   sparklineColor: "#ef4444",
 
-  sparklineData: worstDayTrend,
+  sparklineData: [...worstDayTrend].reverse(),
 
   color:
     dashboardMetrics.worstDay >= 0
@@ -392,8 +398,9 @@ const bottomCards = [
   title: "Avg Hold",
   tooltip: undefined,
   titleOffset: "translate-y-2",
-  valueOffset: "-translate-y-2",
-  subtitleOffset: "-translate-y-6",
+  valueOffset: "-translate-y-3",
+  subtitleOffset: "-translate-y-8", 
+  
 
   value: `${(
     dashboardMetrics.averageTradeDurationMinutes /
@@ -425,15 +432,11 @@ const bottomCards = [
       {/* HEADER */}
       {/* ================================================= */}
 
-       <div className="h-2" />
-
-      <div className="mb-8 translate-x-3 flex items-center gap-3">
-
-        
+      <div className="mb-6 translate-x-2 flex items-center gap-2">
 
         <h2
           className="
-            text-[22px]
+            text-[21px]
             font-semibold
             text-white
           "
@@ -456,28 +459,25 @@ const bottomCards = [
             text-slate-400
           "
         >
-          
         </div>
 
       </div>
 
-      <div className="h-2" />
+          {/* ================================================= */}
+      {/* TOP ROW */}
+      {/* ================================================= */}
 
-{/* ================================================= */}
-{/* TOP ROW */}
-{/* ================================================= */}
+      <div className="flex justify-center">
 
-<div className="flex justify-center">
+        <div className="w-[98%]">
 
-  <div className="w-[99%]">
-
-    <div
-  className="
-    grid
-    grid-cols-[1fr_1fr_1fr_1fr_1.25fr_1.25fr]
-    gap-5
-  "
->
+          <div
+            className="
+              grid
+              grid-cols-[1fr_1fr_1fr_1fr_1.25fr_1.25fr]
+              gap-4
+            "
+          >
 
 {topCards.map((card) => (
 
@@ -562,7 +562,7 @@ histogram={
 {/* ROW GAP */}
 {/* ================================================= */}
 
-<div className="h-5" />
+<div className="h-4" />
 
 {/* ================================================= */}
 {/* BOTTOM ROW */}
@@ -570,13 +570,13 @@ histogram={
 
 <div className="flex justify-center">
 
-  <div className="w-[99%]">
+  <div className="w-[98%]">
 
     <div
       className="
         grid
         grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr]
-        gap-5
+        gap-4
       "
     >
 

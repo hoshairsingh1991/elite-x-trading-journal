@@ -1042,7 +1042,7 @@ setImportedTrades([
   onUpload={handleCSVUpload}
 />
 
-  <div className="h-8 shrink-0" />
+  <div className="h-4 shrink-0" />
 
 {/* ================================================= */}
 {/* TOP SECTION */}
@@ -1054,7 +1054,7 @@ setImportedTrades([
   {/* MAIN DASHBOARD CONTENT */}
   {/* ================================================= */}
 
-  <div className="flex w-full flex-col gap-6">
+  <div className="flex w-full flex-col gap-4">
 
   {/* ================================================= */}
   {/* KPI GRID */}

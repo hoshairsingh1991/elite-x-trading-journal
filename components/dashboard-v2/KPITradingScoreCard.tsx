@@ -37,32 +37,32 @@ export default function KPITradingScoreCard({
 };
 
   return (
-  <div
-  className="
-    flex
-    h-[118px]
-    z-[9999]
-    flex-col
-    rounded-[18px]
-    border
-    border-white/[0.05]
-    bg-[#09182d]
-    px-5
-    py-4
+   <div
+    className="
+      flex
+      h-[110px]
+      z-[9999]
+      flex-col
+      rounded-[18px]
+      border
+      border-white/[0.05]
+      bg-[#09182d]
+      px-5
+      py-4
 
-    transition-all
-    duration-200
+      transition-all
+      duration-200
 
-    hover:-translate-y-[2px]
-    hover:border-cyan-500/20
-    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
-  "
->
+      hover:-translate-y-[2px]
+      hover:border-cyan-500/20
+      hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+    "
+  >
 
 <div
   className="
-    translate-x-3
-    translate-y-3
+    translate-x-2
+    translate-y-2
     flex
     items-center
     gap-2
@@ -70,7 +70,7 @@ export default function KPITradingScoreCard({
 >
   <p
     className="
-      text-[13px]
+      text-[11px]
       font-semibold
       uppercase
       tracking-[0.14em]
@@ -103,12 +103,12 @@ export default function KPITradingScoreCard({
 
 <div
   className="
-    translate-x-10
-    translate-y-3
+    translate-x-12
+    translate-y-4
   "
 >
 
-  <div className="relative h-[80px] w-[80px]">
+  <div className="relative h-[64px] w-[64px]">
 
     <svg
       className="absolute inset-0"
@@ -166,7 +166,7 @@ export default function KPITradingScoreCard({
     flex
     items-center
     justify-center
-    text-[26px]
+    text-[20px]
     font-bold
     text-white
   "
@@ -178,10 +178,10 @@ export default function KPITradingScoreCard({
 
 <div
   className="
-    translate-x-13
-    -translate-y-5
+    translate-x-12
+    -translate-y-4
     text-center
-    text-[18px]
+    text-[16px]
     font-medium
     text-slate-300
   "
@@ -195,16 +195,16 @@ export default function KPITradingScoreCard({
 
        <div
   className="
-    -translate-x-14
-    -translate-y-3
+    -translate-x-10
+    -translate-y-0
     flex
     flex-col
-    gap-1.5
-    text-[14px]
+    gap-1
+    text-[12px]
   "
 >
-          <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-350">
+          <div className="flex justify-between gap-10">
+            <span className="w-[80px] text-slate-350">
               Profit
             </span>
 <span className={getScoreColor(profitability)}>
@@ -212,8 +212,8 @@ export default function KPITradingScoreCard({
 </span>
           </div>
 
-          <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-350">
+          <div className="flex justify-between gap-10">
+            <span className="w-[80px] text-slate-350">
               Consistency
             </span>
             <span className={getScoreColor(consistency)}>
@@ -221,8 +221,8 @@ export default function KPITradingScoreCard({
 </span>
           </div>
 
-          <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-350">
+          <div className="flex justify-between gap-10">
+            <span className="w-[80px] text-slate-350">
               Risk
             </span>
             <span className={getScoreColor(risk)}>
@@ -230,8 +230,8 @@ export default function KPITradingScoreCard({
 </span>
           </div>
 
-          <div className="flex justify-between gap-25">
-            <span className="w-[90px] text-slate-350">
+          <div className="flex justify-between gap-10">
+            <span className="w-[80px] text-slate-350">
               Reliability
             </span>
             <span className={getScoreColor(reliability)}>
