@@ -56,36 +56,34 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
 
   return (
-    <div className="grid h-[82px] grid-cols-[320px_1fr_auto] items-center border-b border-white/[0.05]">
+    <div className="grid h-[60px] grid-cols-[320px_1fr_auto] items-center border-b border-white/[0.05]">
 
       {/* ================================================= */}
       {/* LEFT SIDE */}
       {/* ================================================= */}
 
       <div
-  className="
-    relative
-    left-8
-    w-[320px]
-    shrink-0
-  "
->
-
-        <h1 className="text-[24px] font-semibold text-white">
+        className="
+          relative
+          left-6
+          w-[300px]
+          shrink-0
+        "
+      >
+        <h1 className="text-[23px] font-semibold text-white">
           Overview
         </h1>
 
-        <p className="mt-2 text-[14px] text-slate-500">
+        <p className="mt-1.5 text-[14px] text-slate-500">
           Your trading performance at a glance
         </p>
-
       </div>
 
       {/* ================================================= */}
       {/* CENTER FILTERS */}
       {/* ================================================= */}
 
-      <div className="ml-20 flex justify-center gap-3">
+      <div className="ml-16 flex justify-center gap-3">
 
         {/* ACCOUNTS */}
 
@@ -94,87 +92,83 @@ export default function DashboardHeader({
           <select
             value={selectedAccount}
             onChange={(event) =>
-              setSelectedAccount(
-                event.target.value
-              )
+              setSelectedAccount(event.target.value)
             }
             className="
-  h-[42px]
-  min-w-[140px]
-  appearance-none
-  rounded-[16px]
-  border
-  border-white/[0.06]
-  bg-[#0b1730]
-  text-center
-  text-[15px]
-  font-semibold
-  text-slate-200
-  outline-none
-  transition-all
-  hover:bg-[#13203a]
-"
+              h-[40px]
+              min-w-[136px]
+              appearance-none
+              rounded-[14px]
+              border
+              border-white/[0.06]
+              bg-[#0b1730]
+              text-center
+              text-[14px]
+              font-semibold
+              text-slate-200
+              outline-none
+              transition-all
+              hover:bg-[#13203a]
+            "
           >
-            {availableAccounts.map(
-              (account) => (
-                <option
-                  key={account}
-                  value={account}
-                >
-                  {account === "ALL"
-                    ? "All Accounts"
-                    : account}
-                </option>
-              )
-            )}
+            {availableAccounts.map((account) => (
+              <option
+                key={account}
+                value={account}
+              >
+                {account === "ALL"
+                  ? "All Accounts"
+                  : account}
+              </option>
+            ))}
           </select>
 
           <ChevronDown
-  size={16}
-  className="
-    pointer-events-none
-    absolute
-    right-1
-    top-1/2
-    -translate-y-1/2
-    text-slate-500
-  "
-/>
+            size={15}
+            className="
+              pointer-events-none
+              absolute
+              right-2
+              top-1/2
+              -translate-y-1/2
+              text-slate-500
+            "
+          />
 
         </div>
 
         {/* STRATEGIES */}
 
         <button
-  disabled
-  className="
-    relative
-    h-[42px]
-    min-w-[150px]
-    rounded-[16px]
-    border
-    border-white/[0.06]
-    bg-[#0b1730]
-    text-center
-    text-[15px]
-    font-semibold
-    text-slate-400
-    opacity-70
-  "
->
-  All Strategies
+          disabled
+          className="
+            relative
+            h-[40px]
+            min-w-[146px]
+            rounded-[14px]
+            border
+            border-white/[0.06]
+            bg-[#0b1730]
+            text-center
+            text-[14px]
+            font-semibold
+            text-slate-400
+            opacity-70
+          "
+        >
+          All Strategies
 
-  <ChevronDown
-    size={16}
-    className="
-      pointer-events-none
-      absolute
-      right-1
-      top-1/2
-      -translate-y-1/2
-    "
-  />
-</button>
+          <ChevronDown
+            size={15}
+            className="
+              pointer-events-none
+              absolute
+              right-2
+              top-1/2
+              -translate-y-1/2
+            "
+          />
+        </button>
 
         {/* DATE RANGE */}
 
@@ -188,21 +182,21 @@ export default function DashboardHeader({
               )
             }
             className="
-  h-[42px]
-  min-w-[150px]
-  appearance-none
-  rounded-[16px]
-  border
-  border-white/[0.06]
-  bg-[#0b1730]
-  text-center
-  text-[15px]
-  font-semibold
-  text-slate-200
-  outline-none
-  transition-all
-  hover:bg-[#13203a]
-"
+              h-[40px]
+              min-w-[146px]
+              appearance-none
+              rounded-[14px]
+              border
+              border-white/[0.06]
+              bg-[#0b1730]
+              text-center
+              text-[14px]
+              font-semibold
+              text-slate-200
+              outline-none
+              transition-all
+              hover:bg-[#13203a]
+            "
           >
             <option value="1D">
               Today
@@ -230,16 +224,16 @@ export default function DashboardHeader({
           </select>
 
           <ChevronDown
-  size={16}
-  className="
-    pointer-events-none
-    absolute
-    right-2
-    top-1/2
-    -translate-y-1/2
-    text-slate-500
-  "
-/>
+            size={15}
+            className="
+              pointer-events-none
+              absolute
+              right-2
+              top-1/2
+              -translate-y-1/2
+              text-slate-500
+            "
+          />
 
         </div>
 
@@ -249,40 +243,40 @@ export default function DashboardHeader({
       {/* RIGHT SIDE */}
       {/* ================================================= */}
 
-    <div
-  className="
-    relative
-    right-6
-    mr-4
-    flex
-    items-center
-    gap-3
-  "
->
+      <div
+        className="
+          relative
+          right-5
+          mr-3
+          flex
+          items-center
+          gap-3
+        "
+      >
 
         {/* CSV */}
 
         <label
           className="
-  flex
-  h-[44px]
-  w-[180px]
-  cursor-pointer
-  items-center
-  justify-center
-  gap-3
-  rounded-[16px]
-  border
-  border-white/[0.06]
-  bg-[#0b1730]
-  text-[14px]
-  font-semibold
-  text-slate-200
-  transition-all
-  hover:bg-[#13203a]
-"
+            flex
+            h-[40px]
+            w-[170px]
+            cursor-pointer
+            items-center
+            justify-center
+            gap-2.5
+            rounded-[14px]
+            border
+            border-white/[0.06]
+            bg-[#0b1730]
+            text-[13px]
+            font-semibold
+            text-slate-200
+            transition-all
+            hover:bg-[#13203a]
+          "
         >
-          <Upload size={17} />
+          <Upload size={16} />
 
           UPLOAD IBKR CSV
 
@@ -294,51 +288,51 @@ export default function DashboardHeader({
           />
         </label>
 
-       {/* SYNC */}
+        {/* SYNC */}
 
-<button
-  onClick={onSync}
-  disabled={isSyncing}
-  className="
-    flex
-    h-[44px]
-    w-[120px]
-    items-center
-    justify-center
-    gap-3
-    rounded-[16px]
-    border
-    border-emerald-400/20
-    bg-emerald-500/10
-    px-5
-    text-[14px]
-    font-semibold
-    text-emerald-300
-    transition-all
-    hover:bg-emerald-500/20
-    disabled:cursor-not-allowed
-    disabled:opacity-70
-  "
->
-  <RefreshCw
-    size={17}
-    className={
-      isSyncing
-        ? "animate-spin"
-        : ""
-    }
-  />
+        <button
+          onClick={onSync}
+          disabled={isSyncing}
+          className="
+            flex
+            h-[40px]
+            w-[114px]
+            items-center
+            justify-center
+            gap-2.5
+            rounded-[14px]
+            border
+            border-emerald-400/20
+            bg-emerald-500/10
+            px-4
+            text-[13px]
+            font-semibold
+            text-emerald-300
+            transition-all
+            hover:bg-emerald-500/20
+            disabled:cursor-not-allowed
+            disabled:opacity-70
+          "
+        >
+          <RefreshCw
+            size={16}
+            className={
+              isSyncing
+                ? "animate-spin"
+                : ""
+            }
+          />
 
-  {isSyncing
-    ? "Syncing..."
-    : "Sync IBKR"}
-</button>
+          {isSyncing
+            ? "Syncing..."
+            : "Sync IBKR"}
+        </button>
 
-<UserMenuV2
-  totalTrades={totalTrades}
-  totalPnL={totalPnL}
-  tradingDays={tradingDays}
-/>
+        <UserMenuV2
+          totalTrades={totalTrades}
+          totalPnL={totalPnL}
+          tradingDays={tradingDays}
+        />
 
       </div>
     </div>
