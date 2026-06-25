@@ -997,9 +997,9 @@ setImportedTrades([
     {/* SIDEBAR */}
     {/* ================================================= */}
 
-    <div className="p-4">
-      <Sidebar />
-    </div>
+    <div className="p-[10px]">
+  <Sidebar />
+</div>
 
     {/* ================================================= */}
     {/* SIDEBAR SPACER */}
@@ -1011,7 +1011,7 @@ setImportedTrades([
     {/* MAIN CONTENT */}
     {/* ================================================= */}
 
-    <section className="flex min-w-0 flex-1 flex-col overflow-hidden px-10 pt-4">
+    <section className="flex min-w-0 flex-1 flex-col overflow-hidden px-8 pt-[10px]">
 
 
 

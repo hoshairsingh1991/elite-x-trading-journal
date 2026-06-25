@@ -1,9 +1,6 @@
 "use client";
 
 import Link from "next/link";
-
-import Image from "next/image";
-
 import { usePathname } from "next/navigation";
 
 import {
@@ -14,10 +11,13 @@ import {
   BarChart3,
   Settings,
   NotebookPen,
-  FileSpreadsheet,
+  LineChart,
+  Bell,
+  Monitor,
+  CircleHelp,
 } from "lucide-react";
 
-const navItems = [
+const mainItems = [
   {
     title: "Overview",
     icon: LayoutDashboard,
@@ -36,159 +36,390 @@ const navItems = [
   {
     title: "Calendar",
     icon: CalendarDays,
-    href: "/calendar",
+    href: "#",
   },
   {
     title: "Analytics",
     icon: BarChart3,
-    href: "/analytics",
+    href: "#",
   },
   {
     title: "Expenses",
     icon: Wallet,
     href: "/expenses",
   },
+];
+
+const toolItems = [
   {
-    title: "IBKR Import",
-    icon: FileSpreadsheet,
-    href: "/ibkr-import",
+    title: "Screeners",
+    icon: LineChart,
+    href: "#",
+  },
+  {
+    title: "Watchlist",
+    icon: Monitor,
+    href: "#",
+  },
+  {
+    title: "Alerts",
+    icon: Bell,
+    href: "#",
+  },
+  {
+    title: "Performance",
+    icon: BarChart3,
+    href: "#",
+  },
+];
+
+const systemItems = [
+  {
+    title: "Settings",
+    icon: Settings,
+    href: "/settings",
+  },
+  {
+    title: "Help Center",
+    icon: CircleHelp,
+    href: "#",
   },
 ];
 
 export default function Sidebar() {
-
-  const pathname =
-    usePathname();
+  const pathname = usePathname();
 
   return (
-
-    <aside className="flex h-[calc(100vh-40px)] w-[255px] flex-col justify-between rounded-[32px] border border-white/[0.04] bg-[#07101a] py-7 shadow-[0_0_30px_rgba(0,0,0,0.22)]">
-
+<aside
+  className="
+    translate-y-[22px]
+    flex
+    h-[calc(100vh-40px)]
+    w-[200px]
+    flex-col
+    overflow-hidden
+    rounded-[30px]
+    border
+    border-white/[0.06]
+    bg-[#07111C]
+    shadow-[0_24px_60px_rgba(0,0,0,0.55)]
+  "
+>
       {/* ================================================= */}
-      {/* TOP SECTION */}
+      {/* TOP */}
       {/* ================================================= */}
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col pt-4">
 
         {/* ================================================= */}
-        {/* LOGO ZONE */}
+        {/* LOGO */}
         {/* ================================================= */}
 
-        <div className="flex h-[190px] items-center justify-center px-6">
+        <div className="flex h-[172px] shrink-0 translate-y-6 items-center justify-center">
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center">
 
-            <Image
-              src="/logo.svg"
-              alt="Elite X"
-              width={58}
-              height={58}
-              priority
-              className="rounded-2xl"
-            />
+            <div className="flex items-end">
 
-            <div className="flex flex-col">
+              <span
+                className="
+                  text-[28px]
+                  font-extrabold
+                  tracking-[-0.055em]
+                  text-white
+                "
+              >
+                Elite
+              </span>
 
-              <h1 className="text-[28px] font-black tracking-[-0.04em] text-white">
-                Elite X
-              </h1>
-
-              <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-blue-400">
-                Trading OS
-              </p>
+              <span
+                className="
+                  ml-1
+                  translate-y-[2px]
+                  text-[42px]
+                  font-black
+                  leading-none
+                  tracking-[-0.08em]
+                  text-[#4F8CFF]
+                "
+              >
+                X
+              </span>
 
             </div>
+
+            <span
+              className="
+                mt-3
+                text-[10px]
+                font-semibold
+                uppercase
+                tracking-[0.42em]
+                text-[#4F8CFF]/90
+              "
+            >
+              Trading OS
+            </span>
+
           </div>
+
         </div>
 
-        {/* ================================================= */}
-        {/* NAVIGATION */}
-        {/* ================================================= */}
+{/* ================================================= */}
+{/* NAVIGATION */}
+{/* ================================================= */}
 
-        <nav className="mt-4 flex justify-center">
+<nav className="flex-1 overflow-y-auto overflow-x-hidden pb-8">
 
-          <div className="w-[88%] space-y-4">
+  <div className="pl-8 pr-3">
 
-            {navItems.map((item) => {
+   {/* ================= MAIN ================= */}
 
-              const Icon =
-                item.icon;
+<div className="space-y-2">
 
-              const isActive =
-                pathname ===
-                item.href;
+  {mainItems.map((item) => {
 
-              return (
+    const Icon = item.icon;
+    const isActive = pathname === item.href;
 
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  className={`group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 transition-all ${
-                    isActive
-  ? "bg-[#0b1730]"
-  : "hover:bg-[#0b1730]"
-                  }`}
-                >
+    const content = (
+     
+  <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
+        <Icon
+          size={20}
+          className={
+            isActive
+              ? "text-[#4F8CFF]"
+              : "text-slate-500 transition-colors group-hover:text-slate-300"
+          }
+        />
 
-                  <Icon
-                    size={22}
-                    className={`${
-                      isActive
-                        ? "text-blue-400"
-                        : "text-slate-500 group-hover:text-slate-300"
-                    }`}
-                  />
-
-                  <span
-  className={`text-[16px] font-medium ${
-    isActive
-      ? "text-slate-300"
-      : "text-slate-500 group-hover:text-slate-300"
-  }`}
->
-  {item.title}
-</span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+        <span
+          className={`text-[15px] font-medium ${
+            isActive
+              ? "text-white"
+              : "text-slate-400 transition-colors group-hover:text-slate-200"
+          }`}
+        >
+          {item.title}
+        </span>
       </div>
+    );
 
-      {/* ================================================= */}
-      {/* BOTTOM */}
-      {/* ================================================= */}
+const className = `
+  group
+  flex
+  h-[46px]
+  w-[180px]
+  translate-x-0
+  items-center
+  justify-start
+  rounded-[20px]
+  border
+  transition-all
+  duration-150
+  ${
+    isActive
+      ? "border-[#17345E] bg-[#0D1932]"
+      : "border-transparent hover:bg-white/[0.03]"
+  }
+`;
 
-      <div className="flex justify-center border-t border-white/[0.04] pt-6">
-
-  <div className="w-[88%]">
-
-    <Link
-      href="/settings"
-      className={`group flex h-[64px] w-full items-center gap-4 rounded-2xl px-6 transition-all ${
-        pathname === "/settings"
-          ? "bg-[#0b1730] text-slate-400"
-          : "text-slate-500 hover:bg-[#0b1730] hover:text-slate-400"
-      }`}
+   if (item.href === "#") {
+ return (
+  <div className="flex justify-center">
+    <button
+      key={item.title}
+      className={className}
     >
+      {content}
+    </button>
+  </div>
+);
+}
 
-      <Settings
-        size={22}
-        className={`${
-          pathname === "/settings"
-            ? "text-blue-400"
-            : "group-hover:text-slate-300"
-        }`}
-      />
-
-      <span className="text-[16px] font-medium">
-        Settings
-      </span>
-
+return (
+  <div className="flex justify-center">
+    <Link
+      key={item.title}
+      href={item.href}
+      className={className}
+    >
+      {content}
     </Link>
+  </div>
+);
+
+  })}
+
+</div>
+<div className="translate-y-2">
+{/* ================= TOOLS ================= */}
+
+<div className="mt-8 border-t border-white/[0.05] pt-7">
+
+  <p className="mb-5 translate-x-8 translate-y-4 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-500">
+  TOOLS
+</p>
+   
+
+  <div className="space-y-2">
+
+    {toolItems.map((item) => {
+
+      const Icon = item.icon;
+
+      const content = (
+        <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
+          <Icon
+            size={20}
+            className="text-slate-500 transition-colors group-hover:text-slate-300"
+          />
+
+          <span className="text-[15px] font-medium text-slate-400 transition-colors group-hover:text-slate-200">
+            {item.title}
+          </span>
+        </div>
+      );
+
+      const className = `
+        group
+        flex
+        h-[46px]
+        w-[180px]
+        -translate-x-0
+        translate-y-6
+        items-center
+        justify-start
+        rounded-[20px]
+        border
+        border-transparent
+        transition-all
+        duration-150
+        hover:bg-white/[0.03]
+      `;
+
+      return (
+        <div
+          key={item.title}
+          className="flex justify-center"
+        >
+          <button className={className}>
+            {content}
+          </button>
+        </div>
+      );
+
+    })}
 
   </div>
 </div>
-    </aside>
-  );
+</div>
+<div className="translate-y-8">
+{/* ================= SYSTEM ================= */}
+
+<div className="mt-8 border-t border-white/[0.05] pt-7">
+
+ <p className="mb-5 translate-x-8 translate-y-4 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-500">
+    SYSTEM
+  </p>
+
+  <div className="space-y-2">
+
+    {systemItems.map((item) => {
+
+      const Icon = item.icon;
+      const isActive = pathname === item.href;
+
+      const content = (
+        <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
+          <Icon
+            size={20}
+            className={
+              isActive
+                ? "text-[#4F8CFF]"
+                : "text-slate-500 transition-colors group-hover:text-slate-300"
+            }
+          />
+
+          <span
+            className={`text-[15px] font-medium ${
+              isActive
+                ? "text-white"
+                : "text-slate-400 transition-colors group-hover:text-slate-200"
+            }`}
+          >
+            {item.title}
+          </span>
+        </div>
+      );
+
+      const className = `
+        group
+        flex
+        h-[46px]
+        w-[180px]
+        -translate-x-0
+        translate-y-6
+        items-center
+        justify-start
+        rounded-[20px]
+        border
+        transition-all
+        duration-150
+        ${
+          isActive
+            ? "border-[#17345E] bg-[#0D1932]"
+            : "border-transparent hover:bg-white/[0.03]"
+        }
+      `;
+
+      if (item.href === "#") {
+        return (
+          <div
+            key={item.title}
+            className="flex justify-center"
+          >
+            <button className={className}>
+              {content}
+            </button>
+          </div>
+        );
+      }
+
+      return (
+        <div
+          key={item.title}
+          className="flex justify-center"
+        >
+          <Link
+            key={item.title}
+            href={item.href}
+            className={className}
+          >
+            {content}
+          </Link>
+        </div>
+      );
+
+    })}
+
+  </div>
+
+</div>
+</div>
+  </div>
+
+</nav>
+
+</div>
+
+{/* ================================================= */}
+{/* BOTTOM */}
+{/* ================================================= */}
+
+<div className="border-t border-white/[0.05] py-4" />
+
+</aside>
+);
 }
