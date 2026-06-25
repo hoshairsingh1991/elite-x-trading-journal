@@ -6,6 +6,8 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import { useState } from "react";
+
 import {
   ResponsiveContainer,
   PieChart,
@@ -24,49 +26,58 @@ export default function PerformanceBreakdownCard({
   reportingCurrency,
 }: PerformanceBreakdownCardProps) {
 
+  const [activeIndex, setActiveIndex] =
+  useState<number | null>(null);
+
 const currencySymbol =
   getCurrencySymbol(
     reportingCurrency
   );
 
-  const donutData = [
-    {
-      name: "Trading P&L",
-      value:
-        performanceBreakdownAnalytics.grossPnL,
-      color: "#41855a",
-    },
-    {
-      name: "Commissions",
-      value:
-        Math.abs(
-          performanceBreakdownAnalytics.commissions
-        ),
-      color: "#1e6abb",
-    },
+const donutData = [
+  {
+    name: "Long P&L",
+    value: Math.abs(
+      performanceBreakdownAnalytics.longPnL
+    ),
+    color: "#41855a",
+  },
+  {
+    name: "Short P&L",
+    value: Math.abs(
+      performanceBreakdownAnalytics.shortPnL
+    ),
+    color: "#4b19c0",
+  },
+  {
+    name: "Commissions",
+    value: Math.abs(
+      performanceBreakdownAnalytics.commissions
+    ),
+    color: "#124eaf",
+  },
+];
 
-  ];
-
-  return (  
+return (
 <div
   className="
-    h-[480px]
+    h-[400px]
     overflow-hidden
-    rounded-[22px]
+    rounded-[20px]
     border
-    border-white/[0.08]
+    border-white/[0.06]
     bg-[#081526]/80
     backdrop-blur-xl
 
-transition-all
-duration-300
+    transition-all
+    duration-300
 
-hover:-translate-y-1
+    hover:-translate-y-1
 
-hover:border-white/[0.14]
-hover:bg-[#0A1A2E]/80
+    hover:border-white/[0.12]
+    hover:bg-[#0A1A2E]/80
 
-hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
+    hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
   "
 >
       {/* ===================================== */}
@@ -79,178 +90,342 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
       {/* HEADER */}
       {/* ================================================= */}
 
-      <div className="px-8 pt-7">
-        <div className="relative left-4">
-          <h3 className="text-[16px] font-semibold text-white">
+      <div className="px-7 pt-5">
+        <div className="relative left-3">
+          <h3 className="text-[15px] font-semibold text-white">
             Performance Breakdown
           </h3>
 
-          <p className="mt-2 text-[15px] text-slate-500">
+          <p className="mt-1.5 text-[14px] text-slate-500">
             Trading distribution analysis
           </p>
         </div>
       </div>
 
-      {/* ================================================= */}
-      {/* DONUT + LEGEND */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* DONUT + LEGEND */}
+{/* ================================================= */}
 
-      <div className="mt-14 flex justify-center">
-        <div className="w-[90%]">
+<div className="mt-8 flex justify-center">
+  <div className="w-[95%]">
 
-          <div className="relative top-17 flex items-center justify-center gap-10">
+    <div className="relative top-10 flex items-center justify-center gap-7">
 
-            {/* DONUT PLACEHOLDER */}
-<div className="relative h-[220px] w-[220px]">
+      {/* DONUT PLACEHOLDER */}
 
-<ResponsiveContainer
-  width={220}
-  height={220}
->
+      <div className="relative -left-3 h-[165px] w-[165px]">
 
-    <PieChart>
+        <ResponsiveContainer
+          width={165}
+          height={165}
+        >
 
-      <Pie
-        data={donutData}
-        dataKey="value"
-        innerRadius={80}
-        outerRadius={110}
-        paddingAngle={3}
-        stroke="none"
-      >
+          <PieChart>
 
-        {donutData.map(
-          (entry, index) => (
-            <Cell
-              key={index}
-              fill={entry.color}
-            />
-          )
-        )}
+            <Pie
+              data={donutData}
+              dataKey="value"
+              innerRadius={60}
+              outerRadius={82}
+              paddingAngle={3}
+              stroke="none"
+              onMouseEnter={(_, index) =>
+                setActiveIndex(index)
+              }
+              onMouseLeave={() =>
+                setActiveIndex(null)
+              }
+            >
 
-      </Pie>
+{donutData.map(
+  (entry, index) => (
+    <Cell
+  key={entry.name}
+  fill={entry.color}
+  fillOpacity={
+    activeIndex === null ||
+    activeIndex === index
+      ? 1
+      : 0.30
+  }
+  style={{
+    transition: "all 200ms ease",
+    filter:
+      activeIndex === index
+        ? "drop-shadow(0 0 4px rgba(65,133,90,0.40))"
+        : "none",
+  }}
+/>
+  )
+)}
 
-    </PieChart>
+            </Pie>
 
-  </ResponsiveContainer>
+          </PieChart>
 
-  {/* CENTER LABEL */}
+        </ResponsiveContainer>
 
-  <div
-    className="
-      absolute
-      inset-0
-      flex
-      flex-col
-      items-center
-      justify-center
-      pointer-events-none
-    "
-  >
+        {/* CENTER LABEL */}
 
-    <div className="text-[26px] font-bold text-slate-300">
-      {currencySymbol}
-{performanceBreakdownAnalytics.netTradingPnL.toFixed(2)}
-    </div>
+        <div
+          className="
+            absolute
+            inset-0
+            flex
+            flex-col
+            items-center
+            justify-center
+            pointer-events-none
+          "
+        >
 
-    <div
-      className="
-        mt-1
-        text-[12px]
-        uppercase
-        tracking-[0.16em]
-        text-slate-400
-      "
-    >
-      Net P&amp;L
-    </div>
+          <div className="text-[20px] font-bold text-slate-300">
+            {currencySymbol}
+            {performanceBreakdownAnalytics.netTradingPnL.toFixed(2)}
+          </div>
 
-  </div>
-
-</div>
-
-            {/* LEGEND */}
-
-            <div className="relative left-2 w-[260px] flex flex-col gap-6">
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-
-                  <span className="text-[16px] text-slate-400">
-                    Long P&L
-                  </span>
-                </div>
-
-                <span className="text-[15px] font-medium text-slate-300">
-                  {currencySymbol}
-{performanceBreakdownAnalytics.longPnL.toFixed(2)}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
-
-                  <span className="text-[16px] text-slate-400">
-                    Short P&L
-                  </span>
-                </div>
-
-                <span className="text-[15px] font-medium text-slate-300">
-                  {currencySymbol}
-{performanceBreakdownAnalytics.shortPnL.toFixed(2)}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-
-                  <span className="text-[16px] text-slate-400">
-                    Commissions
-                  </span>
-                </div>
-
-                <span className="text-[15px] font-medium text-slate-300">
-{currencySymbol}
-{Math.abs(
-  performanceBreakdownAnalytics.commissions
-).toFixed(2)}
-                </span>
-              </div>
-              
-            </div>
-
+          <div
+            className="
+              mt-1
+              text-[9px]
+              uppercase
+              tracking-[0.14em]
+              text-slate-400
+            "
+          >
+            Net P&amp;L
           </div>
 
         </div>
+
       </div>
 
-      {/* ===================================== */}
-      {/* INVISIBLE SPACER */}
-      {/* ===================================== */}
+{/* LEGEND */}
 
-      <div className="h-[130px]" />
+<div className="relative left-0 w-[200px] flex flex-col gap-5">
+
+{/* LONG */}
+
+<div className="flex items-center justify-between">
+
+  <div
+    className={`
+      flex items-center gap-2.5
+      transition-all duration-200
+      ${
+        activeIndex === 0
+          ? "translate-x-1"
+          : ""
+      }
+    `}
+  >
+<div
+  className={`
+    rounded-full
+    transition-all duration-200
+    ${
+      activeIndex === 0
+        ? "h-2.5 w-2.5"
+        : "h-2 w-2"
+    }
+  `}
+  style={{ backgroundColor: "#41855a" }}
+/>
+
+    <span
+      className={`
+        text-[14px]
+        transition-all duration-200
+        ${
+          activeIndex === 0
+            ? "text-white"
+            : "text-slate-400"
+        }
+      `}
+    >
+      Long P&amp;L
+    </span>
+  </div>
+
+  <span
+    className={`
+      text-[14px]
+      font-medium
+      transition-all duration-200
+      ${
+        activeIndex === 0
+          ? "-translate-x-1 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.18)]"
+          : "text-slate-300"
+      }
+    `}
+  >
+    {currencySymbol}
+    {performanceBreakdownAnalytics.longPnL.toFixed(2)}
+  </span>
+
+</div>
+
+{/* SHORT */}
+
+<div className="flex items-center justify-between">
+
+  <div
+    className={`
+      flex items-center gap-2.5
+      transition-all duration-200
+      ${
+        activeIndex === 1
+          ? "translate-x-1"
+          : ""
+      }
+    `}
+  >
+<div
+  className={`
+    rounded-full
+    transition-all
+    duration-200
+    ${
+      activeIndex === 1
+        ? "h-2.5 w-2.5"
+        : "h-2 w-2"
+    }
+  `}
+  style={{
+    backgroundColor: "#4b19c0",
+  }}
+/>
+
+    <span
+      className={`
+        text-[14px]
+        transition-all duration-200
+        ${
+          activeIndex === 1
+            ? "text-white"
+            : "text-slate-400"
+        }
+      `}
+    >
+      Short P&amp;L
+    </span>
+  </div>
+
+  <span
+    className={`
+      text-[14px]
+      font-medium
+      transition-all duration-200
+      ${
+        activeIndex === 1
+          ? "-translate-x-1 text-white drop-shadow-[0_0_6px_rgba(75,25,192,0.30)]"
+          : "text-slate-300"
+      }
+    `}
+  >
+    {currencySymbol}
+    {performanceBreakdownAnalytics.shortPnL.toFixed(2)}
+  </span>
+
+</div>
+
+{/* COMMISSIONS */}
+
+<div className="flex items-center justify-between">
+
+  <div
+    className={`
+      flex items-center gap-2.5
+      transition-all duration-200
+      ${
+        activeIndex === 2
+          ? "translate-x-1"
+          : ""
+      }
+    `}
+  >
+<div
+  className={`
+    rounded-full
+    transition-all
+    duration-200
+    ${
+      activeIndex === 2
+        ? "h-2.5 w-2.5"
+        : "h-2 w-2"
+    }
+  `}
+  style={{
+    backgroundColor: "#124eaf",
+  }}
+/>
+
+    <span
+      className={`
+        text-[14px]
+        transition-all duration-200
+        ${
+          activeIndex === 2
+            ? "text-white"
+            : "text-slate-400"
+        }
+      `}
+    >
+      Commissions
+    </span>
+  </div>
+
+  <span
+    className={`
+      text-[14px]
+      font-medium
+      transition-all duration-200
+      ${
+        activeIndex === 2
+          ? "-translate-x-1 text-white drop-shadow-[0_0_6px_rgba(59,130,246,0.30)]"
+          : "text-slate-300"
+      }
+    `}
+  >
+    {currencySymbol}
+    {Math.abs(
+      performanceBreakdownAnalytics.commissions
+    ).toFixed(2)}
+  </span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+{/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
+
+      <div className="h-[120px]" />
 
 {/* ================================================= */}
 {/* BOTTOM METRICS */}
 {/* ================================================= */}
 
 <div className="flex justify-center">
-  <div className="w-[90%]">
+  <div className="w-[92%]">
 
-    <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-3 gap-5">
 
       {/* LONG TRADES */}
 
       <div className="flex flex-col items-center">
 
-        <p className="text-[13px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           Long Trades
         </p>
 
-        <p className="mt-3 text-[22px] font-semibold text-white">
+        <p className="mt-2.5 text-[18px] font-semibold text-white">
           {performanceBreakdownAnalytics.longTrades}
         </p>
 
@@ -260,11 +435,11 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
       <div className="flex flex-col items-center">
 
-        <p className="text-[13px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           Short Trades
         </p>
 
-        <p className="mt-3 text-[22px] font-semibold text-white">
+        <p className="mt-2.5 text-[18px] font-semibold text-white">
           {performanceBreakdownAnalytics.shortTrades}
         </p>
 
@@ -274,13 +449,13 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
       <div className="flex flex-col items-center">
 
-        <p className="text-[13px] uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
           Gross P&amp;L
         </p>
 
-        <p className="mt-3 text-[22px] font-semibold text-emerald-400">
+        <p className="mt-2.5 text-[18px] font-semibold text-emerald-400">
           {currencySymbol}
-{performanceBreakdownAnalytics.grossPnL.toFixed(2)}
+          {performanceBreakdownAnalytics.grossPnL.toFixed(2)}
         </p>
 
       </div>

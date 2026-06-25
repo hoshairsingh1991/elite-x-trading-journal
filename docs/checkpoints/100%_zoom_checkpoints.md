@@ -90,3 +90,34 @@ Overall proportions matched to the new 100% zoom baseline
 
 ========================================================= ================================================================================================
 
+
+git commit -m "Refine Performance Breakdown card and interactive donut for 100% layout"
+
+What this checkpoint includes
+
+✅ Dashboard calibrated for 100% zoom
+
+Sidebar refined (180px width, typography adjusted)
+Header refined (56px height, alignment polished)
+KPI Cards resized and recalibrated
+Trading Score card refined
+Sparkline overflow fixed
+Best/Worst Day improvements
+Equity Curve fully recalibrated
+
+✅ Performance Breakdown
+
+Card resized to match new dashboard proportions
+Donut resized and repositioned
+Legend typography recalibrated
+New color system implemented:
+🟢 Long P&L → #41855a
+🟣 Short P&L → #4b19c0
+🔵 Commissions → #124eaf
+Donut hover state wired
+Interactive legend implemented
+Sidebar-style hover animation adopted (movement + glow instead of background)
+Donut and legend colors synchronized
+
+========================================================= ================================================================================================
+
