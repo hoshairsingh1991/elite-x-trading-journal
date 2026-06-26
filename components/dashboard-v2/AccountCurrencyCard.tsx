@@ -100,125 +100,182 @@ export default function AccountCurrencyCard({
     [trades]
   );
 
+const nativePnLRows = [...analytics.nativePnL];
 
-  return (
-  <div
-  className="
-    relative
-    z-50
+while (nativePnLRows.length < 3) {
+  nativePnLRows.push({
+    currency: "",
+    pnl: 0,
+    percentage: 0,
+  });
+}
 
-    h-[860px]
-    overflow-hidden
-    rounded-[22px]
-    border
-        border-white/[0.08]
-        bg-[#081526]/80
-        backdrop-blur-xl
-        transition-all
-        duration-300
-        hover:-translate-y-1
-        hover:border-white/[0.14]
-        hover:bg-[#0A1A2E]/80
-        hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
-      "
-    >
-{/* ===================================== */}
-{/* HEADER */}
-{/* ===================================== */}
+const commissionRows = [...analytics.commissions];
 
-<div className="relative left-4 top-2">
-  <div className="flex items-start justify-between pr-8">
+while (commissionRows.length < 3) {
+  commissionRows.push({
+    currency: "",
+    commission: 0,
+    percentage: 0,
+  });
+}
 
-    {/* Title */}
-
-    <div className="relative left-4">
-      <h3 className="text-[16px] font-semibold text-white">
-        Account & Currency
-      </h3>
-
-      <p className="mt-2 text-[14px] text-slate-500">
-        Multi-currency reporting
-      </p>
-    </div>
-
-    {/* Icon */}
-
-    <div
-      className="
-        relative
-        right-14
-
-        flex
-        h-11
-        w-11
-        items-center
-        justify-center
-
-        rounded-xl
-        border
-        border-white/[0.08]
-        bg-white/[0.03]
-
-        transition-all
-        duration-300
-      "
-    >
-      <Landmark
-        size={18}
-        className="text-slate-400"
-      />
-    </div>
-
-  </div>
-
-  {/* Divider */}
-
+return (
   <div
     className="
       relative
-      right-2
+      z-50
 
-      mt-5
-      h-px
-      w-[92%]
+      h-[760px]
+      overflow-hidden
+      rounded-[22px]
+      border
+      border-white/[0.08]
+      bg-[#081526]/80
+      backdrop-blur-xl
 
-      bg-white/[0.06]
+      transition-all
+      duration-300
+
+      hover:-translate-y-1
+      hover:border-white/[0.14]
+      hover:bg-[#0A1A2E]/80
+      hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
     "
-  />
-</div>
+  >
 
+    {/* ===================================== */}
+    {/* INVISIBLE SPACER */}
+    {/* ===================================== */}
+
+    <div className="h-[8px]" />
+
+    {/* ===================================== */}
+    {/* HEADER */}
+    {/* ===================================== */}
+
+    <div className="px-8 pt-7">
+
+      <div className="relative left-6 flex items-start justify-between pr-8">
+
+        {/* Title */}
+
+        <div>
+
+          <h3 className="text-[16px] font-semibold text-white">
+            Account & Currency
+          </h3>
+
+          <p className="mt-2 text-[14px] text-slate-500">
+            Multi-currency reporting
+          </p>
+
+        </div>
+
+        {/* Icon */}
+
+<div
+  className="
+    flex
+    h-10
+    w-10
+    shrink-0
+    items-center
+    justify-center
+
+    -translate-x-12
+    translate-y-0
+
+    rounded-xl
+    border
+    border-white/[0.08]
+    bg-white/[0.03]
+
+    transition-all
+    duration-300
+  "
+>
+          <Landmark
+            size={18}
+            className="text-slate-400"
+          />
+        </div>
+
+      </div>
+{/* ===================================== */}
+    {/* INVISIBLE SPACER */}
+    {/* ===================================== */}
+
+    <div className="h-[2px]" />
+
+      {/* Divider */}
+
+      <div
+        className="
+          relative
+          left-4
+
+          mt-5
+          h-px
+          w-[92%]
+
+          bg-white/[0.06]
+        "
+      />
+
+    </div>
+{/* ===================================== */}
+    {/* INVISIBLE SPACER */}
+    {/* ===================================== */}
+
+    <div className="h-[6px]" />
 {/* ===================================== */}
 {/* NATIVE P&L */}
 {/* ===================================== */}
 
-<div className="relative translate-y-4 mt-10 flex justify-center">
+<div className="mt-10 flex justify-center">
+
   <div className="w-[90%]">
 
-    <div className="mb-4 text-[13px] font-medium uppercase tracking-[0.12em] text-slate-400">
+    <div className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">
       Native P&amp;L By Currency
     </div>
 
-    <div className="h-[6px]" />
+    
 
-    {/* Column Headers */}
+    {/* ===================================== */}
+    {/* COLUMN HEADERS */}
+    {/* ===================================== */}
 
-    <div className="grid grid-cols-[170px_110px_90px] items-center px-3">
-      <span className="text-[11px] uppercase tracking-[0.14em] text-slate-500">
-        Currency
-      </span>
+    <div className="flex items-center">
 
-      <span className="relative right-4 text-right text-[11px] uppercase tracking-[0.14em] text-slate-500">
-        P&L
+      {/* Currency */}
+      <div className="w-[150px] shrink-0 translate-x-4">
+        <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          Currency
         </span>
+      </div>
 
-      <span className="relative left-20 text-right text-[12px] uppercase tracking-[0.14em] text-slate-500">
-        %
-      </span>
+      {/* P&L */}
+      <div className="w-[100px] shrink-0 -translate-x-2 text-right">
+        <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          P&amp;L
+        </span>
+      </div>
+
+      {/* % */}
+      <div className="ml-auto w-[140px] shrink-0 -translate-x-4  text-right">
+        <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          %
+        </span>
+      </div>
+
     </div>
+
 
     <div
       className="
-        relative
+        mt-2
         rounded-[18px]
         border
         border-white/[0.10]
@@ -227,55 +284,113 @@ export default function AccountCurrencyCard({
         py-5
       "
     >
+
       <div className="space-y-2">
 
         <div className="h-[4px]" />
 
-        {analytics.nativePnL.map((item, index) => {
+        {nativePnLRows.map((item, index) => {
 
           const info =
             CURRENCY_INFO[
               item.currency as keyof typeof CURRENCY_INFO
             ];
 
+            const isPlaceholder =
+  item.currency === "";
+
           return (
-            <div key={item.currency}>
+            <div key={`${item.currency}-${index}`}>
 
               {index > 0 && (
                 <>
-                  <div className="h-[4px]" />
+                  <div className="h-[2px]" />
                   <div className="h-px bg-white/[0.06]" />
-                  <div className="h-[4px]" />
+                  <div className="h-[2px]" />
                 </>
               )}
 
-              <div className="grid grid-cols-[170px_110px_180px] items-center">
+              <div className="flex items-center">
 
-                <div className="relative left-3">
-                  <div className="text-[14px] font-medium text-slate-200">
-                    {info?.flag ?? "🏳️"} {item.currency}
-                  </div>
+{/* Currency */}
 
-                  <div className="mt-1 text-[14px] text-slate-500">
-                    {info?.name ?? "Unknown Currency"}
-                  </div>
-                </div>
+<div className="w-[150px] translate-x-4">
 
-                <div
-                  className={`text-right text-[15px] font-semibold ${
-                    item.pnl >= 0
-                      ? "text-emerald-400"
-                      : "text-rose-400"
-                  }`}
-                >
-                  {item.pnl >= 0 ? "+" : "-"}
-                  {info?.symbol ?? ""}
-                  {Math.abs(item.pnl).toFixed(2)}
-                </div>
+  {isPlaceholder ? (
 
-                <div className="text-right text-[15px] font-medium text-slate-400">
-                  {item.percentage}%
-                </div>
+    <>
+      <div className="text-[12px] text-slate-600">
+        —
+      </div>
+
+      <div className="mt-1 text-[11px] text-slate-700">
+        —
+      </div>
+    </>
+
+  ) : (
+
+    <>
+      <div className="text-[12px] font-medium text-slate-200">
+        {info?.flag} {item.currency}
+      </div>
+
+      <div className="mt-1 text-[11px] text-slate-500">
+        {info?.name}
+      </div>
+    </>
+
+  )}
+
+</div>
+
+{/* P&L */}
+
+<div className="w-[100px] translate-x-2 text-right">
+
+  {isPlaceholder ? (
+
+    <span className="text-[12px] text-slate-600">
+      —
+    </span>
+
+  ) : (
+
+    <span
+      className={`text-[12px] font-semibold ${
+        item.pnl >= 0
+          ? "text-emerald-400"
+          : "text-rose-400"
+      }`}
+    >
+      {item.pnl >= 0 ? "+" : "-"}
+      {info?.symbol}
+      {Math.abs(item.pnl).toFixed(2)}
+    </span>
+
+  )}
+
+</div>
+
+{/* Percentage */}
+
+<div className="ml-auto w-[140px] translate-x-0 text-right">
+
+  {isPlaceholder ? (
+
+    <span className="text-[12px] text-slate-600">
+      —
+    </span>
+
+  ) : (
+
+    <span className="text-[12px] font-medium text-slate-400">
+      {item.percentage}%
+    </span>
+
+  )}
+
+</div>
 
               </div>
 
@@ -284,41 +399,60 @@ export default function AccountCurrencyCard({
         })}
 
       </div>
-    </div>
-  </div>
-</div>
 
+    </div>
+
+  </div>
+
+</div>
+<div className="h-[12px]" />
 {/* ===================================== */}
 {/* COMMISSIONS */}
 {/* ===================================== */}
 
-<div className="relative translate-y-8 mt-10 flex justify-center">
+<div className="mt-10 flex justify-center">
+
   <div className="w-[90%]">
 
-    <div className="mb-4 text-[13px] font-medium uppercase tracking-[0.12em] text-slate-400">
+    <div className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">
       Commissions By Currency
     </div>
 
-    <div className="h-[6px]" />
+    {/* ===================================== */}
+    {/* COLUMN HEADERS */}
+    {/* ===================================== */}
 
-    {/* Column Headers */}
+    <div className="flex items-center">
 
-    <div className="grid grid-cols-[170px_110px_90px] items-center px-3">
-      <span className="text-[11px] uppercase tracking-[0.14em] text-slate-500">
-        Currency
-      </span>
+      {/* Currency */}
 
-      <span className="relative left-4 text-right text-[11px] uppercase tracking-[0.14em] text-slate-500">
-      Commission
-      </span>
-      <span className="relative left-20 text-right text-[12px] uppercase tracking-[0.14em] text-slate-500">
-        %
-      </span>
+      <div className="w-[150px] shrink-0 translate-x-4">
+        <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          Currency
+        </span>
+      </div>
+
+      {/* Commission */}
+
+      <div className="w-[100px] shrink-0 translate-x-6 text-right">
+        <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          Commission
+        </span>
+      </div>
+
+      {/* % */}
+
+      <div className="ml-auto w-[140px] shrink-0 -translate-x-4 text-right">
+        <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          %
+        </span>
+      </div>
+
     </div>
 
     <div
       className="
-        relative
+        mt-2
         rounded-[18px]
         border
         border-white/[0.10]
@@ -327,72 +461,151 @@ export default function AccountCurrencyCard({
         py-5
       "
     >
+
       <div className="space-y-2">
-<div className="h-[4px]" />
-        {analytics.commissions.map((item, index) => {
+
+        <div className="h-[4px]" />
+
+        {commissionRows.map((item, index) => {
+
+          const isPlaceholder =
+            item.currency === "";
 
           const info =
-            CURRENCY_INFO[
-              item.currency as keyof typeof CURRENCY_INFO
-            ];
+            !isPlaceholder
+              ? CURRENCY_INFO[
+                  item.currency as keyof typeof CURRENCY_INFO
+                ]
+              : null;
 
           return (
-            <div key={item.currency}>
+            <div key={`${item.currency}-${index}`}>
 
               {index > 0 && (
                 <>
-                  <div className="h-[4px]" />
+                  <div className="h-[2px]" />
                   <div className="h-px bg-white/[0.06]" />
-                  <div className="h-[4px]" />
+                  <div className="h-[2px]" />
                 </>
               )}
 
-              <div className="grid grid-cols-[170px_110px_180px] items-center">
+              <div className="flex items-center">
 
-                <div className="relative left-3">
-                  <div className="text-[14px] font-medium text-slate-200">
-                    {info?.flag ?? "🏳️"} {item.currency}
-                  </div>
+                {/* Currency */}
 
-                  <div className="mt-1 text-[14px] text-slate-500">
-                    {info?.name ?? "Unknown Currency"}
-                  </div>
+                <div className="w-[150px] shrink-0 translate-x-4">
+
+                  {isPlaceholder ? (
+
+                    <>
+                      <div className="text-[12px] text-slate-600">
+                        —
+                      </div>
+
+                      <div className="mt-1 text-[11px] text-slate-700">
+                        —
+                      </div>
+                    </>
+
+                  ) : (
+
+                    <>
+                      <div className="text-[12px] font-medium text-slate-200">
+                        {info?.flag} {item.currency}
+                      </div>
+
+                      <div className="mt-1 text-[11px] text-slate-500">
+                        {info?.name}
+                      </div>
+                    </>
+
+                  )}
+
                 </div>
 
-                <div className="text-right text-[15px] font-semibold text-slate-300">
-                  {info?.symbol ?? ""}
-                  {item.commission.toFixed(2)}
+                {/* Commission */}
+
+                <div className="w-[100px] shrink-0 translate-x-2 text-right">
+
+                  {isPlaceholder ? (
+
+                    <span className="text-[12px] text-slate-600">
+                      —
+                    </span>
+
+                  ) : (
+
+                    <span className="text-[12px] font-semibold text-slate-300">
+                      {info?.symbol}
+                      {item.commission.toFixed(2)}
+                    </span>
+
+                  )}
+
                 </div>
 
-                <div className="text-right text-[15px] font-medium text-slate-400">
-                  {item.percentage}%
+                {/* Percentage */}
+
+                <div className="ml-auto w-[140px] shrink-0 translate-x-0 text-right">
+
+                  {isPlaceholder ? (
+
+                    <span className="text-[12px] text-slate-600">
+                      —
+                    </span>
+
+                  ) : (
+
+                    <span className="text-[12px] font-medium text-slate-400">
+                      {item.percentage}%
+                    </span>
+
+                  )}
+
                 </div>
 
               </div>
 
             </div>
+
           );
+
         })}
 
       </div>
+
     </div>
+
   </div>
+
 </div>
+
+<div className="h-[12px]" />
 
 {/* ===================================== */}
 {/* CURRENCIES TRADED */}
 {/* ===================================== */}
 
-<div className="relative translate-y-12 mt-10 flex justify-center">
+<div className="mt-10 flex justify-center">
+
   <div className="w-[90%]">
 
-    <div className="mb-4 text-[13px] font-medium uppercase tracking-[0.12em] text-slate-400">
+    <div
+      className="
+        mb-4
+        text-[11px]
+        font-medium
+        uppercase
+        tracking-[0.12em]
+        text-slate-400
+      "
+    >
       Currencies Traded
     </div>
 
     <div className="h-[4px]" />
 
-    <div className="relative left-0 flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-3">
 
       {analytics.currenciesTraded.map((currency) => {
 
@@ -405,10 +618,9 @@ export default function AccountCurrencyCard({
           <div
             key={currency}
             className="
-              w-[68px]
-              h-[38px]
-
               flex
+              h-[30px]
+              w-[60px]
               items-center
               justify-center
 
@@ -417,9 +629,16 @@ export default function AccountCurrencyCard({
               border-white/[0.08]
               bg-white/[0.02]
 
-              text-[15px]
+              text-[12px]
               font-medium
               text-slate-300
+
+              transition-all
+              duration-200
+
+              hover:border-cyan-500/20
+              hover:bg-white/[0.04]
+              hover:-translate-y-[1px]
             "
           >
             {info?.flag ?? "🏳️"} {currency}
@@ -429,275 +648,321 @@ export default function AccountCurrencyCard({
 
     </div>
 
-    <div className="h-[4px]" />
+    <div className="h-[6px]" />
 
     {/* Divider */}
 
     <div className="mt-6 h-px bg-white/[0.06]" />
 
   </div>
-</div>
 
+</div>
+<div className="h-[12px]" />
 {/* ===================================== */}
 {/* REPORTING CONFIG */}
 {/* ===================================== */}
 
-<div className="relative translate-y-16 mt-10 flex justify-center">
+<div className="mt-10 flex justify-center">
+
   <div className="w-[90%]">
-    <div className="mb-4 text-[13px] font-medium uppercase tracking-[0.12em] text-slate-400">
-      Reporting Configuration
-    </div>
 
     <div
       className="
-        relative
-        translate-y-2
-
+        mb-4
+        text-[11px]
+        font-medium
+        uppercase
+        tracking-[0.12em]
+        text-slate-400
+      "
+    >
+      Reporting Configuration
+    </div>
+<div className="h-[8px]" />
+    <div
+      className="
+        mt-2
         rounded-[18px]
         border
         border-white/[0.10]
         bg-white/[0.02]
-
-        p-5
+        px-7
+        py-5
       "
     >
+
       <div className="space-y-2">
 
         <div className="h-[2px]" />
 
-{/* Reporting Currency */}
+        {/* Reporting Currency */}
+
+        <div className="flex items-center justify-between">
+
+          {/* Left */}
+
+          <div className="flex items-center gap-3 translate-x-2">
+
+            <DollarSign
+              size={14}
+              className="text-slate-500"
+            />
+
+            <span className="text-[12px] font-medium text-slate-400">
+              Reporting Currency
+            </span>
+
+          </div>
+
+          {/* Right */}
+
+          <div className="-translate-x-2">
+
+            <select
+              value={reportingCurrency}
+              onChange={(e) =>
+                setReportingCurrency(
+                  e.target.value
+                )
+              }
+              className="
+                h-[20px]
+                w-[62px]
+
+                cursor-pointer
+
+                border-none
+                bg-transparent
+
+                text-right
+                text-[12px]
+                font-medium
+                text-slate-200
+
+                outline-none
+              "
+            >
+              <option value="USD">USD</option>
+              <option value="CAD">CAD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="JPY">JPY</option>
+              <option value="INR">INR</option>
+            </select>
+
+          </div>
+
+        </div>
+
+        <div className="h-[6px]" />
+
+        <div className="h-px bg-white/[0.06]" />
+
+{/* FX Conversion */}
+
+<div className="h-[4px]" />
 
 <div className="flex items-center justify-between">
 
-  <div className="relative left-3 flex items-center gap-3">
-    <DollarSign
-      size={15}
+  {/* Left */}
+
+  <div className="flex items-center gap-3 translate-x-2">
+
+    <RefreshCw
+      size={14}
       className="text-slate-500"
     />
 
-    <span className="text-[16px] text-slate-400">
-      Reporting Currency
+    <span className="text-[12px] font-medium text-slate-400">
+      FX Conversion
     </span>
-  </div>
-
-  <div className="relative right-2">
-
-<select
-  value={reportingCurrency}
-  onChange={(e) =>
-    setReportingCurrency(
-      e.target.value
-    )
-  }
-  className="
-    w-[60px]
-    h-[20px]
-
-    relative
-    left-0
-    top-[2px]
-
-    cursor-pointer
-
-    border-none
-    bg-transparent
-
-    text-[15px]
-    font-medium
-    text-slate-200
-
-    outline-none
-  "
->
-
-      <option value="USD">
-        USD
-      </option>
-
-      <option value="CAD">
-        CAD
-      </option>
-
-      <option value="EUR">
-        EUR
-      </option>
-
-      <option value="GBP">
-        GBP
-      </option>
-
-      <option value="JPY">
-        JPY
-      </option>
-
-      <option value="INR">
-        INR
-      </option>
-    </select>
-
- 
 
   </div>
 
-</div>
+  {/* Right */}
 
-<div className="h-[6px]" />
-<div className="h-px bg-white/[0.06]" />
+  <div className="flex items-center gap-2 -translate-x-2">
 
-{/* FX Conversion */}
-<div className="h-[4px]" />
-        <div className="flex items-center justify-between">
-          <div className="relative left-3 flex items-center gap-3">
-            <RefreshCw
-              size={15}
-              className="text-slate-500"
-            />
-
-            <span className="text-[16px] text-slate-400">
-              FX Conversion
-            </span>
-          </div>
-<div className="relative right-3 flex items-center gap-2">
-
-  <span className="text-[15px] font-medium text-emerald-400">
-    Enabled
-  </span>
-
-  <div
-    className="
-      relative
-      left-0
-
-      h-2
-      w-2
-      rounded-full
-      bg-emerald-400
-    "
-  />
-
-</div>
-        </div>
-
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
-<div className="h-[4px]" />
-
-
-        {/* Conversion Method */}
-
-        <div className="flex items-center justify-between">
-          <div className="relative left-3 flex items-center gap-3">
-            <TrendingUp
-              size={15}
-              className="text-slate-500"
-            />
-
-            <span className="text-[16px] text-slate-400">
-              Conversion Method
-            </span>
-          </div>
-
-          <div className="relative right-3 flex items-center gap-2">
-            <span className="text-[15px] font-medium text-slate-200">
-              Daily Reference
-            </span>
-
-          
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* FX Source */}
-<div className="h-[4px]" />
-        <div className="flex items-center justify-between">
-          <div className="relative left-3 flex items-center gap-3">
-            <Globe
-              size={15}
-              className="text-slate-500"
-            />
-
-            <span className="text-[16px] text-slate-400">
-              FX Rate Source
-            </span>
-          </div>
-
-          <div className="relative right-3 flex items-center gap-2">
-            <span className="text-[15px] font-medium text-slate-200">
-              ECB
-            </span>
-
-           
-          </div>
-        </div>
-
-        <div className="h-[4px]" />
-        <div className="h-px bg-white/[0.06]" />
-
-        {/* Last Updated */}
-<div className="h-[4px]" />
-        <div className="flex items-center justify-between">
-          <div className="relative left-3 flex items-center gap-3">
-            <Calendar
-              size={15}
-              className="text-slate-500"
-            />
-
-            <span className="text-[16px] text-slate-400">
-              Last Updated
-            </span>
-          </div>
-
-<div className="relative -right-3 flex items-center gap-2">
-<span className="text-[15px] font-medium text-slate-200">
-  {todayDate}
-</span>
-
-  <div className="w-[14px]" />
-</div>
-        </div>
-
-        <div className="h-[4px]" />
-
-      </div>
-    </div>
-
-    <div className="h-[26px]" />
+    <span className="text-[12px] font-medium text-emerald-400">
+      Enabled
+    </span>
 
     <div
       className="
-        rounded-[16px]
-        border
-        border-blue-500/[0.12]
-        bg-blue-500/[0.02]
-        p-4
+        h-2
+        w-2
+        rounded-full
+        bg-emerald-400
+      "
+    />
+
+  </div>
+
+</div>
+
+<div className="h-[4px]" />
+
+<div className="h-px bg-white/[0.06]" />
+
+<div className="h-[4px]" />
+
+{/* Conversion Method */}
+
+<div className="flex items-center justify-between">
+
+  {/* Left */}
+
+  <div className="flex items-center gap-3 translate-x-2">
+
+    <TrendingUp
+      size={14}
+      className="text-slate-500"
+    />
+
+    <span className="text-[12px] font-medium text-slate-400">
+      Conversion Method
+    </span>
+
+  </div>
+
+  {/* Right */}
+
+  <div className="-translate-x-2">
+
+    <span className="text-[12px] font-medium text-slate-200">
+      Daily Reference
+    </span>
+
+  </div>
+
+</div>
+
+<div className="h-[4px]" />
+
+<div className="h-px bg-white/[0.06]" />
+
+{/* FX Source */}
+
+<div className="h-[4px]" />
+
+<div className="flex items-center justify-between">
+
+{/* Left */}
+
+<div className="flex items-center gap-3 translate-x-2">
+
+  <Globe
+    size={14}
+    className="text-slate-500"
+  />
+
+  <span className="text-[12px] font-medium text-slate-400">
+    Exchange Rate Source
+  </span>
+
+</div>
+
+{/* Right */}
+
+<div className="-translate-x-2">
+
+  <span className="text-[12px] font-medium text-slate-200">
+    European Central Bank
+  </span>
+
+</div>
+
+</div>
+
+<div className="h-[4px]" />
+
+<div className="h-px bg-white/[0.06]" />
+
+{/* Last Updated */}
+
+<div className="h-[4px]" />
+
+<div className="flex items-center justify-between">
+
+  {/* Left */}
+
+  <div className="flex items-center gap-3 translate-x-2">
+
+    <Calendar
+      size={14}
+      className="text-slate-500"
+    />
+
+    <span className="text-[12px] font-medium text-slate-400">
+      Last Updated
+    </span>
+
+  </div>
+
+  {/* Right */}
+
+  <div className="-translate-x-2">
+
+    <span className="text-[12px] font-medium text-slate-200">
+      {todayDate}
+    </span>
+
+  </div>
+
+</div>
+
+<div className="h-[4px]" />
+
+</div>
+
+</div>
+
+<div className="h-[12px]" />
+
+<div
+  className="
+    rounded-[16px]
+    border
+    border-blue-500/[0.12]
+    bg-blue-500/[0.02]
+    px-5
+    py-4
+  "
+>
+
+  <div className="flex items-start gap-3">
+
+    <Info
+      size={16}
+      className="
+        mt-0.5
+        shrink-0
+        text-blue-400
+      "
+    />
+
+    <p
+      className="
+        text-[12px]
+        leading-6
+        text-slate-400
       "
     >
-      <div className="flex items-start gap-3">
-<Info
-  size={18}
-  className="
-    relative
+      Dashboard metrics including P&amp;L, equity curve,
+      performance analytics, and KPI calculations are
+      displayed using the selected reporting currency
+      and live FX rates.
+    </p>
 
-    left-1
-    top-0.5
-
-    shrink-0
-    text-blue-400
-  "
-/>
-
-        <p className="text-[14px] leading-relaxed text-slate-400">
-Dashboard metrics including P&L, equity curve,
-performance analytics, and KPI calculations
-are displayed using the selected reporting
-currency and live FX rates.
-        </p>
-      </div>
-    </div>
   </div>
+
 </div>
-    </div>
-  );
+
+</div>
+
+</div>
+
+</div>
+
+);
 }

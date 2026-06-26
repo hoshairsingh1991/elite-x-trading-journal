@@ -121,3 +121,18 @@ Donut and legend colors synchronized
 
 ========================================================= ================================================================================================
 
+git commit -m "Refine Account & Currency card UI
+
+- Redesign Native P&L by Currency table layout
+- Redesign Commissions by Currency table layout
+- Standardize typography and spacing for institutional look
+- Improve column alignment with independent X-axis positioning
+- Add placeholder rows for empty currency data
+- Preserve consistent card height regardless of currency count
+- Replace empty currency values with subtle dash placeholders
+- Improve Reporting Configuration typography and alignment
+- Rename FX Rate Source to Exchange Rate Source
+- Display European Central Bank as exchange rate provider
+- Polish overall visual hierarchy and dashboard consistency"
+
+========================================================= ================================================================================================
