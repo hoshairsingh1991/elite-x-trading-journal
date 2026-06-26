@@ -16,6 +16,12 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+import EliteSelect, {
+  EliteSelectOption,
+} from "@/components/ui/EliteSelect";
+
+import CurrencyFlag from "@/components/ui/CurrencyFlag";
+
 import { Trade } from "@/types/trade";
 
 import {
@@ -99,6 +105,40 @@ export default function AccountCurrencyCard({
       ),
     [trades]
   );
+
+  const currencyOptions: EliteSelectOption[] = [
+  {
+    value: "USD",
+    label: "USD",
+    icon: "🇺🇸",
+  },
+  {
+    value: "CAD",
+    label: "CAD",
+    icon: "🇨🇦",
+  },
+  {
+    value: "EUR",
+    label: "EUR",
+    icon: "🇪🇺",
+  },
+  {
+    value: "GBP",
+    label: "GBP",
+    icon: "🇬🇧",
+  },
+  {
+    value: "JPY",
+    label: "JPY",
+    icon: "🇯🇵",
+  },
+  {
+    value: "INR",
+    label: "INR",
+    icon: "🇮🇳",
+  },
+];
+
 
 const nativePnLRows = [...analytics.nativePnL];
 
@@ -332,7 +372,15 @@ return (
 
     <>
       <div className="text-[12px] font-medium text-slate-200">
-        {info?.flag} {item.currency}
+        <div className="flex items-center gap-2">
+
+  <CurrencyFlag
+  currency={item.currency}
+/>
+
+  <span>{item.currency}</span>
+
+</div>
       </div>
 
       <div className="mt-1 text-[11px] text-slate-500">
@@ -511,7 +559,17 @@ return (
 
                     <>
                       <div className="text-[12px] font-medium text-slate-200">
-                        {info?.flag} {item.currency}
+                        <div className="flex items-center gap-2">
+
+  <CurrencyFlag
+    currency={item.currency}
+  />
+
+  <span>
+    {item.currency}
+  </span>
+
+</div>
                       </div>
 
                       <div className="mt-1 text-[11px] text-slate-500">
@@ -620,7 +678,7 @@ return (
             className="
               flex
               h-[30px]
-              w-[60px]
+              w-[70px]
               items-center
               justify-center
 
@@ -641,7 +699,17 @@ return (
               hover:-translate-y-[1px]
             "
           >
-            {info?.flag ?? "🏳️"} {currency}
+            <div className="flex items-center gap-2">
+
+  <CurrencyFlag
+    currency={currency}
+  />
+
+  <span>
+    {currency}
+  </span>
+
+</div>
           </div>
         );
       })}
@@ -718,37 +786,12 @@ return (
 
           <div className="-translate-x-2">
 
-            <select
-              value={reportingCurrency}
-              onChange={(e) =>
-                setReportingCurrency(
-                  e.target.value
-                )
-              }
-              className="
-                h-[20px]
-                w-[62px]
-
-                cursor-pointer
-
-                border-none
-                bg-transparent
-
-                text-right
-                text-[12px]
-                font-medium
-                text-slate-200
-
-                outline-none
-              "
-            >
-              <option value="USD">USD</option>
-              <option value="CAD">CAD</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
-              <option value="JPY">JPY</option>
-              <option value="INR">INR</option>
-            </select>
+<EliteSelect
+  value={reportingCurrency}
+  options={currencyOptions}
+  onChange={setReportingCurrency}
+  width="w-[90px]"
+/>
 
           </div>
 

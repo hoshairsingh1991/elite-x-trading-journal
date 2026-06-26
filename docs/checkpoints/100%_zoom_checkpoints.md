@@ -136,3 +136,21 @@ git commit -m "Refine Account & Currency card UI
 - Polish overall visual hierarchy and dashboard consistency"
 
 ========================================================= ================================================================================================
+
+git commit -m "Standardize Account & Currency UI with cross-platform currency components"
+
+Checkpoint Summary
+✅ Account & Currency card UI polished
+✅ Native P&L layout finalized
+✅ Commissions by Currency layout finalized
+✅ Currencies Traded layout finalized
+✅ Reporting Configuration redesigned
+✅ Custom EliteSelect replaces native browser dropdown
+✅ Cross-platform dropdown behavior (macOS & Windows)
+✅ Created reusable CurrencyFlag component
+✅ Replaced emoji flags with SVG flags using react-country-flag
+✅ Standardized flag rendering across the Account & Currency card
+✅ Improved spacing, typography, and X-axis alignment controls
+✅ Ready for Windows validation
+
+========================================================= ================================================================================================

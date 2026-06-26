@@ -171,6 +171,7 @@ git commit -m "feat(dashboard): calibrate Dashboard V2 for 100% zoom baseline an
 git commit -m "Refine dashboard layout for 100% zoom (sidebar, header, KPI cards, equity curve)"
 git commit -m "Refine Performance Breakdown card and interactive donut for 100% layout"
 git commit -m "Refine Account & Currency card UI
+git commit -m "Standardize Account & Currency UI with cross-platform currency components"
 
 ------------------------------------------------------------------
 
