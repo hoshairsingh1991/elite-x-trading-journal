@@ -1,7 +1,5 @@
 "use client";
 
-import ReactCountryFlag from "react-country-flag";
-
 type CurrencyFlagProps = {
   currency: string;
 };
@@ -26,29 +24,29 @@ export default function CurrencyFlag({
 
   if (!countryCode) {
     return (
-     <div
-  className="
-    h-[12px]
-    w-[16px]
-    shrink-0
-    rounded-[2px]
-    bg-slate-700
-  "
-/>
+      <div
+        className="
+          h-[12px]
+          w-[16px]
+          shrink-0
+          rounded-[2px]
+          bg-slate-700
+        "
+      />
     );
   }
 
-return (
-  <ReactCountryFlag
-    countryCode={countryCode.toUpperCase()}
-    svg
-    style={{
-      width: "16px",
-      height: "12px",
-      flexShrink: 0,
-      borderRadius: "2px",
-    }}
-  />
-);
+  return (
+
+    <span
+      className={`fi fi-${countryCode} shrink-0 rounded-[2px]`}
+      style={{
+        width: "16px",
+        height: "12px",
+        display: "inline-block",
+      }}
+    />
+
+  );
 
 }

@@ -2,6 +2,8 @@
 
 import * as Select from "@radix-ui/react-select";
 
+import CurrencyFlag from "@/components/ui/CurrencyFlag";
+
 import {
   Check,
   ChevronDown,
@@ -11,7 +13,6 @@ import {
 export type EliteSelectOption = {
   value: string;
   label: string;
-  icon?: string;
 };
 
 type EliteSelectProps = {
@@ -66,29 +67,17 @@ export default function EliteSelect({
         `}
       >
 
-       <div className="flex items-center gap-2 translate-x-4  translate-y-1">
+       <div className="flex w-full items-center gap-2 translate-x-4 translate-y-1">
 
-          {options.find(
-            (option) =>
-              option.value === value
-          )?.icon && (
+  <CurrencyFlag
+    currency={value}
+  />
 
-            <span className="text-[15px]">
-              {
-                options.find(
-                  (option) =>
-                    option.value === value
-                )?.icon
-              }
-            </span>
+  <span className="text-[12px] font-medium text-slate-200">
+    {value}
+  </span>
 
-          )}
-
-          <span className="translate-x-0">
-  {value}
-</span>
-
-        </div>
+</div>
 
         <Select.Icon
   className="translate-y-[4px]"
@@ -185,11 +174,9 @@ export default function EliteSelect({
 
           <div className="flex items-center gap-2">
 
-            {option.icon && (
-              <span className="text-[15px]">
-                {option.icon}
-              </span>
-            )}
+<CurrencyFlag
+  currency={option.value}
+/>
 
             <Select.ItemText asChild>
   <span className="text-[12px] font-medium text-slate-200">

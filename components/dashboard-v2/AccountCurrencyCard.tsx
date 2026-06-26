@@ -106,36 +106,30 @@ export default function AccountCurrencyCard({
     [trades]
   );
 
-  const currencyOptions: EliteSelectOption[] = [
+const currencyOptions = [
   {
     value: "USD",
     label: "USD",
-    icon: "🇺🇸",
   },
   {
     value: "CAD",
     label: "CAD",
-    icon: "🇨🇦",
   },
   {
     value: "EUR",
     label: "EUR",
-    icon: "🇪🇺",
   },
   {
     value: "GBP",
     label: "GBP",
-    icon: "🇬🇧",
   },
   {
     value: "JPY",
     label: "JPY",
-    icon: "🇯🇵",
   },
   {
     value: "INR",
     label: "INR",
-    icon: "🇮🇳",
   },
 ];
 
