@@ -212,7 +212,7 @@ style={{
   className={`
     relative
     -translate-x-1
-    -translate-y-0.5
+    -translate-y-0.3
 
     ${className ?? ""}
   `}
@@ -223,8 +223,8 @@ style={{
           type="button"
           className="
             flex
-            h-4
-            w-4
+            h-3
+            w-3
             items-center
             justify-center
             rounded-full

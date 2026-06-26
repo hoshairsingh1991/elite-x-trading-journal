@@ -60,7 +60,7 @@ return (
         {/* LEFT COLUMN */}
         {/* ================================================= */}
 
-        <div className="flex-[2.6] min-w-0 flex flex-col gap-6">
+        <div className="flex-[2.6] min-w-0 flex flex-col gap-4">
 
           {/* Top Row */}
 
@@ -115,13 +115,13 @@ return (
             }
           />
 
-          <div className="h-[16px]" />
+          <div className="h-[14px]" />
 
           <OpenPositionsCard
             trades={trades}
           />
 
-          <div className="h-[16px]" />
+          <div className="h-[14px]" />
 
           <RecentTradesCard
             trades={trades}

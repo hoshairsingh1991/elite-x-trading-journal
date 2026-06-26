@@ -174,9 +174,13 @@ Checkpoint Summary
 ✅ Added EliteSelect master standard for future development
 
 ========================================================= ================================================================================================
-
-
-
+git commit -m "Calibrate Dashboard V2 secondary metrics for 100% baseline"
+What this commit represents
+✅ Secondary Metrics row recalibrated for the 100% design baseline.
+✅ Standardized card height, typography, spacing, and icon alignment.
+✅ Preserved the existing visual design while matching the rest of Dashboard V2.
+✅ Added per-instance tooltip positioning support without affecting KPI cards.
+✅ Established the new Secondary Metrics layout as the template for future polish.
 ========================================================= ================================================================================================
 
 

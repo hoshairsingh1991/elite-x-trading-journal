@@ -24,6 +24,18 @@ import CurrencyFlag from "@/components/ui/CurrencyFlag";
 
 import { Trade } from "@/types/trade";
 
+import { BadgeInfo } from "lucide-react";
+
+import { CircleHelp } from "lucide-react";
+
+import { ShieldCheck } from "lucide-react";
+
+import { BookOpen } from "lucide-react";
+
+import { CircleAlert } from "lucide-react";
+
+import { Sparkles } from "lucide-react";
+
 import {
   getAccountCurrencyAnalytics,
 } from "@/lib/analytics/accountCurrencyAnalytics";
@@ -160,7 +172,7 @@ return (
       relative
       z-50
 
-      h-[760px]
+      h-[730px]
       overflow-hidden
       rounded-[22px]
       border
@@ -969,24 +981,48 @@ return (
 
   <div className="flex items-start gap-3">
 
-    <Info
-      size={16}
-      className="
-        mt-0.5
-        shrink-0
-        text-blue-400
-      "
-    />
+   <div
+  className="
+    flex
+    h-7
+    w-7
+    shrink-0
+    items-center
+    justify-center
+translate-x-[8px]
+    translate-y-[10px]
+    rounded-full
+
+    border
+    border-blue-500/20
+
+    bg-blue-500/10
+  "
+>
+
+<BookOpen
+  size={15}
+  className="
+    shrink-0
+    text-blue-400
+
+    translate-x-[0px]
+    translate-y-[1px]
+  "
+/>
+
+</div>
 
     <p
       className="
         text-[12px]
         leading-6
         text-slate-400
+        translate-x-[8px]
+    translate-y-[1px]
       "
     >
-      Dashboard metrics including P&amp;L, equity curve,
-      performance analytics, and KPI calculations are
+      Dashboard metrics are
       displayed using the selected reporting currency
       and live FX rates.
     </p>
