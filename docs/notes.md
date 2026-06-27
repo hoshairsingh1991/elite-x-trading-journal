@@ -174,7 +174,7 @@ git commit -m "Refine Account & Currency card UI
 git commit -m "Standardize Account & Currency UI with cross-platform currency components"
 git commit -m "Add EliteSelect design system and cross-platform currency UI"
 git commit -m "Calibrate Dashboard V2 secondary metrics for 100% baseline"
-
+git commit -m "Polish Trading Calendar and review dialog UI"
 ------------------------------------------------------------------
 
 Status:

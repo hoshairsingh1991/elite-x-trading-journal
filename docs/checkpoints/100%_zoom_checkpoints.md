@@ -182,8 +182,19 @@ What this commit represents
 ✅ Added per-instance tooltip positioning support without affecting KPI cards.
 ✅ Established the new Secondary Metrics layout as the template for future polish.
 ========================================================= ================================================================================================
-
-
+git commit -m "Polish Trading Calendar and review dialog UI"
+What this checkpoint includes
+✅ Trading Calendar recalibrated for the 100% design baseline.
+✅ Calendar header typography and KPI sizing refined.
+✅ Calendar body spacing adjusted for improved balance.
+✅ Day cell proportions updated for better visual density.
+✅ Traditional Sunday–Saturday calendar layout retained after evaluating alternatives.
+✅ Trade Review dialog polished:
+KPI cards calibrated.
+Win Rate section refined.
+Buttons standardized.
+Notes editor typography and spacing improved.
+General spacing and alignment adjustments.
 
 ========================================================= ================================================================================================
 

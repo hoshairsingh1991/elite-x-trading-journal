@@ -470,7 +470,7 @@ const hasNote =
         onClick={() =>
           setSelectedDay(day)
         }
-        className={`relative flex h-[99px] flex-col justify-between rounded-[16px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
+        className={`relative flex h-[90px] flex-col justify-between rounded-[16px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
           dayData
             ? getDayIntensity(
                 dayData.pnl
@@ -479,7 +479,7 @@ const hasNote =
         }`}
       >
 
-        <span className="relative left-[4px] top-[3px] text-[14px] font-bold text-slate-400">
+        <span className="relative left-[8px] top-[4px] text-[11px] font-bold text-slate-400">
           {day}
         </span>
         <div
@@ -499,7 +499,7 @@ const existingNote =
 setNoteInput(existingNote);
 setSelectedNoteDate(formattedDay);
 }}
-  className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-[7px] transition-all ${
+  className={`absolute right-2 top-0 flex h-[20px] w-[20px] items-center justify-center rounded-[7px] transition-all ${
     hasNote
   ? "border border-blue-500/20 bg-blue-500/10 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.25)]"
   : "text-slate-600 hover:text-slate-400"
@@ -511,10 +511,10 @@ setSelectedNoteDate(formattedDay);
 
         {dayData ? (
 
-        <div className="relative left-[4px]">
+        <div className="relative -top-1 left-[6px]">
 
           <p
-              className={`text-[16px] font-black tracking-tight ${
+              className={`text-[13px] font-black tracking-tight ${
                 dayData.pnl >= 0
                   ? "text-emerald-400"
                   : "text-red-400"
@@ -525,7 +525,7 @@ setSelectedNoteDate(formattedDay);
 {dayData.pnl.toFixed(2)}
             </p>
 
-            <p className="mt-1 text-[11px] font-semibold text-slate-300">
+            <p className="mt-1 text-[10px] font-semibold text-slate-300">
               {dayData.trades} Trades
             </p>
           </div>
@@ -592,19 +592,19 @@ const handleDeleteTrade =
 
   return (
     <>
-      {/* ===================================================== */}
-      {/* CALENDAR */}
-      {/* ===================================================== */}
+{/* ===================================================== */}
+{/* CALENDAR */}
+{/* ===================================================== */}
 
-      <div
+<div
   className="
     h-auto
     w-full
     rounded-[32px]
 
-    bg-[#071427]/00
+    bg-transparent
 
-    p-5
+    p-4
 
     shadow-[0_0_60px_rgba(0,0,0,0.30)]
 
@@ -615,68 +615,116 @@ const handleDeleteTrade =
   "
 >
 
-       <div
-  className="
-    rounded-[28px]
-    border
-    border-white/[0.03]
+  <div
+    className="
+      rounded-[28px]
+      border
+      border-white/[0.04]
 
-    bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)]
+      bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)]
 
-    p-8
+      p-8
 
-    transition-all
-    duration-300
+      transition-all
+      duration-300
 
-    hover:border-white/[0.08]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
-  "
->
+      hover:border-white/[0.08]
+      hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
+    "
+  >
 
-          {/* HEADER */}
+{/* HEADER */}
 
-          <div className="flex items-start justify-between">
+<div className="flex items-start justify-between">
 
-            <div className="relative left-5 top-1 flex items-center gap-5">
+  {/* LEFT */}
 
-              <button
-                onClick={
-                  goToPreviousMonth
-                }
-                className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-[#0b1730] text-slate-400 transition-all hover:border-blue-500/30 hover:text-slate-400"
-              >
-                <ChevronLeft size={18} />
-              </button>
+  <div
+    className="
+      relative
+      left-4
+      top-1
+      flex
+      items-center
+      gap-5
+    "
+  >
 
-              <div>
+    <button
+      onClick={goToPreviousMonth}
+      className="
+        flex
+        h-[34px]
+        w-[34px]
+        items-center
+        justify-center
+        rounded-[14px]
+        border
+        border-white/[0.05]
+        bg-[#0b1730]
+        text-slate-400
+        transition-all
+        hover:border-blue-500/30
+        hover:text-slate-300
+      "
+    >
+      <ChevronLeft size={18} />
+    </button>
 
-                <h2 className="text-[36px] font-black tracking-tight text-slate-400">
-                  {monthName}{" "}
-                  {currentYear}
-                </h2>
+    <div>
 
-                <p className="mt-1 text-sm text-blue-400">
-                  Trading Performance
-                </p>
+      <h2
+        className="
+          text-[18px]
+          font-bold
+          tracking-tight
+          text-slate-300
+        "
+      >
+        {monthName} {currentYear}
+      </h2>
 
-                <p className="invisible text-sm">
-                  spacing
-                </p>
-              </div>
+      <p
+        className="
+          mt-1
+          text-[12px]
+          font-medium
+          text-blue-400
+        "
+      >
+        Trading Performance
+      </p>
 
-              <button
-                onClick={
-                  goToNextMonth
-                }
-                className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-[#0b1730] text-slate-400 transition-all hover:border-blue-500/30 hover:text-slate-400"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
+      <div className="h-[0px]" />
 
-            {/* KPI */}
+    </div>
 
-            <div className="relative right-4 top-2 flex items-center gap-10">
+    <button
+      onClick={goToNextMonth}
+      className="
+        flex
+        h-[34px]
+        w-[34px]
+        items-center
+        justify-center
+        rounded-[14px]
+        border
+        border-white/[0.05]
+        bg-[#0b1730]
+        text-slate-400
+        transition-all
+        hover:border-blue-500/30
+        hover:text-slate-300
+      "
+    >
+      <ChevronRight size={18} />
+    </button>
+
+  </div>
+
+  {/* KPI */}
+
+            <div className="relative right-6 top-2 flex items-center gap-4">
 
               {[
   {
@@ -698,7 +746,7 @@ const handleDeleteTrade =
                     key={
                       stat.label
                     }
-                    className="flex items-center gap-10"
+                    className="flex items-center gap-4"
                   >
 
                     <div>
@@ -707,7 +755,7 @@ const handleDeleteTrade =
                         {stat.label}
                       </p>
 
-                     <p className="mt-2 text-[30px] font-black tracking-tight text-slate-400">
+                     <p className="mt-2 text-[20px] translate-x-3 font-black tracking-tight text-slate-400">
   {stat.value}
 </p>
                     </div>
@@ -720,7 +768,7 @@ const handleDeleteTrade =
               )}
             </div>
           </div>
-
+<div className="h-[22px]" />
           {/* CALENDAR BODY */}
 
           <div className="mt-16 rounded-[42px] border border-white/[0.00] bg-[#081526]/00 px-12 pt-12 pb-[72px]">
@@ -738,7 +786,7 @@ const handleDeleteTrade =
 
                     <div
                       key={day}
-                      className="text-center text-[11px] font-black tracking-[0.18em] text-slate-500"
+                      className="text-center text-[10px] font-black tracking-[0.18em] text-slate-500"
                     >
                       {day}
                     </div>
@@ -803,11 +851,11 @@ const handleDeleteTrade =
 
           <div>
 
-            <h2 className="text-[28px] font-black tracking-tight text-slate-400">
+            <h2 className="text-[22px] font-black tracking-tight text-slate-400">
               Session Notes
             </h2>
 
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-[12px] text-slate-400">
               {selectedNoteDate}
             </p>
           </div>
@@ -821,7 +869,7 @@ const handleDeleteTrade =
 
               setNoteInput("");
             }}
-            className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-slate-400"
+            className="flex h-[36px] w-[36px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-slate-400"
           >
             <X size={18} />
           </button>
@@ -829,7 +877,7 @@ const handleDeleteTrade =
 
         {/* SPACER */}
 
-        <div className="h-[18px] opacity-0 select-none">
+        <div className="h-[10px] opacity-0 select-none">
           spacer
         </div>
 
@@ -846,7 +894,7 @@ const handleDeleteTrade =
     )
   }
           placeholder="Add trading session notes..."
-          className="min-h-[240px] w-full resize-none rounded-[10px] border border-white/[0.06] bg-[#081526]/110 px-[26px] pt-[30px] pb-6 text-sm leading-7 tracking-[0.01em] text-slate-200 outline-none transition-all placeholder:text-slate-500 focus:border-blue-500/30"
+          className="min-h-[220px] w-full resize-none rounded-[10px] border border-white/[0.06] bg-[#081526]/110 px-[26px] pt-[30px] pb-6 text-sm leading-7 tracking-[0.01em] text-slate-200 outline-none transition-all placeholder:text-slate-500 focus:border-blue-500/30"
         />
 
         {/* SPACER */}
@@ -868,7 +916,27 @@ const handleDeleteTrade =
 
               setNoteInput("");
             }}
-            className="rounded-[14px] border border-white/[0.05] bg-white/[0.03] px-5 py-3 text-sm font-semibold text-slate-300 transition-all hover:text-slate-400"
+            className="
+  h-[30px]
+  w-[60px]
+
+  translate-x-0
+  translate-y-0
+
+  rounded-[14px]
+  border
+  border-white/[0.05]
+  bg-white/[0.03]
+
+  text-[12px]
+  font-semibold
+  text-slate-300
+
+  transition-all
+  duration-200
+
+  hover:text-slate-400
+"
           >
             Cancel
           </button>
@@ -903,7 +971,27 @@ const handleDeleteTrade =
                 null
               );
             }}
-                        className="rounded-[14px] border border-blue-500/20 bg-blue-500/10 px-5 py-3 text-sm font-semibold text-blue-400 transition-all hover:bg-blue-500/20"
+                        className="
+  h-[30px]
+  w-[80px]
+
+  translate-x-0
+  translate-y-0
+
+  rounded-[14px]
+  border
+  border-blue-500/20
+  bg-blue-500/10
+
+  text-[12px]
+  font-semibold
+  text-blue-400
+
+  transition-all
+  duration-200
+
+  hover:bg-blue-500/20
+"
           >
             Save Notes
           </button>
@@ -916,7 +1004,7 @@ const handleDeleteTrade =
 
     </div>
 
-    <p className="invisible text-[18px] leading-[18px]">
+    <p className="invisible text-[16px] leading-[18px]">
       spacing
     </p>
 
@@ -928,7 +1016,7 @@ const handleDeleteTrade =
 
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 p-8 backdrop-blur-sm">
 
-          <div className="w-full max-w-[1280px] rounded-[38px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-10 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
+          <div className="w-full max-w-[980px] rounded-[38px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-10 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
 
             <div className="rounded-[32px] border border-white/[0.04] bg-[#0c1a31]/92 px-[28px] pt-[28px] pb-[28px]">
 
@@ -946,13 +1034,13 @@ const handleDeleteTrade =
 
                     <div>
 
-                      <h2 className="text-[36px] font-black tracking-tight text-slate-400">
+                      <h2 className="text-[24px] font-black tracking-tight text-slate-400">
                         {monthName}{" "}
                         {selectedDay},{" "}
                         {currentYear}
                       </h2>
 
-                      <p className="mt-2 text-sm text-slate-400">
+                      <p className="mt-2 text-[12px] text-slate-400">
                         Institutional Trade Review
                       </p>
                     </div>
@@ -963,7 +1051,7 @@ const handleDeleteTrade =
                           null
                         )
                       }
-                      className="flex h-[46px] w-[46px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-slate-400"
+                      className="flex h-[40px] w-[40px] items-center translate-y-2 justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-slate-400"
                     >
                       <X size={20} />
                     </button>
@@ -972,19 +1060,19 @@ const handleDeleteTrade =
                   {/* SAFE ZONE */}
 
                   <div className="mt-10 rounded-[28px] border border-white/[0.04] bg-[#081526]/70 p-8">
-
+<div className="h-[8px]" />
                     {/* KPI */}
 
-                    <div className="grid grid-cols-4 gap-5">
+                    <div className="grid grid-cols-5 gap-6">
 
-                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-12 justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           NET P&L
                         </p>
 
                         <p
-                          className={`mt-4 text-[30px] font-black tracking-tight ${
+                          className={`mt-4 text-[18px] font-black tracking-tight ${
                             totalPnL >= 0
                               ? "text-emerald-400"
                               : "text-red-400"
@@ -997,26 +1085,26 @@ const handleDeleteTrade =
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-18  justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           TOTAL TRADES
                         </p>
 
-                        <p className="mt-4 text-[30px] font-black tracking-tight text-slate-400">
+                        <p className="mt-4 text-[18px] font-black tracking-tight text-slate-400">
                           {
                             totalTradesDay
                           }
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-22  justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           COMMISSION
                         </p>
 
-                        <p className="mt-4 text-[30px] font-black tracking-tight text-slate-400">
+                        <p className="mt-4 text-[18px] font-black tracking-tight text-slate-400">
 
                           {totalCommission > 0
                             ? `$${totalCommission.toFixed(
@@ -1026,13 +1114,13 @@ const handleDeleteTrade =
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-center justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-30  justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           WIN RATE
                         </p>
 
-                        <p className="mt-4 text-[30px] font-black tracking-tight text-blue-400">
+                        <p className="mt-4 text-[18px] font-black tracking-tight text-blue-400">
                           {winRate}%
                         </p>
                       </div>
@@ -1042,42 +1130,47 @@ const handleDeleteTrade =
 {/* INVISIBLE 18PX SPACER */}
 {/* ===================================================== */}
 
-<div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+<div className="h-[10px] shrink-0 opacity-0 pointer-events-none select-none">
   spacer
 </div>
                     {/* WIN RATE BAR */}
 
-                    <div className="mt-6 rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
+<div className="mt-6 flex justify-center">
 
-                      <div className="flex items-center justify-between">
+  <div className="w-[900px] rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
 
-                        <p className="relative left-4 text-[12px] font-black tracking-[0.18em] text-slate-500">
-                          WIN RATE
-                        </p>
+    <div className="flex items-center justify-between">
 
-                        <p className="text-sm font-bold text-slate-400">
-                          {wins}W ·{" "}
-                          {losses}L ·{" "}
-                          {winRate}%
-                        </p>
-                      </div>
+      <p className="relative left-4 text-[11px] font-black tracking-[0.18em] text-slate-500">
+        WIN RATE
+      </p>
 
-                      <div className="mt-6 h-[12px] overflow-hidden rounded-full bg-white/[0.04]">
+      <p className="text-[10px] -translate-x-4 font-bold text-slate-400">
+        {wins}W · {losses}L · {winRate}%
+      </p>
 
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-400"
-                          style={{
-                            width: `${winRate}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
+    </div>
+
+    <div className="mt-6 h-[6px] overflow-hidden rounded-full bg-white/[0.04]">
+
+      <div
+        className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-400"
+        style={{
+          width: `${winRate}%`,
+        }}
+      />
+
+    </div>
+
+  </div>
+
+</div>
 
 {/* ===================================================== */}
 {/* INVISIBLE 18PX SPACER */}
 {/* ===================================================== */}
 
-<div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+<div className="h-[10px] shrink-0 opacity-0 pointer-events-none select-none">
   spacer
 </div>
 
@@ -1109,11 +1202,11 @@ const handleDeleteTrade =
 
                       <div className="flex items-center justify-between">
 
-                        <p className="relative left-4 text-[12px] font-black tracking-[0.18em] text-slate-500">
+                        <p className="relative left-4 text-[11px] font-black tracking-[0.18em] text-slate-500">
                           TRADES
                         </p>
 
-                        <p className="relative right-8 text-sm text-slate-500">
+                        <p className="relative right-12 text-sm text-slate-500">
                           {
                             totalTradesDay
                           }{" "}
@@ -1123,7 +1216,7 @@ const handleDeleteTrade =
 
                       <div className="mt-7 max-h-[420px] overflow-y-auto overflow-x-hidden pr-[6px]">
 
-                        <table className="relative left-4 w-full table-fixed border-collapse">
+                        <table className="relative left-6 w-full table-fixed border-collapse">
 
                           <thead>
 
@@ -1160,9 +1253,7 @@ const handleDeleteTrade =
                           </thead>
 
                           <tbody>
-                            {/* ===================================================== */}
-{/* TOP 18PX SPACER */}
-{/* ===================================================== */}
+                          
 
 <tr className="opacity-0 pointer-events-none select-none">
 
@@ -1188,7 +1279,7 @@ const handleDeleteTrade =
 
                                   <tr className="border-b border-white/[0.08]">
 
-                                    <td className="h-[15px] text-center">
+                                    <td className="h-[12px] text-center">
 
   <div className="flex h-full items-center gap-2 text-sm font-semibold text-slate-400">
 
