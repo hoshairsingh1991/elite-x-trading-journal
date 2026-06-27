@@ -51,7 +51,7 @@ export default function ExpenseKpiGrid({
   );
 
   return (
-    <div className="grid grid-cols-6 gap-5">
+    <div className="-translate-y-4 grid grid-cols-6 gap-5">
       <ExpenseKpiCard
         icon={<Wallet className="h-6 w-6 text-blue-300" />}
         iconBg="bg-blue-500/15 border border-blue-400/15"
@@ -66,6 +66,7 @@ trend={`${expenses.length} expense records`}
   iconBg="bg-violet-500/15 border border-violet-400/15"
   title="Commissions"
   subtitle="Auto Calculated"
+  subtitleOffsetY="-translate-y-[5px]"
   value={`${currencySymbol}${businessCostAnalytics.commissions.toFixed(2)}`}
   trend="Imported From Trade History"
   badge="AUTO"

@@ -3,21 +3,24 @@
 import { MoreVertical } from "lucide-react";
 import { ReactNode } from "react";
 
+// Move subtitle independently
+const subtitleOffsetY = "translate-y-0";
+
 /* =====================================================
    KPI CARD FINE TUNING
    ===================================================== */
 
 // Move entire icon + content group
-const cardContentX = "translate-x-20";
-const cardContentY = "translate-y-0";
+const cardContentX = "translate-x-18";
+const cardContentY = "translate-y-2";
 
 // Move icon independently
 const iconOffsetX = "-translate-x-14";
-const iconOffsetY = "translate-y-12";
+const iconOffsetY = "translate-y-9";
 
 // Move text block independently
-const textOffsetX = "-translate-x-9";
-const textOffsetY = "translate-y-4";
+const textOffsetX = "-translate-x-12";
+const textOffsetY = "translate-y-1";
 
 // Move three-dot menu
 const menuOffsetX = "translate-x-0";
@@ -28,19 +31,19 @@ const menuOffsetY = "translate-y-0";
    ===================================================== */
 
 // Main KPI value (e.g. C$842.29)
-const valueOffsetX = "translate-x-6";
+const valueOffsetX = "translate-x-2";
 const valueOffsetY = "-translate-y-7";
 
 // Trend text (e.g. ↑ 3.1% vs Previous 30 Days)
-const trendOffsetX = "translate-x-6";
-const trendOffsetY = "-translate-y-5";
+const trendOffsetX = "translate-x-0";
+const trendOffsetY = "-translate-y-6";
 
 /* =====================================================
    BADGE FINE TUNING
    ===================================================== */
 
 // Position
-const badgeOffsetX = "translate-x-10";
+const badgeOffsetX = "translate-x-4";
 const badgeOffsetY = "translate-y-0";
 
 // Size
@@ -56,7 +59,7 @@ const badgeTextSize = "text-[9px]";
 const badgeRounded = "rounded-md";
 
 // Card dimensions
-const cardHeight = "h-[150px]";
+const cardHeight = "h-[130px]";
 const cardRadius = "rounded-[22px]";
 
 interface ExpenseKpiCardProps {
@@ -68,6 +71,7 @@ interface ExpenseKpiCardProps {
   trend: string;
   trendColor?: "green" | "red" | "amber" | "slate";
   badge?: string;
+  subtitleOffsetY?: string;
 
   // Future use
   clickable?: boolean;
@@ -83,6 +87,8 @@ export default function ExpenseKpiCard({
   trend,
   trendColor = "green",
   badge,
+
+  subtitleOffsetY = "translate-y-0",
 
   clickable = false,
   onClick,
@@ -160,8 +166,8 @@ export default function ExpenseKpiCard({
             <div
               className={`
                 flex
-                h-[52px]
-                w-[52px]
+                h-[44px]
+                w-[44px]
                 items-center
                 justify-center
                 rounded-2xl
@@ -216,7 +222,15 @@ export default function ExpenseKpiCard({
 )}
               </div>
 
-              <p className="mt-0.5 text-[12px] text-slate-500">
+              <p
+  className={`
+    mt-0.5
+    text-[11px]
+    text-slate-500
+
+    ${subtitleOffsetY}
+  `}
+>
                 {subtitle}
               </p>
             </div>
@@ -227,7 +241,7 @@ export default function ExpenseKpiCard({
         <div>
 <div
   className={`
-    text-[27px]
+    text-[22px]
     font-bold
     tracking-tight
     text-white

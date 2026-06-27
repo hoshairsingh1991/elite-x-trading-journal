@@ -229,8 +229,23 @@ UserMenu V2
 ✅ Overall dropdown width reduced while preserving readability
 
 ========================================================= ================================================================================================
+git commit -m "Polish Expenses page KPI section and header"
+Checkpoint Summary
 
+Expenses Header
 
+✅ Calibrated for the 100% zoom baseline.
+✅ Toolbar spacing refined (gap-3).
+✅ Reporting Currency migrated to the shared CurrencyFlag component.
+
+Expense KPI Cards
+
+✅ Card height reduced to 130px.
+✅ Icon container resized.
+✅ Typography rebalanced.
+✅ Value and trend positioning refined.
+✅ AUTO badge alignment improved.
+✅ Overall spacing polished.
 
 ========================================================= ================================================================================================
 

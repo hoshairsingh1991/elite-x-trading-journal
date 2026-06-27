@@ -60,7 +60,7 @@ const dateValueY = "translate-y-0";
    ===================================================== */
 
 const dateButtonWidth = "w-[200px]";
-const dateButtonHeight = "h-[50px]";
+const dateButtonHeight = "h-[46px]";
 
 
 /* =====================================================

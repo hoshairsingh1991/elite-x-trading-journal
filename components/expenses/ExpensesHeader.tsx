@@ -10,6 +10,8 @@ import UserMenuV2 from "@/components/layout/UserMenuV2";
 
 import DateRangePicker from "@/components/shared/DateRangePicker";
 
+import CurrencyFlag from "@/components/ui/CurrencyFlag";
+
 /* =====================================================
    REPORTING CURRENCY FINE TUNING
    ===================================================== */
@@ -92,30 +94,28 @@ export default function ExpensesHeader({
   const toolbarOffset = "-translate-x-2";
 
   // Gap between cards
-  const toolbarGap = "gap-4";
+  const toolbarGap = "gap-3";
 
   // Card sizing
-  const reportingWidth = "w-[170px]";
-  const reportingHeight = "h-[50px]";
+  const reportingWidth = "w-[160px]";
+  const reportingHeight = "h-[46px]";
 
   const liveFxWidth = "w-[140px]";
-  const liveFxHeight = "h-[50px]";
+  const liveFxHeight = "h-[46px]";
 
-  const dateWidth = "w-[205px]";
-  const dateHeight = "h-[50px]";
 
   return (
-    <header className="flex w-full items-start justify-between">
+    <header className="flex w-full -translate-y-[12px] items-start justify-between">
       {/* ================================================= */}
       {/* LEFT */}
       {/* ================================================= */}
 
       <div className="flex min-w-0 flex-col">
-        <h1 className="text-[38px] font-bold leading-none tracking-[-0.02em] text-white">
+        <h1 className="text-[22px] translate-x-4 font-bold leading-none tracking-[-0.02em] text-white">
           Expenses
         </h1>
 
-        <p className="mt-2 text-[16px] font-medium text-slate-400">
+        <p className="mt-2 text-[14px] translate-x-4 font-medium text-slate-400">
           Track and analyze all trading business expenses
         </p>
       </div>
@@ -155,29 +155,51 @@ export default function ExpensesHeader({
             justify-center
           `}
         >
-       <div className="flex w-full items-center justify-between">
+<div className="flex w-full items-center justify-between">
+
   <div
     className={`flex flex-col justify-center ${reportingContentOffset}`}
   >
-    <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+
+    <span
+      className="
+        -translate-y-[2px]
+        text-[10px]
+        font-semibold
+        uppercase
+        tracking-[0.08em]
+        text-slate-500
+      "
+    >
       Reporting Currency
     </span>
 
-    <div className="mt-[2px] flex items-center gap-1.5">
-<span>
-  {
-    CURRENCY_FLAGS[
-      reportingCurrency
-    ] ?? "💱"
-  }
-</span>
+    <div
+      className="
+        mt-[2px]
+        flex
+        items-center
+        gap-1.5
+      "
+    >
 
-<span className="text-[15px] font-semibold text-white">
-  {reportingCurrency}
-</span>
+      <CurrencyFlag
+        currency={reportingCurrency}
+      />
+
+      <span
+        className="
+          text-[12px]
+          font-semibold
+          text-white
+        "
+      >
+        {reportingCurrency}
+      </span>
+
     </div>
-  </div>
 
+  </div>
 
 </div>
         </button>
@@ -233,12 +255,12 @@ export default function ExpensesHeader({
       ${liveFxContentY}
     `}
   >
-    <span className="text-[15px] font-semibold leading-none text-white">
+    <span className="text-[13px] font-semibold leading-none text-white">
       Live FX
     </span>
 
     <div className="mt-[3px] flex items-center gap-1">
-      <span className="text-[11px] text-slate-400">
+      <span className="text-[10px] text-slate-400">
         ECB Daily Rates
       </span>
 
