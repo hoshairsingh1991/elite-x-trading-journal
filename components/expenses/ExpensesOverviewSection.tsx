@@ -185,6 +185,8 @@ const maxMonthlyExpense =
     maxMonthlyExpense / 100
   ) * 100;
 
+const plotHeight = 156;
+
 const hoveredData =
   chartData.find(
     item =>
@@ -365,8 +367,8 @@ const totalValueY = "translate-y-0";
 // PERIOD TOGGLE
 // =================================================
 
-const periodToggleWidth = "w-[130px]";
-const periodToggleHeight = "h-[36px]";
+const periodToggleWidth = "w-[120px]";
+const periodToggleHeight = "h-[30px]";
 
 const periodTogglePadding = "p-1";
 
@@ -383,7 +385,7 @@ const vendorTitleX = "translate-x-[14px]";
 const vendorTitleY = "translate-y-[0px]";
 
 const vendorListX = "translate-x-[20px]";
-const vendorListY = "translate-y-[10px]";
+const vendorListY = "translate-y-[0px]";
 
 const vendorRowSpacing = "h-2";
 
@@ -398,8 +400,8 @@ const vendorPercentWidth = "w-[40px]";
 const breakdownTitleX = "translate-x-4";
 const breakdownTitleY = "translate-y-0";
 
-const breakdownListX = "translate-x-[20px]";
-const breakdownListY = "translate-y-[10px]";
+const breakdownListX = "translate-x-[16px]";
+const breakdownListY = "translate-y-[0px]";
 
 const breakdownRowGap = "space-y-2";
 
@@ -417,7 +419,7 @@ const recurringTitleX = "translate-x-[14px]";
 const recurringTitleY = "translate-y-[0px]";
 
 const recurringListX = "translate-x-[20px]";
-const recurringListY = "translate-y-[0px]";
+const recurringListY = "-translate-y-[2px]";
 
 const recurringRowSpacing = "h-2";
 
@@ -435,7 +437,7 @@ const recurringRowSpacing = "h-2";
   const legendY = "-translate-y-1";
 
   const chartX = "translate-x-0";
-  const chartY = "-translate-y-1";
+  const chartY = "-translate-y-0";
 
 return (
   <div
@@ -449,11 +451,10 @@ return (
 {/* Expenses Over Time */}
 {/* ================================================= */}
 
-<div className=" rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
-  {/* Header */}
+<div className="-translate-y-14 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
   <div className="flex items-center justify-between">
     <div className={`${titleX} ${titleY}`}>
-      <h3 className="text-[18px] font-semibold text-white">
+      <h3 className="text-[14px] font-semibold text-white">
         Expenses Over Time
       </h3>
     </div>
@@ -544,22 +545,22 @@ return (
 
   {/* Chart */}
   <div className={`mt-5 flex justify-center ${chartX} ${chartY}`}>
-    <div className="relative h-[260px] w-[96%] rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+    <div className="relative h-[220px] w-[96%]  rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
 
 
       {/* Horizontal Grid */}
       <div className="absolute left-14 right-4 top-6 border-t border-white/5" />
-      <div className="absolute left-14 right-4 top-[68px] border-t border-white/5" />
+      <div className="absolute left-14 right-4 top-[46px] border-t border-white/5" />
+      <div className="absolute left-14 right-4 top-[78px] border-t border-white/5" />
       <div className="absolute left-14 right-4 top-[110px] border-t border-white/5" />
-      <div className="absolute left-14 right-4 top-[152px] border-t border-white/5" />
-      <div className="absolute left-14 right-4 top-[194px] border-t border-white/5" />
-      <div className="absolute left-14 right-4 bottom-8 border-t border-white/5" />
+      <div className="absolute left-14 right-4 top-[142px] border-t border-white/5" />
+      <div className="absolute left-14 right-4 bottom-6 border-t border-white/5" />
 
       {/* Y Axis */}
-      <div className="absolute left-14 top-6 bottom-8 w-px bg-white/5" />
+      <div className="absolute left-14 top-6  bottom-6 w-px bg-white/5" />
 
 {/* Y Labels */}
-<div className="absolute left-4 top-4 flex h-[215px] flex-col justify-between text-[10px] text-slate-500">
+<div className="absolute left-4 top-6 flex h-[175px] flex-col justify-between text-[10px] text-slate-500">
   <span>${chartMax.toFixed(0)}</span>
   <span>${(chartMax * 0.8).toFixed(0)}</span>
   <span>${(chartMax * 0.6).toFixed(0)}</span>
@@ -569,10 +570,10 @@ return (
 </div>
 
 {/* Bottom Axis */}
-<div className="absolute left-14 right-4 bottom-8 h-px bg-white/5" />
+<div className="absolute left-14 right-4 bottom-12 h-px bg-white/5" />
 
 {/* Bars */}
-<div className="absolute bottom-8 left-20 right-8 flex items-end justify-between">
+<div className="absolute bottom-2 left-20 right-8 flex items-end justify-between">
  {chartData.map((item) => (
     <div
   key={item.label}
@@ -621,7 +622,7 @@ return (
       <div
         className={`
           mb-3
-          text-[18px]
+          text-[14px]
           font-semibold
           text-white
 
@@ -673,7 +674,7 @@ return (
 
 <span
   className={`
-    text-[14px]
+    text-[12px]
 
     transition-all
     duration-200
@@ -695,7 +696,7 @@ return (
 <span
   className={`
     font-medium
-
+text-[14px]
     transition-all
     duration-200
 
@@ -740,7 +741,7 @@ return (
 
             <span
               className={`
-                text-[14px]
+                text-[12px]
                 ${
   hoveredSeries === "commission"
     ? "text-emerald-300"
@@ -758,6 +759,7 @@ return (
           <span
             className={`
               font-medium
+              text-[14px]
               ${
   hoveredSeries === "commission"
     ? "text-emerald-300 drop-shadow-[0_0_10px_rgba(16,185,129,0.55)]"
@@ -801,7 +803,7 @@ return (
 
             <span
               className={`
-                text-[15px]
+                text-[14px]
                 font-medium
                 text-white
 
@@ -815,7 +817,7 @@ return (
 
           <span
             className={`
-              text-[18px]
+              text-[14px]
               font-semibold
               text-white
 
@@ -858,16 +860,16 @@ return (
     hover:shadow-[0_0_20px_rgba(16,185,129,0.35)]
   "
   style={{
-    height: animateChart
-      ? `${Math.max(
-          (
-            item.commissions /
-            maxMonthlyExpense
-          ) * 180,
-          0
-        )}px`
-      : "0px",
-  }}
+  height: animateChart
+    ? `${Math.max(
+        (
+          item.commissions /
+          chartMax
+        ) * plotHeight,
+        0
+      )}px`
+    : "0px",
+}}
 />
 
 <div
@@ -892,7 +894,10 @@ duration-700
             style={{
   height: animateChart
     ? `${Math.max(
-        (item.manualExpenses / maxMonthlyExpense) * 180,
+        (
+          item.manualExpenses /
+          chartMax
+        ) * plotHeight,
         4
       )}px`
     : "0px",
@@ -927,7 +932,7 @@ duration-700
 {/* Expense Breakdown */}
 {/* ================================================= */}
 
-<div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[20px] -translate-y-14 border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
 
   {/* Top Spacer */}
   <div className="h-2" />
@@ -935,7 +940,7 @@ duration-700
   {/* Header */}
   <div className="flex items-center justify-between">
     <div className={`${breakdownTitleX} ${breakdownTitleY}`}>
-      <h3 className="text-[18px] font-semibold text-white">
+      <h3 className="text-[14px] font-semibold text-white">
         Expense Breakdown
       </h3>
     </div>
@@ -967,7 +972,7 @@ duration-700
               className={`h-3 w-3 rounded-full ${row.color}`}
             />
 
-            <span className="text-[15px] text-slate-300">
+            <span className="text-[13px] text-slate-300">
               {row.name}
             </span>
 
@@ -977,14 +982,14 @@ duration-700
           <div className="flex items-center gap-5">
 
             <span
-              className={`${breakdownAmountWidth} text-right text-[15px] text-white`}
+              className={`${breakdownAmountWidth} text-right text-[13px] -translate-x-6 text-white`}
             >
               {currencySymbol}
               {row.amount.toFixed(0)}
             </span>
 
             <span
-              className={`${breakdownPercentWidth} text-right text-[15px] text-slate-400`}
+              className={`${breakdownPercentWidth} text-right text-[13px] -translate-x-2 text-slate-400`}
             >
               {row.percentage.toFixed(0)}%
             </span>
@@ -1013,7 +1018,7 @@ duration-700
 {/* Vendor Breakdown */}
 {/* ================================================= */}
 
-<div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[20px] -translate-y-14 border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
 
   {/* Top Spacer */}
   <div className="h-2" />
@@ -1021,7 +1026,7 @@ duration-700
   {/* Header */}
   <div className="flex items-center justify-between">
     <div className={`${vendorTitleX} ${vendorTitleY}`}>
-      <h3 className="text-[18px] font-semibold text-white">
+      <h3 className="text-[14px] font-semibold text-white">
         Vendor Breakdown
       </h3>
     </div>
@@ -1051,7 +1056,7 @@ duration-700
             <div className="flex items-center gap-3">
 
               <span
-                className={`h-2.5 w-2.5 rounded-full ${
+                className={`h-2 w-2 rounded-full ${
                   vendor.amount > 0
                     ? "bg-blue-500"
                     : "bg-slate-600"
@@ -1059,7 +1064,7 @@ duration-700
               />
 
               <span
-                className={`text-[15px] ${
+                className={`text-[13px] ${
                   vendor.amount > 0
                     ? "text-slate-300"
                     : "text-slate-500"
@@ -1074,7 +1079,7 @@ duration-700
             <div className="flex items-center gap-4">
 
               <span
-                className={`${vendorAmountWidth} text-right text-[15px] ${
+                className={`${vendorAmountWidth} text-right -translate-x-8 text-[13px] ${
                   vendor.amount > 0
                     ? "text-white"
                     : "text-slate-500"
@@ -1085,7 +1090,7 @@ duration-700
               </span>
 
               <span
-                className={`${vendorPercentWidth} text-right text-[15px] ${
+                className={`${vendorPercentWidth} text-right -translate-x-4 text-[13px] ${
                   vendor.amount > 0
                     ? "text-slate-400"
                     : "text-slate-600"
@@ -1118,7 +1123,7 @@ duration-700
 {/* Recurring Costs */}
 {/* ================================================= */}
 
-<div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[20px] -translate-y-14 border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
 
   {/* Top Spacer */}
   <div className="h-2" />
@@ -1126,7 +1131,7 @@ duration-700
   {/* Header */}
   <div className="flex items-center justify-between">
     <div className={`${recurringTitleX} ${recurringTitleY}`}>
-      <h3 className="text-[18px] font-semibold text-white">
+      <h3 className="text-[14px] font-semibold text-white">
         Recurring Costs
       </h3>
     </div>
@@ -1146,16 +1151,16 @@ duration-700
 
     {/* Recurring Spend */}
     <div className="flex items-center gap-4">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04]">
         <RefreshCw className="h-5 w-5 text-emerald-400" />
       </div>
 
       <div>
-        <div className="text-[14px] text-slate-400">
+        <div className="text-[12px] text-slate-400">
           Recurring Spend
         </div>
 
-        <div className="text-[18px] font-semibold text-emerald-400">
+        <div className="text-[14px] font-semibold text-emerald-400">
           {currencySymbol}
           {recurringData.recurringAmount.toFixed(2)}
         </div>
@@ -1168,16 +1173,16 @@ duration-700
 
     {/* One-Time Spend */}
     <div className="flex items-center gap-4">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04]">
         <CircleDollarSign className="h-5 w-5 text-slate-300" />
       </div>
 
       <div>
-        <div className="text-[14px] text-slate-400">
+        <div className="text-[12px] text-slate-400">
           One-Time Spend
         </div>
 
-        <div className="text-[18px] font-semibold text-white">
+        <div className="text-[14px] font-semibold text-white">
           {currencySymbol}
           {recurringData.oneTimeAmount.toFixed(2)}
         </div>
@@ -1190,16 +1195,16 @@ duration-700
 
     {/* Active Subscriptions */}
     <div className="flex items-center gap-4">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04]">
         <BarChart3 className="h-5 w-5 text-slate-300" />
       </div>
 
       <div>
-        <div className="text-[14px] text-slate-400">
+        <div className="text-[12px] text-slate-400">
           Active Subscriptions
         </div>
 
-        <div className="text-[18px] font-semibold text-white">
+        <div className="text-[14px] font-semibold text-white">
           {expenses.filter(expense => expense.is_recurring).length}
         </div>
       </div>
@@ -1211,19 +1216,19 @@ duration-700
 
     {/* Monthly Commitment */}
     <div className="flex items-center gap-4">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04]">
         <ArrowRight className="h-5 w-5 text-slate-300" />
       </div>
 
       <div>
-        <div className="text-[14px] text-slate-400">
+        <div className="text-[12px] text-slate-400">
           Monthly Commitment
         </div>
 
-        <div className="text-[18px] font-semibold text-emerald-400">
+        <div className="text-[14px] font-semibold text-emerald-400">
           {currencySymbol}
           {recurringData.recurringAmount.toFixed(2)}
-          <span className="ml-1 text-[15px] text-slate-400">
+          <span className="ml-1 text-[14px] text-slate-400">
             /mo
           </span>
         </div>
