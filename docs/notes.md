@@ -178,6 +178,7 @@ git commit -m "Polish Trading Calendar and review dialog UI"
 git commit -m "Complete Dashboard V2 UI calibration"
 git commit -m "Finalize Dashboard V2 and calibrate UserMenu V2"
 git commit -m "Polish Expenses page KPI section and header"
+git commit -m "Polish Expenses dashboard layout and business intelligence"
 ------------------------------------------------------------------
 
 Status:

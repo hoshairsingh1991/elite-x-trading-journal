@@ -14,6 +14,10 @@ import {
 
 import MetricInfoTooltip from "@/components/dashboard-v2/MetricInfoTooltip";
 
+import { CalendarSync } from "lucide-react";
+
+
+
 import {
   CalendarClock,
   Flame,
@@ -110,7 +114,7 @@ const profitSubtitleX = "translate-x-0";
 const profitSubtitleY = "translate-y-2";
 
 const profitMetricsX = "translate-x-4";
-const profitMetricsY = "translate-y-12";
+const profitMetricsY = "translate-y-9";
 const profitMetricsWidth = "w-[90%]";
 
 
@@ -125,7 +129,7 @@ const projectedValueX = "translate-x-5";
 const projectedValueY = "translate-y-4";
 
 const projectedMetricsX = "translate-x-4";
-const projectedMetricsY = "translate-y-16";
+const projectedMetricsY = "translate-y-14";
 const projectedMetricsWidth = "w-[90%]";
 
 const projectedSubtitleX = "translate-x-0";
@@ -149,7 +153,7 @@ const burnChartX = "translate-x-54";
 const burnChartY = "-translate-y-7";
 
 const burnMetricsX = "translate-x-4";
-const burnMetricsY = "translate-y-12";
+const burnMetricsY = "translate-y-9";
 const burnMetricsWidth = "w-[90%]";
 
 
@@ -166,22 +170,22 @@ const renewalsButtonX = "-translate-x-4";
 const renewalsButtonY = "translate-y-0";
 
 const renewalsListX = "translate-x-4";
-const renewalsListY = "translate-y-7";
+const renewalsListY = "translate-y-4";
 
 const renewalsWidth = "w-[90%]";
 
-const renewalIconX = "translate-x-0";
+const renewalIconX = "-translate-x-0.6";
 const renewalIconY = "translate-y-0";
 
 const renewalIconSize = 24;
 
-const renewalNameX = "translate-x-2";
+const renewalNameX = "translate-x-3";
 const renewalNameY = "translate-y-0";
 
-const renewalDateX = "-translate-x-0";
+const renewalDateX = "translate-x-4";
 const renewalDateY = "translate-y-0";
 
-const renewalDaysX = "-translate-x-8";
+const renewalDaysX = "-translate-x-5";
 const renewalDaysY = "translate-y-0";
 
   /* =====================================================
@@ -198,7 +202,7 @@ const avgValueX = "translate-x-6";
 const avgValueY = "translate-y-5";
 
 const avgMetricsX = "translate-x-4";
-const avgMetricsY = "translate-y-12";
+const avgMetricsY = "translate-y-9";
 const avgMetricsWidth = "w-[90%]";
 
     /* =====================================================
@@ -226,17 +230,39 @@ const sparklineY = "translate-y-3";
 
 // Metrics section
 const metricsX = "translate-x-4";
-const metricsY = "translate-y-10";
+const metricsY = "translate-y-9";
 const metricsWidth = "w-[90%]";
 
 
  const cardClass =
-  "group flex h-[220px] flex-col rounded-[22px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-200 hover:-translate-y-[1px] hover:border-white/20 hover:bg-white/[0.045]";
+  "group flex h-[200px] flex-col rounded-[22px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-200 hover:-translate-y-[1px] hover:border-white/20 hover:bg-white/[0.045]";
 
-const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
+const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
 
-  return (
-    <div className="grid grid-cols-6 gap-5">
+ return (
+  <>
+    <svg
+      width="0"
+      height="0"
+      className="absolute"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient
+          id="renewalGradient"
+          x1="0%"
+          y1="100%"
+          x2="100%"
+          y2="0%"
+        >
+          <stop offset="0%" stopColor="#A855F7" />
+          <stop offset="100%" stopColor="#38BDF8" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    return (
+  <div className="-translate-y-12 grid grid-cols-6 gap-5">
 
 
 
@@ -256,7 +282,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 >
   <Gauge className="h-4 w-4 text-cyan-400" />
 
-  <span className="text-[13px] font-semibold text-white">
+  <span className="text-[12px] font-semibold text-white">
     Expense Efficiency
   </span>
 
@@ -295,14 +321,14 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     ${scoreY}
   `}
 >
-  <div className="text-[42px] font-bold leading-none text-white">
+  <div className="text-[33px] font-bold leading-none text-white">
     {metrics.expenseEfficiency.toFixed(1)}x
   </div>
 
   <p
   className={`
     mt-2
-    text-[13px]
+    text-[12px]
     text-slate-400
 
     ${scoreTrendX}
@@ -386,7 +412,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 >
   <Target className="h-4 w-4 text-emerald-400" />
 
-  <span className="text-[13px] font-semibold text-white">
+  <span className="text-[12px] font-semibold text-white">
     Avg Cost / Trade
   </span>
 
@@ -409,7 +435,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
       ${avgValueY}
     `}
   >
-    <div className="text-[38px] font-bold leading-none text-white">
+    <div className="text-[32px] font-bold leading-none text-white">
   {currencySymbol}
   {metrics.avgCostPerTrade.toFixed(2)}
 </div>
@@ -417,7 +443,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
    <p
   className={`
     mt-2
-    text-[13px]
+    text-[12px]
     text-slate-400
 
     ${avgTrendX}
@@ -495,7 +521,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 >
   <ShieldCheck className="h-4 w-4 text-violet-400" />
 
-  <span className="text-[13px] font-semibold text-white">
+  <span className="text-[12px] font-semibold text-white">
     Profit Retention
   </span>
 
@@ -519,14 +545,14 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
       ${profitValueY}
     `}
   >
-    <div className="text-[38px] font-bold leading-none text-white">
+    <div className="text-[32px] font-bold leading-none text-white">
   {metrics.profitRetention.toFixed(1)}%
 </div>
 
     <p
   className={`
     mt-2
-    text-[13px]
+    text-[12px]
     text-slate-400
 
     ${profitSubtitleX}
@@ -607,7 +633,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 >
   <TrendingUp className="h-4 w-4 text-orange-400" />
 
-  <span className="text-[13px] font-semibold text-white">
+  <span className="text-[12px] font-semibold text-white">
     Projected Annual
   </span>
 
@@ -628,7 +654,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
       ${projectedValueY}
     `}
   >
-    <div className="text-[38px] font-bold leading-none text-white">
+    <div className="text-[32px] font-bold leading-none text-white">
   {currencySymbol}
   {metrics.projectedAnnualBurn.toFixed(0)}
 </div>
@@ -636,7 +662,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     <p
   className={`
     mt-2
-    text-[13px]
+    text-[12px]
     text-slate-400
 
     ${projectedSubtitleX}
@@ -703,7 +729,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 >
   <Flame className="h-4 w-4 text-red-400" />
 
-  <span className="text-[13px] font-semibold text-white">
+  <span className="text-[12px] font-semibold text-white">
     Monthly Burn
   </span>
 
@@ -724,7 +750,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
       ${burnValueY}
     `}
   >
-    <div className="text-[38px] font-bold leading-none text-white">
+    <div className="text-[32px] font-bold leading-none text-white">
   {currencySymbol}
   {metrics.monthlyBurn.toFixed(2)}
 </div>
@@ -732,7 +758,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
    <p
   className={`
     mt-2
-    text-[13px]
+    text-[12px]
     text-slate-400
 
     ${burnTrendX}
@@ -810,7 +836,7 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
     <div className="flex items-center gap-2">
       <CalendarClock className="h-4 w-4 text-slate-400" />
 
-      <span className="text-[13px] font-semibold text-white">
+      <span className="text-[12px] font-semibold text-white">
         Upcoming Renewals
       </span>
     </div>
@@ -834,25 +860,36 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 >
 {upcomingRenewals.map(
   (renewal, index) => (
+
     <div
-      key={`${renewal.expenseName}-${index}`}
-    >
-      <div className="flex items-center justify-between">
+  key={`${renewal.expenseName}-${index}`}
+>
+  <div
+    className="
+      rounded-xl
+      px-2
+      py-2
+      transition-colors
+      hover:bg-white/[0.03]
+    "
+  >
+    <div className="flex items-center justify-between">
 
         <div className="flex items-center">
 
           <div
-            className={`
-              flex
-              ${renewalBoxSize}
-              items-center
-              justify-center
-              rounded-lg
-              bg-white
+           className={`
+  flex
+  ${renewalBoxSize}
+  items-center
+  justify-center
+  rounded-lg
+  border border-violet-500/20
+  bg-[#16233A]
 
-              ${renewalIconX}
-              ${renewalIconY}
-            `}
+  ${renewalIconX}
+  ${renewalIconY}
+`}
           >
             {vendorIcons[
               renewal.vendor
@@ -872,10 +909,20 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
   height={
     renewalIconSize
   }
-  className="h-[18px] w-[18px] object-contain"
+  className="h-[12px] w-[12px] object-contain"
 />
             ) : (
-              <CalendarClock className="h-4 w-4 text-slate-500" />
+              <CalendarClock
+  className="
+    h-[16px]
+    w-[16px]
+    stroke-[2]
+    text-transparent
+  "
+  style={{
+    stroke: "url(#renewalGradient)",
+  }}
+/>
             )}
           </div>
 
@@ -895,31 +942,32 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
 
-          <span
-            className={`
-              text-[11px]
-              text-slate-400
+         <span
+  className={`
+    whitespace-nowrap
+    text-[11px]
+    text-slate-400
 
-              ${renewalDateX}
-              ${renewalDateY}
-            `}
-          >
+    ${renewalDateX}
+    ${renewalDateY}
+  `}
+>
             {new Date(
               renewal.renewalDate
             ).toLocaleDateString(
   "en-US",
   {
-    month: "short",
-    day: "numeric",
-  }
+  month: "short",
+  day: "numeric",
+}
 )}
           </span>
 
 <span
   className={`
-    min-w-[55px]
+    min-w-[60px]
     text-right
     text-[11px]
     font-semibold
@@ -937,18 +985,18 @@ const renewalBoxSize = "h-7.5 w-7.5"; // try h-7 w-7, h-8 w-8, h-9 w-9
 
         </div>
 
+              </div>
       </div>
 
-      {index <
-        upcomingRenewals.length -
-          1 && (
-        <div className="h-[12px]" />
+      {index < upcomingRenewals.length - 1 && (
+        <div className="my-3 h-px bg-white/[0.05]" />
       )}
     </div>
   )
 )}
 </div>
     </div>
-    </div>   
-  );
+       </div>
+  </>
+);
 }
