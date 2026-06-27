@@ -209,8 +209,24 @@ What this checkpoint includes
 ✅ Right-column cards now share a consistent visual hierarchy and styling.
 
 ========================================================= ================================================================================================
-
-
+git commit -m "Finalize Dashboard V2 and calibrate UserMenu V2"
+Dashboard V2
+✅ Secondary Metrics row recalibrated
+✅ Trading Calendar polished for the 100% zoom baseline
+✅ Calendar review dialog refined
+✅ Open Positions card polished
+✅ Recent Trades card polished
+✅ Dashboard spacing and typography standardized
+UserMenu V2
+✅ Overall dropdown scaled down
+✅ Profile hero recalibrated
+✅ Avatar, name, and email resized
+✅ Elite Trader badge refined
+✅ Stats card resized and rebalanced
+✅ Elite Plan section polished
+✅ Upgrade card scaled down
+✅ Menu typography brought in line with the rest of the application
+✅ Overall dropdown width reduced while preserving readability
 
 ========================================================= ================================================================================================
 

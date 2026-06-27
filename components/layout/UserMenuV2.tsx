@@ -198,7 +198,7 @@ if (storedCurrency) {
 </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-16 z-50 w-[500px] min-h-[818px] max-h-[80vh] overflow-y-auto rounded-[36px] border border-white/10 bg-[#071427] p-5 shadow-[0_40px_120px_rgba(0,0,0,0.85)]">
+        <div className="absolute right-0 top-16 z-50 w-[445px] min-h-[710px] max-h-[80vh] overflow-y-auto rounded-[36px] border border-white/10 bg-[#071427] p-5 shadow-[0_40px_120px_rgba(0,0,0,0.85)]">
 
           <div className="overflow-hidden rounded-[40px] border border-blue-500/0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.35),transparent_35%),linear-gradient(180deg,#0b1e3b_0%,#071427_100%)] ">
 
@@ -207,98 +207,161 @@ if (storedCurrency) {
  
 
 
-<div className="flex items-center gap-12 pl-8">
+<div className="flex items-center gap-10 pl-6">
 
-                <div className="translate-x-5 flex h-20 w-20 items-center justify-center rounded-full border-4 border-violet-400/30 bg-violet-500/20 text-3xl font-black text-violet-300">
-                  {initial}
-                </div>
+  <div
+    className="
+      translate-x-3
+      flex
+      h-16
+      w-16
+      items-center
+      justify-center
+      rounded-full
+      border-[3px]
+      border-violet-400/30
+      bg-violet-500/20
+      text-[30px]
+      font-black
+      text-violet-300
+    "
+  >
+    {initial}
+  </div>
 
+  <div>
 
-                <div>
-                  <h2 className="text-[26px] font-black text-white">
-                    {displayName}
-                  </h2>
+    <h2
+      className="
+        text-[20px]
+        font-black
+        text-white
+      "
+    >
+      {displayName}
+    </h2>
 
-                  <p className="mt-1 text-slate-400">{email}</p>
+                  <p
+  className="
+    mt-1
+    text-[14px]
+    font-medium
+    text-slate-400
+  "
+>
+  {email}
+</p>
 
-                   {/* ===================================== */}
+{/* ===================================== */}
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
 <div className="h-[4px]" />
 
-                  <div className="mt-4 inline-flex w-[130px] h-8 items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 text-[11px] font-bold uppercase tracking-[0.15em] text-cyan-300">
-                   <Crown
-                     size={15}
-                     style={{ position: "relative", left: "4px" }}
-                      />
-                      Elite Trader
-                    </div>
+                  <div
+  className="
+    mt-4
+    inline-flex
+
+    h-7
+    w-[120px]
+
+    items-center
+    gap-2
+
+    rounded-full
+    border
+    border-cyan-400/20
+    bg-cyan-400/10
+
+    px-3
+
+    text-[10px]
+    font-bold
+    uppercase
+    tracking-[0.14em]
+    text-cyan-300
+  "
+>
+  <Crown
+    size={13}
+    style={{
+      position: "relative",
+      left: "2px",
+    }}
+  />
+
+  Elite Trader
+</div>
                 </div>
               </div>
 
 
 
-         <div className="flex justify-center">
-
+<div className="flex justify-center">
 
   <div
-  className="
-    w-[95%]
-    min-h-[90px]
-    overflow-hidden
-    rounded-[22px]
-    border border-white/[0.08]
-    bg-[#081526]/80
-  "
->
- <div className="grid min-h-[90px] grid-cols-3">
+    className="
+      w-[95%]
+      h-[72px]
+      -translate-y-[10px]
+      overflow-hidden
+      rounded-[20px]
+      border
+      border-white/[0.08]
+      bg-[#081526]/80
+    "
+  >
 
-    <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center"> 
-      <p className="text-[22px] font-black text-white">
-       {menuStats.totalTrades}
-      </p>
+    <div className="grid h-[72px] grid-cols-3">
 
-      <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
-        Total Trades
-      </p>
+      <div className="flex h-[72px] flex-col items-center justify-center border-r border-white/[0.08] text-center">
+
+        <p className="text-[18px] font-bold text-white">
+          {menuStats.totalTrades}
+        </p>
+
+        <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          Total Trades
+        </p>
+
+      </div>
+
+      <div className="flex h-[72px] flex-col items-center justify-center border-r border-white/[0.08] text-center">
+
+        <p className="text-[18px] font-bold text-emerald-400">
+          {formattedPnL}
+        </p>
+
+        <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          P&L
+        </p>
+
+      </div>
+
+      <div className="flex h-[72px] flex-col items-center justify-center text-center">
+
+        <p className="text-[18px] font-bold text-white">
+          {menuStats.tradingDays}
+        </p>
+
+        <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-slate-500">
+          Trading Days
+        </p>
+
+      </div>
+
     </div>
-
-    <div className="flex min-h-[90px] flex-col items-center justify-center border-r border-white/[0.08] text-center">
-      <p className="text-[20px] font-black text-emerald-400">
-        {formattedPnL}
-      </p>
-
-      <p className="mt-1 text-[15px] uppercase tracking-[0.15em] text-slate-500">
-        P&L
-      </p>
-    </div>
-
-    <div className="flex min-h-[90px] flex-col items-center justify-center py-5 text-center">
-      <p className="text-[22px] font-black text-white">
-        {menuStats.tradingDays}
-      </p>
-
-      <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-slate-500">
-        Trading Days
-      </p>
-    </div>
+     </div>
 
   </div>
+
 </div>
-            </div>
-          </div>
 
-             {/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-
-<div className="h-[12px]" />
 
 <div className="mt-4 flex justify-center">
 
-  <div className="w-[95%] min-h-[90px] rounded-[24px] border border-white/10 bg-white/[0.03] flex flex-col justify-center">
+  <div className="w-[95%] min-h-[70px] -translate-y-[8px] rounded-[24px] border border-white/10 bg-white/[0.03] flex flex-col justify-center">
 
     <div className="px-6 pt-5 pb-4">
 
@@ -316,17 +379,17 @@ if (storedCurrency) {
 
           <Crown
             className="text-amber-400"
-            size={18}
+            size={14}
           />
 
 
-          <span className="text-[19px] font-semibold text-white">
+          <span className="text-[15px] font-semibold text-white">
             Elite Plan
           </span>
 
         </div>
 
-        <div className="relative right-60 rounded-full bg-emerald-500/15 px-5 py-2 text-[15px] font-semibold text-emerald-400">
+        <div className="relative right-60 rounded-full bg-emerald-500/15 px-5 py-2 text-[12px] font-semibold text-emerald-400">
   Active
 </div>
 
@@ -352,9 +415,9 @@ if (storedCurrency) {
 
       <div className="relative left-8 flex items-center gap-4">
 
-        <div className="h-3.5 w-3.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(34,197,94,0.8)]" />
+        <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(34,197,94,0.8)]" />
 
-        <p className="text-[16px] font-medium text-white">
+        <p className="text-[15px] font-medium text-white">
           All systems operational
         </p>
 
@@ -378,26 +441,42 @@ if (storedCurrency) {
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[12px]" />
+<div className="h-[4px]" />
 
           <div className="mt-4 flex justify-center">
 
   <button
     onClick={comingSoon}
-    className="flex w-[95%] min-h-[90px] items-center justify-between rounded-[24px] border border-violet-500/20 bg-gradient-to-r from-violet-600/20 to-blue-600/10 p-6 text-left"
+    className="flex w-[95%] min-h-[70px] items-center justify-between rounded-[24px] border border-violet-500/20 bg-gradient-to-r from-violet-600/20 to-blue-600/10 p-6 text-left"
   >
     <div className="relative left-2 flex items-center gap-4">
 
-      <div className="rounded-2xl bg-violet-500/20 p-5">
-        <Zap className="text-violet-300" />
-      </div>
+      <div className="rounded-2xl bg-violet-500/20 p-3">
+  <Zap
+    className="text-violet-300"
+    size={18}
+  />
+</div>
 
       <div>
-        <p className="font-bold text-white">
+        <p
+  className="
+    text-[13px]
+    font-semibold
+    text-white
+  "
+>
           Unlock Advanced Analytics
         </p>
 
-        <p className="mt-1 text-sm text-slate-400">
+        <p
+  className="
+    mt-1
+    text-[13px]
+    font-medium
+    text-slate-400
+  "
+>
           Upgrade to Elite Pro for deeper insights
         </p>
       </div>
@@ -428,7 +507,7 @@ if (storedCurrency) {
 <div className="h-[2px]" />
 
     <Row
-      icon={<User size={22} />}
+      icon={<User size={18} />}
       title="My Profile"
       subtitle="Manage profile information"
       onClick={() => window.location.href="/profile"}
@@ -441,7 +520,7 @@ if (storedCurrency) {
 <div className="h-[2px]" />
 
     <Row
-      icon={<Settings size={22} />}
+      icon={<Settings size={18} />}
       title="Account Settings"
       subtitle="Preferences and configuration"
       onClick={() => window.location.href="/settings"}
@@ -452,7 +531,7 @@ if (storedCurrency) {
 
 <div className="h-[2px]" />
     <Row
-      icon={<ShieldCheck size={22} />}
+      icon={<ShieldCheck size={18} />}
       title="Security"
       subtitle="Password and account protection"
       onClick={comingSoon}
@@ -463,7 +542,7 @@ if (storedCurrency) {
 
 <div className="h-[2px]" />
     <Row
-      icon={<CreditCard size={22} />}
+      icon={<CreditCard size={18} />}
       title="Billing & Subscription"
       subtitle="Manage plan and invoices"
       onClick={comingSoon}
@@ -476,7 +555,7 @@ if (storedCurrency) {
 <div className="h-[2px]" />
 
     <Row
-      icon={<HelpCircle size={22} />}
+      icon={<HelpCircle size={18} />}
       title="Help & Support"
       subtitle="Documentation and assistance"
       onClick={comingSoon}
@@ -490,7 +569,7 @@ if (storedCurrency) {
 
     <Row
       danger
-      icon={<LogOut size={22} />}
+      icon={<LogOut size={18} />}
       title="Sign Out"
       subtitle="Sign out of your account"
       onClick={handleSignOut}
@@ -562,8 +641,8 @@ function Row({
           <p
             className={
               danger
-                ? "text-[17px] font-semibold text-red-400"
-                : "text-[17px] font-semibold text-white"
+                ? "text-[14px] font-semibold text-red-400"
+                : "text-[14px] font-semibold text-white"
             }
           >
             {title}
