@@ -331,7 +331,7 @@ const businessCostAnalytics =
 <div className="flex justify-center">
   <div className="w-[98%]">
     {/* Top Spacer */}
-    <div className="h-6" />
+    <div className="h-3" />
 
 {/* ================================================= */}
 {/* HEADER */}
@@ -368,7 +368,7 @@ const businessCostAnalytics =
 />
 </div>
 
-<div className="h-6" />
+<div className="h-4" />
 
 {/* ================================================= */}
 {/* KPI GRID */}
@@ -386,7 +386,7 @@ const businessCostAnalytics =
   />
 </div>
 
-<div className="h-6" />
+<div className="h-0" />
 
 {/* ================================================= */}
 {/* BUSINESS INTELLIGENCE */}
@@ -400,7 +400,7 @@ const businessCostAnalytics =
 />
 </div>
 
-<div className="h-6" />
+<div className="h-2" />
 
 {/* ================================================= */}
 {/* EXPENSES OVERVIEW */}
@@ -419,7 +419,7 @@ trades={filteredTrades}
 />
 </div>
 
-<div className="h-6" />
+<div className="h-4" />
 
 {/* ================================================= */}
 {/* MANUAL EXPENSES + TAX SUMMARY */}

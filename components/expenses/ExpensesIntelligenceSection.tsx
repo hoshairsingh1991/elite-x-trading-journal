@@ -262,7 +262,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     </svg>
 
     return (
-  <div className="-translate-y-12 grid grid-cols-6 gap-5">
+  <div className=" -translate-y-2 grid grid-cols-6 gap-5">
 
 
 

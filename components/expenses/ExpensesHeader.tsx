@@ -105,7 +105,7 @@ export default function ExpensesHeader({
 
 
   return (
-    <header className="flex w-full -translate-y-[12px] items-start justify-between">
+    <header className="flex w-full -translate-y-[0px] items-start justify-between">
       {/* ================================================= */}
       {/* LEFT */}
       {/* ================================================= */}
