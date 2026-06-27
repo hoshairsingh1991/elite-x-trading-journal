@@ -60,6 +60,8 @@ const [dateFilter, setDateFilter] = useState("All");
 
 const ITEMS_PER_PAGE = 10;
 
+
+
 // =====================================================
 // FILTERED EXPENSES
 // =====================================================
@@ -179,6 +181,9 @@ const endItem = Math.min(
 
 const paginationInfoX = "translate-x-6";
 
+const headerCategoryX = "translate-x-6";
+const headerVendorX = "translate-x-7";
+
 /* =====================================================
    FINE TUNING
    ===================================================== */
@@ -192,25 +197,25 @@ const paginationInfoX = "translate-x-6";
   const filtersX = "translate-x-3";
   const filtersY = "-translate-y-0";
 
-  const addButtonX = "translate-x-2";
+  const addButtonX = "translate-x-0";
   const addButtonY = "translate-y-3";
 
   const tableX = "translate-x-4";
   const tableY = "-translate-y-2";
 
-  const addButtonWidth = "w-[120px]";
-  const addButtonHeight = "h-[38px]";
+  const addButtonWidth = "w-[110px]";
+  const addButtonHeight = "h-[34px]";
 
-  const filterHeight = "h-[38px]";
+  const filterHeight = "h-[34px]";
 
   const tabWidth = "w-[100px]";
-const tabHeight = "h-[36px]";
+const tabHeight = "h-[34px]";
 
 const searchWidth = "w-[180px]";
 const filterWidth = "w-[105px]";
-const dateFilterWidth = "w-[150px]";
+const dateFilterWidth = "w-[145px]";
 
-const tableHeaderHeight = "h-[38px]";
+const tableHeaderHeight = "h-[34px]";
 const tableRowHeight = "h-[38px]"; // <-- increase/decrease this only
 
 const tableHeaderSpacerTop = "pt-1";
@@ -219,14 +224,14 @@ const tableHeaderSpacerBottom = "pb-1";
 const tableRowSpacerTop = "pt-2";
 const tableRowSpacerBottom = "pb-2";
 
-const actionIconSize = 16;
+const actionIconSize = 14;
 
 const deductibleX = "-translate-x-5"; // try: translate-x-1, -translate-x-1, -translate-x-2, etc.
 
 const expenseX = "-translate-x-2"; // adjust as needed
 
-const categoryX = "-translate-x-10";
-const vendorX = "-translate-x-12";
+const categoryX = "-translate-x-2";
+const vendorX = "-translate-x-2";
 const originalAmountX = "-translate-x-4";
 const reportingAmountX = "-translate-x-8";
 const recurringX = "-translate-x-5";
@@ -292,7 +297,7 @@ const recurringX = "-translate-x-5";
     rounded-xl
     bg-blue-600
 
-    text-[13px]
+    text-[12px]
     font-semibold
     text-white
   `}
@@ -315,7 +320,7 @@ const recurringX = "-translate-x-5";
 
     rounded-xl
     bg-blue-600
-    text-[13px]
+    text-[12px]
     font-semibold
     text-white
 
@@ -376,7 +381,7 @@ const recurringX = "-translate-x-5";
     ml-2
     w-full
     bg-transparent
-    text-[13px]
+    text-[12px]
     text-white
     outline-none
     placeholder:text-slate-500
@@ -408,7 +413,7 @@ className={`
   bg-white/[0.03]
 
   pr-10
-  text-[13px]
+  text-[12px]
   text-slate-300
   outline-none
 
@@ -448,7 +453,7 @@ className={`
       pr-10
       indent-[16px]
 
-      text-[13px]
+      text-[12px]
       text-slate-300
       outline-none
 
@@ -491,7 +496,7 @@ className={`
     border-white/10
     bg-white/[0.03]
 
-    text-[13px]
+    text-[12px]
     text-slate-300
 
     transition
@@ -524,7 +529,7 @@ className={`
       pr-10
       indent-[14px]
 
-      text-[13px]
+      text-[12px]
       text-slate-300
       outline-none
 
@@ -567,7 +572,7 @@ className={`
       pr-10
       indent-[30px]
 
-      text-[13px]
+      text-[12px]
       text-slate-300
       outline-none
 
@@ -604,7 +609,7 @@ className={`
       pr-10
       indent-[14px]
 
-      text-[13px]
+      text-[12px]
       text-slate-300
       outline-none
 
@@ -648,7 +653,7 @@ className={`
       pr-10
       indent-[40px]
 
-      text-[13px]
+      text-[12px]
       text-slate-300
       outline-none
 
@@ -702,7 +707,7 @@ className={`
       ${tableHeaderSpacerTop}
       ${tableHeaderSpacerBottom}
 
-      text-[11px]
+      text-[10px]
       font-semibold
       uppercase
       tracking-wide
@@ -721,8 +726,20 @@ className={`
 >
   Expense
 </span>
-    <span>Category</span>
-    <span>Vendor</span>
+    <span
+  className={`
+    ${headerCategoryX}
+  `}
+>
+  Category
+</span>
+    <span
+  className={`
+    ${headerVendorX}
+  `}
+>
+  Vendor
+</span>
     <span>Original Amount</span>
     <span>Reporting Amount </span>
     <span>Recurring</span>
@@ -755,7 +772,7 @@ className={`
         border-b
         border-white/5
 
-        text-[13px]
+        text-[12px]
         text-slate-300
 
         last:border-b-0
