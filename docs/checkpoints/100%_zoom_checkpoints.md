@@ -197,8 +197,16 @@ Notes editor typography and spacing improved.
 General spacing and alignment adjustments.
 
 ========================================================= ================================================================================================
-
-
+git commit -m "Complete Dashboard V2 UI calibration"
+What this checkpoint includes
+✅ Dashboard calibrated for the 100% browser zoom baseline.
+✅ KPI Grid typography and spacing refined.
+✅ Secondary Metrics row recalibrated and standardized.
+✅ Trading Calendar polished with improved proportions and spacing.
+✅ Trade Review dialog refined (KPIs, Win Rate, Notes, buttons, spacing).
+✅ Open Positions card calibrated to match Dashboard V2 design language.
+✅ Recent Trades card calibrated for typography, spacing, and row density.
+✅ Right-column cards now share a consistent visual hierarchy and styling.
 
 ========================================================= ================================================================================================
 

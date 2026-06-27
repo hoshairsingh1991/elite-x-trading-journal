@@ -34,7 +34,7 @@ function formatQuantity(
     relative
     z-50
 
-    h-[220px]
+    h-[205px]
     overflow-visible
     rounded-[22px]
     border
@@ -55,7 +55,7 @@ function formatQuantity(
       {/* INVISIBLE SPACER */}
       {/* ===================================== */}
 
-      <div className="h-[10px]" />
+      <div className="h-[6px]" />
 
       {/* ================================================= */}
       {/* HEADER */}
@@ -69,7 +69,7 @@ function formatQuantity(
       className="
         relative
         left-4
-        text-[16px]
+        text-[14px]
         font-semibold
         text-white
       "
@@ -87,7 +87,7 @@ function formatQuantity(
       {/* INVISIBLE SPACER */}
       {/* ===================================== */}
 
-      <div className="h-[12px]" />
+      <div className="h-[4px]" />
 
       {/* ================================================= */}
       {/* TABLE */}
@@ -110,7 +110,7 @@ function formatQuantity(
             className="
               grid
               grid-cols-4
-              text-[11px]
+              text-[10px]
               uppercase
               tracking-[0.12em]
               text-slate-500
@@ -147,7 +147,7 @@ function formatQuantity(
 <div
   className="
     mt-4
-    h-[150px]
+    h-[145px]
     overflow-y-scroll
     overflow-x-hidden
     pr-1
@@ -156,7 +156,7 @@ function formatQuantity(
 >
 
 
-  {openTrades.map((trade, index) => {
+ {openTrades.map((trade, index) => {
 
 
 
@@ -179,29 +179,31 @@ function formatQuantity(
 
         {/* SYMBOL */}
 
-        <div className="font-medium text-slate-300">
+        <div className="text-[13px] font-medium text-slate-300">
   {trade.ticker}
 </div>
 
         {/* DIRECTION */}
 
         <div
-          className={`
-            relative
-            left-8
-            ${
-              trade.side === "LONG"
-                ? "text-emerald-400"
-                : "text-red-400"
-            }
-          `}
+className={`
+  relative
+  left-8
+  text-[13px]
+  font-medium
+  ${
+    trade.side === "LONG"
+      ? "text-emerald-400"
+      : "text-red-400"
+  }
+`}
         >
           {trade.side}
         </div>
 
         {/* SIZE */}
 
-        <div className="text-right text-slate-300">
+        <div className="text-[13px] text-right text-slate-300">
           {formatQuantity(
             trade.quantity
           )}
@@ -210,17 +212,22 @@ function formatQuantity(
         {/* PNL */}
 
 <div
-  className={`relative right-4 text-right font-medium ${
-            isProfit
-              ? "text-emerald-400"
-              : "text-red-400"
-          }`}
-        >
-          {isProfit ? "+" : "-"}$
-          {Math.abs(
-            trade.pnl
-          ).toFixed(2)}
-        </div>
+  className={`
+    relative
+    right-4
+    text-[13px]
+    text-right
+    font-medium
+    ${
+      isProfit
+        ? "text-emerald-400"
+        : "text-red-400"
+    }
+  `}
+>
+  {isProfit ? "+" : "-"}$
+  {Math.abs(trade.pnl).toFixed(2)}
+</div>
 
       </div>
 
