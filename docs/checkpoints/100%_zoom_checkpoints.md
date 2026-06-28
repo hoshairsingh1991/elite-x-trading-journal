@@ -340,6 +340,81 @@ variant="form" for settings pages and drawers.
 Add Expense Drawer is now ready to migrate using the same component without additional dropdown redesign.
 
 ========================================================= ================================================================================================
+git commit -m "checkpoint: complete Add Expense Drawer UI enhancements"
+✅ Checkpoint: Add Expense Drawer UI Complete (Local Only)
+Overall Status
+✅ Manual Expenses Table UI complete.
+✅ Account filter replaced with Expense Type.
+✅ Drawer redesigned and calibrated.
+✅ Do not push to GitHub yet.
+✅ Business Details (Complete)
+
+Added:
+
+✅ Expense Type
+✅ Business Purpose
+✅ Business Use %
+✅ Payment Method
+✅ Recurring
+✅ Frequency
+UX Improvements
+Independent X/Y calibration added where needed.
+Frequency dropdown width and position fully controllable.
+Frequency box has independent X/Y controls.
+Recurring toggle has independent X/Y controls.
+Toggle overlap issue resolved.
+Business Use defaults to 100%.
+Business Use validated between 0–100.
+Backend save clamps Business Use to 0–100.
+✅ Tax Information (Complete)
+
+Added:
+
+✅ Tax Deductible
+✅ Deductible %
+✅ Receipt / Invoice #
+✅ Tax Type
+✅ Tax Amount
+✅ Receipt Upload
+UX Improvements
+"Eligible for tax deduction" changed to "Enable Deduction".
+Added independent label positioning for Tax Deductible.
+Deductible % validated between 0–100.
+Backend save clamps Deductible % to 0–100.
+Removed currency symbol from Tax Amount.
+Tax Amount automatically uses the selected Billed Currency.
+No separate tax currency field required.
+✅ Validation
+
+Completed:
+
+Business Use %
+UI validation
+Backend validation
+Deductible %
+UI validation
+Backend validation
+✅ Receipt Section
+Upload box height is independently controllable.
+Horizontal scrollbar hidden with:
+overflow-x-hidden
+
+(Temporary until final cleanup.)
+
+✅ Accounting Review
+
+Current drawer captures:
+
+Expense identity
+Financial information
+Business purpose
+Business usage
+Tax information
+Receipt information
+Recurring information
+Notes
+
+From a bookkeeping perspective, the drawer is considered feature complete for V1.
 
 
 ========================================================= ================================================================================================

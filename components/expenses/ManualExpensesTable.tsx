@@ -235,6 +235,8 @@ const vendorX = "-translate-x-2";
 const originalAmountX = "-translate-x-4";
 const reportingAmountX = "-translate-x-8";
 const recurringX = "-translate-x-5";
+const headerTypeX = "translate-x-6";
+const typeX = "-translate-x-1";
 
   return (
     
@@ -481,32 +483,37 @@ className={`
   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 </div>
 
-{/* Account */}
-<button
-  className={`
-    relative
-    flex
-    ${filterWidth}
-    ${filterHeight}
-    items-center
-    justify-center
+{/* Expense Type */}
+<div className="relative">
+  <select
+    className={`
+      appearance-none
+      ${filterWidth}
+      ${filterHeight}
 
-    rounded-xl
-    border
-    border-white/10
-    bg-white/[0.03]
+      rounded-xl
+      border
+      border-white/10
+      bg-white/[0.03]
 
-    text-[12px]
-    text-slate-300
+      pr-10
+      indent-[18px]
 
-    transition
-    hover:bg-white/[0.05]
-  `}
->
-  <span className="-translate-x-3">Account</span>
+      text-[12px]
+      text-slate-300
+      outline-none
 
-  <ChevronDown className="absolute right-3 h-4 w-4 text-slate-400" />
-</button>
+      transition
+      hover:bg-white/[0.05]
+    `}
+  >
+    <option value="All">Type</option>
+    <option value="Operating">Operating</option>
+    <option value="Capital">Capital</option>
+  </select>
+
+  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+</div>
 
 {/* Payment */}
 <div className="relative">
@@ -744,7 +751,13 @@ className={`
     <span>Reporting Amount </span>
     <span>Recurring</span>
     <span>Tax Deductible</span>
-    <span>Account</span>
+    <span
+  className={`
+    ${headerTypeX}
+  `}
+>
+  Type
+</span>
     <span>Payment Method</span>
     <span className="text-center">Actions</span>
   </div>
@@ -880,17 +893,38 @@ className={`
     flex
     items-center
     justify-center
+    gap-2
 
     font-medium
-    text-emerald-400
+    text-white
 
     ${deductibleX}
   `}
 >
-  {row.is_tax_deductible ? "Yes" : "No"}
+  <span
+    className={`h-2 w-2 rounded-full ${
+      row.is_tax_deductible
+        ? "bg-emerald-400"
+        : "bg-red-400"
+    }`}
+  />
+
+  <span className="text-white">
+    {row.is_tax_deductible ? "Yes" : "No"}
+  </span>
 </span>
 
-      <span>{row.account}</span>
+<span
+  className={`
+    flex
+    items-center
+    justify-center
+
+    ${typeX}
+  `}
+>
+  Operating
+</span>
 
       <span
   className={`
