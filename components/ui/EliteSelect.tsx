@@ -27,6 +27,9 @@ type EliteSelectProps = {
   width?: string;
   height?: string;
   variant?: "compact" | "form";
+
+  placeholder?: string;
+  disabled?: boolean;
 };
 
 export default function EliteSelect({
@@ -34,20 +37,25 @@ export default function EliteSelect({
   options,
   onChange,
   width = "w-[90px]",
-height = "h-[40px]",
-variant = "compact",
+  height = "h-[40px]",
+  variant = "compact",
+
+  placeholder = "Select...",
+  disabled = false,
 }: EliteSelectProps) {
 
   const selectedOption = options.find(
   (option) => option.value === value
 );
-
+console.log("value:", value);
+console.log("selected:", selectedOption);
   return (
 
-    <Select.Root
-      value={value}
-      onValueChange={onChange}
-    >
+<Select.Root
+  value={value}
+  onValueChange={onChange}
+  disabled={disabled}
+>
 
       {/* Trigger */}
 
@@ -79,12 +87,14 @@ variant = "compact",
     font-medium
     text-slate-200
 
-    outline-none
+outline-none
 
-    transition-all
-    duration-200
+${disabled ? "cursor-not-allowed opacity-50" : ""}
 
-    hover:border-white/20
+transition-all
+duration-200
+
+hover:border-white/20
 
     data-[state=open]:text-white
   `}
@@ -109,13 +119,13 @@ variant = "compact",
   `}
 >
 
-{variant === "compact"
-  ? (
-      selectedOption?.icon ?? (
-        <CurrencyFlag currency={value} />
-      )
-    )
-  : selectedOption?.icon}
+{selectedOption?.icon ? (
+  selectedOption.icon
+) : (
+  ["USD", "CAD", "EUR", "GBP", "JPY", "INR"].includes(value) && (
+    <CurrencyFlag currency={value} />
+  )
+)}
 
 <span className="text-[12px] font-medium text-slate-200">
   {selectedOption?.label ?? value}
@@ -222,13 +232,13 @@ className="
 
           <div className="mx-auto flex items-center gap-3">
 
-{variant === "compact"
-  ? (
-      option.icon ?? (
-        <CurrencyFlag currency={option.value} />
-      )
-    )
-  : option.icon}
+{option.icon ? (
+  option.icon
+) : (
+  ["USD", "CAD", "EUR", "GBP", "JPY", "INR"].includes(option.value) && (
+    <CurrencyFlag currency={option.value} />
+  )
+)}
 
 <Select.ItemText asChild>
   <span className="text-[12px] font-medium text-slate-200">

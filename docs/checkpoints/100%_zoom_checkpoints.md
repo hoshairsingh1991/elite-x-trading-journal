@@ -416,10 +416,27 @@ Notes
 
 From a bookkeeping perspective, the drawer is considered feature complete for V1.
 
-
 ========================================================= ================================================================================================
-
-
+git commit -m "feat(expenses): migrate Add Expense Drawer to EliteSelect"
+What this checkpoint captures
+✅ Replaced native <select> elements with EliteSelect
+✅ Added reusable option arrays for all dropdowns
+✅ Currency flags now render correctly in the Billed Currency dropdown
+✅ Standardized default values for required dropdowns
+Category → Software
+Vendor → TradingView
+Billed Currency → USD
+Expense Type → Operating
+Payment Method → Credit Card
+Frequency → Monthly
+Tax Type → None
+✅ Added today's date as the default Expense Date
+✅ Tax Information enhancements
+Tax Type
+Tax Amount
+Receipt / Invoice #
+✅ Business Use % and Deductible % validation improvements
+✅ Cross-platform dropdown consistency (Windows/macOS/Linux)
 ========================================================= ================================================================================================
 
 

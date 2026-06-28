@@ -184,6 +184,10 @@ git commit -m "Expenses V1 UI polish and layout refinement
 git commit -m "Expenses V1 table polish and layout refinement
 git commit -m "Complete Expenses V1 module polish
 git commit -m "feat(ui): standardize Tax Settings drawer with EliteSelect V1"
+
+git commit -m "checkpoint: complete Add Expense Drawer UI enhancements"
+
+git commit -m "feat(expenses): migrate Add Expense Drawer to EliteSelect"
 ------------------------------------------------------------------
 
 Status:

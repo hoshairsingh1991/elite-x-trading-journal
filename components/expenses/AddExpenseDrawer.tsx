@@ -11,6 +11,10 @@ import type { Expense } from "@/lib/types/expense";
 import { generateRecurringOccurrences }
 from "@/lib/expenses/generateRecurringOccurrences";
 
+import EliteSelect, {
+  type EliteSelectOption,
+} from "@/components/ui/EliteSelect";
+
 
 type AddExpenseDrawerProps = {
   open: boolean;
@@ -280,7 +284,7 @@ export default function AddExpenseDrawer({
 
 const [expenseName, setExpenseName] = useState("");
 const [category, setCategory] = useState("");
-const [vendor, setVendor] = useState("");
+const [vendor, setVendor] = useState("TradingView");
 const [expenseDate, setExpenseDate] = useState("");
 
 const [description, setDescription] = useState("");
@@ -324,6 +328,76 @@ const [notes, setNotes] =
 
   const [expenseType, setExpenseType] = useState("Operating");
 
+// ==========================================
+// DROPDOWN OPTIONS
+// ==========================================
+
+const categoryOptions: EliteSelectOption[] = [
+  { value: "Software", label: "Software" },
+  { value: "Market Data", label: "Market Data" },
+  { value: "Brokerage Fees", label: "Brokerage Fees" },
+  { value: "Education", label: "Education" },
+  { value: "Infrastructure", label: "Infrastructure" },
+  { value: "Other", label: "Other" },
+];
+
+const vendorOptions: EliteSelectOption[] = [
+  { value: "TradingView", label: "TradingView" },
+  { value: "Bookmap", label: "Bookmap" },
+  { value: "Rithmic", label: "Rithmic" },
+  { value: "CQG", label: "CQG" },
+  { value: "Interactive Brokers", label: "Interactive Brokers" },
+  { value: "NinjaTrader", label: "NinjaTrader" },
+  { value: "Edgeful", label: "Edgeful" },
+  { value: "TradeZella", label: "TradeZella" },
+  { value: "Udemy", label: "Udemy" },
+  { value: "Other", label: "Other" },
+];
+
+const currencyOptions: EliteSelectOption[] = [
+  { value: "USD", label: "USD" },
+  { value: "CAD", label: "CAD" },
+  { value: "EUR", label: "EUR" },
+  { value: "GBP", label: "GBP" },
+  { value: "JPY", label: "JPY" },
+  { value: "INR", label: "INR" },
+];
+
+const expenseTypeOptions: EliteSelectOption[] = [
+  { value: "Operating", label: "Operating" },
+  { value: "Capital", label: "Capital" },
+];
+
+const paymentMethodOptions: EliteSelectOption[] = [
+  { value: "Credit Card", label: "Credit Card" },
+  { value: "Bank Account", label: "Bank Account" },
+  { value: "Cash", label: "Cash" },
+  { value: "Debit Card", label: "Debit Card" },
+  { value: "PayPal", label: "PayPal" },
+  { value: "Wire Transfer", label: "Wire Transfer" },
+  { value: "Other", label: "Other" },
+];
+
+const frequencyOptions: EliteSelectOption[] = [
+  { value: "Daily", label: "Daily" },
+  { value: "Weekly", label: "Weekly" },
+  { value: "Monthly", label: "Monthly" },
+  { value: "Quarterly", label: "Quarterly" },
+  { value: "Yearly", label: "Yearly" },
+];
+
+const taxTypeOptions: EliteSelectOption[] = [
+  { value: "None", label: "None" },
+  { value: "GST/HST", label: "GST/HST" },
+  { value: "GST Included", label: "GST Included" },
+  { value: "HST Included", label: "HST Included" },
+  { value: "PST", label: "PST" },
+  { value: "QST", label: "QST" },
+  { value: "VAT", label: "VAT" },
+  { value: "Sales Tax", label: "Sales Tax" },
+  { value: "Other", label: "Other" },
+];
+
   // ==========================================
 // EDIT MODE PREFILL
 // ==========================================
@@ -331,34 +405,45 @@ const [notes, setNotes] =
 useEffect(() => {
 if (!editingExpense) {
   setExpenseName("");
-  setCategory("");
-  setVendor("");
-  setExpenseDate("");
+
+  setCategory("Software");
+  setVendor("TradingView");
+
+  setExpenseDate(new Date().toISOString().split("T")[0]);
   setDescription("");
 
   setOriginalAmount("");
+
   setBilledCurrency("USD");
 
-  setPaymentMethod("");
+  setPaymentMethod("Credit Card");
 
-  setIsRecurring(false);
-  setFrequency("");
-
-  setIsTaxDeductible(false);
-  setDeductiblePercent("100");
-
-  setNotes("");
+  setBusinessPurpose("");
 
   setExpenseType("Operating");
-setBusinessPurpose("");
-setBusinessUsePercent("100");
+
+  setBusinessUsePercent("100");
+
+  setIsRecurring(false);
+  setFrequency("Monthly");
+
+  setIsTaxDeductible(false);
+
+  setTaxType("None");
+  setTaxAmount("0.00");
+
+  setDeductiblePercent("100");
+
+  setReceiptNumber("");
+
+  setNotes("");
 
   return;
 }
 
   setExpenseName(editingExpense.expense_name ?? "");
   setCategory(editingExpense.category ?? "");
-  setVendor(editingExpense.vendor ?? "");
+  setVendor(editingExpense.vendor ?? "TradingView");
   setExpenseDate(editingExpense.expense_date ?? "");
 
   setDescription(editingExpense.description ?? "");
@@ -372,16 +457,16 @@ setBusinessUsePercent("100");
   );
 
   setPaymentMethod(
-    editingExpense.payment_method ?? ""
-  );
+  editingExpense.payment_method ?? "Credit Card"
+);
 
   setIsRecurring(
     editingExpense.is_recurring ?? false
   );
 
-  setFrequency(
-    editingExpense.frequency ?? ""
-  );
+setFrequency(
+  editingExpense.frequency ?? "Monthly"
+);
 
   setIsTaxDeductible(
   editingExpense.is_tax_deductible ?? false
@@ -596,59 +681,27 @@ const label =
     <div className={`transform ${categoryX} ${categoryY}`}>
       <label className={label}>Category *</label>
 
-<div className="relative">
-<select
+<EliteSelect
+  variant="form"
   value={category}
-  onChange={(e) => setCategory(e.target.value)}
-  className={`${inputCenter} ${categoryWidth} ${categoryHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
->
-    <option value="" disabled>
-      Select category
-    </option>
-
-    <option value="Software">Software</option>
-    <option value="Market Data">Market Data</option>
-    <option value="Brokerage Fees">Brokerage Fees</option>
-    <option value="Education">Education</option>
-    <option value="Infrastructure">Infrastructure</option>
-    <option value="Other">Other</option>
-  </select>
-
-  <ChevronDown
-    className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-  />
-</div>
+  options={categoryOptions}
+  onChange={setCategory}
+  width={categoryWidth}
+  height={categoryHeight}
+/>
     </div>
 
 <div className={`transform ${vendorX} ${vendorY}`}>
   <label className={label}>Vendor</label>
 
-  <div className="relative">
-<select
+<EliteSelect
+  variant="form"
   value={vendor}
-  onChange={(e) => setVendor(e.target.value)}
-  className={`${inputCenter} ${vendorWidth} ${vendorHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
->
-      <option value="" disabled>
-        Select vendor
-      </option>
-
-      <option value="TradingView">TradingView</option>
-      <option value="Bookmap">Bookmap</option>
-      <option value="Rithmic">Rithmic</option>
-      <option value="CQG">CQG</option>
-      <option value="Interactive Brokers">Interactive Brokers</option>
-      <option value="NinjaTrader">NinjaTrader</option>
-      <option value="Edgeful">Edgeful</option>
-      <option value="TradeZella">TradeZella</option>
-      <option value="Udemy">Udemy</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <ChevronDown
-      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-    />
-  </div>
+  options={vendorOptions}
+  onChange={setVendor}
+  width={vendorWidth}
+  height={vendorHeight}
+/>
 </div>
 </div>
 
@@ -722,28 +775,14 @@ const label =
 <div className={`transform ${billedCurrencyX} ${billedCurrencyY}`}>
   <label className={label}>Billed Currency *</label>
 
-<div className="relative">
-<select
+<EliteSelect
+  variant="form"
   value={billedCurrency}
-  onChange={(e) => setBilledCurrency(e.target.value)}
-  className={`${inputCenter} ${billedCurrencyWidth} ${billedCurrencyHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
->
-    <option value="" disabled>
-      Select currency
-    </option>
-
-    <option value="USD">🇺🇸 USD</option>
-    <option value="CAD">🇨🇦 CAD</option>
-    <option value="EUR">🇪🇺 EUR</option>
-    <option value="GBP">🇬🇧 GBP</option>
-    <option value="JPY">🇯🇵 JPY</option>
-    <option value="INR">🇮🇳 INR</option>
-  </select>
-
-  <ChevronDown
-    className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-  />
-</div>
+  options={currencyOptions}
+  onChange={setBilledCurrency}
+  width={billedCurrencyWidth}
+  height={billedCurrencyHeight}
+/>
 </div>
   </div>
 </section>
@@ -768,20 +807,14 @@ const label =
 <div className={`transform ${expenseTypeX} ${expenseTypeY}`}>
   <label className={label}>Expense Type *</label>
 
-  <div className="relative">
-  <select
-    value={expenseType}
-    onChange={(e) => setExpenseType(e.target.value)}
-    className={`${inputCenter} ${expenseTypeWidth} ${expenseTypeHeight}  appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-  >
-    <option value="Operating">Operating</option>
-    <option value="Capital">Capital</option>
-  </select>
-
-  <ChevronDown
-    className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-  />
-</div>
+<EliteSelect
+  variant="form"
+  value={expenseType}
+  options={expenseTypeOptions}
+  onChange={setExpenseType}
+  width={expenseTypeWidth}
+  height={expenseTypeHeight}
+/>
 </div>
 
 {/* Business Purpose */}
@@ -817,29 +850,14 @@ const label =
     <div className={`transform ${paymentMethodX} ${paymentMethodY}`}>
       <label className={label}>Payment Method *</label>
 
-      <div className="relative">
-<select
+<EliteSelect
+  variant="form"
   value={paymentMethod}
-  onChange={(e) => setPaymentMethod(e.target.value)}
-  className={`${inputCenter} ${paymentMethodWidth} ${paymentMethodHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
->
-          <option value="" disabled>
-            Select payment method
-          </option>
-
-          <option value="Credit Card">💳 Credit Card</option>
-          <option value="Bank Account">🏦 Bank Account</option>
-          <option value="Cash">💵 Cash</option>
-          <option value="Debit Card">💸 Debit Card</option>
-          <option value="PayPal">📱 PayPal</option>
-          <option value="Wire Transfer">🧾 Wire Transfer</option>
-          <option value="Other">📦 Other</option>
-        </select>
-
-        <ChevronDown
-          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-        />
-      </div>
+  options={paymentMethodOptions}
+  onChange={setPaymentMethod}
+  width={paymentMethodWidth}
+  height={paymentMethodHeight}
+/>
     </div>
   </div>
 
@@ -972,37 +990,23 @@ const label =
 >
   <label className={label}>Frequency</label>
 
-  <div
-className={`
-  relative
-  ${frequencyWidth}
-  ${frequencyBoxX}
-  ${frequencyBoxY}
-`}
-  >
-    <select
-      value={frequency}
-      onChange={(e) => setFrequency(e.target.value)}
-      disabled={!isRecurring}
-      className={`${inputCenter} w-full ${frequencyHeight} appearance-none pr-10 ${
-        !isRecurring ? "cursor-not-allowed opacity-50" : ""
-      }`}
-    >
-      <option value="" disabled>
-        Select frequency
-      </option>
-
-      <option value="Daily">Daily</option>
-      <option value="Weekly">Weekly</option>
-      <option value="Monthly">Monthly</option>
-      <option value="Quarterly">Quarterly</option>
-      <option value="Yearly">Yearly</option>
-    </select>
-
-    <ChevronDown
-      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-    />
-  </div>
+<div
+  className={`
+    ${frequencyWidth}
+    ${frequencyBoxX}
+    ${frequencyBoxY}
+  `}
+>
+  <EliteSelect
+    variant="form"
+    value={frequency}
+    options={frequencyOptions}
+    onChange={setFrequency}
+    width="w-full"
+    height={frequencyHeight}
+    disabled={!isRecurring}
+  />
+</div>
 </div>
 </div>
 </div>
@@ -1166,34 +1170,22 @@ className={`
 >
   <label className={label}>Tax Type</label>
 
-  <div
-    className={`
-      relative
-      ${taxTypeWidth}
-      ${taxTypeBoxX}
-      ${taxTypeBoxY}
-    `}
-  >
-    <select
-      value={taxType}
-      onChange={(e) => setTaxType(e.target.value)}
-      className={`${inputCenter} w-full ${taxTypeHeight} appearance-none pr-10`}
-    >
-      <option value="None">None</option>
-      <option value="GST/HST">GST/HST</option>
-      <option value="GST Included">GST Included</option>
-      <option value="HST Included">HST Included</option>
-      <option value="PST">PST</option>
-      <option value="QST">QST</option>
-      <option value="VAT">VAT</option>
-      <option value="Sales Tax">Sales Tax</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <ChevronDown
-      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
-    />
-  </div>
+<div
+  className={`
+    ${taxTypeWidth}
+    ${taxTypeBoxX}
+    ${taxTypeBoxY}
+  `}
+>
+  <EliteSelect
+    variant="form"
+    value={taxType}
+    options={taxTypeOptions}
+    onChange={setTaxType}
+    width="w-full"
+    height={taxTypeHeight}
+  />
+</div>
 </div>
 
 {/* Tax Amount */}
