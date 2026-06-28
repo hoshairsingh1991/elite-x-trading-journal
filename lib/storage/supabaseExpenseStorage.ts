@@ -15,6 +15,16 @@ export type SaveExpenseInput = {
   account?: string;
   payment_method?: string;
 
+  // Business Details
+expense_type?: string;
+business_purpose?: string;
+business_use_percent?: number;
+
+receipt_number?: string;
+
+tax_type?: string;
+tax_amount?: number;
+
   is_recurring?: boolean;
   frequency?: string | null;
   start_date?: string | null;
@@ -76,6 +86,24 @@ const {
     vendor: expense.vendor ?? null,
     account: expense.account ?? "General",
     payment_method: expense.payment_method ?? null,
+
+    expense_type:
+  expense.expense_type ?? null,
+
+business_purpose:
+  expense.business_purpose ?? null,
+
+business_use_percent:
+  expense.business_use_percent ?? 100,
+
+receipt_number:
+  expense.receipt_number ?? null,
+
+tax_type:
+  expense.tax_type ?? "None",
+
+tax_amount:
+  expense.tax_amount ?? 0,
 
     is_recurring:
       expense.is_recurring ?? false,
@@ -200,6 +228,24 @@ export async function updateExpense(
       vendor: expense.vendor ?? null,
       account: expense.account ?? "General",
       payment_method: expense.payment_method ?? null,
+
+      expense_type:
+  expense.expense_type ?? null,
+
+business_purpose:
+  expense.business_purpose ?? null,
+
+business_use_percent:
+  expense.business_use_percent ?? 100,
+
+receipt_number:
+  expense.receipt_number ?? null,
+
+tax_type:
+  expense.tax_type ?? "None",
+
+tax_amount:
+  expense.tax_amount ?? 0,
 
       is_recurring: expense.is_recurring ?? false,
       frequency: expense.frequency ?? null,

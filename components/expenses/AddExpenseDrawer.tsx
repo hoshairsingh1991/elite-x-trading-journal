@@ -460,6 +460,18 @@ if (!editingExpense) {
   editingExpense.payment_method ?? "Credit Card"
 );
 
+setExpenseType(
+  editingExpense.expense_type ?? "Operating"
+);
+
+setBusinessPurpose(
+  editingExpense.business_purpose ?? ""
+);
+
+setBusinessUsePercent(
+  editingExpense.business_use_percent?.toString() ?? "100"
+);
+
   setIsRecurring(
     editingExpense.is_recurring ?? false
   );
@@ -475,6 +487,18 @@ setFrequency(
   setDeductiblePercent(
     editingExpense.deductible_percent?.toString() ?? "100"
   );
+
+  setReceiptNumber(
+  editingExpense.receipt_number ?? ""
+);
+
+setTaxType(
+  editingExpense.tax_type ?? "None"
+);
+
+setTaxAmount(
+  editingExpense.tax_amount?.toString() ?? "0.00"
+);
 
   setNotes(
     editingExpense.notes ?? ""
@@ -533,6 +557,12 @@ business_purpose: businessPurpose,
 business_use_percent: businessUse,
 
 payment_method: paymentMethod,
+
+// Tax & Receipt
+receipt_number: receiptNumber,
+
+tax_type: taxType,
+tax_amount: parseFloat(taxAmount) || 0,
 
   is_recurring: isRecurring,
   frequency: frequency || null,

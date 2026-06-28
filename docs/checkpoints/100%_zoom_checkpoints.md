@@ -438,7 +438,27 @@ Receipt / Invoice #
 ✅ Business Use % and Deductible % validation improvements
 ✅ Cross-platform dropdown consistency (Windows/macOS/Linux)
 ========================================================= ================================================================================================
-
+git commit -m "feat(expenses): complete expense drawer CRUD and Supabase integration"
+This checkpoint includes
+✅ Converted all native dropdowns to EliteSelect
+✅ Cross-platform dropdown consistency (Windows/macOS/Linux)
+✅ Currency flags via CurrencyFlag
+✅ Standardized defaults for required dropdowns
+✅ Default Expense Date set to today's date
+✅ Added new expense fields:
+Expense Type
+Business Purpose
+Business Use %
+Receipt Number
+Tax Type
+Tax Amount
+✅ Added new Supabase database columns
+✅ Updated SaveExpenseInput
+✅ Updated Expense type
+✅ Wired saveExpense()
+✅ Wired updateExpense()
+✅ Wired edit-mode prefill
+✅ Verified full CRUD cycle (Create → Save → Load → Edit → Update)
 
 ========================================================= ================================================================================================
 

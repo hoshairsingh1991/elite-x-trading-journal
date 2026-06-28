@@ -15,6 +15,16 @@ export type Expense = {
   account: string | null;
   payment_method: string | null;
 
+  // Business Details
+expense_type: string | null;
+business_purpose: string | null;
+business_use_percent: number | null;
+
+// Tax & Receipt
+receipt_number: string | null;
+tax_type: string | null;
+tax_amount: number | null;
+
   is_recurring: boolean;
   frequency: string | null;
   start_date: string | null;

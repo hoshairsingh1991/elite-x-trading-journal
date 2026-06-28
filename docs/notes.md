@@ -188,6 +188,7 @@ git commit -m "feat(ui): standardize Tax Settings drawer with EliteSelect V1"
 git commit -m "checkpoint: complete Add Expense Drawer UI enhancements"
 
 git commit -m "feat(expenses): migrate Add Expense Drawer to EliteSelect"
+git commit -m "feat(expenses): complete expense drawer CRUD and Supabase integration"
 ------------------------------------------------------------------
 
 Status:
