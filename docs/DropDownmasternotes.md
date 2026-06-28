@@ -270,3 +270,141 @@ No page should implement its own dropdown UI.
 No page should depend on browser-native select controls.
 
 All dropdown behavior, styling, accessibility, animations, spacing, and cross-platform consistency are centralized within EliteSelect to ensure a single, maintainable, future-proof implementation across the entire application.
+
+========================================================= ================================================================================================
+
+# EliteX UI Standard — EliteSelect (V1 Updated)
+
+## Status
+
+EliteSelect V1 is now considered the official reusable dropdown component for EliteX Trading OS.
+
+All future dropdowns should use EliteSelect instead of native HTML `<select>` elements unless a technical limitation requires otherwise.
+
+---
+
+## Supported Variants
+
+### Compact Variant
+
+Used for small selectors inside cards and toolbars.
+
+Examples:
+
+* Reporting Currency
+* Account Selector
+* Future Header Controls
+
+Characteristics:
+
+* Compact trigger
+* Currency flags supported
+* No selected checkmark inside dropdown
+* Optimized for small widths
+* Cross-platform consistent
+
+Usage:
+
+```tsx
+<EliteSelect
+  variant="compact"
+  ...
+/>
+```
+
+---
+
+### Form Variant
+
+Used for settings pages, drawers and forms.
+
+Examples:
+
+* Tax Settings Drawer
+* Add Expense Drawer
+* Future Settings Pages
+* User Profile
+* Broker Settings
+
+Characteristics:
+
+* Full-width trigger
+* Premium institutional styling
+* Selected item checkmark
+* Consistent spacing
+* Full keyboard support
+* Cross-platform consistent
+
+Usage:
+
+```tsx
+<EliteSelect
+  variant="form"
+  ...
+/>
+```
+
+---
+
+## Icon Behavior
+
+EliteSelect does not automatically decide which icons to render.
+
+Rules:
+
+* Compact variant may display CurrencyFlag as a fallback.
+* Form variant only displays icons explicitly provided by the caller.
+* If no icon is supplied, no placeholder should be rendered.
+
+This prevents empty placeholder boxes for non-currency dropdowns such as Province, Entity Type, Category, Vendor, etc.
+
+---
+
+## Current EliteX Usage
+
+Compact
+
+* Reporting Currency
+
+Form
+
+* Country
+* Province / State
+* Tax Entity Type
+* Tax Year
+
+---
+
+## Future Standard
+
+When converting Add Expense Drawer (and all future forms):
+
+1. Replace every native `<select>` with EliteSelect.
+2. Use `variant="form"` for all form fields.
+3. Convert option lists into `EliteSelectOption[]`.
+4. Keep business logic unchanged; only replace the UI control.
+
+---
+
+## Design Principle
+
+EliteSelect is now the single source of truth for dropdowns throughout EliteX Trading OS.
+
+Pages provide:
+
+* value
+* options
+* onChange
+
+EliteSelect owns:
+
+* Styling
+* Layout
+* Animations
+* Keyboard navigation
+* Cross-platform consistency
+* Icons
+* Selected state
+* Dropdown rendering
+
+No page should implement its own dropdown styling going forward.

@@ -373,7 +373,7 @@ const entityLabelFontSize = "text-[10px]";
    DIVIDER 3
    ===================================================== */
 
-const divider3X = "translate-x-10";
+const divider3X = "translate-x-9";
 const divider3Y = "translate-y-0";
 const divider3Height = "h-9";
 
@@ -381,7 +381,7 @@ const divider3Height = "h-9";
    YEAR
    ===================================================== */
 
-const yearSectionX = "translate-x-12";
+const yearSectionX = "translate-x-11";
 const yearSectionY = "translate-y-1";
 const yearSectionWidth = "w-auto";
 
@@ -520,6 +520,33 @@ function getEntityTypeDisplay(
 
     default:
       return entityType ?? "Individual";
+  }
+}
+
+function getProvinceDisplay(
+  province?: string
+) {
+  switch (province) {
+    case "British Columbia":
+      return "BC";
+
+    case "Nova Scotia":
+      return "NS";
+
+    case "New Brunswick":
+      return "NB";
+
+    case "Prince Edward Island":
+      return "PEI";
+
+    case "Newfoundland and Labrador":
+      return "NL";
+
+    case "Northwest Territories":
+      return "NWT";
+
+    default:
+      return province ?? "Ontario";
   }
 }
 
@@ -1117,7 +1144,9 @@ return (
           ${provinceValueY}
         `}
       >
-        {taxProfile?.province ?? "Ontario"}
+        {getProvinceDisplay(
+  taxProfile?.province
+)}
       </div>
 
       <div

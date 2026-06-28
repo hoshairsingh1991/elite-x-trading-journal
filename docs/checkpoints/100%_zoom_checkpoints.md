@@ -304,7 +304,40 @@ git commit -m "Complete Expenses V1 module polish
 - Fixed remaining UI spacing and alignment issues
 - Completed Expenses V1 interface polish"
 ========================================================= ================================================================================================
-
+git commit -m "feat(ui): standardize Tax Settings drawer with EliteSelect V1"
+Checkpoint Summary
+EliteSelect V1
+Added reusable compact and form variants.
+Eliminated native browser <select> styling.
+Standardized on Radix UI across platforms.
+Fixed Windows native dropdown rendering issues.
+Added optional icon support.
+Compact variant:
+Currency flags.
+No selected-item checkmark.
+Form variant:
+Full-width input styling.
+Selected-item checkmark.
+Premium institutional spacing.
+Tax Settings Drawer
+Country migrated to EliteSelect.
+Province / State migrated to EliteSelect.
+Entity Type migrated to EliteSelect.
+Tax Year migrated to EliteSelect.
+"Other" Province/State correctly remains a text input.
+Country flags supported through CurrencyFlag.
+Removed placeholder icon boxes from non-currency dropdowns.
+Tax Summary Card
+Added getProvinceDisplay() helper.
+Long province names abbreviated to preserve layout.
+Existing Entity Type display helper retained.
+Summary cards now remain visually consistent regardless of selection.
+EliteX Design System
+EliteSelect established as the official reusable dropdown component.
+Future forms should use:
+variant="compact" for toolbar/card selectors.
+variant="form" for settings pages and drawers.
+Add Expense Drawer is now ready to migrate using the same component without additional dropdown redesign.
 
 ========================================================= ================================================================================================
 

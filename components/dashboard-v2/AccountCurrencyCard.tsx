@@ -767,7 +767,7 @@ return (
 
       <div className="space-y-2">
 
-        <div className="h-[2px]" />
+        
 
         {/* Reporting Currency */}
 
@@ -790,20 +790,22 @@ return (
 
           {/* Right */}
 
-          <div className="-translate-x-2">
+          <div className="-translate-x-2 -translate-y-0.5 ">
 
 <EliteSelect
   value={reportingCurrency}
   options={currencyOptions}
   onChange={setReportingCurrency}
-  width="w-[90px]"
+  width="w-[85px]"
+  height="h-[28px]"
+  variant="compact"
 />
 
           </div>
 
         </div>
 
-        <div className="h-[6px]" />
+       
 
         <div className="h-px bg-white/[0.06]" />
 

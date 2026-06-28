@@ -183,6 +183,7 @@ git commit -m "Checkpoint: Expenses page polish and chart layout refinements"
 git commit -m "Expenses V1 UI polish and layout refinement
 git commit -m "Expenses V1 table polish and layout refinement
 git commit -m "Complete Expenses V1 module polish
+git commit -m "feat(ui): standardize Tax Settings drawer with EliteSelect V1"
 ------------------------------------------------------------------
 
 Status:

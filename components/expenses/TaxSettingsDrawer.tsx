@@ -8,6 +8,12 @@ import {
   saveTaxProfile,
 } from "@/lib/storage/supabaseTaxProfileStorage";
 
+import EliteSelect, {
+  EliteSelectOption,
+} from "@/components/ui/EliteSelect";
+
+import CurrencyFlag from "@/components/ui/CurrencyFlag";
+
 // ==========================================
 // TYPES
 // ==========================================
@@ -35,8 +41,8 @@ const subtitleY = "translate-y-2";
 const closeButtonX = "-translate-x-2";
 const closeButtonY = "translate-y-2";
 
-const titleSize = "text-[28px]";
-const subtitleSize = "text-[14px]";
+const titleSize = "text-[20px]";
+const subtitleSize = "text-[12px]";
 
 const closeButtonSize = "h-8 w-8";
 const closeIconSize = 20;
@@ -56,27 +62,27 @@ const taxProfileHeaderY = "translate-y-4";
 const countryX = "translate-x-3";
 const countryY = "translate-y-6";
 const countryWidth = "w-full";
-const countryHeight = "h-[50px]";
+const countryHeight = "h-[40px]";
 
 const provinceX = "translate-x-3";
 const provinceY = "translate-y-8";
 const provinceWidth = "w-full";
-const provinceHeight = "h-[50px]";
+const provinceHeight = "h-[40px]";
 
 const entityTypeX = "translate-x-3";
 const entityTypeY = "translate-y-10";
 const entityTypeWidth = "w-full";
-const entityTypeHeight = "h-[50px]";
+const entityTypeHeight = "h-[40px]";
 
 const taxRateX = "translate-x-3";
 const taxRateY = "translate-y-12";
 const taxRateWidth = "w-full";
-const taxRateHeight = "h-[50px]";
+const taxRateHeight = "h-[40px]";
 
 const taxYearX = "translate-x-3";
 const taxYearY = "translate-y-14";
 const taxYearWidth = "w-full";
-const taxYearHeight = "h-[50px]";
+const taxYearHeight = "h-[40px]";
 
 // ==========================================
 // PREVIEW CARD
@@ -104,14 +110,14 @@ const advancedCardY = "translate-y-22";
 const footerX = "translate-x-0";
 const footerY = "-translate-y-4";
 
-const cancelButtonX = "translate-x-22";
+const cancelButtonX = "translate-x-12";
 const cancelButtonY = "translate-y-2";
-const cancelButtonWidth = "w-[120px]";
+const cancelButtonWidth = "w-[80px]";
 const cancelButtonHeight = "h-10";
 
-const saveButtonX = "translate-x-22";
+const saveButtonX = "translate-x-12";
 const saveButtonY = "translate-y-2";
-const saveButtonWidth = "w-[140px]";
+const saveButtonWidth = "w-[120px]";
 const saveButtonHeight = "h-10";
 
 // ==========================================
@@ -157,6 +163,27 @@ const taxYears =
       currentYear - 5 + i
   );
 
+const COUNTRY_OPTIONS: EliteSelectOption[] = [
+  {
+    value: "Canada",
+    label: "Canada",
+    icon: (
+      <CurrencyFlag currency="CAD" />
+    ),
+  },
+  {
+    value: "United States",
+    label: "United States",
+    icon: (
+      <CurrencyFlag currency="USD" />
+    ),
+  },
+  {
+    value: "Other",
+    label: "Other",
+  },
+];
+
 // ==========================================
 // COMPONENT
 // ==========================================
@@ -183,6 +210,49 @@ export default function TaxSettingsDrawer({
 
   const [taxYear, setTaxYear] =
     useState(2026);
+
+    const PROVINCE_OPTIONS: EliteSelectOption[] =
+  (
+    country === "Canada"
+      ? CANADA_PROVINCES
+      : US_STATES
+  ).map((item) => ({
+    value: item,
+    label: item,
+  }));
+
+  const ENTITY_TYPE_OPTIONS: EliteSelectOption[] = [
+  {
+    value: "Individual",
+    label: "Individual",
+  },
+  {
+    value: "Sole Proprietorship",
+    label: "Sole Proprietorship",
+  },
+  {
+    value: "Corporation",
+    label: "Corporation",
+  },
+  {
+    value: "Partnership",
+    label: "Partnership",
+  },
+  {
+    value: "Trust",
+    label: "Trust",
+  },
+  {
+    value: "Other",
+    label: "Other",
+  },
+];
+
+const TAX_YEAR_OPTIONS: EliteSelectOption[] =
+  taxYears.map((year) => ({
+    value: String(year),
+    label: String(year),
+  }));
 
   const [loading, setLoading] =
     useState(false);
@@ -279,7 +349,7 @@ function handleReset() {
 }
 
   const inputCenter =
-    "h-[50px] w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
+    "h-[40px] w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
 
   const label =
     "mb-2.5 block text-[14px] font-medium text-slate-200";
@@ -300,7 +370,7 @@ function handleReset() {
       />
 
       <aside
-        className={`fixed right-0 top-0 z-[9999] h-screen w-[520px] max-w-[96vw] border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
+        className={`fixed right-0 top-0 z-[9999] h-screen w-[380px] max-w-[96vw] border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
           open
             ? "translate-x-0"
             : "translate-x-full"
@@ -356,7 +426,7 @@ function handleReset() {
   >
     Tax Profile
   </h3>
-  {/* COUNTRY */}
+{/* COUNTRY */}
 
 <div
   className={`mb-5 transform ${countryX} ${countryY}`}
@@ -365,52 +435,28 @@ function handleReset() {
     Country
   </label>
 
-  <div className="relative">
-    <select
-      value={country}
-      onChange={(e) => {
-        const value =
-          e.target.value;
+  <EliteSelect
+  variant="form"
+    value={country}
+    options={COUNTRY_OPTIONS}
+    onChange={(value) => {
+      setCountry(value);
 
-        setCountry(value);
-
-        if (value === "Canada") {
-          setCountryCode("CA");
-          setProvince("Ontario");
-        } else if (
-          value ===
-          "United States"
-        ) {
-          setCountryCode("US");
-          setProvince(
-            "California"
-          );
-        } else {
-          setCountryCode(
-            "OTHER"
-          );
-          setProvince("");
-        }
-      }}
-      className={`${inputCenter} ${countryWidth} ${countryHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-    >
-      <option value="Canada">
-        🇨🇦 Canada
-      </option>
-
-      <option value="United States">
-        🇺🇸 United States
-      </option>
-
-      <option value="Other">
-        🌍 Other
-      </option>
-    </select>
-
-    <ChevronDown
-      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-    />
-  </div>
+      if (value === "Canada") {
+        setCountryCode("CA");
+        setProvince("Ontario");
+      } else if (
+        value === "United States"
+      ) {
+        setCountryCode("US");
+        setProvince("California");
+      } else {
+        setCountryCode("OTHER");
+        setProvince("");
+      }
+    }}
+    width={countryWidth}
+  />
 </div>
 
 {/* PROVINCE / STATE */}
@@ -422,47 +468,24 @@ function handleReset() {
     Province / State
   </label>
 
-  {country === "Other" ? (
-    <input
-      value={province}
-      onChange={(e) =>
-        setProvince(
-          e.target.value
-        )
-      }
-      className={`${inputCenter} ${provinceWidth} ${provinceHeight}`}
-      placeholder="Enter region or state"
-    />
-  ) : (
-    <div className="relative">
-      <select
-        value={province}
-        onChange={(e) =>
-          setProvince(
-            e.target.value
-          )
-        }
-        className={`${inputCenter} ${provinceWidth} ${provinceHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-      >
-        {(country ===
-        "Canada"
-          ? CANADA_PROVINCES
-          : US_STATES
-        ).map((item) => (
-          <option
-            key={item}
-            value={item}
-          >
-            {item}
-          </option>
-        ))}
-      </select>
-
-      <ChevronDown
-        className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-      />
-    </div>
-  )}
+{country === "Other" ? (
+  <input
+    value={province}
+    onChange={(e) =>
+      setProvince(e.target.value)
+    }
+    className={`${inputCenter} ${provinceWidth} ${provinceHeight}`}
+    placeholder="Enter region or state"
+  />
+) : (
+  <EliteSelect
+    variant="form"
+    value={province}
+    options={PROVINCE_OPTIONS}
+    onChange={setProvince}
+    width={provinceWidth}
+  />
+)}
 </div>
 
 {/* ENTITY TYPE */}
@@ -474,45 +497,13 @@ function handleReset() {
     Tax Entity Type
   </label>
 
-  <div className="relative">
-    <select
-      value={entityType}
-      onChange={(e) =>
-        setEntityType(
-          e.target.value
-        )
-      }
-      className={`${inputCenter} ${entityTypeWidth} ${entityTypeHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-    >
-     <option value="Individual">
-  Individual
-</option>
-
-<option value="Sole Proprietorship">
-  Sole Proprietorship
-</option>
-
-<option value="Corporation">
-  Corporation
-</option>
-
-<option value="Partnership">
-  Partnership
-</option>
-
-<option value="Trust">
-  Trust
-</option>
-
-<option value="Other">
-  Other
-</option>
-    </select>
-
-    <ChevronDown
-      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-    />
-  </div>
+<EliteSelect
+  variant="form"
+  value={entityType}
+  options={ENTITY_TYPE_OPTIONS}
+  onChange={setEntityType}
+  width={entityTypeWidth}
+/>
 </div>
 
 {/* TAX RATE */}
@@ -581,32 +572,15 @@ function handleReset() {
     Tax Year
   </label>
 
-  <div className="relative">
-    <select
-      value={taxYear}
-      onChange={(e) =>
-        setTaxYear(
-          Number(
-            e.target.value
-          )
-        )
-      }
-      className={`${inputCenter} ${taxYearWidth} ${taxYearHeight} appearance-none rounded-xl border border-white/10 bg-white/[0.03] pr-10 text-sm text-white outline-none`}
-    >
-      {taxYears.map((year) => (
-  <option
-    key={year}
-    value={year}
-  >
-    {year}
-  </option>
-))}
-    </select>
-
-    <ChevronDown
-      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-    />
-  </div>
+<EliteSelect
+  variant="form"
+  value={String(taxYear)}
+  options={TAX_YEAR_OPTIONS}
+  onChange={(value) =>
+    setTaxYear(Number(value))
+  }
+  width={taxYearWidth}
+/>
 </div>
 
 </section>
@@ -636,7 +610,7 @@ function handleReset() {
   >
     <button
       onClick={onClose}
-      className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-xl border border-white/10 text-white transition-all duration-200 hover:bg-white/[0.04]`}
+      className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-xl border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]`}
     >
       Cancel
     </button>
@@ -648,7 +622,7 @@ function handleReset() {
     <button
       type="button"
       onClick={handleReset}
-      className="h-10 w-[120px] rounded-xl border border-white/10 text-white transition-all duration-200 hover:bg-white/[0.04]"
+      className="h-10 w-[80px] rounded-xl border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]"
     >
       Reset
     </button>
@@ -662,7 +636,7 @@ function handleReset() {
         disabled={
           loading || saving
         }
-        className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 font-semibold text-white transition-all duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 font-semibold text-[14px] text-white transition-all duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
       >
         {saving
           ? "Saving..."

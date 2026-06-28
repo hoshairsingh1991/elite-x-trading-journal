@@ -10,21 +10,23 @@ import {
   ChevronUp,
 } from "lucide-react";
 
+import { ReactNode } from "react";
+
 export type EliteSelectOption = {
   value: string;
   label: string;
+
+  icon?: ReactNode;
 };
 
 type EliteSelectProps = {
   value: string;
-
   options: EliteSelectOption[];
-
-  onChange: (
-    value: string
-  ) => void;
+  onChange: (value: string) => void;
 
   width?: string;
+  height?: string;
+  variant?: "compact" | "form";
 };
 
 export default function EliteSelect({
@@ -32,7 +34,13 @@ export default function EliteSelect({
   options,
   onChange,
   width = "w-[90px]",
+height = "h-[40px]",
+variant = "compact",
 }: EliteSelectProps) {
+
+  const selectedOption = options.find(
+  (option) => option.value === value
+);
 
   return (
 
@@ -43,44 +51,84 @@ export default function EliteSelect({
 
       {/* Trigger */}
 
-      <Select.Trigger
-        className={`
-          ${width}
+<Select.Trigger
+  className={`
+    ${width}
+    ${height}
 
-          flex
-          items-center
-          justify-between
-          gap-2
+    flex
+    items-center
+    ${variant === "form" ? "justify-center" : "justify-between"}
+    gap-2
 
+    ${
+      variant === "form"
+        ? `
+          rounded-xl
+          border
+          border-white/10
+          bg-white/[0.03]
+          px-4
+        `
+        : `
           bg-transparent
+        `
+    }
 
-          text-[12px]
-          font-medium
-          text-slate-200
+    text-[12px]
+    font-medium
+    text-slate-200
 
-          outline-none
+    outline-none
 
-          transition-all
-          duration-200
+    transition-all
+    duration-200
 
-          data-[state=open]:text-white
-        `}
-      >
+    hover:border-white/20
 
-       <div className="flex w-full items-center gap-2 translate-x-4 translate-y-1">
+    data-[state=open]:text-white
+  `}
+>
 
-  <CurrencyFlag
-    currency={value}
-  />
+<div
+  className={`
+    flex
+    ${
+      variant === "form"
+        ? "items-center justify-center mx-auto"
+        : "w-full items-center"
+    }
 
-  <span className="text-[12px] font-medium text-slate-200">
-    {value}
-  </span>
+    gap-2
+
+    ${
+      variant === "form"
+        ? ""
+        : "translate-x-4 translate-y-1"
+    }
+  `}
+>
+
+{variant === "compact"
+  ? (
+      selectedOption?.icon ?? (
+        <CurrencyFlag currency={value} />
+      )
+    )
+  : selectedOption?.icon}
+
+<span className="text-[12px] font-medium text-slate-200">
+  {selectedOption?.label ?? value}
+</span>
 
 </div>
 
-        <Select.Icon
-  className="translate-y-[4px]"
+       <Select.Icon
+  className={
+    variant === "form"
+      ? "absolute right-4 top-1/2 translate-y-1"
+      : "translate-y-[2px]"
+  }
 >
 
   <ChevronDown
@@ -94,31 +142,31 @@ export default function EliteSelect({
 
       <Select.Portal>
 
-  <Select.Content
-    position="popper"
-    sideOffset={8}
-    className="
-      z-[99999]
+<Select.Content
+  position="popper"
+  sideOffset={8}
+  className={`
+    z-[99999]
 
-      min-w-[100px]
+    ${
+      variant === "form"
+        ? "w-[var(--radix-select-trigger-width)]"
+        : "min-w-[100px]"
+    }
 
-      overflow-hidden
+    max-h-[280px]
 
-      rounded-xl
-      border
-      border-white/[0.08]
+    overflow-hidden
 
-      bg-[#0B1625]
+    rounded-2xl
+    border
+    border-white/[0.08]
 
-      shadow-[0_16px_40px_rgba(0,0,0,0.45)]
+    bg-[#0B1625]
 
-      animate-in
-      fade-in
-      zoom-in-95
-
-      duration-150
-    "
-  >
+    shadow-[0_16px_40px_rgba(0,0,0,0.45)]
+  `}
+>
 
     <Select.ScrollUpButton
       className="
@@ -133,52 +181,56 @@ export default function EliteSelect({
       <ChevronUp size={14} />
     </Select.ScrollUpButton>
 
-    <Select.Viewport
-      className="p-1.5"
-    >
+<Select.Viewport
+  className="p-2 space-y-1"
+>
 
       {options.map((option) => (
 
-        <Select.Item
+<Select.Item
   key={option.value}
   value={option.value}
-  className="
-    relative
-    flex
-    cursor-pointer
-    select-none
-    items-center
-    justify-center
+className="
+  relative
+  flex
+  justify-center
+  cursor-pointer
+  select-none
+  items-center
 
-    rounded-lg
+  rounded-xl
 
-    px-3
-    py-2.5
+    px-4
+    py-3.5
 
     text-slate-300
-    text-[12px]
+    text-[13px]
     font-medium
 
     outline-none
 
-    transition-colors
+    transition-all
     duration-150
 
     data-[highlighted]:bg-blue-500/15
-    data-[highlighted]:text-slate-100
+    data-[highlighted]:text-white
 
     data-[state=checked]:bg-blue-500/10
     data-[state=checked]:text-white
   "
 >
 
-          <div className="flex items-center gap-2">
+          <div className="mx-auto flex items-center gap-3">
 
-<CurrencyFlag
-  currency={option.value}
-/>
+{variant === "compact"
+  ? (
+      option.icon ?? (
+        <CurrencyFlag currency={option.value} />
+      )
+    )
+  : option.icon}
 
-            <Select.ItemText asChild>
+<Select.ItemText asChild>
   <span className="text-[12px] font-medium text-slate-200">
     {option.label}
   </span>
@@ -186,14 +238,14 @@ export default function EliteSelect({
 
           </div>
 
-          <Select.ItemIndicator>
-
-            <Check
-              size={14}
-              className="text-blue-400"
-            />
-
-          </Select.ItemIndicator>
+{variant === "form" && (
+  <Select.ItemIndicator className="absolute right-4 top-1/2 -translate-y-1/2">
+    <Check
+      size={14}
+      className="text-blue-400"
+    />
+  </Select.ItemIndicator>
+)}
 
         </Select.Item>
 
@@ -206,7 +258,7 @@ export default function EliteSelect({
         flex
         h-7
         items-center
-        justify-center
+        justify-between
 
         text-slate-400
       "
