@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { X, ChevronDown } from "lucide-react";
 import {
   saveExpense,
@@ -14,6 +14,8 @@ from "@/lib/expenses/generateRecurringOccurrences";
 import EliteSelect, {
   type EliteSelectOption,
 } from "@/components/ui/EliteSelect";
+
+import { supabase } from "@/lib/supabase";
 
 
 type AddExpenseDrawerProps = {
@@ -310,6 +312,10 @@ const [frequency, setFrequency] =
 
   const [receiptNumber, setReceiptNumber] = useState("");
 
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+
 
 const [isTaxDeductible, setIsTaxDeductible] =
   useState(false);
@@ -398,7 +404,81 @@ const taxTypeOptions: EliteSelectOption[] = [
   { value: "Other", label: "Other" },
 ];
 
-  // ==========================================
+// ==========================================
+// RECEIPT UPLOAD
+// ==========================================
+
+function handleReceiptUpload(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  setReceiptFile(file);
+  setReceiptUrl(null);
+
+  console.log("Receipt selected:", file.name);
+}
+
+// ==========================================
+// VIEW RECEIPT
+// ==========================================
+
+async function handleViewReceipt() {
+  if (!receiptUrl) return;
+
+  const {
+    data,
+    error,
+  } = await supabase.storage
+    .from("receipts")
+    .createSignedUrl(
+      receiptUrl,
+      60
+    );
+
+  if (error) {
+    console.error(error);
+    alert("Unable to open receipt.");
+    return;
+  }
+
+  window.open(
+    data.signedUrl,
+    "_blank"
+  );
+}
+
+// ==========================================
+// REMOVE RECEIPT
+// ==========================================
+
+async function handleRemoveReceipt() {
+  const confirmed = window.confirm(
+    "Remove this receipt?"
+  );
+
+  if (!confirmed) return;
+
+  // Existing receipt stored in Supabase
+  if (receiptUrl) {
+    const { error } = await supabase.storage
+      .from("receipts")
+      .remove([receiptUrl]);
+
+    if (error) {
+      console.error(error);
+      alert("Failed to remove receipt.");
+      return;
+    }
+  }
+
+  setReceiptFile(null);
+  setReceiptUrl(null);
+}
+
+// ==========================================
 // EDIT MODE PREFILL
 // ==========================================
 
@@ -435,6 +515,9 @@ if (!editingExpense) {
   setDeductiblePercent("100");
 
   setReceiptNumber("");
+
+  setReceiptFile(null);
+setReceiptUrl(null);
 
   setNotes("");
 
@@ -492,6 +575,12 @@ setFrequency(
   editingExpense.receipt_number ?? ""
 );
 
+setReceiptFile(null);
+
+setReceiptUrl(
+  editingExpense.receipt_url ?? null
+);
+
 setTaxType(
   editingExpense.tax_type ?? "None"
 );
@@ -539,6 +628,47 @@ try {
   Math.min(100, Number(deductiblePercent) || 100)
 );
 
+// ==========================================
+// UPLOAD RECEIPT (IF SELECTED)
+// ==========================================
+
+let uploadedReceiptUrl = receiptUrl;
+
+if (receiptFile) {
+console.log("Uploading receipt...", receiptFile.name);
+
+  const {
+    data: authData,
+  } = await supabase.auth.getUser();
+
+  const user = authData.user;
+
+  if (!user) {
+    alert("Please sign in again.");
+    return;
+  }
+
+  const fileName =
+    `${Date.now()}-${receiptFile.name}`;
+
+  const filePath =
+    `${user.id}/${fileName}`;
+
+  const {
+    error: uploadError,
+  } = await supabase.storage
+    .from("receipts")
+    .upload(filePath, receiptFile);
+
+  if (uploadError) {
+    console.error(uploadError);
+    alert("Failed to upload receipt.");
+    return;
+  }
+
+  uploadedReceiptUrl = filePath;
+}
+
 const expenseData = {
   expense_name: expenseName,
   expense_date: expenseDate,
@@ -577,8 +707,8 @@ tax_amount: parseFloat(taxAmount) || 0,
   is_tax_deductible: isTaxDeductible,
   deductible_percent: deductible,
 
-  notes,
-  receipt_url: null,
+notes,
+receipt_url: uploadedReceiptUrl,
 };
 
 if (editingExpense?.id) {
@@ -1271,46 +1401,112 @@ const label =
     Additional Information
   </h3>
 
+  {/* Notes */}
   <div className={`transform ${notesX} ${notesY}`}>
     <label className={label}>Notes</label>
 
-<textarea
-  value={notes}
-  onChange={(e) => setNotes(e.target.value)}
-  className={`${notesWidth} ${notesHeight} resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 ${notesTextIndent} text-sm text-white outline-none`}
-  placeholder="Add any notes..."
-/>
+    <textarea
+      value={notes}
+      onChange={(e) => setNotes(e.target.value)}
+      className={`${notesWidth} ${notesHeight} resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 ${notesTextIndent} text-sm text-white outline-none`}
+      placeholder="Add any notes..."
+    />
   </div>
 
-  <div
+  {/* Receipt Upload */}
+  <label
+    htmlFor="receipt-upload"
     className={`
-  mt-6
-  ${uploadBoxWidth}
-  ${uploadBoxHeight}
-  rounded-2xl
-  border
-  border-dashed
-  border-white/10
-  flex
-  flex-col
-  items-center
-  justify-center
-  text-center
-  transform
-  ${uploadBoxX}
-  ${uploadBoxY}
-`}
+      mt-6
+      ${uploadBoxWidth}
+      ${uploadBoxHeight}
+      flex
+      cursor-pointer
+      flex-col
+      items-center
+      justify-center
+      rounded-2xl
+      border
+      border-dashed
+      border-white/10
+      text-center
+      transition-all
+      hover:border-blue-400/40
+      hover:bg-white/[0.02]
+      transform
+      ${uploadBoxX}
+      ${uploadBoxY}
+    `}
   >
-    <p className="text-sm text-slate-300">
-      Drag & drop receipts here
-    </p>
 
-    <p className="mt-2 text-xs text-slate-500">
-      JPG • PNG • PDF
-    </p>
-    
-  </div>
-  
+    {receiptFile ? (
+      <>
+        <p className="text-sm font-medium text-white">
+          📄 {receiptFile.name}
+        </p>
+
+        <p className="mt-2 text-xs text-emerald-400">
+          ✓ Ready to upload
+        </p>
+      </>
+    ) : receiptUrl ? (
+      <>
+        <p className="text-sm font-medium text-white">
+          📎 Receipt Attached
+        </p>
+
+<div className="mt-3 flex items-center justify-center gap-4">
+
+  <button
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      handleViewReceipt();
+    }}
+    className="text-xs text-blue-400 hover:text-blue-300"
+  >
+    👁 View
+  </button>
+
+  <button
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      handleRemoveReceipt();
+    }}
+    className="text-xs text-red-400 hover:text-red-300"
+  >
+    ✕ Remove
+  </button>
+
+</div>
+
+        <p className="mt-3 text-[11px] text-slate-500">
+          Click anywhere to replace
+        </p>
+      </>
+    ) : (
+      <>
+        <p className="text-sm text-slate-300">
+          Drag & drop receipts here
+        </p>
+
+        <p className="mt-2 text-xs text-slate-500">
+          JPG • PNG • PDF
+        </p>
+      </>
+    )}
+
+  </label>
+
+  <input
+    id="receipt-upload"
+    type="file"
+    accept=".jpg,.jpeg,.png,.pdf"
+    className="hidden"
+    onChange={handleReceiptUpload}
+  />
+
 </section>
 
 {/* Close inner wrapper (w-[95%] / w-[96%]) */}

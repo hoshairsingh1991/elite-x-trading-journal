@@ -439,6 +439,7 @@ Receipt / Invoice #
 ✅ Cross-platform dropdown consistency (Windows/macOS/Linux)
 ========================================================= ================================================================================================
 git commit -m "feat(expenses): complete expense drawer CRUD and Supabase integration"
+
 This checkpoint includes
 ✅ Converted all native dropdowns to EliteSelect
 ✅ Cross-platform dropdown consistency (Windows/macOS/Linux)
@@ -461,6 +462,49 @@ Tax Amount
 ✅ Verified full CRUD cycle (Create → Save → Load → Edit → Update)
 
 ========================================================= ================================================================================================
+git commit -m "feat(expenses): add secure receipt upload and management"
+
+Checkpoint Summary
+✅ Receipt Upload System
+Upload moved to Save action (no immediate uploads).
+Files stored in a private Supabase Storage bucket.
+User-specific folders using auth.uid().
+Signed URLs used to securely view receipts.
+Receipt path persisted in expenses.receipt_url.
+✅ Receipt Management
+Upload new receipt.
+View existing receipt (images and PDFs).
+Replace an existing receipt.
+Remove an attached receipt.
+Removal deletes the file from Supabase Storage.
+New expenses and existing expenses both supported.
+✅ Supabase Storage
+Private receipts bucket.
+Storage RLS configured.
+Policies implemented for:
+INSERT
+SELECT
+UPDATE
+DELETE
+Folder isolation by authenticated user.
+✅ Add Expense Drawer
+Business Details fully persisted:
+Expense Type
+Business Purpose
+Business Use %
+Tax fields fully persisted:
+Tax Type
+Tax Amount
+Receipt Number persisted.
+Payment Method defaults to Credit Card.
+Frequency defaults to Monthly.
+Edit mode correctly preloads all fields.
+✅ UI Improvements
+Receipt upload box now reflects state:
+Empty state.
+File selected ("Ready to upload").
+Existing receipt attached.
+View and Remove actions available for attached receipts
 
 
 ========================================================= ================================================================================================

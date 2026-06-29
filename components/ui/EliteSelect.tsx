@@ -47,8 +47,7 @@ export default function EliteSelect({
   const selectedOption = options.find(
   (option) => option.value === value
 );
-console.log("value:", value);
-console.log("selected:", selectedOption);
+
   return (
 
 <Select.Root
