@@ -17,6 +17,7 @@ import EliteSelect, {
 
 import { supabase } from "@/lib/supabase";
 
+import { viewReceipt } from "@/lib/receipts/viewReceipt";
 
 type AddExpenseDrawerProps = {
   open: boolean;
@@ -425,29 +426,8 @@ function handleReceiptUpload(
 // VIEW RECEIPT
 // ==========================================
 
-async function handleViewReceipt() {
-  if (!receiptUrl) return;
-
-  const {
-    data,
-    error,
-  } = await supabase.storage
-    .from("receipts")
-    .createSignedUrl(
-      receiptUrl,
-      60
-    );
-
-  if (error) {
-    console.error(error);
-    alert("Unable to open receipt.");
-    return;
-  }
-
-  window.open(
-    data.signedUrl,
-    "_blank"
-  );
+function handleViewReceipt() {
+  viewReceipt(receiptUrl);
 }
 
 // ==========================================

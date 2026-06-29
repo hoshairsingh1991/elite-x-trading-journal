@@ -6,6 +6,10 @@ import {
   deleteExpense,
 } from "@/lib/storage/supabaseExpenseStorage";
 
+import { viewReceipt } from "@/lib/receipts/viewReceipt";
+
+import { Paperclip } from "lucide-react";
+
 import { getCurrencySymbol } from "@/lib/fx/currencyFormatting";
 import type { Expense } from "@/lib/types/expense";
 
@@ -55,6 +59,7 @@ const [vendorFilter, setVendorFilter] = useState("All");
 const [paymentFilter, setPaymentFilter] = useState("All");
 const [taxFilter, setTaxFilter] = useState("All");
 const [recurringFilter, setRecurringFilter] = useState("All");
+const [receiptFilter, setReceiptFilter] = useState("All");
 const [dateFilter, setDateFilter] = useState("All");
 
 
@@ -109,6 +114,16 @@ const matchesTax =
     expense.is_tax_deductible === false);
 
     // -----------------------------
+// Receipt Filter
+// -----------------------------
+const matchesReceipt =
+  receiptFilter === "All" ||
+  (receiptFilter === "Yes" &&
+    expense.receipt_url !== null) ||
+  (receiptFilter === "No" &&
+    expense.receipt_url === null);
+
+    // -----------------------------
 // Recurring Filter
 // -----------------------------
 const matchesRecurring =
@@ -150,6 +165,7 @@ return (
   matchesCategory &&
   matchesVendor &&
   matchesPayment &&
+  matchesReceipt &&
   matchesTax &&
   matchesRecurring &&
   matchesDate
@@ -235,8 +251,10 @@ const vendorX = "-translate-x-2";
 const originalAmountX = "-translate-x-4";
 const reportingAmountX = "-translate-x-8";
 const recurringX = "-translate-x-5";
-const headerTypeX = "translate-x-6";
-const typeX = "-translate-x-1";
+const headerTypeX = "translate-x-14";
+const typeX = "translate-x-4";
+const headerPaymentX = "translate-x-10";
+const paymentMethodX = "translate-x-4";
 
   return (
     
@@ -485,32 +503,37 @@ className={`
 
 {/* Expense Type */}
 <div className="relative">
-  <select
-    className={`
-      appearance-none
-      ${filterWidth}
-      ${filterHeight}
+<select
+  value={receiptFilter}
+  onChange={(e) => {
+    setReceiptFilter(e.target.value);
+    setCurrentPage(1);
+  }}
+  className={`
+    appearance-none
+    ${filterWidth}
+    ${filterHeight}
 
-      rounded-xl
-      border
-      border-white/10
-      bg-white/[0.03]
+    rounded-xl
+    border
+    border-white/10
+    bg-white/[0.03]
 
-      pr-10
-      indent-[18px]
+    pr-10
+    indent-[18px]
 
-      text-[12px]
-      text-slate-300
-      outline-none
+    text-[12px]
+    text-slate-300
+    outline-none
 
-      transition
-      hover:bg-white/[0.05]
-    `}
-  >
-    <option value="All">Type</option>
-    <option value="Operating">Operating</option>
-    <option value="Capital">Capital</option>
-  </select>
+    transition
+    hover:bg-white/[0.05]
+  `}
+>
+  <option value="All">Receipt</option>
+  <option value="Yes">Yes</option>
+  <option value="No">No</option>
+</select>
 
   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 </div>
@@ -751,14 +774,21 @@ className={`
     <span>Reporting Amount </span>
     <span>Recurring</span>
     <span>Tax Deductible</span>
-    <span
+<span
+  className={`
+    ${headerPaymentX}
+  `}
+>
+  Payment Method
+</span>
+
+<span
   className={`
     ${headerTypeX}
   `}
 >
-  Type
+  Receipt
 </span>
-    <span>Payment Method</span>
     <span className="text-center">Actions</span>
   </div>
 
@@ -914,6 +944,22 @@ className={`
   </span>
 </span>
 
+ <span
+  className={`
+    flex
+    items-center
+    justify-center
+
+    font-medium
+    text-white
+
+    ${paymentMethodX}
+  `}
+>
+  {row.payment_method ?? "—"}
+</span>
+
+
 <span
   className={`
     flex
@@ -923,23 +969,25 @@ className={`
     ${typeX}
   `}
 >
-  Operating
+  {row.receipt_url ? (
+    <Paperclip
+      size={16}
+      onClick={() => viewReceipt(row.receipt_url)}
+      className="
+        cursor-pointer
+        text-blue-400
+        transition-colors
+        hover:text-blue-300
+      "
+    />
+  ) : (
+    <Paperclip
+      size={16}
+      className="text-slate-600"
+    />
+  )}
 </span>
-
-      <span
-  className={`
-    flex
-    items-center
-    justify-center
-
-    font-medium
-    text-white
-
-    ${expenseX}
-  `}
->
-  {row.payment_method ?? "—"}
-</span>
+     
 
       
 

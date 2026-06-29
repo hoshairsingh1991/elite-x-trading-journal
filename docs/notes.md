@@ -190,6 +190,7 @@ git commit -m "checkpoint: complete Add Expense Drawer UI enhancements"
 git commit -m "feat(expenses): migrate Add Expense Drawer to EliteSelect"
 git commit -m "feat(expenses): complete expense drawer CRUD and Supabase integration"
 git commit -m "feat(expenses): add secure receipt upload and management"
+git commit -m "feat(expenses): complete receipt management system and finalize expenses module"
 ------------------------------------------------------------------
 
 Status:
