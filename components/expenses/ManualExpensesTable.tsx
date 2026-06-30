@@ -39,6 +39,9 @@ type ManualExpensesTableProps = {
 
   onAddExpense: () => void;
   onEditExpense: (expense: Expense) => void;
+
+  onViewExpense: (expense: Expense) => void;
+
   onExpensesChanged: () => void;
 };
 
@@ -48,6 +51,7 @@ export default function ManualExpensesTable({
   fxRates,
   onAddExpense,
   onEditExpense,
+  onViewExpense,
   onExpensesChanged,
 }: ManualExpensesTableProps) {
 
@@ -798,29 +802,35 @@ className={`
     currentPage * ITEMS_PER_PAGE
   )
   .map((row) => (
-    <div
-      key={row.id}
-      className={`
-        grid
-        grid-cols-[1fr_2fr_1.3fr_1.3fr_1.3fr_1.5fr_1fr_1.2fr_1fr_1.3fr_0.8fr]
+<div
+  key={row.id}
+  onClick={() => onViewExpense(row)}
+  className={`
+    grid
+    grid-cols-[1fr_2fr_1.3fr_1.3fr_1.3fr_1.5fr_1fr_1.2fr_1fr_1.3fr_0.8fr]
 
-        items-center
+    cursor-pointer
 
-        px-6
+    items-center
 
-        ${tableRowHeight}
-        ${tableRowSpacerTop}
-        ${tableRowSpacerBottom}
+    px-6
 
-        border-b
-        border-white/5
+    ${tableRowHeight}
+    ${tableRowSpacerTop}
+    ${tableRowSpacerBottom}
 
-        text-[12px]
-        text-slate-300
+    border-b
+    border-white/5
 
-        last:border-b-0
-      `}
-    >
+    text-[12px]
+    text-slate-300
+
+    transition-colors
+    hover:bg-white/[0.02]
+
+    last:border-b-0
+  `}
+>
       <span className="flex items-center justify-center">
   {new Date(
   `${row.expense_date}T12:00:00`
@@ -972,7 +982,10 @@ className={`
   {row.receipt_url ? (
     <Paperclip
       size={16}
-      onClick={() => viewReceipt(row.receipt_url)}
+      onClick={(e) => {
+        e.stopPropagation();
+        viewReceipt(row.receipt_url);
+      }}
       className="
         cursor-pointer
         text-blue-400
@@ -987,42 +1000,45 @@ className={`
     />
   )}
 </span>
-     
 
-      
+<div className="flex items-center justify-center gap-3">
 
-      <div className="flex items-center justify-center gap-3">
-<button
-  onClick={() => onEditExpense(row)}
-  className="text-slate-400 transition hover:text-white"
->
-  <Pencil size={actionIconSize} />
-</button>
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      onEditExpense(row);
+    }}
+    className="text-slate-400 transition hover:text-white"
+  >
+    <Pencil size={actionIconSize} />
+  </button>
 
-<button
-  onClick={async () => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${row.expense_name}"?`
-    );
+  <button
+    onClick={async (e) => {
+      e.stopPropagation();
 
-    if (!confirmed) {
-      return;
-    }
+      const confirmed = window.confirm(
+        `Are you sure you want to delete "${row.expense_name}"?`
+      );
 
-try {
-  await deleteExpense(row.id);
-  onExpensesChanged();
-} catch (error) {
-  console.error(error);
-  alert("Failed to delete expense.");
-}
-  }}
-  className="text-red-500 transition hover:text-red-400"
->
-  <Trash2 size={actionIconSize} />
-</button>
+      if (!confirmed) {
+        return;
+      }
 
-      </div>
+      try {
+        await deleteExpense(row.id);
+        onExpensesChanged();
+      } catch (error) {
+        console.error(error);
+        alert("Failed to delete expense.");
+      }
+    }}
+    className="text-red-500 transition hover:text-red-400"
+  >
+    <Trash2 size={actionIconSize} />
+  </button>
+
+</div>
     </div>
   ))}
 </div>

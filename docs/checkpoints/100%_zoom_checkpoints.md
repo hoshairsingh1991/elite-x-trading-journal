@@ -557,6 +557,88 @@ Architecture
 
 ========================================================= ================================================================================================
 
+git commit -m "feat(expenses): add read-only expense details workflow"
+
+Checkpoint Summary
+Expense Details (Read-Only Mode)
+Added dedicated Expense Details mode.
+Clicking anywhere on a table row opens the expense in read-only mode.
+Drawer title/subtitle dynamically change for:
+Add Expense
+Edit Expense
+Expense Details
+All text inputs, number inputs, date input, textareas, and dropdowns respect viewOnly.
+Recurring and Tax Deductible toggles are non-interactive in view mode.
+Receipt upload is disabled in view mode.
+Receipt removal is hidden in view mode.
+Receipt viewing remains available.
+Edit Workflow
+Added Edit Expense button in the read-only footer.
+Clicking Edit Expense instantly switches the existing drawer into edit mode.
+No drawer close/reopen.
+No state loss.
+Footer adapts automatically:
+Create → Cancel / Save Expense
+Edit → Cancel / Update Expense
+View → Close / Edit Expense
+Manual Expenses Table
+Clicking a row opens Expense Details.
+Replaced Type column with Receipt column.
+Added receipt paperclip indicator.
+Blue clickable icon when receipt exists.
+Grey icon when no receipt exists.
+Receipt filter updated to:
+All
+Yes
+No
+Payment Method column repositioned.
+Receipt column moved to improve usability.
+Interaction Fixes
+Fixed event bubbling by adding e.stopPropagation() to:
+Receipt icon
+Edit button
+Delete button
+Correct interaction model:
+Row → View Details
+Pencil → Edit
+Trash → Delete
+Paperclip → View Receipt
+Receipt Management
+Upload receipt
+Replace receipt
+Remove receipt
+View receipt
+Edit existing expense with receipt
+Receipt deletion synced with Supabase Storage
+Receipt URL updates correctly in database
+✅ Expenses V1 Status
+
+The Expenses module now includes:
+
+Dashboard
+KPI cards
+Business Intelligence
+Expenses Overview
+Manual Expenses Table
+Advanced filtering
+Search
+Pagination
+Add Expense
+Edit Expense
+Delete Expense
+Expense Details (Read-Only)
+Receipt upload
+Receipt replacement
+Receipt removal
+Receipt viewing
+Recurring expenses
+Tax information
+Reporting currency integration
+Supabase persistence
+
+I consider the Manual Expenses Table + Add/Edit/View Drawer feature complete for V1.
+
+Excellent work—this is a meaningful milestone for EliteX Trading OS.
 
 ========================================================= ================================================================================================
 

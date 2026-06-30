@@ -23,7 +23,12 @@ type AddExpenseDrawerProps = {
   open: boolean;
   onClose: () => void;
   onSaveSuccess: () => void;
+
+  onEdit?: () => void;
+
   editingExpense?: Expense | null;
+
+  viewOnly?: boolean;
 };
 
 const headerPaddingX = "px-7";
@@ -278,7 +283,9 @@ export default function AddExpenseDrawer({
   open,
   onClose,
   onSaveSuccess,
+  onEdit,
   editingExpense,
+  viewOnly = false,
 }: AddExpenseDrawerProps) {
 
 // ==========================================
@@ -761,15 +768,21 @@ const label =
       <h2
         className={`${titleSize} font-bold leading-none tracking-tight text-white transform ${titleX} ${titleY}`}
       >
-        {editingExpense ? "Edit Expense" : "Add Expense"}
+        {viewOnly
+  ? "Expense Details"
+  : editingExpense
+    ? "Edit Expense"
+    : "Add Expense"}
       </h2>
 
       <p
         className={`mt-2 ${subtitleSize} text-slate-400 transform ${subtitleX} ${subtitleY}`}
       >
-        {editingExpense
-  ? "Update an existing business or trading expense"
-  : "Record a new business or trading expense"}
+        {viewOnly
+  ? "Review expense details"
+  : editingExpense
+    ? "Update an existing business or trading expense"
+    : "Record a new business or trading expense"}
       </p>
     </div>
 
@@ -810,39 +823,42 @@ const label =
 
 <input
   value={expenseName}
+  readOnly={viewOnly}
   onChange={(e) => setExpenseName(e.target.value)}
   className={`${expenseNameWidth} ${expenseNameHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 ${expenseNameTextIndent} text-sm text-white outline-none`}
   placeholder="Enter expense name"
 />
   </div>
 
-  {/* Category + Vendor */}
-  <div className="mb-5 grid grid-cols-2 gap-5">
-    <div className={`transform ${categoryX} ${categoryY}`}>
-      <label className={label}>Category *</label>
+{/* Category + Vendor */}
+<div className="mb-5 grid grid-cols-2 gap-5">
+  <div className={`transform ${categoryX} ${categoryY}`}>
+    <label className={label}>Category *</label>
 
-<EliteSelect
-  variant="form"
-  value={category}
-  options={categoryOptions}
-  onChange={setCategory}
-  width={categoryWidth}
-  height={categoryHeight}
-/>
-    </div>
+    <EliteSelect
+      variant="form"
+      value={category}
+      options={categoryOptions}
+      onChange={setCategory}
+      disabled={viewOnly}
+      width={categoryWidth}
+      height={categoryHeight}
+    />
+  </div>
 
-<div className={`transform ${vendorX} ${vendorY}`}>
-  <label className={label}>Vendor</label>
+  <div className={`transform ${vendorX} ${vendorY}`}>
+    <label className={label}>Vendor</label>
 
-<EliteSelect
-  variant="form"
-  value={vendor}
-  options={vendorOptions}
-  onChange={setVendor}
-  width={vendorWidth}
-  height={vendorHeight}
-/>
-</div>
+    <EliteSelect
+      variant="form"
+      value={vendor}
+      options={vendorOptions}
+      onChange={setVendor}
+      disabled={viewOnly}
+      width={vendorWidth}
+      height={vendorHeight}
+    />
+  </div>
 </div>
 
 {/* Expense Date */}
@@ -853,6 +869,7 @@ const label =
 <input
   type="date"
   value={expenseDate}
+  disabled={viewOnly}
   onChange={(e) => setExpenseDate(e.target.value)}
   className={`${expenseDateWidth} ${expenseDateHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center text-sm text-white outline-none`}
   style={{
@@ -865,18 +882,19 @@ const label =
 </div>
 
 {/* Description */}
-  <div
-    className={`transform ${descriptionX} ${descriptionY}`}
-  >
-    <label className={label}>Description</label>
+<div
+  className={`transform ${descriptionX} ${descriptionY}`}
+>
+  <label className={label}>Description</label>
 
-<textarea
-  value={description}
-  onChange={(e) => setDescription(e.target.value)}
-  className={`h-20 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] ${descriptionTextIndent} pr-4 pt-4 pb-4 text-sm text-white outline-none`}
-  placeholder="Enter a brief description (optional)"
-/>
-  </div>
+  <textarea
+    value={description}
+    readOnly={viewOnly}
+    onChange={(e) => setDescription(e.target.value)}
+    className={`h-20 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] ${descriptionTextIndent} pr-4 pt-4 pb-4 text-sm text-white outline-none`}
+    placeholder="Enter a brief description (optional)"
+  />
+</div>
 </section>
 
 {/* Spacer */}
@@ -901,29 +919,31 @@ const label =
     <div className={`transform ${originalAmountX} ${originalAmountY}`}>
       <label className={label}>Original Amount *</label>
 
-<input
-  type="number"
-  step="0.01"
-  min="0"
-  value={originalAmount}
-  onChange={(e) => setOriginalAmount(e.target.value)}
-  className={`${inputCenter} ${originalAmountWidth} ${originalAmountHeight}`}
-  placeholder="0.00"
-/>
+      <input
+        type="number"
+        step="0.01"
+        min="0"
+        value={originalAmount}
+        readOnly={viewOnly}
+        onChange={(e) => setOriginalAmount(e.target.value)}
+        className={`${inputCenter} ${originalAmountWidth} ${originalAmountHeight}`}
+        placeholder="0.00"
+      />
     </div>
 
-<div className={`transform ${billedCurrencyX} ${billedCurrencyY}`}>
-  <label className={label}>Billed Currency *</label>
+    <div className={`transform ${billedCurrencyX} ${billedCurrencyY}`}>
+      <label className={label}>Billed Currency *</label>
 
-<EliteSelect
-  variant="form"
-  value={billedCurrency}
-  options={currencyOptions}
-  onChange={setBilledCurrency}
-  width={billedCurrencyWidth}
-  height={billedCurrencyHeight}
-/>
-</div>
+      <EliteSelect
+        variant="form"
+        value={billedCurrency}
+        options={currencyOptions}
+        onChange={setBilledCurrency}
+        disabled={viewOnly}
+        width={billedCurrencyWidth}
+        height={billedCurrencyHeight}
+      />
+    </div>
   </div>
 </section>
 
@@ -952,6 +972,7 @@ const label =
   value={expenseType}
   options={expenseTypeOptions}
   onChange={setExpenseType}
+  disabled={viewOnly}
   width={expenseTypeWidth}
   height={expenseTypeHeight}
 />
@@ -965,6 +986,7 @@ const label =
 
   <textarea
     value={businessPurpose}
+    readOnly={viewOnly}
     onChange={(e) => setBusinessPurpose(e.target.value)}
     className={`
       ${businessPurposeWidth}
@@ -986,7 +1008,7 @@ const label =
   />
 </div>
 
-    {/* Payment Method */}
+{/* Payment Method */}
     <div className={`transform ${paymentMethodX} ${paymentMethodY}`}>
       <label className={label}>Payment Method *</label>
 
@@ -995,6 +1017,7 @@ const label =
   value={paymentMethod}
   options={paymentMethodOptions}
   onChange={setPaymentMethod}
+  disabled={viewOnly}
   width={paymentMethodWidth}
   height={paymentMethodHeight}
 />
@@ -1040,55 +1063,56 @@ const label =
       ${businessUseBoxY}
     `}
   >
-<input
-  type="number"
-  min={0}
-  max={100}
-  step={1}
-  inputMode="numeric"
-  value={businessUsePercent}
-  onChange={(e) => {
-    const raw = e.target.value;
+    <input
+      type="number"
+      min={0}
+      max={100}
+      step={1}
+      inputMode="numeric"
+      value={businessUsePercent}
+      readOnly={viewOnly}
+      onChange={(e) => {
+        const raw = e.target.value;
 
-    // Allow user to temporarily clear the field while editing
-    if (raw === "") {
-      setBusinessUsePercent("");
-      return;
-    }
+        // Allow user to temporarily clear the field while editing
+        if (raw === "") {
+          setBusinessUsePercent("");
+          return;
+        }
 
-    let value = Number(raw);
+        let value = Number(raw);
 
-    if (Number.isNaN(value)) return;
+        if (Number.isNaN(value)) return;
 
-    value = Math.max(0, Math.min(100, value));
+        value = Math.max(0, Math.min(100, value));
 
-    setBusinessUsePercent(value.toString());
-  }}
-  onBlur={() => {
-    // Never leave the field empty
-    if (businessUsePercent === "") {
-      setBusinessUsePercent("100");
-    }
-  }}
-  className={`${inputCenter} w-full ${businessUseHeight} pr-10`}
-/>
+        setBusinessUsePercent(value.toString());
+      }}
+      onBlur={() => {
+        // Never leave the field empty
+        if (businessUsePercent === "") {
+          setBusinessUsePercent("100");
+        }
+      }}
+      className={`${inputCenter} w-full ${businessUseHeight} pr-10`}
+    />
 
-<span
-  className={`
-    pointer-events-none
-    absolute
-    right-4
-    top-1/2
-    -translate-y-1/2
-    transform
-    ${businessUseSymbolX}
-    ${businessUseSymbolY}
-    text-xs
-    text-slate-400
-  `}
->
-  %
-</span>
+    <span
+      className={`
+        pointer-events-none
+        absolute
+        right-4
+        top-1/2
+        -translate-y-1/2
+        transform
+        ${businessUseSymbolX}
+        ${businessUseSymbolY}
+        text-xs
+        text-slate-400
+      `}
+    >
+      %
+    </span>
   </div>
 </div>
 
@@ -1104,7 +1128,10 @@ const label =
 >
   <button
     type="button"
-    onClick={() => setIsRecurring((prev) => !prev)}
+    onClick={() => {
+  if (viewOnly) return;
+  setIsRecurring((prev) => !prev);
+}}
     className={`relative h-6 w-11 rounded-full transition-colors ${
       isRecurring ? "bg-blue-600" : "bg-slate-600"
     }`}
@@ -1144,7 +1171,7 @@ const label =
     onChange={setFrequency}
     width="w-full"
     height={frequencyHeight}
-    disabled={!isRecurring}
+    disabled={viewOnly || !isRecurring}
   />
 </div>
 </div>
@@ -1203,25 +1230,26 @@ const label =
   Enable Deduction
 </span>
 
-        <button
-          type="button"
-          onClick={() =>
-            setIsTaxDeductible((prev) => !prev)
-          }
-          className={`relative h-6 w-11 rounded-full transition-colors ${
-            isTaxDeductible
-              ? "bg-blue-600"
-              : "bg-slate-600"
-          }`}
-        >
-<span
-  className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${
+<button
+  type="button"
+  onClick={() => {
+    if (viewOnly) return;
+    setIsTaxDeductible((prev) => !prev);
+  }}
+  className={`relative h-6 w-11 rounded-full transition-colors ${
     isTaxDeductible
-      ? "right-1"
-      : "left-1"
+      ? "bg-blue-600"
+      : "bg-slate-600"
   }`}
-/>
-        </button>
+>
+  <span
+    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${
+      isTaxDeductible
+        ? "right-1"
+        : "left-1"
+    }`}
+  />
+</button>
       </div>
     </div>
 
@@ -1237,6 +1265,7 @@ const label =
   max="100"
   step="1"
   value={deductiblePercent}
+  readOnly={viewOnly}
   onChange={(e) => {
     const value = Number(e.target.value);
 
@@ -1262,7 +1291,7 @@ const label =
       setDeductiblePercent("100");
     }
   }}
-  disabled={!isTaxDeductible}
+  disabled={viewOnly || !isTaxDeductible}
   className={`${inputCenter} ${deductiblePercentWidth} ${deductiblePercentHeight} ${
     !isTaxDeductible
       ? "cursor-not-allowed opacity-50"
@@ -1273,7 +1302,7 @@ const label =
     </div>
   </div>
 
-  {/* Receipt / Invoice Number */}
+{/* Receipt / Invoice Number */}
 <div
   className={`
     transform
@@ -1294,6 +1323,7 @@ const label =
     <input
       type="text"
       value={receiptNumber}
+      readOnly={viewOnly}
       onChange={(e) => setReceiptNumber(e.target.value)}
       placeholder="Optional"
       className={`${inputCenter} w-full ${receiptNumberHeight}`}
@@ -1310,22 +1340,23 @@ const label =
 >
   <label className={label}>Tax Type</label>
 
-<div
-  className={`
-    ${taxTypeWidth}
-    ${taxTypeBoxX}
-    ${taxTypeBoxY}
-  `}
->
-  <EliteSelect
-    variant="form"
-    value={taxType}
-    options={taxTypeOptions}
-    onChange={setTaxType}
-    width="w-full"
-    height={taxTypeHeight}
-  />
-</div>
+  <div
+    className={`
+      ${taxTypeWidth}
+      ${taxTypeBoxX}
+      ${taxTypeBoxY}
+    `}
+  >
+    <EliteSelect
+      variant="form"
+      value={taxType}
+      options={taxTypeOptions}
+      onChange={setTaxType}
+      disabled={viewOnly}
+      width="w-full"
+      height={taxTypeHeight}
+    />
+  </div>
 </div>
 
 {/* Tax Amount */}
@@ -1352,11 +1383,10 @@ const label =
       min="0"
       step="0.01"
       value={taxAmount}
+      readOnly={viewOnly}
       onChange={(e) => setTaxAmount(e.target.value)}
       className={`${inputCenter} w-full ${taxAmountHeight}`}
     />
-
-
   </div>
 </div>
 </section>
@@ -1387,6 +1417,7 @@ const label =
 
     <textarea
       value={notes}
+      readOnly={viewOnly}
       onChange={(e) => setNotes(e.target.value)}
       className={`${notesWidth} ${notesHeight} resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 ${notesTextIndent} text-sm text-white outline-none`}
       placeholder="Add any notes..."
@@ -1401,7 +1432,7 @@ const label =
       ${uploadBoxWidth}
       ${uploadBoxHeight}
       flex
-      cursor-pointer
+      ${viewOnly ? "cursor-default" : "cursor-pointer"}
       flex-col
       items-center
       justify-center
@@ -1448,6 +1479,7 @@ const label =
     👁 View
   </button>
 
+{!viewOnly && (
   <button
     type="button"
     onClick={(e) => {
@@ -1458,12 +1490,15 @@ const label =
   >
     ✕ Remove
   </button>
+)}
 
 </div>
 
-        <p className="mt-3 text-[11px] text-slate-500">
-          Click anywhere to replace
-        </p>
+{!viewOnly && (
+  <p className="mt-3 text-[11px] text-slate-500">
+    Click anywhere to replace
+  </p>
+)}
       </>
     ) : (
       <>
@@ -1479,13 +1514,14 @@ const label =
 
   </label>
 
-  <input
-    id="receipt-upload"
-    type="file"
-    accept=".jpg,.jpeg,.png,.pdf"
-    className="hidden"
-    onChange={handleReceiptUpload}
-  />
+<input
+  id="receipt-upload"
+  type="file"
+  accept=".jpg,.jpeg,.png,.pdf"
+  className="hidden"
+  disabled={viewOnly}
+  onChange={handleReceiptUpload}
+/>
 
 </section>
 
@@ -1501,29 +1537,54 @@ const label =
   className={`border-t border-white/10 bg-[#07111d] px-8 py-5 transform ${footerX} ${footerY}`}
 >
   <div className="flex gap-4">
-    <div className={`transform ${cancelButtonX} ${cancelButtonY}`}>
+
+    {/* Left Button */}
+    <div
+      className={`transform ${cancelButtonX} ${cancelButtonY}`}
+    >
       <button
         onClick={onClose}
-        className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-xl text-[14px] border border-white/10 text-white`}
+        className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-xl border border-white/10 text-[14px] text-white`}
       >
-        Cancel
+        {viewOnly ? "Close" : "Cancel"}
       </button>
     </div>
 
-    <div className={`flex-1 transform ${saveButtonX} ${saveButtonY}`}>
-<button
-  onClick={handleSave}
-  className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl text-[14px] bg-blue-600 font-semibold text-white`}
->
-  {editingExpense
-  ? "Update Expense"
-  : "Save Expense"}
-</button>
+    {/* Right Button */}
+    <div
+      className={`flex-1 transform ${saveButtonX} ${saveButtonY}`}
+    >
+
+      {viewOnly ? (
+
+        <button
+          onClick={onEdit}
+          className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 text-[14px] font-semibold text-white`}
+        >
+          Edit Expense
+        </button>
+
+      ) : (
+
+        <button
+          onClick={handleSave}
+          className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 text-[14px] font-semibold text-white`}
+        >
+          {editingExpense
+            ? "Update Expense"
+            : "Save Expense"}
+        </button>
+
+      )}
+
     </div>
+
   </div>
 </div>
+
 {/* Spacer */}
-  <div className="h-4" />
+<div className="h-4" />
+
 {/* Close flex h-full flex-col */}
 </div>
 

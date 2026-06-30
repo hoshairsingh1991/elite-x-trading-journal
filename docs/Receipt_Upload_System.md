@@ -445,3 +445,341 @@ None of the above are required for V1.
 Receipt Upload System is officially **V1 COMPLETE**.
 
 The implementation provides secure, private, production-ready receipt management with full CRUD support, integrated into the Expenses module and backed by Supabase Storage using private buckets, signed URLs, and Row Level Security.
+
+
+==========================================
+ELITEX TRADING OS
+FUTURE ROADMAP — UNLIMITED EXPENSE ATTACHMENTS (V2)
+==========================================
+
+STATUS
+------
+Deferred to V2.
+
+The current V1 implementation supports ONE attachment per expense using the `receipt_url` column. This implementation is intentionally kept because it is simple, secure, stable, and production-ready.
+
+No further work is required for V1.
+
+--------------------------------------------------
+
+WHY THIS WAS DEFERRED
+---------------------
+
+A simple "add another receipt" solution (receipt_url_2, receipt_url_3, etc.) was intentionally rejected because it creates technical debt and does not scale.
+
+Instead, V2 will replace the entire receipt architecture with a proper unlimited attachment system.
+
+--------------------------------------------------
+
+CURRENT V1 ARCHITECTURE
+-----------------------
+
+expenses table
+
+- receipt_url
+
+↓
+
+One expense
+
+↓
+
+One uploaded file
+
+Storage Bucket:
+
+receipts/
+
+user-id/
+
+receipt.png
+
+Security:
+
+✔ Private Storage Bucket
+✔ Signed URLs
+✔ User Folder Isolation
+✔ RLS Policies
+
+This architecture is complete and should NOT be modified.
+
+--------------------------------------------------
+
+V2 ARCHITECTURE
+---------------
+
+The expenses table should NO LONGER store receipt_url.
+
+Instead create a new table.
+
+expense_attachments
+
+Fields:
+
+id (UUID)
+
+expense_id
+(Foreign Key → expenses.id)
+
+storage_path
+
+file_name
+
+file_size
+
+mime_type
+
+uploaded_at
+
+created_at
+
+Now one expense can contain unlimited files.
+
+Example:
+
+Expense
+
+├── receipt.pdf
+
+├── invoice.pdf
+
+├── screenshot.png
+
+├── payment_confirmation.pdf
+
+└── statement.pdf
+
+Unlimited attachments.
+
+--------------------------------------------------
+
+DATABASE DESIGN RULE
+--------------------
+
+NEVER implement:
+
+receipt_url_2
+
+receipt_url_3
+
+receipt_url_4
+
+etc.
+
+Always normalize using a dedicated attachment table.
+
+--------------------------------------------------
+
+STORAGE
+-------
+
+Continue using the existing private Supabase Storage bucket.
+
+No storage architecture changes are required.
+
+Reuse:
+
+Private Bucket
+
+Signed URLs
+
+User Folder Structure
+
+Existing RLS Policies
+
+--------------------------------------------------
+
+UI CHANGES
+----------
+
+Rename the feature.
+
+Instead of:
+
+Receipt
+
+Use:
+
+Attachments
+
+Reason:
+
+Users may upload:
+
+Receipt
+
+Invoice
+
+Credit Card Statement
+
+Tax Document
+
+Screenshot
+
+PDF
+
+Email Confirmation
+
+The feature is no longer limited to receipts.
+
+--------------------------------------------------
+
+ADD / EDIT EXPENSE DRAWER
+-------------------------
+
+Replace:
+
+Drag & Drop Receipt
+
+With:
+
+Attachments
+
+Display attached files:
+
+receipt.pdf
+
+invoice.pdf
+
+payment.png
+
+statement.pdf
+
+Buttons:
+
+View
+
+Delete
+
+Add Another File
+
+Support unlimited uploads.
+
+--------------------------------------------------
+
+VIEW EXPENSE DRAWER
+-------------------
+
+Display:
+
+Attachments
+
+receipt.pdf
+
+invoice.pdf
+
+statement.pdf
+
+payment.png
+
+Each attachment opens using a signed URL.
+
+--------------------------------------------------
+
+MANUAL EXPENSES TABLE
+---------------------
+
+Do NOT show attachment count.
+
+Continue using ONE paperclip icon.
+
+Logic:
+
+0 attachments
+
+↓
+
+Gray Paperclip
+
+1 or more attachments
+
+↓
+
+Blue Paperclip
+
+This keeps the table clean.
+
+--------------------------------------------------
+
+SHARED HELPERS
+--------------
+
+Create reusable helpers.
+
+uploadExpenseAttachment()
+
+deleteExpenseAttachment()
+
+viewExpenseAttachment()
+
+loadExpenseAttachments()
+
+replaceExpenseAttachment()
+
+Avoid duplicate upload/view/delete logic.
+
+--------------------------------------------------
+
+MIGRATION PLAN
+--------------
+
+Current V1:
+
+expenses.receipt_url
+
+Future migration:
+
+For every existing expense:
+
+Create one record inside:
+
+expense_attachments
+
+using the existing receipt_url.
+
+After successful migration:
+
+receipt_url can eventually be removed from the expenses table.
+
+--------------------------------------------------
+
+IMPLEMENTATION SIZE
+-------------------
+
+Database:
+Medium
+
+Storage:
+Minimal (reuse existing bucket)
+
+Backend:
+Medium
+
+UI:
+Medium
+
+Migration:
+Small
+
+Testing:
+Medium
+
+Estimated effort:
+
+One dedicated development session
+(~4–8 hours)
+
+--------------------------------------------------
+
+FINAL DECISION
+--------------
+
+This feature is intentionally postponed until V2.
+
+The current single-attachment implementation is secure, stable, and sufficient for V1.
+
+When V2 begins, replace the single `receipt_url` architecture with a dedicated `expense_attachments` table supporting unlimited files.
+
+Do NOT build temporary solutions such as receipt_url_2 or receipt_url_3.
+
+The long-term goal is a fully normalized, scalable attachment system capable of storing receipts, invoices, statements, screenshots, PDFs, and any other supporting business documents while reusing the existing private Supabase Storage bucket and signed URL security model.

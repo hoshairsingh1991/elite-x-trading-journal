@@ -55,6 +55,9 @@ export default function ExpensePage() {
 const [editingExpense, setEditingExpense] =
   useState<Expense | null>(null);
 
+  const [viewOnly, setViewOnly] =
+  useState(false);
+
 const [expenses, setExpenses] =
   useState<Expense[]>([]);
 
@@ -438,10 +441,17 @@ trades={filteredTrades}
     fxRates
   }
   onAddExpense={() => {
+    setViewOnly(false);
     setEditingExpense(null);
     setIsAddExpenseOpen(true);
   }}
   onEditExpense={(expense) => {
+    setViewOnly(false);
+    setEditingExpense(expense);
+    setIsAddExpenseOpen(true);
+  }}
+  onViewExpense={(expense) => {
+    setViewOnly(true);
     setEditingExpense(expense);
     setIsAddExpenseOpen(true);
   }}
@@ -470,13 +480,19 @@ trades={filteredTrades}
   open={isAddExpenseOpen}
   onClose={() => {
     setEditingExpense(null);
+    setViewOnly(false);
     setIsAddExpenseOpen(false);
   }}
-onSaveSuccess={() => {
-  setEditingExpense(null);
-  void reloadExpenses();
-}}
+  onSaveSuccess={() => {
+    setEditingExpense(null);
+    setViewOnly(false);
+    void reloadExpenses();
+  }}
+  onEdit={() => {
+    setViewOnly(false);
+  }}
   editingExpense={editingExpense}
+  viewOnly={viewOnly}
 />
     </main>
   );
