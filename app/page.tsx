@@ -955,17 +955,52 @@ const handleTestIBKRSync =
       const parsedTrades =
         await parseIBKRCsv(file);
 
+
 await saveExecutionsToSupabase(
   parsedTrades
 );
 
+// =========================================
+// LOAD EXECUTIONS
+// =========================================
+
 const storedExecutions =
   await loadExecutionsFromSupabase();
+
+// =========================================
+// REBUILD TRADES
+// =========================================
 
 const rebuiltTrades =
   pairTrades(
     storedExecutions
   );
+
+// =========================================
+// VERIFY EXECUTIONS DID NOT CHANGE
+// =========================================
+
+const july1After =
+  storedExecutions.filter(
+    execution =>
+      execution.date === "2026-07-01"
+  );
+
+console.log(
+  "JULY 1 AFTER PAIRTRADES:",
+  july1After.length
+);
+
+console.table(july1After);
+
+console.log(
+  "========================================");
+
+// =========================================
+// MANUAL TRADES
+// =========================================
+
+
 
 const manualTrades =
   loadTrades().filter(

@@ -39,6 +39,7 @@ export function pairTrades(
       PositionExecution[]
     > = {};
 
+
   // =================================================
 // LOAD EXISTING OPEN POSITIONS
 // =================================================
@@ -170,6 +171,7 @@ const sortedExecutions =
     }
   );
 
+  
 sortedExecutions.forEach(
   (execution, index) => {
 
@@ -709,6 +711,7 @@ Object.entries(
     );
   }
 );
+
 
 return finalTrades;
 }

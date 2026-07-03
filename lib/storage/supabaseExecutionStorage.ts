@@ -24,6 +24,7 @@ Promise<NormalizedExecution[]> {
   const user =
     authData.user;
 
+
   if (!user) {
 
     console.error(
@@ -33,9 +34,28 @@ Promise<NormalizedExecution[]> {
     return [];
   }
 
-  // ===================================================
-  // LOAD USER-OWNED EXECUTIONS
-  // ===================================================
+// ===================================================
+// LOAD USER-OWNED EXECUTIONS
+// ===================================================
+//
+// IMPORTANT
+//
+// Supabase returns a maximum number of rows per
+// request. We must paginate through ALL execution
+// pages so pairTrades() always receives the complete
+// execution history.
+//
+// Do NOT replace this with a single .select("*").
+//
+// ===================================================
+
+const PAGE_SIZE = 1000;
+
+let from = 0;
+
+const allData: any[] = [];
+
+while (true) {
 
   const {
     data,
@@ -48,10 +68,14 @@ Promise<NormalizedExecution[]> {
       user.id
     )
     .order(
-      "date",
+      "execution_timestamp",
       {
         ascending: true,
       }
+    )
+    .range(
+      from,
+      from + PAGE_SIZE - 1
     );
 
   if (error) {
@@ -82,6 +106,23 @@ Promise<NormalizedExecution[]> {
 
     return [];
   }
+
+  if (!data || data.length === 0) {
+    break;
+  }
+
+  allData.push(
+    ...data
+  );
+
+  if (data.length < PAGE_SIZE) {
+    break;
+  }
+
+  from += PAGE_SIZE;
+}
+
+const data = allData;
 
 // ===================================================
 // HYDRATE EXECUTIONS
@@ -144,7 +185,9 @@ account:
       })
     );
 
+
   return hydratedExecutions;
+
 }
 
 // =====================================================
