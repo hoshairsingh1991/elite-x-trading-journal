@@ -95,7 +95,10 @@ const entryExecution:
       crypto.randomUUID(),
 
     date:
-      `${tradeDate}T09:30:00.000Z`,
+  tradeDate,
+
+executionTimestamp:
+  `${tradeDate}T09:30:00`,
 
     ticker:
       ticker.toUpperCase(),
@@ -148,7 +151,10 @@ const exitExecution:
       crypto.randomUUID(),
 
     date:
-      `${tradeDate}T16:00:00.000Z`,
+  tradeDate,
+
+executionTimestamp:
+  `${tradeDate}T16:00:00`,
 
     ticker:
       ticker.toUpperCase(),

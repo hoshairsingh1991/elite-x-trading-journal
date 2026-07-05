@@ -1174,6 +1174,392 @@ The remaining bug is now believed to be a small deterministic edge case inside r
 
 Future investigation should focus exclusively on identifying the FIRST execution where queue state diverges rather than redesigning the reconstruction engine.
 
+=========================================================================================================================================================
+
+# ELITE X TRADING OS — MASTER HANDOVER NOTES
+
+## Trade Reconstruction Bug Investigation & Permanent Fix
+
+**Date:** July 3, 2026
+
+---
+
+# ISSUE
+
+A critical reconstruction bug was discovered where the exact same IBKR CSV produced different trade counts, P&L values, disappearing calendar trades, phantom open positions, and inconsistent reconstruction.
+
+Symptoms included:
+
+* Same Margin CSV produced different results every upload.
+* July 2 trades sometimes disappeared from Calendar but still existed in Supabase.
+* Fresh test account always reconstructed perfectly.
+* Main production account produced inconsistent results.
+* Deleting executions temporarily changed results but never solved the issue.
+* pairTrades() appeared guilty even though the parser was correct.
+
+---
+
+# ROOT CAUSE
+
+The bug was NOT inside:
+
+* parseIBKRCsv()
+* pairTrades()
+* FIFO reconstruction
+* Trade pairing logic
+* Duplicate protection
+* Supabase upsert
+
+The actual root cause was inside:
+
+lib/storage/supabaseExecutionStorage.ts
+
+Specifically:
+
+loadExecutionsFromSupabase()
+
+The Supabase API silently returned only the first 1000 rows even though the user owned 1023 executions.
+
+Evidence:
+
+Database count:
+
+1023 executions
+
+Supabase response:
+
+COUNT = 1023
+
+DATA LENGTH = 1000
+
+This meant pairTrades() was reconstructing trades from an incomplete execution ledger.
+
+Because reconstruction is FIFO based, missing only 23 executions corrupted the entire downstream reconstruction.
+
+---
+
+# WHY THE BUG LOOKED RANDOM
+
+The production account had over 1000 executions.
+
+The fresh account had fewer than 1000.
+
+Therefore:
+
+Fresh Account
+
+CSV
+↓
+
+All executions loaded
+↓
+
+pairTrades()
+↓
+
+Correct reconstruction
+
+Production Account
+
+CSV
+↓
+
+Only first 1000 executions loaded
+↓
+
+23 executions missing
+↓
+
+Broken FIFO chain
+↓
+
+Wrong trades
+Wrong P&L
+Missing calendar entries
+Phantom open positions
+
+This explained why the exact same CSV behaved differently between accounts.
+
+---
+
+# INVESTIGATION SUMMARY
+
+We verified every stage individually.
+
+Parser
+
+Verified parser produced:
+
+35 July 1 executions
+
+Correct.
+
+Supabase
+
+Verified SQL contained:
+
+35 July 1 executions
+
+Correct.
+
+Hydration
+
+Verified hydration only mapped returned rows.
+
+Correct.
+
+pairTrades()
+
+Verified pairTrades() never mutated the execution array.
+
+Correct.
+
+Supabase Client
+
+Discovered:
+
+COUNT = 1023
+
+DATA LENGTH = 1000
+
+This identified the true bug.
+
+---
+
+# PERMANENT FIX
+
+loadExecutionsFromSupabase() was rewritten to use pagination.
+
+Instead of:
+
+Single
+
+.select("*")
+
+request
+
+the loader now performs:
+
+Loop
+
+↓
+
+Load page
+
+↓
+
+Append results
+
+↓
+
+Load next page
+
+↓
+
+Repeat until no rows remain
+
+This guarantees every execution is loaded regardless of account size.
+
+Current implementation uses:
+
+PAGE_SIZE = 1000
+
+which scales indefinitely.
+
+Accounts with:
+
+1,000 executions
+
+2,000 executions
+
+10,000 executions
+
+100,000 executions
+
+will continue to work correctly.
+
+---
+
+# IMPORTANT COMMENT ADDED
+
+The loader now documents:
+
+Supabase limits returned rows.
+
+Trade reconstruction requires the COMPLETE execution ledger.
+
+Never replace pagination with a single select("*").
+
+This protects future development.
+
+---
+
+# ORDERING
+
+Originally considered switching to:
+
+execution_timestamp
+
+However investigation discovered:
+
+execution_timestamp
+
+is NULL for every execution.
+
+Therefore ordering remains:
+
+.order("date")
+
+until execution timestamps are implemented properly in a future update.
+
+Do NOT switch ordering until execution_timestamp is fully populated.
+
+---
+
+# DEBUGGING REMOVED
+
+Removed:
+
+COUNT logs
+
+DATA LENGTH logs
+
+RAW JULY 1 logs
+
+HYDRATED logs
+
+TOTAL EXECUTIONS logs
+
+JULY BEFORE/AFTER logs
+
+console.table()
+
+All temporary debugging code removed from production.
+
+---
+
+# FILES MODIFIED
+
+Primary fix:
+
+lib/storage/supabaseExecutionStorage.ts
+
+Cleanup:
+
+Relevant page.tsx debugging removed.
+
+No parser changes required.
+
+No pairTrades() changes required.
+
+No database schema changes required.
+
+---
+
+# ARCHITECTURE VALIDATION
+
+This investigation confirmed the original architecture is correct.
+
+Canonical pipeline remains:
+
+IBKR CSV
+
+↓
+
+parseIBKRCsv()
+
+↓
+
+NormalizedExecution[]
+
+↓
+
+Supabase
+
+↓
+
+loadExecutionsFromSupabase()
+
+↓
+
+pairTrades()
+
+↓
+
+Trade[]
+
+↓
+
+Analytics
+
+↓
+
+Dashboard
+
+The architecture itself was never incorrect.
+
+The execution loader was feeding pairTrades() an incomplete ledger.
+
+---
+
+# LESSON LEARNED
+
+Never reconstruct trades from partial execution history.
+
+For any future broker integration:
+
+Always load the COMPLETE execution ledger before reconstruction.
+
+Any API with paging limits must use pagination.
+
+Trade reconstruction assumes:
+
+Complete execution history
+
+Chronological ordering
+
+Deterministic input
+
+These are now considered architectural requirements.
+
+---
+
+# FUTURE IMPROVEMENT (NOT PART OF THIS FIX)
+
+Implement execution_timestamp end-to-end.
+
+Future roadmap:
+
+1. Parser stores execution_timestamp.
+2. Supabase saves execution_timestamp.
+3. Backfill existing executions.
+4. Switch ordering from date → execution_timestamp.
+
+This should be done in a separate feature branch after proper testing.
+
+---
+
+# FINAL RESULT
+
+After implementing pagination:
+
+✅ Margin uploads stable
+
+✅ TFSA uploads stable
+
+✅ Multiple uploads produce identical results
+
+✅ Calendar reconstruction correct
+
+✅ July 2 trades remain intact
+
+✅ Open positions correct
+
+✅ Trade count stable
+
+✅ P&L stable
+
+This permanently resolved the incomplete execution loading issue and restored deterministic trade reconstruction across the application.
 
 
 

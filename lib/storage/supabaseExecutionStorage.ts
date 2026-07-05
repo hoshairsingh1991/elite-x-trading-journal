@@ -138,11 +138,14 @@ const data = allData;
           brokerExecutionId:
   execution.broker_execution_id,
 
-        date:
-          execution.date,
+date:
+  execution.date,
 
-        ticker:
-          execution.ticker,
+executionTimestamp:
+  execution.execution_timestamp,
+
+ticker:
+  execution.ticker,
 
         contract:
           execution.contract,
@@ -234,11 +237,14 @@ saveExecutionsToSupabase(
           broker_execution_id:
   execution.brokerExecutionId,
 
-        date:
-          execution.date,
+date:
+  execution.date,
 
-        ticker:
-          execution.ticker,
+execution_timestamp:
+  execution.executionTimestamp,
+
+ticker:
+  execution.ticker,
 
         contract:
           execution.contract,

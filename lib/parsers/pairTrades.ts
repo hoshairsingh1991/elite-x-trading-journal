@@ -23,6 +23,80 @@ interface PositionExecution
 }
 
 // =================================================
+// EXECUTION SORTING
+// =================================================
+
+function compareExecutions(
+  a: NormalizedExecution,
+  b: NormalizedExecution
+): number {
+
+  // =============================================
+  // NEW EXECUTIONS
+  // =============================================
+
+  if (
+    a.executionTimestamp &&
+    b.executionTimestamp
+  ) {
+
+    const timestampCompare =
+      new Date(
+        a.executionTimestamp
+      ).getTime() -
+      new Date(
+        b.executionTimestamp
+      ).getTime();
+
+    if (
+      timestampCompare !== 0
+    ) {
+
+      return timestampCompare;
+    }
+
+    const brokerCompare =
+      (
+        a.brokerExecutionId ??
+        ""
+      ).localeCompare(
+        b.brokerExecutionId ??
+        ""
+      );
+
+    if (
+      brokerCompare !== 0
+    ) {
+
+      return brokerCompare;
+    }
+
+    return a.id.localeCompare(
+      b.id
+    );
+  }
+
+  // =============================================
+  // LEGACY EXECUTIONS
+  // =============================================
+
+  const dateCompare =
+    new Date(a.date).getTime() -
+    new Date(b.date).getTime();
+
+  if (
+    dateCompare !== 0
+  ) {
+
+    return dateCompare;
+  }
+
+  return a.id.localeCompare(
+    b.id
+  );
+}
+
+// =================================================
 // PAIR EXECUTIONS INTO TRADES
 // =================================================
 
@@ -105,6 +179,9 @@ existingTrades.forEach(
         trade.openedAt ||
         trade.date,
 
+        executionTimestamp:
+  "",
+
       ticker:
         trade.ticker,
 
@@ -155,23 +232,9 @@ existingTrades.forEach(
 
 const sortedExecutions =
   [...executions].sort(
-    (a, b) => {
-
-      const dateCompare =
-        new Date(a.date).getTime() -
-        new Date(b.date).getTime();
-
-      if (dateCompare !== 0) {
-        return dateCompare;
-      }
-
-      return a.id.localeCompare(
-        b.id
-      );
-    }
+    compareExecutions
   );
 
-  
 sortedExecutions.forEach(
   (execution, index) => {
 

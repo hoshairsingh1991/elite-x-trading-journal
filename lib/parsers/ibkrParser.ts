@@ -124,23 +124,32 @@ export async function parseIBKRCsv(
               executionRows.map(
                 (row, index) => {
 
-                  const rawDate =
-                    row["Date/Time"] || "";
+const rawExecutionTimestamp =
+  (row["Date/Time"] || "").trim();
 
-                    const executionTimestamp =
-                    rawDate.trim();
+const year =
+  rawExecutionTimestamp.slice(0, 4);
 
-                  const year =
-                    rawDate.slice(0, 4);
+const month =
+  rawExecutionTimestamp.slice(4, 6);
 
-                  const month =
-                    rawDate.slice(4, 6);
+const day =
+  rawExecutionTimestamp.slice(6, 8);
 
-                  const day =
-                    rawDate.slice(6, 8);
+const hour =
+  rawExecutionTimestamp.slice(9, 11);
 
-                  const formattedDate =
-                    `${year}-${month}-${day}`;
+const minute =
+  rawExecutionTimestamp.slice(11, 13);
+
+const second =
+  rawExecutionTimestamp.slice(13, 15);
+
+const formattedDate =
+  `${year}-${month}-${day}`;
+
+const executionTimestamp =
+  `${year}-${month}-${day}T${hour}:${minute}:${second}`;
 
                   const ticker =
                     row.UnderlyingSymbol ||
@@ -215,16 +224,18 @@ const feeCurrency =
 return {
 
   id:
-    `${row.ClientAccountID || "IBKR"}-${executionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}-${executionValue}`,
+`${row.ClientAccountID || "IBKR"}-${rawExecutionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}-${executionValue}`,
 
 brokerExecutionId:
   row.ExecID ||
   undefined,
 
-  date:
-    formattedDate,
+date:
+  formattedDate,
 
-  ticker,
+executionTimestamp,
+
+ticker,
 
   contract,
 
@@ -268,14 +279,6 @@ brokerExecutionId:
           // =================================================
           // PAIR EXECUTIONS
           // =================================================
-
-          console.log(
-  "NORMALIZED EXECUTIONS"
-);
-
-console.table(
-  normalizedExecutions
-);
 
 resolve(
   normalizedExecutions

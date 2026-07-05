@@ -42,6 +42,8 @@ export interface NormalizedExecution {
 
   date: string;
 
+  executionTimestamp: string;
+
   brokerExecutionId?: string;
 
   ticker: string;
