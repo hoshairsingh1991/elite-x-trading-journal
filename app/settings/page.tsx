@@ -354,7 +354,7 @@ console.log(JSON.stringify(error, null, 2));
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[12px]" />
+<div className="h-[22px]" />
 
 {/* ===================================== */}
 {/* SETTINGS CONTENT */}
@@ -405,7 +405,7 @@ console.log(JSON.stringify(error, null, 2));
                   key={tab}
                   className={`
                     pb-5
-text-[20px]
+text-[16px]
 font-medium
 tracking-[-0.01em]
 whitespace-nowrap
@@ -437,7 +437,7 @@ transition-all
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[12px]" />
+<div className="h-[6px]" />
 
         {/* ===================================== */}
         {/* PAGE HEADER */}
@@ -453,7 +453,7 @@ transition-all
 
           <h1
             className="
-              text-3xl
+              text-2xl
               font-semibold
               tracking-tight
               mb-2
@@ -479,7 +479,7 @@ transition-all
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[12px]" />
+<div className="h-[8px]" />
 
         {/* ===================================== */}
         {/* PREMIUM CONTENT CARD */}
@@ -505,7 +505,7 @@ transition-all
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[12px]" />
+<div className="h-[6px]" />
           {/* ===================================== */}
           {/* CARD HEADER */}
           {/* ===================================== */}
@@ -562,12 +562,12 @@ transition-all
     inline-flex
     items-center
     justify-center
-    w-[140px]
+    w-[120px]
     h-[40px]
     rounded-xl
     border
     border-white/10
-    text-[18px]
+    text-[16px]
     font-semibold
     transition-all
     disabled:opacity-50
@@ -640,13 +640,13 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
       inline-flex
       items-center
       justify-center
-      w-[150px]
+      w-[120px]
       h-[40px]
       rounded-xl
       bg-blue-600
       hover:bg-blue-500
       transition-all
-      text-[20px]
+      text-[16px]
       font-semibold
       tracking-[-0.01em]
     "
@@ -663,7 +663,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[12px]" />
+<div className="h-[8px]" />
 
           {/* ===================================== */}
           {/* BROKER TABLE */}
@@ -710,7 +710,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
   <div
   className="
     text-center
-    text-[20px]
+    text-[18px]
     font-semibold
   "
 >
@@ -720,7 +720,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
   <div
   className="
     text-center
-    text-[20px]
+    text-[18px]
     font-semibold
     "
   >
@@ -730,7 +730,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
   <div
   className="
     text-center
-    text-[20px]
+    text-[18px]
     font-semibold
     "
   >
@@ -740,7 +740,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
   <div
   className="
     text-center
-    text-[20px]
+    text-[18px]
     font-semibold
     "
   >
@@ -750,7 +750,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
   <div
   className="
     text-center
-    text-[20px]
+    text-[18px]
     font-semibold
     "
   >
@@ -760,7 +760,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
  <div
   className="
     text-center
-    text-[20px]
+    text-[18px]
     font-semibold
     "
 >
@@ -774,7 +774,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[2px]" />    
+<div className="h-[4px]" />    
 
            {/* TABLE ROWS */}
 
@@ -801,7 +801,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
         <div
           className="
             text-center
-            text-[16px]
+            text-[14px]
             font-semibold
           "
         >
@@ -813,7 +813,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
         <div
           className="
             text-center
-            text-[16px]
+            text-[14px]
             text-zinc-400
           "
         >
@@ -823,7 +823,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
 <span
   className="
     ml-2
-    text-[16px]
+    text-[14px]
     font-mono
     text-zinc-600
   "
@@ -848,7 +848,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
               items-center
               gap-2
               text-emerald-400
-              text-[15px]
+              text-[12px]
               font-medium
             "
           >
@@ -875,7 +875,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
             text-center
             text-zinc-400
             font-mono
-            text-[16px]
+            text-[14px]
           "
         >
           {connection.flex_query_id}
@@ -890,7 +890,7 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
     justify-center
     gap-2
     text-zinc-500
-    text-[16px]
+    text-[14px]
   "
 >
 
@@ -898,8 +898,8 @@ className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
 
   <div
     className={`
-      h-3.5
-      w-3.5
+      h-3
+      w-3
       rounded-full
       cursor-pointer
       ${
@@ -1056,7 +1056,7 @@ onClick={() => {
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[25px]" />        
+<div className="h-[14px]" />        
 
 {/* ===================================== */}
 {/* SETUP CARDS */}
@@ -1081,14 +1081,14 @@ onClick={() => {
     border-white/10
     bg-[#0B1220]
     p-8
-    h-[400px]
+    h-[360px]
   "
 >
 {/* ===================================== */}
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[15px]" />
+<div className="h-[12px]" />
 
 
   {/* ===================================== */}
@@ -1108,7 +1108,7 @@ onClick={() => {
     <h2
       className="
         text-center
-        text-[24px]
+        text-[20px]
         font-semibold
         text-white
         mb-3
@@ -1122,7 +1122,7 @@ onClick={() => {
     <p
       className="
         text-center
-        text-[14px]
+        text-[13px]
         text-zinc-400
         leading-relaxed
         px-8
@@ -1137,7 +1137,7 @@ onClick={() => {
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[15px]" />
+<div className="h-[12px]" />
 
     {/* STEPS */}
 
@@ -1145,6 +1145,7 @@ onClick={() => {
   className="
     relative
     left-[20px]
+    text-[14px]
     flex
     flex-col
     gap-5
@@ -1217,7 +1218,7 @@ onClick={() => {
     border-white/10
     bg-[#0B1220]
     p-8
-    h-[400px]
+    h-[360px]
   "
 >
 
@@ -1225,7 +1226,7 @@ onClick={() => {
   {/* INVISIBLE SPACER */}
   {/* ===================================== */}
 
-  <div className="h-[5px]" />
+  <div className="h-[12px]" />
 
   {/* ===================================== */}
   {/* TRADE CONFIRMATION QUERY */}
@@ -1244,7 +1245,7 @@ onClick={() => {
     <h2
       className="
         text-center
-        text-[24px]
+        text-[20px]
         font-semibold
         text-white
         mb-3
@@ -1258,7 +1259,7 @@ onClick={() => {
     <p
       className="
         text-center
-        text-[14px]
+        text-[13px]
         text-zinc-400
         leading-relaxed
         px-8
@@ -1273,7 +1274,7 @@ onClick={() => {
     {/* INVISIBLE SPACER */}
     {/* ===================================== */}
 
-    <div className="h-[15px]" />
+    <div className="h-[12px]" />
 
     {/* STEPS */}
 
@@ -1281,6 +1282,7 @@ onClick={() => {
       className="
         relative
         left-[20px]
+        text-[14px]
         flex
         flex-col
         gap-5
@@ -1463,7 +1465,7 @@ onClick={() => {
     {/* INVISIBLE SPACER */}
     {/* ===================================== */}
 
-    <div className="h-[10px]" />
+    <div className="h-[12px]" />
 
         {/* ACCOUNT ALIAS */}
 

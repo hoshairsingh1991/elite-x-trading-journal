@@ -10,8 +10,9 @@ export default function Topbar() {
     <header
       className="
         flex
-        h-[62px]
+        h-[50px]
         items-center
+        translate-y-2
         justify-end
         rounded-[28px]
         border

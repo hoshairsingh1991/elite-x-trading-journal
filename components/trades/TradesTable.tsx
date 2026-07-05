@@ -184,18 +184,18 @@ const handleSelectTrade =
 
             <div className="relative left-4">
 
-              <h2 className="text-[34px] font-black tracking-tight text-slate-400">
+              <h2 className="text-[24px] font-black tracking-tight text-slate-400">
                 Trade History
               </h2>
 
-              <p className="mt-2 text-[15px] text-slate-500">
+              <p className="mt-2 text-[14px] text-slate-500">
                 Institutional execution journal
               </p>
             </div>
 
             <div className="relative right-6 top-1">
 
-              <span className="text-[14px] font-black uppercase tracking-[0.18em] text-white">
+              <span className="text-[13px] font-black uppercase tracking-[0.18em] text-white">
   {sortedTrades.length} Trades
 </span>
             </div>
@@ -227,7 +227,7 @@ const handleSelectTrade =
 
                 <div
                   key={header}
-                  className={`flex h-[50px] items-center justify-center border-b border-white/[0.05] px-5 text-center text-[16px] font-bold tracking-[0.02em] text-slate-400 ${
+                  className={`flex h-[40px] items-center justify-center border-b border-white/[0.05] px-5 text-center text-[14px] font-bold tracking-[0.02em] text-slate-400 ${
                    header === "Status"
                     ? "relative left-[-12px]"
                     : ""
@@ -279,7 +279,7 @@ const handleSelectTrade =
     trade
   )
 }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
+  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.account ||
     "N/A"}
@@ -293,7 +293,7 @@ const handleSelectTrade =
     trade
   )
 }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-medium tracking-wide text-slate-400 transition-all hover:bg-white/[0.02]"
+  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium tracking-wide text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.ticker}
 </div>
@@ -306,7 +306,7 @@ const handleSelectTrade =
     trade
   )
 }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
+  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.openedAt
     ? parseLocalDate(
@@ -330,7 +330,7 @@ const handleSelectTrade =
     trade
   )
 }
-  className="flex h-[50px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
+  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.closedAt
     ? parseLocalDate(
@@ -349,7 +349,7 @@ const handleSelectTrade =
 {/* HOLDING */}
 
 <div
-  className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center"
+  className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center"
 >
 
   {trade.status === "OPEN" ? (
@@ -358,7 +358,7 @@ const handleSelectTrade =
 
       {/* LIVE DOT */}
 
-      <div className="h-[12px] w-[12px] rounded-full bg-emerald-400" />
+      <div className="h-[10px] w-[10px] rounded-full bg-emerald-400" />
 
       {/* TOOLTIP */}
 
@@ -408,7 +408,7 @@ const handleSelectTrade =
 
   ) : (
 
-    <span className="text-[16px] font-medium text-cyan-400">
+    <span className="text-[14px] font-medium text-cyan-400">
 
       {trade.holdingDays != null
 
@@ -427,9 +427,9 @@ const handleSelectTrade =
 
                       {/* TYPE */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
+                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5">
 
-                        <div className="inline-flex items-center justify-center rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-[8px]">
+                       <div className="inline-flex h-[25px] w-[80px] -translate-y-1 items-center justify-center rounded-full border border-blue-500/20 bg-blue-500/10">
 
                           <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-blue-400">
                             {trade.assetType ||
@@ -440,10 +440,10 @@ const handleSelectTrade =
 
                       {/* SIDE */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
+                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5">
 
                         <div
-                          className={`inline-flex items-center justify-center rounded-full px-4 py-[8px] ${
+                          className={`inline-flex h-[25px] w-[60px] -translate-y-1 items-center justify-center rounded-full px-4 py-[8px] ${
                             trade.side ===
                             "LONG"
                               ? "border border-emerald-500/20 bg-emerald-500/10"
@@ -452,7 +452,7 @@ const handleSelectTrade =
                         >
 
                           <span
-                            className={`text-[12px] font-bold uppercase tracking-[0.14em] ${
+                            className={`text-[11px] font-bold uppercase tracking-[0.14em] ${
                               trade.side ===
                               "LONG"
                                 ? "text-emerald-400"
@@ -466,7 +466,7 @@ const handleSelectTrade =
 
                       {/* ENTRY */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400">
+                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
 
                         {trade.entryPrice > 0
                         ? formatCurrency(
@@ -480,7 +480,7 @@ const handleSelectTrade =
 
                       {/* EXIT */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[16px] font-medium text-slate-400">
+                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
 
                       {trade.exitPrice != null ? (
 
@@ -513,7 +513,7 @@ const handleSelectTrade =
 
                       {/* QTY */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[17px] font-medium text-slate-400">
+                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[14px] font-medium text-slate-400">
 
                         {trade.quantity}
                       </div>
@@ -521,7 +521,7 @@ const handleSelectTrade =
                       {/* PNL */}
 
                       <div
-                        className={`flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[18px] font-black tracking-tight ${
+                        className={`flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[15px] font-black tracking-tight ${
                           isWinner
                             ? "text-emerald-600"
                             : isOpen
@@ -545,7 +545,7 @@ const handleSelectTrade =
 
                       {/* COMMISSION */}
 
-                      <div className="flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[17px] font-semibold text-orange-700">
+                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[15px] font-semibold text-orange-700">
 
                         {formatCurrency(
   Number(
@@ -558,12 +558,12 @@ const handleSelectTrade =
 
                       {/* STATUS */}
 
-                      <div className="relative left-[-10px] flex h-[50px] items-center justify-center border-b border-white/[0.04] px-5">
+                      <div className="relative left-[-10px] flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5">
 
                         {/* STATUS BADGE */}
 
                         <div
-                          className={`flex h-[32px] w-[92px] items-center justify-center rounded-full px-4 py-[8px] ${
+                          className={`flex h-[30px] w-[80px] -translate-y-1 items-center justify-center rounded-full px-4 py-[8px] ${
                             isOpen
                               ? "border border-yellow-500/20 bg-yellow-500/10"
                               : "border border-slate-500/20 bg-slate-500/10"
