@@ -390,7 +390,7 @@ useEffect(() => {
         {/* HEADER */}
         {/* ================================================= */}
 
-        <div className="flex h-[90px] items-center justify-between border-b border-white/[0.05] px-8 pb-4">
+        <div className="flex h-[50px] translate-y-3 items-center justify-between border-b border-white/[0.05] px-8 pb-4">
 
           <div className="relative left-3">
 
@@ -409,13 +409,13 @@ useEffect(() => {
 {/* HEADER ACTIONS */}
 {/* ================================================= */}
 
-<div className="relative right-8 flex items-center gap-4">
+<div className="relative -translate-y-1 right-8 flex items-center gap-4">
 
   <button
     onClick={() =>
       setIsAddTradeOpen(true)
     }
-    className="flex h-[40px] min-w-[110px] items-center justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-200 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
+    className="flex h-[36px] min-w-[90px] items-center  justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-200 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
   >
     Add Trade
   </button>
@@ -429,7 +429,11 @@ useEffect(() => {
 </div>
 
 </div>
+{/* ===================================== */}
+{/* INVISIBLE SPACER */}
+{/* ===================================== */}
 
+<div className="h-[24px]" />
 {/* ================================================= */}
 {/* CONTENT */}
 {/* ================================================= */}

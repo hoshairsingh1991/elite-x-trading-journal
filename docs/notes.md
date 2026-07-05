@@ -199,6 +199,7 @@ git commit -m "fix(storage): paginate Supabase execution loading for complete tr
 git commit -m "feat(execution-engine): add canonical execution timestamps and scalable reconstruction -  execution time stamp is introduced here. 
 
 git commit -m "feat(settings): finalize responsive layout and complete execution engine improvements -  fix settinga nd trades page to 100% zoom
+git commit -m "style(ui): finalize layout spacing and responsive polish -  few more adjustmenst in trade history page
 
 
 ------------------------------------------------------------------

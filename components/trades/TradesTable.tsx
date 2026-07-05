@@ -227,7 +227,7 @@ const handleSelectTrade =
 
                 <div
                   key={header}
-                  className={`flex h-[40px] items-center justify-center border-b border-white/[0.05] px-5 text-center text-[14px] font-bold tracking-[0.02em] text-slate-400 ${
+                  className={`flex h-[40px]  items-center justify-center border-b border-white/[0.05] px-5 text-center text-[14px] font-bold tracking-[0.02em] text-slate-400 ${
                    header === "Status"
                     ? "relative left-[-12px]"
                     : ""
