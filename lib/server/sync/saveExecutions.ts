@@ -26,6 +26,9 @@ saveExecutions(
         date:
           execution.date,
 
+          execution_timestamp:
+  execution.executionTimestamp,
+
         ticker:
           execution.ticker,
 

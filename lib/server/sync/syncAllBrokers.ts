@@ -34,19 +34,31 @@ syncAllBrokers() {
 
   const results = [];
 
-  for (
-    const broker of brokers || []
-  ) {
+for (
+  const broker of brokers || []
+) {
 
-    const result =
-      await syncBroker(
-        broker
-      );
-
-    results.push(
-      result
+  const result =
+    await syncBroker(
+      broker
     );
-  }
+
+  results.push(
+    result
+  );
+
+  // ==========================================
+  // IBKR FLEX RATE LIMIT PROTECTION
+  // ==========================================
+
+  await new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        3000
+      )
+  );
+}
 
   return results;
 }

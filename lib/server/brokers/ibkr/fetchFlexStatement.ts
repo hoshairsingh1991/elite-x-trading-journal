@@ -31,6 +31,25 @@ fetchFlexStatement(
   const sendRequestUrl =
     `https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest?t=${broker.flex_token}&q=${broker.flex_query_id}&v=3`;
 
+// =================================================
+// REQUEST FLEX REPORT
+// =================================================
+
+const maxSendRequestAttempts =
+  5;
+
+const sendRequestRetryDelay =
+  3000;
+
+let referenceCode:
+  string | undefined;
+
+for (
+  let attempt = 1;
+  attempt <= maxSendRequestAttempts;
+  attempt++
+) {
+
   const sendResponse =
     await fetch(
       sendRequestUrl
@@ -39,19 +58,57 @@ fetchFlexStatement(
   const sendXml =
     await sendResponse.text();
 
-  const referenceCode =
+
+  referenceCode =
     extractReferenceCode(
       sendXml
     );
 
   if (
-    !referenceCode
+    referenceCode
   ) {
 
-    throw new Error(
-      "Failed to retrieve reference code"
-    );
+    break;
   }
+
+  // =============================================
+  // IBKR RATE LIMIT
+  // =============================================
+
+  if (
+    sendXml.includes(
+      "<ErrorCode>1018</ErrorCode>"
+    )
+  ) {
+
+    console.log(
+      `IBKR rate limit hit. Retrying (${attempt}/${maxSendRequestAttempts})...`
+    );
+
+await sleep(
+  sendRequestRetryDelay
+);
+
+    continue;
+  }
+
+console.error(
+  sendXml
+);
+
+throw new Error(
+  "Failed to retrieve reference code"
+);
+}
+
+if (
+  !referenceCode
+) {
+
+throw new Error(
+  `IBKR Flex SendRequest failed after ${maxSendRequestAttempts} attempts due to repeated rate limiting.`
+);
+}
 
   let finalXml =
     "";
@@ -59,14 +116,14 @@ fetchFlexStatement(
   let reportReady =
     false;
 
-  const maxAttempts =
-    10;
+const maxStatementPollAttempts =
+  10;
 
-  for (
-    let attempt = 0;
-    attempt < maxAttempts;
-    attempt++
-  ) {
+for (
+  let attempt = 0;
+  attempt < maxStatementPollAttempts;
+  attempt++
+) {
 
     const getStatementUrl =
       `https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement?q=${referenceCode}&t=${broker.flex_token}&v=3`;
