@@ -14,6 +14,8 @@ from "@/components/layout/Sidebar";
 import Topbar
 from "@/components/layout/Topbar";
 
+import { RefreshCw } from "lucide-react";
+
 const tabs = [
   "Profile",
   "Security",
@@ -558,58 +560,29 @@ transition-all
   <button
   onClick={handleSyncNow}
   disabled={isSyncing}
-  className="
-    inline-flex
-    items-center
-    justify-center
-    w-[120px]
-    h-[40px]
-    rounded-xl
-    border
-    border-white/10
-    text-[16px]
-    font-semibold
-    transition-all
-    disabled:opacity-50
-  "
+className="
+inline-flex
+items-center
+justify-center
+gap-2
+w-[120px]
+h-[40px]
+rounded-xl
+border
+border-white/10
+text-[16px]
+font-semibold
+transition-all
+disabled:opacity-50
+"
 >
-  <svg
-className={`relative left-[-6px] mr-3 h-4 w-4 text-emerald-400 ${
-  isSyncing ? "animate-spin" : ""
-}`}
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-  >
-    <path
-      d="M4 4v6h6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M20 20v-6h-6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M20 9a8 8 0 00-13.66-5.66L4 6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M4 15a8 8 0 0013.66 5.66L20 18"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+<RefreshCw
+  className={`h-4 w-4 text-emerald-400 ${
+    isSyncing
+      ? "animate-spin"
+      : ""
+  }`}
+/>
 
   <span>
     {isSyncing

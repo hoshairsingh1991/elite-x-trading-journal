@@ -201,6 +201,13 @@ git commit -m "feat(execution-engine): add canonical execution timestamps and sc
 git commit -m "feat(settings): finalize responsive layout and complete execution engine improvements -  fix settinga nd trades page to 100% zoom
 git commit -m "style(ui): finalize layout spacing and responsive polish -  few more adjustmenst in trade history page
 
+git commit -m "Improve IBKR Flex sync reliability and execution timestamp support"
+Broker Sync
+✅ Fixed missing execution_timestamp during Flex sync.
+✅ CSV Import and Flex Sync now produce identical execution models.
+
+git commit -m "Improve IBKR Flex sync reliability and broker synchronization" -  Sync button icon change
+
 
 ------------------------------------------------------------------
 
