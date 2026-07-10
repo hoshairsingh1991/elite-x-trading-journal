@@ -1,0 +1,368 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { X } from "lucide-react";
+
+import DateRangePicker from "@/components/shared/DateRangePicker";
+
+interface ExportExpenseDrawerProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const headerPaddingX = "px-7";
+const headerPaddingTop = "pt-6";
+const headerPaddingBottom = "pb-5";
+
+const titleX = "translate-x-3";
+const titleY = "translate-y-2";
+
+const subtitleX = "translate-x-3";
+const subtitleY = "translate-y-3";
+
+const closeButtonX = "-translate-x-2";
+const closeButtonY = "translate-y-2";
+
+const titleSize = "text-[20px]";
+const subtitleSize = "text-[12px]";
+
+const closeButtonSize = "h-8 w-8";
+const closeIconSize = 20;
+
+const headerDividerY = "translate-y-4";
+
+/* ========================================== */
+/* BODY SPACING */
+/* ========================================== */
+
+const bodyY = "translate-y-3";
+
+const includedSectionY = "translate-y-10";
+
+const additionalColumnsY = "translate-y-10";
+
+/* ========================================== */
+/* REPORTING PERIOD */
+/* ========================================== */
+
+const reportingPeriodX = "translate-x-3";
+
+const reportingPeriodY = "translate-y-3";
+
+const reportingPickerWidth = "min-w-[140px] w-fit";
+
+const reportingPickerX = "translate-x-0";
+
+const reportingPickerY = "translate-y-2";
+
+
+export default function ExportExpenseDrawer({
+  open,
+  onClose,
+}: ExportExpenseDrawerProps) {
+
+      const [
+    selectedPreset,
+    setSelectedPreset,
+  ] = useState("This Year");
+
+  const [
+    startDate,
+    setStartDate,
+  ] = useState<Date | null>(null);
+
+  const [
+    endDate,
+    setEndDate,
+  ] = useState<Date | null>(null);
+
+  useEffect(() => {
+
+  const savedFilter =
+    localStorage.getItem(
+      "expenseExportDateFilter"
+    );
+
+  if (!savedFilter) {
+    return;
+  }
+
+  const parsed =
+    JSON.parse(savedFilter);
+
+  setSelectedPreset(
+    parsed.selectedPreset ??
+      "This Year"
+  );
+
+  setStartDate(
+    parsed.startDate
+      ? new Date(
+          parsed.startDate
+        )
+      : null
+  );
+
+  setEndDate(
+    parsed.endDate
+      ? new Date(
+          parsed.endDate
+        )
+      : null
+  );
+
+}, []);
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "expenseExportDateFilter",
+    JSON.stringify({
+      selectedPreset,
+      startDate,
+      endDate,
+    })
+  );
+
+}, [
+  selectedPreset,
+  startDate,
+  endDate,
+]);
+
+
+return (
+  <>
+    {/* ========================================== */}
+    {/* BACKDROP */}
+    {/* ========================================== */}
+
+    <div
+      onClick={onClose}
+      className={`fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm transition-all duration-300 ${
+        open
+          ? "pointer-events-auto opacity-100"
+          : "pointer-events-none opacity-0"
+      }`}
+    />
+
+    {/* ========================================== */}
+    {/* DRAWER */}
+    {/* ========================================== */}
+
+    <aside
+      className={`fixed right-0 top-0 z-[9999] h-screen w-[620px] max-w-[96vw] overflow-x-hidden border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
+        open ? "translate-x-0" : "translate-x-full"
+      }`}
+    >
+<div className="flex h-full flex-col">
+
+  {/* ========================================== */}
+  {/* HEADER */}
+  {/* ========================================== */}
+
+  <div
+    className={`${headerPaddingX} ${headerPaddingTop} ${headerPaddingBottom}`}
+  >
+    <div className="flex items-start justify-between">
+
+      <div>
+
+        <h2
+          className={`${titleSize} font-bold leading-none tracking-tight text-white transform ${titleX} ${titleY}`}
+        >
+          Export Expense Report
+        </h2>
+
+        <p
+          className={`mt-2 ${subtitleSize} text-slate-400 transform ${subtitleX} ${subtitleY}`}
+        >
+          Generate a professional PDF report for accounting,
+          tax filing, and business records.
+        </p>
+
+      </div>
+
+      <div
+        className={`transform ${closeButtonX} ${closeButtonY}`}
+      >
+        <button
+          onClick={onClose}
+          className={`flex ${closeButtonSize} items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-slate-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white`}
+        >
+          <X size={closeIconSize} />
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  {/* ========================================== */}
+  {/* HEADER DIVIDER */}
+  {/* ========================================== */}
+
+  <div
+    className={`border-b border-white/10 transform ${headerDividerY}`}
+  />
+
+    {/* ========================================== */}
+  {/* BODY */}
+  {/* ========================================== */}
+
+  <div
+  className={`
+    flex-1
+    overflow-y-auto
+    px-7
+    py-6
+    transform
+    ${bodyY}
+  `}
+>
+
+    {/* ====================================== */}
+    {/* REPORTING PERIOD */}
+    {/* ====================================== */}
+
+<section
+  className={`
+    transform
+    ${reportingPeriodX}
+    ${reportingPeriodY}
+  `}
+>
+
+      <h3
+        className="
+          text-[11px]
+          font-semibold
+          uppercase
+          tracking-[0.08em]
+          text-slate-400
+        "
+      >
+        Reporting Period
+      </h3>
+
+<div
+  className={`
+    mt-4
+    transform
+    ${reportingPickerX}
+    ${reportingPickerY}
+  `}
+>
+<DateRangePicker
+  widthClass={reportingPickerWidth}
+  selectedPreset={selectedPreset}
+  onDateRangeChange={(
+    preset,
+    start,
+    end
+  ) => {
+    setSelectedPreset(preset);
+    setStartDate(start);
+    setEndDate(end);
+  }}
+/>
+</div>
+
+    </section>
+
+    {/* ====================================== */}
+    {/* INCLUDED + REPORT PREVIEW */}
+    {/* ====================================== */}
+
+    <section
+  className={`
+    mt-10
+    grid
+    grid-cols-[1fr_190px]
+    gap-8
+    transform
+    ${includedSectionY}
+  `}
+>
+
+      {/* ================================== */}
+      {/* INCLUDED */}
+      {/* ================================== */}
+
+      <div>
+
+        <h3
+          className="
+            text-[11px]
+            font-semibold
+            uppercase
+            tracking-[0.08em]
+            text-slate-400
+          "
+        >
+          Included
+        </h3>
+
+        <div className="mt-5 space-y-4">
+
+          <div className="h-5 rounded bg-white/5" />
+          <div className="h-5 rounded bg-white/5" />
+          <div className="h-5 rounded bg-white/5" />
+          <div className="h-5 rounded bg-white/5" />
+
+        </div>
+
+      </div>
+
+      {/* ================================== */}
+      {/* REPORT PREVIEW */}
+      {/* ================================== */}
+
+      <div>
+
+        <h3
+          className="
+            text-[11px]
+            font-semibold
+            uppercase
+            tracking-[0.08em]
+            text-slate-400
+          "
+        >
+          Report Preview
+        </h3>
+
+        <div
+          className="
+            mt-5
+            rounded-2xl
+            border
+            border-white/10
+            bg-white/[0.03]
+            p-5
+          "
+        >
+
+          <div className="space-y-5">
+
+            <div className="h-4 rounded bg-white/5" />
+            <div className="h-4 rounded bg-white/5" />
+            <div className="h-4 rounded bg-white/5" />
+            <div className="h-4 rounded bg-white/5" />
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+</div>
+    </aside>
+  </>
+);
+}

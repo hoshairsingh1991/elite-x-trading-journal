@@ -46,10 +46,16 @@ import ManualExpensesTable from "@/components/expenses/ManualExpensesTable";
 import ExpensesIntelligenceSection from "@/components/expenses/ExpensesIntelligenceSection";
 import TaxDeductibleSummary from "@/components/expenses/TaxDeductibleSummary";
 import AddExpenseDrawer from "@/components/expenses/AddExpenseDrawer";
+import ExportExpenseDrawer from "@/components/expenses/ExportExpenseDrawer";
 
 export default function ExpensePage() {
 
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+
+  const [
+  isExportDrawerOpen,
+  setIsExportDrawerOpen,
+] = useState(false);
 
 
 const [editingExpense, setEditingExpense] =
@@ -350,24 +356,28 @@ const businessCostAnalytics =
     selectedPreset
   }
 
-  onDateRangeChange={(
-    preset,
-    start,
+onDateRangeChange={(
+  preset,
+  start,
+  end
+) => {
+
+  setSelectedPreset(
+    preset
+  );
+
+  setStartDate(
+    start
+  );
+
+  setEndDate(
     end
-  ) => {
+  );
+}}
 
-    setSelectedPreset(
-      preset
-    );
-
-    setStartDate(
-      start
-    );
-
-    setEndDate(
-      end
-    );
-  }}
+onExport={() => {
+  setIsExportDrawerOpen(true);
+}}
 />
 </div>
 
@@ -476,6 +486,13 @@ trades={filteredTrades}
 </div>
         </div>
       </section>
+
+<ExportExpenseDrawer
+  open={isExportDrawerOpen}
+  onClose={() => {
+    setIsExportDrawerOpen(false);
+  }}
+/>
 <AddExpenseDrawer
   open={isAddExpenseOpen}
   onClose={() => {

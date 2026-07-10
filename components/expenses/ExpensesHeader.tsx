@@ -12,6 +12,8 @@ import DateRangePicker from "@/components/shared/DateRangePicker";
 
 import CurrencyFlag from "@/components/ui/CurrencyFlag";
 
+import { FileDown } from "lucide-react";
+
 /* =====================================================
    REPORTING CURRENCY FINE TUNING
    ===================================================== */
@@ -23,21 +25,22 @@ const reportingContentOffset = "translate-x-3";
 const reportingChevronX = "-translate-x-2";
 const reportingChevronY = "translate-y-1";
 
+
 /* =====================================================
-   LIVE FX FINE TUNING
+   EXPORT PDF FINE TUNING
    ===================================================== */
 
-// Move entire Live FX text block
-const liveFxContentX = "translate-x-5";
-const liveFxContentY = "translate-y-0";
+const exportContentOffset = "translate-x-0";
 
-// Move green status dot
-const liveFxDotX = "translate-x-2";
-const liveFxDotY = "translate-y-0.5";
+const exportIconX = "translate-x-0";
+const exportIconY = "translate-y-0";
 
-// Move info icon
-const liveFxInfoX = "translate-x-0";
-const liveFxInfoY = "translate-y-0";
+const exportTextX = "translate-x-0";
+const exportTextY = "translate-y-0";
+
+const exportWidth = "w-[140px]";
+const exportHeight = "h-[46px]";
+
 
 /* =====================================================
    DATE RANGE FINE TUNING
@@ -65,12 +68,14 @@ interface ExpensesHeaderProps {
     startDate: Date | null,
     endDate: Date | null
   ) => void;
+  onExport: () => void;
 }
 
 export default function ExpensesHeader({
   reportingCurrency,
   selectedPreset,
   onDateRangeChange,
+  onExport,
 }: ExpensesHeaderProps) {
 
   const CURRENCY_FLAGS: Record<
@@ -204,79 +209,6 @@ export default function ExpensesHeader({
 </div>
         </button>
 
-{/* ============================================= */}
-{/* Live FX */}
-{/* ============================================= */}
-
-<div
-  className={`
-    ${liveFxWidth}
-    ${liveFxHeight}
-
-    rounded-2xl
-    border
-    border-white/10
-    bg-white/[0.03]
-
-    px-5
-
-    transition-all
-    duration-200
-
-    hover:border-white/20
-    hover:bg-white/[0.05]
-
-    flex
-    items-center
-  `}
->
-  {/* Green Dot */}
-  <div
-    className={`
-      mr-2
-      h-2.5
-      w-2.5
-      rounded-full
-      bg-emerald-400
-
-      ${liveFxDotX}
-      ${liveFxDotY}
-    `}
-  />
-
-  {/* Text */}
-  <div
-    className={`
-      flex
-      flex-col
-      justify-center
-
-      ${liveFxContentX}
-      ${liveFxContentY}
-    `}
-  >
-    <span className="text-[13px] font-semibold leading-none text-white">
-      Live FX
-    </span>
-
-    <div className="mt-[3px] flex items-center gap-1">
-      <span className="text-[10px] text-slate-400">
-        ECB Daily Rates
-      </span>
-
-      <CircleHelp
-        className={`
-          h-3
-          w-3
-          text-slate-500
-
-          ${liveFxInfoX}
-          ${liveFxInfoY}
-        `}
-      />
-    </div>
-  </div>
-</div>
 
 {/* ============================================= */}
 {/* Date Range */}
@@ -290,6 +222,86 @@ export default function ExpensesHeader({
     onDateRangeChange
   }
 />
+
+{/* ============================================= */}
+{/* EXPORT PDF */}
+{/* ============================================= */}
+
+<button
+  type="button"
+onClick={onExport}
+  className={`
+    ${exportWidth}
+    ${exportHeight}
+
+    rounded-2xl
+    border
+    border-sky-500/20
+
+    bg-white/[0.03]
+
+    px-5
+
+    transition-all
+    duration-200
+
+    hover:border-sky-400/40
+    hover:bg-sky-500/[0.05]
+    hover:shadow-[0_0_16px_rgba(14,165,233,0.10)]
+
+    flex
+    items-center
+    justify-center
+  `}
+>
+  <div className="flex items-center gap-2.5">
+
+    {/* Icon Badge */}
+
+    <div
+      className="
+        flex
+        h-6
+        w-6
+        items-center
+        justify-center
+
+        rounded-md
+
+        border
+        border-sky-500/20
+
+        bg-sky-500/15
+      "
+    >
+      <FileDown
+        size={13}
+        className={`
+          text-sky-400
+          ${exportIconX}
+          ${exportIconY}
+        `}
+      />
+    </div>
+
+    {/* Text */}
+
+    <span
+      className={`
+        text-[13px]
+        font-bold
+        tracking-[-0.01em]
+        text-white
+
+        ${exportTextX}
+        ${exportTextY}
+      `}
+    >
+      Export PDF
+    </span>
+
+  </div>
+</button>
 
 {/* ============================================= */}
 {/* USER MENU */}

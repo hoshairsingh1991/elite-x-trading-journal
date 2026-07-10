@@ -26,12 +26,15 @@ interface DateRangePickerProps {
     endDate: Date | null
   ) => void;
 
+  widthClass?: string;
+
 }
 
 export default function DateRangePicker({
 
   selectedPreset,
   onDateRangeChange,
+  widthClass,
 
 }: DateRangePickerProps) {
 
@@ -49,7 +52,7 @@ const [dateRange, setDateRange] =
 const dateIconX = "translate-x-2";
 const dateIconY = "translate-y-0";
 
-const dateLabelX = "translate-x-0";
+const dateLabelX = "translate-x-1";
 const dateLabelY = "translate-y-0";
 
 const dateValueX = "-translate-x-2";
@@ -59,7 +62,9 @@ const dateValueY = "translate-y-0";
    DATE BUTTON SIZE
    ===================================================== */
 
-const dateButtonWidth = "w-[200px]";
+const dateButtonWidth =
+  widthClass ??
+  "min-w-[140px] w-fit";
 const dateButtonHeight = "h-[46px]";
 
 
@@ -125,9 +130,10 @@ const calendarAreaY = "translate-y-2";
       ${dateButtonWidth}
       ${dateButtonHeight}
 
-      flex
-      items-center
-      justify-between
+inline-flex
+items-center
+justify-between
+gap-6
 
       rounded-2xl
       border
@@ -147,25 +153,30 @@ const calendarAreaY = "translate-y-2";
       hover:bg-white/[0.05]
     `}
   >
-         <CalendarIcon
-  size={16}
-  className={`
-    ${dateIconX}
-    ${dateIconY}
-  `}
-/>
+<div className="flex items-center gap-3">
 
-          <span
-  className={`
-    ${dateLabelX}
-    ${dateLabelY}
-  `}
->
-  Date Range
-</span>
+  <CalendarIcon
+    size={16}
+    className={`
+      ${dateIconX}
+      ${dateIconY}
+    `}
+  />
 
-          <span
+  <span
+    className={`
+      ${dateLabelX}
+      ${dateLabelY}
+    `}
+  >
+    Date Range
+  </span>
+
+</div>
+
+<span
   className={`
+    whitespace-nowrap
     text-slate-500
 
     ${dateValueX}

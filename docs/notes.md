@@ -210,6 +210,8 @@ git commit -m "Improve IBKR Flex sync reliability and broker synchronization" - 
 
 git commit -m "Create scalable PDF reporting architecture" -  PDF Export starts here
 
+git commit -m "checkpoint/export-expense-drawer-foundation-v1" -  Date picker auto adjust, export button work. header is good and date picker is good.
+
 
 ------------------------------------------------------------------
 
