@@ -208,6 +208,8 @@ Broker Sync
 
 git commit -m "Improve IBKR Flex sync reliability and broker synchronization" -  Sync button icon change
 
+git commit -m "Create scalable PDF reporting architecture" -  PDF Export starts here
+
 
 ------------------------------------------------------------------
 
