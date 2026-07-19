@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-import { X } from "lucide-react";
+import {
+  X,
+  Check,
+  PieChart,
+  FileText,
+  LayoutGrid,
+  Info,
+} from "lucide-react";
 
 import DateRangePicker from "@/components/shared/DateRangePicker";
 
@@ -43,6 +50,22 @@ const includedSectionY = "translate-y-10";
 const additionalColumnsY = "translate-y-10";
 
 /* ========================================== */
+/* INCLUDED SECTION */
+/* ========================================== */
+
+const includedTitleX = "translate-x-3";
+const includedTitleY = "translate-y-0";
+
+const includedContentX = "translate-x-3";
+const includedContentY = "translate-y-2";
+
+const includedCheckX = "translate-x-1.5";
+
+const includedCardSpacing = "space-y-5";
+
+const includedIconX = "translate-x-0.5";
+
+/* ========================================== */
 /* REPORTING PERIOD */
 /* ========================================== */
 
@@ -55,6 +78,37 @@ const reportingPickerWidth = "min-w-[140px] w-fit";
 const reportingPickerX = "translate-x-0";
 
 const reportingPickerY = "translate-y-2";
+
+
+
+/* ========================================== */
+/* REPORT CONTENT */
+/* ========================================== */
+
+const REPORT_CONTENT = [
+  {
+    id: "expense-summary",
+    label: "Expense Summary",
+    icon: PieChart,
+  },
+  {
+    id: "expense-details",
+    label: "Expense Details",
+    icon: FileText,
+  },
+  {
+    id: "category-summary",
+    label: "Category Summary",
+    icon: LayoutGrid,
+  },
+  {
+    id: "report-information",
+    label: "Report Information",
+    icon: Info,
+  },
+];
+
+
 
 
 export default function ExportExpenseDrawer({
@@ -233,17 +287,17 @@ return (
   `}
 >
 
-      <h3
-        className="
-          text-[11px]
-          font-semibold
-          uppercase
-          tracking-[0.08em]
-          text-slate-400
-        "
-      >
-        Reporting Period
-      </h3>
+<h3
+  className="
+    text-[11px]
+    font-semibold
+    uppercase
+    tracking-[0.08em]
+    text-slate-400
+  "
+>
+  Reporting Period
+</h3>
 
 <div
   className={`
@@ -291,26 +345,121 @@ return (
 
       <div>
 
-        <h3
+<h3
+  className={`
+    text-[11px]
+    font-semibold
+    uppercase
+    tracking-[0.08em]
+    text-slate-400
+    transform
+    ${includedTitleX}
+    ${includedTitleY}
+  `}
+>
+  Report Content
+</h3>
+
+<div
+  className={`
+    mt-5
+    w-[60%]
+
+    transform
+    ${includedContentX}
+    ${includedContentY}
+
+    ${includedCardSpacing}
+  `}
+>
+
+  {REPORT_CONTENT.map((item) => {
+
+    const Icon = item.icon;
+
+return (
+
+  <div key={item.id}>
+
+    <div
+      className="
+        flex
+        h-[50px]
+        items-center
+        gap-4
+
+        rounded-xl
+
+        border
+        border-white/[0.05]
+
+        bg-white/[0.035]
+
+        px-5
+      "
+    >
+
+        {/* Check */}
+
+        <div
+          className={`
+            mr-2
+
+            flex
+            h-6
+            w-6
+            shrink-0
+            items-center
+            justify-center
+
+            rounded-[8px]
+
+            bg-slate-600
+
+            transform
+            ${includedCheckX}
+          `}
+        >
+          <Check
+            size={15}
+            className="text-white"
+          />
+        </div>
+
+        {/* Icon */}
+
+<Icon
+  size={17}
+  className={`
+    text-slate-400
+    transform
+    ${includedIconX}
+  `}
+/>
+
+        {/* Label */}
+
+        <span
           className="
-            text-[11px]
-            font-semibold
-            uppercase
-            tracking-[0.08em]
-            text-slate-400
+            text-[15px]
+            font-medium
+            text-slate-200
           "
         >
-          Included
-        </h3>
+          {item.label}
+        </span>
 
-        <div className="mt-5 space-y-4">
+    </div>
 
-          <div className="h-5 rounded bg-white/5" />
-          <div className="h-5 rounded bg-white/5" />
-          <div className="h-5 rounded bg-white/5" />
-          <div className="h-5 rounded bg-white/5" />
+    <div className="h-2" />
 
-        </div>
+  </div>
+
+);
+
+  })}
+
+</div>
 
       </div>
 

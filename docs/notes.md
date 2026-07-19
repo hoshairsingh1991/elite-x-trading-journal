@@ -212,7 +212,7 @@ git commit -m "Create scalable PDF reporting architecture" -  PDF Export starts 
 
 git commit -m "checkpoint/export-expense-drawer-foundation-v1" -  Date picker auto adjust, export button work. header is good and date picker is good.
 
-
+git commit -m "checkpoint(export-drawer-v2): complete report content section and independent export date picker"
 ------------------------------------------------------------------
 
 Status:
