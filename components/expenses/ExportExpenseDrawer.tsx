@@ -9,6 +9,8 @@ import {
   FileText,
   LayoutGrid,
   Info,
+  Calendar,
+  Flag,
 } from "lucide-react";
 
 import DateRangePicker from "@/components/shared/DateRangePicker";
@@ -79,7 +81,41 @@ const reportingPickerX = "translate-x-0";
 
 const reportingPickerY = "translate-y-2";
 
+/* ========================================== */
+/* REPORT PREVIEW */
+/* ========================================== */
 
+const previewTitleX = "-translate-x-18";
+const previewTitleY = "translate-y-0";
+
+const previewCardX = "-translate-x-18";
+const previewCardY = "translate-y-2";
+
+const previewIconX = "translate-x-2";
+const previewIconY = "translate-y-2";
+
+const previewValueX = "translate-x-4";
+const previewValueY = "translate-y-2";
+
+const previewLabelX = "translate-x-4";
+const previewLabelY = "translate-y-2";
+
+const previewCardWidth = "w-[120%]";
+const previewCardHeight = "h-[270px]";
+
+const previewDividerX = "translate-x-0";
+const previewDividerY = "translate-y-1";
+
+const previewFooterX = "translate-x-4";
+const previewFooterY = "translate-y-3";
+
+const previewFooterIconX = "translate-x-0";
+const previewFooterIconY = "translate-y-0";
+
+const previewFooterTextX = "translate-x-0";
+const previewFooterTextY = "translate-y-0";
+
+const previewItemSpacing = "h-3";
 
 /* ========================================== */
 /* REPORT CONTENT */
@@ -185,6 +221,36 @@ useEffect(() => {
   endDate,
 ]);
 
+/* ========================================== */
+/* REPORT PREVIEW DATA */
+/* ========================================== */
+
+const previewItems = [
+  {
+    icon: FileText,
+    value: "0",
+    label: "Expenses",
+    color: "bg-blue-600/20 text-blue-300",
+  },
+  {
+    icon: LayoutGrid,
+    value: "0",
+    label: "Categories",
+    color: "bg-violet-600/20 text-violet-300",
+  },
+  {
+    icon: Calendar,
+    value: selectedPreset,
+    label: "Date Range",
+    color: "bg-emerald-600/20 text-emerald-300",
+  },
+  {
+    icon: Flag,
+    value: "USD",
+    label: "Reporting Currency",
+    color: "bg-amber-600/20 text-amber-300",
+  },
+];
 
 return (
   <>
@@ -206,7 +272,7 @@ return (
     {/* ========================================== */}
 
     <aside
-      className={`fixed right-0 top-0 z-[9999] h-screen w-[620px] max-w-[96vw] overflow-x-hidden border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
+      className={`fixed right-0 top-0 z-[9999] h-screen w-[560px] max-w-[96vw] overflow-x-hidden border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
         open ? "translate-x-0" : "translate-x-full"
       }`}
     >
@@ -363,7 +429,7 @@ return (
 <div
   className={`
     mt-5
-    w-[60%]
+    w-[74%]
 
     transform
     ${includedContentX}
@@ -469,39 +535,185 @@ return (
 
       <div>
 
-        <h3
-          className="
-            text-[11px]
-            font-semibold
-            uppercase
-            tracking-[0.08em]
-            text-slate-400
-          "
-        >
-          Report Preview
-        </h3>
+<h3
+  className={`
+    text-[11px]
+    font-semibold
+    uppercase
+    tracking-[0.08em]
+    text-slate-400
+
+    transform
+    ${previewTitleX}
+    ${previewTitleY}
+  `}
+>
+  Report Preview
+</h3>
+
+<div
+  className={`
+    mt-5
+
+    ${previewCardWidth}
+    ${previewCardHeight}
+
+    rounded-2xl
+    border
+    border-white/10
+
+    bg-white/[0.03]
+
+    p-5
+
+    transform
+    ${previewCardX}
+    ${previewCardY}
+  `}
+>
+
+  <div>
+
+    {previewItems.map((item) => {
+
+      const Icon = item.icon;
+
+return (
+
+  <div key={item.label}>
+
+    <div className="flex items-start gap-3">
+
+      {/* Icon */}
+
+      <div
+        className={`
+          flex
+          h-9
+          w-9
+          shrink-0
+          items-center
+          justify-center
+
+          rounded-xl
+
+          ${item.color}
+
+          transform
+          ${previewIconX}
+          ${previewIconY}
+        `}
+      >
+        <Icon size={17} />
+      </div>
+
+      {/* Text */}
+
+      <div>
 
         <div
-          className="
-            mt-5
-            rounded-2xl
-            border
-            border-white/10
-            bg-white/[0.03]
-            p-5
-          "
+          className={`
+            text-[15px]
+            font-semibold
+            text-white
+
+            transform
+            ${previewValueX}
+            ${previewValueY}
+          `}
         >
-
-          <div className="space-y-5">
-
-            <div className="h-4 rounded bg-white/5" />
-            <div className="h-4 rounded bg-white/5" />
-            <div className="h-4 rounded bg-white/5" />
-            <div className="h-4 rounded bg-white/5" />
-
-          </div>
-
+          {item.value}
         </div>
+
+        <div
+          className={`
+            mt-1
+            text-[12px]
+            text-slate-400
+
+            transform
+            ${previewLabelX}
+            ${previewLabelY}
+          `}
+        >
+          {item.label}
+        </div>
+
+      </div>
+
+    </div>
+
+    <div className={previewItemSpacing} />
+
+  </div>
+
+);
+
+    })}
+
+  </div>
+
+  {/* Divider */}
+
+  <div
+  className={`
+    my-5
+    border-t
+    border-white/10
+
+    transform
+    ${previewDividerX}
+    ${previewDividerY}
+  `}
+/>
+
+  {/* Footer */}
+
+  <div
+  className={`
+    flex
+    items-start
+    gap-2
+
+    transform
+    ${previewFooterX}
+    ${previewFooterY}
+  `}
+>
+
+<Info
+  size={15}
+  className={`
+    mt-[2px]
+    text-slate-500
+
+    transform
+    ${previewFooterIconX}
+    ${previewFooterIconY}
+  `}
+/>
+
+<p
+  className={`
+    max-w-[175px]
+
+    text-[11px]
+    leading-5
+    text-slate-500
+
+    transform
+    ${previewFooterTextX}
+    ${previewFooterTextY}
+  `}
+>
+      Preview is based on the current
+      filters and export
+      selections.
+    </p>
+
+  </div>
+
+</div>
 
       </div>
 
