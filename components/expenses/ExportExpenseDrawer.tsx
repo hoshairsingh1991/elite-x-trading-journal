@@ -15,6 +15,10 @@ import {
   Building2,
   Percent,
   Tag,
+  File,
+Table2,
+FileBadge,
+Clock3,
   DollarSign,
   FileCheck,
   RotateCw,
@@ -110,7 +114,6 @@ const previewLabelY = "translate-y-2";
 const previewCardWidth = "w-[120%]";
 const previewCardHeight = "h-[220px]";
 
-
 const previewItemSpacing = "h-3";
 
 /* ========================================== */
@@ -138,12 +141,145 @@ const additionalDividerWidth = "w-[80%]";
 const additionalDividerX = "translate-x-2";
 const additionalDividerY = "-translate-y-14";
 
+
+
+/* ========================================== */
+/* ESTIMATED OUTPUT */
+/* ========================================== */
+
+/* Title */
+
+const estimatedTitleX = "-translate-x-86";
+const estimatedTitleY = "translate-y-96";
+
+/* Card */
+
+const estimatedCardWidth = "w-[276%]";
+const estimatedCardHeight = "min-h-[160px]";
+
+const estimatedCardX = "-translate-x-87";
+const estimatedCardY = "translate-y-98";
+
+/* ========================================== */
+/* TOTAL PAGES */
+/* ========================================== */
+
+const pagesX = "translate-x-1";
+const pagesY = "translate-y-4";
+
+const pagesIconX = "translate-x-0";
+const pagesIconY = "translate-y-0";
+
+const pagesLabelX = "translate-x-2";
+const pagesLabelY = "translate-y-0";
+
+const pagesValueX = "translate-x-2";
+const pagesValueY = "translate-y-3";
+
+const pagesCaptionX = "translate-x-2";
+const pagesCaptionY = "translate-y-5";
+
+/* ========================================== */
+/* TOTAL COLUMNS */
+/* ========================================== */
+
+const columnsX = "translate-x-0";
+const columnsY = "translate-y-4";
+
+const columnsIconX = "translate-x-0";
+const columnsIconY = "translate-y-0";
+
+const columnsLabelX = "translate-x-2";
+const columnsLabelY = "translate-y-0";
+
+const columnsValueX = "translate-x-2";
+const columnsValueY = "translate-y-3";
+
+
+/* ========================================== */
+/* PDF SIZE */
+/* ========================================== */
+
+const pdfSizeX = "-translate-x-2";
+const pdfSizeY = "translate-y-4";
+
+const pdfSizeIconX = "translate-x-0";
+const pdfSizeIconY = "translate-y-0";
+
+const pdfSizeLabelX = "translate-x-2";
+const pdfSizeLabelY = "translate-y-0";
+
+const pdfSizeValueX = "translate-x-2";
+const pdfSizeValueY = "translate-y-3";
+
+const pdfSizeCaptionX = "translate-x-2";
+const pdfSizeCaptionY = "translate-y-5";
+
+/* ========================================== */
+/* GENERATED ON */
+/* ========================================== */
+
+const generatedOnX = "-translate-x-2";
+const generatedOnY = "translate-y-4";
+
+const generatedOnIconX = "-translate-x-1";
+const generatedOnIconY = "translate-y-0";
+
+const generatedOnLabelX = "translate-x-0";
+const generatedOnLabelY = "translate-y-0";
+
+const generatedOnValueX = "translate-x-0";
+const generatedOnValueY = "translate-y-3";
+
+const generatedOnCaptionX = "translate-x-0";
+const generatedOnCaptionY = "translate-y-5";
+
+/* ========================================== */
+/* DIVIDER 1 */
+/* ========================================== */
+
+const divider1X = "translate-x-2";
+const divider1Y = "translate-y-4";
+const divider1Height = "h-[92px]";
+
+/* ========================================== */
+/* DIVIDER 2 */
+/* ========================================== */
+
+const divider2X = "translate-x-0";
+const divider2Y = "translate-y-4";
+const divider2Height = "h-[92px]";
+
+/* ========================================== */
+/* DIVIDER 3 */
+/* ========================================== */
+
+const divider3X = "-translate-x-1";
+const divider3Y = "translate-y-4";
+const divider3Height = "h-[92px]";
+
+/* ========================================== */
+/* BOTTOM DIVIDER */
+/* ========================================== */
+
+const estimatedBottomDividerX = "translate-x-0";
+const estimatedBottomDividerY = "translate-y-6";
+
+/* ========================================== */
+/* FOOTER */
+/* ========================================== */
+
+const estimatedFooterX = "translate-x-3";
+const estimatedFooterY = "translate-y-8";
+
+
 const footerDividerX = "translate-x-0";
-const footerDividerY = "-translate-y-9";
+const footerDividerY = "-translate-y-0";
+
 const footerDividerWidth = "w-full";
 
 const footerContentX = "translate-x-0";
-const footerContentY = "-translate-y-5";
+const footerContentY = "translate-y-0";
 
 const footerButtonGap = "gap-6";
 
@@ -151,7 +287,12 @@ const cancelButtonWidth = "w-[120px]";
 const exportButtonWidth = "w-[170px]";
 
 const cancelButtonX = "-translate-x-4";
+const cancelButtonY = "translate-y-2";
+
 const exportButtonX = "-translate-x-4";
+const exportButtonY = "translate-y-2";
+
+
 
 /* ========================================== */
 /* REPORT CONTENT */
@@ -306,6 +447,18 @@ useEffect(() => {
   endDate,
 ]);
 
+useEffect(() => {
+  if (open) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [open]);
+
 /* ========================================== */
 /* REPORT PREVIEW DATA */
 /* ========================================== */
@@ -337,6 +490,38 @@ const previewItems = [
   },
 ];
 
+
+const estimatedItems = [
+  {
+    icon: File,
+    value: "0",
+    label: "Total Pages",
+    caption: "Estimated",
+    color: "text-emerald-400",
+  },
+{
+  icon: Table2,
+  value: "0",
+  label: "Total Columns",
+  caption: "",
+  color: "text-violet-400",
+},
+  {
+    icon: FileBadge,
+    value: "~0 KB",
+    label: "PDF Size",
+    caption: "Estimated",
+    color: "text-amber-400",
+  },
+{
+  icon: Clock3,
+  value: "Today",
+  label: "Generated On",
+  caption: "Today",
+  color: "text-blue-400",
+},
+];
+
 return (
   <>
     {/* ========================================== */}
@@ -356,11 +541,28 @@ return (
     {/* DRAWER */}
     {/* ========================================== */}
 
-    <aside
-      className={`fixed right-0 top-0 z-[9999] h-screen w-[560px] max-w-[96vw] overflow-x-hidden border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
-        open ? "translate-x-0" : "translate-x-full"
-      }`}
-    >
+<aside
+  className={`
+    fixed
+    inset-y-0
+    right-0
+    z-[9999]
+
+    w-[560px]
+    max-w-[96vw]
+
+    overflow-hidden
+
+    border-l
+    border-white/10
+    bg-[#07111d]
+
+    transition-transform
+    duration-300
+
+    ${open ? "translate-x-0" : "translate-x-full"}
+  `}
+>
 <div className="flex h-full flex-col">
 
   {/* ========================================== */}
@@ -422,7 +624,8 @@ return (
     overflow-x-hidden
 
     px-7
-    py-6
+    pt-6
+    pb-32
 
     transform
     ${bodyY}
@@ -886,24 +1089,481 @@ return (
 
 </div>
 
-    </section>
+{/* ================================== */}
+{/* ESTIMATED OUTPUT */}
+{/* ================================== */}
+
+<div className="mt-10">
+
+  {/* Title */}
+
+  <h3
+    className={`
+      text-[11px]
+      font-semibold
+      uppercase
+      tracking-[0.08em]
+      text-slate-400
+
+      transform
+      ${estimatedTitleX}
+      ${estimatedTitleY}
+    `}
+  >
+    Estimated Output
+  </h3>
+
+  {/* Card */}
+
+  <div
+    className={`
+      mt-5
+
+      ${estimatedCardWidth}
+      ${estimatedCardHeight}
+
+      rounded-2xl
+      border
+      border-white/10
+
+      bg-white/[0.03]
+
+      p-6
+
+      transform
+      ${estimatedCardX}
+      ${estimatedCardY}
+    `}
+  >
+
+    <div className="flex items-start justify-between">
+
+      {/* ================================== */}
+      {/* TOTAL PAGES */}
+      {/* ================================== */}
+
+      <div
+        className={`
+          flex
+          items-start
+
+          transform
+          ${pagesX}
+          ${pagesY}
+        `}
+      >
+
+        <File
+          size={30}
+          className={`
+            mt-1
+            shrink-0
+            text-emerald-400
+
+            transform
+            ${pagesIconX}
+            ${pagesIconY}
+          `}
+        />
+
+        <div className="ml-4 flex flex-col">
+
+          <span
+            className={`
+              text-[14px]
+              font-medium
+              text-slate-300
+
+              transform
+              ${pagesLabelX}
+              ${pagesLabelY}
+            `}
+          >
+            Total Pages
+          </span>
+
+          <span
+            className={`
+              mt-2
+              text-[16px]
+              font-semibold
+              text-white
+
+              transform
+              ${pagesValueX}
+              ${pagesValueY}
+            `}
+          >
+            0
+          </span>
+
+          <span
+            className={`
+              mt-2
+              text-[13px]
+              text-slate-400
+
+              transform
+              ${pagesCaptionX}
+              ${pagesCaptionY}
+            `}
+          >
+            Estimated
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* Divider 1 */}
+
+      <div
+        className={`
+          border-r
+          border-white/10
+
+          ${divider1Height}
+
+          transform
+          ${divider1X}
+          ${divider1Y}
+        `}
+      />
+
+      {/* ================================== */}
+      {/* TOTAL COLUMNS */}
+      {/* ================================== */}
+
+      <div
+        className={`
+          flex
+          items-start
+
+          transform
+          ${columnsX}
+          ${columnsY}
+        `}
+      >
+
+        <Table2
+          size={30}
+          className={`
+            mt-1
+            shrink-0
+            text-violet-400
+
+            transform
+            ${columnsIconX}
+            ${columnsIconY}
+          `}
+        />
+
+        <div className="ml-4 flex flex-col">
+
+          <span
+            className={`
+              text-[14px]
+              font-medium
+              text-slate-300
+
+              transform
+              ${columnsLabelX}
+              ${columnsLabelY}
+            `}
+          >
+            Total Columns
+          </span>
+
+          <span
+            className={`
+              mt-2
+              text-[16px]
+              font-semibold
+              text-white
+
+              transform
+              ${columnsValueX}
+              ${columnsValueY}
+            `}
+          >
+            0
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* Divider 2 */}
+
+      <div
+        className={`
+          border-r
+          border-white/10
+
+          ${divider2Height}
+
+          transform
+          ${divider2X}
+          ${divider2Y}
+        `}
+      />
+
+      {/* ================================== */}
+{/* PDF SIZE */}
+{/* ================================== */}
+
+<div
+  className={`
+    flex
+    items-start
+
+    transform
+    ${pdfSizeX}
+    ${pdfSizeY}
+  `}
+>
+
+  <FileBadge
+    size={30}
+    className={`
+      mt-1
+      shrink-0
+      text-amber-400
+
+      transform
+      ${pdfSizeIconX}
+      ${pdfSizeIconY}
+    `}
+  />
+
+  <div className="ml-4 flex flex-col">
+
+    <span
+      className={`
+        text-[14px]
+        font-medium
+        text-slate-300
+
+        transform
+        ${pdfSizeLabelX}
+        ${pdfSizeLabelY}
+      `}
+    >
+      PDF Size
+    </span>
+
+    <span
+      className={`
+        mt-2
+        text-[16px]
+        font-semibold
+        text-white
+
+        transform
+        ${pdfSizeValueX}
+        ${pdfSizeValueY}
+      `}
+    >
+      ~0 KB
+    </span>
+
+    <span
+      className={`
+        mt-2
+        text-[13px]
+        text-slate-400
+
+        transform
+        ${pdfSizeCaptionX}
+        ${pdfSizeCaptionY}
+      `}
+    >
+      Estimated
+    </span>
 
   </div>
+
+</div>
+
+{/* Divider 3 */}
+
+<div
+  className={`
+    border-r
+    border-white/10
+
+    ${divider3Height}
+
+    transform
+    ${divider3X}
+    ${divider3Y}
+  `}
+/>
+
+{/* ================================== */}
+{/* GENERATED ON */}
+{/* ================================== */}
+
+<div
+  className={`
+    flex
+    items-start
+
+    transform
+    ${generatedOnX}
+    ${generatedOnY}
+  `}
+>
+
+  <Clock3
+    size={30}
+    className={`
+      mt-1
+      shrink-0
+      text-blue-400
+
+      transform
+      ${generatedOnIconX}
+      ${generatedOnIconY}
+    `}
+  />
+
+  <div className="ml-4 flex flex-col">
+
+    <span
+      className={`
+        text-[14px]
+        font-medium
+        text-slate-300
+
+        transform
+        ${generatedOnLabelX}
+        ${generatedOnLabelY}
+      `}
+    >
+      Generated On
+    </span>
+
+    <span
+      className={`
+        mt-2
+        text-[16px]
+        font-semibold
+        text-white
+
+        transform
+        ${generatedOnValueX}
+        ${generatedOnValueY}
+      `}
+    >
+      Today
+    </span>
+
+    <span
+      className={`
+        mt-2
+        text-[13px]
+        text-slate-400
+
+        transform
+        ${generatedOnCaptionX}
+        ${generatedOnCaptionY}
+      `}
+    >
+      Today
+    </span>
+
+  </div>
+
+</div>
+
+</div>
+
+{/* ================================== */}
+{/* BOTTOM DIVIDER */}
+{/* ================================== */}
+
+<div
+  className={`
+    mt-6
+    border-t
+    border-white/10
+
+    transform
+    ${estimatedBottomDividerX}
+    ${estimatedBottomDividerY}
+  `}
+/>
 
 {/* ================================== */}
 {/* FOOTER */}
 {/* ================================== */}
 
-<div className="mt-8">
+<div
+  className={`
+    mt-4
+
+    flex
+    items-center
+    gap-2
+
+    text-[13px]
+    text-slate-400
+
+    transform
+    ${estimatedFooterX}
+    ${estimatedFooterY}
+  `}
+>
+
+  <Info size={16} />
+
+  <span>
+    Estimates are based on current selections and may vary.
+  </span>
+
+</div>
+
+</div>
+
+</div>
+
+
+</section>
+
+
+</div>
+
+{/* ================================== */}
+{/* FIXED FOOTER */}
+{/* ================================== */}
+
+<div
+  className="
+    relative
+    z-20
+
+    shrink-0
+
+    min-h-[62px]
+
+    px-7
+    py-5
+
+    border-t
+    border-white/10
+
+    bg-[#07111d]
+
+    shadow-[0_-12px_24px_rgba(0,0,0,0.35)]
+  "
+>
 
   {/* Divider */}
 
   <div
     className={`
       ${footerDividerWidth}
-
-      border-t
-      border-white/10
 
       transform
       ${footerDividerX}
@@ -916,6 +1576,7 @@ return (
   <div
     className={`
       mt-6
+
       flex
       justify-end
 
@@ -952,6 +1613,7 @@ return (
 
         transform
         ${cancelButtonX}
+        ${cancelButtonY}
       `}
     >
       Cancel
@@ -985,6 +1647,7 @@ return (
 
         transform
         ${exportButtonX}
+        ${exportButtonY}
       `}
     >
       <FileDown size={17} />
@@ -997,7 +1660,8 @@ return (
 </div>
 
 </div>
-    </aside>
-  </>
+
+</aside>
+</>
 );
 }

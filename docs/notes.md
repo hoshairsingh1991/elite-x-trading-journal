@@ -230,6 +230,8 @@ git commit -m "checkpoint/deterministic-execution-window-replacement-v1
 - Phantom open trade issue resolved
 - Sync architecture finalized"
 
+git add .
+git commit -m "checkpoint: export-expense-drawer-ui-final"
 
 ------------------------------------------------------------------
 
