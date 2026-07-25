@@ -155,7 +155,7 @@ const estimatedTitleY = "translate-y-96";
 /* Card */
 
 const estimatedCardWidth = "w-[276%]";
-const estimatedCardHeight = "min-h-[160px]";
+const estimatedCardHeight = "min-h-[150px]";
 
 const estimatedCardX = "-translate-x-87";
 const estimatedCardY = "translate-y-98";
@@ -240,7 +240,7 @@ const generatedOnCaptionY = "translate-y-5";
 
 const divider1X = "translate-x-2";
 const divider1Y = "translate-y-4";
-const divider1Height = "h-[92px]";
+const divider1Height = "h-[88px]";
 
 /* ========================================== */
 /* DIVIDER 2 */
@@ -248,7 +248,7 @@ const divider1Height = "h-[92px]";
 
 const divider2X = "translate-x-0";
 const divider2Y = "translate-y-4";
-const divider2Height = "h-[92px]";
+const divider2Height = "h-[88px]";
 
 /* ========================================== */
 /* DIVIDER 3 */
@@ -256,7 +256,7 @@ const divider2Height = "h-[92px]";
 
 const divider3X = "-translate-x-1";
 const divider3Y = "translate-y-4";
-const divider3Height = "h-[92px]";
+const divider3Height = "h-[88px]";
 
 /* ========================================== */
 /* BOTTOM DIVIDER */
@@ -1533,7 +1533,9 @@ return (
 
 
 </div>
-
+<div className="h-[24px] ">
+  spacer
+</div>
 {/* ================================== */}
 {/* FIXED FOOTER */}
 {/* ================================== */}
