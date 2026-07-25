@@ -10,6 +10,10 @@ import {
   saveExecutions,
 } from "@/lib/server/sync/saveExecutions";
 
+import {
+  deleteExecutionWindow,
+} from "@/lib/server/sync/deleteExecutionWindow";
+
 export async function
 fetchFlex(
   broker: any
@@ -36,19 +40,15 @@ fetchFlex(
     "bytes"
   );
 
-  const executions =
-    await parseIBKRCsv(
-      xml
-    );
+const executions =
+  await parseIBKRCsv(
+    xml
+  );
 
-  await saveExecutions(
-  executions,
-  broker.user_id
-);
+if (executions.length === 0) {
 
   console.log(
-    "PARSED EXECUTIONS:",
-    executions.length
+    "NO EXECUTIONS FOUND. SKIPPING SYNC."
   );
 
   return {
@@ -60,7 +60,45 @@ fetchFlex(
     xmlLength:
       xml.length,
 
-    executionCount:
-      executions.length,
+    executionCount: 0,
   };
+}
+
+const executionDates =
+  Array.from(
+    new Set(
+      executions.map(
+        (execution) =>
+          execution.date
+      )
+    )
+  );
+
+console.log(
+  "PARSED EXECUTIONS:",
+  executions.length
+);
+
+await deleteExecutionWindow(
+  executionDates,
+  broker.user_id
+);
+
+await saveExecutions(
+  executions,
+  broker.user_id
+);
+
+return {
+  success: true,
+
+  brokerAccountId:
+    broker.broker_account_id,
+
+  xmlLength:
+    xml.length,
+
+  executionCount:
+    executions.length,
+};
 }

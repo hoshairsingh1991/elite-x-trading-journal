@@ -687,3 +687,228 @@ Execution Ledger
 Analytics
 
 The execution ledger remains the single source of truth for Elite X.
+
+
+
+# Future Enhancement – Atomic Execution Window Replacement (Optional)
+
+## Status
+
+**Current Status:** NOT IMPLEMENTED (by design)
+
+The current synchronization engine is considered stable, deterministic, and production-ready for the current architecture.
+
+This enhancement is intentionally deferred because it is a production-hardening improvement rather than a bug fix.
+
+---
+
+# Current Synchronization Architecture
+
+Current execution flow:
+
+Fetch XML
+↓
+Parse Executions
+↓
+If 0 Executions
+    → Skip Sync
+↓
+Extract Execution Dates
+↓
+Delete Existing Execution Window
+↓
+Save Fresh Executions
+↓
+Trade Reconstruction
+↓
+Update Sync Status
+↓
+Return Success
+
+---
+
+# Why We Changed the Architecture
+
+Originally, synchronization only performed an UPSERT of executions.
+
+Problem:
+
+- Executions removed from IBKR were never removed from our database.
+- Stale executions accumulated over time.
+- Trade reconstruction (pairTrades) rebuilt trades using stale execution data.
+- This produced phantom open trades and inconsistent trade history after repeated syncs.
+
+The pairing engine itself was NOT the problem.
+
+The canonical execution ledger contained stale data.
+
+---
+
+# Current Solution
+
+The synchronization engine now performs **Execution Window Replacement**.
+
+Workflow:
+
+1. Download Flex Statement.
+2. Parse executions.
+3. Determine all execution dates contained in the Flex Statement.
+4. Delete existing executions for those dates.
+5. Insert fresh executions.
+6. Rebuild trades from the new canonical execution ledger.
+
+This guarantees deterministic synchronization.
+
+Repeated syncs now produce identical results.
+
+Example:
+
+Sync #1 → State A
+Sync #2 → State A
+Sync #3 → State A
+
+instead of
+
+Sync #1 → State A
+Sync #2 → State B
+Sync #3 → State C
+
+---
+
+# Remaining Limitation
+
+Current implementation performs:
+
+DELETE
+↓
+
+INSERT
+
+These are two independent operations.
+
+If the application crashes between them:
+
+DELETE ✓
+
+Server Crash ❌
+
+then the execution window would be temporarily empty until another successful synchronization.
+
+In our current application this is acceptable because:
+
+- Sync is manually initiated.
+- IBKR Flex is always the source of truth.
+- User can simply press Sync again.
+- No permanent data loss occurs.
+
+---
+
+# Future Production Enhancement
+
+Implement Atomic Execution Window Replacement.
+
+Desired flow:
+
+BEGIN TRANSACTION
+
+DELETE Execution Window
+
+INSERT Fresh Executions
+
+COMMIT
+
+If INSERT fails:
+
+ROLLBACK
+
+Database returns to its original state automatically.
+
+This eliminates the small window where executions could temporarily be missing.
+
+---
+
+# Recommended Implementation
+
+Preferred approach:
+
+Use a PostgreSQL transaction (or Supabase RPC function) that performs:
+
+1. DELETE execution window
+2. INSERT executions
+3. COMMIT
+
+inside a single transaction.
+
+Reason:
+
+Supabase REST operations are independent.
+
+A database transaction guarantees both operations succeed together or fail together.
+
+---
+
+# Estimated Effort
+
+Implementation:
+30–60 minutes
+
+Testing:
+30–60 minutes
+
+Total:
+Approximately 1–2 hours
+
+---
+
+# Priority
+
+Current Priority:
+LOW
+
+Reason:
+
+The existing synchronization engine is already:
+
+- Deterministic
+- Stable
+- Repeatable
+- Recoverable with a single manual Sync
+
+This enhancement is production hardening rather than a correctness fix.
+
+---
+
+# Current Implementation Status
+
+Completed:
+
+✔ Execution Window Replacement
+✔ Deterministic Sync
+✔ Zero Execution Handling
+✔ Stable Multi-Account Sync
+✔ Clean Logging
+✔ Canonical Execution Ledger
+✔ Repeatable Results
+✔ Idempotent Synchronization
+
+Future:
+
+⬜ Atomic Execution Window Replacement
+
+---
+
+# Decision
+
+No further work is required at this time.
+
+The current implementation is accepted as the official synchronization architecture.
+
+Atomic Execution Window Replacement remains an optional future enhancement if the application evolves toward:
+
+- Automatic scheduled syncs
+- Background workers
+- Multi-user environments
+- Higher reliability requirements
+- Enterprise-grade transactional guarantees
+
+Until then, the existing implementation is considered complete and sufficient.

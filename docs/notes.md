@@ -217,6 +217,20 @@ git commit -m "checkpoint(export-drawer-v2): complete report content section and
 git commit -m "checkpoint(export-drawer-v3): complete report preview layout and tuning system"
 
 git commit -m "checkpoint(export-drawer-v4): complete export drawer UI and footer layout"
+
+git commit -m "checkpoint/deterministic-execution-window-replacement-v1
+- Implement execution window replacement before sync
+- Added deleteExecutionWindow() service
+- Fixed stale execution accumulation
+- Deterministic execution ledger reconstruction
+- Stable repeated synchronization
+- Added zero-execution account handling
+- Improved sync logging
+- Multi-account sync verified
+- Phantom open trade issue resolved
+- Sync architecture finalized"
+
+
 ------------------------------------------------------------------
 
 Status:
