@@ -81,7 +81,8 @@ console.log(
 
 await deleteExecutionWindow(
   executionDates,
-  broker.user_id
+  broker.user_id,
+  broker.broker_account_id
 );
 
 await saveExecutions(

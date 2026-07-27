@@ -232,6 +232,8 @@ git commit -m "checkpoint/deterministic-execution-window-replacement-v1
 
 git add .
 git commit -m "checkpoint: export-expense-drawer-ui-final"
+git commit -m "checkpoint: export-expense-drawer-ui-final-1"
+git commit -m "fix(sync): scope execution replacement by broker account
 
 ------------------------------------------------------------------
 

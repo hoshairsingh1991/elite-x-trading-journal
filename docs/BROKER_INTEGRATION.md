@@ -912,3 +912,383 @@ Atomic Execution Window Replacement remains an optional future enhancement if th
 - Enterprise-grade transactional guarantees
 
 Until then, the existing implementation is considered complete and sufficient.
+
+=============================================
+MASTER NOTES
+Multi-Account IBKR Sync Bug Fix
+Execution Window Replacement Architecture
+=============================================
+
+Issue Summary
+-------------
+A critical bug was discovered in the IBKR synchronization engine affecting users with multiple broker accounts connected under the same user.
+
+Scenario:
+
+TFSA Account
+- BUY QBTS 10 days ago
+- SELL QBTS today
+
+Margin Account
+- Multiple QQQ option trades today
+
+CSV Import:
+✅ Trade reconstructed correctly.
+
+IBKR Flex Sync:
+❌ QBTS trade disappeared after synchronization.
+
+The issue only appeared when multiple broker accounts were synchronized on the same day.
+
+--------------------------------------------------
+
+Initial Investigation
+---------------------
+
+Several possible causes were investigated and ruled out.
+
+Verified NOT to be caused by:
+
+• pairTrades()
+• Trade reconstruction
+• FIFO pairing logic
+• IBKR Parser
+• saveExecutions()
+• Sequential sync execution
+• Race conditions
+
+syncAllBrokers() processes each broker sequentially:
+
+Broker 1
+↓
+
+await syncBroker()
+
+↓
+
+3 second delay
+
+↓
+
+Broker 2
+
+Therefore synchronization order was deterministic and not running in parallel.
+
+--------------------------------------------------
+
+Database Investigation
+----------------------
+
+SQL queries showed:
+
+Before Sync
+
+QBTS
+LONG
+2026-07-17
+
+QBTS
+SHORT
+2026-07-27
+
+After Sync
+
+QBTS
+LONG
+2026-07-17
+
+The SELL execution disappeared.
+
+This immediately proved:
+
+BUY execution survived.
+
+SELL execution was being deleted during synchronization.
+
+--------------------------------------------------
+
+Execution Count Investigation
+-----------------------------
+
+Query:
+
+SELECT
+    account,
+    date,
+    COUNT(*)
+FROM executions
+WHERE date='2026-07-27'
+GROUP BY account,date;
+
+Results after sync:
+
+Margin:
+12 executions
+
+TFSA:
+0 executions
+
+This proved today's TFSA execution had been removed.
+
+--------------------------------------------------
+
+Root Cause Investigation
+------------------------
+
+Temporary logging was added to deleteExecutionWindow().
+
+Instead of:
+
+.select("id")
+
+it was temporarily changed to:
+
+.select("id, account, date, ticker, side")
+
+and every deleted execution was logged.
+
+Results:
+
+TFSA Sync
+
+Deleted:
+
+12 Margin executions
+
+Saved:
+
+1 TFSA execution
+
+--------------------------------
+
+Margin Sync
+
+Deleted:
+
+1 TFSA execution
+
+(QBTS SELL)
+
+Saved:
+
+12 Margin executions
+
+This conclusively proved the problem.
+
+The second broker synchronization was deleting executions belonging to another broker account.
+
+--------------------------------------------------
+
+Root Cause
+----------
+
+Original delete query:
+
+WHERE
+    user_id = ?
+AND date IN (...)
+
+The query ignored broker account.
+
+Since every IBKR account belongs to the same user, synchronization deleted executions across every connected account sharing the same execution date.
+
+Sequence:
+
+TFSA Sync
+
+Delete all July 27 executions
+
+↓
+
+Insert TFSA execution
+
+↓
+
+Margin Sync
+
+Delete all July 27 executions
+
+↓
+
+Deletes TFSA execution
+
+↓
+
+Insert Margin executions
+
+Final database:
+
+Margin executions remained.
+
+TFSA SELL disappeared.
+
+Trade reconstruction therefore could never close the QBTS position.
+
+--------------------------------------------------
+
+Architecture Correction
+-----------------------
+
+deleteExecutionWindow() was redesigned.
+
+Old function:
+
+deleteExecutionWindow(
+    executionDates,
+    userId
+)
+
+New function:
+
+deleteExecutionWindow(
+    executionDates,
+    userId,
+    account
+)
+
+Delete query changed from:
+
+WHERE
+    user_id = ?
+AND date IN (...)
+
+to:
+
+WHERE
+    user_id = ?
+AND account = ?
+AND date IN (...)
+
+Synchronization is now isolated per broker account.
+
+--------------------------------------------------
+
+fetchFlex() Update
+------------------
+
+Old:
+
+await deleteExecutionWindow(
+    executionDates,
+    broker.user_id
+);
+
+New:
+
+await deleteExecutionWindow(
+    executionDates,
+    broker.user_id,
+    broker.broker_account_id
+);
+
+The broker account is now passed into the deletion layer.
+
+--------------------------------------------------
+
+Verification
+------------
+
+After implementation:
+
+TFSA Sync
+
+Rows Deleted:
+1
+
+Executions Saved:
+1
+
+--------------------------------
+
+Margin Sync
+
+Rows Deleted:
+12
+
+Executions Saved:
+12
+
+Repeated synchronization produced identical results every time.
+
+Execution counts remained:
+
+TFSA:
+1 execution
+
+Margin:
+12 executions
+
+QBTS trade remained visible after every synchronization.
+
+No duplicate executions were created.
+
+No cross-account deletion occurred.
+
+--------------------------------------------------
+
+Architectural Outcome
+---------------------
+
+Execution synchronization is now fully idempotent.
+
+Each synchronization performs:
+
+Download Flex Statement
+
+↓
+
+Parse Executions
+
+↓
+
+Delete Existing Executions
+(scoped by User + Account + Date)
+
+↓
+
+Insert Fresh Executions
+
+↓
+
+Trade Reconstruction
+
+↓
+
+Analytics / Dashboard
+
+Running synchronization repeatedly now produces the exact same database state.
+
+--------------------------------------------------
+
+Canonical Synchronization Rule
+------------------------------
+
+Execution window replacement MUST always be scoped by:
+
+• user_id
+• account
+• execution date
+
+Canonical delete condition:
+
+WHERE
+    user_id = ?
+AND account = ?
+AND date IN (...)
+
+Execution replacement must NEVER operate across all broker accounts belonging to the same user.
+
+--------------------------------------------------
+
+Final Result
+------------
+
+This was not a trade reconstruction bug.
+
+This was not a parser bug.
+
+This was not a saveExecutions() bug.
+
+This was an architectural flaw in execution replacement.
+
+The synchronization engine now correctly isolates every broker account, supports unlimited future broker accounts (TFSA, Margin, RRSP, Corporate, etc.), preserves deterministic execution rebuilding, and maintains a fully idempotent synchronization process.
