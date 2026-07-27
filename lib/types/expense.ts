@@ -44,3 +44,13 @@ tax_amount: number | null;
   created_at: string;
   updated_at: string;
 };
+
+/* ============================================================================
+   Reporting Expense
+   ============================================================================ */
+
+export interface ReportingExpense extends Expense {
+  reporting_amount: number;
+
+  reporting_currency: string;
+}

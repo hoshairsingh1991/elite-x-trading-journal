@@ -1,4 +1,6 @@
-import type { Expense } from "@/lib/types/expense";
+import type {
+  ReportingExpense,
+} from "@/lib/types/expense";
 
 export interface ExpenseAnalyticsData {
 
@@ -129,7 +131,7 @@ export function calculateUpcomingRenewals(
           expense.vendor,
 
         amount:
-          expense.original_amount,
+  expense.original_amount,
 
         renewalDate:
           renewalDate
@@ -153,12 +155,12 @@ export function calculateUpcomingRenewals(
 // =================================================
 
 export function calculateTotalExpenses(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): number {
 
   return expenses.reduce(
     (total, expense) =>
-      total + expense.original_amount,
+      total + expense.reporting_amount,
     0
   );
 }
@@ -169,7 +171,7 @@ export function calculateTotalExpenses(
 // =================================================
 
 export function calculateRecurringExpenses(
-  expenses: Expense[]
+expenses: ReportingExpense[]
 ): number {
 
   return expenses
@@ -178,7 +180,7 @@ export function calculateRecurringExpenses(
     )
     .reduce(
       (total, expense) =>
-        total + expense.original_amount,
+        total + expense.reporting_amount,
       0
     );
 }
@@ -188,7 +190,7 @@ export function calculateRecurringExpenses(
 // =================================================
 
 export function calculateTaxDeductibleAmount(
-  expenses: Expense[]
+expenses: ReportingExpense[]
 ): number {
 
   return expenses
@@ -199,7 +201,7 @@ export function calculateTaxDeductibleAmount(
       (total, expense) =>
         total +
         (
-          expense.original_amount *
+          expense.reporting_amount *
           expense.deductible_percent
         ) / 100,
       0
@@ -211,7 +213,7 @@ export function calculateTaxDeductibleAmount(
 // =================================================
 
 export function calculateNonDeductibleAmount(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): number {
 
   const total =
@@ -232,7 +234,7 @@ export function calculateNonDeductibleAmount(
 // =================================================
 
 export function calculateDeductiblePercent(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): number {
 
   const total =
@@ -260,7 +262,7 @@ export function calculateDeductiblePercent(
 // =================================================
 
 export function calculateCategoryBreakdown(
-  expenses: Expense[]
+expenses: ReportingExpense[]
 ): CategoryBreakdownItem[] {
 
   const total =
@@ -297,7 +299,7 @@ const grouped:
 
       grouped[category] =
         (grouped[category] || 0) +
-        expense.original_amount;
+        expense.reporting_amount;
     }
   );
 
@@ -323,7 +325,7 @@ const grouped:
 // =================================================
 
 export function calculateVendorBreakdown(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): VendorBreakdownItem[] {
 
   const total =
@@ -347,7 +349,7 @@ export function calculateVendorBreakdown(
 
       grouped[vendor] =
         (grouped[vendor] || 0) +
-        expense.original_amount;
+        expense.reporting_amount;
     }
   );
 
@@ -374,7 +376,7 @@ export function calculateVendorBreakdown(
 // =================================================
 
 export function calculateRecurringBreakdown(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): RecurringBreakdownData {
 
   const recurringAmount =
@@ -386,7 +388,7 @@ export function calculateRecurringBreakdown(
       .reduce(
         (total, expense) =>
           total +
-          expense.original_amount,
+          expense.reporting_amount,
         0
       );
 
@@ -399,7 +401,7 @@ export function calculateRecurringBreakdown(
       .reduce(
         (total, expense) =>
           total +
-          expense.original_amount,
+          expense.reporting_amount,
         0
       );
 
@@ -440,7 +442,7 @@ export interface WeeklyExpenseData {
 }
 
 export function calculateWeeklyExpenses(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): WeeklyExpenseData[] {
 
   const grouped:
@@ -463,7 +465,7 @@ export function calculateWeeklyExpenses(
 
     grouped[key] =
       (grouped[key] || 0) +
-      expense.original_amount;
+      expense.reporting_amount;
   });
 
   return [
@@ -491,7 +493,7 @@ export interface MonthlyExpenseData {
 }
 
 export function calculateMonthlyExpenses(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): MonthlyExpenseData[] {
 
   const grouped:
@@ -516,7 +518,7 @@ export function calculateMonthlyExpenses(
 
       grouped[month] =
         (grouped[month] || 0) +
-        expense.original_amount;
+       expense.reporting_amount;
     }
   );
 
@@ -547,7 +549,7 @@ export function calculateMonthlyExpenses(
 // =================================================
 
 export function generateExpenseAnalytics(
-  expenses: Expense[]
+  expenses: ReportingExpense[]
 ): ExpenseAnalyticsData {
 
   const totalExpenses =

@@ -9,7 +9,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import type { Expense } from "@/lib/types/expense";
+import type {
+  ReportingExpense,
+} from "@/lib/types/expense";
 
 import {
   generateExpenseAnalytics,
@@ -26,7 +28,7 @@ import {
 } from "@/lib/fx/currencyFormatting";
 
 interface ExpenseKpiGridProps {
-  expenses: Expense[];
+  expenses: ReportingExpense[];
 
   businessCostAnalytics:
     BusinessCostAnalyticsData;

@@ -236,6 +236,23 @@ git commit -m "checkpoint: export-expense-drawer-ui-final-1"
 git commit -m "fix(sync): scope execution replacement by broker account
 git commit -m "checkpoint: expense pdf export ui complete"
 
+git commit -m "checkpoint/expense-reporting-currency-v2"
+
+Why this checkpoint name?
+
+This wasn't just a UI tweak. It introduced a complete reporting architecture:
+
+Added ReportingExpense
+Introduced a dedicated expense FX conversion layer
+Preserved canonical accounting data
+Migrated analytics to reporting values
+Migrated business analytics
+Migrated tax analytics
+Verified persistence remains canonical
+Verified recurring expenses remain canonical
+Production build passes
+TypeScript passes
+
 ------------------------------------------------------------------
 
 Status:

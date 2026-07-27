@@ -1,5 +1,5 @@
 import { Trade } from "@/types/trade";
-import { Expense } from "@/lib/types/expense";
+import { ReportingExpense } from "@/lib/types/expense";
 
 import {
   calculateTotalExpenses,
@@ -142,7 +142,7 @@ export function calculateWeeklyCommissions(
 // =================================================
 
 export function calculateTotalBusinessCosts(
-  expenses: Expense[],
+  expenses: ReportingExpense[],
   trades: Trade[]
 ): number {
 
@@ -161,7 +161,7 @@ export function calculateTotalBusinessCosts(
 // =================================================
 
 export function calculateNetBusinessProfit(
-  expenses: Expense[],
+  expenses: ReportingExpense[],
   netTradingPnL: number
 ): number {
 
@@ -178,7 +178,7 @@ export function calculateNetBusinessProfit(
 // =================================================
 
 export function generateBusinessCostAnalytics(
-  expenses: Expense[],
+  expenses: ReportingExpense[],
   trades: Trade[],
   netTradingPnL: number
 ): BusinessCostAnalyticsData {
@@ -217,7 +217,7 @@ export function generateBusinessCostAnalytics(
 // =================================================
 
 export function generateBusinessIntelligenceMetrics(
-  expenses: Expense[],
+  expenses: ReportingExpense[],
   trades: Trade[],
   netTradingPnL: number
 ): BusinessIntelligenceMetrics {
@@ -281,14 +281,14 @@ export function generateBusinessIntelligenceMetrics(
     expense => expense.is_recurring
   );
 
-  const monthlyRecurringExpenses =
+const monthlyRecurringExpenses =
   recurringExpenses.reduce(
     (
       total,
       expense
     ) =>
       total +
-      expense.original_amount,
+      expense.reporting_amount,
     0
   );
 

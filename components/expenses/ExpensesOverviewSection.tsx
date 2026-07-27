@@ -20,7 +20,7 @@ import {
   calculateWeeklyExpenses,
 } from "@/lib/analytics/expenseAnalytics";
 
-import type { Expense } from "@/lib/types/expense";
+import type { ReportingExpense } from "@/lib/types/expense";
 
 import { Trade } from "@/types/trade";
 
@@ -38,7 +38,7 @@ calculateWeeklyCommissions,
 } from "@/lib/analytics/businessCostAnalytics";
 
 interface ExpensesOverviewSectionProps {
-  expenses: Expense[];
+  expenses: ReportingExpense[];
 
   trades: Trade[];
 
@@ -195,11 +195,11 @@ const hoveredData =
   );
 
 
-  const totalManualExpenses =
+const totalManualExpenses =
   expenses.reduce(
     (total, expense) =>
       total +
-      expense.original_amount,
+      expense.reporting_amount,
     0
   );
 

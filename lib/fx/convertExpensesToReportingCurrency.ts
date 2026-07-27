@@ -1,4 +1,7 @@
-import { Expense } from "@/lib/types/expense";
+import {
+  Expense,
+  ReportingExpense,
+} from "@/lib/types/expense";
 
 import {
   convertAmount,
@@ -17,14 +20,14 @@ export function convertExpensesToReportingCurrency(
   expenses: Expense[],
   reportingCurrency: string,
   rates: FxRates = FALLBACK_RATES
-): Expense[] {
+): ReportingExpense[] {
 
   return expenses.map(
-    (expense) => ({
+    (expense): ReportingExpense => ({
 
       ...expense,
 
-      original_amount:
+      reporting_amount:
         convertAmount(
           expense.original_amount,
           expense.billed_currency,
@@ -32,7 +35,7 @@ export function convertExpensesToReportingCurrency(
           rates
         ),
 
-      billed_currency:
+      reporting_currency:
         reportingCurrency,
     })
   );

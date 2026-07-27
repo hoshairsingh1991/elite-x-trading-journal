@@ -1,6 +1,6 @@
 "use client";
 
-import type { Expense } from "@/lib/types/expense";
+import type { ReportingExpense } from "@/lib/types/expense";
 
 import { Calculator } from "lucide-react";
 
@@ -42,7 +42,7 @@ import {
 } from "@/lib/storage/supabaseTaxProfileStorage";
 
 interface TaxDeductibleSummaryProps {
-  expenses: Expense[];
+  expenses: ReportingExpense[];
   reportingCurrency: string;
 }
 
