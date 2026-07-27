@@ -234,6 +234,7 @@ git add .
 git commit -m "checkpoint: export-expense-drawer-ui-final"
 git commit -m "checkpoint: export-expense-drawer-ui-final-1"
 git commit -m "fix(sync): scope execution replacement by broker account
+git commit -m "checkpoint: expense pdf export ui complete"
 
 ------------------------------------------------------------------
 
