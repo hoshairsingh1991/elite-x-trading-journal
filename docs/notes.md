@@ -242,16 +242,45 @@ Why this checkpoint name?
 
 This wasn't just a UI tweak. It introduced a complete reporting architecture:
 
-Added ReportingExpense
-Introduced a dedicated expense FX conversion layer
-Preserved canonical accounting data
-Migrated analytics to reporting values
-Migrated business analytics
-Migrated tax analytics
-Verified persistence remains canonical
-Verified recurring expenses remain canonical
-Production build passes
-TypeScript passes
+Implement Expense Reporting Currency V2 architecture
+
+- Added ReportingExpense model
+- Introduced reporting currency conversion layer
+- Preserved canonical expense storage
+- Updated expense analytics to reporting values
+- Updated business analytics to reporting values
+- Updated tax deductible summary
+- Verified recurring expenses remain canonical
+- Verified persistence layer remains canonical
+- Completed production build with no TypeScript errors
+
+------------------------------------------------------------------
+
+UI Simplification
+
+This also makes the export drawer much cleaner.
+
+Instead of a long list of checkboxes, it can clearly separate:
+
+Always Included
+Date
+Expense Name
+Category
+Vendor
+Original Amount
+Reporting Amount
+Receipt Available
+
+(These don't need checkboxes because they are part of every report.)
+
+Additional Business Information
+Description
+Business Use %
+Deductible %
+Tax Type
+Tax Amount
+
+That communicates to the user that the first group is the standard report, while the second group is for enhanced business reporting.
 
 ------------------------------------------------------------------
 
