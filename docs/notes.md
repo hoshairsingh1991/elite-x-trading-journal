@@ -254,6 +254,7 @@ Implement Expense Reporting Currency V2 architecture
 - Verified persistence layer remains canonical
 - Completed production build with no TypeScript errors
 
+git commit -m "checkpoint/expense-pdf-export-ui-final-v1"
 ------------------------------------------------------------------
 
 UI Simplification

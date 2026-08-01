@@ -13,6 +13,7 @@ import {
   Flag,
   FileDown,
   Building2,
+  Briefcase,
   Percent,
   Tag,
   File,
@@ -111,7 +112,7 @@ const previewValueY = "translate-y-2";
 const previewLabelX = "translate-x-4";
 const previewLabelY = "translate-y-2";
 
-const previewCardWidth = "w-[120%]";
+const previewCardWidth = "w-[110%]";
 const previewCardHeight = "h-[220px]";
 
 const previewItemSpacing = "h-3";
@@ -150,7 +151,7 @@ const additionalDividerY = "-translate-y-14";
 /* Title */
 
 const estimatedTitleX = "-translate-x-86";
-const estimatedTitleY = "translate-y-96";
+const estimatedTitleY = "translate-y-70";
 
 /* Card */
 
@@ -158,7 +159,7 @@ const estimatedCardWidth = "w-[276%]";
 const estimatedCardHeight = "min-h-[150px]";
 
 const estimatedCardX = "-translate-x-87";
-const estimatedCardY = "translate-y-98";
+const estimatedCardY = "translate-y-72";
 
 /* ========================================== */
 /* TOTAL PAGES */
@@ -305,8 +306,8 @@ const REPORT_CONTENT = [
     icon: PieChart,
   },
   {
-    id: "expense-details",
-    label: "Expense Details",
+    id: "detailed-expense-ledger",
+    label: "Detailed Expense Ledger",
     icon: FileText,
   },
   {
@@ -321,18 +322,43 @@ const REPORT_CONTENT = [
   },
 ];
 
-const ADDITIONAL_COLUMNS = [
+const ALWAYS_INCLUDED_COLUMNS = [
   {
-    id: "vendor",
-    label: "Vendor",
-    icon: Building2,
-    checked: true,
+    label: "Date",
+    icon: Calendar,
   },
   {
-    id: "notes",
-    label: "Notes",
+    label: "Expense Name",
     icon: FileText,
-    checked: true,
+  },
+  {
+    label: "Category",
+    icon: LayoutGrid,
+  },
+  {
+    label: "Vendor",
+    icon: Building2,
+  },
+  {
+    label: "Original Amount",
+    icon: DollarSign,
+  },
+  {
+    label: "Reporting Amount",
+    icon: Flag,
+  },
+  {
+    label: "Receipt Available",
+    icon: FileCheck,
+  },
+];
+
+const BUSINESS_TAX_COLUMNS = [
+  {
+    id: "expense-type",
+    label: "Expense Type",
+    icon: Briefcase,
+    checked: false,
   },
   {
     id: "business-use",
@@ -356,18 +382,6 @@ const ADDITIONAL_COLUMNS = [
     id: "tax-amount",
     label: "Tax Amount",
     icon: DollarSign,
-    checked: false,
-  },
-  {
-    id: "receipt",
-    label: "Receipt Status",
-    icon: FileCheck,
-    checked: false,
-  },
-  {
-    id: "recurring",
-    label: "Recurring",
-    icon: RotateCw,
     checked: false,
   },
 ];
@@ -720,7 +734,7 @@ return (
 <div
   className={`
     mt-5
-    w-[74%]
+    w-[78%]
 
     transform
     ${includedContentX}
@@ -819,6 +833,8 @@ return (
 </div>
 
       </div>
+
+      
 
       {/* ================================== */}
       {/* REPORT PREVIEW */}
@@ -960,6 +976,8 @@ return (
   `}
 >
 
+
+
   {/* Divider */}
 
 <div
@@ -991,8 +1009,22 @@ return (
       ${additionalTitleY}
     `}
   >
-    Additional Columns
+    Business & Tax Information
   </h3>
+
+  <p
+  className={`
+    mt-2
+    text-[13px]
+    text-slate-500
+
+    transform
+    ${additionalTitleX}
+    ${additionalTitleY}
+  `}
+>
+  Include additional accounting and tax fields.
+</p>
 
   {/* Content */}
 
@@ -1008,7 +1040,7 @@ return (
     `}
   >
 
-    {ADDITIONAL_COLUMNS.map((item) => {
+    {BUSINESS_TAX_COLUMNS.map((item) => {
 
       const Icon = item.icon;
 
