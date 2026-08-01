@@ -22,7 +22,7 @@
  * ============================================================================
  */
 
-import { Expense } from "@/types/expense";
+import { ReportingExpense } from "@/lib/types/expense";
 import { PdfCurrencyTotal } from "../shared/types";
 
 /* ============================================================================
@@ -31,7 +31,9 @@ import { PdfCurrencyTotal } from "../shared/types";
 
 export interface ExpenseReportMetadata {
   reportName: string;
+  reportVersion: string;
   generatedAt: Date;
+  generatedBy: string;
   reportingCurrency: string;
   reportingPeriod: string;
 }
@@ -67,13 +69,13 @@ export interface ExpenseReportOptions {
    ============================================================================ */
 
 export interface ExpenseReportSummary {
-  totalExpenses: number;
-
-  recurringExpenses: number;
-
-  oneTimeExpenses: number;
+  totalExpenseCount: number;
 
   reportingCurrencyTotal: number;
+
+  recurringExpenseTotal: number;
+
+  oneTimeExpenseTotal: number;
 
   taxDeductibleTotal: number;
 
@@ -123,9 +125,9 @@ export interface ExpenseReportRow {
 
   taxAmount: number | null;
 
-  hasReceipt: boolean;
+receiptStatus: string;
 
-  recurring: boolean;
+recurringStatus: string;
 
   notes: string | null;
 }
@@ -151,7 +153,7 @@ export interface ExpenseReportInformation {
    ============================================================================ */
 
 export interface BuildExpenseReportDataInput {
-  expenses: Expense[];
+  expenses: ReportingExpense[];
 
   reportingCurrency: string;
 

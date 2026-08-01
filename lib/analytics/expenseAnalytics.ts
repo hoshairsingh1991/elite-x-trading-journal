@@ -8,6 +8,8 @@ export interface ExpenseAnalyticsData {
 
   recurringExpenses: number;
 
+  oneTimeExpenses: number;
+
   taxDeductibleAmount: number;
 
   nonDeductibleAmount: number;
@@ -18,6 +20,7 @@ export interface ExpenseAnalyticsData {
 
 export interface CategoryBreakdownItem {
   category: string;
+  count: number;
   amount: number;
   percentage: number;
 }
@@ -275,31 +278,63 @@ expenses: ReportingExpense[]
   }
 
 const grouped:
-  Record<string, number> = {
+  Record<
+    string,
+    {
+      amount: number;
+      count: number;
+    }
+  > = {
 
-    Software: 0,
+    Software: {
+      amount: 0,
+      count: 0,
+    },
 
-    "Market Data": 0,
+    "Market Data": {
+      amount: 0,
+      count: 0,
+    },
 
-    "Brokerage Fees": 0,
+    "Brokerage Fees": {
+      amount: 0,
+      count: 0,
+    },
 
-    Education: 0,
+    Education: {
+      amount: 0,
+      count: 0,
+    },
 
-    Infrastructure: 0,
+    Infrastructure: {
+      amount: 0,
+      count: 0,
+    },
 
-    Other: 0,
+    Other: {
+      amount: 0,
+      count: 0,
+    },
   };
 
   expenses.forEach(
     (expense) => {
 
-      const category =
-        expense.category ||
-        "Other";
+const category =
+  expense.category?.trim() ||
+  "Other";
 
-      grouped[category] =
-        (grouped[category] || 0) +
-        expense.reporting_amount;
+if (!grouped[category]) {
+  grouped[category] = {
+    amount: 0,
+    count: 0,
+  };
+}
+
+grouped[category].amount +=
+  expense.reporting_amount;
+
+grouped[category].count++;
     }
   );
 
@@ -307,12 +342,18 @@ const grouped:
     grouped
   )
     .map(
-      ([category, amount]) => ({
-        category,
-        amount,
-        percentage:
-          (amount / total) * 100,
-      })
+([category, data]) => ({
+  category,
+
+  count:
+    data.count,
+
+  amount:
+    data.amount,
+
+  percentage:
+    (data.amount / total) * 100,
+})
     )
     .sort(
       (a, b) =>
@@ -487,10 +528,6 @@ export function calculateWeeklyExpenses(
 // MONTHLY EXPENSES
 // =================================================
 
-export interface MonthlyExpenseData {
-  month: string;
-  amount: number;
-}
 
 export function calculateMonthlyExpenses(
   expenses: ReportingExpense[]
@@ -557,10 +594,16 @@ export function generateExpenseAnalytics(
       expenses
     );
 
-  const recurringExpenses =
-    calculateRecurringExpenses(
-      expenses
-    );
+const recurringBreakdown =
+  calculateRecurringBreakdown(
+    expenses
+  );
+
+const recurringExpenses =
+  recurringBreakdown.recurringAmount;
+
+const oneTimeExpenses =
+  recurringBreakdown.oneTimeAmount;
 
   const taxDeductibleAmount =
     calculateTaxDeductibleAmount(
@@ -577,15 +620,17 @@ export function generateExpenseAnalytics(
       expenses
     );
 
-  return {
-    totalExpenses,
+return {
+  totalExpenses,
 
-    recurringExpenses,
+  recurringExpenses,
 
-    taxDeductibleAmount,
+  oneTimeExpenses,
 
-    nonDeductibleAmount,
+  taxDeductibleAmount,
 
-    deductiblePercent,
-  };
+  nonDeductibleAmount,
+
+  deductiblePercent,
+};
 }
