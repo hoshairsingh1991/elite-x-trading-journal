@@ -11,6 +11,9 @@ from "./originalCurrencyTotals";
 import { buildMonthlyExpenseSummary }
 from "./monthlyExpenseSummary";
 
+import { buildExpenseTypeSummary }
+from "./expenseTypeSummary";
+
 export function buildFinancialSummary(
   expenses: ReportingExpense[],
   options: ExpenseReportOptions
@@ -28,7 +31,10 @@ return {
       expenses
     ),
 
-  expenseTypeSummary: [],
+expenseTypeSummary:
+  buildExpenseTypeSummary(
+    expenses
+  ),
 
   taxSummary: [],
 

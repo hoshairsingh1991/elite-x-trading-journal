@@ -61,14 +61,38 @@ export function FinancialSummaryPage({
       })
     );
 
-    const originalCurrencyRows =
-  report.financialSummary.originalCurrencySummary.map(
-    item => ({
-      label: item.currency,
-      amount: item.amount,
-      currency: item.currency,
-    })
-  );
+const originalCurrencyRows =
+  report.financialSummary
+    .originalCurrencySummary
+    .map(
+      item => ({
+        label: item.currency,
+        amount: item.amount,
+        currency: item.currency,
+      })
+    );
+
+const expenseTypeRows =
+  report.financialSummary
+    .expenseTypeSummary
+    .map(
+      item => ({
+        label: item.expenseType,
+        amount: item.reportingTotal,
+      })
+    );
+
+const hasOriginalCurrencySummary =
+  originalCurrencyRows.length >
+  0;
+
+const hasExpenseTypeSummary =
+  report.financialSummary
+    .expenseTypeSummary.length > 0;
+
+const hasTaxSummary =
+  report.financialSummary
+    .taxSummary.length > 0;
 
   return (
 
@@ -100,42 +124,74 @@ export function FinancialSummaryPage({
         totalLabel="Total Expenses"
       />
 
-      {/* ============================================================= */}
-      {/* ORIGINAL CURRENCY SUMMARY */}
-      {/* ============================================================= */}
+{/* ============================================================= */}
+{/* ORIGINAL CURRENCY SUMMARY */}
+{/* ============================================================= */}
 
-<Text style={styles.sectionHeading}>
-  Original Currency Summary
-</Text>
+{hasOriginalCurrencySummary && (
 
-<SummaryTable
-  leftHeader="Currency"
-  rightHeader="Original Amount"
-  rows={originalCurrencyRows}
-  reportingCurrency={
-    reportingCurrency
-  }
-/>
+  <>
+
+    <Text style={styles.sectionHeading}>
+      Original Currency Totals
+    </Text>
+
+    <SummaryTable
+      leftHeader="Currency"
+      rightHeader="Original Amount"
+      rows={originalCurrencyRows}
+      reportingCurrency={
+        reportingCurrency
+      }
+    />
+
+  </>
+
+)}
 
       {/* ============================================================= */}
       {/* EXPENSE TYPE SUMMARY */}
       {/* ============================================================= */}
 
-      <Text style={styles.sectionHeading}>
-        Expense Type Summary
-      </Text>
+{hasExpenseTypeSummary && (
 
-      {/* Expense Type Summary Table */}
+  <>
+
+    <Text style={styles.sectionHeading}>
+      Expense Type Summary
+    </Text>
+
+    <SummaryTable
+      leftHeader="Expense Type"
+      rightHeader="Total"
+      rows={expenseTypeRows}
+      reportingCurrency={
+        reportingCurrency
+      }
+      totalLabel="Total Expenses"
+    />
+
+  </>
+
+)}
 
       {/* ============================================================= */}
       {/* TAX SUMMARY */}
       {/* ============================================================= */}
 
-      <Text style={styles.sectionHeading}>
-        Tax Summary
-      </Text>
+{hasTaxSummary && (
 
-      {/* Tax Summary Table */}
+  <>
+
+    <Text style={styles.sectionHeading}>
+      Tax Summary
+    </Text>
+
+    {/* Tax Summary Table */}
+
+  </>
+
+)}
 
     </View>
 

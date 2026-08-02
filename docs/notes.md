@@ -261,6 +261,8 @@ git commit -m "checkpoint: Expense PDF Layout V1 Final" -  PDF Export works here
 git commit -m "Expense Report V1 complete" -  Date filter works now
 
 git commit -m "checkpoint/expense-pdf-financial-summary-v1" -  Page 4 is now live 
+
+git commit -m "checkpoint/expense-pdf-page4-expense-type-summary-v1"
 ------------------------------------------------------------------
 
 UI Simplification
