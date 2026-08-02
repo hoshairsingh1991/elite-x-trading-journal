@@ -267,6 +267,10 @@ git commit -m "checkpoint/expense-pdf-page4-expense-type-summary-v1"
 git commit -m "checkpoint/expense-pdf-financial-summary-complete-v1"
 
 git commit -m "checkpoint/expense-pdf-ledger-column-architecture-v1"
+
+git commit -m "checkpoint/expense-pdf-optional-ledger-columns-complete-v1" -  Almost ready.. addition cloumns are working
+
+git commit -m "checkpoint/expense-pdf-v1-final"
 ------------------------------------------------------------------
 
 UI Simplification

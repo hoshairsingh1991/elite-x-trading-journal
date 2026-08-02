@@ -17,6 +17,7 @@
 import { Document } from "@/lib/reporting/components/Document";
 import { Page } from "@/lib/reporting/components/Page";
 
+
 import { ExpenseReportData } from "../types";
 
 import { ExpenseCoverPage } from "./ExpenseCoverPage";
@@ -54,6 +55,8 @@ export function ExpenseReportDocument({
           report={report}
         />
 
+       
+
       </Page>
 
       {/* ========================================================== */}
@@ -66,11 +69,13 @@ export function ExpenseReportDocument({
           report={report}
         />
 
+       
+
       </Page>
 
-{/* ========================================================== */}
-{/* PAGE 3 */}
-{/* ========================================================== */}
+      {/* ========================================================== */}
+      {/* PAGE 3 */}
+      {/* ========================================================== */}
 
       <Page>
 
@@ -78,19 +83,23 @@ export function ExpenseReportDocument({
           report={report}
         />
 
+      
+
       </Page>
 
       {/* ========================================================== */}
-{/* PAGE 4 */}
-{/* ========================================================== */}
+      {/* PAGE 4 */}
+      {/* ========================================================== */}
 
-<Page>
+      <Page>
 
-  <FinancialSummaryPage
-    report={report}
-  />
+        <FinancialSummaryPage
+          report={report}
+        />
 
-</Page>
+        
+
+      </Page>
 
     </Document>
 

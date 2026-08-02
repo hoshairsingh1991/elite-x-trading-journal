@@ -30,6 +30,10 @@ import DateRangePicker from "@/components/shared/DateRangePicker";
 import { exportExpenseReport } from "@/lib/reporting/expense/exportExpenseReport";
 
 import {
+  loadProfile,
+} from "@/lib/storage/profileStorage";
+
+import {
   ExpenseReportOptions,
 } from "@/lib/reporting/expense/types";
 
@@ -1769,6 +1773,34 @@ const filteredExportExpenses =
     }
   );
 
+const reportingPeriod =
+
+  startDate && endDate
+
+    ? `${startDate.toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }
+      )} – ${endDate.toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }
+      )}`
+
+    : selectedPreset;
+
+const profile =
+  await loadProfile();
+
+const reportOwner =
+  profile?.display_name ??
+  "Elite X User";
 
   await exportExpenseReport({
 
@@ -1776,7 +1808,7 @@ const filteredExportExpenses =
 
     reportingCurrency,
 
-    reportingPeriod: selectedPreset,
+    reportingPeriod,
 
     generatedBy,
 

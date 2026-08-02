@@ -31,7 +31,7 @@ import { typography } from "../theme/typography";
    ============================================================================ */
 
 interface FooterProps {
-  generatedAt: Date;
+  reportName: string;
 }
 
 /* ============================================================================
@@ -39,15 +39,15 @@ interface FooterProps {
    ============================================================================ */
 
 export function Footer({
-  generatedAt,
+  reportName,
 }: FooterProps) {
 
   return (
     <View style={styles.container} fixed>
 
       <Text style={styles.left}>
-        Generated {generatedAt.toLocaleString()}
-      </Text>
+  {reportName}
+</Text>
 
       <Text
         style={styles.right}
@@ -67,20 +67,22 @@ export function Footer({
 
 const styles = StyleSheet.create({
 
-  container: {
-    position: "absolute",
-    left: spacing.pagePadding,
-    right: spacing.pagePadding,
-    bottom: 24,
+container: {
+  position: "absolute",
 
-    flexDirection: "row",
-    justifyContent: "space-between",
+  left: spacing.pagePadding,
+  right: spacing.pagePadding,
+  bottom: 10,
 
-    borderTopWidth: 1,
-    borderTopColor: colors.border.light,
+  flexDirection: "row",
+  justifyContent: "space-between",
 
-    paddingTop: spacing.sectionSmall,
-  },
+  borderTopWidth: 1,
+  borderTopColor: colors.border.light,
+
+  paddingTop: 4,
+  paddingBottom: 2,
+},
 
   left: {
     ...typography.caption,

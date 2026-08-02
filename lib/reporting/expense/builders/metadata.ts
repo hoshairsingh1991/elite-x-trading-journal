@@ -31,17 +31,17 @@ export function buildMetadata(
   const generatedAt = new Date();
 
   return {
-    reportName: "Business Expense Report",
 
-    reportVersion: input.reportVersion,
+    reportName: "Business Expense Report",
 
     generatedAt,
 
-    generatedBy: input.generatedBy,
+    reportOwner: input.generatedBy,
 
     reportingCurrency: input.reportingCurrency,
 
     reportingPeriod: input.reportingPeriod,
+
   };
 
 }

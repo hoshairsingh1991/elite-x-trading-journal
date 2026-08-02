@@ -27,6 +27,10 @@ import {
 } from "@/lib/fx/convertTradesToReportingCurrency";
 
 import {
+  loadProfile,
+} from "@/lib/storage/profileStorage";
+
+import {
   convertExpensesToReportingCurrency,
 } from "@/lib/fx/convertExpensesToReportingCurrency";
 
@@ -74,6 +78,11 @@ const [expenses, setExpenses] =
   reportingCurrency,
   setReportingCurrency,
 ] = useState("USD");
+
+const [
+  reportOwner,
+  setReportOwner,
+] = useState("Elite X User");
 
 const [
   fxRates,
@@ -143,14 +152,25 @@ useEffect(() => {
       loadedExpenses
     );
 
-    const refreshedExpenses =
-      await loadExpenses();
+const refreshedExpenses =
+  await loadExpenses();
 
-    setExpenses(
-      refreshedExpenses
-    );
+setExpenses(
+  refreshedExpenses
+);
 
-    await reloadTrades();
+const profile =
+  await loadProfile();
+
+if (profile) {
+
+  setReportOwner(
+    profile.display_name
+  );
+
+}
+
+await reloadTrades();
   }
 
   void initializePage();
@@ -498,7 +518,7 @@ trades={filteredTrades}
   reportingCurrency={reportingCurrency}
 
 
-  generatedBy="Happy"
+  generatedBy={reportOwner}
 
   reportVersion="1.0"
 />

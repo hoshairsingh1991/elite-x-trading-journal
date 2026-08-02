@@ -31,11 +31,14 @@ import { PdfCurrencyTotal } from "../shared/types";
 
 export interface ExpenseReportMetadata {
   reportName: string;
-  reportVersion: string;
+
   generatedAt: Date;
-  generatedBy: string;
+
+  reportOwner: string;
+
   reportingCurrency: string;
-  reportingPeriod: string;
+
+reportingPeriod: string;
 }
 
 /* ============================================================================
