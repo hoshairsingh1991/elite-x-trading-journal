@@ -71,14 +71,23 @@ date: new Date(
           ? expense.business_use_percent
           : null,
 
-      deductiblePercent:
-        options.includeDeductible
+deductiblePercent:
+  options.includeDeductible
+    ? (
+        expense.is_tax_deductible
           ? expense.deductible_percent
-          : null,
+          : 0
+      )
+    : null,
 
       taxType:
-  options.includeTaxType
-    ? expense.tax_type ?? "-"
+  options.includeTaxInformation
+    ? (
+        expense.tax_type &&
+        expense.tax_type !== "None"
+          ? expense.tax_type
+          : "-"
+      )
     : "-",
 
       taxAmount:

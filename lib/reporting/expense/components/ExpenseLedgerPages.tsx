@@ -50,6 +50,7 @@ interface LedgerColumn {
   id: string;
   label: string;
   flex: number;
+  align?: "left" | "center" | "right";
   render: (row: ExpenseReportRow) => React.ReactNode;
 }
 
@@ -77,6 +78,56 @@ const DEFAULT_LEDGER_COLUMNS: LedgerColumn[] = [
   label: "Expense Type",
   flex: 1.8,
   render: (row) => row.expenseType,
+},
+
+{
+  id: "businessUse",
+  label: "Business %",
+  flex: 1.4,
+  render: (row) =>
+    row.businessUsePercent != null
+      ? `${row.businessUsePercent}%`
+      : "-",
+},
+
+{
+  id: "deductible",
+  label: "Deductible %",
+  flex: 1.4,
+  render: (row) =>
+    row.deductiblePercent != null
+      ? `${row.deductiblePercent}%`
+      : "-",
+},
+
+{
+  id: "taxType",
+  label: "Tax Type",
+  flex: 1.5,
+  align: "center",
+render: (row) => {
+
+  if (row.taxType === "GST/HST") {
+    return "GST/\nHST";
+  }
+
+  return row.taxType ?? "-";
+
+},
+},
+
+{
+  id: "taxAmount",
+  label: "Tax Amount",
+  flex: 1.6,
+  align: "right",
+  render: (row) =>
+    row.taxAmount != null
+      ? formatCurrency(
+          row.taxAmount,
+          row.reportingCurrency
+        )
+      : "-",
 },
 
   {
@@ -130,6 +181,34 @@ export function ExpenseLedgerPages({
       return false;
     }
 
+    if (
+  column.id === "businessUse" &&
+  !report.options.includeBusinessUse
+) {
+  return false;
+}
+
+if (
+  column.id === "deductible" &&
+  !report.options.includeDeductible
+) {
+  return false;
+}
+
+if (
+  column.id === "taxType" &&
+  !report.options.includeTaxInformation
+) {
+  return false;
+}
+
+if (
+  column.id === "taxAmount" &&
+  !report.options.includeTaxInformation
+) {
+  return false;
+}
+
     return true;
 
   });
@@ -180,10 +259,13 @@ function LedgerHeader({
 
   <Text
     key={column.id}
-    style={[
-      styles.headerCell,
-      { flex: column.flex },
-    ]}
+style={[
+  styles.headerCell,
+  {
+    flex: column.flex,
+    textAlign: column.align ?? "left",
+  },
+]}
   >
     {column.label}
   </Text>
@@ -218,10 +300,13 @@ function LedgerRow({
 
   <Text
     key={column.id}
-    style={[
-      styles.cell,
-      { flex: column.flex },
-    ]}
+style={[
+  styles.cell,
+  {
+    flex: column.flex,
+    textAlign: column.align ?? "left",
+  },
+]}
   >
     {column.render(row)}
   </Text>
@@ -260,11 +345,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.line,
   },
 
-  headerCell: {
-    ...typography.label,
-    color: colors.text.primary,
-    paddingRight: 6,
-  },
+headerCell: {
+  ...typography.label,
+  color: colors.text.primary,
+  paddingRight: 6,
+  textAlign: "left",
+},
 
   cell: {
     ...typography.body,
