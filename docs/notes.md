@@ -263,6 +263,8 @@ git commit -m "Expense Report V1 complete" -  Date filter works now
 git commit -m "checkpoint/expense-pdf-financial-summary-v1" -  Page 4 is now live 
 
 git commit -m "checkpoint/expense-pdf-page4-expense-type-summary-v1"
+
+git commit -m "checkpoint/expense-pdf-financial-summary-complete-v1"
 ------------------------------------------------------------------
 
 UI Simplification

@@ -82,6 +82,16 @@ const expenseTypeRows =
       })
     );
 
+    const taxRows =
+  report.financialSummary
+    .taxSummary
+    .map(
+      item => ({
+        label: item.taxType,
+        amount: item.taxAmount,
+      })
+    );
+
 const hasOriginalCurrencySummary =
   originalCurrencyRows.length >
   0;
@@ -168,7 +178,7 @@ const hasTaxSummary =
       reportingCurrency={
         reportingCurrency
       }
-      totalLabel="Total Expenses"
+      totalLabel="Total by Type"
     />
 
   </>
@@ -187,7 +197,15 @@ const hasTaxSummary =
       Tax Summary
     </Text>
 
-    {/* Tax Summary Table */}
+    <SummaryTable
+      leftHeader="Tax Type"
+      rightHeader="Tax Amount"
+      rows={taxRows}
+      reportingCurrency={
+        reportingCurrency
+      }
+      totalLabel="Total Tax"
+    />
 
   </>
 

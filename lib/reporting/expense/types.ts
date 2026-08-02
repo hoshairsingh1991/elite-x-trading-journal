@@ -181,7 +181,7 @@ export interface ExpenseTypeSummary {
 export interface TaxSummary {
   taxType: string;
 
-  reportingTotal: number;
+  taxAmount: number;
 }
 
 export interface ExpenseFinancialSummary {
