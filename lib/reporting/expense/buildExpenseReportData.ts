@@ -27,6 +27,10 @@ import { buildReportInformation } from "./builders/reportInformation";
 import { buildSummary } from "./builders/summary";
 import { buildOriginalCurrencyTotals } from "./builders/originalCurrencyTotals";
 
+
+import { buildFinancialSummary }
+from "./builders/financialSummary";
+
 import {
   BuildExpenseReportDataInput,
   ExpenseReportData,
@@ -65,9 +69,10 @@ vendorSummary:
     input.expenses
   ),
 
-originalCurrencyTotals:
-  buildOriginalCurrencyTotals(
-    input.expenses
+financialSummary:
+  buildFinancialSummary(
+    input.expenses,
+    input.options
   ),
 
 rows:

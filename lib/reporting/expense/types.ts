@@ -163,6 +163,39 @@ export interface ExpenseReportInformation {
 }
 
 /* ============================================================================
+   Financial Summary
+   ============================================================================ */
+
+export interface MonthlyExpenseSummary {
+  month: string;
+
+  reportingTotal: number;
+}
+
+export interface ExpenseTypeSummary {
+  expenseType: string;
+
+  reportingTotal: number;
+}
+
+export interface TaxSummary {
+  taxType: string;
+
+  reportingTotal: number;
+}
+
+export interface ExpenseFinancialSummary {
+  monthlySummary: MonthlyExpenseSummary[];
+
+  originalCurrencySummary: PdfCurrencyTotal[];
+
+  expenseTypeSummary: ExpenseTypeSummary[];
+
+  taxSummary: TaxSummary[];
+}
+
+
+/* ============================================================================
    Report Builder Input
    ============================================================================ */
 
@@ -195,7 +228,7 @@ categorySummary: ExpenseCategorySummary[];
 
 vendorSummary: ExpenseVendorSummary[];
 
-originalCurrencyTotals: PdfCurrencyTotal[];
+financialSummary: ExpenseFinancialSummary;
 
   rows: ExpenseReportRow[];
 

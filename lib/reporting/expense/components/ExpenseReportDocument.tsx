@@ -22,6 +22,7 @@ import { ExpenseReportData } from "../types";
 import { ExpenseCoverPage } from "./ExpenseCoverPage";
 import { ExpenseSummaryPage } from "./ExpenseSummaryPage";
 import { ExpenseLedgerPages } from "./ExpenseLedgerPages";
+import { FinancialSummaryPage } from "./FinancialSummaryPage";
 
 /* ============================================================================
    Types
@@ -67,9 +68,9 @@ export function ExpenseReportDocument({
 
       </Page>
 
-      {/* ========================================================== */}
-      {/* PAGE 3+ */}
-      {/* ========================================================== */}
+{/* ========================================================== */}
+{/* PAGE 3 */}
+{/* ========================================================== */}
 
       <Page>
 
@@ -78,6 +79,18 @@ export function ExpenseReportDocument({
         />
 
       </Page>
+
+      {/* ========================================================== */}
+{/* PAGE 4 */}
+{/* ========================================================== */}
+
+<Page>
+
+  <FinancialSummaryPage
+    report={report}
+  />
+
+</Page>
 
     </Document>
 
