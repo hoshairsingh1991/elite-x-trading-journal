@@ -492,6 +492,16 @@ trades={filteredTrades}
   onClose={() => {
     setIsExportDrawerOpen(false);
   }}
+
+  expenses={filteredExpenses}
+
+  reportingCurrency={reportingCurrency}
+
+  reportingPeriod={selectedPreset}
+
+  generatedBy="Happy"
+
+  reportVersion="1.0"
 />
 <AddExpenseDrawer
   open={isAddExpenseOpen}

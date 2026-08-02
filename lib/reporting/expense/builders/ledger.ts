@@ -27,6 +27,7 @@ import {
 
 export function buildLedger(
   expenses: ReportingExpense[],
+  reportingCurrency: string,
   options: ExpenseReportOptions
 ): ExpenseReportRow[] {
 
@@ -35,9 +36,10 @@ export function buildLedger(
 
       id: expense.id,
 
-      date: new Date(
-        expense.expense_date
-      ),
+date: new Date(
+  expense.expense_date +
+  "T12:00:00"
+),
 
       expenseName:
         expense.expense_name,
@@ -61,6 +63,8 @@ export function buildLedger(
 
       reportingAmount:
         expense.reporting_amount,
+
+        reportingCurrency,
 
       businessUsePercent:
         options.includeBusinessUse

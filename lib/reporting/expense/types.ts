@@ -95,6 +95,18 @@ export interface ExpenseCategorySummary {
 }
 
 /* ============================================================================
+   Vendor Summary
+   ============================================================================ */
+
+export interface ExpenseVendorSummary {
+  vendor: string;
+
+  expenseCount: number;
+
+  reportingTotal: number;
+}
+
+/* ============================================================================
    Expense Table Row
    ============================================================================ */
 
@@ -116,6 +128,8 @@ export interface ExpenseReportRow {
   originalAmount: number;
 
   reportingAmount: number;
+
+  reportingCurrency: string;
 
   businessUsePercent: number | null;
 
@@ -175,11 +189,13 @@ export interface ExpenseReportData {
 
   options: ExpenseReportOptions;
 
-  summary: ExpenseReportSummary;
+summary: ExpenseReportSummary;
 
-  categorySummary: ExpenseCategorySummary[];
+categorySummary: ExpenseCategorySummary[];
 
-  originalCurrencyTotals: PdfCurrencyTotal[];
+vendorSummary: ExpenseVendorSummary[];
+
+originalCurrencyTotals: PdfCurrencyTotal[];
 
   rows: ExpenseReportRow[];
 

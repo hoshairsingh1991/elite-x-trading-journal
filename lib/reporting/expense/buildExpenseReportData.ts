@@ -19,6 +19,7 @@
  */
 
 import { buildCategorySummary } from "./builders/categorySummary";
+import { buildVendorSummary } from "./builders/vendorSummary";
 import { buildDisclaimer } from "./builders/disclaimer";
 import { buildLedger } from "./builders/ledger";
 import { buildMetadata } from "./builders/metadata";
@@ -54,21 +55,27 @@ export function buildExpenseReportData(
         input.expenses
       ),
 
-    categorySummary:
-      buildCategorySummary(
-        input.expenses
-      ),
+categorySummary:
+  buildCategorySummary(
+    input.expenses
+  ),
 
-    originalCurrencyTotals:
+vendorSummary:
+  buildVendorSummary(
+    input.expenses
+  ),
+
+originalCurrencyTotals:
   buildOriginalCurrencyTotals(
     input.expenses
   ),
 
-    rows:
-      buildLedger(
-        input.expenses,
-        input.options
-      ),
+rows:
+  buildLedger(
+    input.expenses,
+    input.reportingCurrency,
+    input.options
+  ),
 
     reportInformation:
       buildReportInformation(

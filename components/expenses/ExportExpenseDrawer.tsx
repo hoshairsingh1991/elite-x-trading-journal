@@ -27,9 +27,27 @@ Clock3,
 
 import DateRangePicker from "@/components/shared/DateRangePicker";
 
+import { exportExpenseReport } from "@/lib/reporting/expense/exportExpenseReport";
+
+import {
+  ExpenseReportOptions,
+} from "@/lib/reporting/expense/types";
+
+import { ReportingExpense } from "@/lib/types/expense";
+
 interface ExportExpenseDrawerProps {
   open: boolean;
   onClose: () => void;
+
+  expenses: ReportingExpense[];
+
+  reportingCurrency: string;
+
+  reportingPeriod: string;
+
+  generatedBy: string;
+
+  reportVersion: string;
 }
 
 const headerPaddingX = "px-7";
@@ -390,6 +408,17 @@ const BUSINESS_TAX_COLUMNS = [
 export default function ExportExpenseDrawer({
   open,
   onClose,
+
+  expenses,
+
+  reportingCurrency,
+
+  reportingPeriod,
+
+  generatedBy,
+
+  reportVersion,
+
 }: ExportExpenseDrawerProps) {
 
       const [
@@ -1657,7 +1686,49 @@ return (
 
     <button
       type="button"
-      onClick={() => {}}
+      onClick={async () => {
+
+  const options: ExpenseReportOptions = {
+
+    includeSummary: true,
+
+    includeCategorySummary: true,
+
+    includeExpenseDetails: true,
+
+    includeVendor: true,
+
+    includeNotes: false,
+
+    includeBusinessUse: false,
+
+    includeDeductible: false,
+
+    includeTaxInformation: false,
+
+    includeReceiptStatus: true,
+
+    includeRecurringStatus: false,
+
+  };
+
+  await exportExpenseReport({
+
+    expenses,
+
+    reportingCurrency,
+
+    reportingPeriod,
+
+    generatedBy,
+
+    reportVersion,
+
+    options,
+
+  });
+
+}}
       className={`
         ${exportButtonWidth}
 
