@@ -62,6 +62,12 @@ export interface ExpenseReportOptions {
   includeReceiptStatus: boolean;
 
   includeRecurringStatus: boolean;
+
+  includeExpenseType: boolean;
+
+  includeTaxType: boolean;
+
+  includeTaxAmount: boolean;
 }
 
 /* ============================================================================

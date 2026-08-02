@@ -77,14 +77,14 @@ date: new Date(
           : null,
 
       taxType:
-        options.includeTaxInformation
-          ? expense.tax_type ?? "-"
-          : "-",
+  options.includeTaxType
+    ? expense.tax_type ?? "-"
+    : "-",
 
       taxAmount:
-        options.includeTaxInformation
-          ? expense.tax_amount
-          : null,
+  options.includeTaxAmount
+    ? expense.tax_amount
+    : null,
 
       receiptStatus:
         options.includeReceiptStatus

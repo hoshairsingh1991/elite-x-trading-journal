@@ -17,6 +17,8 @@
  * ============================================================================
  */
 
+import React from "react";
+
 import {
   StyleSheet,
   Text,
@@ -44,6 +46,73 @@ interface ExpenseLedgerPagesProps {
   report: ExpenseReportData;
 }
 
+interface LedgerColumn {
+  id: string;
+  label: string;
+  flex: number;
+  render: (row: ExpenseReportRow) => React.ReactNode;
+}
+
+const DEFAULT_LEDGER_COLUMNS: LedgerColumn[] = [
+  {
+    id: "date",
+    label: "Date",
+    flex: 1.8,
+    render: (row) => formatDate(row.date),
+  },
+  {
+    id: "expenseName",
+    label: "Expense",
+    flex: 2.2,
+    render: (row) => row.expenseName,
+  },
+  {
+    id: "category",
+    label: "Category",
+    flex: 1.9,
+    render: (row) => row.category,
+  },
+{
+  id: "expenseType",
+  label: "Expense Type",
+  flex: 1.8,
+  render: (row) => row.expenseType,
+},
+
+  {
+    id: "vendor",
+    label: "Vendor",
+    flex: 2.2,
+    render: (row) => row.vendor ?? "-",
+  },
+  {
+    id: "originalAmount",
+    label: "Original",
+    flex: 1.5,
+    render: (row) =>
+      formatCurrency(
+        row.originalAmount,
+        row.originalCurrency
+      ),
+  },
+  {
+    id: "reportingAmount",
+    label: "Reporting",
+    flex: 1.5,
+    render: (row) =>
+      formatCurrency(
+        row.reportingAmount,
+        row.reportingCurrency
+      ),
+  },
+  {
+    id: "receiptStatus",
+    label: "Receipt",
+    flex: 1.0,
+    render: (row) => row.receiptStatus,
+  },
+];
+
 /* ============================================================================
    Component
    ============================================================================ */
@@ -51,6 +120,19 @@ interface ExpenseLedgerPagesProps {
 export function ExpenseLedgerPages({
   report,
 }: ExpenseLedgerPagesProps) {
+
+  const columns = DEFAULT_LEDGER_COLUMNS.filter((column) => {
+
+    if (
+      column.id === "expenseType" &&
+      !report.options.includeExpenseType
+    ) {
+      return false;
+    }
+
+    return true;
+
+  });
 
   return (
 
@@ -60,14 +142,17 @@ export function ExpenseLedgerPages({
         Detailed Expense Ledger
       </Text>
 
-      <LedgerHeader />
+     <LedgerHeader
+  columns={columns}
+/>
 
       {report.rows.map((row) => (
 
-        <LedgerRow
-          key={row.id}
-          row={row}
-        />
+       <LedgerRow
+  key={row.id}
+  row={row}
+  columns={columns}
+/>
 
       ))}
 
@@ -81,39 +166,29 @@ export function ExpenseLedgerPages({
    Ledger Header
    ============================================================================ */
 
-function LedgerHeader() {
+function LedgerHeader({
+  columns,
+}: {
+  columns: LedgerColumn[];
+}) {
 
   return (
 
     <View style={styles.headerRow}>
 
-<Text style={[styles.headerCell, { flex: 1.8 }]}>
-  Date
-</Text>
+{columns.map((column) => (
 
-<Text style={[styles.headerCell, { flex: 2.2 }]}>
-  Expense
-</Text>
+  <Text
+    key={column.id}
+    style={[
+      styles.headerCell,
+      { flex: column.flex },
+    ]}
+  >
+    {column.label}
+  </Text>
 
-<Text style={[styles.headerCell, { flex: 1.9 }]}>
-  Category
-</Text>
-
-<Text style={[styles.headerCell, { flex: 2.2 }]}>
-  Vendor
-</Text>
-
-<Text style={[styles.headerCell, { flex: 1.5 }]}>
-  Original
-</Text>
-
-<Text style={[styles.headerCell, { flex: 1.5 }]}>
-  Reporting
-</Text>
-
-<Text style={[styles.headerCell, { flex: 1.0 }]}>
-  Receipt
-</Text>
+))}
 
     </View>
 
@@ -127,49 +202,31 @@ function LedgerHeader() {
 
 interface LedgerRowProps {
   row: ExpenseReportRow;
+  columns: LedgerColumn[];
 }
 
 function LedgerRow({
   row,
+  columns,
 }: LedgerRowProps) {
 
   return (
 
     <View style={styles.dataRow}>
 
-      <Text style={[styles.cell, { flex: 1.8 }]}>
-        {formatDate(row.date)}
-      </Text>
+{columns.map((column) => (
 
-      <Text style={[styles.cell, { flex: 2.2 }]}>
-        {row.expenseName}
-      </Text>
+  <Text
+    key={column.id}
+    style={[
+      styles.cell,
+      { flex: column.flex },
+    ]}
+  >
+    {column.render(row)}
+  </Text>
 
-      <Text style={[styles.cell, { flex: 1.9 }]}>
-        {row.category}
-      </Text>
-
-      <Text style={[styles.cell, { flex: 2.2 }]}>
-        {row.vendor ?? "-"}
-      </Text>
-
-<Text style={[styles.cell, { flex: 1.5 }]}>
-  {formatCurrency(
-    row.originalAmount,
-    row.originalCurrency
-  )}
-</Text>
-
-<Text style={[styles.cell, { flex: 1.5 }]}>
-  {formatCurrency(
-    row.reportingAmount,
-    row.reportingCurrency
-  )}
-</Text>
-
-      <Text style={[styles.cell, { flex: 1.0 }]}>
-        {row.receiptStatus}
-      </Text>
+))}
 
     </View>
 

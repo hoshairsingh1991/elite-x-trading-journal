@@ -265,6 +265,8 @@ git commit -m "checkpoint/expense-pdf-financial-summary-v1" -  Page 4 is now liv
 git commit -m "checkpoint/expense-pdf-page4-expense-type-summary-v1"
 
 git commit -m "checkpoint/expense-pdf-financial-summary-complete-v1"
+
+git commit -m "checkpoint/expense-pdf-ledger-column-architecture-v1"
 ------------------------------------------------------------------
 
 UI Simplification

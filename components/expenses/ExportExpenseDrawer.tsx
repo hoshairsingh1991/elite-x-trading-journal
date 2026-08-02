@@ -372,34 +372,29 @@ const ALWAYS_INCLUDED_COLUMNS = [
 
 const BUSINESS_TAX_COLUMNS = [
   {
-    id: "expense-type",
+    id: "expenseType",
     label: "Expense Type",
     icon: Briefcase,
-    checked: false,
   },
   {
-    id: "business-use",
+    id: "businessUse",
     label: "Business Use %",
     icon: Percent,
-    checked: true,
   },
   {
     id: "deductible",
     label: "Deductible %",
     icon: Percent,
-    checked: true,
   },
   {
-    id: "tax-type",
+    id: "taxType",
     label: "Tax Type",
     icon: Tag,
-    checked: false,
   },
   {
-    id: "tax-amount",
+    id: "taxAmount",
     label: "Tax Amount",
     icon: DollarSign,
-    checked: false,
   },
 ];
 
@@ -433,6 +428,17 @@ export default function ExportExpenseDrawer({
     endDate,
     setEndDate,
   ] = useState<Date | null>(null);
+
+  const [
+  selectedColumns,
+  setSelectedColumns,
+] = useState({
+  expenseType: false,
+  businessUse: false,
+  deductible: false,
+  taxType: false,
+  taxAmount: false,
+});
 
   useEffect(() => {
 
@@ -1075,38 +1081,53 @@ return (
 
         <div key={item.id}>
 
-          <div className="flex items-center gap-3">
+          <div
+  onClick={() =>
+    setSelectedColumns((prev) => ({
+      ...prev,
+      [item.id]: !prev[item.id as keyof typeof prev],
+    }))
+  }
+  className="
+    flex
+    cursor-pointer
+    items-center
+    gap-3
+  "
+>
 
             {/* Checkbox */}
 
-            <div
-              className={`
-                flex
-                h-7
-                w-7
-                shrink-0
-                items-center
-                justify-center
+<div
 
-                rounded-lg
+  className={`
+    flex
+    h-7
+    w-7
+    shrink-0
+    cursor-pointer
+    items-center
+    justify-center
 
-                ${
-                  item.checked
-                    ? "bg-[#2563eb]"
-                    : "border border-slate-500"
-                }
+    rounded-lg
 
-                transform
-                ${additionalCheckX}
-              `}
-            >
-              {item.checked && (
-                <Check
-                  size={16}
-                  className="text-white"
-                />
-              )}
-            </div>
+    ${
+      selectedColumns[item.id as keyof typeof selectedColumns]
+        ? "bg-[#2563eb]"
+        : "border border-slate-500"
+    }
+
+    transform
+    ${additionalCheckX}
+  `}
+>
+  {selectedColumns[item.id as keyof typeof selectedColumns] && (
+    <Check
+      size={16}
+      className="text-white"
+    />
+  )}
+</div>
 
             {/* Icon */}
 
@@ -1686,29 +1707,42 @@ return (
       type="button"
       onClick={async () => {
 
-  const options: ExpenseReportOptions = {
+const options: ExpenseReportOptions = {
 
-    includeSummary: true,
+  includeSummary: true,
 
-    includeCategorySummary: true,
+  includeCategorySummary: true,
 
-    includeExpenseDetails: true,
+  includeExpenseDetails: true,
 
-    includeVendor: true,
+  includeVendor: true,
 
-    includeNotes: false,
+  includeNotes: false,
 
-    includeBusinessUse: false,
+  includeBusinessUse:
+    selectedColumns.businessUse,
 
-    includeDeductible: false,
+  includeDeductible:
+    selectedColumns.deductible,
 
-    includeTaxInformation: false,
+  includeTaxInformation:
+    selectedColumns.taxType ||
+    selectedColumns.taxAmount,
 
-    includeReceiptStatus: true,
+  includeReceiptStatus: true,
 
-    includeRecurringStatus: false,
+  includeRecurringStatus: false,
 
-  };
+  includeExpenseType:
+    selectedColumns.expenseType,
+
+  includeTaxType:
+    selectedColumns.taxType,
+
+  includeTaxAmount:
+    selectedColumns.taxAmount,
+
+};
 
 const filteredExportExpenses =
   expenses.filter(

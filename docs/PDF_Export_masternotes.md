@@ -1501,3 +1501,1109 @@ STATUS
 ✅ ACCOUNTANT REVIEW READY
 ✅ CRA EXPENSE LEDGER READY
 ✅ IMPLEMENTATION READY
+
+===============================================================================================================================
+
+# ============================================================================
+# ELITEX TRADING OS
+# MASTER HANDOVER NOTES
+# Expense Report PDF V1
+# Session Summary
+# ============================================================================
+
+Project:
+Business Expense Report PDF
+
+Status:
+~95% Complete
+
+Current Branch:
+checkpoint/expense-pdf-financial-summary-complete-v1
+
+Build Status:
+✅ Production Build Passing
+
+Last Checkpoint:
+checkpoint/expense-pdf-financial-summary-complete-v1
+
+Github:
+Latest checkpoint pushed successfully.
+
+============================================================================
+PROJECT GOAL
+============================================================================
+
+The goal of this report is NOT to build a fancy PDF.
+
+The goal is to produce an accountant-grade Business Expense Report that can
+be emailed directly to a CPA/Accountant at year-end.
+
+The PDF must contain:
+
+• Executive Summary
+• Financial Summary
+• Complete Expense Ledger
+• Category Breakdown
+• Vendor Breakdown
+
+The PDF itself performs ZERO calculations.
+
+Every calculation is completed before rendering.
+
+Architecture is strictly separated.
+
+============================================================================
+CANONICAL ARCHITECTURE
+============================================================================
+
+Rule #1
+
+buildExpenseReportData()
+
+Responsible for
+
+• calculations
+• grouping
+• filtering
+• totals
+• reporting currency conversion
+• validation
+
+Produces:
+
+ExpenseReportData
+
+------------------------------------
+
+Rule #2
+
+ExpenseReportDocument
+
+Responsible ONLY for rendering.
+
+NO calculations.
+
+NO grouping.
+
+NO filtering.
+
+NO totals.
+
+It simply renders ExpenseReportData.
+
+============================================================================
+EXPENSE REPORT STRUCTURE
+============================================================================
+
+PAGE 1
+
+Business Expense Report
+
+Contains
+
+• Cover
+• Report Metadata
+• Executive Summary
+
+Executive Summary includes
+
+• Total Expenses
+• Total Expense Count
+• Recurring Total
+• One-Time Total
+• Tax Deductible Total
+• Non-Deductible Total
+
+------------------------------------
+
+PAGE 2
+
+Expense Summary
+
+Contains
+
+Category Summary
+
+Vendor Summary
+
+Both use reusable SummaryTable.
+
+------------------------------------
+
+PAGE 3
+
+Expense Ledger
+
+Contains
+
+Always Included Columns
+
+• Date
+• Expense
+• Category
+• Vendor
+• Original Amount
+• Reporting Amount
+• Receipt Status
+
+NO optional columns yet.
+
+------------------------------------
+
+PAGE 4
+
+Financial Summary
+
+Contains
+
+1.
+
+Monthly Expense Summary
+
+Shows reporting totals by month.
+
+Includes
+
+Total Expenses
+
+------------------------------------
+
+2.
+
+Original Currency Totals
+
+Grouped by
+
+CAD
+USD
+EUR
+etc.
+
+NO footer total.
+
+Reason
+
+Mixed currencies should NEVER be totaled.
+
+Example
+
+CAD 150
+
+USD 200
+
+Printing
+
+Total 350
+
+would be mathematically meaningless.
+
+------------------------------------
+
+3.
+
+Expense Type Summary
+
+Grouped by
+
+Operating
+
+Capital
+
+etc.
+
+Includes
+
+Total by Type
+
+We intentionally renamed
+
+Total Expenses
+
+to
+
+Total by Type
+
+because it is more accurate.
+
+------------------------------------
+
+4.
+
+Tax Summary
+
+Grouped by
+
+GST/HST
+
+VAT
+
+etc.
+
+Includes
+
+Total Tax
+
+Shown ONLY if tax exists.
+
+============================================================================
+FINANCIAL SUMMARY ARCHITECTURE
+============================================================================
+
+Created
+
+FinancialSummaryPage.tsx
+
+Purpose
+
+Render ONLY.
+
+No calculations.
+
+Uses reusable SummaryTable.
+
+Conditionally renders sections.
+
+If section contains zero rows
+
+Hide entire section.
+
+Implemented for
+
+Original Currency
+
+Expense Type
+
+Tax Summary
+
+============================================================================
+SUMMARY TABLE
+============================================================================
+
+Created
+
+lib/reporting/components/SummaryTable.tsx
+
+Purpose
+
+Single reusable table used by
+
+Category Summary
+
+Vendor Summary
+
+Monthly Summary
+
+Original Currency Summary
+
+Expense Type Summary
+
+Tax Summary
+
+Features
+
+Reusable
+
+Configurable headers
+
+Configurable footer
+
+Reusable currency formatter
+
+Optional footer
+
+Supports
+
+leftHeader
+
+rightHeader
+
+totalLabel
+
+Supports
+
+currency override
+
+Example
+
+USD 20
+
+CAD 15
+
+instead of converting everything to reporting currency.
+
+============================================================================
+BUILDERS CREATED
+============================================================================
+
+Created
+
+monthlyExpenseSummary.ts
+
+Purpose
+
+Groups expenses by month.
+
+Returns
+
+January
+
+February
+
+March
+
+...
+
+Uses reporting amount.
+
+Chronological sorting.
+
+----------------------------------------------------------------------------
+
+Created
+
+originalCurrencyTotals.ts
+
+Purpose
+
+Groups expenses by billed currency.
+
+Returns
+
+CAD
+
+USD
+
+EUR
+
+No reporting conversion.
+
+----------------------------------------------------------------------------
+
+Created
+
+expenseTypeSummary.ts
+
+Purpose
+
+Groups
+
+expense_type
+
+Uses
+
+reporting_amount
+
+Returns
+
+Operating
+
+Capital
+
+etc.
+
+Ignores
+
+null
+
+empty string
+
+Alphabetically sorted.
+
+----------------------------------------------------------------------------
+
+Created
+
+taxSummary.ts
+
+Purpose
+
+Groups
+
+tax_type
+
+Uses
+
+tax_amount
+
+Ignores
+
+null
+
+empty
+
+zero
+
+Returns
+
+GST/HST
+
+VAT
+
+etc.
+
+Alphabetically sorted.
+
+----------------------------------------------------------------------------
+
+Created
+
+financialSummary.ts
+
+Purpose
+
+Master Financial Summary Builder.
+
+Calls
+
+buildMonthlyExpenseSummary()
+
+buildOriginalCurrencyTotals()
+
+buildExpenseTypeSummary()
+
+buildTaxSummary()
+
+Returns
+
+ExpenseFinancialSummary
+
+============================================================================
+TYPES ADDED
+============================================================================
+
+Added
+
+MonthlyExpenseSummary
+
+ExpenseTypeSummary
+
+TaxSummary
+
+ExpenseFinancialSummary
+
+Updated
+
+ExpenseReportData
+
+Added
+
+financialSummary
+
+----------------------------------------------------------------------------
+
+Added
+
+PdfCurrencyTotal
+
+Used by
+
+Original Currency Totals
+
+============================================================================
+BUGS FOUND
+============================================================================
+
+BUG 1
+
+Build Error
+
+originalCurrencyTotals missing.
+
+Cause
+
+ExpenseReportData did not contain
+
+originalCurrencyTotals
+
+Fix
+
+Moved architecture into
+
+financialSummary
+
+----------------------------------------------------------------------------
+
+BUG 2
+
+Import error
+
+Wrong import path
+
+Used
+
+../shared/buildOriginalCurrencyTotals
+
+Correct path
+
+./originalCurrencyTotals
+
+----------------------------------------------------------------------------
+
+BUG 3
+
+TaxSummary type mismatch
+
+Interface
+
+reportingTotal
+
+Builder
+
+taxAmount
+
+Fix
+
+Changed interface
+
+TaxSummary
+
+to
+
+taxAmount
+
+Cleaner architecture.
+
+----------------------------------------------------------------------------
+
+BUG 4
+
+Expense Type Totals
+
+Operating
+
+64.97
+
+Expected
+
+69.47
+
+Difference
+
+4.50
+
+Investigated
+
+Added logging.
+
+Found
+
+One expense
+
+expense_type
+
+was NULL.
+
+Builder was correct.
+
+Data was wrong.
+
+Updated expense.
+
+Problem resolved.
+
+Lesson
+
+PDF architecture correct.
+
+Database data incorrect.
+
+----------------------------------------------------------------------------
+
+BUG 5
+
+Expense Type Summary footer
+
+Originally
+
+Total Expenses
+
+Changed to
+
+Total by Type
+
+Reason
+
+Avoid duplicate wording.
+
+More accountant friendly.
+
+============================================================================
+ACCOUNTANT REVIEW
+============================================================================
+
+Reviewed report from CPA perspective.
+
+Result
+
+Expense Report considered production quality.
+
+Questions already answered
+
+✓ Date
+
+✓ Expense
+
+✓ Category
+
+✓ Vendor
+
+✓ Original Amount
+
+✓ Reporting Amount
+
+✓ Receipt Status
+
+✓ Expense Type
+
+✓ Business Use %
+
+✓ Deductible %
+
+✓ Tax Type
+
+✓ Tax Amount
+
+Would NOT ask user for
+
+Vendor
+
+Category
+
+Receipt status
+
+Currency
+
+Capital vs Operating
+
+Business %
+
+Deductible %
+
+Tax
+
+Only remaining requests
+
+Broker Statements
+
+Income
+
+Bank Statements
+
+Receipts
+
+outside scope of Expense Report.
+
+============================================================================
+DESIGN DECISIONS LOCKED
+============================================================================
+
+Original Currency Summary
+
+NO footer total.
+
+LOCKED.
+
+------------------------------------
+
+Expense Type Summary
+
+Footer
+
+Total by Type
+
+LOCKED.
+
+------------------------------------
+
+Tax Summary
+
+Footer
+
+Total Tax
+
+LOCKED.
+
+------------------------------------
+
+Conditional Sections
+
+If zero rows
+
+Hide section.
+
+LOCKED.
+
+------------------------------------
+
+Notes
+
+NOT included in ledger.
+
+Future
+
+Appendix
+
+LOCKED.
+
+------------------------------------
+
+Recurring Status
+
+Removed.
+
+Reason
+
+Useful for application.
+
+Not useful for accountant.
+
+LOCKED.
+
+============================================================================
+FINAL LEDGER DESIGN
+============================================================================
+
+Always Included
+
+✓ Date
+
+✓ Expense
+
+✓ Category
+
+✓ Vendor
+
+✓ Original Amount
+
+✓ Reporting Amount
+
+✓ Receipt Status
+
+------------------------------------
+
+Optional
+
+✓ Expense Type
+
+✓ Business Use %
+
+✓ Deductible %
+
+✓ Tax Type
+
+✓ Tax Amount
+
+------------------------------------
+
+Removed
+
+Notes
+
+Recurring Status
+
+============================================================================
+NEXT FEATURE
+============================================================================
+
+Additional Ledger Columns
+
+Plan
+
+1.
+
+Export Drawer
+
+Allow selecting
+
+Expense Type
+
+Business Use %
+
+Deductible %
+
+Tax Type
+
+Tax Amount
+
+----------------------------------------------------------------------------
+
+2.
+
+Update Ledger
+
+Headers become dynamic.
+
+Rows become dynamic.
+
+----------------------------------------------------------------------------
+
+3.
+
+Column Widths
+
+Recalculate dynamically.
+
+Avoid hardcoded widths.
+
+----------------------------------------------------------------------------
+
+4.
+
+Orientation
+
+Decision LOCKED
+
+Default
+
+Portrait
+
+If NO optional columns selected
+
+Keep current portrait layout.
+
+------------------------------------
+
+If ONE OR MORE optional columns selected
+
+Show new option
+
+Ledger Layout
+
+○ Portrait
+
+○ Landscape
+
+Default
+
+Portrait
+
+Landscape recommended
+
+for printing.
+
+Portrait recommended
+
+for screen viewing.
+
+Important
+
+ONLY Page 3 changes orientation.
+
+Pages
+
+1
+
+2
+
+4
+
+always remain portrait.
+
+Reason
+
+Professional reports often contain portrait summary pages and landscape
+schedules.
+
+Mixed orientation is acceptable and common.
+
+============================================================================
+IMPLEMENTATION ORDER
+============================================================================
+
+NEXT
+
+1.
+
+Update Export Drawer
+
+Add
+
+Additional Ledger Columns
+
+Expense Type
+
+Business Use %
+
+Deductible %
+
+Tax Type
+
+Tax Amount
+
+----------------------------------------------------------------------------
+
+2.
+
+If any additional column selected
+
+Show
+
+Ledger Layout
+
+Portrait
+
+Landscape
+
+----------------------------------------------------------------------------
+
+3.
+
+Refactor Ledger
+
+Current implementation likely hardcodes columns.
+
+Goal
+
+Move toward column-definition architecture instead of repeated conditionals.
+
+Avoid patterns like
+
+if(includeExpenseType)
+
+if(includeTaxType)
+
+etc.
+
+Prefer a single column definition list that drives both header and rows.
+
+----------------------------------------------------------------------------
+
+4.
+
+Implement optional columns.
+
+----------------------------------------------------------------------------
+
+5.
+
+Implement portrait/landscape switch for Page 3 only.
+
+----------------------------------------------------------------------------
+
+6.
+
+Full QA.
+
+============================================================================
+FINAL QA CHECKLIST
+============================================================================
+
+Default Report
+
+☐
+
+Expense Type only
+
+☐
+
+Business Use only
+
+☐
+
+Deductible only
+
+☐
+
+Tax Type only
+
+☐
+
+Tax Amount only
+
+☐
+
+All optional columns
+
+☐
+
+Portrait
+
+☐
+
+Landscape
+
+☐
+
+Empty Report
+
+☐
+
+One Expense
+
+☐
+
+Multiple Pages
+
+☐
+
+Long Expense Names
+
+☐
+
+Long Vendor Names
+
+☐
+
+Mixed Currencies
+
+☐
+
+No Tax
+
+☐
+
+No Expense Type
+
+☐
+
+============================================================================
+OVERALL STATUS
+============================================================================
+
+Expense PDF
+
+Architecture
+
+✅ Complete
+
+Financial Summary
+
+✅ Complete
+
+Reusable Components
+
+✅ Complete
+
+Summary Tables
+
+✅ Complete
+
+Builders
+
+✅ Complete
+
+Production Build
+
+✅ Passing
+
+CPA Review
+
+✅ Passed
+
+Remaining Work
+
+Only
+
+Optional Ledger Columns
+
++
+
+Ledger Layout
+
++
+
+Final QA
+
+After those are complete
+
+Expense Report PDF V1 will be considered COMPLETE and locked.
