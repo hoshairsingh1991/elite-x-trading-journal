@@ -257,6 +257,8 @@ Implement Expense Reporting Currency V2 architecture
 git commit -m "checkpoint/expense-pdf-export-ui-final-v1"
 git commit -m "checkpoint: reporting-engine-data-layer-v1"
 git commit -m "checkpoint: Expense PDF Layout V1 Final" -  PDF Export works here now. just date filter does not work on export drawer. Rest is good 
+
+git commit -m "Expense Report V1 complete" -  Date filter works now
 ------------------------------------------------------------------
 
 UI Simplification

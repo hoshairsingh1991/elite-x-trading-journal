@@ -43,7 +43,6 @@ interface ExportExpenseDrawerProps {
 
   reportingCurrency: string;
 
-  reportingPeriod: string;
 
   generatedBy: string;
 
@@ -413,7 +412,6 @@ export default function ExportExpenseDrawer({
 
   reportingCurrency,
 
-  reportingPeriod,
 
   generatedBy,
 
@@ -1712,13 +1710,39 @@ return (
 
   };
 
+const filteredExportExpenses =
+  expenses.filter(
+    expense => {
+
+      if (
+        !startDate ||
+        !endDate
+      ) {
+        return true;
+      }
+
+      const expenseDate =
+        new Date(
+          expense.expense_date +
+          "T12:00:00"
+        );
+
+      return (
+        expenseDate >= startDate &&
+        expenseDate <= endDate
+      );
+
+    }
+  );
+
+
   await exportExpenseReport({
 
-    expenses,
+    expenses: filteredExportExpenses,
 
     reportingCurrency,
 
-    reportingPeriod,
+    reportingPeriod: selectedPreset,
 
     generatedBy,
 

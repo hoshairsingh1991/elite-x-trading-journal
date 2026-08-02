@@ -493,11 +493,10 @@ trades={filteredTrades}
     setIsExportDrawerOpen(false);
   }}
 
-  expenses={filteredExpenses}
+  expenses={reportingExpenses}
 
   reportingCurrency={reportingCurrency}
 
-  reportingPeriod={selectedPreset}
 
   generatedBy="Happy"
 
