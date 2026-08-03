@@ -42,6 +42,8 @@ import {
 
 import { ReportingExpense } from "@/lib/types/expense";
 
+import { PDFDocument } from "pdf-lib";
+
 interface ExportExpenseDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -455,6 +457,11 @@ const [
   setEstimatedPdfSize,
 ] = useState<number>(0);
 
+const [
+  estimatedPageCount,
+  setEstimatedPageCount,
+] = useState<number>(0);
+
   useEffect(() => {
 
   const savedFilter =
@@ -608,29 +615,38 @@ async function calculatePdfSize() {
         )}`
       : selectedPreset;
 
-  const blob =
-    await buildExpenseReportPdf({
+const blob =
+  await buildExpenseReportPdf({
 
-      expenses: filteredExpenses,
+    expenses: filteredExpenses,
 
-      reportingCurrency,
+    reportingCurrency,
 
-      reportingPeriod,
+    reportingPeriod,
 
-      generatedBy,
+    generatedBy,
 
-      reportVersion,
+    reportVersion,
 
-      options,
+    options,
 
-    });
+  });
 
-  setEstimatedPdfSize(
-    Math.max(
-      1,
-      Math.round(blob.size / 1024)
-    )
+const pdfDoc =
+  await PDFDocument.load(
+    await blob.arrayBuffer()
   );
+
+setEstimatedPageCount(
+  pdfDoc.getPageCount()
+);
+
+setEstimatedPdfSize(
+  Math.max(
+    1,
+    Math.round(blob.size / 1024)
+  )
+);
 
 }
 
@@ -1472,7 +1488,7 @@ whitespace-pre-line
               ${pagesValueY}
             `}
           >
-            0
+           {estimatedPageCount}
           </span>
 
           <span

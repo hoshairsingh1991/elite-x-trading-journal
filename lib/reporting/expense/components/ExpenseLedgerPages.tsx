@@ -44,6 +44,8 @@ import {
 
 interface ExpenseLedgerPagesProps {
   report: ExpenseReportData;
+
+  rows: ExpenseReportRow[];
 }
 
 interface LedgerColumn {
@@ -170,6 +172,7 @@ render: (row) => {
 
 export function ExpenseLedgerPages({
   report,
+  rows,
 }: ExpenseLedgerPagesProps) {
 
   const columns = DEFAULT_LEDGER_COLUMNS.filter((column) => {
@@ -225,7 +228,7 @@ if (
   columns={columns}
 />
 
-      {report.rows.map((row) => (
+      {rows.map((row) => (
 
        <LedgerRow
   key={row.id}

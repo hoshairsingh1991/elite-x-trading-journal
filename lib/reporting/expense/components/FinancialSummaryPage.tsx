@@ -31,6 +31,8 @@ import {
 import { colors } from "@/lib/reporting/theme/colors";
 import { spacing } from "@/lib/reporting/theme/spacing";
 import { typography } from "@/lib/reporting/theme/typography";
+import { ReportSection }
+from "@/lib/reporting/components/ReportSection";
 
 import { ExpenseReportData } from "../types";
 
@@ -120,19 +122,23 @@ const hasTaxSummary =
       {/* MONTHLY EXPENSE SUMMARY */}
       {/* ============================================================= */}
 
-      <Text style={styles.sectionHeading}>
-        Monthly Expense Summary
-      </Text>
+<ReportSection>
 
-      <SummaryTable
-        leftHeader="Month"
-        rightHeader="Total"
-        rows={monthlyRows}
-        reportingCurrency={
-          reportingCurrency
-        }
-        totalLabel="Total Expenses"
-      />
+  <Text style={styles.sectionHeading}>
+    Monthly Expense Summary
+  </Text>
+
+  <SummaryTable
+    leftHeader="Month"
+    rightHeader="Total"
+    rows={monthlyRows}
+    reportingCurrency={
+      reportingCurrency
+    }
+    totalLabel="Total Expenses"
+  />
+
+</ReportSection>
 
 {/* ============================================================= */}
 {/* ORIGINAL CURRENCY SUMMARY */}

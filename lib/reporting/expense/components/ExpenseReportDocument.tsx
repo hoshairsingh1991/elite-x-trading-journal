@@ -24,6 +24,8 @@ import { ExpenseCoverPage } from "./ExpenseCoverPage";
 import { ExpenseSummaryPage } from "./ExpenseSummaryPage";
 import { ExpenseLedgerPages } from "./ExpenseLedgerPages";
 import { FinancialSummaryPage } from "./FinancialSummaryPage";
+import { paginateRows } from "@/lib/reporting/shared/paginateRows";
+import { REPORT_LAYOUT } from "@/lib/reporting/theme/reportLayout";
 
 /* ============================================================================
    Types
@@ -40,6 +42,12 @@ interface ExpenseReportDocumentProps {
 export function ExpenseReportDocument({
   report,
 }: ExpenseReportDocumentProps) {
+
+  const ledgerPages =
+  paginateRows(
+    report.rows,
+    REPORT_LAYOUT.LEDGER_ROWS_PER_PAGE
+  );
 
   return (
 
@@ -73,19 +81,29 @@ export function ExpenseReportDocument({
 
       </Page>
 
-      {/* ========================================================== */}
-      {/* PAGE 3 */}
-      {/* ========================================================== */}
+{/* ========================================================== */}
+{/* EXPENSE LEDGER */}
+{/* ========================================================== */}
 
-      <Page>
+{ledgerPages.map(
+  (
+    rows,
+    index,
+  ) => (
 
-        <ExpenseLedgerPages
-          report={report}
-        />
+    <Page
+      key={`ledger-${index}`}
+    >
 
-      
+      <ExpenseLedgerPages
+        report={report}
+        rows={rows}
+      />
 
-      </Page>
+    </Page>
+
+  )
+)}
 
       {/* ========================================================== */}
       {/* PAGE 4 */}
