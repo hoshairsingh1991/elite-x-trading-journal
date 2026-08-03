@@ -271,33 +271,10 @@ git commit -m "checkpoint/expense-pdf-ledger-column-architecture-v1"
 git commit -m "checkpoint/expense-pdf-optional-ledger-columns-complete-v1" -  Almost ready.. addition cloumns are working
 
 git commit -m "checkpoint/expense-pdf-v1-final"
+
+git commit -m "checkpoint/export-drawer-live-preview-v1".   Report Preview works here
 ------------------------------------------------------------------
 
-UI Simplification
-
-This also makes the export drawer much cleaner.
-
-Instead of a long list of checkboxes, it can clearly separate:
-
-Always Included
-Date
-Expense Name
-Category
-Vendor
-Original Amount
-Reporting Amount
-Receipt Available
-
-(These don't need checkboxes because they are part of every report.)
-
-Additional Business Information
-Description
-Business Use %
-Deductible %
-Tax Type
-Tax Amount
-
-That communicates to the user that the first group is the standard report, while the second group is for enhanced business reporting.
 
 ------------------------------------------------------------------
 

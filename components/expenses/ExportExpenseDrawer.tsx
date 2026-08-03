@@ -134,7 +134,7 @@ const previewLabelX = "translate-x-4";
 const previewLabelY = "translate-y-2";
 
 const previewCardWidth = "w-[110%]";
-const previewCardHeight = "h-[220px]";
+const previewCardHeight = "h-[240px]";
 
 const previewItemSpacing = "h-3";
 
@@ -514,28 +514,78 @@ useEffect(() => {
 /* REPORT PREVIEW DATA */
 /* ========================================== */
 
+const previewExpenses =
+  expenses.filter(
+    expense => {
+
+      if (
+        !startDate ||
+        !endDate
+      ) {
+        return true;
+      }
+
+      const expenseDate =
+        new Date(
+          expense.expense_date +
+          "T12:00:00"
+        );
+
+      return (
+        expenseDate >= startDate &&
+        expenseDate <= endDate
+      );
+
+    }
+  );
+
+const uniqueCategories = new Set(
+  previewExpenses.map(
+    expense => expense.category
+  )
+).size;
+
+const previewDateRange =
+  startDate && endDate
+    ? `${startDate.toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }
+      )} –\n${endDate.toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }
+      )}`
+    : selectedPreset;
+
 const previewItems = [
   {
     icon: FileText,
-    value: "0",
+    value: String(previewExpenses.length),
     label: "Expenses",
     color: "bg-blue-600/20 text-blue-300",
   },
   {
     icon: LayoutGrid,
-    value: "0",
+    value: String(uniqueCategories),
     label: "Categories",
     color: "bg-violet-600/20 text-violet-300",
   },
-  {
-    icon: Calendar,
-    value: selectedPreset,
-    label: "Date Range",
-    color: "bg-emerald-600/20 text-emerald-300",
-  },
+{
+  icon: Calendar,
+  value: previewDateRange,
+  label: "Date Range",
+  color: "bg-emerald-600/20 text-emerald-300",
+},
   {
     icon: Flag,
-    value: "USD",
+    value: reportingCurrency,
     label: "Reporting Currency",
     color: "bg-amber-600/20 text-amber-300",
   },
@@ -960,7 +1010,7 @@ return (
             text-[15px]
             font-semibold
             text-white
-
+whitespace-pre-line
             transform
             ${previewValueX}
             ${previewValueY}
