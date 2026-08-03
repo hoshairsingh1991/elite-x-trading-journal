@@ -173,19 +173,19 @@ const hasTaxSummary =
 
   <>
 
-    <Text style={styles.sectionHeading}>
-      Expense Type Summary
-    </Text>
+<Text style={styles.sectionHeading}>
+  Expense Type Summary
+</Text>
 
-    <SummaryTable
-      leftHeader="Expense Type"
-      rightHeader="Total"
-      rows={expenseTypeRows}
-      reportingCurrency={
-        reportingCurrency
-      }
-      totalLabel="Total by Type"
-    />
+<SummaryTable
+  leftHeader="Expense Type"
+  rightHeader="Total"
+  rows={expenseTypeRows}
+  reportingCurrency={
+    reportingCurrency
+  }
+  totalLabel="Total by Type"
+/>
 
   </>
 
