@@ -273,6 +273,8 @@ git commit -m "checkpoint/expense-pdf-optional-ledger-columns-complete-v1" -  Al
 git commit -m "checkpoint/expense-pdf-v1-final"
 
 git commit -m "checkpoint/export-drawer-live-preview-v1".   Report Preview works here
+
+git commit -m "checkpoint: export drawer live preview complete" -  we just left with Total pages. rest is working now
 ------------------------------------------------------------------
 
 

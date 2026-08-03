@@ -27,7 +27,10 @@ Clock3,
 
 import DateRangePicker from "@/components/shared/DateRangePicker";
 
-import { exportExpenseReport } from "@/lib/reporting/expense/exportExpenseReport";
+import {
+  exportExpenseReport,
+  buildExpenseReportPdf,
+} from "@/lib/reporting/expense/exportExpenseReport";
 
 import {
   loadProfile,
@@ -200,6 +203,9 @@ const pagesValueY = "translate-y-3";
 
 const pagesCaptionX = "translate-x-2";
 const pagesCaptionY = "translate-y-5";
+
+const columnsCaptionX = "translate-x-0";
+const columnsCaptionY = "translate-y-5";
 
 /* ========================================== */
 /* TOTAL COLUMNS */
@@ -444,6 +450,11 @@ export default function ExportExpenseDrawer({
   taxAmount: false,
 });
 
+const [
+  estimatedPdfSize,
+  setEstimatedPdfSize,
+] = useState<number>(0);
+
   useEffect(() => {
 
   const savedFilter =
@@ -509,6 +520,133 @@ useEffect(() => {
     document.body.style.overflow = "";
   };
 }, [open]);
+
+useEffect(() => {
+
+async function calculatePdfSize() {
+
+  if (!open) {
+    return;
+  }
+
+  const options: ExpenseReportOptions = {
+
+    includeSummary: true,
+
+    includeCategorySummary: true,
+
+    includeExpenseDetails: true,
+
+    includeVendor: true,
+
+    includeNotes: false,
+
+    includeBusinessUse:
+      selectedColumns.businessUse,
+
+    includeDeductible:
+      selectedColumns.deductible,
+
+    includeTaxInformation:
+      selectedColumns.taxType ||
+      selectedColumns.taxAmount,
+
+    includeReceiptStatus: true,
+
+    includeRecurringStatus: false,
+
+    includeExpenseType:
+      selectedColumns.expenseType,
+
+    includeTaxType:
+      selectedColumns.taxType,
+
+    includeTaxAmount:
+      selectedColumns.taxAmount,
+
+  };
+
+  const filteredExpenses =
+    expenses.filter(expense => {
+
+      if (
+        !startDate ||
+        !endDate
+      ) {
+        return true;
+      }
+
+      const expenseDate =
+        new Date(
+          expense.expense_date +
+          "T12:00:00"
+        );
+
+      return (
+        expenseDate >= startDate &&
+        expenseDate <= endDate
+      );
+
+    });
+
+  const reportingPeriod =
+    startDate && endDate
+      ? `${startDate.toLocaleDateString(
+          "en-US",
+          {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          }
+        )} – ${endDate.toLocaleDateString(
+          "en-US",
+          {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          }
+        )}`
+      : selectedPreset;
+
+  const blob =
+    await buildExpenseReportPdf({
+
+      expenses: filteredExpenses,
+
+      reportingCurrency,
+
+      reportingPeriod,
+
+      generatedBy,
+
+      reportVersion,
+
+      options,
+
+    });
+
+  setEstimatedPdfSize(
+    Math.max(
+      1,
+      Math.round(blob.size / 1024)
+    )
+  );
+
+}
+
+ void calculatePdfSize().catch(console.error);
+
+}, [
+  open,
+  expenses,
+  reportingCurrency,
+  generatedBy,
+  reportVersion,
+  selectedPreset,
+  startDate,
+  endDate,
+  selectedColumns,
+]);
 
 /* ========================================== */
 /* REPORT PREVIEW DATA */
@@ -591,6 +729,12 @@ const previewItems = [
   },
 ];
 
+const reportContentCount =
+  REPORT_CONTENT.length +
+  Object.values(selectedColumns)
+    .filter(Boolean)
+    .length;
+
 
 const estimatedItems = [
   {
@@ -607,13 +751,13 @@ const estimatedItems = [
   caption: "",
   color: "text-violet-400",
 },
-  {
-    icon: FileBadge,
-    value: "~0 KB",
-    label: "PDF Size",
-    caption: "Estimated",
-    color: "text-amber-400",
-  },
+{
+  icon: FileBadge,
+  value: `~${estimatedPdfSize} KB`,
+  label: "PDF Size",
+  caption: "Estimated",
+  color: "text-amber-400",
+},
 {
   icon: Clock3,
   value: "Today",
@@ -1405,7 +1549,7 @@ whitespace-pre-line
               ${columnsLabelY}
             `}
           >
-            Total Columns
+            Report Content
           </span>
 
           <span
@@ -1420,8 +1564,22 @@ whitespace-pre-line
               ${columnsValueY}
             `}
           >
-            0
+            {reportContentCount}
           </span>
+
+<span
+  className={`
+    mt-1
+    text-[13px]
+    text-slate-400
+
+    transform
+    ${columnsCaptionX}
+    ${columnsCaptionY}
+  `}
+>
+  Included
+</span>
 
         </div>
 
@@ -1442,7 +1600,7 @@ whitespace-pre-line
         `}
       />
 
-      {/* ================================== */}
+{/* ================================== */}
 {/* PDF SIZE */}
 {/* ================================== */}
 
@@ -1498,7 +1656,7 @@ whitespace-pre-line
         ${pdfSizeValueY}
       `}
     >
-      ~0 KB
+      {`~${estimatedPdfSize} KB`}
     </span>
 
     <span

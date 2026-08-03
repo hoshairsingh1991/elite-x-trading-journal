@@ -8,9 +8,9 @@
  *
  * Responsibilities
  * ----------------------------------------------------------------------------
- * • Render ExpenseReportDocument
- * • Generate PDF Blob
- * • Trigger browser download
+ * • Build PDF Blob
+ * • Download PDF Blob
+ * • Generate Expense PDF
  *
  * Performs NO business logic.
  *
@@ -24,20 +24,31 @@ import { ExpenseReportDocument } from "./components/ExpenseReportDocument";
 import { ExpenseReportData } from "./types";
 
 /* ============================================================================
-   Generate Expense PDF
+   Build PDF Blob
    ============================================================================ */
 
-export async function generateExpensePdf(
+export async function buildExpensePdfBlob(
   report: ExpenseReportData
-): Promise<void> {
+): Promise<Blob> {
 
-  const blob = await pdf(
+  return await pdf(
 
     <ExpenseReportDocument
       report={report}
     />
 
   ).toBlob();
+
+}
+
+/* ============================================================================
+   Download PDF Blob
+   ============================================================================ */
+
+export function downloadExpensePdf(
+  blob: Blob,
+  report: ExpenseReportData
+): void {
 
   const url =
     URL.createObjectURL(blob);
@@ -57,5 +68,25 @@ export async function generateExpensePdf(
   document.body.removeChild(link);
 
   URL.revokeObjectURL(url);
+
+}
+
+/* ============================================================================
+   Generate Expense PDF
+   ============================================================================ */
+
+export async function generateExpensePdf(
+  report: ExpenseReportData
+): Promise<void> {
+
+  const blob =
+    await buildExpensePdfBlob(
+      report
+    );
+
+  downloadExpensePdf(
+    blob,
+    report
+  );
 
 }

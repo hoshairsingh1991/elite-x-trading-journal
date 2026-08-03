@@ -9,19 +9,41 @@
  * Responsibilities
  * ----------------------------------------------------------------------------
  * • Build canonical report data
- * • Generate PDF
- *
- * This is the ONLY public entry point used by the UI.
+ * • Build PDF Blob
+ * • Export PDF
  *
  * ============================================================================
  */
 
 import { buildExpenseReportData } from "./buildExpenseReportData";
-import { generateExpensePdf } from "./generateExpensePdf";
+
+import {
+  buildExpensePdfBlob,
+  downloadExpensePdf,
+} from "./generateExpensePdf";
 
 import {
   BuildExpenseReportDataInput,
 } from "./types";
+
+/* ============================================================================
+   Build Expense Report PDF
+   ============================================================================ */
+
+export async function buildExpenseReportPdf(
+  input: BuildExpenseReportDataInput
+): Promise<Blob> {
+
+  const report =
+    buildExpenseReportData(
+      input
+    );
+
+  return await buildExpensePdfBlob(
+    report
+  );
+
+}
 
 /* ============================================================================
    Export Expense Report
@@ -36,7 +58,13 @@ export async function exportExpenseReport(
       input
     );
 
-  await generateExpensePdf(
+  const blob =
+    await buildExpensePdfBlob(
+      report
+    );
+
+  downloadExpensePdf(
+    blob,
     report
   );
 
