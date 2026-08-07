@@ -285,6 +285,8 @@ git commit -m "checkpoint: expense report pdf export v1 architecture complete"
 git commit -m "checkpoint: expense report pdf export v2 complete"
 
 git commit -m "checkpoint: expense drawer ux improvements"
+
+git commit -m "feat(expenses): add recurring anchor indicator and help tooltip"
 ------------------------------------------------------------------
 
 

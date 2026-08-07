@@ -13,6 +13,15 @@ import { Paperclip } from "lucide-react";
 import { getCurrencySymbol } from "@/lib/fx/currencyFormatting";
 import type { Expense } from "@/lib/types/expense";
 
+import { Star } from "lucide-react";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import {
   convertAmount,
 } from "@/lib/fx/fxConversion";
@@ -801,7 +810,14 @@ className={`
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   )
-  .map((row) => (
+  .map((row) => {
+
+    const isPrimaryRecurringExpense =
+      row.is_recurring &&
+      !row.is_generated &&
+      row.is_active;
+
+    return (
 <div
   key={row.id}
   onClick={() => onViewExpense(row)}
@@ -919,13 +935,77 @@ className={`
     flex
     items-center
     justify-center
+    gap-1
 
     ${recurringX}
   `}
 >
-  {row.is_recurring
-  ? row.frequency ?? "Recurring"
-  : "One-Time"}
+  <span>
+    {row.is_recurring
+      ? row.frequency ?? "Recurring"
+      : "One-Time"}
+  </span>
+
+  {isPrimaryRecurringExpense && (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => e.stopPropagation()}
+          className="cursor-help"
+          aria-label="Recurring schedule"
+        >
+          <Star
+            className="h-3 w-3 fill-amber-400 text-amber-400"
+          />
+        </button>
+      </TooltipTrigger>
+
+<TooltipContent
+  side="top"
+  sideOffset={10}
+  className="
+    max-w-[340px]
+    rounded-[16px]
+    border
+    border-cyan-500/20
+    bg-[#081526]
+    px-6
+    py-5
+    text-slate-200
+    shadow-[0_12px_40px_rgba(0,0,0,0.55)]
+  "
+>
+<div
+  className="
+    min-h-[130px]
+    space-y-4
+    translate-x-2
+    translate-y-3
+    pb-4
+  "
+>
+
+  <div>
+    <h4 className="text-[14px] font-semibold text-white">
+      Primary Recurring Expense
+    </h4>
+  </div>
+
+  <div className="space-y-3">
+    <p className="text-[13px] leading-6 text-slate-200">
+      This is the original expense that controls this recurring schedule.
+    </p>
+
+    <p className="text-[13px] leading-6 text-slate-200">
+      To stop future recurring expenses, edit this expense and turn <strong>Enable Recurring</strong> Off.
+    </p>
+  </div>
+
+</div>
+      </TooltipContent>
+    </Tooltip>
+  )}
 </span>
 
 <span
@@ -1040,7 +1120,8 @@ className={`
 
 </div>
     </div>
-  ))}
+    );
+  })}
 </div>
 
 {/* ================================================= */}
