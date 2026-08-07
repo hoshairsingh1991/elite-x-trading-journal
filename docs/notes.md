@@ -288,7 +288,7 @@ git commit -m "checkpoint: expense drawer ux improvements"
 
 git commit -m "feat(expenses): add recurring anchor indicator and help tooltip"
 ------------------------------------------------------------------
-
+git commit -m "checkpoint/expense-kpi-net-trading-pnl-v1" - Expense page improvment
 
 ------------------------------------------------------------------
 

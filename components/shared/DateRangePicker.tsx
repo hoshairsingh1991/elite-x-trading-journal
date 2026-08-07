@@ -297,41 +297,60 @@ onClick={() => {
   let startDate:
     Date | null = null;
 
-  let endDate:
-    Date | null = today;
+  let endDate: Date | null = null;
 
   switch (item) {
 
-    case "Today":
+case "Today": {
 
-      startDate =
-        new Date(today);
+  startDate = new Date(today);
+  startDate.setHours(0, 0, 0, 0);
 
-      break;
+  endDate = new Date(today);
+  endDate.setHours(23, 59, 59, 999);
 
-    case "This Week": {
+  break;
+}
 
-      startDate =
-        new Date(today);
+case "This Week": {
 
-      startDate.setDate(
-        today.getDate() -
-        today.getDay()
-      );
+  startDate = new Date(today);
 
-      break;
-    }
+  startDate.setDate(
+    today.getDate() -
+    today.getDay()
+  );
 
-    case "This Month":
+  startDate.setHours(0, 0, 0, 0);
 
-      startDate =
-        new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          1
-        );
+  endDate = new Date(today);
+  endDate.setHours(23, 59, 59, 999);
 
-      break;
+  break;
+}
+
+case "This Month":
+
+  startDate =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
+
+  startDate.setHours(0, 0, 0, 0);
+
+  endDate =
+    new Date(today);
+
+  endDate.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  break;
 
    case "Last 30 Days":
 
@@ -361,69 +380,121 @@ onClick={() => {
 
   break;
 
-    case "Last Month":
+case "Last Month":
 
-      startDate =
-        new Date(
-          today.getFullYear(),
-          today.getMonth() - 1,
-          1
-        );
+  startDate =
+    new Date(
+      today.getFullYear(),
+      today.getMonth() - 1,
+      1
+    );
 
-      endDate =
-        new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          0
-        );
+  endDate =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      0
+    );
 
-      break;
+  startDate.setHours(
+    0,
+    0,
+    0,
+    0
+  );
 
-    case "This Quarter": {
+  endDate.setHours(
+    23,
+    59,
+    59,
+    999
+  );
 
-      const quarterStartMonth =
-        Math.floor(
-          today.getMonth() / 3
-        ) * 3;
+  break;
 
-      startDate =
-        new Date(
-          today.getFullYear(),
-          quarterStartMonth,
-          1
-        );
+case "This Quarter": {
 
-      break;
-    }
+  const quarterStartMonth =
+    Math.floor(
+      today.getMonth() / 3
+    ) * 3;
 
-    case "YTD":
+  startDate =
+    new Date(
+      today.getFullYear(),
+      quarterStartMonth,
+      1
+    );
 
-      startDate =
-        new Date(
-          today.getFullYear(),
-          0,
-          1
-        );
+  startDate.setHours(0, 0, 0, 0);
 
-      break;
+  endDate =
+    new Date(today);
 
-    case "Last Year":
+  endDate.setHours(
+    23,
+    59,
+    59,
+    999
+  );
 
-      startDate =
-        new Date(
-          today.getFullYear() - 1,
-          0,
-          1
-        );
+  break;
+}
 
-      endDate =
-        new Date(
-          today.getFullYear() - 1,
-          11,
-          31
-        );
+case "YTD":
 
-      break;
+  startDate =
+    new Date(
+      today.getFullYear(),
+      0,
+      1
+    );
+
+  startDate.setHours(0, 0, 0, 0);
+
+  endDate =
+    new Date(today);
+
+  endDate.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  break;
+
+case "Last Year":
+
+  startDate =
+    new Date(
+      today.getFullYear() - 1,
+      0,
+      1
+    );
+
+  endDate =
+    new Date(
+      today.getFullYear() - 1,
+      11,
+      31
+    );
+
+  startDate.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  endDate.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  break;
 
     case "All Time":
 

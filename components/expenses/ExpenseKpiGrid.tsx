@@ -31,7 +31,9 @@ interface ExpenseKpiGridProps {
   expenses: ReportingExpense[];
 
   businessCostAnalytics:
-    BusinessCostAnalyticsData;
+  BusinessCostAnalyticsData;
+
+  netTradingPnL: number;
 
   reportingCurrency: string;
 }
@@ -39,6 +41,7 @@ interface ExpenseKpiGridProps {
 export default function ExpenseKpiGrid({
   expenses,
   businessCostAnalytics,
+  netTradingPnL,
   reportingCurrency,
 }: ExpenseKpiGridProps) {
 
@@ -83,14 +86,14 @@ trend={`${expenses.length} expense records`}
   trend="Manual Expenses + Commissions"
 />
 
-      <ExpenseKpiCard
-        icon={<RefreshCw className="h-6 w-6 text-teal-300" />}
-        iconBg="bg-teal-500/15 border border-teal-400/15"
-        title="Recurring Costs"
-        subtitle="Next 30 Days"
-        value={`${currencySymbol}${analytics.recurringExpenses.toFixed(2)}`}
-trend="Recurring Expense Total"
-      />
+<ExpenseKpiCard
+  icon={<TrendingUp className="h-6 w-6 text-teal-300" />}
+  iconBg="bg-teal-500/15 border border-teal-400/15"
+  title="Net Trading P&L"
+  subtitle="Trading Performance"
+  value={`${currencySymbol}${netTradingPnL.toFixed(2)}`}
+  trend="Imported From Trade Analytics"
+/>
 
       <ExpenseKpiCard
         icon={<Receipt className="h-6 w-6 text-emerald-300" />}

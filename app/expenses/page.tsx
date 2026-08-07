@@ -408,15 +408,14 @@ onExport={() => {
 {/* ================================================= */}
 
 <div className="relative z-10 mt-10">
-  <ExpenseKpiGrid
-    expenses={filteredExpenses}
-    businessCostAnalytics={
-      businessCostAnalytics
-    }
-    reportingCurrency={
-      reportingCurrency
-    }
-  />
+<ExpenseKpiGrid
+  expenses={filteredExpenses}
+  businessCostAnalytics={businessCostAnalytics}
+  netTradingPnL={
+    performanceBreakdownAnalytics.netTradingPnL
+  }
+  reportingCurrency={reportingCurrency}
+/>
 </div>
 
 <div className="h-0" />
