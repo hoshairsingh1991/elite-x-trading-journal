@@ -23,7 +23,8 @@ import { ExpenseReportData } from "../types";
 import { ExpenseCoverPage } from "./ExpenseCoverPage";
 import { ExpenseSummaryPage } from "./ExpenseSummaryPage";
 import { ExpenseLedgerPages } from "./ExpenseLedgerPages";
-import { FinancialSummaryPage } from "./FinancialSummaryPage";
+import { FinancialSummaryOverviewPage } from "./FinancialSummaryOverviewPage";
+import { FinancialSummaryDetailsPage } from "./FinancialSummaryDetailsPage";
 import { paginateRows } from "@/lib/reporting/shared/paginateRows";
 import { REPORT_LAYOUT } from "@/lib/reporting/theme/reportLayout";
 
@@ -43,13 +44,17 @@ export function ExpenseReportDocument({
   report,
 }: ExpenseReportDocumentProps) {
 
-  const ledgerPages =
+const ledgerPages =
   paginateRows(
     report.rows,
     REPORT_LAYOUT.LEDGER_ROWS_PER_PAGE
   );
 
-  return (
+const hasFinancialSummaryDetails =
+  report.financialSummary.expenseTypeSummary.length > 0 ||
+  report.financialSummary.taxSummary.length > 0;
+
+return (
 
     <Document>
 
@@ -109,16 +114,33 @@ export function ExpenseReportDocument({
       {/* PAGE 4 */}
       {/* ========================================================== */}
 
-      <Page>
+{/* ========================================================== */}
+{/* FINANCIAL SUMMARY — OVERVIEW */}
+{/* ========================================================== */}
 
-        <FinancialSummaryPage
-          report={report}
-        />
+<Page>
 
-        
+  <FinancialSummaryOverviewPage
+    report={report}
+  />
 
-      </Page>
+</Page>
 
+{/* ========================================================== */}
+{/* FINANCIAL SUMMARY — DETAILS */}
+{/* ========================================================== */}
+
+{hasFinancialSummaryDetails && (
+
+  <Page>
+
+    <FinancialSummaryDetailsPage
+      report={report}
+    />
+
+  </Page>
+
+)}
     </Document>
 
   );

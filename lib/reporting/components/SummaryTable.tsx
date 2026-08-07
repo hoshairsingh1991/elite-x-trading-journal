@@ -156,10 +156,10 @@ headerRow: {
   borderBottomColor: colors.border.medium,
 },
 
-  header: {
-    ...typography.label,
-    color: colors.text.secondary,
-  },
+header: {
+  ...typography.label,
+  color: colors.text.primary,
+},
 
   row: {
     flexDirection: "row",

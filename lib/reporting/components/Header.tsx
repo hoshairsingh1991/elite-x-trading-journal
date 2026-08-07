@@ -48,9 +48,9 @@ export function Header({
   return (
     <View style={styles.container}>
 
-      <Text style={styles.brand}>
-        ELITEX TRADING OS
-      </Text>
+     <Text style={styles.brand}>
+  ELITE X TRADING
+</Text>
 
       <Text style={styles.title}>
         {title}
@@ -80,12 +80,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sectionSmall,
   },
 
-  brand: {
-    ...typography.small,
-    color: colors.text.secondary,
-    letterSpacing: 1.5,
-    marginBottom: spacing.line,
-  },
+brand: {
+  ...typography.small,
+  color: colors.text.primary,
+  letterSpacing: 1.5,
+  marginBottom: spacing.line,
+},
 
   title: {
     ...typography.heading1,

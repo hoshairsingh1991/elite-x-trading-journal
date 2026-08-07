@@ -245,10 +245,10 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border.dark,
   },
 
-  label: {
-    ...typography.body,
-    color: colors.text.secondary,
-  },
+label: {
+  ...typography.body,
+  color: colors.text.primary,
+},
 
   value: {
     ...typography.body,
