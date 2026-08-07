@@ -18,6 +18,10 @@ import {
 } from "@/lib/analytics/performanceBreakdownAnalytics";
 
 import {
+  calculateAnnualForecast,
+} from "@/lib/analytics/annualForecastAnalytics";
+
+import {
   generateBusinessCostAnalytics,
   generateBusinessIntelligenceMetrics,
 } from "@/lib/analytics/businessCostAnalytics";
@@ -270,12 +274,21 @@ const reportingTrades =
     fxRates
   );
 
+
+
 const reportingExpenses =
   convertExpensesToReportingCurrency(
     expenses,
     reportingCurrency,
     fxRates
   );
+
+  const annualForecast =
+  calculateAnnualForecast(
+    reportingExpenses
+  );
+
+
 
 const filteredExpenses =
   reportingExpenses.filter(
@@ -425,9 +438,10 @@ onExport={() => {
 {/* ================================================= */}
 
 <div className="relative z-10 mt-8">
-  <ExpensesIntelligenceSection
+<ExpensesIntelligenceSection
   expenses={reportingExpenses}
   metrics={businessIntelligenceMetrics}
+  annualForecast={annualForecast}
   reportingCurrency={reportingCurrency}
 />
 </div>

@@ -1,5 +1,9 @@
 import { Expense } from "@/lib/types/expense";
 import { supabase } from "@/lib/supabase";
+import {
+  getNextOccurrenceDate,
+} from "@/lib/expenses/recurrenceUtils";
+
 
 export async function generateRecurringOccurrences(
   recurringExpense: Expense
@@ -35,40 +39,12 @@ if (
         .split("T")[0]
     );
 
-    switch (recurringExpense.frequency) {
-      case "Daily":
-        currentDate.setDate(
-          currentDate.getDate() + 1
-        );
-        break;
-
-      case "Weekly":
-        currentDate.setDate(
-          currentDate.getDate() + 7
-        );
-        break;
-
-      case "Monthly":
-        currentDate.setMonth(
-          currentDate.getMonth() + 1
-        );
-        break;
-
-      case "Quarterly":
-        currentDate.setMonth(
-          currentDate.getMonth() + 3
-        );
-        break;
-
-      case "Yearly":
-        currentDate.setFullYear(
-          currentDate.getFullYear() + 1
-        );
-        break;
-
-      default:
-        return;
-    }
+currentDate.setTime(
+  getNextOccurrenceDate(
+    currentDate,
+    recurringExpense.frequency ?? ""
+  ).getTime()
+);
   }
 
   // ==========================================

@@ -36,12 +36,14 @@ import type {
 interface ExpensesIntelligenceSectionProps {
   expenses: Expense[];
   metrics: BusinessIntelligenceMetrics;
+  annualForecast: number;
   reportingCurrency: string;
 }
 
 export default function ExpensesIntelligenceSection({
   expenses,
   metrics,
+  annualForecast,
   reportingCurrency,
 }: ExpensesIntelligenceSectionProps) {
 
@@ -639,8 +641,8 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
   <MetricInfoTooltip
     definition="Estimated recurring business costs over the next 12 months based on active subscriptions."
     formula="Monthly Recurring Expenses × 12"
-    calculation={`${currencySymbol}${metrics.monthlyRecurringExpenses.toFixed(2)} × 12 = ${currencySymbol}${metrics.projectedAnnualBurn.toFixed(2)}`}
-    interpretation={`Based on current recurring subscriptions, projected annual spending is ${currencySymbol}${metrics.projectedAnnualBurn.toFixed(2)}.`}
+   calculation={`${currencySymbol}${annualForecast.toFixed(2)}`}
+   interpretation={`Projected calendar-year business spending is ${currencySymbol}${annualForecast.toFixed(2)}.`}
     className="translate-x-0 translate-y-0"
   />
 </div>
@@ -655,7 +657,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
   >
     <div className="text-[32px] font-bold leading-none text-white">
   {currencySymbol}
-  {metrics.projectedAnnualBurn.toFixed(0)}
+{annualForecast.toFixed(0)}
 </div>
 
     <p

@@ -2,6 +2,10 @@ import { Trade } from "@/types/trade";
 import { ReportingExpense } from "@/lib/types/expense";
 
 import {
+  calculateAnnualForecast,
+} from "./annualForecastAnalytics";
+
+import {
   calculateTotalExpenses,
 } from "./expenseAnalytics";
 
@@ -355,9 +359,8 @@ if (expenses.length > 0) {
   totalExpenses /
   activeMonths;
 
-  const projectedAnnualBurn =
-  monthlyRecurringExpenses *
-  12;
+const projectedAnnualBurn =
+  calculateAnnualForecast(expenses);
 
   return {
 

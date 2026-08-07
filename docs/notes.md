@@ -293,6 +293,8 @@ git commit -m "checkpoint/expense-kpi-net-trading-pnl-v1" - Expense page improvm
 
 git commit -m "checkpoint: expenses dashboard UI refinement v2"
 
+git commit -m "Implement annual expense forecast analytics engine" -  annual projected work here but need UI fix
+
 ------------------------------------------------------------------
 
 Status:
