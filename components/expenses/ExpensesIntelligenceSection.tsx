@@ -20,6 +20,8 @@ import { CalendarSync } from "lucide-react";
 
 import {
   CalendarClock,
+    Calendar,
+   RefreshCw,
   Flame,
   Gauge,
   ShieldCheck,
@@ -166,27 +168,24 @@ const burnMetricsWidth = "w-[90%]";
 const renewalsHeaderX = "translate-x-2";
 const renewalsHeaderY = "translate-y-2";
 
-const renewalsButtonX = "-translate-x-4";
-const renewalsButtonY = "translate-y-0";
 
 const renewalsListX = "translate-x-4";
 const renewalsListY = "translate-y-4";
 
 const renewalsWidth = "w-[90%]";
 
-const renewalIconX = "-translate-x-0.6";
-const renewalIconY = "translate-y-0";
+const renewalIconX = "translate-x-0";
+const renewalIconY = "translate-y-1.5";
 
-const renewalIconSize = 24;
 
 const renewalNameX = "translate-x-3";
-const renewalNameY = "translate-y-0";
+const renewalNameY = "translate-y-2";
 
 const renewalDateX = "translate-x-4";
-const renewalDateY = "translate-y-0";
+const renewalDateY = "translate-y-2";
 
-const renewalDaysX = "-translate-x-5";
-const renewalDaysY = "translate-y-0";
+const renewalDaysX = "-translate-x-6";
+const renewalDaysY = "translate-y-2";
 
   /* =====================================================
    AVG COST PER TRADE FINE TUNING
@@ -862,7 +861,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
   (renewal, index) => (
 
     <div
-  key={`${renewal.expenseName}-${index}`}
+  key={`${renewal.vendor}-${index}`}
 >
   <div
     className="
@@ -873,58 +872,20 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
       hover:bg-white/[0.03]
     "
   >
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between py-1">
 
         <div className="flex items-center">
 
-          <div
-           className={`
-  flex
-  ${renewalBoxSize}
-  items-center
-  justify-center
-  rounded-lg
-  border border-violet-500/20
-  bg-[#16233A]
+<Calendar
+  className={`
+    h-[15px]
+    w-[15px]
+    text-slate-400
 
-  ${renewalIconX}
-  ${renewalIconY}
-`}
-          >
-            {vendorIcons[
-              renewal.vendor
-            ] ? (
-<Image
-  src={
-    vendorIcons[
-      renewal.vendor
-    ]
-  }
-  alt={
-    renewal.vendor
-  }
-  width={
-    renewalIconSize
-  }
-  height={
-    renewalIconSize
-  }
-  className="h-[12px] w-[12px] object-contain"
+    ${renewalIconX}
+    ${renewalIconY}
+  `}
 />
-            ) : (
-              <CalendarClock
-  className="
-    h-[16px]
-    w-[16px]
-    stroke-[2]
-    text-transparent
-  "
-  style={{
-    stroke: "url(#renewalGradient)",
-  }}
-/>
-            )}
-          </div>
 
           <span
             className={`
@@ -937,33 +898,13 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
               ${renewalNameY}
             `}
           >
-            {renewal.expenseName}
+            {renewal.vendor}
           </span>
 
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
 
-         <span
-  className={`
-    whitespace-nowrap
-    text-[11px]
-    text-slate-400
-
-    ${renewalDateX}
-    ${renewalDateY}
-  `}
->
-            {new Date(
-              renewal.renewalDate
-            ).toLocaleDateString(
-  "en-US",
-  {
-  month: "short",
-  day: "numeric",
-}
-)}
-          </span>
 
 <span
   className={`
@@ -986,11 +927,15 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
         </div>
 
               </div>
-      </div>
+</div>
 
-      {index < upcomingRenewals.length - 1 && (
-        <div className="my-3 h-px bg-white/[0.05]" />
-      )}
+<div className="h-3" />
+
+{index < upcomingRenewals.length - 1 && (
+  <div className="h-px bg-white/[0.04]" />
+)}
+
+<div className="h-1" />
     </div>
   )
 )}

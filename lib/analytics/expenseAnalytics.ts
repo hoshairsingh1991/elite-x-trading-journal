@@ -63,16 +63,18 @@ export function calculateUpcomingRenewals(
   const today = new Date();
 
   const renewals = expenses
-    .filter(
-      expense =>
-        expense.is_recurring &&
-        expense.start_date &&
-        expense.frequency
-    )
+.filter(
+  expense =>
+    expense.is_recurring &&
+    !expense.is_generated &&
+    expense.is_active &&
+    !expense.is_deleted &&
+    expense.frequency
+)
     .map(expense => {
 
       const renewalDate =
-        new Date(expense.start_date);
+  new Date(expense.expense_date);
 
       while (
         renewalDate < today
