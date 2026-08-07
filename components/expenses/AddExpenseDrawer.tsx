@@ -294,7 +294,7 @@ export default function AddExpenseDrawer({
 
 const [expenseName, setExpenseName] = useState("");
 const [category, setCategory] = useState("");
-const [vendor, setVendor] = useState("TradingView");
+const [vendor, setVendor] = useState("");
 const [expenseDate, setExpenseDate] = useState("");
 
 const [description, setDescription] = useState("");
@@ -473,8 +473,8 @@ useEffect(() => {
 if (!editingExpense) {
   setExpenseName("");
 
-  setCategory("Software");
-  setVendor("TradingView");
+  setCategory("");
+  setVendor("");
 
   setExpenseDate(new Date().toISOString().split("T")[0]);
   setDescription("");
@@ -586,13 +586,14 @@ setTaxAmount(
 // ==========================================
 
 async function handleSave() {
-  if (
-    !expenseName ||
-    !category ||
-    !expenseDate ||
-    !originalAmount ||
-    !billedCurrency
-  ) {
+if (
+  !expenseName ||
+  !category ||
+  !vendor ||
+  !expenseDate ||
+  !originalAmount ||
+  !billedCurrency
+) {
     alert("Please complete all required fields.");
     return;
   }
@@ -847,7 +848,7 @@ const label =
   </div>
 
   <div className={`transform ${vendorX} ${vendorY}`}>
-    <label className={label}>Vendor</label>
+    <label className={label}>Vendor *</label>
 
     <EliteSelect
       variant="form"

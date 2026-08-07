@@ -283,6 +283,8 @@ git commit -m "checkpoint: expense report v2 with deterministic ledger paginatio
 git commit -m "checkpoint: expense report pdf export v1 architecture complete"
 
 git commit -m "checkpoint: expense report pdf export v2 complete"
+
+git commit -m "checkpoint: expense drawer ux improvements"
 ------------------------------------------------------------------
 
 
