@@ -279,6 +279,8 @@ git commit -m "checkpoint: export drawer live preview complete" -  we just left 
 git commit -m "checkpoint: expense report v1 with deterministic ledger pagination"
 
 git commit -m "checkpoint: expense report v2 with deterministic ledger pagination"
+
+git commit -m "checkpoint: expense report pdf export v1 architecture complete"
 ------------------------------------------------------------------
 
 

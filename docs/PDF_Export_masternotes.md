@@ -1,383 +1,545 @@
-========================================================================================================================
+================================================================================
 ELITEX TRADING OS
 MASTER DESIGN SPECIFICATION
-EXPENSE REPORT PDF EXPORT SYSTEM
-CANONICAL ARCHITECTURE
-VERSION 1.0
-========================================================================================================================
 
-DOCUMENT PURPOSE
-------------------------------------------------------------------------------------------------------------------------
+Expense Report PDF Export System
+Version 2.0
+(Canonical Architecture)
 
-This document is the single source of truth for the Expense Report PDF Export system inside EliteX Trading OS.
+Part 1
+================================================================================
 
-This replaces all previous handover notes.
 
-Every future implementation decision should follow this document.
+===============================================================================
+1. PURPOSE
+===============================================================================
 
-If implementation ever differs from these notes, these notes take precedence unless intentionally updated.
+The Expense Report PDF Export System exists to generate professional,
+accountant-friendly expense reports from EliteX Trading OS.
 
-The goal is not simply to generate a PDF.
+Unlike the Dashboard, which is optimized for interactive analysis,
+the PDF Export System is optimized for:
 
-The goal is to build a professional accounting-grade reporting system capable of serving:
+• Printing
+• Record keeping
+• Accountant review
+• Tax preparation
+• Business documentation
+• Long-term archival
 
-• Individual Tax Filing
-• Sole Proprietorship
-• Small Business
-• Corporation
-• Accountant Review
-• External Audits
-• CRA
-• IRS
-• HMRC
-• Long-term Record Keeping
+The PDF should feel like an institutional financial report rather than
+a screenshot of the application.
 
-This architecture is also intended to become the foundation for every future report inside EliteX Trading OS.
+Every report should remain clean, deterministic, consistent, and suitable
+for professional use.
 
-Examples:
 
-• Expense Reports
-• Trade Reports
-• Performance Reports
-• Annual Reports
-• Portfolio Reports
-• Broker Reports
-• Monthly Statements
-• Tax Packages
 
-Nothing in this document should be considered Expense-specific unless explicitly stated.
+===============================================================================
+2. DESIGN PHILOSOPHY
+===============================================================================
 
-========================================================================================================================
-PROJECT STATUS
-------------------------------------------------------------------------------------------------------------------------
+The PDF system follows several core architectural principles.
 
-Expense Module V1 is considered feature complete.
+1. Separation of responsibilities
 
-Completed:
+Business logic and rendering must never be mixed.
 
-✓ Expenses Dashboard
-✓ KPI Grid
-✓ Expenses Overview
-✓ Manual Expense Table
-✓ Search
-✓ Advanced Filters
-✓ Pagination
-✓ Add Expense
-✓ Edit Expense
-✓ Delete Expense
-✓ Read Only Expense Details
-✓ Receipt Upload
-✓ Receipt Viewer
-✓ Receipt Removal
-✓ Reporting Currency
-✓ Tax Information
-✓ Recurring Expenses
-✓ Supabase Persistence
-✓ Professional UI Polish
+The report builder performs calculations.
 
-Export UI is also COMPLETE.
+The PDF renderer only displays data.
 
-Remaining work is the PDF generation pipeline.
+2. Deterministic output
 
-========================================================================================================================
-PROJECT PHILOSOPHY
-------------------------------------------------------------------------------------------------------------------------
+The same report generated twice from identical data must always produce
+the same document.
 
-This is NOT a dashboard export.
+3. Canonical data contract
 
-This is NOT an analytics export.
+The renderer receives a single immutable ExpenseReportData object.
 
-This is NOT a screenshot of EliteX.
+The renderer never accesses database models directly.
 
-This is a professional Business Expense Report.
+The renderer never performs calculations.
 
-The report should be designed so that a user can immediately email the generated PDF to:
+4. Accountant-first design
 
-• Accountant
-• Bookkeeper
-• CRA
-• IRS
-• External Auditor
+The report should prioritize readability over visual effects.
 
-without needing to explain the report.
+No dashboards.
 
-The report should feel like it came from professional accounting software.
+No charts.
 
-Every design decision should ask one question:
+No unnecessary decoration.
 
-"Can someone unfamiliar with EliteX understand this document immediately?"
+5. Institutional appearance
 
-If the answer is YES, the design is correct.
+Large margins
 
-========================================================================================================================
-GUIDING PRINCIPLE
-------------------------------------------------------------------------------------------------------------------------
+Consistent spacing
 
-Every EliteX report must be capable of standing on its own as a professional business document.
+Professional typography
 
-If someone:
+Simple tables
 
-• prints page 6
-• emails page 11
-• stores the report for seven years
-• submits it during an audit
+Minimal colors
 
-that page alone should still identify:
+Maximum clarity
 
-• EliteX Trading OS
-• Report Name
-• Reporting Period
-• Reporting Currency
-• Page Number
+6. Shared reporting infrastructure
 
-No page should depend on another page to make sense.
+Every future report should reuse the same reporting framework.
 
-========================================================================================================================
-CURRENT EXPORT UI (COMPLETED)
-------------------------------------------------------------------------------------------------------------------------
+Expense Reports
 
-Export Drawer is complete.
+Trade Reports
 
-Current sections:
+Performance Reports
 
-✓ Reporting Period
+Tax Reports
 
-✓ Report Content
+Year End Reports
 
-    Expense Summary
-    Expense Details
-    Category Summary
-    Report Information
+Broker Reports
 
-✓ Report Preview
+All should eventually share the same reporting infrastructure.
 
-    Expense Count
-    Category Count
-    Date Range
-    Reporting Currency
 
-✓ Additional Columns
 
-    Vendor
-    Notes
-    Business Use %
-    Deductible %
-    Tax Type
-    Tax Amount
-    Receipt Status
-    Recurring
+===============================================================================
+3. HIGH LEVEL ARCHITECTURE
+===============================================================================
 
-✓ Estimated Output
+The Expense Report export pipeline follows a strict layered architecture.
 
-    Total Pages
-    Total Columns
-    Estimated PDF Size
-    Generated On
-
-✓ Fixed Header
-
-✓ Scrollable Body
-
-✓ Fixed Footer
-
-Cancel
-
-Export PDF
-
-UI phase is complete.
-
-No further UI redesign should occur unless functionality requires it.
-
-========================================================================================================================
-EXPORT PIPELINE
-------------------------------------------------------------------------------------------------------------------------
-
-Expenses
+User Interface
 
 ↓
 
-Apply Reporting Currency
+Export Drawer
 
 ↓
 
-Apply Reporting Period
+Export Service
 
 ↓
 
-Apply Export Options
+Report Builder
 
 ↓
 
-Build Expense Report Data
+ExpenseReportData
 
 ↓
 
-Generate PDF
+PDF Renderer
 
 ↓
 
-Download PDF
+React PDF
 
-Every layer has exactly one responsibility.
+↓
 
-========================================================================================================================
-ARCHITECTURE PRINCIPLE
-------------------------------------------------------------------------------------------------------------------------
+Blob
 
-Business logic and PDF rendering must NEVER be mixed.
+↓
 
-Calculations belong in the data layer.
+Download
 
-Rendering belongs in the PDF layer.
 
-The PDF engine should never calculate anything.
+Each layer has one responsibility.
 
-========================================================================================================================
-CURRENT PDF ARCHITECTURE
-------------------------------------------------------------------------------------------------------------------------
+No layer may violate another layer's responsibilities.
+
+
+
+===============================================================================
+4. EXPORT PIPELINE
+===============================================================================
+
+The complete export pipeline is:
+
+ExportExpenseDrawer
+
+↓
+
+User selects:
+
+• Reporting period
+
+• Optional ledger columns
+
+• Report options
+
+↓
+
+ExportExpenseReport()
+
+↓
+
+buildExpenseReportData()
+
+↓
+
+ExpenseReportData
+
+↓
+
+generateExpensePdf()
+
+↓
+
+ExpenseReportDocument
+
+↓
+
+React PDF
+
+↓
+
+Blob
+
+↓
+
+Browser download
+
+
+
+===============================================================================
+5. RESPONSIBILITY OF EACH LAYER
+===============================================================================
+
+
+------------------------------------------------------------------------------
+Export Drawer
+------------------------------------------------------------------------------
+
+Responsibilities
+
+• Collect export settings
+
+• Allow reporting period selection
+
+• Allow optional ledger columns
+
+• Display estimated pages
+
+• Display estimated PDF size
+
+• Display generated timestamp
+
+• Build ExpenseReportOptions
+
+• Trigger export
+
+Must NOT
+
+• Perform calculations
+
+• Build report rows
+
+• Generate PDF layout
+
+
+
+------------------------------------------------------------------------------
+buildExpenseReportData()
+------------------------------------------------------------------------------
+
+Responsibilities
+
+• Validate inputs
+
+• Build metadata
+
+• Calculate summaries
+
+• Build category totals
+
+• Build vendor totals
+
+• Build financial summaries
+
+• Apply reporting currency
+
+• Produce ledger rows
+
+• Produce immutable ExpenseReportData
+
+Must NOT
+
+• Render PDF
+
+• Create React components
+
+• Generate blobs
+
+
+
+------------------------------------------------------------------------------
+ExpenseReportData
+------------------------------------------------------------------------------
+
+Responsibilities
+
+Acts as the canonical data contract.
+
+Contains every piece of information required to render the report.
+
+The renderer depends exclusively on this object.
+
+
+
+------------------------------------------------------------------------------
+ExpenseReportDocument
+------------------------------------------------------------------------------
+
+Responsibilities
+
+Assemble report pages.
+
+No calculations.
+
+No formatting decisions.
+
+No business rules.
+
+Simply compose pages.
+
+
+
+------------------------------------------------------------------------------
+Individual Pages
+------------------------------------------------------------------------------
+
+Responsibilities
+
+Render information.
+
+Never calculate information.
+
+Never mutate report data.
+
+Never access storage.
+
+Never perform filtering.
+
+
+
+===============================================================================
+6. DIRECTORY STRUCTURE
+===============================================================================
+
+The reporting module is organized by responsibility.
 
 lib/
 
-pdf/
+reporting/
 
     expense/
-
-        sections/
 
         buildExpenseReportData.ts
 
         generateExpensePdf.ts
 
-    performance/
+        exportExpenseReport.ts
 
-    shared/
+        ExpenseReportDocument.tsx
 
-        pdfTheme.ts
+        ExpenseCoverPage.tsx
 
-        formatters.ts
+        ExpenseSummaryPage.tsx
 
-        utils.ts
+        ExpenseLedgerPages.tsx
+
+        FinancialSummaryPage.tsx
 
         types.ts
 
-This architecture should remain.
+    components/
 
-Future report types should follow the same pattern.
+        Document.tsx
 
-========================================================================================================================
-RESPONSIBILITIES
-------------------------------------------------------------------------------------------------------------------------
+        Page.tsx
 
-buildExpenseReportData.ts
+        SummaryTable.tsx
 
-Responsible for:
+        ReportSection.tsx
 
-• filtering
-• grouping
-• totals
-• summaries
-• reporting currency conversion
-• original currency totals
-• validation
-• printable rows
+    shared/
 
-No PDF generation.
+        formatters.ts
 
-No page layout.
+        paginateRows.ts
 
-------------------------------------------------------------
+        types.ts
 
-generateExpensePdf.ts
+    theme/
 
-Responsible for:
+        colors.ts
 
-Receive prepared report data
+        spacing.ts
+
+        typography.ts
+
+        reportLayout.ts
+
+
+
+===============================================================================
+7. PDF THEME SYSTEM
+===============================================================================
+
+The PDF has its own design system completely separate from the web UI.
+
+Shared theme files exist for:
+
+colors.ts
+
+Defines:
+
+• text colors
+
+• borders
+
+• backgrounds
+
+• neutral palette
+
+spacing.ts
+
+Defines:
+
+• page padding
+
+• section spacing
+
+• paragraph spacing
+
+• table spacing
+
+• line spacing
+
+typography.ts
+
+Defines:
+
+• Heading 1
+
+• Heading 2
+
+• Heading 3
+
+• Labels
+
+• Body
+
+• Caption
+
+No component should hardcode font sizes.
+
+reportLayout.ts
+
+Contains layout constants.
+
+Example:
+
+LEDGER_ROWS_PER_PAGE
+
+Future layout constants will also live here.
+
+
+
+===============================================================================
+8. SHARED REPORT COMPONENTS
+===============================================================================
+
+
+------------------------------------------------------------------------------
+Document
+------------------------------------------------------------------------------
+
+Acts as the root React PDF document.
+
+Responsibilities
+
+• Create PDF document
+
+• Hold pages
+
+Nothing else.
+
+
+
+------------------------------------------------------------------------------
+Page
+------------------------------------------------------------------------------
+
+Acts as the standard page wrapper.
+
+Responsibilities
+
+• Standard page size
+
+• Shared margins
+
+• Shared background
+
+Every report page uses the same Page component.
+
+No page should create its own margins.
+
+
+
+------------------------------------------------------------------------------
+SummaryTable
+------------------------------------------------------------------------------
+
+Reusable summary table component.
+
+Responsibilities
+
+• Render rows
+
+• Render totals
+
+• Currency formatting
+
+• Table styling
+
+Never performs calculations.
+
+
+
+------------------------------------------------------------------------------
+ReportSection
+------------------------------------------------------------------------------
+
+Shared wrapper intended for future section-level pagination.
+
+Current purpose:
+
+Keep logical report sections grouped.
+
+Although additional pagination work remains, this component establishes
+the shared abstraction for section-based rendering and will be reused as
+the reporting engine evolves.
+
+
+
+===============================================================================
+9. REPORT DATA CONTRACT
+===============================================================================
+
+ExpenseReportData is the canonical model for the renderer.
+
+It contains:
+
+Metadata
 
 ↓
 
-Generate PDF
-
-↓
-
-Return Blob
-
-No calculations.
-
-No grouping.
-
-No business logic.
-
-------------------------------------------------------------
-
-shared/pdfTheme.ts
-
-Single source of truth for:
-
-Typography
-
-Spacing
-
-Margins
-
-Brand colors
-
-Table styles
-
-Heading styles
-
-Footer styles
-
-Section spacing
-
-Every future report should use this.
-
-------------------------------------------------------------
-
-shared/formatters.ts
-
-Responsible for:
-
-Currency formatting
-
-Date formatting
-
-Percentage formatting
-
-Number formatting
-
-No calculations.
-
-------------------------------------------------------------
-
-shared/utils.ts
-
-Generic reusable helpers.
-
-Examples:
-
-Page numbering
-
-Filename generation
-
-Column widths
-
-Common rendering helpers
-
-Reusable table helpers
-
-========================================================================================================================
-REPORT BUILDING PHILOSOPHY
-------------------------------------------------------------------------------------------------------------------------
-
-Every report section should be independent.
-
-Instead of one giant PDF function:
-
-generateExpensePdf()
-
-the report should be assembled from builders.
-
-Cover
+Export Options
 
 ↓
 
@@ -389,7 +551,15 @@ Category Summary
 
 ↓
 
-Detailed Expense Table
+Vendor Summary
+
+↓
+
+Financial Summary
+
+↓
+
+Ledger Rows
 
 ↓
 
@@ -399,233 +569,274 @@ Report Information
 
 Disclaimer
 
-Each builder should be responsible for one section only.
+The renderer should never require anything outside this object.
 
-========================================================================================================================
-ACCOUNTING TRUTH
-------------------------------------------------------------------------------------------------------------------------
 
-EliteX distinguishes between:
 
-Historical Truth
+===============================================================================
+10. REPORT METADATA
+===============================================================================
 
-and
+Metadata includes:
 
-Presentation.
+Report Name
 
-Historical Truth NEVER changes.
+Generated Date
 
-Presentation may change.
-
-Historical Truth:
-
-Original Date
-
-Original Currency
-
-Original Amount
-
-Original Vendor
-
-Original Tax
-
-Presentation:
+Report Owner
 
 Reporting Currency
 
-Reporting Amount
+Reporting Period
 
-Reporting Totals
+This information is used by the cover page and report information page.
 
-Presentation adapts.
+Metadata should remain immutable once built.
 
-Historical truth never changes.
 
-========================================================================================================================
-REPORTING CURRENCY RULE
-------------------------------------------------------------------------------------------------------------------------
 
-The PDF ALWAYS follows the Reporting Currency currently selected inside EliteX.
+===============================================================================
+11. EXPORT OPTIONS
+===============================================================================
 
-There is NO additional Reporting Currency selector inside Export.
+ExpenseReportOptions defines how the report is rendered.
 
-Example:
+It contains:
 
-Reporting Currency = CAD
+includeSummary
 
-↓
+includeCategorySummary
 
-Every reporting total becomes CAD.
+includeExpenseDetails
 
-Original Amount remains untouched.
+includeVendor
 
-========================================================================================================================
-ORIGINAL AMOUNT RULE
-------------------------------------------------------------------------------------------------------------------------
+includeNotes
 
-Original Amount always represents historical truth.
+includeBusinessUse
 
-Examples:
+includeDeductible
 
-USD 25
+includeTaxInformation
 
-will ALWAYS remain
+includeReceiptStatus
 
-USD 25
+includeRecurringStatus
 
-Reporting Amount changes depending on Reporting Currency.
+includeExpenseType
 
-Both values should always be visible.
+includeTaxType
 
-========================================================================================================================
-ORIGINAL CURRENCY TOTALS
-------------------------------------------------------------------------------------------------------------------------
+includeTaxAmount
 
-Different currencies must NEVER be combined.
+The builder interprets these options.
 
-Correct:
+The renderer only consumes them.
 
-USD
 
-CAD
 
-EUR
+===============================================================================
+12. REPORT PAGES
+===============================================================================
 
-each shown separately.
-
-Incorrect:
-
-USD + CAD combined together.
-
-========================================================================================================================
-DATA VALIDATION
-------------------------------------------------------------------------------------------------------------------------
-
-Before any PDF is generated:
-
-Validate:
-
-Reporting Currency exists
-
-Date Range valid
-
-Expenses exist
-
-Totals reconcile
-
-Categories generated
-
-No invalid PDF should ever be produced.
-
-========================================================================================================================
-REPORT STRUCTURE
-------------------------------------------------------------------------------------------------------------------------
+The Expense Report currently consists of four logical sections.
 
 Page 1
 
 Cover Page
 
-------------------------------------------------------------
-
 Page 2
 
-Executive Summary
+Expense Summary
 
-------------------------------------------------------------
+Page 3+
 
-Page 3
+Detailed Expense Ledger
+
+Final Page
+
+Financial Summary
+
+The ledger may expand to multiple pages depending on the number of
+expenses.
+
+The Financial Summary is always rendered after the ledger.
+
+The report structure intentionally separates executive information,
+transaction detail, and accounting summaries into distinct logical
+sections.
+
+
+===============================================================================
+13. EXPORT DRAWER ARCHITECTURE
+===============================================================================
+
+The Export Expense Drawer serves as the single user interface for configuring
+the Expense Report before generation.
+
+The drawer is intentionally designed to behave like a report builder rather
+than a simple "Export PDF" dialog.
+
+Its responsibilities are strictly limited to collecting user preferences and
+building the input required for the reporting engine.
+
+The drawer performs no business calculations and contains no PDF rendering
+logic.
+
+Its purpose is to collect configuration only.
+
+
+
+===============================================================================
+14. EXPORT DRAWER RESPONSIBILITIES
+===============================================================================
+
+The Export Drawer is responsible for:
+
+• Reporting Period selection
+
+• Report Content preview
+
+• Optional ledger column selection
+
+• Live report preview
+
+• Estimated page count
+
+• Estimated PDF size
+
+• Generated timestamp
+
+• Building ExpenseReportOptions
+
+• Calling exportExpenseReport()
+
+The drawer must never:
+
+• Calculate totals
+
+• Build report summaries
+
+• Create ledger rows
+
+• Format currencies
+
+• Generate PDF pages
+
+• Render React PDF components
+
+
+
+===============================================================================
+15. REPORTING PERIOD
+===============================================================================
+
+The reporting period is selected independently from the Expenses page.
+
+This was an intentional architectural decision.
+
+Reason:
+
+Users should be able to generate reports without affecting the active filters
+used elsewhere inside the application.
+
+The Export Drawer therefore owns its own reporting period state.
+
+It is completely isolated from the Expenses page.
+
+
+Current implementation:
+
+selectedPreset
+
+↓
+
+startDate
+
+↓
+
+endDate
+
+↓
+
+reportingPeriod string
+
+↓
+
+Report Builder
+
+
+The reporting period is converted into a printable string before entering the
+report builder.
+
+Example:
+
+Jan 01, 2026 – Dec 31, 2026
+
+This value becomes part of the report metadata.
+
+
+
+===============================================================================
+16. REPORTING PERIOD PERSISTENCE
+===============================================================================
+
+The drawer remembers the user's previous reporting period.
+
+LocalStorage stores:
+
+selectedPreset
+
+startDate
+
+endDate
+
+This persistence is independent of every other page.
+
+Closing the drawer does not reset the reporting period.
+
+Reopening the drawer restores the previous selection.
+
+
+
+===============================================================================
+17. REPORT CONTENT PREVIEW
+===============================================================================
+
+The drawer displays every major report section before export.
+
+Current report content includes:
+
+Expense Summary
+
+Detailed Expense Ledger
 
 Category Summary
 
-------------------------------------------------------------
-
-Remaining Pages
-
-Detailed Expense Report
-
-------------------------------------------------------------
-
-Final Pages
-
 Report Information
 
-Disclaimer
+This section exists only as a visual preview.
 
-========================================================================================================================
-PAGE 1
-------------------------------------------------------------------------------------------------------------------------
+It is not responsible for enabling or disabling report sections.
 
-EliteX Trading OS
+Future versions may expose optional report sections while preserving the
+same architecture.
 
-Business Expense Report
 
-Business Name
 
-Reporting Period
+===============================================================================
+18. ALWAYS INCLUDED LEDGER COLUMNS
+===============================================================================
 
-Reporting Currency
+Certain ledger columns are considered canonical accounting information.
 
-Generated Date
+These columns are always exported.
 
-Prepared By
-
-Footer
-
-Confidential Business Expense Report
-
-========================================================================================================================
-EXECUTIVE SUMMARY
-------------------------------------------------------------------------------------------------------------------------
-
-Include:
-
-Total Expense Records
-
-Recurring Expenses
-
-One-Time Expenses
-
-Original Currency Totals
-
-Reporting Currency Total
-
-Tax Deductible Total
-
-Non-Deductible Total
-
-========================================================================================================================
-CATEGORY SUMMARY
-------------------------------------------------------------------------------------------------------------------------
-
-Categories
-
-Software
-
-Market Data
-
-Brokerage
-
-Infrastructure
-
-Education
-
-Hardware
-
-Other
-
-Reporting Total
-
-========================================================================================================================
-DETAILED EXPENSE TABLE
-------------------------------------------------------------------------------------------------------------------------
-
-Columns
+Current mandatory columns:
 
 Date
 
-Expense
-
-Expense Type
+Expense Name
 
 Category
 
@@ -635,7 +846,27 @@ Original Amount
 
 Reporting Amount
 
-Business %
+Receipt Status
+
+These columns cannot be disabled.
+
+They define the minimum accounting record required for an exported expense.
+
+
+
+===============================================================================
+19. OPTIONAL LEDGER COLUMNS
+===============================================================================
+
+Business and tax related fields are optional.
+
+The user may choose whether these columns appear inside the ledger.
+
+Current optional columns:
+
+Expense Type
+
+Business Use %
 
 Deductible %
 
@@ -643,15 +874,293 @@ Tax Type
 
 Tax Amount
 
-Receipt
+These selections are converted directly into ExpenseReportOptions.
 
-Notes
+No PDF logic exists inside the drawer.
 
-========================================================================================================================
-COLUMN RULES
-------------------------------------------------------------------------------------------------------------------------
+The drawer simply captures the user's preferences.
 
-Include:
+
+
+===============================================================================
+20. EXPENSEREPORTOPTIONS
+===============================================================================
+
+ExpenseReportOptions acts as the communication contract between the Export
+Drawer and the Report Builder.
+
+The UI produces this object.
+
+The Report Builder consumes it.
+
+The renderer never modifies it.
+
+This architecture prevents presentation logic from leaking into business
+logic.
+
+
+
+===============================================================================
+21. LIVE REPORT PREVIEW
+===============================================================================
+
+The Export Drawer provides a live preview of the report before export.
+
+The preview includes:
+
+Estimated Pages
+
+Estimated PDF Size
+
+Generated On
+
+The preview updates automatically whenever:
+
+Reporting period changes
+
+Optional columns change
+
+Expenses change
+
+Reporting currency changes
+
+No manual refresh is required.
+
+
+
+===============================================================================
+22. ESTIMATED PAGE COUNT
+===============================================================================
+
+The page count shown inside the drawer is generated from the actual PDF.
+
+It is not an approximation based on row counts.
+
+Process:
+
+Generate PDF
+
+↓
+
+Read generated Blob
+
+↓
+
+Load using pdf-lib
+
+↓
+
+Count pages
+
+↓
+
+Display total pages
+
+This ensures the displayed page count always matches the actual exported PDF.
+
+Advantages:
+
+No duplicate page calculations.
+
+No manual estimation formulas.
+
+No synchronization issues.
+
+The PDF itself becomes the source of truth.
+
+
+
+===============================================================================
+23. ESTIMATED PDF SIZE
+===============================================================================
+
+The displayed PDF size is also generated from the real exported PDF.
+
+Process:
+
+Generate PDF
+
+↓
+
+Blob
+
+↓
+
+blob.size
+
+↓
+
+Convert bytes to KB
+
+↓
+
+Display
+
+Although labelled as an estimate, the value represents the actual generated
+file size at the time of calculation.
+
+The "Estimate" label remains appropriate because any subsequent change to the
+report configuration may produce a different file.
+
+
+
+===============================================================================
+24. LIVE PREVIEW UPDATE CYCLE
+===============================================================================
+
+Whenever export settings change:
+
+Reporting Period
+
+↓
+
+Optional Columns
+
+↓
+
+Expense List
+
+↓
+
+Reporting Currency
+
+↓
+
+generateExpensePdf()
+
+↓
+
+Blob
+
+↓
+
+Estimated Pages
+
+Estimated PDF Size
+
+This creates a continuously synchronized preview without requiring the user
+to manually regenerate anything.
+
+
+
+===============================================================================
+25. REPORT GENERATION PIPELINE
+===============================================================================
+
+The export pipeline intentionally separates report construction from PDF
+rendering.
+
+Pipeline:
+
+Export Drawer
+
+↓
+
+exportExpenseReport()
+
+↓
+
+buildExpenseReportData()
+
+↓
+
+ExpenseReportData
+
+↓
+
+generateExpensePdf()
+
+↓
+
+ExpenseReportDocument
+
+↓
+
+Blob
+
+↓
+
+Download
+
+Every layer owns exactly one responsibility.
+
+
+
+===============================================================================
+26. BUILDEXPENSEREPORTDATA()
+===============================================================================
+
+The builder represents the intelligence of the reporting system.
+
+Responsibilities include:
+
+Metadata construction
+
+Executive Summary
+
+Category Summary
+
+Vendor Summary
+
+Financial Summary
+
+Ledger rows
+
+Reporting currency conversion
+
+Validation
+
+Data normalization
+
+Nothing outside this function should calculate report values.
+
+Every PDF page trusts the builder completely.
+
+
+
+===============================================================================
+27. EXPENSEREPORTDATA
+===============================================================================
+
+ExpenseReportData is the canonical report contract.
+
+It contains everything required to render the document.
+
+Major sections include:
+
+Metadata
+
+Options
+
+Summary
+
+Category Summary
+
+Vendor Summary
+
+Financial Summary
+
+Rows
+
+Report Information
+
+Disclaimer
+
+This object is immutable after creation.
+
+The renderer never modifies report data.
+
+
+
+===============================================================================
+28. EXPENSE REPORT ROW
+===============================================================================
+
+Each printable ledger row is represented by ExpenseReportRow.
+
+Current fields include:
+
+ID
 
 Date
 
@@ -663,1947 +1172,1708 @@ Category
 
 Vendor
 
+Original Currency
+
 Original Amount
-
-Reporting Amount
-
-Business %
-
-Deductible %
-
-Tax Type
-
-Tax Amount
-
-Receipt
-
-Notes
-
-Never include:
-
-User ID
-
-Database ID
-
-Receipt URL
-
-Storage URL
-
-Supabase IDs
-
-Created At
-
-Updated At
-
-Internal Flags
-
-Hidden Metadata
-
-========================================================================================================================
-RECEIPTS
-------------------------------------------------------------------------------------------------------------------------
-
-Receipt images should NEVER be embedded.
-
-Only display:
-
-Receipt
-
-Yes
-
-No
-
-Supporting documents remain inside EliteX.
-
-========================================================================================================================
-PAYMENT METHOD
-------------------------------------------------------------------------------------------------------------------------
-
-Payment Method will not be exported.
-
-Reason:
-
-Little accounting value.
-
-========================================================================================================================
-RECURRING
-------------------------------------------------------------------------------------------------------------------------
-
-Recurring Frequency is not exported.
-
-Only recurring status/count belongs in summaries.
-
-========================================================================================================================
-NOTES
-------------------------------------------------------------------------------------------------------------------------
-
-Notes remain.
-
-Long notes should be truncated.
-
-Never allow a table row to become excessively tall.
-
-========================================================================================================================
-REPORT INFORMATION
-------------------------------------------------------------------------------------------------------------------------
-
-Final report section should contain:
-
-Generated By
-
-EliteX Trading OS
-
-Generated On
-
-Generated Time
-
-EliteX Version
 
 Reporting Currency
 
-Reporting Period
+Reporting Amount
 
-Total Expense Records
+Business Use %
 
-Total Pages
+Deductible %
 
-Original Currency Totals
+Tax Type
 
-Reporting Total
+Tax Amount
 
-========================================================================================================================
-DISCLAIMER
-------------------------------------------------------------------------------------------------------------------------
+Receipt Status
 
-"This report was generated by EliteX Trading OS using manually recorded and/or imported business expense records.
+Recurring Status
 
-Original amounts are displayed in their original transaction currency.
+Notes
 
-Reporting amounts are converted using the Reporting Currency selected within EliteX Trading OS at the time this report was generated.
+This model exists specifically for reporting.
 
-Users remain responsible for verifying the accuracy and completeness of all records before submitting this report to an accountant or tax authority."
+It intentionally separates printable data from database entities.
 
-========================================================================================================================
-FILE NAMING
-------------------------------------------------------------------------------------------------------------------------
 
-Automatically generate:
 
-EliteX_Expense_Report_2026.pdf
+===============================================================================
+29. FINANCIAL SUMMARY MODEL
+===============================================================================
 
-or
-
-EliteX_Expense_Report_2026-01-01_to_2026-12-31.pdf
-
-========================================================================================================================
-PDF DESIGN LANGUAGE
-------------------------------------------------------------------------------------------------------------------------
-
-Professional Accounting Report
-
-White Background
-
-Black Text
-
-Gray Dividers
-
-EliteX Blue Branding
-
-Clean Tables
-
-Readable Typography
-
-Print Friendly
-
-Black & White Printer Friendly
-
-No Dashboard Styling
-
-No Graphs
-
-No KPI Cards
-
-No Decorative Analytics
-
-========================================================================================================================
-LARGE DATASET SUPPORT
-------------------------------------------------------------------------------------------------------------------------
-
-The report should comfortably support:
-
-Thousands of expenses
-
-Multiple currencies
-
-Multiple years
-
-Automatic pagination
-
-Repeated table headers
-
-Repeated page footers
-
-Rows should never split across pages.
-
-Category sections should continue naturally across pages.
-
-========================================================================================================================
-DETERMINISTIC OUTPUT
-------------------------------------------------------------------------------------------------------------------------
-
-Generating the same report twice using identical data should produce identical content.
-
-Ordering should always be deterministic.
-
-Grouping should always be deterministic.
-
-No random ordering.
-
-No unpredictable layouts.
-
-========================================================================================================================
-AUDIT READINESS
-------------------------------------------------------------------------------------------------------------------------
-
-Every report should clearly answer:
-
-Who generated it?
-
-When was it generated?
-
-What Reporting Period?
-
-Which Reporting Currency?
-
-Which EliteX version?
-
-How many records?
-
-What conversion methodology was used?
-
-Were original currencies preserved?
-
-Could this report be understood without opening EliteX?
-
-If all answers are YES,
-
-the report is audit-ready.
-
-========================================================================================================================
-PRINT-FIRST PHILOSOPHY
-------------------------------------------------------------------------------------------------------------------------
-
-The report should look professional:
-
-On screen
-
-As PDF
-
-Printed
-
-Photocopied
-
-Scanned
-
-Archived
-
-No page should rely on color alone to communicate meaning.
-
-========================================================================================================================
-USER-CONTROLLED EXPORT
-------------------------------------------------------------------------------------------------------------------------
-
-The Export Drawer defines the report.
-
-User selections determine:
-
-Reporting Period
-
-Report Sections
-
-Additional Columns
-
-Future Export Options
-
-The PDF generation layer simply respects those selections.
-
-========================================================================================================================
-FUTURE ROADMAP
-------------------------------------------------------------------------------------------------------------------------
-
-PHASE A
-
-✓ Export Drawer UI (Completed)
-
-------------------------------------------------------------------------------------------------------------------------
-
-PHASE B
-
-Data Layer
-
-• Build Expense Report Data
-• Validation
-• Aggregations
-• Totals
-• Currency Conversion
-
-------------------------------------------------------------------------------------------------------------------------
-
-PHASE C
-
-PDF Infrastructure
-
-• Theme
-• Shared Components
-• Fonts
-• Layout Engine
-• Pagination
-
-------------------------------------------------------------------------------------------------------------------------
-
-PHASE D
-
-Report Sections
-
-• Cover
-• Executive Summary
-• Category Summary
-• Detailed Expense Table
-• Report Information
-• Disclaimer
-
-------------------------------------------------------------------------------------------------------------------------
-
-PHASE E
-
-Production Polish
-
-• Large Dataset Testing
-• Performance Testing
-• Print Validation
-• Accountant Review
-• CRA Readiness
-• Final QA
-
-========================================================================================================================
-SUCCESS CRITERIA
-------------------------------------------------------------------------------------------------------------------------
-
-The Expense Report should feel like it was produced by professional accounting software.
-
-It should be immediately understandable by accountants, bookkeepers, business owners, corporations, tax professionals, and audit authorities.
-
-A user should be able to export the PDF, email it directly to their accountant, archive it for years, or provide it during an audit without needing to explain how EliteX works.
-
-If the exported document can confidently stand on its own as a complete, professional business record, then the Expense Report Export System is considered complete.
-
-========================================================================================================================
-END OF MASTER SPECIFICATION
-========================================================================================================================
-
-
-
-# ============================================================
-# ELITE X TRADING JOURNAL
-# BUSINESS EXPENSE PDF REPORT
-# MASTER DESIGN SPECIFICATION (FINAL - LOCKED)
-# ============================================================
-
-STATUS:
-This document represents the FINAL locked design for the Business Expense PDF Report. The report is designed to be professional, accountant-friendly, CRA-ready as an expense ledger, clean, minimal, and consistent with Elite X's institutional design philosophy.
-
-The report is NOT intended to be a database export. It is an accounting report.
-
-================================================================
-DESIGN PHILOSOPHY
-================================================================
-
-The report should answer every important accounting question without overwhelming the reader.
-
-Every page must provide meaningful accounting value.
-
-If a section does not provide value, it should not exist.
-
-The report should feel like something generated from professional accounting software rather than a generic PDF export.
-
-Primary audience:
-
-• Business Owner
-• Accountant / CPA
-• CRA (expense ledger during an audit)
-
-The report intentionally excludes operational metadata that has no accounting value.
-
-================================================================
-REPORT STRUCTURE
-================================================================
-
-Page 1
---------
-Executive Summary
-
-Page 2
---------
-Summary Analysis
-
-Page 3+
---------
-Detailed Expense Ledger
-
-Final Page
---------
-Financial Summary
-
-================================================================
-PAGE 1
-EXECUTIVE SUMMARY
-================================================================
-
-HEADER
-
-ELITE X TRADING JOURNAL
-
-BUSINESS EXPENSE REPORT
-
-(No subtitle)
-
-------------------------------------------------------------
-
-BUSINESS INFORMATION
-
-Display:
-
-• Business Name
-• Owner
-• Business Type
-• Business Number (Optional)
-
-------------------------------------------------------------
-
-REPORT INFORMATION
-
-Display:
-
-• Reporting Period
-• Reporting Currency
-• Generated On
-
-------------------------------------------------------------
-
-EXECUTIVE SUMMARY
-
-Display exactly 5 KPIs
-
-• Total Expenses
-• Tax Deductible
-• Non-Deductible
-• Number of Expenses
-• Reporting Currency
-
-------------------------------------------------------------
-
-PURPOSE
-
-Small paragraph explaining that this report summarizes business expenses for the selected reporting period.
-
-------------------------------------------------------------
-
-FOOTER
-
-Generated by Elite X Trading Journal
-
-------------------------------------------------------------
-
-REMOVED FOREVER
-
-• Version
-• Document ID
-• Subtitle
-• Marketing Text
-
-================================================================
-PAGE 2
-SUMMARY ANALYSIS
-================================================================
-
-SECTION 1
-
-CATEGORY BREAKDOWN
-
-Description:
-
-This section summarizes business expenses by category for the selected reporting period.
-
-Columns
-
-• Category
-• Transactions
-• Original Amount
-• Reporting Amount
-
-Include Total Row
-
-------------------------------------------------------------
-
-SECTION 2
-
-VENDOR BREAKDOWN
-
-Description
-
-This section summarizes expenses by vendor.
-
-Columns
-
-• Vendor
-• Transactions
-• Original Amount
-• Reporting Amount
-
-Include Total Row
-
-------------------------------------------------------------
-
-REMOVED
-
-• Tax Deductible column
-• Charts
-• Graphs
-
-================================================================
-PAGE 3+
-DETAILED EXPENSE LEDGER
-================================================================
-
-Purpose
-
-Complete transaction ledger for every expense.
-
-Multiple expenses per page.
-
-NOT one page per expense.
-
-Dynamic pagination.
-
-------------------------------------------------------------
-
-STANDARD REPORT (Portrait)
-
-Columns
-
-• Date
-• Expense Name
-• Category
-• Vendor
-• Original Amount
-• Reporting Amount
-• Receipt Available
-
-------------------------------------------------------------
-
-BUSINESS REPORT (Landscape)
-
-Additional Columns
-
-• Expense Type
-• Business Use %
-• Deductible %
-• Tax Type
-• Tax Amount
-
-Final Business Column Order
-
-1. Date
-2. Expense Name
-3. Expense Type
-4. Category
-5. Vendor
-6. Original Amount
-7. Reporting Amount
-8. Receipt Available
-9. Business Use %
-10. Deductible %
-11. Tax Type
-12. Tax Amount
-
-------------------------------------------------------------
-
-LANDSCAPE RULE
-
-Portrait
-
-Standard Report
-
-Landscape
-
-Automatically used when Business columns are included.
-
-User does NOT choose orientation.
-
-The report determines orientation automatically.
-
-------------------------------------------------------------
-
-EXPENSE NAME
-
-Fixed width
-
-Maximum two lines
-
-Overflow
-
-Ellipsis (...)
-
-Other columns remain single-line.
-
-------------------------------------------------------------
-
-RECEIPTS
-
-Do NOT embed receipt images.
-
-Receipt column only displays
-
-Yes / No
-
-(or Receipt Available)
-
-Actual receipt files remain stored inside Elite X.
-
-Possible future feature:
-
-Separate Receipt Package export.
-
-------------------------------------------------------------
-
-PAGE BREAK RULES
-
-Do not force page breaks.
-
-Allow content to flow naturally.
-
-Only begin a new section if enough room exists for
-
-• Section Title
-• Description
-• Table Header
-• Approximately 4–5 data rows
-
-================================================================
-EXCLUDED FROM LEDGER
-================================================================
-
-The following fields were intentionally removed because they are operational metadata rather than accounting information.
-
-• Description
-• Notes
-• Payment Method
-• Recurring
-• Receipt Number
-• Invoice Number
-• Receipt Images
-
-================================================================
-FINAL PAGE
-FINANCIAL SUMMARY
-================================================================
-
-Purpose
-
-Provide concise financial summaries after the detailed ledger.
-
-No charts.
-
-No graphs.
-
-No dashboard analytics.
-
-Simple accounting summaries only.
-
-------------------------------------------------------------
-
-SECTION 1
-
-MONTHLY EXPENSE SUMMARY
-
-Columns
-
-• Month
-• Transactions
-• Reporting Amount
-
-Include Total Row
-
-RULE
-
-Show ONLY if the reporting period spans more than one month.
-
-If the report covers only one month, omit this section.
-
-------------------------------------------------------------
-
-SECTION 2
-
-EXPENSE TYPE SUMMARY
-
-Columns
-
-• Expense Type
-• Transactions
-• Reporting Amount
-
-Example
-
-Operating
-
-Capital
-
-Include Total Row
-
-RULE
-
-Show ONLY if Expense Types are being used.
-
-If the user never selects Expense Type, remove this section entirely.
-
-------------------------------------------------------------
-
-SECTION 3
-
-TAX SUMMARY
-
-Columns
-
-• Tax Type
-• Tax Amount
-
-Example
-
-GST
-
-HST
-
-VAT
-
-None
-
-Include Total Row
-
-RULE
-
-Show ONLY if tax data exists.
-
-If every expense has
-
-Tax Type = None
-
-AND
-
-Tax Amount = 0
-
-omit the entire section.
-
-================================================================
-SMART REPORT RULES
-================================================================
-
-The report should be data-driven.
-
-Only display sections that contain meaningful information.
-
-Examples
-
-Monthly Summary
-
-Show
-✔ Multi-month reports
-
-Hide
-✘ Single-month reports
-
-------------------------------------------------------------
-
-Expense Type Summary
-
-Show
-✔ Operating + Capital
-
-Hide
-✘ Operating only (if Expense Types are never used)
-
-------------------------------------------------------------
-
-Tax Summary
-
-Show
-✔ Tax exists
-
-Hide
-✘ Every transaction has Tax Type = None and Tax Amount = 0
-
-================================================================
-ACCOUNTING / CRA REVIEW
-================================================================
-
-This report answers the following accounting questions.
-
-✓ Who owns the business?
-
-✓ What reporting period is covered?
-
-✓ What reporting currency is used?
-
-✓ How much was spent?
-
-✓ What categories were involved?
-
-✓ Which vendors were paid?
-
-✓ What individual expenses occurred?
-
-✓ What was the original transaction currency?
-
-✓ What is the reporting currency value?
-
-✓ Are receipts available?
-
-✓ Is the expense Operating or Capital?
-
-✓ What percentage was business use?
-
-✓ What percentage is deductible?
-
-✓ What taxes were paid?
-
-✓ How much tax was paid?
-
-✓ How were expenses distributed throughout the reporting period?
-
-If CRA requests supporting documentation, the receipts remain stored inside Elite X.
-
-The PDF functions as the official expense ledger, while Elite X serves as the document repository.
-
-================================================================
-FINAL DESIGN PHILOSOPHY
-================================================================
-
-This report is intentionally opinionated.
-
-It is designed to provide exactly the information that accountants, CPAs, and CRA require without exposing unnecessary application metadata.
-
-The PDF is not intended to be a raw database export.
-
-It is a professional accounting report that summarizes business expenses clearly, accurately, and in a format suitable for bookkeeping, tax preparation, and audit support.
-
-STATUS
-
-✅ DESIGN COMPLETE
-✅ ACCOUNTANT REVIEW READY
-✅ CRA EXPENSE LEDGER READY
-✅ IMPLEMENTATION READY
-
-===============================================================================================================================
-
-# ============================================================================
-# ELITEX TRADING OS
-# MASTER HANDOVER NOTES
-# Expense Report PDF V1
-# Session Summary
-# ============================================================================
-
-Project:
-Business Expense Report PDF
-
-Status:
-~95% Complete
-
-Current Branch:
-checkpoint/expense-pdf-financial-summary-complete-v1
-
-Build Status:
-✅ Production Build Passing
-
-Last Checkpoint:
-checkpoint/expense-pdf-financial-summary-complete-v1
-
-Github:
-Latest checkpoint pushed successfully.
-
-============================================================================
-PROJECT GOAL
-============================================================================
-
-The goal of this report is NOT to build a fancy PDF.
-
-The goal is to produce an accountant-grade Business Expense Report that can
-be emailed directly to a CPA/Accountant at year-end.
-
-The PDF must contain:
-
-• Executive Summary
-• Financial Summary
-• Complete Expense Ledger
-• Category Breakdown
-• Vendor Breakdown
-
-The PDF itself performs ZERO calculations.
-
-Every calculation is completed before rendering.
-
-Architecture is strictly separated.
-
-============================================================================
-CANONICAL ARCHITECTURE
-============================================================================
-
-Rule #1
-
-buildExpenseReportData()
-
-Responsible for
-
-• calculations
-• grouping
-• filtering
-• totals
-• reporting currency conversion
-• validation
-
-Produces:
-
-ExpenseReportData
-
-------------------------------------
-
-Rule #2
-
-ExpenseReportDocument
-
-Responsible ONLY for rendering.
-
-NO calculations.
-
-NO grouping.
-
-NO filtering.
-
-NO totals.
-
-It simply renders ExpenseReportData.
-
-============================================================================
-EXPENSE REPORT STRUCTURE
-============================================================================
-
-PAGE 1
-
-Business Expense Report
-
-Contains
-
-• Cover
-• Report Metadata
-• Executive Summary
-
-Executive Summary includes
-
-• Total Expenses
-• Total Expense Count
-• Recurring Total
-• One-Time Total
-• Tax Deductible Total
-• Non-Deductible Total
-
-------------------------------------
-
-PAGE 2
-
-Expense Summary
-
-Contains
-
-Category Summary
-
-Vendor Summary
-
-Both use reusable SummaryTable.
-
-------------------------------------
-
-PAGE 3
-
-Expense Ledger
-
-Contains
-
-Always Included Columns
-
-• Date
-• Expense
-• Category
-• Vendor
-• Original Amount
-• Reporting Amount
-• Receipt Status
-
-NO optional columns yet.
-
-------------------------------------
-
-PAGE 4
-
-Financial Summary
-
-Contains
-
-1.
+The Financial Summary consists of four logical accounting summaries.
 
 Monthly Expense Summary
 
-Shows reporting totals by month.
-
-Includes
-
-Total Expenses
-
-------------------------------------
-
-2.
-
-Original Currency Totals
-
-Grouped by
-
-CAD
-USD
-EUR
-etc.
-
-NO footer total.
-
-Reason
-
-Mixed currencies should NEVER be totaled.
-
-Example
-
-CAD 150
-
-USD 200
-
-Printing
-
-Total 350
-
-would be mathematically meaningless.
-
-------------------------------------
-
-3.
-
-Expense Type Summary
-
-Grouped by
-
-Operating
-
-Capital
-
-etc.
-
-Includes
-
-Total by Type
-
-We intentionally renamed
-
-Total Expenses
-
-to
-
-Total by Type
-
-because it is more accurate.
-
-------------------------------------
-
-4.
-
-Tax Summary
-
-Grouped by
-
-GST/HST
-
-VAT
-
-etc.
-
-Includes
-
-Total Tax
-
-Shown ONLY if tax exists.
-
-============================================================================
-FINANCIAL SUMMARY ARCHITECTURE
-============================================================================
-
-Created
-
-FinancialSummaryPage.tsx
-
-Purpose
-
-Render ONLY.
-
-No calculations.
-
-Uses reusable SummaryTable.
-
-Conditionally renders sections.
-
-If section contains zero rows
-
-Hide entire section.
-
-Implemented for
-
-Original Currency
-
-Expense Type
-
-Tax Summary
-
-============================================================================
-SUMMARY TABLE
-============================================================================
-
-Created
-
-lib/reporting/components/SummaryTable.tsx
-
-Purpose
-
-Single reusable table used by
-
-Category Summary
-
-Vendor Summary
-
-Monthly Summary
-
 Original Currency Summary
 
 Expense Type Summary
 
 Tax Summary
 
-Features
+Each summary is produced entirely inside the Report Builder.
 
-Reusable
+The PDF renderer performs no calculations.
 
-Configurable headers
+The Financial Summary page simply renders the provided structures.
 
-Configurable footer
 
-Reusable currency formatter
 
-Optional footer
+===============================================================================
+30. SUMMARY TABLE COMPONENT
+===============================================================================
 
-Supports
+SummaryTable is the shared component used across every financial summary.
 
-leftHeader
+Responsibilities:
 
-rightHeader
+Render header
 
-totalLabel
+Render rows
 
-Supports
+Render optional total row
 
-currency override
+Currency formatting
 
-Example
+Consistent styling
 
-USD 20
+The component intentionally performs no calculations.
 
-CAD 15
+Totals are calculated before reaching the renderer.
 
-instead of converting everything to reporting currency.
+This keeps rendering deterministic and reusable.
 
-============================================================================
-BUILDERS CREATED
-============================================================================
 
-Created
 
-monthlyExpenseSummary.ts
+===============================================================================
+31. DOCUMENT COMPOSITION
+===============================================================================
 
-Purpose
+ExpenseReportDocument assembles the report using high-level report sections.
 
-Groups expenses by month.
+Current logical composition:
 
-Returns
+Document
 
-January
+↓
 
-February
+Cover Page
 
-March
+↓
 
-...
+Expense Summary
 
-Uses reporting amount.
+↓
 
-Chronological sorting.
+Expense Ledger
 
-----------------------------------------------------------------------------
-
-Created
-
-originalCurrencyTotals.ts
-
-Purpose
-
-Groups expenses by billed currency.
-
-Returns
-
-CAD
-
-USD
-
-EUR
-
-No reporting conversion.
-
-----------------------------------------------------------------------------
-
-Created
-
-expenseTypeSummary.ts
-
-Purpose
-
-Groups
-
-expense_type
-
-Uses
-
-reporting_amount
-
-Returns
-
-Operating
-
-Capital
-
-etc.
-
-Ignores
-
-null
-
-empty string
-
-Alphabetically sorted.
-
-----------------------------------------------------------------------------
-
-Created
-
-taxSummary.ts
-
-Purpose
-
-Groups
-
-tax_type
-
-Uses
-
-tax_amount
-
-Ignores
-
-null
-
-empty
-
-zero
-
-Returns
-
-GST/HST
-
-VAT
-
-etc.
-
-Alphabetically sorted.
-
-----------------------------------------------------------------------------
-
-Created
-
-financialSummary.ts
-
-Purpose
-
-Master Financial Summary Builder.
-
-Calls
-
-buildMonthlyExpenseSummary()
-
-buildOriginalCurrencyTotals()
-
-buildExpenseTypeSummary()
-
-buildTaxSummary()
-
-Returns
-
-ExpenseFinancialSummary
-
-============================================================================
-TYPES ADDED
-============================================================================
-
-Added
-
-MonthlyExpenseSummary
-
-ExpenseTypeSummary
-
-TaxSummary
-
-ExpenseFinancialSummary
-
-Updated
-
-ExpenseReportData
-
-Added
-
-financialSummary
-
-----------------------------------------------------------------------------
-
-Added
-
-PdfCurrencyTotal
-
-Used by
-
-Original Currency Totals
-
-============================================================================
-BUGS FOUND
-============================================================================
-
-BUG 1
-
-Build Error
-
-originalCurrencyTotals missing.
-
-Cause
-
-ExpenseReportData did not contain
-
-originalCurrencyTotals
-
-Fix
-
-Moved architecture into
-
-financialSummary
-
-----------------------------------------------------------------------------
-
-BUG 2
-
-Import error
-
-Wrong import path
-
-Used
-
-../shared/buildOriginalCurrencyTotals
-
-Correct path
-
-./originalCurrencyTotals
-
-----------------------------------------------------------------------------
-
-BUG 3
-
-TaxSummary type mismatch
-
-Interface
-
-reportingTotal
-
-Builder
-
-taxAmount
-
-Fix
-
-Changed interface
-
-TaxSummary
-
-to
-
-taxAmount
-
-Cleaner architecture.
-
-----------------------------------------------------------------------------
-
-BUG 4
-
-Expense Type Totals
-
-Operating
-
-64.97
-
-Expected
-
-69.47
-
-Difference
-
-4.50
-
-Investigated
-
-Added logging.
-
-Found
-
-One expense
-
-expense_type
-
-was NULL.
-
-Builder was correct.
-
-Data was wrong.
-
-Updated expense.
-
-Problem resolved.
-
-Lesson
-
-PDF architecture correct.
-
-Database data incorrect.
-
-----------------------------------------------------------------------------
-
-BUG 5
-
-Expense Type Summary footer
-
-Originally
-
-Total Expenses
-
-Changed to
-
-Total by Type
-
-Reason
-
-Avoid duplicate wording.
-
-More accountant friendly.
-
-============================================================================
-ACCOUNTANT REVIEW
-============================================================================
-
-Reviewed report from CPA perspective.
-
-Result
-
-Expense Report considered production quality.
-
-Questions already answered
-
-✓ Date
-
-✓ Expense
-
-✓ Category
-
-✓ Vendor
-
-✓ Original Amount
-
-✓ Reporting Amount
-
-✓ Receipt Status
-
-✓ Expense Type
-
-✓ Business Use %
-
-✓ Deductible %
-
-✓ Tax Type
-
-✓ Tax Amount
-
-Would NOT ask user for
-
-Vendor
-
-Category
-
-Receipt status
-
-Currency
-
-Capital vs Operating
-
-Business %
-
-Deductible %
-
-Tax
-
-Only remaining requests
-
-Broker Statements
-
-Income
-
-Bank Statements
-
-Receipts
-
-outside scope of Expense Report.
-
-============================================================================
-DESIGN DECISIONS LOCKED
-============================================================================
-
-Original Currency Summary
-
-NO footer total.
-
-LOCKED.
-
-------------------------------------
-
-Expense Type Summary
-
-Footer
-
-Total by Type
-
-LOCKED.
-
-------------------------------------
-
-Tax Summary
-
-Footer
-
-Total Tax
-
-LOCKED.
-
-------------------------------------
-
-Conditional Sections
-
-If zero rows
-
-Hide section.
-
-LOCKED.
-
-------------------------------------
-
-Notes
-
-NOT included in ledger.
-
-Future
-
-Appendix
-
-LOCKED.
-
-------------------------------------
-
-Recurring Status
-
-Removed.
-
-Reason
-
-Useful for application.
-
-Not useful for accountant.
-
-LOCKED.
-
-============================================================================
-FINAL LEDGER DESIGN
-============================================================================
-
-Always Included
-
-✓ Date
-
-✓ Expense
-
-✓ Category
-
-✓ Vendor
-
-✓ Original Amount
-
-✓ Reporting Amount
-
-✓ Receipt Status
-
-------------------------------------
-
-Optional
-
-✓ Expense Type
-
-✓ Business Use %
-
-✓ Deductible %
-
-✓ Tax Type
-
-✓ Tax Amount
-
-------------------------------------
-
-Removed
-
-Notes
-
-Recurring Status
-
-============================================================================
-NEXT FEATURE
-============================================================================
-
-Additional Ledger Columns
-
-Plan
-
-1.
-
-Export Drawer
-
-Allow selecting
-
-Expense Type
-
-Business Use %
-
-Deductible %
-
-Tax Type
-
-Tax Amount
-
-----------------------------------------------------------------------------
-
-2.
-
-Update Ledger
-
-Headers become dynamic.
-
-Rows become dynamic.
-
-----------------------------------------------------------------------------
-
-3.
-
-Column Widths
-
-Recalculate dynamically.
-
-Avoid hardcoded widths.
-
-----------------------------------------------------------------------------
-
-4.
-
-Orientation
-
-Decision LOCKED
-
-Default
-
-Portrait
-
-If NO optional columns selected
-
-Keep current portrait layout.
-
-------------------------------------
-
-If ONE OR MORE optional columns selected
-
-Show new option
-
-Ledger Layout
-
-○ Portrait
-
-○ Landscape
-
-Default
-
-Portrait
-
-Landscape recommended
-
-for printing.
-
-Portrait recommended
-
-for screen viewing.
-
-Important
-
-ONLY Page 3 changes orientation.
-
-Pages
-
-1
-
-2
-
-4
-
-always remain portrait.
-
-Reason
-
-Professional reports often contain portrait summary pages and landscape
-schedules.
-
-Mixed orientation is acceptable and common.
-
-============================================================================
-IMPLEMENTATION ORDER
-============================================================================
-
-NEXT
-
-1.
-
-Update Export Drawer
-
-Add
-
-Additional Ledger Columns
-
-Expense Type
-
-Business Use %
-
-Deductible %
-
-Tax Type
-
-Tax Amount
-
-----------------------------------------------------------------------------
-
-2.
-
-If any additional column selected
-
-Show
-
-Ledger Layout
-
-Portrait
-
-Landscape
-
-----------------------------------------------------------------------------
-
-3.
-
-Refactor Ledger
-
-Current implementation likely hardcodes columns.
-
-Goal
-
-Move toward column-definition architecture instead of repeated conditionals.
-
-Avoid patterns like
-
-if(includeExpenseType)
-
-if(includeTaxType)
-
-etc.
-
-Prefer a single column definition list that drives both header and rows.
-
-----------------------------------------------------------------------------
-
-4.
-
-Implement optional columns.
-
-----------------------------------------------------------------------------
-
-5.
-
-Implement portrait/landscape switch for Page 3 only.
-
-----------------------------------------------------------------------------
-
-6.
-
-Full QA.
-
-============================================================================
-FINAL QA CHECKLIST
-============================================================================
-
-Default Report
-
-☐
-
-Expense Type only
-
-☐
-
-Business Use only
-
-☐
-
-Deductible only
-
-☐
-
-Tax Type only
-
-☐
-
-Tax Amount only
-
-☐
-
-All optional columns
-
-☐
-
-Portrait
-
-☐
-
-Landscape
-
-☐
-
-Empty Report
-
-☐
-
-One Expense
-
-☐
-
-Multiple Pages
-
-☐
-
-Long Expense Names
-
-☐
-
-Long Vendor Names
-
-☐
-
-Mixed Currencies
-
-☐
-
-No Tax
-
-☐
-
-No Expense Type
-
-☐
-
-============================================================================
-OVERALL STATUS
-============================================================================
-
-Expense PDF
-
-Architecture
-
-✅ Complete
+↓
 
 Financial Summary
 
-✅ Complete
+The document does not calculate data.
 
-Reusable Components
+It simply assembles completed report sections.
 
-✅ Complete
 
-Summary Tables
 
-✅ Complete
+===============================================================================
+32. DETERMINISTIC LEDGER PAGINATION
+===============================================================================
 
-Builders
+Originally, React PDF determined where ledger rows would break.
 
-✅ Complete
+This resulted in:
 
-Production Build
+Inconsistent page breaks
 
-✅ Passing
+Variable row counts
 
-CPA Review
+Unpredictable layouts
 
-✅ Passed
+Difficult future maintenance
 
-Remaining Work
+The architecture was redesigned so EliteX owns ledger pagination.
 
-Only
+The report now determines page boundaries before rendering.
 
-Optional Ledger Columns
+React PDF simply renders those pages.
 
-+
+This change established deterministic ledger pagination throughout the
+Expense Report system.
 
-Ledger Layout
 
-+
 
-Final QA
+===============================================================================
+33. PAGINATEROWS()
+===============================================================================
 
-After those are complete
+paginateRows() is the shared pagination utility responsible for dividing
+ledger rows into printable pages.
 
-Expense Report PDF V1 will be considered COMPLETE and locked.
+Current behavior:
+
+Input:
+
+Rows
+
+Maximum rows per page
+
+Output:
+
+Array of pages
+
+Each page contains a fixed number of ledger rows.
+
+The Expense Report currently uses:
+
+REPORT_LAYOUT
+
+↓
+
+LEDGER_ROWS_PER_PAGE
+
+↓
+
+14 rows
+
+This value exists as a shared layout constant rather than a hardcoded number.
+
+
+
+===============================================================================
+34. LEDGER PAGE GENERATION
+===============================================================================
+
+ExpenseReportDocument no longer renders one large ledger.
+
+Instead:
+
+Rows
+
+↓
+
+paginateRows()
+
+↓
+
+Ledger Page 1
+
+Ledger Page 2
+
+Ledger Page 3
+
+...
+
+Each ledger page renders independently.
+
+The table header repeats naturally because every page renders its own ledger
+component.
+
+This architecture greatly simplifies future pagination improvements.
+
+
+
+===============================================================================
+35. EXPENSE LEDGER COMPONENT
+===============================================================================
+
+ExpenseLedgerPages renders exactly one ledger page.
+
+Responsibilities:
+
+Render heading
+
+Render table header
+
+Render printable rows
+
+Respect optional columns
+
+Perform no calculations
+
+Every page is rendered using the rows already assigned by paginateRows().
+
+The component never decides where pages begin or end.
+
+Pagination has already been completed before rendering begins.
+
+
+
+===============================================================================
+36. OPTIONAL COLUMN RENDERING
+===============================================================================
+
+Ledger columns are filtered before rendering.
+
+The renderer checks ExpenseReportOptions.
+
+Example:
+
+Business Use
+
+↓
+
+Enabled?
+
+↓
+
+Render
+
+Otherwise
+
+↓
+
+Skip column
+
+This keeps rendering logic simple while maintaining deterministic layouts.
+
+The renderer never modifies report data.
+
+It only decides whether individual columns are visible.
+
+===============================================================================
+37. FINANCIAL SUMMARY ARCHITECTURE
+===============================================================================
+
+The Financial Summary represents the final accounting section of the Expense
+Report.
+
+Unlike the Detailed Expense Ledger, which renders individual expense records,
+the Financial Summary presents aggregated accounting information intended for
+management review, tax preparation, and financial reconciliation.
+
+Current sections include:
+
+• Monthly Expense Summary
+
+• Original Currency Totals
+
+• Expense Type Summary
+
+• Tax Summary
+
+Each section is independent and is generated entirely inside the Report
+Builder.
+
+The renderer simply displays these summaries.
+
+
+
+===============================================================================
+38. MONTHLY EXPENSE SUMMARY
+===============================================================================
+
+Purpose:
+
+Provide a month-by-month breakdown of business expenses.
+
+Each row contains:
+
+Month
+
+↓
+
+Reporting Currency Total
+
+A final total row summarizes all monthly expenses.
+
+The builder performs all calculations.
+
+SummaryTable renders the finished result.
+
+
+
+===============================================================================
+39. ORIGINAL CURRENCY TOTALS
+===============================================================================
+
+Purpose:
+
+Display totals grouped by original transaction currency.
+
+Example:
+
+CAD
+
+↓
+
+Original CAD Total
+
+USD
+
+↓
+
+Original USD Total
+
+EUR
+
+↓
+
+Original EUR Total
+
+No conversion occurs inside this section.
+
+This summary exists solely to preserve visibility into the original currencies
+used throughout the reporting period.
+
+The report builder is responsible for constructing this dataset.
+
+
+
+===============================================================================
+40. EXPENSE TYPE SUMMARY
+===============================================================================
+
+Purpose:
+
+Summarize expenses by expense type.
+
+Example:
+
+Subscription
+
+↓
+
+Reporting Total
+
+Software
+
+↓
+
+Reporting Total
+
+Hosting
+
+↓
+
+Reporting Total
+
+Education
+
+↓
+
+Reporting Total
+
+This section provides accountants and business owners with a quick view of
+where money is being spent.
+
+All grouping occurs before rendering.
+
+
+
+===============================================================================
+41. TAX SUMMARY
+===============================================================================
+
+Purpose:
+
+Summarize tax collected across all expenses.
+
+Example:
+
+GST/HST
+
+↓
+
+Reporting Total
+
+VAT
+
+↓
+
+Reporting Total
+
+Sales Tax
+
+↓
+
+Reporting Total
+
+The Tax Summary does not calculate tax.
+
+It simply displays the totals supplied by the Report Builder.
+
+
+
+===============================================================================
+42. CURRENT FINANCIAL SUMMARY LIMITATION
+===============================================================================
+
+The current implementation relies on React PDF to determine how summary
+sections flow across pages.
+
+For typical datasets this produces acceptable results.
+
+However, larger datasets may eventually cause:
+
+• Sections beginning at the bottom of a page
+
+• Awkward page breaks
+
+• Headings separated from their tables
+
+• Tables continuing unexpectedly
+
+Although the current implementation is fully functional, deterministic
+pagination for Financial Summary remains the final architectural improvement
+planned for the Expense Report.
+
+
+
+===============================================================================
+43. LEDGER PAGINATION VS SUMMARY PAGINATION
+===============================================================================
+
+These two problems are intentionally treated differently.
+
+Ledger pagination
+
+↓
+
+EliteX controls page boundaries.
+
+Financial Summary
+
+↓
+
+React PDF currently controls page flow.
+
+The ledger required deterministic pagination because every expense record is
+independent.
+
+The Financial Summary consists of grouped accounting sections, making its
+pagination requirements fundamentally different.
+
+The final solution will preserve logical sections rather than fixed row counts.
+
+
+
+===============================================================================
+44. REPORTSECTION COMPONENT
+===============================================================================
+
+ReportSection was introduced to establish a shared abstraction for grouping
+logical report sections.
+
+Current responsibilities:
+
+Group related report content.
+
+Provide a reusable wrapper for future pagination improvements.
+
+Serve as the foundation for section-based rendering.
+
+Although current pagination work remains incomplete, this component represents
+the intended direction for future report architecture.
+
+
+
+===============================================================================
+45. PAGINATION PHILOSOPHY
+===============================================================================
+
+EliteX intentionally favors deterministic document generation over allowing
+React PDF to make layout decisions.
+
+Guiding principle:
+
+EliteX should decide what belongs on each page.
+
+React PDF should only render those decisions.
+
+Whenever deterministic behavior can replace automatic behavior, deterministic
+behavior is preferred.
+
+This philosophy already governs ledger pagination and will eventually govern
+Financial Summary pagination as well.
+
+
+
+===============================================================================
+46. EXPERIMENTS COMPLETED
+===============================================================================
+
+Multiple pagination approaches were evaluated during implementation.
+
+These experiments were valuable because they eliminated several potential
+architectural directions.
+
+
+
+Experiment 1
+
+React PDF Automatic Pagination
+
+Result
+
+Rejected
+
+Reason
+
+Inconsistent page breaks.
+
+EliteX had no control over page layout.
+
+
+
+Experiment 2
+
+React PDF break Property
+
+Result
+
+Rejected
+
+Reason
+
+Did not consistently move sections onto new pages.
+
+Behavior remained dependent upon React PDF's internal layout engine.
+
+
+
+Experiment 3
+
+Reserved Bottom Page Padding
+
+Result
+
+Rejected
+
+Reason
+
+Affected every report page.
+
+Introduced regressions into the ledger layout.
+
+Global layout changes were considered too invasive.
+
+
+
+Experiment 4
+
+Footer Reservation
+
+Result
+
+Rejected
+
+Reason
+
+Did not reliably reserve printable space.
+
+Produced inconsistent results across pages.
+
+
+
+Experiment 5
+
+Footer Spacer
+
+Result
+
+Rejected
+
+Reason
+
+Only inserted blank space after content.
+
+Did not influence page-breaking decisions.
+
+
+
+Experiment 6
+
+Automatic Footer Area
+
+Result
+
+Rejected
+
+Reason
+
+React PDF continued determining page layout.
+
+Did not produce deterministic pagination.
+
+
+
+These experiments confirmed that Financial Summary pagination should eventually
+be solved through explicit document structure rather than layout tricks.
+
+
+
+===============================================================================
+47. DESIGN PRINCIPLES
+===============================================================================
+
+The Expense Report follows several permanent design principles.
+
+Business logic belongs in builders.
+
+Rendering belongs in components.
+
+Pages should remain visually simple.
+
+Whitespace is preferred over clutter.
+
+Consistency is more important than maximizing page utilization.
+
+Print quality is more important than matching the web interface.
+
+Institutional appearance is preferred over decorative styling.
+
+Professional accounting reports should remain predictable and easy to audit.
+
+
+
+===============================================================================
+48. ACCOUNTING PRINCIPLES
+===============================================================================
+
+Expense Reports should always preserve accounting integrity.
+
+Reporting Currency totals represent converted reporting values.
+
+Original Currency totals preserve original transaction amounts.
+
+No mixed-currency totals are displayed.
+
+Every printed value originates from canonical report data.
+
+No calculations occur during rendering.
+
+All financial values originate from the Report Builder.
+
+
+
+===============================================================================
+49. EXTENSIBILITY
+===============================================================================
+
+The reporting infrastructure has been intentionally designed to support future
+report types.
+
+Examples include:
+
+Trading Performance Reports
+
+Tax Reports
+
+Broker Activity Reports
+
+Year End Reports
+
+Monthly Business Reports
+
+Profit and Loss Statements
+
+The shared reporting infrastructure should continue to expand without requiring
+individual reports to duplicate components or theme definitions.
+
+Shared utilities should remain report-agnostic whenever practical.
+
+
+
+===============================================================================
+50. IMPLEMENTATION STATUS
+===============================================================================
+
+Completed
+
+✓ Canonical reporting architecture
+
+✓ Export pipeline
+
+✓ Shared reporting theme
+
+✓ Shared reporting components
+
+✓ Report builder
+
+✓ ExpenseReportData contract
+
+✓ Cover Page
+
+✓ Executive Summary
+
+✓ Financial Summary
+
+✓ Detailed Expense Ledger
+
+✓ Optional ledger columns
+
+✓ Reporting Period selection
+
+✓ Independent Export Drawer state
+
+✓ LocalStorage persistence
+
+✓ Estimated Pages
+
+✓ Estimated PDF Size
+
+✓ Report metadata
+
+✓ Deterministic ledger pagination
+
+✓ Shared paginateRows()
+
+✓ REPORT_LAYOUT constants
+
+✓ SummaryTable component
+
+✓ ReportSection abstraction
+
+✓ Professional PDF styling
+
+✓ Separation of business logic and rendering
+
+
+
+===============================================================================
+51. REMAINING WORK
+===============================================================================
+
+One architectural task remains.
+
+Financial Summary Pagination.
+
+Target behavior:
+
+Each logical accounting section should remain together whenever practical.
+
+If a section cannot reasonably fit within the remaining printable area of the
+current page, EliteX should begin a new page before rendering that section.
+
+The long-term objective is to make Financial Summary pagination deterministic
+while preserving the simplicity of the overall reporting architecture.
+
+This work will remain isolated to the Financial Summary and will not affect:
+
+Cover Page
+
+Executive Summary
+
+Ledger
+
+Report Builder
+
+Shared theme
+
+Shared data contracts
+
+
+
+===============================================================================
+52. LOCKED ARCHITECTURAL DECISIONS
+===============================================================================
+
+The following decisions are considered canonical.
+
+Business logic never belongs inside PDF components.
+
+ExpenseReportData is the only input accepted by the renderer.
+
+Report Builder owns every calculation.
+
+Rendering components remain calculation-free.
+
+Shared reporting theme files are mandatory.
+
+Ledger pagination is deterministic.
+
+Ledger row count is controlled through REPORT_LAYOUT.
+
+PDF page count is derived from the generated PDF using pdf-lib.
+
+Estimated PDF size is derived from the generated Blob.
+
+The Export Drawer owns report configuration.
+
+Reporting Period is isolated from the Expenses page.
+
+Report components should remain reusable across future report types.
+
+Future reporting features should extend the existing reporting framework rather
+than introducing parallel implementations.
+
+
+
+===============================================================================
+53. FINAL ARCHITECTURAL VISION
+===============================================================================
+
+The Expense Report PDF Export System establishes the foundation for every
+future printable report within EliteX Trading OS.
+
+The long-term vision is a unified reporting framework where:
+
+Every report shares a common design system.
+
+Every report shares common layout primitives.
+
+Every report uses canonical data contracts.
+
+Every report separates calculation from rendering.
+
+Every report produces deterministic, professional, accountant-ready output.
+
+The Expense Report serves as the reference implementation for this framework.
+
+Future report types should follow the same architectural principles, extending
+the shared reporting infrastructure rather than reinventing it.
+
+By maintaining a strict separation between report construction, data contracts,
+and presentation, the reporting system remains scalable, maintainable, and
+consistent as EliteX Trading OS continues to evolve.
+
+================================================================================
+END OF MASTER DESIGN SPECIFICATION
+Expense Report PDF Export System
+Version 2.0
+================================================================================
+
+===============================================================================
+CANONICAL FILE RESPONSIBILITIES
+===============================================================================
+
+Expense Export
+
+ExportExpenseDrawer.tsx
+
+Responsibilities
+
+• Collect export configuration
+• Reporting period selection
+• Optional ledger columns
+• Live preview
+• Build ExpenseReportOptions
+• Trigger export
+
+Must NOT
+
+• Build report data
+• Calculate summaries
+• Generate PDF
+
+
+------------------------------------------------------------------------------
+
+exportExpenseReport.ts
+
+Responsibilities
+
+• Entry point for Expense Report export
+• Coordinate report building
+• Coordinate PDF generation
+• Trigger download
+
+Must NOT
+
+• Calculate report data
+• Render PDF
+
+
+------------------------------------------------------------------------------
+
+buildExpenseReportData.ts
+
+Responsibilities
+
+• Validate inputs
+• Build ExpenseReportData
+• Calculate summaries
+• Build metadata
+• Build ledger rows
+• Apply reporting currency
+
+Must NOT
+
+• Render PDF
+
+
+------------------------------------------------------------------------------
+
+generateExpensePdf.ts
+
+Responsibilities
+
+• Render React PDF
+• Generate Blob
+• Return PDF blob
+
+Must NOT
+
+• Perform calculations
+
+
+------------------------------------------------------------------------------
+
+ExpenseReportDocument.tsx
+
+Responsibilities
+
+• Assemble report pages
+• Compose document structure
+
+Must NOT
+
+• Calculate report data
+
+
+------------------------------------------------------------------------------
+
+ExpenseCoverPage.tsx
+
+Responsibilities
+
+• Render report cover
+
+
+------------------------------------------------------------------------------
+
+ExpenseSummaryPage.tsx
+
+Responsibilities
+
+• Render executive summary
+
+
+------------------------------------------------------------------------------
+
+ExpenseLedgerPages.tsx
+
+Responsibilities
+
+• Render one ledger page
+• Render table header
+• Render assigned rows
+
+Must NOT
+
+• Paginate rows
+
+
+------------------------------------------------------------------------------
+
+FinancialSummaryPage.tsx
+
+Responsibilities
+
+• Render accounting summaries
+
+Must NOT
+
+• Calculate summaries
+
+
+------------------------------------------------------------------------------
+
+SummaryTable.tsx
+
+Responsibilities
+
+• Shared summary renderer
+
+
+------------------------------------------------------------------------------
+
+Page.tsx
+
+Responsibilities
+
+• Shared PDF page
+
+
+------------------------------------------------------------------------------
+
+Document.tsx
+
+Responsibilities
+
+• Shared PDF document
+
+
+------------------------------------------------------------------------------
+
+ReportSection.tsx
+
+Responsibilities
+
+• Shared logical section wrapper
+
+
+------------------------------------------------------------------------------
+
+paginateRows.ts
+
+Responsibilities
+
+• Deterministic ledger pagination
+
+
+------------------------------------------------------------------------------
+
+reportLayout.ts
+
+Responsibilities
+
+• Shared layout constants
+
+
+------------------------------------------------------------------------------
+
+colors.ts
+
+Responsibilities
+
+• Shared PDF colors
+
+
+------------------------------------------------------------------------------
+
+spacing.ts
+
+Responsibilities
+
+• Shared PDF spacing
+
+
+------------------------------------------------------------------------------
+
+typography.ts
+
+Responsibilities
+
+• Shared PDF typography
+
+
+------------------------------------------------------------------------------
+
+types.ts
+
+Responsibilities
+
+• Canonical report contracts
+
+===============================================================================
+CURRENT IMPLEMENTATION STATUS
+===============================================================================
+
+Expense Report Export
+
+███████████████████████░░ 95%
+
+Completed
+
+✓ Export Drawer
+✓ Report Builder
+✓ PDF Generator
+✓ Theme System
+✓ Shared Components
+✓ Live Preview
+✓ Page Count
+✓ PDF Size
+✓ Ledger Pagination
+✓ Report Data Contracts
+✓ Financial Summary
+✓ Metadata
+✓ Export Options
+
+Remaining
+
+□ Deterministic Financial Summary pagination
+
+===============================================================================
+54. CANONICAL FILE RESPONSIBILITIES
+===============================================================================
+
+This section defines the ownership boundaries of every major file involved in
+the Expense Report PDF Export System.
+
+Each file owns one responsibility.
+
+Business logic, rendering, calculations, and orchestration should never become
+mixed across these boundaries.
+
+Future development should respect these ownership rules.
+
+
+-------------------------------------------------------------------------------
+ExportExpenseDrawer.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Primary user interface for configuring the Expense Report.
+
+Responsibilities
+
+• Reporting period selection
+
+• Report content preview
+
+• Optional ledger column selection
+
+• Live report preview
+
+• Estimated page count
+
+• Estimated PDF size
+
+• Generated timestamp
+
+• Build ExpenseReportOptions
+
+• Trigger exportExpenseReport()
+
+Must NOT
+
+• Calculate report summaries
+
+• Build ExpenseReportData
+
+• Generate PDF layout
+
+• Perform financial calculations
+
+
+
+-------------------------------------------------------------------------------
+exportExpenseReport.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Entry point for the Expense Report export process.
+
+Responsibilities
+
+• Coordinate report generation
+
+• Call buildExpenseReportData()
+
+• Call generateExpensePdf()
+
+• Trigger browser download
+
+Must NOT
+
+• Calculate report values
+
+• Render PDF
+
+• Build React components
+
+
+
+-------------------------------------------------------------------------------
+buildExpenseReportData.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Canonical report builder.
+
+Responsibilities
+
+• Validate input
+
+• Build ExpenseReportData
+
+• Build metadata
+
+• Build executive summary
+
+• Build category summary
+
+• Build vendor summary
+
+• Build financial summary
+
+• Build printable ledger rows
+
+• Apply reporting currency
+
+• Normalize report data
+
+Must NOT
+
+• Render PDF
+
+• Create React components
+
+• Generate blobs
+
+
+
+-------------------------------------------------------------------------------
+types.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Canonical reporting data contracts.
+
+Responsibilities
+
+• ExpenseReportData
+
+• ExpenseReportOptions
+
+• ExpenseReportMetadata
+
+• ExpenseReportSummary
+
+• ExpenseCategorySummary
+
+• ExpenseVendorSummary
+
+• ExpenseFinancialSummary
+
+• ExpenseReportRow
+
+• ExpenseReportInformation
+
+Every reporting component depends upon these shared contracts.
+
+
+
+-------------------------------------------------------------------------------
+generateExpensePdf.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Generate the final PDF.
+
+Responsibilities
+
+• Render React PDF
+
+• Generate Blob
+
+• Return Blob
+
+Must NOT
+
+• Calculate report values
+
+• Build summaries
+
+• Modify report data
+
+
+
+-------------------------------------------------------------------------------
+ExpenseReportDocument.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Root document composition.
+
+Responsibilities
+
+• Assemble report pages
+
+• Compose document structure
+
+• Render ledger pages
+
+• Render financial summary
+
+Must NOT
+
+• Perform calculations
+
+• Build report data
+
+
+
+-------------------------------------------------------------------------------
+ExpenseCoverPage.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Render the report cover.
+
+Responsibilities
+
+• Report title
+
+• Metadata
+
+• Reporting period
+
+• Owner
+
+• Generated date
+
+• Professional cover layout
+
+
+
+-------------------------------------------------------------------------------
+ExpenseSummaryPage.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Render the executive summary.
+
+Responsibilities
+
+• Summary cards
+
+• Category summary
+
+• Vendor summary
+
+• Report overview
+
+Must NOT
+
+• Calculate summary values
+
+
+
+-------------------------------------------------------------------------------
+ExpenseLedgerPages.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Render one printable ledger page.
+
+Responsibilities
+
+• Ledger heading
+
+• Table header
+
+• Assigned ledger rows
+
+• Optional column rendering
+
+Must NOT
+
+• Paginate rows
+
+• Calculate totals
+
+• Determine page breaks
+
+
+
+-------------------------------------------------------------------------------
+FinancialSummaryPage.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Render accounting summaries.
+
+Responsibilities
+
+• Monthly Expense Summary
+
+• Original Currency Totals
+
+• Expense Type Summary
+
+• Tax Summary
+
+Must NOT
+
+• Calculate summaries
+
+• Build financial data
+
+• Determine ledger pagination
+
+
+
+-------------------------------------------------------------------------------
+Document.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared React PDF document wrapper.
+
+Responsibilities
+
+• Root document
+
+• Shared document configuration
+
+
+
+-------------------------------------------------------------------------------
+Page.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared printable page wrapper.
+
+Responsibilities
+
+• Standard page size
+
+• Standard page margins
+
+• Shared background
+
+Every report page should use this component.
+
+
+
+-------------------------------------------------------------------------------
+SummaryTable.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared financial summary table.
+
+Responsibilities
+
+• Render rows
+
+• Render totals
+
+• Currency formatting
+
+• Shared table styling
+
+Must NOT
+
+• Calculate totals
+
+
+
+-------------------------------------------------------------------------------
+ReportSection.tsx
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared logical section wrapper.
+
+Responsibilities
+
+• Group report sections
+
+• Support future section-based pagination
+
+• Improve report structure consistency
+
+
+
+-------------------------------------------------------------------------------
+paginateRows.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Canonical deterministic pagination utility.
+
+Responsibilities
+
+• Split ledger rows into printable pages
+
+• Produce predictable page boundaries
+
+• Support reusable pagination across future reports
+
+Must NOT
+
+• Render components
+
+• Perform business calculations
+
+
+
+-------------------------------------------------------------------------------
+formatters.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared PDF formatting helpers.
+
+Responsibilities
+
+• Currency formatting
+
+• Date formatting
+
+• Shared printable formatting rules
+
+
+
+-------------------------------------------------------------------------------
+colors.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared PDF color palette.
+
+Responsibilities
+
+• Text colors
+
+• Borders
+
+• Background colors
+
+• Shared reporting palette
+
+
+
+-------------------------------------------------------------------------------
+spacing.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared spacing system.
+
+Responsibilities
+
+• Page padding
+
+• Section spacing
+
+• Table spacing
+
+• Paragraph spacing
+
+No report should hardcode spacing values.
+
+
+
+-------------------------------------------------------------------------------
+typography.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared typography system.
+
+Responsibilities
+
+• Heading styles
+
+• Body styles
+
+• Labels
+
+• Captions
+
+No report should hardcode font sizes.
+
+
+
+-------------------------------------------------------------------------------
+reportLayout.ts
+-------------------------------------------------------------------------------
+
+Purpose
+
+Shared reporting layout constants.
+
+Responsibilities
+
+• LEDGER_ROWS_PER_PAGE
+
+• Future report layout constants
+
+Every report should consume layout constants from this file instead of
+hardcoding values.
+
+
+
+===============================================================================
+55. FINAL IMPLEMENTATION STATUS
+===============================================================================
+
+Expense Report PDF Export System
+
+Overall Completion
+
+█████████████████████████████░ 98%
+
+Completed
+
+✓ Canonical reporting architecture
+
+✓ Export Drawer
+
+✓ Report Builder
+
+✓ Shared reporting infrastructure
+
+✓ Shared PDF theme
+
+✓ Shared PDF components
+
+✓ Canonical report contracts
+
+✓ Cover Page
+
+✓ Executive Summary
+
+✓ Detailed Expense Ledger
+
+✓ Financial Summary
+
+✓ Optional ledger columns
+
+✓ Reporting Period selection
+
+✓ LocalStorage persistence
+
+✓ Estimated page count
+
+✓ Estimated PDF size
+
+✓ Live report preview
+
+✓ Deterministic ledger pagination
+
+✓ Shared paginateRows()
+
+✓ Shared SummaryTable
+
+✓ Shared ReportSection abstraction
+
+✓ Professional institutional PDF styling
+
+✓ Separation of business logic and rendering
+
+Remaining
+
+□ Deterministic Financial Summary pagination
+
+This is the final remaining architectural enhancement planned for the Expense
+Report PDF Export System.
+
+Once implemented, the Expense Report architecture should be considered
+production complete and will serve as the reference implementation for all
+future reporting modules inside EliteX Trading OS.
+
+================================================================================
+END OF MASTER DESIGN SPECIFICATION
+Expense Report PDF Export System
+Version 2.0
+================================================================================
