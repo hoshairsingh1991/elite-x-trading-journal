@@ -309,6 +309,25 @@ git commit -m "Improve shared date range picker and expense date filter UI"
 git commit -m "Persist independent expense date filters".  Expense page is now 99.99% complete here
 
 git commit -m "Polish expense drawer field alignment and select controls"
+
+DASHBOARD DATE RANGE PICKER MIGRATION
+
+Git Commit:
+f294850
+
+Commit Message:
+feat: migrate dashboard to shared date range picker
+
+Branch:
+main
+
+Build:
+Passed
+
+Status:
+Complete / Verified
+
+git commit -m "fix: align equity curve negative axis labels"
 ------------------------------------------------------------------
 
 Status:

@@ -52,6 +52,101 @@ type EquityCurveChartProps = {
   reportingCurrency: string;
 };
 
+type EquityYAxisTickProps = {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: number;
+  };
+  currencySymbol: string;
+};
+
+function EquityYAxisTick({
+  x = 0,
+  y = 0,
+  payload,
+  currencySymbol,
+}: EquityYAxisTickProps) {
+
+  const value =
+    Number(payload?.value ?? 0);
+
+  const sign =
+    value < 0
+      ? "-"
+      : "";
+
+  const absValue =
+    Math.abs(value);
+
+  let numberValue: string;
+
+  if (absValue >= 1000000) {
+
+    numberValue =
+      `${(
+        absValue / 1000000
+      ).toFixed(1)}M`;
+
+  } else if (absValue >= 1000) {
+
+    numberValue =
+      `${(
+        absValue / 1000
+      ).toFixed(1)}K`;
+
+  } else {
+
+    numberValue =
+      `${Math.round(absValue)}`;
+  }
+
+  return (
+    <g>
+
+      {/* SIGN */}
+
+      <text
+        x={x - 28}
+        y={y}
+        dy={4}
+        textAnchor="start"
+        fill="#64748b"
+        fontSize={11}
+      >
+        {sign}
+      </text>
+
+      {/* CURRENCY SYMBOL */}
+
+      <text
+        x={x - 23}
+        y={y}
+        dy={4}
+        textAnchor="start"
+        fill="#64748b"
+        fontSize={11}
+      >
+        {currencySymbol}
+      </text>
+
+      {/* VALUE */}
+
+      <text
+        x={x - 16}
+        y={y}
+        dy={4}
+        textAnchor="start"
+        fill="#64748b"
+        fontSize={11}
+      >
+        {numberValue}
+      </text>
+
+    </g>
+  );
+}
+
 export default function EquityCurveChart({
   data,
   reportingCurrency,
@@ -118,44 +213,28 @@ return (
   }}
 />
 
+{/* ================================================= */}
 {/* Y AXIS */}
+{/* ================================================= */}
 
 <YAxis
   domain={[
     (dataMin: number) => dataMin,
     (dataMax: number) => dataMax * 1.1,
   ]}
-  tick={{
-    fill: "#64748b",
-    fontSize: 11,
-  }}
+  tick={
+    <EquityYAxisTick
+      currencySymbol={currencySymbol}
+    />
+  }
   axisLine={false}
   tickLine={false}
   width={52}
-  tickFormatter={(value: number) => {
-
-    const absValue =
-      Math.abs(value);
-
-    if (absValue >= 1000000) {
-      return `${currencySymbol}${(
-        absValue / 1000000
-      ).toFixed(1)}M`;
-    }
-
-    if (absValue >= 1000) {
-      return `${currencySymbol}${(
-        absValue / 1000
-      ).toFixed(1)}K`;
-    }
-
-    return `${currencySymbol}${Math.round(
-      absValue
-    )}`;
-  }}
 />
 
+{/* ================================================= */}
 {/* TOOLTIP */}
+{/* ================================================= */}
 
 <Tooltip
   labelFormatter={(label) => {
