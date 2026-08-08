@@ -98,8 +98,6 @@ import {
   calculateTotalPnL,
   calculateTotalTrades,
   calculateWinRate,
-  filterTradesByRange,
-  TimeRange,
 } from "@/lib/analytics";
 
 import {
@@ -136,8 +134,22 @@ export default function HomePage() {
   const router =
   useRouter();
 
-  const [selectedRange, setSelectedRange] =
-  useState<TimeRange>("ALL");
+const [selectedPreset, setSelectedPreset] =
+  useState("YTD");
+
+const [startDate, setStartDate] =
+  useState<Date | null>(
+    new Date(
+      new Date().getFullYear(),
+      0,
+      1
+    )
+  );
+
+const [endDate, setEndDate] =
+  useState<Date | null>(
+    new Date()
+  );
 
   const [
   selectedAccount,
@@ -207,73 +219,51 @@ useEffect(() => {
 
 }, []);
 
-    // =================================================
-  // RANGE PERSISTENCE
-  // =================================================
+// =================================================
+// DASHBOARD DATE RANGE PERSISTENCE
+// =================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-    const storedRange =
-      localStorage.getItem(
-        "elite-x-dashboard-range"
-      );
-
-    if (!storedRange) {
-      return;
-    }
-
-    setSelectedRange(
-      storedRange as TimeRange
+  const saved =
+    localStorage.getItem(
+      "dashboardDateFilter"
     );
 
-  }, []);
+  if (!saved) {
+    return;
+  }
 
-    const [hasHydrated, setHasHydrated] =
-    useState(false);
+  const parsed =
+    JSON.parse(saved);
 
-  useEffect(() => {
+  setSelectedPreset(
+    parsed.selectedPreset ?? "YTD"
+  );
 
-    const storedRange =
-      localStorage.getItem(
-        "elite-x-dashboard-range"
-      );
+  setStartDate(
+    parsed.startDate
+      ? new Date(parsed.startDate)
+      : null
+  );
 
-    if (storedRange) {
+  setEndDate(
+    parsed.endDate
+      ? new Date(parsed.endDate)
+      : null
+  );
 
-      setSelectedRange(
-        storedRange as TimeRange
-      );
-    }
+}, []);
 
-    setHasHydrated(true);
+const [selectedTrade, setSelectedTrade] =
+  useState<Trade | null>(null);
 
-  }, []);
+const [isModalOpen, setIsModalOpen] =
+  useState(false);
 
-  useEffect(() => {
-
-    if (!hasHydrated) {
-      return;
-    }
-
-    localStorage.setItem(
-      "elite-x-dashboard-range",
-      selectedRange
-    );
-
-  }, [
-    selectedRange,
-    hasHydrated,
-  ]);
-
-  const [selectedTrade, setSelectedTrade] =
-    useState<Trade | null>(null);
-
-  const [isModalOpen, setIsModalOpen] =
-    useState(false);
-
-  // =================================================
-  // ADD TRADE MODAL
-  // =================================================
+// =================================================
+// ADD TRADE MODAL
+// =================================================
 
   const [
     isAddTradeOpen,
@@ -413,15 +403,50 @@ const availableAccounts: string[] = [
             selectedAccount
         );
 
-  // =================================================
-  // FILTERED TRADES
-  // =================================================
+// =================================================
+// FILTERED TRADES
+// =================================================
 
-  const filteredTrades =
-    filterTradesByRange(
-      accountFilteredTrades,
-      selectedRange
-    );
+const filteredTrades =
+  accountFilteredTrades.filter(
+    (trade) => {
+
+      if (!startDate || !endDate) {
+        return true;
+      }
+
+      const tradeDate =
+        new Date(
+          `${trade.date}T00:00:00`
+        );
+
+      const rangeStart =
+        new Date(startDate);
+
+      rangeStart.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+      const rangeEnd =
+        new Date(endDate);
+
+      rangeEnd.setHours(
+        23,
+        59,
+        59,
+        999
+      );
+
+      return (
+        tradeDate >= rangeStart &&
+        tradeDate <= rangeEnd
+      );
+
+    }
+  );
 
 // =================================================
 // REPORTING CURRENCY
@@ -485,10 +510,65 @@ const dailyPnL =
     reportingTrades
   );
 
-  const pnlAnalytics =
+const pnlAggregationRange:
+  | "1D"
+  | "7D"
+  | "30D"
+  | "MTD"
+  | "3M"
+  | "6M"
+  | "YTD"
+  | "1Y"
+  | "ALL" =
+  !startDate || !endDate
+    ? "ALL"
+    : (() => {
+
+        const start =
+          new Date(startDate);
+
+        const end =
+          new Date(endDate);
+
+        start.setHours(
+          0,
+          0,
+          0,
+          0
+        );
+
+        end.setHours(
+          23,
+          59,
+          59,
+          999
+        );
+
+        const days =
+          Math.ceil(
+            (
+              end.getTime() -
+              start.getTime()
+            ) /
+            (1000 * 60 * 60 * 24)
+          ) + 1;
+
+        if (days <= 14) {
+          return "7D";
+        }
+
+        if (days <= 90) {
+          return "30D";
+        }
+
+        return "YTD";
+
+      })();
+
+const pnlAnalytics =
   generatePnLAnalytics(
     reportingTrades,
-    selectedRange
+    pnlAggregationRange
   );
 
   const winRateTrend =
@@ -1061,8 +1141,29 @@ setImportedTrades([
   selectedAccount={selectedAccount}
   setSelectedAccount={setSelectedAccount}
   availableAccounts={availableAccounts}
-  selectedRange={selectedRange}
-  setSelectedRange={setSelectedRange}
+selectedPreset={selectedPreset}
+onDateRangeChange={(
+  preset,
+  start,
+  end
+) => {
+
+  setSelectedPreset(preset);
+
+  setStartDate(start);
+
+  setEndDate(end);
+
+  localStorage.setItem(
+    "dashboardDateFilter",
+    JSON.stringify({
+      selectedPreset: preset,
+      startDate: start,
+      endDate: end,
+    })
+  );
+
+}}
   totalTrades={totalTrades}
   totalPnL={totalPnL}
   tradingDays={

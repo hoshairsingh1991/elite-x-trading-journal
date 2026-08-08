@@ -1,15 +1,15 @@
 "use client";
 
 import UserMenuV2 from "@/components/layout/UserMenuV2";
+
+import DateRangePicker
+from "@/components/shared/DateRangePicker";
 import {
   Upload,
   RefreshCw,
   ChevronDown,
 } from "lucide-react";
 
-import {
-  TimeRange,
-} from "@/lib/analytics";
 
 type DashboardHeaderProps = {
   selectedAccount: string;
@@ -19,10 +19,13 @@ type DashboardHeaderProps = {
 
   availableAccounts: string[];
 
-  selectedRange: TimeRange;
-  setSelectedRange: (
-    value: TimeRange
-  ) => void;
+selectedPreset: string;
+
+onDateRangeChange: (
+  preset: string,
+  start: Date | null,
+  end: Date | null
+) => void;
 
   totalTrades: number;
   totalPnL: number;
@@ -42,8 +45,8 @@ export default function DashboardHeader({
   setSelectedAccount,
   availableAccounts,
 
-  selectedRange,
-  setSelectedRange,
+selectedPreset,
+onDateRangeChange,
 
   totalTrades,
   totalPnL,
@@ -94,22 +97,24 @@ export default function DashboardHeader({
             onChange={(event) =>
               setSelectedAccount(event.target.value)
             }
-            className="
-              h-[38px]
-              min-w-[132px]
-              appearance-none
-              rounded-[13px]
-              border
-              border-white/[0.06]
-              bg-[#0b1730]
-              text-center
-              text-[14px]
-              font-semibold
-              text-slate-200
-              outline-none
-              transition-all
-              hover:bg-[#13203a]
-            "
+className="
+  h-[38px]
+  min-w-[132px]
+  appearance-none
+  rounded-2xl
+  border
+  border-white/10
+  bg-white/[0.03]
+  text-center
+  text-[14px]
+  font-semibold
+  text-slate-300
+  outline-none
+  transition-all
+  duration-200
+  hover:border-white/20
+  hover:bg-white/[0.05]
+"
           >
             {availableAccounts.map((account) => (
               <option
@@ -137,105 +142,17 @@ export default function DashboardHeader({
 
         </div>
 
-        {/* STRATEGIES */}
 
-        <button
-          disabled
-          className="
-            relative
-            h-[38px]
-            min-w-[142px]
-            rounded-[13px]
-            border
-            border-white/[0.06]
-            bg-[#0b1730]
-            text-center
-            text-[14px]
-            font-semibold
-            text-slate-400
-            opacity-70
-          "
-        >
-          All Strategies
-
-          <ChevronDown
-            size={14}
-            className="
-              pointer-events-none
-              absolute
-              right-2
-              top-1/2
-              -translate-y-1/2
-            "
-          />
-        </button>
 
         {/* DATE RANGE */}
 
-        <div className="relative">
+{/* DATE RANGE */}
 
-          <select
-            value={selectedRange}
-            onChange={(event) =>
-              setSelectedRange(
-                event.target.value as TimeRange
-              )
-            }
-            className="
-              h-[38px]
-              min-w-[142px]
-              appearance-none
-              rounded-[13px]
-              border
-              border-white/[0.06]
-              bg-[#0b1730]
-              text-center
-              text-[14px]
-              font-semibold
-              text-slate-200
-              outline-none
-              transition-all
-              hover:bg-[#13203a]
-            "
-          >
-            <option value="1D">
-              Today
-            </option>
-
-            <option value="7D">
-              Last 7 Days
-            </option>
-
-            <option value="30D">
-              Last 30 Days
-            </option>
-
-            <option value="MTD">
-              This Month
-            </option>
-
-            <option value="YTD">
-              Year To Date
-            </option>
-
-            <option value="ALL">
-              All Time
-            </option>
-          </select>
-
-          <ChevronDown
-            size={14}
-            className="
-              pointer-events-none
-              absolute
-              right-2
-              top-1/2
-              -translate-y-1/2
-              text-slate-500
-            "
-          />
-
-        </div>
+<DateRangePicker
+  selectedPreset={selectedPreset}
+  onDateRangeChange={onDateRangeChange}
+  heightClass="h-[38px]"
+/>
 
       </div>
 
@@ -257,24 +174,26 @@ export default function DashboardHeader({
         {/* CSV */}
 
         <label
-          className="
-            flex
-            h-[38px]
-            w-[160px]
-            cursor-pointer
-            items-center
-            justify-center
-            gap-2
-            rounded-[13px]
-            border
-            border-white/[0.06]
-            bg-[#0b1730]
-            text-[13px]
-            font-semibold
-            text-slate-200
-            transition-all
-            hover:bg-[#13203a]
-          "
+className="
+  flex
+  h-[38px]
+  w-[160px]
+  cursor-pointer
+  items-center
+  justify-center
+  gap-2
+  rounded-2xl
+  border
+  border-white/10
+  bg-white/[0.03]
+  text-[13px]
+  font-semibold
+  text-slate-300
+  transition-all
+  duration-200
+  hover:border-white/20
+  hover:bg-white/[0.05]
+"
         >
           <Upload size={15} />
 
