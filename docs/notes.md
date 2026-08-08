@@ -328,6 +328,8 @@ Status:
 Complete / Verified
 
 git commit -m "fix: align equity curve negative axis labels"
+
+git commit -m "fix: improve dashboard KPI sparkline UI"
 ------------------------------------------------------------------
 
 Status:

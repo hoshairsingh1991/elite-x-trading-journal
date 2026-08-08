@@ -89,7 +89,7 @@ for (
   return (
 <svg
   viewBox="0 0 100 100"
-  className="h-[55px] w-full"
+  className="h-[48px] w-full"
   preserveAspectRatio="none"
   onMouseEnter={() =>
     setIsHovered(true)

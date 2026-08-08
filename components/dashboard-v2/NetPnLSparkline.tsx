@@ -210,10 +210,16 @@ const hoveredPoint =
         text-center
         pointer-events-none
       "
-      style={{
-        left: `${coordinates[hoverIndex].x}%`,
-        top: `${coordinates[hoverIndex].y}%`,
-      }}
+style={{
+  left: `${Math.min(
+    85,
+    Math.max(
+      15,
+      coordinates[hoverIndex].x
+    )
+  )}%`,
+  top: `${coordinates[hoverIndex].y}%`,
+}}
     >
 
       <div
