@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+
 
 import {
   deleteExpense,
@@ -80,15 +82,75 @@ const [receiptFilter, setReceiptFilter] = useState("All");
 const [selectedPreset, setSelectedPreset] =
   useState("All Time");
 
+
 const [startDate, setStartDate] =
   useState<Date | null>(null);
+
 
 const [endDate, setEndDate] =
   useState<Date | null>(null);
 
+  const tableDateInitialized =
+  useRef(false);
+
+
+useEffect(() => {
+
+  const savedFilter =
+    localStorage.getItem(
+      "expensesTableDateFilter"
+    );
+
+  if (!savedFilter) {
+    return;
+  }
+
+  const parsed =
+    JSON.parse(savedFilter);
+
+
+  setSelectedPreset(
+    parsed.selectedPreset ??
+      "All Time"
+  );
+
+  setStartDate(
+    parsed.startDate
+      ? new Date(parsed.startDate)
+      : null
+  );
+
+  setEndDate(
+    parsed.endDate
+      ? new Date(parsed.endDate)
+      : null
+  );
+
+}, []);
+
+useEffect(() => {
+
+  if (!tableDateInitialized.current) {
+    tableDateInitialized.current = true;
+    return;
+  }
+
+  localStorage.setItem(
+    "expensesTableDateFilter",
+    JSON.stringify({
+      selectedPreset,
+      startDate,
+      endDate,
+    })
+  );
+
+}, [
+  selectedPreset,
+  startDate,
+  endDate,
+]);
 
 const ITEMS_PER_PAGE = 10;
-
 
 
 // =====================================================

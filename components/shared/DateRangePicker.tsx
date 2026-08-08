@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -175,7 +175,13 @@ const [displayRange, setDisplayRange] =
     calculatePresetRange(selectedPreset)
   );
 
+useEffect(() => {
 
+  setDisplayRange(
+    calculatePresetRange(selectedPreset)
+  );
+
+}, [selectedPreset]);
 
     /* =====================================================
    DATE BUTTON CONTENT

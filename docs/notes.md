@@ -305,6 +305,8 @@ git commit -m "Polish EliteSelect controls and expense UI filters"
 git commit -m "Replace expense date filter with shared DateRangePicker"
 
 git commit -m "Improve shared date range picker and expense date filter UI"
+
+git commit -m "Persist independent expense date filters".  Expense page is now 99.99% complete
 ------------------------------------------------------------------
 
 Status:

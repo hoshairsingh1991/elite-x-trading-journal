@@ -2,7 +2,7 @@
 
 import Sidebar from "@/components/layout/Sidebar";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { loadExpenses } from "@/lib/storage/supabaseExpenseStorage";
 import type { Expense } from "@/lib/types/expense";
@@ -109,6 +109,9 @@ const [
   endDate,
   setEndDate,
 ] = useState<Date | null>(null);
+
+const expenseDateInitialized =
+  useRef(false);
 
 const reloadExpenses = async () => {
   const data = await loadExpenses();
@@ -251,6 +254,11 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+
+  if (!expenseDateInitialized.current) {
+    expenseDateInitialized.current = true;
+    return;
+  }
 
   localStorage.setItem(
     "expensesDateFilter",
