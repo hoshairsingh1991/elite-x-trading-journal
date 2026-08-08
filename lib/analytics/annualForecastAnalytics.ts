@@ -195,9 +195,11 @@ function getNextOccurrence(
       break;
 
 
-    default:
+default:
 
-      return nextDate;
+  throw new Error(
+    `Unsupported recurrence frequency: ${frequency}`
+  );
 
   }
 
