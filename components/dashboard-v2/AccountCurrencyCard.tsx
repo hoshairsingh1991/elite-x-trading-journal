@@ -799,6 +799,11 @@ return (
   width="w-[85px]"
   height="h-[28px]"
   variant="compact"
+  align="center"
+  xOffset="translate-x-3"
+  yOffset="translate-y-0.5"
+  iconOffset="translate-x-0"
+  iconYOffset="translate-y-0.5"
 />
 
           </div>

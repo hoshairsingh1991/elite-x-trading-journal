@@ -342,21 +342,7 @@ recurringExpenses.reduce(
 0
 );
 
-console.log("RECURRING DEBUG", {
-  activeSubscriptions,
-  monthlyRecurringExpenses,
 
-  recurringExpenses: recurringExpenses.map(
-    (expense) => ({
-      name: expense.expense_name,
-      amount: expense.reporting_amount,
-      frequency: expense.frequency,
-      generated: expense.is_generated,
-      active: expense.is_active,
-      deleted: expense.is_deleted,
-    })
-  ),
-});
 
   let activeMonths = 1;
 

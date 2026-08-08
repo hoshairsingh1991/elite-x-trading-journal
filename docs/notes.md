@@ -299,6 +299,8 @@ git commit -m "Finalize annual forecast analytics engine"
 git commit -m "Complete annual expense forecast analytics and UI alignment"
 
 git commit -m "fix expense analytics consistency and recurring cost calculations"
+
+git commit -m "Polish EliteSelect controls and expense UI filters"
 ------------------------------------------------------------------
 
 Status:

@@ -408,3 +408,520 @@ EliteSelect owns:
 * Dropdown rendering
 
 No page should implement its own dropdown styling going forward.
+
+
+# EliteX UI Standard — EliteSelect (V1.1 Updated)
+
+## Status
+
+EliteSelect is the official reusable dropdown component for EliteX Trading OS.
+
+All dropdowns throughout EliteX must use:
+
+components/ui/EliteSelect.tsx
+
+Native HTML:
+
+<select>
+
+elements are not allowed unless there is a strong technical requirement.
+
+---
+
+# Purpose
+
+EliteSelect provides a single source of truth for dropdown behavior and appearance.
+
+It solves:
+
+- Cross-platform inconsistencies
+- Windows native white dropdown issues
+- Browser-specific rendering differences
+- Duplicate dropdown styling
+- Inconsistent spacing and alignment
+
+EliteSelect controls:
+
+- Trigger rendering
+- Dropdown portal
+- Keyboard navigation
+- Hover states
+- Selected states
+- Chevron rendering
+- Animations
+- Layout consistency
+
+Pages only provide:
+
+- value
+- options
+- onChange
+- optional sizing/alignment adjustments
+
+---
+
+# Official Component Location
+
+components/
+
+└── ui/
+
+    ├── EliteSelect.tsx
+    └── CurrencyFlag.tsx
+
+
+---
+
+# Technology
+
+EliteSelect uses:
+
+- Radix UI Select
+- Tailwind CSS
+- Lucide Icons
+- CurrencyFlag component for currency rendering
+
+
+---
+
+# Supported Variants
+
+
+## Compact Variant
+
+Used for:
+
+- Table filters
+- Toolbar selectors
+- Dashboard controls
+- Reporting currency
+- Small UI controls
+
+
+Usage:
+
+<EliteSelect
+  variant="compact"
+/>
+
+
+Characteristics:
+
+- Compact trigger
+- Dense UI friendly
+- Suitable for dashboards and tables
+- Cross-platform consistent
+
+
+---
+
+## Form Variant
+
+Used for:
+
+- Settings pages
+- Drawers
+- Forms
+- User profile
+- Tax settings
+
+
+Usage:
+
+<EliteSelect
+  variant="form"
+/>
+
+
+Characteristics:
+
+- Larger interaction area
+- Form-friendly spacing
+- Selected item indicator
+- Full-width layouts
+
+
+---
+
+# EliteSelect API
+
+Current supported props:
+
+
+value
+
+Selected option value.
+
+
+options
+
+Array of business options.
+
+
+onChange
+
+Callback when selection changes.
+
+
+width
+
+Controls trigger width.
+
+
+height
+
+Controls trigger height.
+
+
+variant
+
+Available:
+
+- compact
+- form
+
+
+align
+
+Controls internal alignment mode.
+
+Options:
+
+- default
+- center
+
+
+Example:
+
+<EliteSelect
+  align="center"
+/>
+
+
+---
+
+# Position Control System (V1.1)
+
+
+EliteSelect now supports independent positioning controls.
+
+
+## Selected Text Position
+
+
+### Horizontal Position
+
+Prop:
+
+xOffset
+
+
+Example:
+
+xOffset="translate-x-4"
+
+
+Moves selected text horizontally.
+
+
+---
+
+### Vertical Position
+
+Prop:
+
+yOffset
+
+
+Example:
+
+yOffset="translate-y-1"
+
+
+Moves selected text vertically.
+
+
+---
+
+# Dropdown Arrow Position
+
+
+The arrow/chevron can now be controlled independently.
+
+
+## Horizontal Arrow Position
+
+Prop:
+
+iconOffset
+
+
+Example:
+
+iconOffset="-translate-x-2"
+
+
+Moves arrow left/right.
+
+
+---
+
+## Vertical Arrow Position
+
+Prop:
+
+iconYOffset
+
+
+Example:
+
+iconYOffset="translate-y-1"
+
+
+Moves arrow up/down.
+
+
+---
+
+# Example Full Control
+
+
+<EliteSelect
+
+  value={categoryFilter}
+
+  variant="compact"
+
+  align="center"
+
+  xOffset="translate-x-4"
+
+  yOffset="translate-y-0"
+
+  iconOffset="-translate-x-2"
+
+  iconYOffset="translate-y-1"
+
+/>
+
+
+Controls:
+
+xOffset
+→ selected text X position
+
+
+yOffset
+→ selected text Y position
+
+
+iconOffset
+→ dropdown arrow X position
+
+
+iconYOffset
+→ dropdown arrow Y position
+
+
+---
+
+# Expense Table Filter Standard
+
+Expense table dropdowns use:
+
+<EliteSelect
+
+variant="compact"
+
+align="center"
+
+xOffset="translate-x-4"
+
+iconOffset="-translate-x-2"
+
+yOffset="translate-y-0"
+
+>
+
+
+Example:
+
+<EliteSelect
+  value={taxFilter}
+  width="w-[70px]"
+  height={filterHeight}
+  variant="compact"
+  align="center"
+  xOffset="translate-x-4"
+  iconOffset="-translate-x-2"
+  iconYOffset="translate-y-0"
+/>
+
+
+Individual filters may override:
+
+width
+
+Example:
+
+Tax filter:
+
+width="w-[70px]"
+
+
+while other filters can use the shared:
+
+filterWidth
+
+
+---
+
+# Currency Dropdown Standard
+
+
+Currency dropdowns must use:
+
+<CurrencyFlag currency="USD" />
+
+
+Never use:
+
+- Emoji flags
+- Unicode flags
+- Manual SVG flags
+- Image URLs
+
+
+Currency options contain only business data.
+
+
+Correct:
+
+[
+ {
+   value: "USD",
+   label: "USD"
+ }
+]
+
+
+Incorrect:
+
+[
+ {
+   value: "USD",
+   label: "🇺🇸 USD"
+ }
+]
+
+
+---
+
+# Design Rules
+
+
+Do not implement dropdown styling inside pages.
+
+
+Incorrect:
+
+<select className="...">
+
+
+Correct:
+
+<EliteSelect
+ options={options}
+/>
+
+
+All visual behavior belongs inside:
+
+components/ui/EliteSelect.tsx
+
+
+---
+
+# Current EliteX Usage
+
+
+Compact:
+
+- Reporting Currency
+- Expense Table Filters
+- Future toolbar selectors
+
+
+Form:
+
+- Country
+- Province / State
+- Tax Entity Type
+- Tax Year
+- Future settings forms
+
+
+---
+
+# Future EliteSelect Improvements (Not Required Now)
+
+Possible future V2 improvements:
+
+- Compact selected checkmark
+- More compact dropdown item spacing
+- Left aligned dropdown menu items
+- Trigger width matching dropdown content
+- Search support
+- Grouped options
+- Multi-select
+- Virtualized large option lists
+
+
+These are future enhancements only.
+
+
+---
+
+# Completed EliteSelect V1.1 Update
+
+
+Added:
+
+✅ align control
+
+✅ xOffset control
+
+✅ yOffset control
+
+✅ iconOffset control
+
+✅ iconYOffset control
+
+
+Purpose:
+
+Allow precise page-level alignment while keeping dropdown rendering centralized.
+
+---
+
+# EliteX Rule
+
+EliteSelect is the single source of truth for dropdowns.
+
+Pages define:
+
+- What is selected
+- Available options
+- Business behavior
+
+
+EliteSelect defines:
+
+- How it looks
+- How it opens
+- How it behaves
+- How it aligns
+- How it renders across platforms
+
+
+No page should create its own dropdown implementation.

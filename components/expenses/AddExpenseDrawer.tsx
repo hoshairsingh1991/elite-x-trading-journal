@@ -136,6 +136,12 @@ const expenseTypeY = "translate-y-16";
 const expenseTypeWidth = "w-full";
 const expenseTypeHeight = "h-[40px]";
 
+const expenseTypeTextX = "translate-x-0";
+const expenseTypeTextY = "translate-y-0";
+
+const expenseTypeIconX = "translate-x-0";
+const expenseTypeIconY = "-translate-y-4";
+
 const paymentMethodX = "translate-x-3";
 const paymentMethodY = "translate-y-21";
 const paymentMethodWidth = "w-full";
@@ -836,29 +842,37 @@ const label =
   <div className={`transform ${categoryX} ${categoryY}`}>
     <label className={label}>Category *</label>
 
-    <EliteSelect
-      variant="form"
-      value={category}
-      options={categoryOptions}
-      onChange={setCategory}
-      disabled={viewOnly}
-      width={categoryWidth}
-      height={categoryHeight}
-    />
+<EliteSelect
+  variant="form"
+  value={category}
+  options={categoryOptions}
+  onChange={setCategory}
+  disabled={viewOnly}
+  width={categoryWidth}
+  height={categoryHeight}
+  xOffset="translate-x-0"
+  yOffset="translate-y-0"
+  iconOffset="translate-x-0"
+  iconYOffset="translate-y-1"
+/>
   </div>
 
   <div className={`transform ${vendorX} ${vendorY}`}>
     <label className={label}>Vendor *</label>
 
-    <EliteSelect
-      variant="form"
-      value={vendor}
-      options={vendorOptions}
-      onChange={setVendor}
-      disabled={viewOnly}
-      width={vendorWidth}
-      height={vendorHeight}
-    />
+<EliteSelect
+  variant="form"
+  value={vendor}
+  options={vendorOptions}
+  onChange={setVendor}
+  disabled={viewOnly}
+  width={vendorWidth}
+  height={vendorHeight}
+  xOffset="translate-x-0"
+  yOffset="translate-y-0"
+  iconOffset="translate-x-0"
+  iconYOffset="translate-y-1"
+/>
   </div>
 </div>
 
@@ -935,15 +949,19 @@ const label =
     <div className={`transform ${billedCurrencyX} ${billedCurrencyY}`}>
       <label className={label}>Billed Currency *</label>
 
-      <EliteSelect
-        variant="form"
-        value={billedCurrency}
-        options={currencyOptions}
-        onChange={setBilledCurrency}
-        disabled={viewOnly}
-        width={billedCurrencyWidth}
-        height={billedCurrencyHeight}
-      />
+<EliteSelect
+  variant="form"
+  value={billedCurrency}
+  options={currencyOptions}
+  onChange={setBilledCurrency}
+  disabled={viewOnly}
+  width={billedCurrencyWidth}
+  height={billedCurrencyHeight}
+  xOffset="translate-x-0"
+  yOffset="translate-y-0"
+  iconOffset="translate-x-0"
+  iconYOffset="translate-y-0.5"
+/>
     </div>
   </div>
 </section>
@@ -976,6 +994,10 @@ const label =
   disabled={viewOnly}
   width={expenseTypeWidth}
   height={expenseTypeHeight}
+  xOffset={expenseTypeTextX}
+  yOffset={expenseTypeTextY}
+  iconOffset={expenseTypeIconX}
+  iconYOffset={expenseTypeIconY}
 />
 </div>
 
@@ -1021,6 +1043,10 @@ const label =
   disabled={viewOnly}
   width={paymentMethodWidth}
   height={paymentMethodHeight}
+  xOffset="translate-x-0"
+  yOffset="translate-y-0"
+  iconOffset="translate-x-0"
+  iconYOffset="translate-y-1"
 />
     </div>
   </div>
@@ -1165,15 +1191,19 @@ const label =
     ${frequencyBoxY}
   `}
 >
-  <EliteSelect
-    variant="form"
-    value={frequency}
-    options={frequencyOptions}
-    onChange={setFrequency}
-    width="w-full"
-    height={frequencyHeight}
-    disabled={viewOnly || !isRecurring}
-  />
+<EliteSelect
+  variant="form"
+  value={frequency}
+  options={frequencyOptions}
+  onChange={setFrequency}
+  width="w-full"
+  height={frequencyHeight}
+  disabled={viewOnly || !isRecurring}
+  xOffset="translate-x-0"
+  yOffset="translate-y-0"
+  iconOffset="translate-x-0"
+  iconYOffset="-translate-y-1.5"
+/>
 </div>
 </div>
 </div>
@@ -1348,15 +1378,19 @@ const label =
       ${taxTypeBoxY}
     `}
   >
-    <EliteSelect
-      variant="form"
-      value={taxType}
-      options={taxTypeOptions}
-      onChange={setTaxType}
-      disabled={viewOnly}
-      width="w-full"
-      height={taxTypeHeight}
-    />
+<EliteSelect
+  variant="form"
+  value={taxType}
+  options={taxTypeOptions}
+  onChange={setTaxType}
+  disabled={viewOnly}
+  width="w-full"
+  height={taxTypeHeight}
+  xOffset="translate-x-0"
+  yOffset="translate-y-0"
+  iconOffset="translate-x-0"
+  iconYOffset="-translate-y-1.5"
+/>
   </div>
 </div>
 

@@ -28,17 +28,29 @@ type EliteSelectProps = {
   height?: string;
   variant?: "compact" | "form";
 
+  align?: "default" | "center";
+
+  xOffset?: string;
+  yOffset?: string;
+  iconOffset?: string;
+  iconYOffset?: string;
+
   placeholder?: string;
   disabled?: boolean;
 };
 
 export default function EliteSelect({
-  value,
-  options,
-  onChange,
-  width = "w-[90px]",
-  height = "h-[40px]",
-  variant = "compact",
+value,
+options,
+onChange,
+width = "w-[90px]",
+height = "h-[40px]",
+variant = "compact",
+align = "default",
+xOffset = "",
+yOffset = "",
+iconOffset = "",
+iconYOffset = "",
 
   placeholder = "Select...",
   disabled = false,
@@ -68,19 +80,23 @@ export default function EliteSelect({
     ${variant === "form" ? "justify-center" : "justify-between"}
     gap-2
 
-    ${
-      variant === "form"
-        ? `
-          rounded-xl
-          border
-          border-white/10
-          bg-white/[0.03]
-          px-4
-        `
-        : `
-          bg-transparent
-        `
-    }
+${
+  variant === "form"
+    ? `
+      rounded-xl
+      border
+      border-white/10
+      bg-white/[0.03]
+      px-4
+    `
+    : `
+      rounded-xl
+      border
+      border-white/10
+      bg-white/[0.03]
+      px-3
+    `
+}
 
     text-[12px]
     font-medium
@@ -110,11 +126,16 @@ hover:border-white/20
 
     gap-2
 
-    ${
-      variant === "form"
-        ? ""
-        : "translate-x-4 translate-y-1"
-    }
+${
+  variant === "compact" && align === "center"
+    ? ""
+    : variant === "compact"
+    ? "translate-x-4 translate-y-1"
+    : ""
+}
+
+${xOffset}
+${yOffset}
   `}
 >
 
@@ -132,12 +153,17 @@ hover:border-white/20
 
 </div>
 
-       <Select.Icon
-  className={
-    variant === "form"
-      ? "absolute right-4 top-1/2 translate-y-1"
-      : "translate-y-[2px]"
-  }
+<Select.Icon
+className={`
+${
+variant === "form"
+? "absolute right-4 top-1/2"
+: ""
+}
+
+${iconOffset}
+${iconYOffset}
+`}
 >
 
   <ChevronDown

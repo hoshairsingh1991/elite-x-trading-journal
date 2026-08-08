@@ -15,6 +15,8 @@ import type { Expense } from "@/lib/types/expense";
 
 import { Star } from "lucide-react";
 
+import EliteSelect from "@/components/ui/EliteSelect";
+
 import {
   Tooltip,
   TooltipContent,
@@ -241,7 +243,7 @@ const headerVendorX = "translate-x-7";
 const tabHeight = "h-[34px]";
 
 const searchWidth = "w-[180px]";
-const filterWidth = "w-[105px]";
+const filterWidth = "w-[100px]";
 const dateFilterWidth = "w-[145px]";
 
 const tableHeaderHeight = "h-[34px]";
@@ -428,249 +430,250 @@ const paymentMethodX = "translate-x-4";
 {/* Centered Filters */}
 
 {/* Category */}
-<div className="relative">
-  <select
-    value={categoryFilter}
-    onChange={(e) => {
-      setCategoryFilter(e.target.value);
-      setCurrentPage(1);
-    }}
-className={`
-  appearance-none
-  ${filterWidth}
-  ${filterHeight}
 
-  rounded-xl
-  border
-  border-white/10
-  bg-white/[0.03]
 
-  pr-10
-  text-[12px]
-  text-slate-300
-  outline-none
-
-  indent-[12px]
-`}
-  >
-    <option value="All">Category</option>
-    <option value="Software">Software</option>
-    <option value="Infrastructure">Infrastructure</option>
-    <option value="Market Data">Market Data</option>
-    <option value="Brokerage Fees">Brokerage Fees</option>
-    <option value="Education">Education</option>
-    <option value="Other">Other</option>
-  </select>
-
-  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-</div>
-
-{/* Vendor */}
-<div className="relative">
-  <select
-    value={vendorFilter}
-    onChange={(e) => {
-      setVendorFilter(e.target.value);
-      setCurrentPage(1);
-    }}
-    className={`
-      appearance-none
-      ${filterWidth}
-      ${filterHeight}
-
-      rounded-xl
-      border
-      border-white/10
-      bg-white/[0.03]
-
-      pr-10
-      indent-[16px]
-
-      text-[12px]
-      text-slate-300
-      outline-none
-
-      transition
-      hover:bg-white/[0.05]
-    `}
-  >
-    <option value="All">Vendor</option>
-
-{[
-  ...new Set(
-    expenses
-      .map((expense) => expense.vendor)
-      .filter(
-        (vendor): vendor is string => vendor !== null
-      )
-  ),
-].map((vendor) => (
-  <option key={vendor} value={vendor}>
-    {vendor}
-  </option>
-))}
-  </select>
-
-  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-</div>
-
-{/* Expense Type */}
-<div className="relative">
-<select
-  value={receiptFilter}
-  onChange={(e) => {
-    setReceiptFilter(e.target.value);
+<EliteSelect
+  value={categoryFilter}
+  width={filterWidth}
+  height={filterHeight}
+  variant="compact"
+  align="center"
+  xOffset="translate-x-4"
+  iconOffset="-translate-x-2"
+  yOffset="translate-y-0"
+  options={[
+    {
+      value: "All",
+      label: "Category",
+    },
+    {
+      value: "Software",
+      label: "Software",
+    },
+    {
+      value: "Infrastructure",
+      label: "Infrastructure",
+    },
+    {
+      value: "Market Data",
+      label: "Market Data",
+    },
+    {
+      value: "Brokerage Fees",
+      label: "Brokerage Fees",
+    },
+    {
+      value: "Education",
+      label: "Education",
+    },
+    {
+      value: "Other",
+      label: "Other",
+    },
+  ]}
+  onChange={(value) => {
+    setCategoryFilter(value);
     setCurrentPage(1);
   }}
-  className={`
-    appearance-none
-    ${filterWidth}
-    ${filterHeight}
+/>
 
-    rounded-xl
-    border
-    border-white/10
-    bg-white/[0.03]
+{/* Vendor */}
 
-    pr-10
-    indent-[18px]
+<EliteSelect
+  value={vendorFilter}
+  width="w-[90px]"
+  height={filterHeight}
+  variant="compact"
+  align="center"
+  xOffset="translate-x-4"
+  iconOffset="-translate-x-2"
+  yOffset="translate-y-0"
+  options={[
+    {
+      value: "All",
+      label: "Vendor",
+    },
 
-    text-[12px]
-    text-slate-300
-    outline-none
+    ...[
+      ...new Set(
+        expenses
+          .map((expense) => expense.vendor)
+          .filter(
+            (vendor): vendor is string =>
+              vendor !== null
+          )
+      ),
+    ].map((vendor) => ({
+      value: vendor,
+      label: vendor,
+    })),
+  ]}
+  onChange={(value) => {
+    setVendorFilter(value);
+    setCurrentPage(1);
+  }}
+/>
 
-    transition
-    hover:bg-white/[0.05]
-  `}
->
-  <option value="All">Receipt</option>
-  <option value="Yes">Yes</option>
-  <option value="No">No</option>
-</select>
-
-  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-</div>
+{/* Receipt */}
+<EliteSelect
+  value={receiptFilter}
+  width="w-[90px]"
+  height={filterHeight}
+  variant="compact"
+  align="center"
+  xOffset="translate-x-4"
+  iconOffset="-translate-x-2"
+  yOffset="translate-y-0"
+  options={[
+    {
+      value: "All",
+      label: "Receipt",
+    },
+    {
+      value: "Yes",
+      label: "Yes",
+    },
+    {
+      value: "No",
+      label: "No",
+    },
+  ]}
+  onChange={(value) => {
+    setReceiptFilter(value);
+    setCurrentPage(1);
+  }}
+/>
 
 {/* Payment */}
-<div className="relative">
-  <select
-    value={paymentFilter}
-    onChange={(e) => {
-      setPaymentFilter(e.target.value);
-      setCurrentPage(1);
-    }}
-    className={`
-      appearance-none
-      ${filterWidth}
-      ${filterHeight}
+<EliteSelect
+  value={paymentFilter}
+  width={filterWidth}
+  height={filterHeight}
+  variant="compact"
+  align="center"
+  xOffset="translate-x-4"
+  iconOffset="-translate-x-2"
+  yOffset="translate-y-0"
+  options={[
+    {
+      value: "All",
+      label: "Payment",
+    },
+    {
+      value: "Credit Card",
+      label: "Credit Card",
+    },
+    {
+      value: "Debit Card",
+      label: "Debit Card",
+    },
+    {
+      value: "Bank Transfer",
+      label: "Bank Transfer",
+    },
+    {
+      value: "Cash",
+      label: "Cash",
+    },
+    {
+      value: "PayPal",
+      label: "PayPal",
+    },
+    {
+      value: "Wire Transfer",
+      label: "Wire Transfer",
+    },
+    {
+      value: "Crypto",
+      label: "Crypto",
+    },
+    {
+      value: "Other",
+      label: "Other",
+    },
+  ]}
+  onChange={(value) => {
+    setPaymentFilter(value);
+    setCurrentPage(1);
+  }}
+/>
 
-      rounded-xl
-      border
-      border-white/10
-      bg-white/[0.03]
-
-      pr-10
-      indent-[14px]
-
-      text-[12px]
-      text-slate-300
-      outline-none
-
-      transition
-      hover:bg-white/[0.05]
-    `}
-  >
-    <option value="All">Payment</option>
-    <option value="Credit Card">Credit Card</option>
-    <option value="Debit Card">Debit Card</option>
-    <option value="Bank Transfer">Bank Transfer</option>
-    <option value="Cash">Cash</option>
-    <option value="PayPal">PayPal</option>
-    <option value="Wire Transfer">Wire Transfer</option>
-    <option value="Crypto">Crypto</option>
-    <option value="Other">Other</option>
-  </select>
-
-  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-</div>
-
-{/* Tax */}
-<div className="relative">
-  <select
-    value={taxFilter}
-    onChange={(e) => {
-      setTaxFilter(e.target.value);
-      setCurrentPage(1);
-    }}
-    className={`
-      appearance-none
-      ${filterWidth}
-      ${filterHeight}
-
-      rounded-xl
-      border
-      border-white/10
-      bg-white/[0.03]
-
-      pr-10
-      indent-[30px]
-
-      text-[12px]
-      text-slate-300
-      outline-none
-
-      transition
-      hover:bg-white/[0.05]
-    `}
-  >
-<option value="All">Tax</option>
-<option value="Yes">Yes</option>
-<option value="No">No</option>
-  </select>
-
-  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-</div>
+<EliteSelect
+  value={taxFilter}
+  width="w-[70px]"
+  height={filterHeight}
+  variant="compact"
+  align="center"
+  xOffset="translate-x-4"
+  iconOffset="-translate-x-2"
+  iconYOffset="translate-y-0"
+  yOffset="translate-y-0"
+  options={[
+    {
+      value: "All",
+      label: "Tax",
+    },
+    {
+      value: "Yes",
+      label: "Yes",
+    },
+    {
+      value: "No",
+      label: "No",
+    },
+  ]}
+  onChange={(value) => {
+    setTaxFilter(value);
+    setCurrentPage(1);
+  }}
+/>
 
 {/* Recurring */}
-<div className="relative">
-  <select
-    value={recurringFilter}
-    onChange={(e) => {
-      setRecurringFilter(e.target.value);
-      setCurrentPage(1);
-    }}
-    className={`
-      appearance-none
-      ${filterWidth}
-      ${filterHeight}
-
-      rounded-xl
-      border
-      border-white/10
-      bg-white/[0.03]
-
-      pr-10
-      indent-[14px]
-
-      text-[12px]
-      text-slate-300
-      outline-none
-
-      transition
-      hover:bg-white/[0.05]
-    `}
-  >
-    <option value="All">Recurring</option>
-    <option value="One-Time">One-Time</option>
-    <option value="Daily">Daily</option>
-    <option value="Weekly">Weekly</option>
-    <option value="Monthly">Monthly</option>
-    <option value="Quarterly">Quarterly</option>
-    <option value="Yearly">Yearly</option>
-  </select>
-
-  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-</div>
+<EliteSelect
+  value={recurringFilter}
+  width={filterWidth}
+  height={filterHeight}
+  variant="compact"
+  align="center"
+  xOffset="translate-x-4"
+  iconOffset="-translate-x-2"
+  iconYOffset="translate-y-0"
+  yOffset="translate-y-0"
+  options={[
+    {
+      value: "All",
+      label: "Recurring",
+    },
+    {
+      value: "One-Time",
+      label: "One-Time",
+    },
+    {
+      value: "Daily",
+      label: "Daily",
+    },
+    {
+      value: "Weekly",
+      label: "Weekly",
+    },
+    {
+      value: "Monthly",
+      label: "Monthly",
+    },
+    {
+      value: "Quarterly",
+      label: "Quarterly",
+    },
+    {
+      value: "Yearly",
+      label: "Yearly",
+    },
+  ]}
+  onChange={(value) => {
+    setRecurringFilter(value);
+    setCurrentPage(1);
+  }}
+/>
 
 {/* Date */}
 <div className="relative">
