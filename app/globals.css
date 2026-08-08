@@ -256,3 +256,44 @@ input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
 }
+
+/*
+=====================================================
+EXPENSE DATE INPUT ALIGNMENT FIX
+=====================================================
+
+Purpose:
+Native HTML date inputs are browser-controlled components.
+The visible date text and calendar icon are rendered by
+WebKit internal pseudo-elements.
+
+Do NOT move the input element itself using:
+- translate-x
+- margin-left
+- wrapper positioning
+
+because that moves the entire drawer layout/grid item.
+
+Instead:
+- ::-webkit-datetime-edit controls the internal date text.
+- ::-webkit-calendar-picker-indicator controls the calendar icon.
+
+Current tuning:
+- Date text moved right by 42px
+- Calendar icon moved left by 10px
+
+Reason:
+The default browser date input alignment did not match the
+Elite X drawer design system.
+
+=====================================================
+*/
+
+.expense-date-input::-webkit-datetime-edit {
+  transform: translateX(42px);
+}
+
+.expense-date-input::-webkit-calendar-picker-indicator {
+  transform: translateX(-10px);
+}
+

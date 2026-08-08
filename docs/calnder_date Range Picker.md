@@ -591,3 +591,41 @@ Future Enhancements:
 STATUS:
 
 DATE RANGE PICKER V1 COMPLETE AND APPROVED FOR REUSE ACROSS ELITE X PLATFORM.
+
+
+# INDEPENDENT DATE FILTER STATE ARCHITECTURE (V2)
+
+## PURPOSE
+
+The shared DateRangePicker component is reusable UI infrastructure.
+
+Important:
+
+Shared component DOES NOT mean shared state.
+
+Each page, module, or component using DateRangePicker must own its own:
+
+- selectedPreset
+- startDate
+- endDate
+
+The DateRangePicker only handles:
+
+- UI rendering
+- Preset selection
+- Calendar selection
+- Returning selected dates to parent
+
+Business filtering logic and persistence belong to the consumer.
+
+---
+
+# MULTIPLE DATE PICKERS ON SAME PAGE
+
+Multiple DateRangePicker components can exist on the same page.
+
+Each one must operate independently.
+
+Example:
+
+Expenses Page:

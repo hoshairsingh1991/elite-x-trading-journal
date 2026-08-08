@@ -456,6 +456,7 @@ function handleReset() {
       }
     }}
     width={countryWidth}
+    iconYOffset="translate-y-1"
   />
 </div>
 
@@ -484,6 +485,7 @@ function handleReset() {
     options={PROVINCE_OPTIONS}
     onChange={setProvince}
     width={provinceWidth}
+    iconYOffset="translate-y-1"
   />
 )}
 </div>
@@ -503,6 +505,7 @@ function handleReset() {
   options={ENTITY_TYPE_OPTIONS}
   onChange={setEntityType}
   width={entityTypeWidth}
+  iconYOffset="translate-y-1"
 />
 </div>
 
@@ -563,31 +566,32 @@ function handleReset() {
 </div>
 </div>
 
-{/* TAX YEAR */}
+  {/* TAX YEAR */}
 
-<div
-  className={`mb-5 transform ${taxYearX} ${taxYearY}`}
->
-  <label className={label}>
-    Tax Year
-  </label>
+  <div
+    className={`mb-5 transform ${taxYearX} ${taxYearY}`}
+  >
+    <label className={label}>
+      Tax Year
+    </label>
 
-<EliteSelect
-  variant="form"
-  value={String(taxYear)}
-  options={TAX_YEAR_OPTIONS}
-  onChange={(value) =>
-    setTaxYear(Number(value))
-  }
-  width={taxYearWidth}
-/>
-</div>
+  <EliteSelect
+    variant="form"
+    value={String(taxYear)}
+    options={TAX_YEAR_OPTIONS}
+    onChange={(value) =>
+      setTaxYear(Number(value))
+    }
+    width={taxYearWidth}
+  iconYOffset="translate-y-1"
+  />
+  </div>
 
-</section>
+  </section>
 
 
 
-{/* BOTTOM SPACER */}
+  {/* BOTTOM SPACER */}
 
 <div className="h-8" />
 

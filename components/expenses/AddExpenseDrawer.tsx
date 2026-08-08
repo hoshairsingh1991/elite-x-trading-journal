@@ -886,7 +886,7 @@ const label =
   value={expenseDate}
   disabled={viewOnly}
   onChange={(e) => setExpenseDate(e.target.value)}
-  className={`${expenseDateWidth} ${expenseDateHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center text-sm text-white outline-none`}
+ className={`${expenseDateWidth} ${expenseDateHeight} expense-date-input rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center text-sm text-white outline-none`}
   style={{
     colorScheme: "dark",
   }}
@@ -1011,22 +1011,22 @@ const label =
     value={businessPurpose}
     readOnly={viewOnly}
     onChange={(e) => setBusinessPurpose(e.target.value)}
-    className={`
-      ${businessPurposeWidth}
-      ${businessPurposeHeight}
-      resize-none
-      rounded-xl
-      border
-      border-white/10
-      bg-white/[0.03]
-      ${businessPurposeTextIndent}
-      pr-4
-      pt-4
-      pb-4
-      text-sm
-      text-white
-      outline-none
-    `}
+className={`
+  ${businessPurposeWidth}
+  ${businessPurposeHeight}
+  resize-none
+  rounded-xl
+  border
+  border-white/10
+  bg-white/[0.03]
+  ${businessPurposeTextIndent}
+  pr-4
+  pt-4
+  pb-4
+  text-sm
+  text-white
+  outline-none
+`}
     placeholder="Describe how this expense supports your business or trading activities..."
   />
 </div>
