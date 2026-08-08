@@ -17,6 +17,8 @@ import { Star } from "lucide-react";
 
 import EliteSelect from "@/components/ui/EliteSelect";
 
+import DateRangePicker from "@/components/shared/DateRangePicker";
+
 import {
   Tooltip,
   TooltipContent,
@@ -75,7 +77,14 @@ const [paymentFilter, setPaymentFilter] = useState("All");
 const [taxFilter, setTaxFilter] = useState("All");
 const [recurringFilter, setRecurringFilter] = useState("All");
 const [receiptFilter, setReceiptFilter] = useState("All");
-const [dateFilter, setDateFilter] = useState("All");
+const [selectedPreset, setSelectedPreset] =
+  useState("All Time");
+
+const [startDate, setStartDate] =
+  useState<Date | null>(null);
+
+const [endDate, setEndDate] =
+  useState<Date | null>(null);
 
 
 const ITEMS_PER_PAGE = 10;
@@ -148,28 +157,23 @@ const matchesRecurring =
   (expense.is_recurring === true &&
     expense.frequency === recurringFilter);
 
-    // -----------------------------
+// -----------------------------
 // Date Filter
 // -----------------------------
 const matchesDate =
-  dateFilter === "All" ||
+  !startDate ||
+  !endDate ||
   (() => {
+
     const expenseDate = new Date(
       `${expense.expense_date}T12:00:00`
     );
 
-    const today = new Date();
+    return (
+      expenseDate >= startDate &&
+      expenseDate <= endDate
+    );
 
-    const days =
-      dateFilter === "365"
-        ? 365
-        : Number(dateFilter);
-
-    const cutoff = new Date();
-
-    cutoff.setDate(today.getDate() - days);
-
-    return expenseDate >= cutoff;
   })();
 
 // -----------------------------
@@ -677,44 +681,22 @@ const paymentMethodX = "translate-x-4";
 
 {/* Date */}
 <div className="relative">
-  <CalendarDays className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
-  <select
-    value={dateFilter}
-    onChange={(e) => {
-      setDateFilter(e.target.value);
+  <DateRangePicker
+    selectedPreset={selectedPreset}
+    heightClass="h-[34px]"
+    onDateRangeChange={(
+      preset,
+      start,
+      end
+    ) => {
+      setSelectedPreset(preset);
+      setStartDate(start);
+      setEndDate(end);
       setCurrentPage(1);
     }}
-    className={`
-      appearance-none
+  />
 
-      ${dateFilterWidth}
-      ${filterHeight}
-
-      rounded-xl
-      border
-      border-white/10
-      bg-white/[0.03]
-
-      pr-10
-      indent-[40px]
-
-      text-[12px]
-      text-slate-300
-      outline-none
-
-      transition
-      hover:bg-white/[0.05]
-    `}
-  >
-    <option value="All">All Time</option>
-    <option value="7">Last 7 Days</option>
-    <option value="30">Last 30 Days</option>
-    <option value="90">Last 90 Days</option>
-    <option value="365">This Year</option>
-  </select>
-
-  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 </div>
 </div>
 

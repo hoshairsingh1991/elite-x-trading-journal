@@ -18,23 +18,26 @@ import { Calendar } from "@/components/ui/calendar";
 
 interface DateRangePickerProps {
 
-  selectedPreset: string;
+selectedPreset: string;
 
-  onDateRangeChange: (
-    preset: string,
-    startDate: Date | null,
-    endDate: Date | null
-  ) => void;
+onDateRangeChange: (
+preset: string,
+startDate: Date | null,
+endDate: Date | null
+) => void;
 
-  widthClass?: string;
+widthClass?: string;
+
+heightClass?: string;
 
 }
 
 export default function DateRangePicker({
 
-  selectedPreset,
-  onDateRangeChange,
-  widthClass,
+selectedPreset,
+onDateRangeChange,
+widthClass,
+heightClass,
 
 }: DateRangePickerProps) {
 
@@ -65,7 +68,9 @@ const dateValueY = "translate-y-0";
 const dateButtonWidth =
   widthClass ??
   "min-w-[140px] w-fit";
-const dateButtonHeight = "h-[46px]";
+const dateButtonHeight =
+  heightClass ??
+  "h-[46px]";
 
 
 /* =====================================================
