@@ -48,6 +48,135 @@ const [open, setOpen] =
 const [dateRange, setDateRange] =
   useState<DateRange | undefined>();
 
+const calculatePresetRange = (
+  preset: string
+): DateRange | undefined => {
+
+  const today = new Date();
+
+  switch (preset) {
+
+    case "Today":
+      return {
+        from: new Date(today),
+        to: new Date(today),
+      };
+
+
+    case "This Week": {
+
+      const start = new Date(today);
+
+      start.setDate(
+        today.getDate() - today.getDay()
+      );
+
+      return {
+        from: start,
+        to: new Date(today),
+      };
+    }
+
+
+    case "This Month":
+      return {
+        from: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          1
+        ),
+        to: new Date(today),
+      };
+
+
+    case "Last 30 Days": {
+
+      const start = new Date(today);
+
+      start.setDate(
+        today.getDate() - 30
+      );
+
+      return {
+        from: start,
+        to: new Date(today),
+      };
+    }
+
+
+    case "Last Month":
+      return {
+        from: new Date(
+          today.getFullYear(),
+          today.getMonth() - 1,
+          1
+        ),
+        to: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          0
+        ),
+      };
+
+
+    case "This Quarter": {
+
+      const quarterStartMonth =
+        Math.floor(today.getMonth() / 3) * 3;
+
+      return {
+        from: new Date(
+          today.getFullYear(),
+          quarterStartMonth,
+          1
+        ),
+        to: new Date(today),
+      };
+    }
+
+
+    case "YTD":
+      return {
+        from: new Date(
+          today.getFullYear(),
+          0,
+          1
+        ),
+        to: new Date(today),
+      };
+
+
+    case "Last Year":
+      return {
+        from: new Date(
+          today.getFullYear() - 1,
+          0,
+          1
+        ),
+        to: new Date(
+          today.getFullYear() - 1,
+          11,
+          31
+        ),
+      };
+
+
+    case "All Time":
+      return undefined;
+
+
+    default:
+      return undefined;
+  }
+};
+
+const [displayRange, setDisplayRange] =
+  useState<DateRange | undefined>(
+    calculatePresetRange(selectedPreset)
+  );
+
+
+
     /* =====================================================
    DATE BUTTON CONTENT
    ===================================================== */
@@ -168,14 +297,33 @@ gap-6
     `}
   />
 
-  <span
-    className={`
-      ${dateLabelX}
-      ${dateLabelY}
-    `}
-  >
-    Date Range
-  </span>
+<span
+  className={`
+    ${dateLabelX}
+    ${dateLabelY}
+  `}
+>
+  {
+    displayRange?.from &&
+    displayRange?.to
+      ? `${displayRange.from.toLocaleDateString(
+          "en-US",
+          {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }
+        )} - ${displayRange.to.toLocaleDateString(
+          "en-US",
+          {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }
+        )}`
+      : "Date Range"
+  }
+</span>
 
 </div>
 
@@ -524,6 +672,10 @@ case "Last Year":
     endDate
   );
 
+setDisplayRange(
+  calculatePresetRange(item)
+);
+
   setOpen(false);
 
 }}
@@ -615,17 +767,18 @@ hover:tracking-[0.01em]
   mode="range"
   numberOfMonths={2}
   selected={dateRange}
+
 onSelect={(range) => {
 
-  setDateRange(
-    range
-  );
+setDateRange(range);
 
-  onDateRangeChange(
-    "Custom",
-    range?.from ?? null,
-    range?.to ?? null
-  );
+setDisplayRange(range);
+
+onDateRangeChange(
+"Custom",
+range?.from ?? null,
+range?.to ?? null
+);
 
 }}
 />
