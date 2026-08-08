@@ -638,13 +638,13 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     Projected Annual
   </span>
 
-  <MetricInfoTooltip
-    definition="Estimated recurring business costs over the next 12 months based on active subscriptions."
-    formula="Monthly Recurring Expenses × 12"
-   calculation={`${currencySymbol}${annualForecast.toFixed(2)}`}
-   interpretation={`Projected calendar-year business spending is ${currencySymbol}${annualForecast.toFixed(2)}.`}
-    className="translate-x-0 translate-y-0"
-  />
+<MetricInfoTooltip
+  definition="Projected total business expenses for the current calendar year using recorded expenses and remaining recurring commitments."
+  formula="Historical Expenses YTD + Remaining Recurring Expenses"
+  calculation={`${currencySymbol}${annualForecast.toFixed(2)}`}
+  interpretation={`Based on expenses recorded so far and active recurring expenses, projected yearly spending is ${currencySymbol}${annualForecast.toFixed(2)}.`}
+  className="translate-x-0 translate-y-0"
+/>
 </div>
   </div>
 
@@ -670,7 +670,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     ${projectedSubtitleY}
   `}
 >
-  Based on current run rate
+  Projected full-year business expenses
 </p>
   </div>
 
@@ -706,9 +706,9 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
 
 <div className="flex justify-between text-[11px] text-slate-400">
   <span>Method</span>
-  <span>
-    Monthly Avg × 12
-  </span>
+<span>
+  YTD Actual + Remaining Recurring
+</span>
 </div>
   </div>
 </div>
