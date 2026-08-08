@@ -1205,7 +1205,13 @@ duration-700
         </div>
 
         <div className="text-[14px] font-semibold text-white">
-          {expenses.filter(expense => expense.is_recurring).length}
+          {expenses.filter(
+  (expense) =>
+    expense.is_recurring &&
+    !expense.is_generated &&
+    !expense.is_deleted &&
+    expense.is_active
+).length}
         </div>
       </div>
     </div>

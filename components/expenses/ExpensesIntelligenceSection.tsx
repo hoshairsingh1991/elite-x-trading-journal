@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import type { Expense } from "@/lib/types/expense";
+import type { ReportingExpense } from "@/lib/types/expense";
 
 import {
   calculateUpcomingRenewals,
@@ -34,7 +34,7 @@ import type {
 } from "@/lib/analytics/businessCostAnalytics";
 
 interface ExpensesIntelligenceSectionProps {
-  expenses: Expense[];
+  expenses: ReportingExpense[];
   metrics: BusinessIntelligenceMetrics;
   annualForecast: number;
   reportingCurrency: string;
@@ -734,13 +734,19 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     Monthly Burn
   </span>
 
-  <MetricInfoTooltip
-    definition="Average monthly operating cost since expense tracking began."
-    formula="Total Expenses ÷ Active Months"
-    calculation={`${currencySymbol}${metrics.totalExpenses.toFixed(2)} ÷ ${metrics.activeMonths} = ${currencySymbol}${metrics.monthlyBurn.toFixed(2)}`}
-    interpretation={`The business spends an average of ${currencySymbol}${metrics.monthlyBurn.toFixed(2)} per month since expense tracking began.`}
-    className="translate-x-0 translate-y-0"
-  />
+<MetricInfoTooltip
+
+definition="Average monthly operating cost since expense tracking began."
+
+formula="YTD Expenses ÷ Active Months"
+
+calculation={`${currencySymbol}${metrics.totalExpenses.toFixed(2)} ÷ ${metrics.activeMonths} = ${currencySymbol}${metrics.monthlyBurn.toFixed(2)}`}
+
+interpretation={`Based on ${metrics.activeMonths} active months of expense tracking, average monthly operating cost is ${currencySymbol}${metrics.monthlyBurn.toFixed(2)}.`}
+
+className="translate-x-0 translate-y-0"
+
+/>
 </div>
   </div>
 
@@ -783,7 +789,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     `}
   >
    <div className="flex justify-between text-[11px] text-slate-400">
-  <span>Business Started</span>
+  <span>Tracking Since</span>
   <span>
     {metrics.businessStartDate}
   </span>
@@ -803,7 +809,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
 <div className="flex justify-between text-[11px] text-slate-400">
   <span>Method</span>
   <span>
-    Total Expenses ÷ Active Months
+    YTD Expenses ÷ Active Months
   </span>
 </div>
 

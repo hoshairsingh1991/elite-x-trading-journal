@@ -57,7 +57,7 @@ export interface VendorBreakdownItem {
 // =================================================
 
 export function calculateUpcomingRenewals(
-  expenses: any[]
+  expenses: ReportingExpense[]
 ): UpcomingRenewal[] {
 
   const today = new Date();
@@ -133,7 +133,7 @@ export function calculateUpcomingRenewals(
           expense.expense_name,
 
         vendor:
-          expense.vendor,
+  expense.vendor ?? "-",
 
         amount:
   expense.original_amount,
@@ -163,11 +163,16 @@ export function calculateTotalExpenses(
   expenses: ReportingExpense[]
 ): number {
 
-  return expenses.reduce(
-    (total, expense) =>
-      total + expense.reporting_amount,
-    0
-  );
+return expenses
+.filter(
+  (expense) =>
+    !expense.is_deleted
+)
+.reduce(
+  (total, expense) =>
+    total + expense.reporting_amount,
+  0
+);
 }
 
 
@@ -176,12 +181,16 @@ export function calculateTotalExpenses(
 // =================================================
 
 export function calculateRecurringExpenses(
-expenses: ReportingExpense[]
+  expenses: ReportingExpense[]
 ): number {
 
   return expenses
     .filter(
-      expense => expense.is_recurring
+      (expense) =>
+        expense.is_recurring &&
+        !expense.is_generated &&
+        !expense.is_deleted &&
+        expense.is_active
     )
     .reduce(
       (total, expense) =>
@@ -195,12 +204,14 @@ expenses: ReportingExpense[]
 // =================================================
 
 export function calculateTaxDeductibleAmount(
-expenses: ReportingExpense[]
+  expenses: ReportingExpense[]
 ): number {
 
   return expenses
     .filter(
-      expense => expense.is_tax_deductible
+      (expense) =>
+        expense.is_tax_deductible &&
+        !expense.is_deleted
     )
     .reduce(
       (total, expense) =>
@@ -319,8 +330,13 @@ const grouped:
     },
   };
 
-  expenses.forEach(
-    (expense) => {
+ expenses
+.filter(
+  (expense) =>
+    !expense.is_deleted
+)
+.forEach(
+(expense) => {
 
 const category =
   expense.category?.trim() ||
@@ -383,18 +399,23 @@ export function calculateVendorBreakdown(
   const grouped:
     Record<string, number> = {};
 
-  expenses.forEach(
-    (expense) => {
+expenses
+.filter(
+  (expense) =>
+    !expense.is_deleted
+)
+.forEach(
+(expense) => {
 
-      const vendor =
-        expense.vendor?.trim() ||
-        "Other Vendors";
+  const vendor =
+    expense.vendor?.trim() ||
+    "Other Vendors";
 
-      grouped[vendor] =
-        (grouped[vendor] || 0) +
-        expense.reporting_amount;
-    }
-  );
+  grouped[vendor] =
+    (grouped[vendor] || 0) +
+    expense.reporting_amount;
+}
+);
 
   return Object.entries(
     grouped
@@ -422,31 +443,65 @@ export function calculateRecurringBreakdown(
   expenses: ReportingExpense[]
 ): RecurringBreakdownData {
 
-  const recurringAmount =
-    expenses
-      .filter(
-        expense =>
-          expense.is_recurring
-      )
-      .reduce(
-        (total, expense) =>
-          total +
-          expense.reporting_amount,
-        0
-      );
+const recurringAmount =
+  expenses
+    .filter(
+      (expense) =>
+        expense.is_recurring &&
+        !expense.is_generated &&
+        !expense.is_deleted &&
+        expense.is_active
+    )
+.reduce(
+(total, expense) => {
 
-  const oneTimeAmount =
-    expenses
-      .filter(
-        expense =>
-          !expense.is_recurring
-      )
-      .reduce(
-        (total, expense) =>
-          total +
-          expense.reporting_amount,
-        0
-      );
+switch (expense.frequency) {
+
+case "Daily":
+  return total + (
+    expense.reporting_amount * 30
+  );
+
+case "Weekly":
+  return total + (
+    expense.reporting_amount * 4.33
+  );
+
+case "Monthly":
+  return total + expense.reporting_amount;
+
+case "Quarterly":
+  return total + (
+    expense.reporting_amount / 3
+  );
+
+case "Yearly":
+  return total + (
+    expense.reporting_amount / 12
+  );
+
+default:
+  return total;
+
+}
+
+},
+0
+);
+
+const oneTimeAmount =
+expenses
+.filter(
+(expense) =>
+!expense.is_recurring &&
+!expense.is_deleted
+)
+.reduce(
+(total, expense) =>
+total +
+expense.reporting_amount,
+0
+);
 
   const total =
     recurringAmount +
@@ -491,7 +546,12 @@ export function calculateWeeklyExpenses(
   const grouped:
     Record<string, number> = {};
 
-  expenses.forEach((expense) => {
+  expenses
+.filter(
+  (expense) =>
+    !expense.is_deleted
+)
+.forEach((expense) => {
 
     const date =
       new Date(
@@ -538,8 +598,13 @@ export function calculateMonthlyExpenses(
   const grouped:
     Record<string, number> = {};
 
-  expenses.forEach(
-    (expense) => {
+expenses
+.filter(
+  (expense) =>
+    !expense.is_deleted
+)
+.forEach(
+(expense) => {
 
       const date =
         new Date(

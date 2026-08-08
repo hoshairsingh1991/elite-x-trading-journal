@@ -280,24 +280,83 @@ export function generateBusinessIntelligenceMetrics(
         ) * 100
       : 0;
 
-      const recurringExpenses =
-  expenses.filter(
-    expense => expense.is_recurring
-  );
+const recurringExpenses =
+expenses.filter(
+(expense) =>
+  expense.is_recurring &&
+  !expense.is_generated &&
+  !expense.is_deleted &&
+  expense.is_active
+);
 
-const monthlyRecurringExpenses =
-  recurringExpenses.reduce(
-    (
-      total,
-      expense
-    ) =>
-      total +
-      expense.reporting_amount,
-    0
-  );
 
 const activeSubscriptions =
-  recurringExpenses.length;
+recurringExpenses.length;
+
+
+const monthlyRecurringExpenses =
+recurringExpenses.reduce(
+(total, expense) => {
+
+  if (!expense.frequency) {
+    return total;
+  }
+
+
+  switch (expense.frequency) {
+
+    case "Daily":
+      return total + (
+        expense.reporting_amount * 30
+      );
+
+
+    case "Weekly":
+      return total + (
+        expense.reporting_amount * 4.33
+      );
+
+
+    case "Monthly":
+      return total + expense.reporting_amount;
+
+
+    case "Quarterly":
+      return total + (
+        expense.reporting_amount / 3
+      );
+
+
+    case "Yearly":
+      return total + (
+        expense.reporting_amount / 12
+      );
+
+
+    default:
+      return total;
+
+  }
+
+},
+0
+);
+
+console.log("RECURRING DEBUG", {
+  activeSubscriptions,
+  monthlyRecurringExpenses,
+
+  recurringExpenses: recurringExpenses.map(
+    (expense) => ({
+      name: expense.expense_name,
+      amount: expense.reporting_amount,
+      frequency: expense.frequency,
+      generated: expense.is_generated,
+      active: expense.is_active,
+      deleted: expense.is_deleted,
+    })
+  ),
+});
 
   let activeMonths = 1;
 
