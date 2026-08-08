@@ -275,7 +275,14 @@ ${currencySymbol}${dashboardMetrics.avgLoss.toFixed(2)}`,
 
   {
   title: "Max Drawdown",
-    tooltip: undefined,
+    tooltip: (
+  <MetricInfoTooltip
+    definition="Largest peak-to-trough decline in cumulative trading P&L during the selected period."
+    formula="Highest P&L reached before a decline − Lowest P&L reached after that peak"
+    calculation={`${currencySymbol}${equityAnalytics.maxDrawdown.toFixed(2)}`}
+    interpretation="Measures the largest amount given back from an established P&L peak."
+  />
+),
   value:
 `${currencySymbol}${equityAnalytics.maxDrawdown.toFixed(2)}`,
 

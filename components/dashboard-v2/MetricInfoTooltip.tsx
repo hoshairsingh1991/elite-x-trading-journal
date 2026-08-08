@@ -90,7 +90,10 @@ export default function MetricInfoTooltip({
             "
 style={{
   top: rect.bottom + 12,
-  left: rect.left,
+  left: Math.min(
+    rect.left,
+    window.innerWidth - 416
+  ),
   width: "400px",
 }}
           >
