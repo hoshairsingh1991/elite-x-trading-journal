@@ -57,21 +57,14 @@ import {
   generatePerformanceBreakdownAnalytics,
 } from "@/lib/analytics/performanceBreakdownAnalytics";
 
-import {
-  Expense,
-} from "@/types/expense";
 
-import {
-  generateExpenseAnalytics,
-} from "@/lib/analytics/expenseAnalytics";
 
 import {
   generateWinRateTrend,
 } from "@/lib/analytics/kpiTrendAnalytics";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
-import PnLAnalytics from "@/components/dashboard/PnLAnalytics";
-import PositionsTradesPanel from "@/components/dashboard/PositionsTradesPanel";
+
 
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 import AddTradeModal from "@/components/trades/AddTradeModal";
@@ -124,10 +117,7 @@ from "@/lib/supabase";
 
 import { Trade } from "@/types/trade";
 
-import {
-  Upload,
-  RefreshCw,
-} from "lucide-react";
+
 
 export default function HomePage() {
 

@@ -332,6 +332,8 @@ git commit -m "fix: align equity curve negative axis labels"
 git commit -m "fix: improve dashboard KPI sparkline UI"
 
 git commit -m "fix: polish dashboard KPI and tooltip UI"
+
+git tag checkpoint/expense-table-date-range-fix-v1
 ------------------------------------------------------------------
 
 Status:
