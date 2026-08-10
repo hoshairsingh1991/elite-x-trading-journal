@@ -147,14 +147,17 @@ executionTimestamp:
 ticker:
   execution.ticker,
 
-        contract:
-          execution.contract,
+    contract:
+      execution.contract,
 
-        contractKey:
-          execution.contract_key,
+    contractKey:
+      execution.contract_key,
 
-        side:
-          execution.side,
+    exchange:
+      execution.exchange,
+
+    side:
+      execution.side,
 
         quantity:
           execution.quantity,
@@ -246,14 +249,17 @@ execution_timestamp:
 ticker:
   execution.ticker,
 
-        contract:
-          execution.contract,
+    contract:
+      execution.contract,
 
-        contract_key:
-          execution.contractKey,
+    contract_key:
+      execution.contractKey,
 
-        side:
-          execution.side,
+    exchange:
+      execution.exchange,
+
+    side:
+      execution.side,
 
         quantity:
           execution.quantity,

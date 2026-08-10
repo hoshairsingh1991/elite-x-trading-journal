@@ -161,12 +161,16 @@ const executionTimestamp =
                     row.Symbol ||
                     ticker;
 
-                  const contractKey =
-                    contract
-                      .replace(/\s+/g, "_")
-                      .toUpperCase();
+const contractKey =
+  contract
+    .replace(/\s+/g, "_")
+    .toUpperCase();
 
-                  // =================================================
+const exchange =
+  row.UnderlyingListingExchange ||
+  undefined;
+
+// =================================================
 // FIXED PRICE MAPPING
 // =================================================
 
@@ -237,15 +241,17 @@ executionTimestamp,
 
 ticker,
 
-  contract,
+contract,
 
-  contractKey,
+contractKey,
 
-  side:
-    row["Buy/Sell"] ===
-    "BUY"
-      ? "LONG"
-      : "SHORT",
+exchange,
+
+side:
+row["Buy/Sell"] ===
+"BUY"
+? "LONG"
+: "SHORT",
 
   quantity,
 

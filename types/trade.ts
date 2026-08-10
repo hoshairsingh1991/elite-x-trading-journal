@@ -51,6 +51,8 @@ export interface NormalizedExecution {
   contract: string;
   contractKey?: string;
 
+  exchange?: string;
+
   side: TradeSide;
 
   quantity: number;
