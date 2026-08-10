@@ -84,11 +84,30 @@ const handleSyncNow = async () => {
 
     setIsSyncing(true);
 
+    const {
+      data: {
+        session,
+      },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+
+      console.error(
+        "NO AUTHENTICATED SESSION"
+      );
+
+      return;
+    }
+
     const response =
       await fetch(
         "/api/sync-all-brokers",
         {
           method: "POST",
+          headers: {
+            Authorization:
+              `Bearer ${session.access_token}`,
+          },
         }
       );
 
@@ -100,8 +119,18 @@ const handleSyncNow = async () => {
       data
     );
 
-// Refresh the page to reload broker data
-window.location.reload();
+    if (!response.ok || !data.success) {
+
+      console.error(
+        "SYNC FAILED:",
+        data
+      );
+
+      return;
+    }
+
+    // Refresh the page to reload broker data
+    window.location.reload();
 
   } catch (error) {
 
@@ -113,7 +142,6 @@ window.location.reload();
   } finally {
 
     setIsSyncing(false);
-
   }
 
 };

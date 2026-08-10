@@ -936,13 +936,30 @@ const handleTestIBKRSync =
         "STARTING MULTI-BROKER SYNC..."
       );
 
-      const response =
-        await fetch(
-          "/api/sync-all-brokers",
-          {
-            method: "POST",
-          }
-        );
+const {
+  data: {
+    session,
+  },
+} = await supabase.auth.getSession();
+
+if (!session?.access_token) {
+  console.error(
+    "NO AUTHENTICATED SESSION"
+  );
+  return;
+}
+
+const response =
+  await fetch(
+    "/api/sync-all-brokers",
+    {
+      method: "POST",
+      headers: {
+        Authorization:
+          `Bearer ${session.access_token}`,
+      },
+    }
+  );
 
       const data =
         await response.json();
