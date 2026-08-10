@@ -1,12 +1,41 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+
+import {
+  Trade,
+} from "@/types/trade";
+
+const DateRangePicker = dynamic(
+  () =>
+    import(
+      "@/components/shared/DateRangePicker"
+    ),
+  {
+    ssr: false,
+  }
+);
 
 interface TradesToolbarProps {
+
+  trades: Trade[];
 
   searchQuery: string;
 
   setSearchQuery: (
+    value: string
+  ) => void;
+
+  accountFilter: string;
+
+  setAccountFilter: (
+    value: string
+  ) => void;
+
+  selectedDatePreset: string;
+
+  setSelectedDatePreset: (
     value: string
   ) => void;
 
@@ -43,8 +72,16 @@ interface TradesToolbarProps {
 
 export default function TradesToolbar({
 
+  trades,
+
   searchQuery,
   setSearchQuery,
+
+  accountFilter,
+  setAccountFilter,
+
+  selectedDatePreset,
+  setSelectedDatePreset,
 
   statusFilter,
   setStatusFilter,
@@ -62,6 +99,21 @@ export default function TradesToolbar({
   setToDate,
 
 }: TradesToolbarProps) {
+
+  // =================================================
+// AVAILABLE ACCOUNTS
+// =================================================
+
+const accounts = Array.from(
+  new Set(
+    trades
+      .map(
+        (trade) =>
+          trade.account
+      )
+      .filter(Boolean)
+  )
+);
 
   // =================================================
   // TEST STATE
@@ -177,41 +229,70 @@ export default function TradesToolbar({
             />
           </div>
 
-          {/* ================================================= */}
-          {/* FROM DATE */}
-          {/* ================================================= */}
+{/* ================================================= */}
+{/* DATE RANGE */}
+{/* ================================================= */}
 
-          <div className="w-[120px]">
+<DateRangePicker
+  selectedPreset={
+    selectedDatePreset
+  }
+  onDateRangeChange={(
+    preset,
+    startDate,
+    endDate
+  ) => {
 
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) =>
-                setFromDate(
-                  e.target.value
-                )
-              }
-              className="h-[40px] min-w-[110px] rounded-2xl border border-white/[0.06] bg-[#0b1220] pl-10 text-[12px] font-semibold tracking-[0.08em] text-slate-300 outline-none transition-all [color-scheme:dark] focus:border-blue-500/40"
-            />
-          </div>
+    setSelectedDatePreset(
+      preset
+    );
 
-          {/* ================================================= */}
-          {/* TO DATE */}
-          {/* ================================================= */}
+    setFromDate(
+      startDate
+        ? startDate
+            .toISOString()
+            .split("T")[0]
+        : ""
+    );
 
-          <div className="relative flex w-[100px] items-center justify-center">
+    setToDate(
+      endDate
+        ? endDate
+            .toISOString()
+            .split("T")[0]
+        : ""
+    );
+  }}
+/>
 
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) =>
-                setToDate(
-                  e.target.value
-                )
-              }
-              className="h-[40px] min-w-[100px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-5 text-center tracking-[0.08em] text-[13px] font-semibold text-slate-300 outline-none transition-all [color-scheme:dark] focus:border-blue-500/40"
-            />
-          </div>
+{/* ================================================= */}
+{/* ACCOUNT FILTER */}
+{/* ================================================= */}
+
+<select
+  value={accountFilter}
+  onChange={(e) =>
+    setAccountFilter(
+      e.target.value
+    )
+  }
+  className="h-[40px] min-w-[130px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
+>
+  <option value="ALL">
+    All Accounts
+  </option>
+
+  {accounts.map(
+    (account) => (
+      <option
+        key={account}
+        value={account}
+      >
+        {account}
+      </option>
+    )
+  )}
+</select>
 
           {/* ================================================= */}
           {/* STATUS FILTER */}

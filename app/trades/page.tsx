@@ -70,108 +70,239 @@ const [lastImportAt, setLastImportAt] =
     setIsAddTradeOpen,
   ] = useState(false);
 
-  // =================================================
-  // FILTER STATE
-  // =================================================
+// =================================================
+// FILTER STATE
+// =================================================
 
-  const [searchQuery, setSearchQuery] =
-    useState("");
+const [searchQuery, setSearchQuery] =
+  useState(() => {
 
-  const [statusFilter, setStatusFilter] =
-    useState("ALL");
+    if (typeof window === "undefined") {
+      return "";
+    }
 
-  const [sideFilter, setSideFilter] =
-    useState("ALL");
-
-  const [assetFilter, setAssetFilter] =
-    useState("ALL");
-      const [fromDate, setFromDate] =
-    useState("");
-
-  const [toDate, setToDate] =
-    useState("");
-
-      // =================================================
-  // FILTER PERSISTENCE
-  // =================================================
-
-  useEffect(() => {
-
-    const storedFilters =
+    const stored =
       localStorage.getItem(
         "elite-x-trade-filters"
       );
 
-    if (!storedFilters) {
-      return;
+    if (!stored) {
+      return "";
     }
 
     const parsed =
-      JSON.parse(
-        storedFilters
+      JSON.parse(stored);
+
+    return parsed.searchQuery || "";
+  });
+
+const [accountFilter, setAccountFilter] =
+  useState(() => {
+
+    if (typeof window === "undefined") {
+      return "ALL";
+    }
+
+    const stored =
+      localStorage.getItem(
+        "elite-x-trade-filters"
       );
 
-    setSearchQuery(
-      parsed.searchQuery || ""
-    );
+    if (!stored) {
+      return "ALL";
+    }
 
-    setStatusFilter(
-      parsed.statusFilter || "ALL"
-    );
+    const parsed =
+      JSON.parse(stored);
 
-    setSideFilter(
-      parsed.sideFilter || "ALL"
-    );
+    return parsed.accountFilter || "ALL";
+  });
 
-    setAssetFilter(
-      parsed.assetFilter || "ALL"
-    );
+const [statusFilter, setStatusFilter] =
+  useState(() => {
 
-    setFromDate(
-      parsed.fromDate || ""
-    );
+    if (typeof window === "undefined") {
+      return "ALL";
+    }
 
-    setToDate(
-      parsed.toDate || ""
-    );
+    const stored =
+      localStorage.getItem(
+        "elite-x-trade-filters"
+      );
 
-  }, []);
+    if (!stored) {
+      return "ALL";
+    }
 
-  useEffect(() => {
+    const parsed =
+      JSON.parse(stored);
 
-    localStorage.setItem(
-      "elite-x-trade-filters",
+    return parsed.statusFilter || "ALL";
+  });
 
-      JSON.stringify({
+const [sideFilter, setSideFilter] =
+  useState(() => {
 
-        searchQuery,
+    if (typeof window === "undefined") {
+      return "ALL";
+    }
 
-        statusFilter,
+    const stored =
+      localStorage.getItem(
+        "elite-x-trade-filters"
+      );
 
-        sideFilter,
+    if (!stored) {
+      return "ALL";
+    }
 
-        assetFilter,
+    const parsed =
+      JSON.parse(stored);
 
-        fromDate,
+    return parsed.sideFilter || "ALL";
+  });
 
-        toDate,
-      })
-    );
+const [assetFilter, setAssetFilter] =
+  useState(() => {
 
-  }, [
+    if (typeof window === "undefined") {
+      return "ALL";
+    }
 
-    searchQuery,
+    const stored =
+      localStorage.getItem(
+        "elite-x-trade-filters"
+      );
 
-    statusFilter,
+    if (!stored) {
+      return "ALL";
+    }
 
-    sideFilter,
+    const parsed =
+      JSON.parse(stored);
 
-    assetFilter,
+    return parsed.assetFilter || "ALL";
+  });
 
-    fromDate,
+const [fromDate, setFromDate] =
+  useState(() => {
 
-    toDate,
-  ]);
+    if (typeof window === "undefined") {
+      return "";
+    }
+
+    const stored =
+      localStorage.getItem(
+        "elite-x-trade-filters"
+      );
+
+    if (!stored) {
+      return "";
+    }
+
+    const parsed =
+      JSON.parse(stored);
+
+    return parsed.fromDate || "";
+  });
+
+const [toDate, setToDate] =
+  useState(() => {
+
+    if (typeof window === "undefined") {
+      return "";
+    }
+
+    const stored =
+      localStorage.getItem(
+        "elite-x-trade-filters"
+      );
+
+    if (!stored) {
+      return "";
+    }
+
+    const parsed =
+      JSON.parse(stored);
+
+    return parsed.toDate || "";
+  });
+
+const [selectedDatePreset, setSelectedDatePreset] =
+  useState(() => {
+
+    if (typeof window === "undefined") {
+      return "All Time";
+    }
+
+    const stored =
+      localStorage.getItem(
+        "elite-x-trade-filters"
+      );
+
+    if (!stored) {
+      return "All Time";
+    }
+
+    const parsed =
+      JSON.parse(stored);
+
+    return parsed.selectedDatePreset || "All Time";
+  });
+
+
+
+// =================================================
+// FILTER PERSISTENCE
+// =================================================
+
+
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "elite-x-trade-filters",
+
+    JSON.stringify({
+
+      searchQuery,
+
+      accountFilter,
+
+      statusFilter,
+
+      sideFilter,
+
+      assetFilter,
+
+      fromDate,
+
+      toDate,
+
+      selectedDatePreset,
+
+    })
+  );
+
+}, [
+
+  searchQuery,
+
+  accountFilter,
+
+  statusFilter,
+
+  sideFilter,
+
+  assetFilter,
+
+  fromDate,
+
+  toDate,
+
+  selectedDatePreset,
+
+]);
 
 // =================================================
 // LOAD TRADES
@@ -291,6 +422,19 @@ if (latestSyncError) {
               ?.toLowerCase()
               .includes(search);
 
+      // =========================================
+      // ACCOUNT
+      // =========================================
+
+      const matchesAccount =
+
+        accountFilter ===
+          "ALL" ||
+
+        trade.account ===
+          accountFilter;
+
+
           // =========================================
           // STATUS
           // =========================================
@@ -362,20 +506,22 @@ if (latestSyncError) {
             trade.date <=
               toDate;
 
-          return (
-            matchesSearch &&
-            matchesStatus &&
-            matchesSide &&
-            matchesAsset &&
-            matchesFromDate &&
-            matchesToDate
-          );
+return (
+  matchesSearch &&
+  matchesAccount &&
+  matchesStatus &&
+  matchesSide &&
+  matchesAsset &&
+  matchesFromDate &&
+  matchesToDate
+);
         }
       );
 
     }, [
       trades,
       searchQuery,
+      accountFilter,
       statusFilter,
       sideFilter,
       assetFilter,
@@ -685,25 +831,35 @@ const formattedLastImport =
     {/* TOOLBAR */}
     {/* ================================================= */}
 
-    <TradesToolbar
-      searchQuery={searchQuery}
-      setSearchQuery={setSearchQuery}
+<TradesToolbar
+  trades={trades}
 
-      statusFilter={statusFilter}
-      setStatusFilter={setStatusFilter}
+  searchQuery={searchQuery}
+  setSearchQuery={setSearchQuery}
 
-      sideFilter={sideFilter}
-      setSideFilter={setSideFilter}
+  accountFilter={accountFilter}
+  setAccountFilter={setAccountFilter}
 
-      assetFilter={assetFilter}
-      setAssetFilter={setAssetFilter}
+  selectedDatePreset={selectedDatePreset}
+  setSelectedDatePreset={
+    setSelectedDatePreset
+  }
 
-      fromDate={fromDate}
-      setFromDate={setFromDate}
+  statusFilter={statusFilter}
+  setStatusFilter={setStatusFilter}
 
-      toDate={toDate}
-      setToDate={setToDate}
-    />
+  sideFilter={sideFilter}
+  setSideFilter={setSideFilter}
+
+  assetFilter={assetFilter}
+  setAssetFilter={setAssetFilter}
+
+  fromDate={fromDate}
+  setFromDate={setFromDate}
+
+  toDate={toDate}
+  setToDate={setToDate}
+/>
 
     {/* ================================================= */}
     {/* TABLE */}

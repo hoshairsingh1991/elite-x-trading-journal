@@ -344,6 +344,7 @@ Trade History Page strats here .........
 
 git commit -m "checkpoint: trade-history-v2-backend-ready"
 git commit -m "checkpoint: trade history header complete"
+git commit -m "checkpoint: trade history filter persistence"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:
