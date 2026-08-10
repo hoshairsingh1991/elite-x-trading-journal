@@ -15,6 +15,8 @@ import AddTradeModal from "@/components/trades/AddTradeModal";
 
 import TradesToolbar from "@/components/trades/TradesToolbar";
 
+import { supabase } from "@/lib/supabase";
+
 import UserMenuV2
 from "@/components/layout/UserMenuV2";
 
@@ -30,6 +32,13 @@ from "@/lib/parsers/pairTrades";
 
 import { Trade } from "@/types/trade";
 
+// =================================================
+// HEADER POSITIONING
+// =================================================
+
+const lastImportX =
+  "translate-x-[-0px]";
+
 export default function TradesPage() {
 
   // =================================================
@@ -38,6 +47,9 @@ export default function TradesPage() {
 
   const [trades, setTrades] =
     useState<Trade[]>([]);
+
+const [lastImportAt, setLastImportAt] =
+  useState<string | null>(null);
 
   // =================================================
   // MODAL STATE
@@ -203,10 +215,42 @@ useEffect(() => {
       // COMBINED RENDER LAYER
       // =========================================
 
-      setTrades([
-        ...rebuiltTrades,
-        ...filteredManualTrades,
-      ]);
+setTrades([
+  ...rebuiltTrades,
+  ...filteredManualTrades,
+]);
+
+// =========================================
+// LOAD LAST IMPORT
+// =========================================
+
+const {
+  data: latestSync,
+  error: latestSyncError,
+} = await supabase
+  .from("broker_connections")
+  .select("last_sync_at")
+  .eq("is_active", true)
+  .not("last_sync_at", "is", null)
+  .order("last_sync_at", {
+    ascending: false,
+  })
+  .limit(1)
+  .maybeSingle();
+
+if (latestSyncError) {
+
+  console.error(
+    "FAILED TO LOAD LAST IMPORT:",
+    latestSyncError
+  );
+
+} else {
+
+  setLastImportAt(
+    latestSync?.last_sync_at ?? null
+  );
+}
     };
 
   loadAllTrades();
@@ -339,6 +383,25 @@ useEffect(() => {
       toDate,
     ]);
 
+// =================================================
+// LAST IMPORT FORMATTER
+// =================================================
+
+const formattedLastImport =
+  lastImportAt
+    ? new Date(
+        lastImportAt
+      ).toLocaleString(
+        undefined,
+        {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        }
+      )
+    : "—";
+
 
   // =================================================
   // MODAL HANDLERS
@@ -386,162 +449,313 @@ useEffect(() => {
 
       <section className="flex min-w-0 flex-1 flex-col overflow-hidden pr-10 pt-4">
 
-                {/* ================================================= */}
-        {/* HEADER */}
-        {/* ================================================= */}
+{/* ================================================= */}
+{/* HEADER */}
+{/* ================================================= */}
 
-        <div className="flex h-[50px] translate-y-3 items-center justify-between border-b border-white/[0.05] px-8 pb-4">
+<div className="flex h-[72px] items-center justify-between border-b border-white/[0.05] px-8">
 
-          <div className="relative left-3">
+  {/* ================================================= */}
+  {/* HEADER LEFT */}
+  {/* ================================================= */}
 
-            <h1 className="text-24px] font-black tracking-tight text-slate-400">
-              Trades
-            </h1>
+  <div className="flex items-center">
 
-            <p className="mt-2 text-sm text-slate-400">
-              Execution history & trade review
-            </p>
+    {/* ================================================= */}
+    {/* TITLE */}
+    {/* ================================================= */}
 
-            <div className="h-2 opacity-0" />
-          </div>
+    <div className="relative">
+      <h1 className="text-[24px] font-black tracking-tight text-slate-400">
+        Trade History
+      </h1>
+    </div>
 
-        {/* ================================================= */}
+    {/* ================================================= */}
+    {/* TOTAL TRADES */}
+    {/* ================================================= */}
+
+    <div
+      className="
+        relative
+        ml-6
+        translate-x-8
+        translate-y-0
+      "
+    >
+<p className="mt-1 translate-y-0 text-[18px] font-bold text-slate-200">
+  {trades.length}
+</p>
+
+      <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+        Total Trades
+      </div>
+    </div>
+
+    {/* ================================================= */}
+    {/* DIVIDER */}
+    {/* ================================================= */}
+
+    <div
+      className="
+        relative
+        mx-8
+        h-[32px]
+        w-px
+        translate-x-10
+        translate-y-1
+        bg-white/[0.08]
+      "
+    />
+
+{/* ================================================= */}
+{/* ACROSS ACCOUNTS */}
+{/* ================================================= */}
+
+<div
+  className="
+    relative
+    ml-8
+    translate-x-14
+  "
+>
+
+  {/* ================================================= */}
+  {/* ACROSS */}
+  {/* ================================================= */}
+
+  <div
+    className="
+      relative
+      translate-y-0
+      text-[9px]
+      font-bold
+      uppercase
+      tracking-[0.18em]
+      text-slate-500
+    "
+  >
+    Across
+  </div>
+
+{/* ================================================= */}
+{/* ACCOUNT COUNT */}
+{/* ================================================= */}
+
+<div
+  className="
+    relative
+    translate-y-1
+    text-[18px]
+    font-bold
+    leading-none
+    text-slate-200
+  "
+>
+  {
+    new Set(
+      trades
+        .map(
+          (trade) =>
+            trade.account
+        )
+        .filter(Boolean)
+    ).size
+  }{" "}
+
+  <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+    Accounts
+  </span>
+</div>
+
+</div>
+
+    {/* ================================================= */}
+    {/* DIVIDER */}
+    {/* ================================================= */}
+
+    <div
+      className="
+        relative
+        mx-8
+        h-[32px]
+        w-px
+        translate-x-18
+        translate-y-1
+        bg-white/[0.08]
+      "
+    />
+
+    {/* ================================================= */}
+    {/* LAST IMPORT */}
+    {/* ================================================= */}
+
+    <div
+      className="
+        relative
+        translate-x-22
+        translate-y-1
+      "
+    >
+      <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+        Last Import
+      </div>
+
+<span className="mt-1 -translate-y-2 text-[13px] font-semibold text-slate-300">
+  {formattedLastImport}
+</span>
+    </div>
+
+  </div>
+
+{/* ================================================= */}
 {/* HEADER ACTIONS */}
 {/* ================================================= */}
 
-<div className="relative -translate-y-1 right-8 flex items-center gap-4">
+<div
+  className="
+    relative
+    flex
+    items-center
+    gap-4
+    -translate-x-8
+  "
+>
+
+  {/* ================================================= */}
+  {/* ADD TRADE */}
+  {/* ================================================= */}
 
   <button
     onClick={() =>
       setIsAddTradeOpen(true)
     }
-    className="flex h-[36px] min-w-[90px] items-center  justify-center gap-3 rounded-[18px] border border-blue-400/30 bg-blue-500 px-5 text-[14px] font-bold text-slate-200 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all hover:bg-blue-600"
+    className="
+      flex
+      h-[36px]
+      min-w-[90px]
+      items-center
+      justify-center
+      gap-3
+      rounded-[18px]
+      border
+      border-blue-400/30
+      bg-blue-500
+      px-5
+      text-[14px]
+      font-bold
+      text-slate-200
+      shadow-[0_0_24px_rgba(59,130,246,0.25)]
+      transition-all
+      hover:bg-blue-600
+    "
   >
     Add Trade
   </button>
 
+  {/* ================================================= */}
+  {/* USER MENU */}
+  {/* ================================================= */}
+
   <UserMenuV2
-    totalTrades={0}
+    totalTrades={trades.length}
     totalPnL={0}
     tradingDays={0}
   />
 
-</div>
+
+
+  </div>
 
 </div>
 {/* ===================================== */}
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[24px]" />
+<div className="h-[16px]" />
 {/* ================================================= */}
 {/* CONTENT */}
 {/* ================================================= */}
 
-        <div className="flex-1 overflow-y-auto pl-8 pr-10 pt-8 pb-8">
+<div className="flex-1 overflow-y-auto pl-8 pr-10 pt-8 pb-8">
 
-          <div className="max-w-[98.5%]">
+  <div className="max-w-[98.5%]">
 
-            {/* ================================================= */}
-            {/* TOOLBAR */}
-            {/* ================================================= */}
+    {/* ================================================= */}
+    {/* TOOLBAR */}
+    {/* ================================================= */}
 
-            <TradesToolbar
-              searchQuery={
-                searchQuery
-              }
-              setSearchQuery={
-                setSearchQuery
-              }
+    <TradesToolbar
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
 
-              statusFilter={
-                statusFilter
-              }
-              setStatusFilter={
-                setStatusFilter
-              }
+      statusFilter={statusFilter}
+      setStatusFilter={setStatusFilter}
 
-              sideFilter={
-                sideFilter
-              }
-              setSideFilter={
-                setSideFilter
-              }
+      sideFilter={sideFilter}
+      setSideFilter={setSideFilter}
 
-              assetFilter={
-                assetFilter
-              }
-              setAssetFilter={
-                setAssetFilter
-              }
+      assetFilter={assetFilter}
+      setAssetFilter={setAssetFilter}
 
-              fromDate={
-                fromDate
-              }
-              setFromDate={
-                setFromDate
-              }
+      fromDate={fromDate}
+      setFromDate={setFromDate}
 
-              toDate={
-                toDate
-              }
-              setToDate={
-                setToDate
-              }
-            />
+      toDate={toDate}
+      setToDate={setToDate}
+    />
 
-            {/* ================================================= */}
-            {/* TABLE */}
-            {/* ================================================= */}
+    {/* ================================================= */}
+    {/* TABLE */}
+    {/* ================================================= */}
 
-            <TradesTable
-              trades={
-                filteredTrades
-              }
-              onSelectTrade={
-                handleSelectTrade
-              }
-            />
-          </div>
-        </div>
+    <TradesTable
+      trades={filteredTrades}
+      onSelectTrade={handleSelectTrade}
+    />
 
-                {/* ================================================= */}
-        {/* MODAL */}
-        {/* ================================================= */}
+  </div>
+</div>
 
-        {isModalOpen &&
-          selectedTrade && (
+{/* ================================================= */}
+{/* MODAL */}
+{/* ================================================= */}
 
-          <TradeDetailModal
-            selectedDate={
-              selectedTrade.date
-            }
+{isModalOpen &&
+  selectedTrade && (
 
-            // =================================================
-            // SINGLE TRADE ONLY
-            // =================================================
+  <TradeDetailModal
+    selectedDate={
+      selectedTrade.date
+    }
 
-            trades={[
-              selectedTrade
-            ]}
+    // =================================================
+    // SINGLE TRADE ONLY
+    // =================================================
 
-            onClose={
-              handleCloseModal
-            }
-          />
-        )}
+    trades={[
+      selectedTrade
+    ]}
 
-        {/* ================================================= */}
-        {/* ADD TRADE MODAL */}
-        {/* ================================================= */}
+    onClose={
+      handleCloseModal
+    }
+  />
+)}
 
-        <AddTradeModal
-          open={isAddTradeOpen}
-          onClose={() =>
-            setIsAddTradeOpen(false)
-          }
-        />
-      </section>
-    </main>
-  );
+{/* ================================================= */}
+{/* ADD TRADE MODAL */}
+{/* ================================================= */}
+
+<AddTradeModal
+  open={isAddTradeOpen}
+  onClose={() =>
+    setIsAddTradeOpen(false)
+  }
+/>
+
+</section>
+</main>
+
+);
 }

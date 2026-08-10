@@ -343,7 +343,7 @@ git commit -m "checkpoint: date range picker UI"
 Trade History Page strats here .........
 
 git commit -m "checkpoint: trade-history-v2-backend-ready"
-
+git commit -m "checkpoint: trade history header complete"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:
