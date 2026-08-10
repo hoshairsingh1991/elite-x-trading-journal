@@ -201,8 +201,22 @@ const handleSaveBroker = async () => {
   is_active: true,
 })
 
-      .select()
-      .single();
+.select(`
+  id,
+  user_id,
+  broker,
+  account_alias,
+  broker_account_id,
+  flex_query_id,
+  is_active,
+  created_at,
+  updated_at,
+  last_sync_at,
+  last_sync_status,
+  last_sync_error,
+  last_sync_execution_count
+`)
+.single();
 
    if (error) {
 
@@ -224,20 +238,20 @@ const handleSaveBroker = async () => {
     return;
   }
 
-  // =====================================
-  // EDIT EXISTING BROKER
-  // =====================================
+// =====================================
+// EDIT EXISTING BROKER
+// =====================================
 
-  if (!selectedBroker) {
-    return;
-  }
+if (!selectedBroker) {
+  return;
+}
 
-  const { error } =
-    await supabase
-      .from("broker_connections")
-
-
-.update({
+const updatePayload: {
+  account_alias: string;
+  broker_account_id: string;
+  flex_query_id: string;
+  flex_token?: string;
+} = {
   account_alias:
     editAccountAlias.trim(),
 
@@ -246,58 +260,64 @@ const handleSaveBroker = async () => {
 
   flex_query_id:
     editQueryId.trim(),
+};
 
-  flex_token:
-    editFlexToken.trim(),
-})
+const newFlexToken =
+  editFlexToken.trim();
 
-      .eq(
-        "id",
-        selectedBroker.id
-      );
+if (newFlexToken) {
+  updatePayload.flex_token =
+    newFlexToken;
+}
 
-  if (error) {
-
-    console.error(
-      "BROKER UPDATE ERROR:",
-      error
+const { error } =
+  await supabase
+    .from("broker_connections")
+    .update(updatePayload)
+    .eq(
+      "id",
+      selectedBroker.id
     );
 
-    return;
-  }
+if (error) {
 
-  setBrokerConnections(
-
-    brokerConnections.map(
-      (broker) =>
-
-        broker.id ===
-        selectedBroker.id
-
-          ? {
-
-              ...broker,
-
-              account_alias:
-                editAccountAlias,
-
-              flex_query_id:
-                editQueryId,
-
-              flex_token:
-                editFlexToken,
-
-            }
-
-          : broker
-
-    )
-
+  console.error(
+    "BROKER UPDATE ERROR:",
+    error
   );
 
-  setIsEditModalOpen(
-    false
-  );
+  return;
+}
+
+setBrokerConnections(
+
+  brokerConnections.map(
+    (broker) =>
+
+      broker.id ===
+      selectedBroker.id
+
+        ? {
+            ...broker,
+
+            account_alias:
+              editAccountAlias,
+
+            broker_account_id:
+              editBrokerAccountId,
+
+            flex_query_id:
+              editQueryId,
+          }
+
+        : broker
+  )
+
+);
+
+setIsEditModalOpen(
+  false
+);
 
 };
 
@@ -312,14 +332,26 @@ const handleSaveBroker = async () => {
     const loadBrokerConnections =
       async () => {
 
-        const {
-          data,
-          error,
-        } = await supabase
-          .from(
-            "broker_connections"
-          )
-          .select("*");
+const {
+  data,
+  error,
+} = await supabase
+  .from("broker_connections")
+  .select(`
+    id,
+    user_id,
+    broker,
+    account_alias,
+    broker_account_id,
+    flex_query_id,
+    is_active,
+    created_at,
+    updated_at,
+    last_sync_at,
+    last_sync_status,
+    last_sync_error,
+    last_sync_execution_count
+  `);
 
         if (error) {
 
@@ -897,21 +929,15 @@ disabled:opacity-50
 
   <div className="group relative">
 
-  <div
-    className={`
-      h-3
-      w-3
-      rounded-full
-      cursor-pointer
-      ${
-        connection.last_sync_status === "success"
-          ? "bg-emerald-600"
-          : connection.last_sync_status === "failed"
-          ? "bg-red-600"
-          : "bg-zinc-600"
-      }
-    `}
-  />
+<div
+  className={`h-3 w-3 rounded-full ${
+    connection.last_sync_status === "success"
+      ? "bg-emerald-500"
+      : connection.last_sync_status === "error"
+        ? "bg-red-500"
+        : "bg-slate-600"
+  }`}
+/>
 
   <div
     className="
@@ -952,7 +978,7 @@ disabled:opacity-50
 
   </div>
 
-) : connection.last_sync_status === "failed" ? (
+) : connection.last_sync_status === "error" ? (
 
   <div className="flex flex-col items-center">
 
@@ -1016,17 +1042,15 @@ onClick={() => {
     connection.broker_account_id || ""
   );
 
-  setEditQueryId(
-    connection.flex_query_id || ""
-  );
+setEditQueryId(
+  connection.flex_query_id || ""
+);
 
-  setEditFlexToken(
-    connection.flex_token || ""
-  );
+setEditFlexToken("");
 
-  setIsEditModalOpen(
-    true
-  );
+setIsEditModalOpen(
+  true
+);
 
 }}
   className="
@@ -1632,26 +1656,33 @@ onClick={() => {
 
 
 
-  <input
-    value={editFlexToken}
-    onChange={(e) =>
-      setEditFlexToken(
-        e.target.value
-      )
-    }
-    className="
-      relative
-      left-[10px]
-      w-[95%]
-      rounded-xl
-      bg-[#050816]
-      border
-      border-white/10
-      px-4
-      py-4
-      text-white
-    "
-  />
+<input
+  type="password"
+  value={editFlexToken}
+  placeholder={
+    modalMode === "edit"
+      ? "••••••••••••••••"
+      : ""
+  }
+  onChange={(e) =>
+    setEditFlexToken(
+      e.target.value
+    )
+  }
+  className="
+    relative
+    left-[10px]
+    w-[95%]
+    rounded-xl
+    bg-[#050816]
+    border
+    border-white/10
+    px-4
+    py-4
+    text-white
+    placeholder:text-slate-500
+  "
+/>
 
 </div>
 

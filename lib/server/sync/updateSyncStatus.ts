@@ -2,10 +2,11 @@ import {
   supabaseAdmin,
 } from "@/lib/server/supabaseAdmin";
 
-export async function
-updateSyncStatus(
+export async function updateSyncStatus(
   brokerId: string,
-  executionCount: number
+  executionCount: number,
+  status: "success" | "error",
+  errorMessage: string | null = null
 ) {
 
   const {
@@ -15,17 +16,19 @@ updateSyncStatus(
       "broker_connections"
     )
     .update({
+
       last_sync_at:
         new Date().toISOString(),
 
       last_sync_status:
-        "success",
+        status,
 
       last_sync_error:
-        null,
+        errorMessage,
 
       last_sync_execution_count:
         executionCount,
+
     })
     .eq(
       "id",
@@ -43,6 +46,7 @@ updateSyncStatus(
   }
 
   console.log(
-    "SYNC STATUS UPDATED"
+    "SYNC STATUS UPDATED:",
+    status
   );
 }

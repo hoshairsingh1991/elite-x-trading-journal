@@ -9,16 +9,24 @@ import {
 export async function syncUserBrokers(
   userId: string
 ) {
+
   const {
     data: brokers,
     error,
   } = await supabaseAdmin
     .from("broker_connections")
     .select("*")
-    .eq("user_id", userId)
-    .eq("is_active", true);
+    .eq(
+      "user_id",
+      userId
+    )
+    .eq(
+      "is_active",
+      true
+    );
 
   if (error) {
+
     console.error(
       "FAILED TO LOAD USER BROKERS:",
       error
@@ -32,14 +40,41 @@ export async function syncUserBrokers(
   for (
     const broker of brokers || []
   ) {
-    const result =
-      await syncBroker(
-        broker
+
+    try {
+
+      const result =
+        await syncBroker(
+          broker
+        );
+
+      results.push(
+        result
       );
 
-    results.push(
-      result
-    );
+    } catch (error) {
+
+      console.error(
+        "BROKER SYNC FAILED:",
+        broker.account_alias,
+        broker.broker_account_id,
+        error
+      );
+
+      results.push({
+        success: false,
+        brokerId: broker.id,
+        brokerAccountId:
+          broker.broker_account_id,
+        accountAlias:
+          broker.account_alias,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Broker sync failed",
+      });
+
+    }
 
     // ==========================================
     // IBKR FLEX RATE LIMIT PROTECTION
