@@ -48,6 +48,10 @@ const [open, setOpen] =
 const [dateRange, setDateRange] =
   useState<DateRange | undefined>();
 
+  const [calendarMonth, setCalendarMonth] = useState<Date>(
+  new Date()
+);
+
 const calculatePresetRange = (
   preset: string
 ): DateRange | undefined => {
@@ -231,7 +235,7 @@ const activePresetHeight = "h-[34px]";
    ===================================================== */
 
 const dividerX = "translate-x-0";
-const dividerY = "-translate-y-38";
+const dividerY = "translate-y-6";
 
 /* =====================================================
    RESET
@@ -258,7 +262,7 @@ const sidebarWidth = "w-[140px]";
    ===================================================== */
 
 const calendarAreaX = "-translate-x-4";
-const calendarAreaY = "translate-y-2";
+const calendarAreaY = "translate-y-0";
 
   return (
     <Popover
@@ -357,10 +361,10 @@ gap-6
   sideOffset={10}
   className="
   z-[9999]
-    w-[480px]
-    h-[540px]
-
-    overflow-hidden
+w-[480px]
+min-h-[520px]
+h-auto
+overflow-visible
 
     rounded-2xl
     border
@@ -429,7 +433,7 @@ gap-6
 
       <div
   className={`
-    flex-1
+  
 
     px-3
     py-3
@@ -759,19 +763,19 @@ ${
   `}
 >
 <button
-  onClick={() => {
+onClick={() => {
 
-    setDateRange(
-      undefined
-    );
+  setDateRange(undefined);
 
-    onDateRangeChange(
-      "All Time",
-      null,
-      null
-    );
+  setCalendarMonth(new Date());
 
-  }}
+  onDateRangeChange(
+    "All Time",
+    null,
+    null
+  );
+
+}}
   className="
     text-[14px]
     text-slate-500
@@ -803,6 +807,8 @@ ${
   mode="range"
   numberOfMonths={2}
   selected={dateRange}
+  month={calendarMonth}
+  onMonthChange={setCalendarMonth}
 
 classNames={{
   day_button: `

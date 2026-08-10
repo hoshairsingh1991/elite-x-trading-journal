@@ -140,6 +140,7 @@ button_next: cn(
         ),
 day: cn(
   "group/day relative aspect-square h-full w-full p-0 text-center select-none",
+  "translate-y-[4px]",
   defaultClassNames.day
 ),
       range_start: cn(

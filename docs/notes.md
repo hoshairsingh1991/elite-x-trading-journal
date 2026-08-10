@@ -336,6 +336,8 @@ git commit -m "fix: polish dashboard KPI and tooltip UI"
 git tag checkpoint/expense-table-date-range-fix-v1
 
 git commit -m "fix date range picker calendar UI"
+
+git commit -m "checkpoint: date range picker UI"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:
