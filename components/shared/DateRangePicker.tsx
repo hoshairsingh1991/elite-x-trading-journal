@@ -219,8 +219,12 @@ const quickY = "translate-y-2";
    PRESET LIST
    ===================================================== */
 
-const presetListX = "translate-x-4";
+const presetListX = "translate-x-5";
 const presetListY = "translate-y-5";
+
+const activePresetX = "translate-x-0";
+const activePresetWidth = "w-[100px]";
+const activePresetHeight = "h-[34px]";
 
 /* =====================================================
    DIVIDER
@@ -233,7 +237,7 @@ const dividerY = "-translate-y-38";
    RESET
    ===================================================== */
 
-const resetX = "translate-x-4";
+const resetX = "translate-x-5";
 const resetY = "translate-y-2";
 
     /* =====================================================
@@ -685,19 +689,45 @@ setDisplayRange(
   setOpen(false);
 
 }}
-  className="
-    text-left
-    text-[15px]
+className={`
+  text-left
+  text-[15px]
 
-    text-slate-300
+  rounded-lg
 
-    transition-all
-    duration-200
+  transition-all
+  duration-200
 
-    hover:text-white
-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.20)]
-hover:tracking-[0.01em]
-  "
+${
+  selectedPreset === item
+    ? `
+      relative
+      z-0
+      text-white
+
+      before:absolute
+      before:-inset-y-1
+      before:left-0
+      before:h-[30px]
+      ${
+        item === "YTD"
+          ? "before:w-[60px]"
+          : "before:w-[112px]"
+      }
+      before:-translate-x-3
+      before:rounded-lg
+      before:bg-white/20
+      before:content-['']
+      before:z-[-1]
+    `
+    : `
+      text-slate-300
+      hover:text-white
+      hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.20)]
+      hover:tracking-[0.01em]
+    `
+}
+`}
 >
       {item}
     </button>
@@ -769,24 +799,45 @@ hover:tracking-[0.01em]
     ${calendarAreaY}
   `}
 >
-     <Calendar
+<Calendar
   mode="range"
   numberOfMonths={2}
   selected={dateRange}
 
-onSelect={(range) => {
+classNames={{
+  day_button: `
+    data-[range-start=true]:bg-white
+    data-[range-start=true]:text-black
+    data-[range-start=true]:rounded-full
 
-setDateRange(range);
+    data-[range-end=true]:bg-white
+    data-[range-end=true]:text-black
+    data-[range-end=true]:rounded-full
+  `,
 
-setDisplayRange(range);
+  range_start:
+    "bg-transparent",
 
-onDateRangeChange(
-"Custom",
-range?.from ?? null,
-range?.to ?? null
-);
+  range_middle:
+    "bg-transparent",
 
+  range_end:
+    "bg-transparent",
 }}
+
+  onSelect={(range) => {
+
+    setDateRange(range);
+
+    setDisplayRange(range);
+
+    onDateRangeChange(
+      "Custom",
+      range?.from ?? null,
+      range?.to ?? null
+    );
+
+  }}
 />
     </div>
   </div>

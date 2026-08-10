@@ -334,7 +334,9 @@ git commit -m "fix: improve dashboard KPI sparkline UI"
 git commit -m "fix: polish dashboard KPI and tooltip UI"
 
 git tag checkpoint/expense-table-date-range-fix-v1
-------------------------------------------------------------------
+
+git commit -m "fix date range picker calendar UI"
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE

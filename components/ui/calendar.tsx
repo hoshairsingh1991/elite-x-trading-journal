@@ -138,22 +138,22 @@ button_next: cn(
           "text-[0.8rem] text-muted-foreground select-none",
           defaultClassNames.week_number
         ),
-        day: cn(
-          "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius)",
-          props.showWeekNumber
-            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-(--cell-radius)"
-            : "[&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)",
-          defaultClassNames.day
-        ),
-        range_start: cn(
-          "relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
-          defaultClassNames.range_start
-        ),
-        range_middle: cn("rounded-none", defaultClassNames.range_middle),
-        range_end: cn(
-          "relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
-          defaultClassNames.range_end
-        ),
+day: cn(
+  "group/day relative aspect-square h-full w-full p-0 text-center select-none",
+  defaultClassNames.day
+),
+      range_start: cn(
+  "relative isolate z-0 bg-transparent",
+  defaultClassNames.range_start
+),
+range_middle: cn(
+  "!bg-transparent",
+  "!rounded-none"
+),
+range_end: cn(
+  "relative isolate z-0 bg-transparent",
+  defaultClassNames.range_end
+),
         today: cn(
   "text-white",
   defaultClassNames.today
@@ -245,11 +245,82 @@ function CalendarDayButton({
       data-range-start={modifiers.range_start}
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
-      className={cn(
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-slate-400 data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-slate-400 data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-[15px] [&>span]:opacity-70",
-        defaultClassNames.day,
-        className
-      )}
+className={cn(
+  `
+    relative
+    isolate
+    z-10
+    flex
+    aspect-square
+    size-auto
+    w-full
+    min-w-(--cell-size)
+    flex-col
+    gap-1
+    border-0
+    leading-none
+    font-normal
+
+    group-data-[focused=true]/day:relative
+    group-data-[focused=true]/day:z-10
+    
+ 
+
+data-[range-end=true]:rounded-full
+data-[range-end=true]:bg-white
+data-[range-end=true]:hover:bg-white
+data-[range-end=true]:text-black
+data-[range-end=true]:w-[32px]
+data-[range-end=true]:h-[32px]
+
+data-[range-middle=true]:rounded-full
+data-[range-middle=true]:bg-[#3a3a3a]
+data-[range-middle=true]:hover:bg-[#3a3a3a]
+data-[range-middle=true]:w-[32px]
+data-[range-middle=true]:h-[32px]
+[&[data-range-middle="true"]>span]:text-white
+
+data-[range-start=true]:rounded-full
+data-[range-start=true]:bg-white
+data-[range-start=true]:hover:bg-white
+data-[range-start=true]:text-black
+data-[range-start=true]:w-[32px]
+data-[range-start=true]:h-[32px]
+
+    data-[selected-single=true]:bg-primary
+    data-[selected-single=true]:text-primary-foreground
+
+    hover:bg-transparent
+dark:hover:bg-transparent
+hover:bg-transparent
+hover:text-white
+dark:hover:bg-transparent
+dark:hover:text-white
+hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.65)]
+hover:scale-[1.08]
+transition-transform
+duration-150
+
+data-[range-middle=true]:hover:!bg-[#3a3a3a]
+data-[range-middle=true]:hover:!text-white
+
+data-[range-start=true]:hover:!bg-white
+data-[range-start=true]:hover:!text-black
+
+data-[range-end=true]:hover:!bg-white
+data-[range-end=true]:hover:!text-black
+
+focus-visible:ring-0
+focus-visible:ring-offset-0
+
+[&>span]:text-[15px]
+[&>span]:opacity-70
+
+
+  `,
+  defaultClassNames.day,
+  className
+)}
       {...props}
     />
   )
