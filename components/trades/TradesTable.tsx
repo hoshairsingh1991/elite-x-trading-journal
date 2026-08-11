@@ -16,11 +16,15 @@ import {
   formatCurrency,
 } from "@/lib/utils/formatCurrency";
 
+interface BrokerConnection {
+  broker_account_id: string;
+  account_alias: string;
+}
+
 interface TradesTableProps {
   trades: Trade[];
-  onSelectTrade: (
-    trade: Trade
-  ) => void;
+  onSelectTrade: (trade: Trade) => void;
+  brokerConnections: BrokerConnection[];
 }
 
 // =====================================================
@@ -55,7 +59,16 @@ function parseLocalDate(
 export default function TradesTable({
   trades,
   onSelectTrade,
+  brokerConnections,
 }: TradesTableProps) {
+
+const accountMap = new Map(
+  brokerConnections.map((broker) => [
+    broker.broker_account_id,
+    broker.account_alias,
+  ])
+);
+
   const [
   editingTrade,
   setEditingTrade,
@@ -168,74 +181,76 @@ const handleSelectTrade =
     <>
     
 
-      {/* ================================================= */}
-      {/* TABLE WRAPPER */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* TABLE WRAPPER */}
+{/* ================================================= */}
 
-      <div className="mr-10 rounded-[34px] bg-[#071427] p-7 shadow-[0_0_60px_rgba(0,0,0,0.28)]">
+<div className="mr-10">
 
-        <div className="overflow-hidden rounded-[28px] border border-white/[0.05] bg-[#0b1220]">
+  <div
+    className="
+      overflow-hidden
+      rounded-[8px]
+      border
+      border-white/[0.06]
+      bg-[#0b1220]
+    "
+  >
 
-          {/* ================================================= */}
-          {/* HEADER */}
-          {/* ================================================= */}
+<div className="px-4 pb-4 pt-4">
 
-          <div className="flex items-center justify-between border-b border-white/[0.05] px-8 py-7">
+<div
+  className="
+    grid
+    [--trade-row-height:50px]
+    [--trade-content-y:0px]
+    grid-cols-[0.90fr_0.82fr_0.9fr_0.65fr_0.85fr_0.8fr_0.75fr_0.8fr_0.8fr_60px_1fr_0.9fr_0.95fr]
+  "
+  style={{
+    gridAutoRows:
+      "var(--trade-row-height)",
+  }}
+>
 
-            <div className="relative left-4">
+{[
+  "Symbol",
+  "Open Date",
+  "Close Date",
+  "Holding",
+  "Account",
+  "Type",
+  "Side",
+  "Entry",
+  "Exit",
+  "Qty",
+  "Net P&L",
+  "Commission",
+  "Status",
+].map((header) => (
 
-              <h2 className="text-[24px] font-black tracking-tight text-slate-400">
-                Trade History
-              </h2>
+<div
+  key={header}
+  className="
+    flex
+    h-[36px]
+    items-center
+    translate-y-[5px]
+    justify-center
+    border-b
+    border-white/[0.05]
+    px-3
+    text-center
+    text-[12px]
+    font-semibold
+    uppercase
+    tracking-[0.08em]
+    text-slate-500
+  "
+>
+  {header}
+</div>
 
-              <p className="mt-2 text-[14px] text-slate-500">
-                Institutional execution journal
-              </p>
-            </div>
-
-            <div className="relative right-6 top-1">
-
-              <span className="text-[13px] font-black uppercase tracking-[0.18em] text-white">
-  {sortedTrades.length} Trades
-</span>
-            </div>
-          </div>
-
-          {/* ================================================= */}
-          {/* TABLE */}
-          {/* ================================================= */}
-
-          <div className="px-6 pb-6 pt-5">
-
-            <div className="grid auto-rows-[50px] grid-cols-[1.2fr_1fr_1fr_1fr_0.7fr_0.9fr_0.85fr_0.85fr_0.85fr_70px_1fr_1fr_1.15fr]">
-
-              {[
-                "Account",
-                "Symbol",
-                "Open Date",
-                "Close Date",
-                "Holding",
-                "Type",
-                "Side",
-                "Entry",
-                "Exit",
-                "Qty",
-                "Net P&L",
-                "Commission",
-                "Status",
-              ].map((header) => (
-
-                <div
-                  key={header}
-                  className={`flex h-[40px]  items-center justify-center border-b border-white/[0.05] px-5 text-center text-[14px] font-bold tracking-[0.02em] text-slate-400 ${
-                   header === "Status"
-                    ? "relative left-[-12px]"
-                    : ""
-                    }`}
-                >
-                  {header}
-                </div>
-              ))}
+    ))}
 
               {sortedTrades.map(
                 (
@@ -250,6 +265,8 @@ const handleSelectTrade =
                   const isOpen =
                     trade.status ===
                     "OPEN";
+
+
 
                   const formattedDate =
                     parseLocalDate(
@@ -271,319 +288,417 @@ const handleSelectTrade =
                         `trade-${index}`
                       }
                     >
-{/* ACCOUNT */}
-
-<div
-  onClick={() =>
-  handleSelectTrade(
-    trade
-  )
-}
-  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
->
-  {trade.account ||
-    "N/A"}
-</div>
 
 {/* SYMBOL */}
 
 <div
   onClick={() =>
-  handleSelectTrade(
-    trade
-  )
-}
-  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium tracking-wide text-slate-400 transition-all hover:bg-white/[0.02]"
+    handleSelectTrade(
+      trade
+    )
+  }
+  className="
+    flex
+    h-[var(--trade-row-height)]
+    cursor-pointer
+    flex-col
+    items-center
+    justify-center
+    border-b
+    border-white/[0.04]
+    px-5
+    transition-all
+    hover:bg-white/[0.02]
+  "
 >
-  {trade.ticker}
+  {/* TICKER */}
+
+  <span
+    className="
+      text-[14px]
+      font-bold
+      tracking-wide
+      text-slate-200
+    "
+  >
+    {trade.ticker}
+  </span>
+
+  {/* EXCHANGE */}
+
+  <span
+    className="
+      text-[10px]
+      font-medium
+      uppercase
+      tracking-[0.08em]
+      text-slate-500
+    "
+  >
+    {trade.executions?.find(
+      (execution) =>
+        execution.exchange &&
+        execution.exchange.trim() !== ""
+    )?.exchange || "--"}
+  </span>
 </div>
 
 {/* OPEN DATE */}
 
 <div
   onClick={() =>
-  handleSelectTrade(
-    trade
-  )
-}
-  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
+    handleSelectTrade(
+      trade
+    )
+  }
+  className="flex h-[var(--trade-row-height)] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[13px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.openedAt
-    ? parseLocalDate(
-        trade.openedAt
-      ).toLocaleDateString(
+    ? (() => {
+        const openedDate =
+          new Date(
+            trade.openedAt
+          );
+
+return (
+  <div className="flex flex-col items-center justify-center">
+    <span className="text-[13px] font-medium text-slate-300">
+      {openedDate.toLocaleDateString(
         "en-US",
         {
           month: "short",
           day: "numeric",
           year: "numeric",
         }
-      )
+      )}
+    </span>
+
+    <span className="mt-[4px] text-[11px] font-medium text-slate-500">
+      {openedDate.toLocaleTimeString(
+        "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      )}
+    </span>
+  </div>
+);
+      })()
     : "--"}
 </div>
+
 
 {/* CLOSE DATE */}
 
 <div
   onClick={() =>
-  handleSelectTrade(
-    trade
-  )
-}
-  className="flex h-[40px] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
+    handleSelectTrade(
+      trade
+    )
+  }
+  className="flex h-[var(--trade-row-height)] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[13px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
 >
   {trade.closedAt
-    ? parseLocalDate(
-        trade.closedAt
-      ).toLocaleDateString(
+    ? (() => {
+        const closedDate =
+          new Date(
+            trade.closedAt
+          );
+
+{/* CLOSE DATE */}
+
+return (
+  <div className="flex flex-col items-center justify-center">
+    <span className="text-[13px] font-medium text-slate-300">
+      {closedDate.toLocaleDateString(
         "en-US",
         {
           month: "short",
           day: "numeric",
           year: "numeric",
         }
+      )}
+    </span>
+
+    <span className="mt-[4px] text-[11px] font-medium text-slate-500">
+      {closedDate.toLocaleTimeString(
+        "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      )}
+    </span>
+  </div>
+);
+})()
+: "--"}
+</div>
+
+
+
+{/* HOLDING */}
+
+{trade.openedAt ? (
+  (() => {
+    const openedTime =
+      new Date(
+        trade.openedAt
+      ).getTime();
+
+    const endTime =
+      trade.closedAt
+        ? new Date(
+            trade.closedAt
+          ).getTime()
+        : Date.now();
+
+    const totalMinutes =
+      Math.max(
+        0,
+        Math.floor(
+          (endTime - openedTime) /
+            (1000 * 60)
+        )
+      );
+
+    const totalHours =
+      Math.floor(
+        totalMinutes / 60
+      );
+
+    const days =
+      Math.floor(
+        totalHours / 24
+      );
+
+    const hours =
+      totalHours % 24;
+
+    const holding =
+      days > 0
+        ? `${days}d ${hours}h`
+        : totalHours > 0
+        ? `${totalHours}h`
+        : `${totalMinutes}m`;
+
+    return (
+      <div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
+
+        {trade.status === "OPEN" ? (
+
+<div className="group relative flex items-center justify-center">
+
+  {/* LIVE DOT */}
+
+  <div className="h-[8px] w-[8px] shrink-0 rounded-full bg-emerald-400" />
+
+  {/* EXPLICIT GAP */}
+
+  <span className="w-[6px]" />
+
+  {/* HOLDING */}
+
+  <span className="text-[13px] font-medium text-cyan-400">
+    {holding}
+  </span>
+
+  {/* TOOLTIP */}
+
+  <div className="pointer-events-none absolute bottom-[135%] hidden whitespace-nowrap rounded-xl border border-white/[0.06] bg-[#071427] px-4 py-2 text-[12px] font-semibold tracking-[0.03em] text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.35)] group-hover:block">
+    Position still open for{" "}
+    {holding}
+  </div>
+
+</div>
+
+        ) : (
+
+          <span className="ml-[6px] text-[13px] font-medium text-cyan-400">
+  {holding}
+</span>
+
+        )}
+
+      </div>
+    );
+  })()
+) : (
+  <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5">
+    <span className="text-[13px] font-medium text-slate-500">
+      --
+    </span>
+  </div>
+)}
+
+{/* ACCOUNT */}
+
+<div
+  onClick={() =>
+    handleSelectTrade(
+      trade
+    )
+  }
+  className="
+    flex
+    h-[var(--trade-row-height)]
+    cursor-pointer
+    flex-col
+    items-center
+    justify-center
+    border-b
+    border-white/[0.04]
+    px-5
+    text-center
+    transition-all
+    hover:bg-white/[0.02]
+  "
+>
+  <span className="text-[13px] font-medium text-slate-300">
+    {accountMap.get(
+      trade.account || ""
+    ) || "Account"}
+  </span>
+
+  <span className="mt-[4px] text-[11px] font-medium tracking-wide text-slate-500">
+    ••{trade.account?.slice(-4) || "----"}
+  </span>
+</div>
+
+
+{/* TYPE */}
+
+<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
+  <span className="text-[13px] font-semibold uppercase tracking-[0.08em] text-sky-400">
+    {trade.assetType || "TRADE"}
+  </span>
+</div>
+
+{/* SIDE */}
+
+<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
+
+  <span
+className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
+  trade.assetType === "Options"
+    ? trade.contractKey?.endsWith("_C")
+      ? "text-cyan-400"
+      : trade.contractKey?.endsWith("_P")
+      ? "text-amber-400"
+      : "text-slate-400"
+    : trade.side === "LONG"
+    ? "text-emerald-400"
+    : "text-red-400"
+}`}
+  >
+    {trade.assetType === "Options"
+      ? trade.contractKey?.endsWith("_C")
+        ? "CALL"
+        : trade.contractKey?.endsWith("_P")
+        ? "PUT"
+        : "OPTION"
+      : trade.side}
+  </span>
+
+</div>
+
+{/* ENTRY */}
+
+<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
+  {trade.entryPrice > 0
+    ? formatCurrency(
+        Number(trade.entryPrice),
+        trade.currency
       )
     : "--"}
 </div>
 
-{/* HOLDING */}
+{/* EXIT */}
 
-<div
-  className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center"
->
+<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
 
-  {trade.status === "OPEN" ? (
+  {trade.exitPrice != null ? (
 
-    <div className="group relative flex items-center justify-center">
+    trade.exitPrice === 0 &&
+    trade.status === "LOSS"
 
-      {/* LIVE DOT */}
-
-      <div className="h-[10px] w-[10px] rounded-full bg-emerald-400" />
-
-      {/* TOOLTIP */}
-
-      <div className="pointer-events-none absolute bottom-[135%] hidden whitespace-nowrap rounded-xl border border-white/[0.06] bg-[#071427] px-4 py-2 text-[12px] font-semibold tracking-[0.03em] text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.35)] group-hover:block">
-
-        Position still open for{" "}
-
-        {trade.openedAt
-
-  ? (() => {
-
-      const openedDate =
-        parseLocalDate(
-          trade.openedAt
-        );
-
-      const today =
-        new Date();
-
-      const liveDays =
-        Math.max(
-          0,
-          Math.floor(
-            (
-              today.getTime() -
-              openedDate.getTime()
-            ) /
-            (
-              1000 *
-              60 *
-              60 *
-              24
-            )
-          )
-        );
-
-      return liveDays === 0
-        ? "Same Day"
-        : `${liveDays} Days`;
-
-    })()
-
-  : "OPEN"}
-
-      </div>
-    </div>
-
-  ) : (
-
-    <span className="text-[14px] font-medium text-cyan-400">
-
-      {trade.holdingDays != null
-
-        ? trade.holdingDays === 0
-
-          ? "Same Day"
-
-          : `${trade.holdingDays} Days`
-
-        : "--"}
-
-    </span>
-  )}
-</div>
-
-
-                      {/* TYPE */}
-
-                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5">
-
-                       <div className="inline-flex h-[25px] w-[80px] -translate-y-1 items-center justify-center rounded-full border border-blue-500/20 bg-blue-500/10">
-
-                          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-blue-400">
-                            {trade.assetType ||
-                              "TRADE"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* SIDE */}
-
-                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5">
-
-                        <div
-                          className={`inline-flex h-[25px] w-[60px] -translate-y-1 items-center justify-center rounded-full px-4 py-[8px] ${
-                            trade.side ===
-                            "LONG"
-                              ? "border border-emerald-500/20 bg-emerald-500/10"
-                              : "border border-red-500/20 bg-red-500/10"
-                          }`}
-                        >
-
-                          <span
-                            className={`text-[11px] font-bold uppercase tracking-[0.14em] ${
-                              trade.side ===
-                              "LONG"
-                                ? "text-emerald-400"
-                                : "text-red-400"
-                            }`}
-                          >
-                            {trade.side}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* ENTRY */}
-
-                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
-
-                        {trade.entryPrice > 0
-                        ? formatCurrency(
-                        Number(
-                        trade.entryPrice
-                        ),
-                        trade.currency
-                        )
-                        : "--"}
-                      </div>
-
-                      {/* EXIT */}
-
-                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
-
-                      {trade.exitPrice != null ? (
-
-                      trade.exitPrice === 0 &&
-                      trade.status === "LOSS"
-
-                      ? (
-
-        <div className="relative left-[0px] flex items-center justify-center">
-
-          <span className="rounded-full border border-red-500/20 bg-red-500/10 px-4 py-[7px] text-[12px] font-bold tracking-[0.02em] text-red-400">
-
+      ? (
+          <span className="text-[12px] font-bold tracking-[0.02em] text-red-400">
             Expired Worthless
-
           </span>
-        </div>
+        )
 
-      ) : (
-
-        formatCurrency(
-  Number(
-    trade.exitPrice
-  ),
-  trade.currency
-)
-      )
+      : (
+          formatCurrency(
+            Number(trade.exitPrice),
+            trade.currency
+          )
+        )
 
   ) : "--"}
+
 </div>
 
-                      {/* QTY */}
+{/* QTY */}
 
-                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[14px] font-medium text-slate-400">
+                      <div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[14px] font-medium text-slate-400">
 
                         {trade.quantity}
                       </div>
 
-                      {/* PNL */}
+{/* PNL */}
 
-                      <div
-                        className={`flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[15px] font-black tracking-tight ${
-                          isWinner
-                            ? "text-emerald-600"
-                            : isOpen
-                            ? "text-yellow-600"
-                            : "text-red-400"
-                        }`}
-                      >
-                        {trade.pnl >= 0
-  ? "+"
-  : "-"}
+<div
+  className={`flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[15px] font-black tracking-tight ${
+    isWinner
+      ? "text-emerald-400"
+      : isOpen
+      ? "text-amber-400"
+      : "text-red-400"
+  }`}
+>
+  {trade.pnl >= 0 ? "+" : "-"}
 
-{formatCurrency(
-  Math.abs(
-    Number(
-      trade.pnl
-    )
-  ),
-  trade.currency
-)}
-                      </div>
-
-                      {/* COMMISSION */}
-
-                      <div className="flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[15px] font-semibold text-orange-700">
-
-                        {formatCurrency(
-  Number(
-    trade.fees
-  ),
-  trade.feeCurrency ||
+  {formatCurrency(
+    Math.abs(
+      Number(
+        trade.pnl
+      )
+    ),
     trade.currency
-)}
-                      </div>
+  )}
+</div>
 
-                      {/* STATUS */}
+{/* COMMISSION */}
 
-                      <div className="relative left-[-10px] flex h-[40px] items-center justify-center border-b border-white/[0.04] px-5">
+<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-500">
 
-                        {/* STATUS BADGE */}
+  {formatCurrency(
+    Number(trade.fees),
+    trade.feeCurrency ||
+      trade.currency
+  )}
 
-                        <div
-                          className={`flex h-[30px] w-[80px] -translate-y-1 items-center justify-center rounded-full px-4 py-[8px] ${
-                            isOpen
-                              ? "border border-yellow-500/20 bg-yellow-500/10"
-                              : "border border-slate-500/20 bg-slate-500/10"
-                          }`}
-                        >
+</div>
 
-                          <span
-                            className={`text-[12px] font-bold uppercase tracking-[0.14em] ${
-                              isOpen
-                                ? "text-yellow-400"
-                                : "text-slate-400"
-                            }`}
-                          >
-                            {isOpen
-                              ? "OPEN"
-                              : "CLOSED"}
-                          </span>
-                        </div>
+{/* STATUS */}
 
-                        {/* EDIT BUTTON */}
+<div className="relative left-[-10px] flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
+
+  <span
+    className={`text-[12px] font-bold uppercase tracking-[0.12em] ${
+      isOpen
+        ? "text-amber-400"
+        : "text-slate-400"
+    }`}
+  >
+    {isOpen
+      ? "OPEN"
+      : "CLOSED"}
+  </span>
+
+  {/* EDIT BUTTON */}
 
 {trade.contractKey?.startsWith(
   "MANUAL-"

@@ -205,9 +205,8 @@ const accounts = Array.from(
 <div
   className="
     w-full
-    rounded-[14px]
-    border
-    border-white/[0.07]
+ rounded-[8px]
+border-white/[0.06]
     bg-[#071427]
     p-4
     shadow-[0_0_50px_rgba(0,0,0,0.22)]

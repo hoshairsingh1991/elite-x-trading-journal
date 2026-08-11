@@ -395,6 +395,11 @@ sortedExecutions.forEach(
 
           contractKey,
 
+            executions: [
+    entryExecution,
+    execution,
+  ],
+
           side: "LONG",
 
           status,
@@ -451,11 +456,11 @@ feeCurrency:
 
           isOpen: false,
 
-          openedAt:
-            entryExecution.date,
+openedAt:
+  entryExecution.executionTimestamp,
 
-          closedAt:
-            execution.date,
+closedAt:
+  execution.executionTimestamp,
 
             holdingDays:
 
@@ -575,6 +580,10 @@ if (
     side:
       execution.side,
 
+        executions: [
+    execution,
+  ],
+
     status: "OPEN",
 
     date:
@@ -620,8 +629,8 @@ if (
 
     isOpen: true,
 
-    openedAt:
-      execution.date,
+ openedAt:
+  execution.executionTimestamp,
 
     closedAt: null,
 
@@ -705,6 +714,10 @@ Object.entries(
 
           contractKey,
 
+            executions: [
+    position,
+  ],
+
           side:
             position.side,
 
@@ -753,8 +766,8 @@ Object.entries(
 
           isOpen: true,
 
-          openedAt:
-            position.date,
+       openedAt:
+  position.executionTimestamp,
 
           closedAt: null,
 

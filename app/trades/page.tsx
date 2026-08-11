@@ -45,11 +45,46 @@ export default function TradesPage() {
   // TRADE STATE
   // =================================================
 
+  const [brokerConnections, setBrokerConnections] =
+    useState<
+      {
+        broker_account_id: string;
+        account_alias: string;
+      }[]
+    >([]);
+
   const [trades, setTrades] =
     useState<Trade[]>([]);
 
 const [lastImportAt, setLastImportAt] =
   useState<string | null>(null);
+
+  // =================================================
+  // LOAD BROKER ACCOUNT ALIASES
+  // =================================================
+
+  useEffect(() => {
+    const loadBrokerConnections = async () => {
+      const { data, error } = await supabase
+        .from("broker_connections")
+        .select(`
+          broker_account_id,
+          account_alias
+        `);
+
+      if (error) {
+        console.error(
+          "Failed to load broker connections:",
+          error
+        );
+        return;
+      }
+
+      setBrokerConnections(data || []);
+    };
+
+    loadBrokerConnections();
+  }, []);
 
   // =================================================
   // MODAL STATE
@@ -868,15 +903,15 @@ const formattedLastImport =
   setToDate={setToDate}
 />
 
-    {/* ================================================= */}
-    {/* TABLE */}
-    {/* ================================================= */}
+{/* ================================================= */}
+{/* TABLE */}
+{/* ================================================= */}
 
-    <TradesTable
-      trades={filteredTrades}
-      onSelectTrade={handleSelectTrade}
-    />
-
+<TradesTable
+  trades={filteredTrades}
+  onSelectTrade={handleSelectTrade}
+  brokerConnections={brokerConnections}
+/>
   </div>
 </div>
 

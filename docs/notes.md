@@ -351,6 +351,7 @@ git commit -m "checkpoint: harden multi-account broker sync"
 git commit -m "checkpoint: secure broker sync and flex token handling"
 
 git commit -m "checkpoint: trade history filters v1"
+git commit -m "checkpoint: trade history v2 ui refinement"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:
