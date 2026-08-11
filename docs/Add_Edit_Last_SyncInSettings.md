@@ -1,564 +1,3 @@
-# Current Persistence Doctrine
-
-Elite X now officially operates on:
-
-```txt
-cloud-canonical deterministic execution reconstruction
-```
-
-Canonical accounting truth now exists ONLY in:
-
-```txt
-Supabase execution ledger
-```
-
-Imported executions are persisted as:
-
-```txt
-NormalizedExecution[]
-```
-
-through:
-
-```txt
-Supabase executions table
-```
-
-Current canonical flow:
-
-```txt
-CSV Upload
-↓
-Normalize Executions
-↓
-Persist To Supabase
-↓
-Load Canonical Executions From Supabase
-↓
-Deterministic FIFO Rebuild
-↓
-Canonical Trades
-↓
-Analytics + UI
-```
-
-This architecture permanently solves:
-
-* browser divergence
-* cross-device reconstruction mismatch
-* stale local execution pollution
-* hybrid state drift
-* local reconstruction inconsistency
-* duplicate upload instability
-* domain-level accounting divergence
-* inconsistent open positions
-
-
----
-
-# Canonical Cloud Persistence Rule
-
-Supabase persistence stores ONLY:
-
-```txt
-NormalizedExecution[]
-```
-
-NOT:
-
-```txt
-Trade[]
-```
-
-Trades MUST remain:
-
-```txt
-deterministic derived state
-```
-
-through:
-
-```txt
-pairTrades()
-```
-
-This architecture is considered:
-
-FOUNDATIONAL
-
-Do NOT bypass deterministic rebuild systems by:
-
-* directly persisting synthetic trades
-* mutating reconstructed trade objects
-* storing analytics snapshots as canonical truth
-* introducing append-based trade persistence
-* creating mutable trade-ledger architectures
-
-
----
-
-# Execution Identity Protection
-
-Execution deduplication now exists at BOTH:
-
-## Local Layer
-
-```txt
-appendExecutions()
-```
-
-AND:
-
-## Cloud Layer
-
-```txt
-PRIMARY KEY(id)
-+
-upsert(onConflict: "id")
-```
-
-Duplicate protection MUST remain execution-scoped.
-
-Do NOT move duplicate prevention into:
-
-```txt
-synthetic trade layer
-```
-
----
-
-# Current Cloud Persistence Boundary
-
-Cloud persistence currently applies ONLY to:
-
-```txt
-imported executions
-```
-
-Manual trade entries currently remain:
-
-```txt
-local-only presentation persistence
-```
-
-until future manual execution architecture is designed.
-
----
-
----
-
-# Canonical Reconstruction Loading Behavior
-
-Elite X now performs:
-
-```txt
-single-source canonical cloud reconstruction
-```
-
-during initialization.
-
-Current flow:
-
-```txt
-Supabase executions
-↓
-Deterministic chronological ordering
-↓
-FIFO quantity-aware reconstruction
-↓
-pairTrades()
-↓
-canonical reconstructed trades
-```
-
-All environments now reconstruct from:
-
-```txt
-single immutable cloud execution ledger
-```
-
-This architecture guarantees:
-
-```txt
-same execution ledger
-→ same reconstructed trades
-→ every single time
-```
-
-provided execution identity remains deterministic.
-
-# Sync Ordering Doctrine
-
-Elite X MUST always reconstruct executions using:
-
-1. execution timestamp
-2. stable deterministic secondary ordering
-
-The same execution set MUST always reconstruct
-in identical chronological order.
-
-Sync systems MUST NEVER rely on:
-- insertion order
-- upload order
-- async fetch order
-- Supabase return order
-
-
-Elite X MUST always reconstruct executions using:
-
-1. execution timestamp
-2. stable deterministic secondary ordering
-
-The same execution ledger MUST always reconstruct:
-
-```txt
-same executions
-→ same chronological ordering
-→ same lifecycle reconstruction
-→ same accounting result
-
-
-# Protected Persistence Architecture Rule
-
-Elite X MUST NEVER evolve toward:
-
-```txt
-mutable trade CRUD architecture
-```
-
-Canonical accounting truth MUST remain:
-
-```txt
-execution-first deterministic reconstruction
-```
-
-Cloud synchronization exists ONLY to transport immutable execution history.
-
-NOT to mutate reconstructed trade state.
-
-# Behavioral Cloud Persistence
-
-Elite X now supports cloud persistence for:
-
-- Notes
-- Daily Calendar Notes
-- Execution Ledger
-
-via:
-
-```txt
-Supabase
-```
-
-This enables:
-
-- cross-device continuity
-- behavioral journaling persistence
-- cloud-native reconstruction
-- production-safe persistence architecture
-- execution-ledger synchronization
-- deterministic cloud rebuilds
-
-# Elite X — Execution Ledger Architecture Notes
-
-## Current Stable Checkpoint
-
-0b91fe1
-checkpoint/broker-execution-enrichment-v10
-
-Current working branch:
-
-checkpoint/execution-ledger-architecture-v11
-
----
-
-# What We Investigated
-
-We attempted to make:
-
-IBKR Activity Flex Query
-
-behave as a canonical execution source for:
-- trade reconstruction
-- lifecycle pairing
-- P&L
-- open/closed trades
-- journal history
-
-Similar to:
-
-IBKR Trade Confirmation Flex Query
-
----
-
-# Main Problems Encountered
-
-## Symptoms
-
-Activity Flex imports produced:
-
-- Nov 30 1899 trades
-- duplicate lifecycle states
-- orphan closes
-- malformed open trades
-- phantom CLOSED trades
-- duplicated P&L
-- corrupted dashboard metrics
-- synthetic inventory reconstruction
-- inconsistent account lifecycle states
-
-Examples:
-
-AMD
-1899 → Aug 7 2025
-
-RCI.B
-1899 → 1899
-
-PLUG
-fractional ghost inventory
-
----
-
-# What We Tried
-
-## Parser Filtering
-
-We added:
-- commission filters
-- execution ID filters
-- trade ID filters
-- LevelOfDetail filters
-- FX exclusion
-- micro fractional filtering
-- Open/Close validation
-- orphan sell suppression
-
-## Lifecycle Guards
-
-We attempted:
-- strict lifecycle validation
-- entry existence enforcement
-- invalid date rejection
-- synthetic trade blocking
-- dedupe logic
-- execution integrity checks
-
-## Pairing Engine Fixes
-
-We investigated:
-- fallback dates
-- synthetic entry creation
-- orphan execution handling
-- carryover inventory reconstruction
-
----
-
-# Key Discovery
-
-The issue was NOT primarily pairTrades().
-
-The issue was architectural.
-
----
-
-# Critical Difference Between IBKR Sources
-
-## Trade Confirmation Flex
-
-Behavior:
-- deterministic
-- immutable execution history
-- true broker fills only
-- lifecycle complete
-- execution-centric
-
-Result:
-- stable pairing
-- correct open/closed trades
-- deterministic accounting
-
----
-
-## Activity Flex Query
-
-Behavior:
-- accounting-centric
-- contains broker reconstruction rows
-- includes:
-  - position snapshots
-  - MTM rows
-  - accounting summaries
-  - carryover inventory
-  - reopening events
-  - cost basis adjustments
-  - synthetic lifecycle bookkeeping
-
-Result:
-- duplicate economic trades
-- partial lifecycle states
-- synthetic reconstruction rows
-- impossible deterministic pairing
-
----
-
-# Important Realization
-
-Activity Flex is NOT a pure execution feed.
-
-It is:
-
-broker accounting history
-
-not:
-
-canonical execution history
-
-This distinction is critical.
-
----
-
-# Final Architectural Decision
-
-## Canonical Execution Source
-
-IBKR Trade Confirmation Flex
-
-Responsibilities:
-- executions
-- pairing
-- lifecycle reconstruction
-- open trades
-- closed trades
-- P&L
-- commissions
-- analytics
-- dashboard metrics
-
-This becomes Elite X’s:
-
-canonical execution ledger
-
----
-
-# Activity Flex New Role
-
-Activity Flex will remain supported, but ONLY for:
-
-- cash balances
-- FX balances
-- deposits
-- withdrawals
-- dividends
-- interest
-- NAV/account reconciliation
-- supplemental broker accounting analytics
-
-NOT:
-- trade reconstruction
-- pairing
-- canonical executions
-- lifecycle generation
-
----
-
-# Important Production Insight
-
-Professional systems separate:
-
-| Layer | Purpose |
-|---|---|
-| Execution Systems | trade lifecycle |
-| Accounting Systems | balances/accounting |
-
-Elite X now follows this architecture.
-
----
-
-# Flex Sync Foundation
-
-The platform is now architecturally prepared for:
-
-* IBKR Flex ingestion
-* overnight synchronization
-* broker-native reconciliation
-* idempotent sync behavior
-* cross-source execution parity
-
-Future ingestion systems MUST guarantee:
-
-```txt
-same broker execution
-→ same canonical execution identity
-```
-
-regardless of source:
-
-* CSV import
-* Flex query
-* future broker APIs
-
-This behavior is considered:
-
-```txt
-FOUNDATIONAL RECONCILIATION DOCTRINE
-```
-
-# Current Platform State
-
-Elite X currently supports:
-
-✅ canonical execution persistence  
-✅ deterministic lifecycle reconstruction  
-✅ hybrid local + cloud synchronization  
-✅ Supabase execution ledger  
-✅ cloud behavioral notes  
-✅ manual execution ingestion  
-✅ immutable broker history  
-✅ lifecycle-safe manual deletion  
-✅ production Vercel deployment  
-
----
-
-# Current Status
-
-Stable baseline restored successfully via:
-
-git reset --hard HEAD
-git clean -fd
-
-System reverted to stable V10 production state before Activity Flex experimentation.
-
----
-
-# Current Stable Git State
-
-git log --oneline -5
-
-0b91fe1 (HEAD -> checkpoint/execution-ledger-architecture-v11, origin/main, main)
-checkpoint/broker-execution-enrichment-v10
-
-30d6a9a checkpoint/broker-execution-enrichment-v10
-
-774092a checkpoint/account-overview-multi-currency-v2
-
-4b985a3 checkpoint/multi-currency-accounting-v1
-
-d25de5b checkpoint/profile-system-auth-v10
-
-Latest Stable Checkpoint with USER ID AUTH
-git commit -m "checkpoint/account-overview-multi-currency-v2"
-checkpoint/broker-execution-enrichment-v10
-git checkout -b checkpoint/execution-ledger-architecture-v11
-
----
-
-# Safe Reset Command
-
-```js
-localStorage.clear()
-location.reload()
-```
 
 # ELITE X TRADING JOURNAL
 # MASTER CHECKPOINT NOTES
@@ -2637,3 +2076,959 @@ A SYSTEM-WIDE USER SYNC FAILURE.
 
 This checkpoint should be treated as the baseline for all future
 broker synchronization development.
+
+============================================================
+ELITE X TRADING JOURNAL
+BROKER SYNC + FLEX TOKEN SECURITY
+MASTER CHECKPOINT NOTES
+============================================================
+
+DATE:
+2026-08-11
+
+STATUS:
+COMPLETE
+
+BUILD:
+PASS
+
+PURPOSE:
+Harden the multi-broker sync architecture and improve
+Flex Token security/UX without changing the underlying
+broker sync architecture.
+
+============================================================
+1. ORIGINAL PROBLEM
+============================================================
+
+The Settings page was calling:
+
+POST /api/sync-all-brokers
+
+without passing the authenticated user's access token.
+
+This caused:
+
+POST /api/sync-all-brokers 401
+
+The Dashboard sync already passed the Supabase access token
+correctly.
+
+The Settings sync was therefore updated to use the same
+authenticated request pattern.
+
+============================================================
+2. SETTINGS MANUAL SYNC AUTHENTICATION
+============================================================
+
+FILE:
+
+app/settings/page.tsx
+
+The Settings manual sync now retrieves the current Supabase
+session:
+
+const {
+  data: {
+    session,
+  },
+} = await supabase.auth.getSession();
+
+The access token is validated before making the request.
+
+The request now sends:
+
+headers: {
+  Authorization:
+    `Bearer ${session.access_token}`,
+}
+
+This means the Settings page and Dashboard now follow the
+same authenticated manual-sync architecture.
+
+============================================================
+3. API ROUTE AUTHENTICATION
+============================================================
+
+FILE:
+
+app/api/sync-all-brokers/route.ts
+
+The API route:
+
+1. Reads the Authorization header.
+2. Extracts the Bearer token.
+3. Creates a Supabase client.
+4. Calls:
+
+supabase.auth.getUser(token)
+
+5. Rejects unauthenticated requests with HTTP 401.
+6. Uses the authenticated user's ID.
+7. Calls:
+
+syncUserBrokers(user.id)
+
+This is important because the API route does NOT blindly
+sync every broker in the database.
+
+The sync is now scoped to the authenticated user.
+
+============================================================
+4. PER-USER BROKER SYNC
+============================================================
+
+FILE:
+
+lib/server/sync/syncUserBrokers.ts
+
+The broker query uses:
+
+.eq("user_id", userId)
+.eq("is_active", true)
+
+Therefore:
+
+Manual sync
+    ↓
+Authenticated user
+    ↓
+Only that user's active brokers
+    ↓
+Sync those brokers
+
+One user cannot trigger another user's broker sync.
+
+============================================================
+5. MULTI-BROKER FAILURE ISOLATION
+============================================================
+
+FILE:
+
+lib/server/sync/syncUserBrokers.ts
+
+Previously, an exception from one broker could terminate the
+entire synchronization process.
+
+This was changed so each broker is isolated.
+
+Conceptually:
+
+for each broker:
+
+    try:
+        sync broker
+
+    catch:
+        log broker failure
+        update broker status = error
+        continue to next broker
+
+This means:
+
+BROKER A = valid
+BROKER B = invalid
+BROKER C = valid
+
+Result:
+
+BROKER A → sync succeeds
+BROKER B → error recorded
+BROKER C → sync succeeds
+
+BROKER B does NOT prevent A or C from syncing.
+
+This is critical for a multi-account trading journal.
+
+============================================================
+6. IBKR FLEX RATE-LIMIT PROTECTION
+============================================================
+
+FILE:
+
+lib/server/sync/syncUserBrokers.ts
+
+A delay was retained between broker sync attempts:
+
+await new Promise(
+  (resolve) =>
+    setTimeout(
+      resolve,
+      3000
+    )
+);
+
+Purpose:
+
+- Reduce IBKR Flex API rate-limit pressure.
+- Avoid firing multiple Flex requests immediately.
+- Make sequential multi-account syncing safer.
+
+Sync order remains sequential.
+
+============================================================
+7. SYNC STATUS TRACKING
+============================================================
+
+FILE:
+
+lib/server/sync/updateSyncStatus.ts
+
+Broker sync status is stored in:
+
+broker_connections
+
+Relevant fields:
+
+last_sync_at
+last_sync_status
+last_sync_error
+last_sync_execution_count
+
+Successful sync:
+
+last_sync_status = "success"
+
+last_sync_error = null
+
+last_sync_execution_count =
+actual execution count
+
+Failed sync:
+
+last_sync_status = "error"
+
+last_sync_error =
+actual error message
+
+This means the Settings UI can distinguish between:
+
+SUCCESS
+ERROR
+NEVER SYNCED
+
+============================================================
+8. INVALID BROKER DOES NOT BLOCK VALID BROKERS
+============================================================
+
+Example:
+
+Deleted Margin Account
+    ↓
+Invalid Flex Token
+    ↓
+IBKR:
+Fail
+1015
+Token is invalid.
+
+The system records:
+
+SYNC STATUS UPDATED: error
+
+Then continues:
+
+TFSA Account
+    ↓
+successful
+
+Margin Account
+    ↓
+successful
+
+Therefore the invalid broker does not block the valid
+accounts.
+
+============================================================
+9. SETTINGS UI SYNC STATUS
+============================================================
+
+FILE:
+
+app/settings/page.tsx
+
+Broker cards now display the latest sync state.
+
+SUCCESS:
+
+Sync Successful
+
+and:
+
+X Executions Processed
+
+ERROR:
+
+Sync Failed
+
+and:
+
+actual stored error message
+
+This prevents a failed broker from visually appearing
+successful.
+
+============================================================
+10. FAILED BROKER STATUS INDICATOR
+============================================================
+
+A failed/never-successful broker previously displayed a
+grey status indicator.
+
+This was changed so a failed broker displays RED.
+
+Successful broker:
+
+GREEN
+
+Failed broker:
+
+RED
+
+This gives immediate visual feedback without requiring the
+user to inspect logs.
+
+============================================================
+11. FLEX TOKEN EXPOSURE PROBLEM
+============================================================
+
+The Settings page originally loaded broker data using:
+
+.select("*")
+
+That meant the Flex Token was included in the normal
+browser payload.
+
+This was unnecessary secret exposure.
+
+The broker queries were changed to explicitly select only
+the fields required by the Settings UI.
+
+The normal broker list no longer requests:
+
+flex_token
+
+This is an important security boundary.
+
+The browser does NOT receive every broker's Flex Token just
+because the Settings page loads.
+
+============================================================
+12. BROKER INSERT QUERY
+============================================================
+
+FILE:
+
+app/settings/page.tsx
+
+When creating a new broker, the insert still stores:
+
+flex_token
+
+because the server needs the token for IBKR Flex syncing.
+
+However, the returned row uses an explicit select list and
+does NOT return:
+
+flex_token
+
+The UI receives only the fields required to render the
+broker connection.
+
+============================================================
+13. BROKER EDIT LOGIC
+============================================================
+
+FILE:
+
+app/settings/page.tsx
+
+The broker update now uses:
+
+const updatePayload: {
+  account_alias: string;
+  broker_account_id: string;
+  flex_query_id: string;
+  flex_token?: string;
+} = {
+  account_alias:
+    editAccountAlias.trim(),
+
+  broker_account_id:
+    editBrokerAccountId.trim(),
+
+  flex_query_id:
+    editQueryId.trim(),
+};
+
+A new Flex Token is only included when the user actually
+enters one:
+
+const newFlexToken =
+  editFlexToken.trim();
+
+if (newFlexToken) {
+  updatePayload.flex_token =
+    newFlexToken;
+}
+
+This prevents an important bug.
+
+If a user edits:
+
+- Account Alias
+- Broker Account ID
+- Flex Query ID
+
+but does NOT enter a new Flex Token,
+
+the existing Flex Token is preserved.
+
+We do NOT overwrite the stored token with an empty string.
+
+============================================================
+14. FLEX TOKEN MASKING
+============================================================
+
+FILE:
+
+app/settings/page.tsx
+
+Flex Token input uses:
+
+type={
+  showFlexToken
+    ? "text"
+    : "password"
+}
+
+Therefore the token is normally displayed as:
+
+••••••••••••••••
+
+instead of showing the actual secret.
+
+The placeholder for an existing broker is also:
+
+••••••••••••••••
+
+This communicates:
+
+"A token exists"
+
+without exposing the actual value.
+
+============================================================
+15. EYE ICON
+============================================================
+
+FILE:
+
+app/settings/page.tsx
+
+Added:
+
+Eye
+EyeOff
+
+The user can click the eye icon to reveal the Flex Token.
+
+Clicking again masks it.
+
+State:
+
+const [
+  showFlexToken,
+  setShowFlexToken,
+] = useState(false);
+
+Behavior:
+
+showFlexToken = false
+    ↓
+token masked
+
+showFlexToken = true
+    ↓
+token visible
+
+============================================================
+16. SECURE TOKEN RETRIEVAL API
+============================================================
+
+NEW FILE:
+
+app/api/broker-connections/[brokerId]/token/route.ts
+
+This endpoint was created specifically for on-demand token
+retrieval.
+
+Route:
+
+GET
+/api/broker-connections/[brokerId]/token
+
+The browser does NOT receive the Flex Token during the
+normal broker list load.
+
+The token is only requested when the user explicitly clicks
+the eye icon.
+
+============================================================
+17. TOKEN API AUTHENTICATION
+============================================================
+
+FILE:
+
+app/api/broker-connections/[brokerId]/token/route.ts
+
+The route:
+
+1. Reads the Authorization header.
+2. Extracts the Bearer token.
+3. Authenticates the user through:
+
+supabase.auth.getUser(token)
+
+4. Rejects unauthenticated requests.
+
+No authenticated user:
+
+HTTP 401
+
+============================================================
+18. BROKER OWNERSHIP CHECK
+============================================================
+
+FILE:
+
+app/api/broker-connections/[brokerId]/token/route.ts
+
+The broker lookup uses BOTH:
+
+.eq(
+  "id",
+  brokerId
+)
+
+AND:
+
+.eq(
+  "user_id",
+  user.id
+)
+
+This is critical.
+
+It means a user cannot simply guess another broker's database
+ID and retrieve its Flex Token.
+
+The lookup is:
+
+broker ID
++
+authenticated user ID
+
+Both must match.
+
+============================================================
+19. ADMIN CLIENT USED ONLY SERVER-SIDE
+============================================================
+
+FILE:
+
+app/api/broker-connections/[brokerId]/token/route.ts
+
+The token is retrieved using:
+
+supabaseAdmin
+
+The admin client is used only inside the server route.
+
+The browser never receives the service-role credentials.
+
+The browser only receives the token after:
+
+1. User authentication.
+2. Broker ownership verification.
+3. Explicit token request.
+
+============================================================
+20. NORMAL BROKER QUERY
+============================================================
+
+The normal Settings broker query now explicitly selects:
+
+id
+user_id
+broker
+account_alias
+broker_account_id
+flex_query_id
+is_active
+created_at
+updated_at
+last_sync_at
+last_sync_status
+last_sync_error
+last_sync_execution_count
+
+IMPORTANT:
+
+flex_token is intentionally absent.
+
+============================================================
+21. TOKEN REVEAL FLOW
+============================================================
+
+FINAL FLOW:
+
+User opens Settings
+        ↓
+Broker connections loaded
+        ↓
+Flex Token NOT included
+        ↓
+UI displays:
+
+••••••••••••••••
+
+        ↓
+User clicks Eye
+        ↓
+Get Supabase session
+        ↓
+Get access token
+        ↓
+GET:
+
+/api/broker-connections/{brokerId}/token
+
+        ↓
+API authenticates user
+        ↓
+API verifies broker belongs to user
+        ↓
+Server retrieves Flex Token
+        ↓
+Token returned to browser
+        ↓
+editFlexToken state populated
+        ↓
+Token displayed
+        ↓
+User clicks Eye again
+        ↓
+Token masked
+
+============================================================
+22. ADD BROKER BEHAVIOR
+============================================================
+
+When clicking:
+
++ Add Broker
+
+the state is reset:
+
+setModalMode("add");
+
+setSelectedBroker(null);
+
+setEditAccountAlias("");
+
+setEditQueryId("");
+
+setEditFlexToken("");
+
+setEditBrokerAccountId("");
+
+setIsEditModalOpen(true);
+
+Therefore Add Broker starts with an empty Flex Token field.
+
+The eye icon does not attempt to retrieve a token because
+there is no existing broker yet.
+
+============================================================
+23. EDIT BROKER BEHAVIOR
+============================================================
+
+When editing an existing broker:
+
+setModalMode("edit");
+
+setSelectedBroker(connection);
+
+setEditAccountAlias(
+  connection.account_alias || ""
+);
+
+setEditBrokerAccountId(
+  connection.broker_account_id || ""
+);
+
+setEditQueryId(
+  connection.flex_query_id || ""
+);
+
+setEditFlexToken("");
+
+setIsEditModalOpen(true);
+
+The actual token is intentionally NOT loaded immediately.
+
+The token is only retrieved when the user clicks the eye.
+
+============================================================
+24. IMPORTANT SECURITY RESULT
+============================================================
+
+Before:
+
+Settings page
+    ↓
+Load broker connections
+    ↓
+flex_token included in response
+
+After:
+
+Settings page
+    ↓
+Load broker connections
+    ↓
+flex_token excluded
+    ↓
+User explicitly clicks Eye
+    ↓
+Authenticated token request
+    ↓
+Ownership verified
+    ↓
+Token returned only when requested
+
+This reduces unnecessary secret exposure.
+
+============================================================
+25. WHAT WAS NOT CHANGED
+============================================================
+
+The following architecture was intentionally preserved:
+
+IBKR Flex API
+        ↓
+fetchFlexStatement()
+        ↓
+fetchFlex()
+        ↓
+syncBroker()
+        ↓
+syncUserBrokers()
+        ↓
+sync-all-brokers API
+        ↓
+Canonical execution storage
+        ↓
+Trade reconstruction
+
+No changes were made to:
+
+- Execution ledger architecture
+- pairTrades()
+- Trade reconstruction
+- FIFO logic
+- Execution persistence
+- Trading analytics
+- P&L calculations
+- Dashboard analytics
+- IBKR parsing architecture
+- Supabase execution storage
+
+The work was isolated to broker authentication,
+multi-broker failure handling, sync status, and token
+exposure/UX.
+
+============================================================
+26. FINAL ARCHITECTURE
+============================================================
+
+USER
+ |
+ | authenticated Supabase session
+ v
+/api/sync-all-brokers
+ |
+ v
+authenticated user ID
+ |
+ v
+syncUserBrokers(user.id)
+ |
+ +-------------------------+
+ |                         |
+ v                         v
+Broker A                 Broker B
+ |                         |
+ v                         v
+syncBroker()             syncBroker()
+ |                         |
+ v                         v
+IBKR Flex                IBKR Flex
+ |                         |
+ +-----------+-------------+
+             |
+             v
+      Per-broker status
+             |
+      +------+------+
+      |             |
+   SUCCESS        ERROR
+      |             |
+   GREEN           RED
+
+============================================================
+
+FLEX TOKEN SECURITY:
+
+Settings
+ |
+ | normal load
+ v
+No Flex Token returned
+ |
+ | user clicks Eye
+ v
+/api/broker-connections/[brokerId]/token
+ |
+ v
+Authenticate user
+ |
+ v
+Verify broker belongs to user
+ |
+ v
+supabaseAdmin
+ |
+ v
+Retrieve token
+ |
+ v
+Return token
+ |
+ v
+Display token
+
+============================================================
+27. CURRENT STATUS
+============================================================
+
+BUILD:
+
+PASS
+
+Manual multi-broker sync:
+
+PASS
+
+Per-user sync isolation:
+
+PASS
+
+Failure isolation:
+
+PASS
+
+Per-broker sync status:
+
+PASS
+
+Error persistence:
+
+PASS
+
+Red failed-state UI:
+
+PASS
+
+Flex Token removed from normal broker payload:
+
+PASS
+
+Flex Token masking:
+
+PASS
+
+Eye reveal:
+
+PASS
+
+Authenticated token retrieval:
+
+PASS
+
+Broker ownership validation:
+
+PASS
+
+Existing token preservation during edits:
+
+PASS
+
+============================================================
+28. FUTURE ROADMAP — NOT PART OF THIS CHECKPOINT
+============================================================
+
+Potential future improvement:
+
+Replace:
+
+useState<any[]>([])
+
+with a proper canonical:
+
+BrokerConnection
+
+TypeScript interface/type.
+
+This should be handled separately so it does not unnecessarily
+expand the current change.
+
+Potential future production hardening:
+
+Consider dedicated secret-management/encryption architecture
+if Elite X moves toward a larger commercial SaaS deployment.
+
+DO NOT implement this as part of the current checkpoint.
+
+============================================================
+29. FINAL DECISION
+============================================================
+
+This implementation is considered complete for the current
+scope.
+
+Do not continue changing the architecture simply for the
+sake of "future proofing."
+
+The current design provides:
+
+- Authentication
+- User isolation
+- Broker isolation
+- Failure isolation
+- Persistent sync status
+- Clear error visibility
+- Reduced secret exposure
+- On-demand token retrieval
+- Explicit broker ownership verification
+- Safe token editing behavior
+- Clean separation between UI and server-side secret access
+
+BUILD PASSED.
+
+READY FOR CHECKPOINT.
+
+============================================================
+END OF MASTER NOTES
+============================================================

@@ -14,7 +14,11 @@ from "@/components/layout/Sidebar";
 import Topbar
 from "@/components/layout/Topbar";
 
-import { RefreshCw } from "lucide-react";
+import {
+  RefreshCw,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 const tabs = [
   "Profile",
@@ -72,6 +76,11 @@ export default function SettingsPage() {
 const [
   isSyncing,
   setIsSyncing,
+] = useState(false);
+
+const [
+  showFlexToken,
+  setShowFlexToken,
 ] = useState(false);
 
 // =====================================
@@ -1638,51 +1647,187 @@ setIsEditModalOpen(
 
 {/* FLEX TOKEN */}
 
-<div>
+<label
+  className="
+    relative
+    left-[10px]
+    block
+    text-[20px]
+    font-medium
+    text-white
+    mb-3
+  "
+>
+  Flex Token
+</label>
 
-  <label
-    className="
-      relative
-      left-[10px]
-      block
-      text-[20px]
-      font-medium
-      text-white
-      mb-3
-    "
-  >
-    Flex Token
-  </label>
-
-
-
-<input
-  type="password"
-  value={editFlexToken}
-  placeholder={
-    modalMode === "edit"
-      ? "••••••••••••••••"
-      : ""
-  }
-  onChange={(e) =>
-    setEditFlexToken(
-      e.target.value
-    )
-  }
+<div
   className="
     relative
     left-[10px]
     w-[95%]
-    rounded-xl
-    bg-[#050816]
-    border
-    border-white/10
-    px-4
-    py-4
-    text-white
-    placeholder:text-slate-500
   "
-/>
+>
+
+  <input
+    type={
+      showFlexToken
+        ? "text"
+        : "password"
+    }
+    value={editFlexToken}
+    placeholder={
+      modalMode === "edit"
+        ? "••••••••••••••••"
+        : ""
+    }
+    onChange={(e) =>
+      setEditFlexToken(
+        e.target.value
+      )
+    }
+    className="
+      w-full
+      rounded-xl
+      bg-[#050816]
+      border
+      border-white/10
+      px-4
+      py-4
+      pr-14
+      text-white
+      placeholder:text-slate-500
+    "
+  />
+
+  <button
+    type="button"
+    onClick={async () => {
+
+      // =====================================
+      // HIDE TOKEN
+      // =====================================
+
+      if (showFlexToken) {
+
+        setShowFlexToken(false);
+
+        return;
+      }
+
+      // =====================================
+      // ADD MODE
+      // =====================================
+
+      if (!selectedBroker) {
+
+        setShowFlexToken(true);
+
+        return;
+      }
+
+      // =====================================
+      // TOKEN ALREADY LOADED
+      // =====================================
+
+      if (editFlexToken) {
+
+        setShowFlexToken(true);
+
+        return;
+      }
+
+      // =====================================
+      // LOAD TOKEN SECURELY
+      // =====================================
+
+      try {
+
+        const {
+          data: {
+            session,
+          },
+        } =
+          await supabase.auth.getSession();
+
+        if (
+          !session?.access_token
+        ) {
+
+          console.error(
+            "NO AUTHENTICATED SESSION"
+          );
+
+          return;
+        }
+
+        const response =
+          await fetch(
+            `/api/broker-connections/${selectedBroker.id}/token`,
+            {
+              method: "GET",
+              headers: {
+                Authorization:
+                  `Bearer ${session.access_token}`,
+              },
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+
+          console.error(
+            "FAILED TO LOAD FLEX TOKEN:",
+            data
+          );
+
+          return;
+        }
+
+        setEditFlexToken(
+          data.flexToken || ""
+        );
+
+        setShowFlexToken(true);
+
+      } catch (error) {
+
+        console.error(
+          "FAILED TO LOAD FLEX TOKEN:",
+          error
+        );
+
+      }
+
+    }}
+    className="
+      absolute
+      right-4
+      top-1/2
+      -translate-y-1/2
+      text-slate-400
+      hover:text-white
+      transition-colors
+    "
+    aria-label={
+      showFlexToken
+        ? "Hide Flex Token"
+        : "Show Flex Token"
+    }
+  >
+
+    {showFlexToken ? (
+      <EyeOff size={20} />
+    ) : (
+      <Eye size={20} />
+    )}
+
+  </button>
 
 </div>
 
