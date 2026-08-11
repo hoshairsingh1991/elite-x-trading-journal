@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Search } from "lucide-react";
 import dynamic from "next/dynamic";
 
 import {
@@ -201,215 +202,427 @@ const accounts = Array.from(
         </div>
       )}
 
-      <div className="ml-10 mr-10 rounded-[28px] border border-white/[0.05] bg-[#071427] p-6 shadow-[0_0_50px_rgba(0,0,0,0.22)]">
+<div
+  className="
+    w-full
+    rounded-[14px]
+    border
+    border-white/[0.07]
+    bg-[#071427]
+    p-4
+    shadow-[0_0_50px_rgba(0,0,0,0.22)]
+  "
+>
 
-        {/* ================================================= */}
-        {/* TOP ROW */}
-        {/* ================================================= */}
+  {/* ================================================= */}
+  {/* TOP ROW */}
+  {/* ================================================= */}
 
-        <div className="flex flex-wrap items-center justify-end gap-3">
+  <div
+    className="
+      flex
+      min-h-[60px]
+      items-center
+      gap-3
+    "
+  >
 
 
-          {/* ================================================= */}
-          {/* SEARCH */}
-          {/* ================================================= */}
+{/* ================================================= */}
+{/* SEARCH */}
+{/* ================================================= */}
 
-          <div className="w-[200px]">
+<div
+  className="
+    relative
+    w-[320px]
+    shrink-0
+    translate-x-[10px]
+  "
+>
+  {/* SEARCH ICON */}
 
-            <input
-              type="text"
-              placeholder="Search ticker, account, date..."
-              value={searchQuery}
-              onChange={(e) =>
-                setSearchQuery(
-                  e.target.value
-                )
-              }
-              className="h-[40px] min-w-[200px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-5 text-center text-[14px] font-medium text-white outline-none transition-all placeholder:text-slate-500 focus:border-blue-500/40"
-            />
-          </div>
+  <Search
+    size={18}
+    strokeWidth={1.8}
+    className="
+      pointer-events-none
+      absolute
+      left-[14px]
+      top-1/2
+      -translate-y-1/2
+      translate-x-[0px]
+      text-slate-400
+    "
+  />
+
+  {/* SEARCH INPUT */}
+
+  <input
+    type="text"
+    placeholder="Search ticker, account, date..."
+    value={searchQuery}
+    onChange={(e) =>
+      setSearchQuery(
+        e.target.value
+      )
+    }
+className="
+  h-[40px]
+  w-full
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#0b1220]
+
+  pl-[46px]
+  [text-indent:52px]
+  pr-4
+
+  text-left
+  text-[14px]
+  font-medium
+  text-white
+
+  outline-none
+  transition-all
+
+  placeholder:text-slate-500
+
+  focus:border-blue-500/40
+"
+  />
+</div>
 
 {/* ================================================= */}
 {/* DATE RANGE */}
 {/* ================================================= */}
 
+<div
+  className="
+    flex
+    h-[40px]
+    shrink-0
+    items-center
+    translate-x-[10px]
+  "
+>
 <DateRangePicker
-  selectedPreset={
-    selectedDatePreset
-  }
+  variant="tradeHistory"
+  heightClass="h-[40px]"
+  selectedPreset={selectedDatePreset}
   onDateRangeChange={(
     preset,
     startDate,
     endDate
   ) => {
 
-    setSelectedDatePreset(
-      preset
-    );
+      setSelectedDatePreset(
+        preset
+      );
 
-    setFromDate(
-      startDate
-        ? startDate
-            .toISOString()
-            .split("T")[0]
-        : ""
-    );
+      setFromDate(
+        startDate
+          ? startDate
+              .toISOString()
+              .split("T")[0]
+          : ""
+      );
 
-    setToDate(
-      endDate
-        ? endDate
-            .toISOString()
-            .split("T")[0]
-        : ""
-    );
-  }}
-/>
+      setToDate(
+        endDate
+          ? endDate
+              .toISOString()
+              .split("T")[0]
+          : ""
+      );
+    }}
+  />
+</div>
 
 {/* ================================================= */}
 {/* ACCOUNT FILTER */}
 {/* ================================================= */}
 
-<select
-  value={accountFilter}
-  onChange={(e) =>
-    setAccountFilter(
-      e.target.value
-    )
-  }
-  className="h-[40px] min-w-[130px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
+<div
+  className="
+    shrink-0
+    translate-x-[10px]
+  "
 >
-  <option value="ALL">
-    All Accounts
-  </option>
+  <select
+    value={accountFilter}
+    onChange={(e) =>
+      setAccountFilter(
+        e.target.value
+      )
+    }
+    className="
+      h-[40px]
+      min-w-[130px]
 
-  {accounts.map(
-    (account) => (
-      <option
-        key={account}
-        value={account}
-      >
-        {account}
-      </option>
-    )
-  )}
-</select>
+      rounded-[8px]
 
-          {/* ================================================= */}
-          {/* STATUS FILTER */}
-          {/* ================================================= */}
+      border
+      border-white/[0.06]
 
-          <select
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(
-                e.target.value
-              )
-            }
-            className="h-[40px] min-w-[80px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
-          >
-            <option value="ALL">
-              All Status
-            </option>
+      bg-[#0b1220]
 
-            <option value="WIN">
-              Win
-            </option>
+      px-4
 
-            <option value="LOSS">
-              Loss
-            </option>
+      text-center
+      text-[13px]
+      font-semibold
+      text-slate-300
 
-            <option value="OPEN">
-              Open
-            </option>
+      outline-none
+      transition-all
 
-            <option value="EXPIRED_WORTHLESS">
-            Expired Worthless
-            </option>
-          </select>
+      focus:border-blue-500/40
+    "
+  >
 
-          {/* ================================================= */}
-          {/* SIDE FILTER */}
-          {/* ================================================= */}
+    <option value="ALL">
+      All Accounts
+    </option>
 
-          <select
-            value={sideFilter}
-            onChange={(e) =>
-              setSideFilter(
-                e.target.value
-              )
-            }
-            className="h-[40px] min-w-[90px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
-          >
-            <option value="ALL">
-              All Sides
-            </option>
+    {accounts.map(
+      (account) => (
+        <option
+          key={account}
+          value={account}
+        >
+          {account}
+        </option>
+      )
+    )}
 
-            <option value="LONG">
-              Long
-            </option>
+  </select>
+</div>
 
-            <option value="SHORT">
-              Short
-            </option>
-          </select>
+{/* ================================================= */}
+{/* STATUS FILTER */}
+{/* ================================================= */}
 
-          {/* ================================================= */}
-          {/* ASSET FILTER */}
-          {/* ================================================= */}
+<div
+  className="
+    shrink-0
+    translate-x-[10px]
+  "
+>
+  <select
+    value={statusFilter}
+    onChange={(e) =>
+      setStatusFilter(
+        e.target.value
+      )
+    }
+className="
+  h-[40px]
+  min-w-[100px]
 
-          <select
-            value={assetFilter}
-            onChange={(e) =>
-              setAssetFilter(
-                e.target.value
-              )
-            }
-            className="h-[40px] min-w-[100px] rounded-2xl border border-white/[0.06] bg-[#0b1220] px-4 text-center text-[13px] font-semibold text-slate-300 outline-none transition-all focus:border-blue-500/40"
-          >
-            <option value="ALL">
-              All Assets
-            </option>
+  rounded-[8px]
 
-            <option value="Futures">
-              Futures
-            </option>
+  border
+  border-white/[0.06]
 
-            <option value="Options">
-              Options
-            </option>
+  bg-[#0b1220]
 
-            <option value="Stocks">
-              Stocks
-            </option>
+  px-4
 
-            <option value="Forex">
-              Forex
-            </option>
+  text-center
+  text-[13px]
+  font-semibold
+  text-slate-300
 
-<option value="CRYPTO">
-  Crypto
-</option>
+  outline-none
+  transition-all
 
-<option value="CFD">
-  CFD
-</option>
+  focus:border-blue-500/40
+"
+  >
+    <option value="ALL">
+      All Status
+    </option>
 
-          </select>
+    <option value="WIN">
+      Win
+    </option>
 
-          {/* ================================================= */}
-          {/* RESET */}
-          {/* ================================================= */}
+    <option value="LOSS">
+      Loss
+    </option>
 
-          <div className="w-[100px] flex justify-center">
+    <option value="OPEN">
+      Open
+    </option>
 
-            <button
-              onClick={handleReset}
-              className="h-[40px] w-full rounded-2xl border border-red-500/15 bg-red-500/10 px-5 text-[12px] font-bold uppercase tracking-[0.14em] text-red-400 transition-all hover:bg-red-500/15"
-            >
-              Reset
-            </button>
-                   </div>
+    <option value="EXPIRED_WORTHLESS">
+      Expired Worthless
+    </option>
+  </select>
+</div>
+
+{/* ================================================= */}
+{/* SIDE FILTER */}
+{/* ================================================= */}
+
+<div
+  className="
+    shrink-0
+    translate-x-[10px]
+  "
+>
+  <select
+    value={sideFilter}
+    onChange={(e) =>
+      setSideFilter(
+        e.target.value
+      )
+    }
+    className="
+      h-[40px]
+      min-w-[90px]
+
+      rounded-[8px]
+
+      border
+      border-white/[0.06]
+
+      bg-[#0b1220]
+
+      px-4
+
+      text-center
+      text-[13px]
+      font-semibold
+      text-slate-300
+
+      outline-none
+      transition-all
+
+      focus:border-blue-500/40
+    "
+  >
+    <option value="ALL">
+      All Sides
+    </option>
+
+    <option value="LONG">
+      Long
+    </option>
+
+    <option value="SHORT">
+      Short
+    </option>
+  </select>
+</div>
+
+{/* ================================================= */}
+{/* ASSET FILTER */}
+{/* ================================================= */}
+
+<div
+  className="
+    shrink-0
+    translate-x-[10px]
+  "
+>
+  <select
+    value={assetFilter}
+    onChange={(e) =>
+      setAssetFilter(
+        e.target.value
+      )
+    }
+    className="
+      h-[40px]
+      min-w-[100px]
+
+      rounded-[8px]
+
+      border
+      border-white/[0.06]
+
+      bg-[#0b1220]
+
+      px-4
+
+      text-center
+      text-[13px]
+      font-semibold
+      text-slate-300
+
+      outline-none
+      transition-all
+
+      focus:border-blue-500/40
+    "
+  >
+    <option value="ALL">
+      All Assets
+    </option>
+
+    <option value="Futures">
+      Futures
+    </option>
+
+    <option value="Options">
+      Options
+    </option>
+
+    <option value="Stocks">
+      Stocks
+    </option>
+
+    <option value="Forex">
+      Forex
+    </option>
+  </select>
+</div>
+
+{/* ================================================= */}
+{/* RESET */}
+{/* ================================================= */}
+
+<div
+  className="
+    w-[100px]
+    shrink-0
+    flex
+    justify-center
+    translate-x-[380px]
+  "
+>
+  <button
+    onClick={handleReset}
+    className="
+      h-[40px]
+      w-full
+
+      rounded-[8px]
+
+      border
+      border-red-500/15
+
+      bg-red-500/10
+
+      px-5
+
+      text-[12px]
+      font-bold
+      uppercase
+      tracking-[0.14em]
+      text-red-400
+
+      transition-all
+
+      hover:bg-red-500/15
+    "
+  >
+    Reset
+  </button>
+</div>
         </div>
 
       </div>

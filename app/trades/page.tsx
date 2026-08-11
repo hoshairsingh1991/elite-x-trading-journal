@@ -768,36 +768,43 @@ const formattedLastImport =
   "
 >
 
-  {/* ================================================= */}
-  {/* ADD TRADE */}
-  {/* ================================================= */}
+{/* ================================================= */}
+{/* ADD TRADE */}
+{/* ================================================= */}
 
-  <button
-    onClick={() =>
-      setIsAddTradeOpen(true)
-    }
-    className="
-      flex
-      h-[36px]
-      min-w-[90px]
-      items-center
-      justify-center
-      gap-3
-      rounded-[18px]
-      border
-      border-blue-400/30
-      bg-blue-500
-      px-5
-      text-[14px]
-      font-bold
-      text-slate-200
-      shadow-[0_0_24px_rgba(59,130,246,0.25)]
-      transition-all
-      hover:bg-blue-600
-    "
-  >
-    Add Trade
-  </button>
+<button
+  onClick={() =>
+    setIsAddTradeOpen(true)
+  }
+  className="
+    flex
+    h-[40px]
+    min-w-[100px]
+    shrink-0
+    items-center
+    justify-center
+
+    rounded-[8px]
+
+    border
+    border-blue-400/30
+
+    bg-blue-500
+
+    px-4
+
+    text-[13px]
+    font-semibold
+    text-slate-200
+
+    shadow-[0_0_12px_rgba(59,130,246,0.15)]
+
+    transition-all
+    hover:bg-blue-600
+  "
+>
+  Add Trade
+</button>
 
   {/* ================================================= */}
   {/* USER MENU */}

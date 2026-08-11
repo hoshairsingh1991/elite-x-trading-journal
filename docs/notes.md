@@ -349,6 +349,8 @@ git commit -m "checkpoint: trade history filter persistence"
 git commit -m "fix: scope manual broker sync to authenticated user" 
 git commit -m "checkpoint: harden multi-account broker sync"
 git commit -m "checkpoint: secure broker sync and flex token handling"
+
+git commit -m "checkpoint: trade history filters v1"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:

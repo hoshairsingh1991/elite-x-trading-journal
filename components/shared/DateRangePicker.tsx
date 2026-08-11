@@ -18,26 +18,28 @@ import { Calendar } from "@/components/ui/calendar";
 
 interface DateRangePickerProps {
 
-selectedPreset: string;
+  selectedPreset: string;
 
-onDateRangeChange: (
-preset: string,
-startDate: Date | null,
-endDate: Date | null
-) => void;
+  onDateRangeChange: (
+    preset: string,
+    startDate: Date | null,
+    endDate: Date | null
+  ) => void;
 
-widthClass?: string;
+  widthClass?: string;
 
-heightClass?: string;
+  heightClass?: string;
 
+  variant?: "default" | "tradeHistory";
 }
 
 export default function DateRangePicker({
 
-selectedPreset,
-onDateRangeChange,
-widthClass,
-heightClass,
+  selectedPreset,
+  onDateRangeChange,
+  widthClass,
+  heightClass,
+  variant = "default",
 
 }: DateRangePickerProps) {
 
@@ -211,6 +213,25 @@ const dateButtonHeight =
   heightClass ??
   "h-[46px]";
 
+  // =====================================================
+// TRADE HISTORY VARIANT
+// =====================================================
+
+const dateButtonRadius =
+  variant === "tradeHistory"
+    ? "rounded-[8px]"
+    : "rounded-2xl";
+
+const dateButtonBorder =
+  variant === "tradeHistory"
+    ? "border-white/[0.06]"
+    : "border-white/10";
+
+const dateButtonBackground =
+  variant === "tradeHistory"
+    ? "bg-[#0b1220]"
+    : "bg-white/[0.03]";
+
 
 /* =====================================================
    QUICK HEADER
@@ -283,11 +304,11 @@ items-center
 justify-between
 gap-6
 
-      rounded-2xl
-      border
-      border-white/10
+${dateButtonRadius}
+border
+${dateButtonBorder}
 
-      bg-white/[0.03]
+${dateButtonBackground}
 
       px-5
 
