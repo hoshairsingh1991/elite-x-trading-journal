@@ -352,6 +352,7 @@ git commit -m "checkpoint: secure broker sync and flex token handling"
 
 git commit -m "checkpoint: trade history filters v1"
 git commit -m "checkpoint: trade history v2 ui refinement"
+git commit -m "checkpoint: responsive trade history table"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:

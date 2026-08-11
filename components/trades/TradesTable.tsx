@@ -1,6 +1,8 @@
 "use client";
 
 import React, {
+  useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -76,6 +78,16 @@ const accountMap = new Map(
   null
 );
 
+// =================================================
+// PAGINATION
+// =================================================
+
+const TRADES_PER_PAGE = 50;
+
+const [
+  currentPage,
+  setCurrentPage,
+] = useState(1);
 
   // =================================================
   // SAFETY
@@ -176,6 +188,45 @@ const handleSelectTrade =
     return dateB - dateA;
   });
 
+// =================================================
+// PAGINATION CALCULATION
+// =================================================
+
+const totalPages = Math.max(
+  1,
+  Math.ceil(
+    sortedTrades.length /
+      TRADES_PER_PAGE
+  )
+);
+
+const paginatedTrades = useMemo(() => {
+  const startIndex =
+    (currentPage - 1) *
+    TRADES_PER_PAGE;
+
+  const endIndex =
+    startIndex +
+    TRADES_PER_PAGE;
+
+  return sortedTrades.slice(
+    startIndex,
+    endIndex
+  );
+}, [
+  sortedTrades,
+  currentPage,
+]);
+
+useEffect(() => {
+  if (currentPage > totalPages) {
+    setCurrentPage(1);
+  }
+}, [
+  currentPage,
+  totalPages,
+]);
+
   return (
 
     <>
@@ -212,51 +263,82 @@ const handleSelectTrade =
   }}
 >
 
-{[
-  "Symbol",
-  "Open Date",
-  "Close Date",
-  "Holding",
-  "Account",
-  "Type",
-  "Side",
-  "Entry",
-  "Exit",
-  "Qty",
-  "Net P&L",
-  "Commission",
-  "Status",
-].map((header) => (
+  {[
+    "Symbol",
+    "Open Date",
+    "Close Date",
+    "Holding",
+    "Account",
+    "Type",
+    "Side",
+    "Entry",
+    "Exit",
+    "Qty",
+    "Net P&L",
+    "Commission",
+    "Status",
+  ].map((header) => (
 
-<div
-  key={header}
-  className="
-    flex
-    h-[36px]
-    items-center
-    translate-y-[5px]
-    justify-center
-    border-b
-    border-white/[0.05]
-    px-3
-    text-center
-    text-[12px]
-    font-semibold
-    uppercase
-    tracking-[0.08em]
-    text-slate-500
-  "
->
-  {header}
+    <div
+      key={header}
+      className="
+        flex
+        h-[36px]
+        items-center
+        translate-y-[5px]
+        justify-center
+        border-b
+        border-white/[0.05]
+        px-3
+        text-center
+        text-[12px]
+        font-semibold
+        uppercase
+        tracking-[0.08em]
+        text-slate-500
+      "
+    >
+      {header}
+    </div>
+
+  ))}
+
 </div>
 
-    ))}
+{/* ================================================= */}
+{/* SCROLLABLE TRADE BODY */}
+{/* ================================================= */}
 
-              {sortedTrades.map(
-                (
-                  trade,
-                  index
-                ) => {
+<div
+  className="
+    h-[calc(100vh-300px)]
+    min-h-[500px]
+    overflow-y-auto
+    scrollbar-thin
+    scrollbar-track-transparent
+    scrollbar-thumb-white/[0.10]
+  "
+>
+  <div
+    className="
+      grid
+      [--trade-row-height:50px]
+      [--trade-content-y:0px]
+      grid-cols-[0.90fr_0.82fr_0.9fr_0.65fr_0.85fr_0.8fr_0.75fr_0.8fr_0.8fr_60px_1fr_0.9fr_0.95fr]
+    "
+    style={{
+      gridAutoRows:
+        "var(--trade-row-height)",
+    }}
+  >
+
+    {paginatedTrades.map(
+      (
+        trade,
+        index
+      ) => {
+
+        
 
                   const isWinner =
                     trade.status ===
@@ -724,16 +806,170 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 
                       </div>
 
-                    </React.Fragment>
-                  );
-                }
-              )}
-            </div>
-          </div>
+                                    </React.Fragment>
+              );
+            }
+          )}
         </div>
-            </div>
+ </div>
+        {/* ================================================= */}
+        {/* PAGINATION */}
+        {/* ================================================= */}
 
-      <EditTradeModal
+        <div className="flex h-[56px] items-center justify-between border-t border-white/[0.05] px-5">
+
+          {/* RESULT COUNT */}
+
+          <div className="text-[12px] font-medium tracking-[0.02em] text-slate-500">
+            {sortedTrades.length === 0 ? (
+              "No trades"
+            ) : (
+              <>
+                Showing{" "}
+                <span className="text-slate-400">
+                  {(currentPage - 1) *
+                    TRADES_PER_PAGE +
+                    1}
+                </span>
+                {"–"}
+                <span className="text-slate-400">
+                  {Math.min(
+                    currentPage *
+                      TRADES_PER_PAGE,
+                    sortedTrades.length
+                  )}
+                </span>
+                {" of "}
+                <span className="text-slate-400">
+                  {sortedTrades.length}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* PAGE CONTROLS */}
+
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+
+              {/* PREVIOUS */}
+
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((page) =>
+                    Math.max(
+                      1,
+                      page - 1
+                    )
+                  )
+                }
+                disabled={
+                  currentPage === 1
+                }
+                className="
+                  flex
+                  h-[30px]
+                  w-[30px]
+                  items-center
+                  justify-center
+                  rounded-[8px]
+                  text-[14px]
+                  text-slate-500
+                  transition-all
+                  hover:bg-white/[0.04]
+                  hover:text-slate-300
+                  disabled:pointer-events-none
+                  disabled:opacity-30
+                "
+              >
+                ‹
+              </button>
+
+              {/* PAGE NUMBERS */}
+
+              {Array.from(
+                {
+                  length: totalPages,
+                },
+                (_, index) =>
+                  index + 1
+              ).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() =>
+                    setCurrentPage(page)
+                  }
+                  className={`
+                    flex
+                    h-[30px]
+                    min-w-[30px]
+                    items-center
+                    justify-center
+                    rounded-[8px]
+                    px-2
+                    text-[12px]
+                    font-semibold
+                    transition-all
+                    ${
+                      currentPage === page
+                        ? "bg-white/[0.08] text-slate-200"
+                        : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-300"
+                    }
+                  `}
+                >
+                  {page}
+                </button>
+              ))}
+
+              {/* NEXT */}
+
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((page) =>
+                    Math.min(
+                      totalPages,
+                      page + 1
+                    )
+                  )
+                }
+                disabled={
+                  currentPage === totalPages
+                }
+                className="
+                  flex
+                  h-[30px]
+                  w-[30px]
+                  items-center
+                  justify-center
+                  rounded-[8px]
+                  text-[14px]
+                  text-slate-500
+                  transition-all
+                  hover:bg-white/[0.04]
+                  hover:text-slate-300
+                  disabled:pointer-events-none
+                  disabled:opacity-30
+                "
+              >
+                ›
+              </button>
+
+            </div>
+          )}
+
+        </div>
+
+      </div>
+    </div>
+        </div>
+
+  <EditTradeModal
+          
+        
+            
         open={
           !!editingTrade
         }
