@@ -3,8 +3,12 @@
 Project location
 
 cd "/Volumes/Gallery/EliteX Trading Journal/elite-x-trading-journal"
+
+cd "/Volumes/Gallery/EliteX Trading Journal/elite-x-trading-journal"
 npm run dev
 
+
+Best screen Aspect ratio is 1440 X 900
 ----------------------------------------------------------------------
 
 Run server.  by     npm run dev

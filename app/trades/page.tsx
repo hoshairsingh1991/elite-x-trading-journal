@@ -3,6 +3,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -263,6 +264,184 @@ const [toDate, setToDate] =
     return parsed.toDate || "";
   });
 
+// =================================================
+// FRESH TRADE DATE RANGE
+// =================================================
+
+const getFreshTradeDateRange = (
+  preset: string
+): {
+  fromDate: string;
+  toDate: string;
+} => {
+
+  const now = new Date();
+
+const formatDate = (
+  date: Date
+) =>
+  `${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
+
+  const startOfDay =
+    new Date(now);
+
+  startOfDay.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  const endOfDay =
+    new Date(now);
+
+  endOfDay.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  switch (preset) {
+
+    case "Today":
+      return {
+        fromDate:
+          formatDate(
+            startOfDay
+          ),
+        toDate:
+          formatDate(
+            endOfDay
+          ),
+      };
+
+
+    case "This Week": {
+
+      const start =
+        new Date(
+          startOfDay
+        );
+
+      const day =
+        start.getDay();
+
+      const diff =
+        day === 0
+          ? -6
+          : 1 - day;
+
+      start.setDate(
+        start.getDate() +
+        diff
+      );
+
+      return {
+        fromDate:
+          formatDate(start),
+        toDate:
+          formatDate(endOfDay),
+      };
+    }
+
+
+    case "This Month":
+
+      return {
+        fromDate:
+          formatDate(
+            new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              1
+            )
+          ),
+        toDate:
+          formatDate(
+            endOfDay
+          ),
+      };
+
+
+    case "Last 30 Days": {
+
+      const start =
+        new Date(
+          startOfDay
+        );
+
+      start.setDate(
+        start.getDate() - 29
+      );
+
+      return {
+        fromDate:
+          formatDate(start),
+        toDate:
+          formatDate(endOfDay),
+      };
+    }
+
+
+    case "This Quarter": {
+
+      const quarterStartMonth =
+        Math.floor(
+          now.getMonth() / 3
+        ) * 3;
+
+      return {
+        fromDate:
+          formatDate(
+            new Date(
+              now.getFullYear(),
+              quarterStartMonth,
+              1
+            )
+          ),
+        toDate:
+          formatDate(
+            endOfDay
+          ),
+      };
+    }
+
+
+    case "YTD":
+
+      return {
+        fromDate:
+          formatDate(
+            new Date(
+              now.getFullYear(),
+              0,
+              1
+            )
+          ),
+        toDate:
+          formatDate(
+            endOfDay
+          ),
+      };
+
+
+    default:
+
+      return {
+        fromDate: "",
+        toDate: "",
+      };
+  }
+};
+
+const tradeDateInitialized =
+  useRef(false);
+
 const [selectedDatePreset, setSelectedDatePreset] =
   useState(() => {
 
@@ -337,6 +516,56 @@ useEffect(() => {
 
   selectedDatePreset,
 
+]);
+
+// =================================================
+// REFRESH DYNAMIC DATE PRESETS
+// =================================================
+
+useEffect(() => {
+
+  if (
+    tradeDateInitialized.current
+  ) {
+    return;
+  }
+
+  tradeDateInitialized.current =
+    true;
+
+  const dynamicPresets =
+    new Set([
+      "Today",
+      "This Week",
+      "This Month",
+      "Last 30 Days",
+      "This Quarter",
+      "YTD",
+    ]);
+
+  if (
+    !dynamicPresets.has(
+      selectedDatePreset
+    )
+  ) {
+    return;
+  }
+
+  const freshRange =
+    getFreshTradeDateRange(
+      selectedDatePreset
+    );
+
+  setFromDate(
+    freshRange.fromDate
+  );
+
+  setToDate(
+    freshRange.toDate
+  );
+
+}, [
+  selectedDatePreset,
 ]);
 
 // =================================================

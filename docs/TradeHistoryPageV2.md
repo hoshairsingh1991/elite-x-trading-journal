@@ -2677,3 +2677,5 @@ END OF TRADE HISTORY MASTER NOTES
 // ================================================================
 // END OF CHECKPOINT
 // ================================================================
+
+final checkpoint git commit -m "checkpoint: trade history final"
