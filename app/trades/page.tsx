@@ -499,17 +499,48 @@ if (latestSyncError) {
                   statusFilter
             );
 
-          // =========================================
-          // SIDE
-          // =========================================
+// =========================================
+// SIDE / OPTION TYPE
+// =========================================
 
-          const matchesSide =
+const matchesSide =
+  sideFilter === "ALL" ||
 
-            sideFilter ===
-              "ALL" ||
+  // -------------------------------
+  // LONG
+  // -------------------------------
+  (
+    sideFilter === "LONG" &&
+    trade.assetType !== "Options" &&
+    trade.side === "LONG"
+  ) ||
 
-            trade.side ===
-              sideFilter;
+  // -------------------------------
+  // SHORT
+  // -------------------------------
+  (
+    sideFilter === "SHORT" &&
+    trade.assetType !== "Options" &&
+    trade.side === "SHORT"
+  ) ||
+
+  // -------------------------------
+  // CALL
+  // -------------------------------
+  (
+    sideFilter === "CALL" &&
+    trade.assetType === "Options" &&
+    trade.contractKey?.endsWith("_C")
+  ) ||
+
+  // -------------------------------
+  // PUT
+  // -------------------------------
+  (
+    sideFilter === "PUT" &&
+    trade.assetType === "Options" &&
+    trade.contractKey?.endsWith("_P")
+  );
 
           // =========================================
           // ASSET TYPE

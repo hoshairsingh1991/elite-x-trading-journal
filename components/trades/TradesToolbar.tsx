@@ -488,44 +488,50 @@ border-white/[0.06]
       "
     >
 
-      <select
-        value={sideFilter}
-        onChange={(e) =>
-          setSideFilter(
-            e.target.value
-          )
-        }
-        className="
-          h-[40px]
-          min-w-[90px]
-          rounded-[8px]
-          border
-          border-white/[0.06]
-          bg-[#0b1220]
-          px-4
-          text-center
-          text-[13px]
-          font-semibold
-          text-slate-300
-          outline-none
-          transition-all
-          focus:border-blue-500/40
-        "
-      >
+<select
+  value={sideFilter}
+  onChange={(e) =>
+    setSideFilter(
+      e.target.value
+    )
+  }
+  className="
+    h-[40px]
+    min-w-[90px]
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-4
+    text-center
+    text-[13px]
+    font-semibold
+    text-slate-300
+    outline-none
+    transition-all
+    focus:border-blue-500/40
+  "
+>
+  <option value="ALL">
+    All Sides
+  </option>
 
-        <option value="ALL">
-          All Sides
-        </option>
+  <option value="LONG">
+    Long
+  </option>
 
-        <option value="LONG">
-          Long
-        </option>
+  <option value="SHORT">
+    Short
+  </option>
 
-        <option value="SHORT">
-          Short
-        </option>
+  <option value="CALL">
+    Call
+  </option>
 
-      </select>
+  <option value="PUT">
+    Put
+  </option>
+</select>
 
     </div>
 
