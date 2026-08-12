@@ -747,7 +747,7 @@ text-emerald-400
     items-center
     justify-center
 
-    rounded-full
+    rounded-[8px]
     border
     border-emerald-500/20
     bg-emerald-500/10
@@ -843,7 +843,7 @@ text-emerald-400
     items-center
     justify-center
 
-    rounded-full
+    rounded-[8px]
     border
     border-emerald-500/20
     bg-emerald-500/10
@@ -1042,7 +1042,7 @@ text-emerald-400
 
         flex items-center justify-center
 
-        rounded-full
+        rounded-[8px]
         border border-emerald-500/20
         bg-emerald-500/10
 
@@ -1118,7 +1118,7 @@ text-emerald-400
 
         flex items-center justify-center
 
-        rounded-full
+        rounded-[8px]
         border border-emerald-500/20
         bg-emerald-500/10
 
@@ -1196,7 +1196,7 @@ text-emerald-400
 
         flex items-center justify-center
 
-        rounded-full
+        rounded-[8px]
         border border-emerald-500/20
         bg-emerald-500/10
 
@@ -1274,7 +1274,7 @@ text-emerald-400
 
         flex items-center justify-center
 
-        rounded-full
+        rounded-[8px]
         border border-emerald-500/20
         bg-emerald-500/10
 
@@ -1370,7 +1370,7 @@ text-emerald-400
     items-center
     justify-center
 
-    rounded-full
+    rounded-[8px]
     border
     border-sky-500/20
     bg-sky-500/10
@@ -1424,7 +1424,7 @@ text-emerald-400
             items-center
             justify-center
 
-            rounded-lg
+            rounded-[8px]
             border
             border-white/10
             bg-white/[0.03]
@@ -1480,7 +1480,7 @@ text-emerald-400
             items-center
             justify-center
 
-            rounded-lg
+            rounded-[8px]
             border
             border-white/10
             bg-white/[0.03]
@@ -1535,7 +1535,7 @@ text-emerald-400
             items-center
             justify-center
 
-            rounded-lg
+            rounded-[8px]
             border
             border-emerald-500/20
             bg-emerald-500/5
