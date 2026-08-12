@@ -61,11 +61,16 @@ export function calculateActiveTradingDays(
 ): number {
 
   return new Set(
-    trades.map(
-      (trade) =>
+    trades.map((trade) => {
+
+      const sourceDate =
         trade.closedAt ||
-        trade.date
-    )
+        trade.date;
+
+      return sourceDate.includes("T")
+        ? sourceDate.split("T")[0]
+        : sourceDate;
+    })
   ).size;
 }
 

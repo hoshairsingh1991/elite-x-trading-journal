@@ -356,6 +356,8 @@ git commit -m "checkpoint: responsive trade history table"
 git commit -m "checkpoint: legacy execution timestamp compatibility"
 
 git commit -m "checkpoint: trade history final"
+
+git commit -m "checkpoint: dashboard and expense date compatibility"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:

@@ -75,18 +75,39 @@ export function groupDailyPnL(
 
   trades.forEach((trade) => {
 
-  const accountingDate =
-    trade.closedAt ||
-    trade.date;
+    // =================================================
+    // ACCOUNTING DATE
+    // =================================================
+    //
+    // New trades may contain an exact timestamp:
+    //
+    // 2026-08-11T10:42:37
+    //
+    // Legacy trades may contain date only:
+    //
+    // 2026-08-11
+    //
+    // Daily P&L must ALWAYS group by calendar date,
+    // never by the full timestamp.
+    // =================================================
 
-  if (!grouped[accountingDate]) {
+    const sourceDate =
+      trade.closedAt ||
+      trade.date;
 
-    grouped[accountingDate] = 0;
-  }
+    const accountingDate =
+      sourceDate.includes("T")
+        ? sourceDate.split("T")[0]
+        : sourceDate;
 
-  grouped[accountingDate] +=
-    trade.pnl;
-});
+    if (!grouped[accountingDate]) {
+
+      grouped[accountingDate] = 0;
+    }
+
+    grouped[accountingDate] +=
+      trade.pnl;
+  });
 
   return Object.entries(grouped)
 
