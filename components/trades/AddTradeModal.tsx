@@ -50,12 +50,27 @@ export default function AddTradeModal({
   const [account, setAccount] =
     useState("");
 
-  const [tradeDate, setTradeDate] =
-    useState(
-      new Date()
-        .toISOString()
-        .split("T")[0]
-    );
+const [tradeDate, setTradeDate] =
+  useState(() => {
+
+    const today =
+      new Date();
+
+    const year =
+      today.getFullYear();
+
+    const month =
+      String(
+        today.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        today.getDate()
+      ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  });
 
   // =================================================
   // SAVE TRADE

@@ -634,7 +634,7 @@ const formattedLastImport =
 {/* HEADER */}
 {/* ================================================= */}
 
-<div className="flex h-[72px] items-center justify-between border-b border-white/[0.05] px-8">
+<div className="relative z-[1000] flex h-[72px] items-center justify-between border-b border-white/[0.05] px-8">
 
   {/* ================================================= */}
   {/* HEADER LEFT */}
@@ -652,26 +652,26 @@ const formattedLastImport =
       </h1>
     </div>
 
-    {/* ================================================= */}
-    {/* TOTAL TRADES */}
-    {/* ================================================= */}
+{/* ================================================= */}
+{/* TOTAL TRADES */}
+{/* ================================================= */}
 
-    <div
-      className="
-        relative
-        ml-6
-        translate-x-8
-        translate-y-0
-      "
-    >
+<div
+  className="
+    relative
+    ml-6
+    translate-x-8
+    translate-y-0
+  "
+>
 <p className="mt-1 translate-y-0 text-[18px] font-bold text-slate-200">
-  {trades.length}
+  {filteredTrades.length}
 </p>
 
-      <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
-        Total Trades
-      </div>
-    </div>
+  <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+    Total Trades
+  </div>
+</div>
 
     {/* ================================================= */}
     {/* DIVIDER */}
@@ -909,6 +909,7 @@ const formattedLastImport =
 
 <TradesTable
   trades={filteredTrades}
+  tradeCount={filteredTrades.length}
   onSelectTrade={handleSelectTrade}
   brokerConnections={brokerConnections}
 />

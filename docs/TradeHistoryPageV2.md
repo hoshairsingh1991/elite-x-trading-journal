@@ -2390,3 +2390,290 @@ Trade History is one of those views.
 ============================================================
 END OF TRADE HISTORY MASTER NOTES
 ============================================================
+
+// ================================================================
+// TRADE HISTORY — FINAL UI / COMPATIBILITY CHECKPOINT
+// DATE: 2026-08-11
+// ================================================================
+//
+// FINAL STATUS
+// ---------------------------------------------------------------
+//
+// Trade History is considered DONE for the current phase.
+//
+// Completed:
+//
+// [x] Account aliases / masked account display
+// [x] Call / Put visual distinction
+// [x] Type / Side styling
+// [x] Entry / Exit presentation
+// [x] Commission styling
+// [x] Status styling
+// [x] Expired Worthless cleanup
+// [x] Symbol typography improvement
+// [x] Header / column alignment tuning
+// [x] 50 trades per page
+// [x] Pagination controls
+// [x] Result count
+// [x] Responsive table height
+// [x] Internal table scrolling
+// [x] Date-range-aware Total Trades count
+// [x] Manual trade date timezone fix
+// [x] Legacy execution timestamp compatibility
+// [x] Exact timestamps for trades with executionTimestamp
+// [x] "--" for missing execution time
+// [x] Date-based holding duration for legacy trades
+// [x] Open legacy trades calculate holding through today
+// [x] Premium P&L typography / restrained colors
+// [x] Tooltip simplified to text-only
+// [x] Responsive filter toolbar
+// [x] Reset button separated to right-side action group
+// [x] Trade History UserMenu stacking fix
+//
+// ---------------------------------------------------------------
+// DATE / TIMESTAMP COMPATIBILITY
+// ---------------------------------------------------------------
+//
+// NEW DATA
+//
+// executionTimestamp available
+//     ↓
+// exact openedAt / closedAt
+//     ↓
+// exact holding duration
+//
+//
+// LEGACY DATA
+//
+// executionTimestamp missing
+//     ↓
+// preserve trade.date
+//     ↓
+// date-based display
+//     ↓
+// no fabricated execution time
+//
+// Missing execution timestamp displays:
+//
+//     --
+//
+// ---------------------------------------------------------------
+// HOLDING RULE
+// ---------------------------------------------------------------
+//
+// Timestamp available:
+//
+//     Exact elapsed duration
+//
+// Timestamp unavailable:
+//
+//     Calendar-date calculation
+//
+// Same-date legacy trade:
+//
+//     1d
+//
+// Open legacy trade:
+//
+//     Open date → today
+//
+// ---------------------------------------------------------------
+// P&L DISPLAY
+// ---------------------------------------------------------------
+//
+// Positive:
+//
+//     text-emerald-300
+//
+// Negative:
+//
+//     text-red-300
+//
+// Open:
+//
+//     text-slate-300
+//
+// Font:
+//
+//     14px
+//     semibold
+//
+// No glow / no background badge.
+//
+// ---------------------------------------------------------------
+// PAGINATION
+// ---------------------------------------------------------------
+//
+// 50 trades per page.
+//
+// Pipeline:
+//
+// trades
+//     ↓
+// filteredTrades
+//     ↓
+// TradesTable
+//     ↓
+// sortedTrades
+//     ↓
+// pagination
+//
+// Result count:
+//
+//     Showing 1–50 of X
+//
+// Header Total Trades:
+//
+//     filteredTrades.length
+//
+// Therefore Total Trades follows the active Date Range Picker
+// and other filters instead of showing the lifetime dataset.
+//
+// ---------------------------------------------------------------
+// FILTER TOOLBAR
+// ---------------------------------------------------------------
+//
+// Responsive two-group layout:
+//
+// LEFT
+//     Search
+//     Date Range
+//     Account
+//     Status
+//     Side
+//     Asset
+//
+// RIGHT
+//     Reset
+//
+// Removed fixed positioning:
+//
+//     translate-x-[460px]
+//
+// Reset may use a small X-axis tuning value for the current
+// visual design, but responsive wrapping remains controlled by
+// the structural flex layout.
+//
+// ---------------------------------------------------------------
+// ACCOUNT
+// ---------------------------------------------------------------
+//
+// Canonical:
+//
+//     Trade.account
+//
+// remains the broker account ID.
+//
+// UI:
+//
+//     broker_connections
+//         ↓
+//     account_alias
+//         ↓
+//     Margin Account / TFSA Account
+//
+// No canonical account mutation.
+//
+// ---------------------------------------------------------------
+// REPORTING CURRENCY
+// ---------------------------------------------------------------
+//
+// DECISION:
+//
+//     NOT implemented in Trade History yet.
+//
+// Dashboard / Expenses continue to use the existing live FX
+// reporting architecture.
+//
+// Trade History currently keeps:
+//
+//     Entry      → native
+//     Exit       → native
+//     Net P&L    → native
+//     Commission → native
+//     Currency   → native
+//
+// Future reporting-currency support can reuse the existing:
+//
+//     convertTradesToReportingCurrency()
+//
+// architecture without changing canonical trade data.
+//
+// ---------------------------------------------------------------
+// USER MENU
+// ---------------------------------------------------------------
+//
+// Trade History header now establishes a high stacking context:
+//
+//     relative z-[1000]
+//
+// UserMenuV2 already has its own high z-index.
+//
+// This prevents table content from appearing through the menu.
+//
+// ---------------------------------------------------------------
+// ARCHITECTURAL SAFETY
+// ---------------------------------------------------------------
+//
+// We did NOT change:
+//
+//     canonical Trade model
+//     execution ledger
+//     Supabase executions
+//     pairTrades() architecture
+//     P&L calculation logic
+//     commission calculation logic
+//     broker synchronization
+//
+// UI work remains downstream of canonical data.
+//
+// ---------------------------------------------------------------
+// CURRENT ARCHITECTURE
+// ---------------------------------------------------------------
+//
+// IBKR executions
+//     ↓
+// NormalizedExecution[]
+//     ↓
+// pairTrades()
+//     ↓
+// Trade[]
+//     ↓
+// filteredTrades
+//     ↓
+// Trade History UI
+//
+// Legacy execution timestamp compatibility is handled without
+// rewriting canonical historical records.
+//
+// ---------------------------------------------------------------
+// NEXT PHASE
+// ---------------------------------------------------------------
+//
+// Trade History:
+//
+//     DONE
+//
+// Next:
+//
+//     DASHBOARD DATE / LEGACY TIMESTAMP ISSUE
+//
+// Known dashboard issue:
+//
+//     Best Day / Worst Day
+//     invalid date
+//
+// Cause is related to the newer execution timestamp model and
+// historical trades that pre-date executionTimestamp.
+//
+// Planned approach:
+//
+//     New execution timestamp when available
+//     ↓
+//     fallback to legacy date logic when unavailable
+//
+// Do NOT mix this dashboard work with Trade History UI changes.
+//
+// ================================================================
+// END OF CHECKPOINT
+// ================================================================

@@ -25,6 +25,7 @@ interface BrokerConnection {
 
 interface TradesTableProps {
   trades: Trade[];
+  tradeCount: number;
   onSelectTrade: (trade: Trade) => void;
   brokerConnections: BrokerConnection[];
 }
@@ -60,6 +61,7 @@ function parseLocalDate(
 
 export default function TradesTable({
   trades,
+  tradeCount,
   onSelectTrade,
   brokerConnections,
 }: TradesTableProps) {
@@ -279,27 +281,47 @@ useEffect(() => {
     "Status",
   ].map((header) => (
 
-    <div
-      key={header}
-      className="
-        flex
-        h-[36px]
-        items-center
-        translate-y-[5px]
-        justify-center
-        border-b
-        border-white/[0.05]
-        px-3
-        text-center
-        text-[12px]
-        font-semibold
-        uppercase
-        tracking-[0.08em]
-        text-slate-500
-      "
-    >
-      {header}
-    </div>
+<div
+  key={header}
+  className={`
+    flex
+    h-[36px]
+    items-center
+    translate-y-[5px]
+    justify-center
+    border-b
+    border-white/[0.05]
+    px-3
+    text-center
+    text-[12px]
+    font-semibold
+    uppercase
+    tracking-[0.08em]
+    text-slate-500
+
+    ${
+      header === "Type"
+        ? "relative left-[-6px]"
+        : header === "Side"
+        ? "relative left-[-2px]"
+        : header === "Entry"
+        ? "relative left-[-3px]"
+        : header === "Exit"
+        ? "relative left-[-8px]"
+        : header === "Qty"
+        ? "relative left-[-6px]"
+        : header === "Net P&L"
+        ? "relative left-[-6px]"
+        : header === "Commission"
+        ? "relative left-[-2px]"
+        : header === "Status"
+        ? "relative left-[-20px]"
+        : ""
+    }
+  `}
+>
+  {header}
+</div>
 
   ))}
 
