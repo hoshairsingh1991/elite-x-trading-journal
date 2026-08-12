@@ -36,18 +36,18 @@ function formatQuantity(
 
     h-[205px]
     overflow-visible
-    rounded-[22px]
+    rounded-[8px]
     border
-    border-white/[0.08]
-    bg-[#081526]/80
+    border-white/[0.06]
+    bg-[#0b1220]
     backdrop-blur-xl
 
     transition-all
     duration-300
 
     hover:-translate-y-1
-    hover:border-white/[0.14]
-    hover:bg-[#0A1A2E]/80
+    hover:border-white/[0.12]
+    hover:bg-[#0b0c1e]
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.35)]
   "
 >

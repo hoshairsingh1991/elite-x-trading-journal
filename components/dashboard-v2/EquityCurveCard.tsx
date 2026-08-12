@@ -100,11 +100,11 @@ function formatCurrency(
   className="
     h-[400px]
     overflow-hidden
-    rounded-[20px]
-    border
-    border-white/[0.06]
-    bg-[#081526]/80
-    backdrop-blur-xl
+ rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
+backdrop-blur-xl
 
     transition-all
     duration-300
@@ -112,7 +112,7 @@ function formatCurrency(
     hover:-translate-y-1
 
     hover:border-white/[0.12]
-    hover:bg-[#0A1A2E]/80
+    hover:bg-[#0b0c1e]
 
     hover:shadow-[0_18px_36px_rgba(0,0,0,0.22)]
   "
@@ -183,7 +183,7 @@ function formatCurrency(
         h-[275px]
         w-[95%]
         overflow-hidden
-        rounded-[18px]
+        rounded-[8px]
         border
         border-white/[0.05]
         bg-white/[0.02]

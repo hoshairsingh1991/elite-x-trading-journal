@@ -426,10 +426,10 @@ const bottomCards = [
       <div
         className="
           w-[98%]
-          rounded-[22px]
-          border
-          border-white/[0.05]
-          bg-[#081526]
+rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
           px-5
           pt-4
           pb-5

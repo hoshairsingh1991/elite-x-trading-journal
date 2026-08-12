@@ -174,18 +174,18 @@ return (
 
       h-[730px]
       overflow-hidden
-      rounded-[22px]
-      border
-      border-white/[0.08]
-      bg-[#081526]/80
-      backdrop-blur-xl
+rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
+backdrop-blur-xl
 
       transition-all
       duration-300
 
       hover:-translate-y-1
       hover:border-white/[0.14]
-      hover:bg-[#0A1A2E]/80
+      hover:bg-[#0b0c1e]
       hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
     "
   >
@@ -322,7 +322,7 @@ return (
     <div
       className="
         mt-2
-        rounded-[18px]
+        rounded-[8px]
         border
         border-white/[0.10]
         bg-white/[0.02]
@@ -507,7 +507,7 @@ return (
     <div
       className="
         mt-2
-        rounded-[18px]
+        rounded-[8px]
         border
         border-white/[0.10]
         bg-white/[0.02]
@@ -688,7 +688,7 @@ return (
               items-center
               justify-center
 
-              rounded-xl
+              rounded-[8px]
               border
               border-white/[0.08]
               bg-white/[0.02]
@@ -756,7 +756,7 @@ return (
     <div
       className="
         mt-2
-        rounded-[18px]
+        rounded-[8px]
         border
         border-white/[0.10]
         bg-white/[0.02]
@@ -977,7 +977,7 @@ return (
 
 <div
   className="
-    rounded-[16px]
+    rounded-[8px]
     border
     border-blue-500/[0.12]
     bg-blue-500/[0.02]

@@ -292,6 +292,7 @@ git commit -m "checkpoint: expense drawer ux improvements"
 
 git commit -m "feat(expenses): add recurring anchor indicator and help tooltip"
 ------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
 git commit -m "checkpoint/expense-kpi-net-trading-pnl-v1" - Expense page improvment strats here. 
 
 
@@ -344,6 +345,7 @@ git commit -m "fix date range picker calendar UI"
 git commit -m "checkpoint: date range picker UI"
 
 ----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
 Trade History Page strats here .........
 
 git commit -m "checkpoint: trade-history-v2-backend-ready"
@@ -363,6 +365,10 @@ git commit -m "checkpoint: trade history final"
 
 git commit -m "checkpoint: dashboard and expense date compatibility"
 git commit -m "checkpoint: trade history filters complete"
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+git commit -m "checkpoint: dashboard and sidebar UI redesign"
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:

@@ -98,7 +98,7 @@ export default function Sidebar() {
     w-[180px]
     flex-col
     overflow-hidden
-    rounded-[30px]
+    rounded-[8px]
     border
     border-white/[0.06]
     bg-[#07111C]
@@ -214,7 +214,7 @@ const className = `
   translate-x-0
   items-center
   justify-start
-  rounded-[20px]
+  rounded-[8px]
   border
   transition-all
   duration-150
@@ -293,7 +293,7 @@ return (
         translate-y-6
         items-center
         justify-start
-        rounded-[20px]
+        rounded-[8px]
         border
         border-transparent
         transition-all
@@ -365,7 +365,7 @@ return (
         translate-y-6
         items-center
         justify-start
-        rounded-[20px]
+        rounded-[8px]
         border
         transition-all
         duration-150

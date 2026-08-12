@@ -65,10 +65,10 @@ export default function KPICard({
         flex
         flex-col
         justify-between
-        rounded-[16px]
-        border
-        border-white/[0.05]
-        bg-[#09182d]
+rounded-[10px]
+border
+border-white/[0.06]
+bg-[#0b1220]
         px-4
 
         transition-all

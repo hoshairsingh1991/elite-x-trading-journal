@@ -278,7 +278,7 @@ return (
     background: "#0f172a",
     border:
       "1px solid rgba(255,255,255,0.06)",
-    borderRadius: "12px",
+    borderRadius: "8px",
     color: "white",
     fontSize: "12px",
     padding: "8px 10px",

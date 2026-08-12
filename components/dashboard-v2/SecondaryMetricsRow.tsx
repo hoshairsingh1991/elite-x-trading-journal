@@ -197,32 +197,35 @@ else if (
     hover:z-[100]
 
     h-[90px]
-    rounded-[22px]
-    border
-    border-white/[0.08]
-    bg-[#081526]/80
-    backdrop-blur-xl
+rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
+backdrop-blur-xl
 
     transition-all
     duration-300
 
     hover:-translate-y-1
     hover:border-white/[0.14]
-    hover:bg-[#0A1A2E]/80
+    hover:bg-[#0b0c1e]
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
-  <div
-    className="
-      flex
-      h-full
-      items-center
-      justify-center
-    "
-  >
+<div
+  className="
+    flex
+    h-full
+    min-w-0
+    items-center
+    justify-center
+    gap-5
+    -translate-x-2
+  "
+>
     {/* ICON */}
 
-    <div className="-translate-x-7 shrink-0">
+    <div className="shrink-0">
 
       <Flame
         className={`h-7 w-7 ${streakColor}`}
@@ -233,16 +236,16 @@ else if (
 
     {/* TEXT */}
 
-    <div
-      className="
-        -translate-x-2
-        -translate-y-1
-        flex
-        flex-col
-        items-center
-        text-center
-      "
-    >
+<div
+  className="
+    min-w-0
+    -translate-y-1
+    flex
+    flex-col
+    items-center
+    text-center
+  "
+>
 
       <p
         className="
@@ -309,10 +312,10 @@ else if (
     hover:z-[100]
 
     h-[90px]
-    rounded-[22px]
+    rounded-[8px]
     border
-    border-white/[0.08]
-    bg-[#081526]/80
+    border-white/[0.06]
+    bg-[#0b1220]
     backdrop-blur-xl
 
     transition-all
@@ -320,7 +323,7 @@ else if (
 
     hover:-translate-y-1
     hover:border-white/[0.14]
-    hover:bg-[#0A1A2E]/80
+    hover:bg-[#0b0c1e]
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
@@ -328,26 +331,27 @@ else if (
     className="
       flex
       h-full
+      min-w-0
       items-center
       justify-center
+      gap-3
+      -translate-x-3
     "
   >
     {/* ICON */}
 
-    <div className="-translate-x-5 shrink-0">
-
+    <div className="shrink-0">
       <Activity
         className={`h-7 w-7 ${volatilityColor}`}
         strokeWidth={2}
       />
-
     </div>
 
     {/* TEXT */}
 
     <div
       className="
-        -translate-x-2
+        min-w-0
         -translate-y-1
         flex
         flex-col
@@ -355,16 +359,14 @@ else if (
         text-center
       "
     >
-
       {/* TITLE */}
 
       <div className="flex items-center gap-1">
-
         <p
           className="
+            translate-x-2
             text-[11px]
             font-medium
-            translate-x-2
             uppercase
             tracking-[0.12em]
             text-slate-500
@@ -373,14 +375,13 @@ else if (
           Volatility
         </p>
 
-       <MetricInfoTooltip
-  className="translate-x-[8px] translate-y-[0px]"
-  definition="Measures how much your daily realized P&L fluctuates over the selected period."
-  formula="Standard Deviation (σ) of Daily Realized P&L"
-  calculation="Calculated from the standard deviation of your daily realized P&L values within the selected date range."
-  interpretation="Lower values indicate more stable results. Higher values indicate greater day-to-day variability in trading performance."
-/>
-
+        <MetricInfoTooltip
+          className="translate-x-[8px] translate-y-[0px]"
+          definition="Measures how much your daily realized P&L fluctuates over the selected period."
+          formula="Standard Deviation (σ) of Daily Realized P&L"
+          calculation="Calculated from the standard deviation of your daily realized P&L values within the selected date range."
+          interpretation="Lower values indicate more stable results. Higher values indicate greater day-to-day variability in trading performance."
+        />
       </div>
 
       {/* VALUE */}
@@ -394,7 +395,6 @@ else if (
           items-center
         "
       >
-
         <p
           className={`
             text-[20px]
@@ -417,11 +417,8 @@ else if (
         >
           σ {volatility.toFixed(0)}
         </p>
-
       </div>
-
     </div>
-
   </div>
 </div>
 
@@ -433,10 +430,10 @@ else if (
     hover:z-[100]
 
     h-[90px]
-    rounded-[22px]
+    rounded-[8px]
     border
-    border-white/[0.08]
-    bg-[#081526]/80
+    border-white/[0.06]
+    bg-[#0b1220]
     backdrop-blur-xl
 
     transition-all
@@ -444,7 +441,7 @@ else if (
 
     hover:-translate-y-1
     hover:border-white/[0.14]
-    hover:bg-[#0A1A2E]/80
+    hover:bg-[#0b0c1e]
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
@@ -452,26 +449,27 @@ else if (
     className="
       flex
       h-full
+      min-w-0
       items-center
       justify-center
+      gap-3
+      -translate-x-2
     "
   >
     {/* ICON */}
 
-    <div className="-translate-x-3 shrink-0">
-
+    <div className="shrink-0">
       <LocateFixed
         className={`h-7 w-7 ${consistencyColor}`}
         strokeWidth={2}
       />
-
     </div>
 
     {/* TEXT */}
 
     <div
       className="
-        -translate-x-2
+        min-w-0
         -translate-y-1
         flex
         flex-col
@@ -479,16 +477,14 @@ else if (
         text-center
       "
     >
-
       {/* TITLE */}
 
       <div className="flex items-center gap-1">
-
         <p
           className="
+            translate-x-3
             text-[11px]
             font-medium
-            translate-x-3
             uppercase
             tracking-[0.12em]
             text-slate-500
@@ -498,13 +494,12 @@ else if (
         </p>
 
         <MetricInfoTooltip
-        className="translate-x-[10px] translate-y-[0px]"
+          className="translate-x-[10px] translate-y-[0px]"
           definition="Measures how consistently your trading produces stable results over time."
           formula="Composite Consistency Score (0–100)"
           calculation="Computed from your win/loss distribution and equity curve stability across the selected period."
           interpretation="Higher scores indicate more disciplined and repeatable trading performance."
         />
-
       </div>
 
       {/* VALUE */}
@@ -518,7 +513,6 @@ else if (
           items-center
         "
       >
-
         <p
           className={`
             text-[20px]
@@ -541,11 +535,8 @@ else if (
         >
           Score: {consistencyScore}/100
         </p>
-
       </div>
-
     </div>
-
   </div>
 </div>
 
@@ -557,10 +548,10 @@ else if (
     hover:z-[100]
 
     h-[90px]
-    rounded-[22px]
+    rounded-[8px]
     border
-    border-white/[0.08]
-    bg-[#081526]/80
+    border-white/[0.06]
+    bg-[#0b1220]
     backdrop-blur-xl
 
     transition-all
@@ -568,7 +559,7 @@ else if (
 
     hover:-translate-y-1
     hover:border-white/[0.14]
-    hover:bg-[#0A1A2E]/80
+    hover:bg-[#0b0c1e]
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
@@ -576,26 +567,27 @@ else if (
     className="
       flex
       h-full
+      min-w-0
       items-center
       justify-center
+      gap-5
+      -translate-x-2
     "
   >
     {/* ICON */}
 
-    <div className="-translate-x-5 shrink-0">
-
+    <div className="shrink-0">
       <BarChart3
         className="h-7 w-7 text-cyan-400"
         strokeWidth={2}
       />
-
     </div>
 
     {/* TEXT */}
 
     <div
       className="
-        -translate-x-2
+        min-w-0
         -translate-y-1
         flex
         flex-col
@@ -603,7 +595,6 @@ else if (
         text-center
       "
     >
-
       {/* TITLE */}
 
       <p
@@ -629,7 +620,6 @@ else if (
           items-center
         "
       >
-
         <p
           className="
             text-[20px]
@@ -652,11 +642,8 @@ else if (
         >
           {mostTradedTradeCount} Trades
         </p>
-
       </div>
-
     </div>
-
   </div>
 </div>
 
@@ -668,10 +655,10 @@ else if (
     hover:z-[100]
 
     h-[90px]
-    rounded-[22px]
+    rounded-[8px]
     border
-    border-white/[0.08]
-    bg-[#081526]/80
+    border-white/[0.06]
+    bg-[#0b1220]
     backdrop-blur-xl
 
     transition-all
@@ -679,7 +666,7 @@ else if (
 
     hover:-translate-y-1
     hover:border-white/[0.14]
-    hover:bg-[#0A1A2E]/80
+    hover:bg-[#0b0c1e]
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
@@ -687,26 +674,27 @@ else if (
     className="
       flex
       h-full
+      min-w-0
       items-center
       justify-center
+      gap-0
+      -translate-x-2
     "
   >
     {/* ICON */}
 
-    <div className="-translate-x-1 shrink-0">
-
+    <div className="shrink-0">
       <Repeat
         className="h-6 w-6 text-cyan-400"
         strokeWidth={2}
       />
-
     </div>
 
     {/* TEXT */}
 
     <div
       className="
-        -translate-x-2
+        min-w-0
         -translate-y-1
         flex
         flex-col
@@ -714,7 +702,6 @@ else if (
         text-center
       "
     >
-
       {/* TITLE */}
 
       <p
@@ -740,7 +727,6 @@ else if (
           items-center
         "
       >
-
         <p
           className="
             text-[20px]
@@ -763,11 +749,8 @@ else if (
         >
           {activeTradingDays} Trading Days
         </p>
-
       </div>
-
     </div>
-
   </div>
 </div>
 
@@ -779,10 +762,10 @@ else if (
     hover:z-[100]
 
     h-[90px]
-    rounded-[22px]
+    rounded-[8px]
     border
-    border-white/[0.08]
-    bg-[#081526]/80
+    border-white/[0.06]
+    bg-[#0b1220]
     backdrop-blur-xl
 
     transition-all
@@ -790,7 +773,7 @@ else if (
 
     hover:-translate-y-1
     hover:border-white/[0.14]
-    hover:bg-[#0A1A2E]/80
+    hover:bg-[#0b0c1e]
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
@@ -798,26 +781,27 @@ else if (
     className="
       flex
       h-full
+      min-w-0
       items-center
       justify-center
+      gap-0
+      -translate-x-2
     "
   >
     {/* ICON */}
 
-    <div className="-translate-x-3 shrink-0">
-
+    <div className="shrink-0">
       <Shield
         className={`h-7 w-7 ${calmarColor}`}
         strokeWidth={2}
       />
-
     </div>
 
     {/* TEXT */}
 
     <div
       className="
-        -translate-x-2
+        min-w-0
         -translate-y-1
         flex
         flex-col
@@ -825,15 +809,13 @@ else if (
         text-center
       "
     >
-
       {/* TITLE */}
 
       <div className="flex items-center gap-1">
-
         <p
           className="
-            text-[11px]
             translate-x-3
+            text-[11px]
             font-medium
             uppercase
             tracking-[0.12em]
@@ -844,13 +826,12 @@ else if (
         </p>
 
         <MetricInfoTooltip
-        className="translate-x-[12px] translate-y-[0px]"
+          className="translate-x-[12px] translate-y-[0px]"
           definition="Measures return achieved relative to maximum drawdown."
           formula="Total Return ÷ Maximum Drawdown"
           calculation="Calculated using your realized trading performance and maximum drawdown over the selected period."
           interpretation="Higher values indicate stronger risk-adjusted performance by generating more return for each unit of drawdown."
         />
-
       </div>
 
       {/* VALUE */}
@@ -864,7 +845,6 @@ else if (
           items-center
         "
       >
-
         <p
           className="
             text-[20px]
@@ -887,11 +867,8 @@ else if (
         >
           {calmarLabel}
         </p>
-
       </div>
-
     </div>
-
   </div>
 </div>
 

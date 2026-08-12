@@ -425,7 +425,7 @@ const tradeDate =
       return "border-red-500/15 bg-[rgba(127,29,29,0.18)]";
     }
 
-    return "border-white/[0.05] bg-[#09182d]/90";
+    return "border-white/[0.06] bg-[#0b1220]";
   }
 
   // =====================================================
@@ -470,12 +470,12 @@ const hasNote =
         onClick={() =>
           setSelectedDay(day)
         }
-        className={`relative flex h-[90px] flex-col justify-between rounded-[16px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
+        className={`relative flex h-[90px] flex-col justify-between rounded-[8px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
           dayData
             ? getDayIntensity(
                 dayData.pnl
               )
-            : "border-white/[0.05] bg-[#09182d]/90"
+            : "border-white/[0.06] bg-[#0b1220]"
         }`}
       >
 
@@ -617,11 +617,10 @@ const handleDeleteTrade =
 
   <div
     className="
-      rounded-[28px]
-      border
-      border-white/[0.04]
-
-      bg-[linear-gradient(180deg,rgba(20,32,55,0.82)_0%,rgba(9,24,45,0.92)_100%)]
+rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
 
       p-8
 
@@ -773,7 +772,7 @@ const handleDeleteTrade =
 
           <div className="mt-16 rounded-[42px] border border-white/[0.00] bg-[#081526]/00 px-12 pt-12 pb-[72px]">
 
-            <div className="w-[calc(100%-36px)] translate-x-[18px] translate-y-[-12px] rounded-[34px] border border-white/[0.04] bg-[#081526]/85 px-12 pt-12 pb-[48px]">
+            <div className="w-[calc(100%-36px)] translate-x-[18px] translate-y-[-12px] rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-12 pt-12 pb-[48px]">
 
               <div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
                 spacer
@@ -836,7 +835,7 @@ const handleDeleteTrade =
 
     <div className="w-full max-w-[560px] rounded-[32px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-8 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
 
-      <div className="rounded-[24px] border border-white/[0.05] bg-[#0c1a31]/92 px-[28px] pt-[28px] pb-[28px]">
+      <div className="rounded-[8px] border border-white/[0.05] bg-[#0c1a31]/92 px-[28px] pt-[28px] pb-[28px]">
       <div className="flex">
 
   <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
@@ -1016,9 +1015,9 @@ const handleDeleteTrade =
 
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 p-8 backdrop-blur-sm">
 
-          <div className="w-full max-w-[980px] rounded-[38px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-10 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
+         <div className="w-full max-w-[980px] rounded-[8px] border border-white/[0.06] bg-[#0b1220] p-10 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
 
-            <div className="rounded-[32px] border border-white/[0.04] bg-[#0c1a31]/92 px-[28px] pt-[28px] pb-[28px]">
+           <div className="rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-[28px] pt-[28px] pb-[28px]">
 
               <div className="flex">
 
@@ -1059,13 +1058,13 @@ const handleDeleteTrade =
 
                   {/* SAFE ZONE */}
 
-                  <div className="mt-10 rounded-[28px] border border-white/[0.04] bg-[#081526]/70 p-8">
+                  <div className="mt-10 rounded-[8px] border border-white/[0.04] bg-[#081526]/70 p-8">
 <div className="h-[8px]" />
                     {/* KPI */}
 
                     <div className="grid grid-cols-5 gap-6">
 
-                      <div className="flex flex-col items-center translate-x-12 justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-12 justify-center rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           NET P&L
@@ -1085,7 +1084,7 @@ const handleDeleteTrade =
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-center translate-x-18  justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-18  justify-center rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           TOTAL TRADES
@@ -1098,7 +1097,7 @@ const handleDeleteTrade =
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-center translate-x-22  justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-22  justify-center rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           COMMISSION
@@ -1114,7 +1113,7 @@ const handleDeleteTrade =
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-center translate-x-30  justify-center rounded-[20px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
+                      <div className="flex flex-col items-center translate-x-30  justify-center rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-6 text-center">
 
                         <p className="text-[11px] font-black tracking-[0.18em] text-slate-500">
                           WIN RATE
@@ -1137,7 +1136,7 @@ const handleDeleteTrade =
 
 <div className="mt-6 flex justify-center">
 
-  <div className="w-[900px] rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
+  <div className="w-[900px] rounded-[8px] border border-white/[0.06] bg-white/[0.02] p-7">
 
     <div className="flex items-center justify-between">
 
@@ -1198,7 +1197,7 @@ const handleDeleteTrade =
 `}</style>
                     {/* TABLE */}
 
-                    <div className="mt-6 rounded-[24px] border border-white/[0.05] bg-white/[0.02] p-7">
+                    <div className="mt-6 rounded-[8px] border border-white/[0.05] bg-white/[0.02] p-7">
 
                       <div className="flex items-center justify-between">
 
