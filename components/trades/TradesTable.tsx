@@ -455,15 +455,17 @@ return (
       )}
     </span>
 
-    <span className="mt-[4px] text-[11px] font-medium text-slate-500">
-      {openedDate.toLocaleTimeString(
+<span className="mt-[4px] text-[11px] font-medium text-slate-500">
+  {trade.openedAt?.includes("T")
+    ? openedDate.toLocaleTimeString(
         "en-US",
         {
           hour: "2-digit",
           minute: "2-digit",
         }
-      )}
-    </span>
+      )
+    : "--"}
+</span>
   </div>
 );
       })()
@@ -503,15 +505,17 @@ return (
       )}
     </span>
 
-    <span className="mt-[4px] text-[11px] font-medium text-slate-500">
-      {closedDate.toLocaleTimeString(
+<span className="mt-[4px] text-[11px] font-medium text-slate-500">
+  {trade.closedAt?.includes("T")
+    ? closedDate.toLocaleTimeString(
         "en-US",
         {
           hour: "2-digit",
           minute: "2-digit",
         }
-      )}
-    </span>
+      )
+    : "--"}
+</span>
   </div>
 );
 })()
@@ -524,55 +528,188 @@ return (
 
 {trade.openedAt ? (
   (() => {
-    const openedTime =
-      new Date(
-        trade.openedAt
-      ).getTime();
 
-    const endTime =
-      trade.closedAt
-        ? new Date(
-            trade.closedAt
-          ).getTime()
-        : Date.now();
+    // =================================================
+    // DETERMINE TIMESTAMP PRECISION
+    // =================================================
+    
+    const hasExactTimestamps =
+      trade.openedAt.includes("T") &&
+      !!trade.closedAt &&
+      trade.closedAt.includes("T");
 
-    const totalMinutes =
-      Math.max(
-        0,
+    let holding = "";
+
+    // =================================================
+    // NEW DATA
+    // EXACT EXECUTION TIMESTAMPS AVAILABLE
+    // =================================================
+
+    if (hasExactTimestamps) {
+
+      const openedTime =
+        new Date(
+          trade.openedAt
+        ).getTime();
+
+      const endTime =
+        trade.closedAt
+          ? new Date(
+              trade.closedAt
+            ).getTime()
+          : Date.now();
+
+      const totalMinutes =
+        Math.max(
+          0,
+          Math.floor(
+            (endTime - openedTime) /
+              (1000 * 60)
+          )
+        );
+
+      const totalHours =
         Math.floor(
-          (endTime - openedTime) /
-            (1000 * 60)
-        )
-      );
+          totalMinutes / 60
+        );
 
-    const totalHours =
-      Math.floor(
-        totalMinutes / 60
-      );
+      const days =
+        Math.floor(
+          totalHours / 24
+        );
 
-    const days =
-      Math.floor(
-        totalHours / 24
-      );
+      const hours =
+        totalHours % 24;
 
-    const hours =
-      totalHours % 24;
+      holding =
+        days > 0
+          ? `${days}d ${hours}h`
+          : totalHours > 0
+          ? `${totalHours}h`
+          : `${totalMinutes}m`;
 
-    const holding =
-      days > 0
-        ? `${days}d ${hours}h`
-        : totalHours > 0
-        ? `${totalHours}h`
-        : `${totalMinutes}m`;
+    }
+
+    // =================================================
+    // LEGACY DATA
+    // DATE ONLY — NO EXECUTION TIMESTAMP
+    // =================================================
+
+    else {
+
+      const openDate =
+        trade.openedAt.split("T")[0];
+
+      const closeDate =
+        trade.closedAt
+          ? trade.closedAt.split("T")[0]
+          : null;
+
+      if (closeDate) {
+
+        const [
+          openYear,
+          openMonth,
+          openDay,
+        ] = openDate
+          .split("-")
+          .map(Number);
+
+        const [
+          closeYear,
+          closeMonth,
+          closeDay,
+        ] = closeDate
+          .split("-")
+          .map(Number);
+
+        const openCalendarDate =
+          new Date(
+            openYear,
+            openMonth - 1,
+            openDay
+          );
+
+        const closeCalendarDate =
+          new Date(
+            closeYear,
+            closeMonth - 1,
+            closeDay
+          );
+
+        const calendarDays =
+          Math.floor(
+            (
+              closeCalendarDate.getTime() -
+              openCalendarDate.getTime()
+            ) /
+            (1000 * 60 * 60 * 24)
+          );
+
+        holding =
+          calendarDays === 0
+            ? "1d"
+            : `${calendarDays}d`;
+
+      } else {
+
+        // =================================================
+        // LEGACY OPEN TRADE
+        // DATE ONLY — CALCULATE THROUGH TODAY
+        // =================================================
+
+        const [
+          openYear,
+          openMonth,
+          openDay,
+        ] = openDate
+          .split("-")
+          .map(Number);
+
+        const openCalendarDate =
+          new Date(
+            openYear,
+            openMonth - 1,
+            openDay
+          );
+
+        const today =
+          new Date();
+
+        const todayCalendarDate =
+          new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+          );
+
+        const calendarDays =
+          Math.floor(
+            (
+              todayCalendarDate.getTime() -
+              openCalendarDate.getTime()
+            ) /
+            (1000 * 60 * 60 * 24)
+          );
+
+        holding =
+          calendarDays === 0
+            ? "1d"
+            : `${calendarDays}d`;
+
+      }
+
+    }
 
     return (
       <div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
 
         {trade.status === "OPEN" ? (
 
-<div className="group relative flex items-center justify-center">
+          <div className="group relative flex items-center justify-center">
 
-  {/* LIVE DOT */}
+            {/* LIVE DOT */}
+
 
   <div className="h-[8px] w-[8px] shrink-0 rounded-full bg-emerald-400" />
 
@@ -586,12 +723,14 @@ return (
     {holding}
   </span>
 
-  {/* TOOLTIP */}
+  
 
-  <div className="pointer-events-none absolute bottom-[135%] hidden whitespace-nowrap rounded-xl border border-white/[0.06] bg-[#071427] px-4 py-2 text-[12px] font-semibold tracking-[0.03em] text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.35)] group-hover:block">
-    Position still open for{" "}
-    {holding}
-  </div>
+{/* TOOLTIP */}
+
+<div className="pointer-events-none absolute bottom-[135%] hidden whitespace-nowrap text-[12px] font-semibold tracking-[0.03em] text-slate-400 group-hover:block">
+  Position still open for{" "}
+  {holding}
+</div>
 
 </div>
 
@@ -732,12 +871,12 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 {/* PNL */}
 
 <div
-  className={`flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[15px] font-black tracking-tight ${
+  className={`flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-semibold tracking-tight ${
     isWinner
-      ? "text-emerald-400"
+      ? "text-emerald-300"
       : isOpen
-      ? "text-amber-400"
-      : "text-red-400"
+      ? "text-slate-300"
+      : "text-red-300"
   }`}
 >
   {trade.pnl >= 0 ? "+" : "-"}
@@ -820,7 +959,7 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 
           {/* RESULT COUNT */}
 
-          <div className="text-[12px] font-medium tracking-[0.02em] text-slate-500">
+          <div className="translate-x-[20px] text-[12px] font-medium tracking-[0.02em] text-slate-500">
             {sortedTrades.length === 0 ? (
               "No trades"
             ) : (

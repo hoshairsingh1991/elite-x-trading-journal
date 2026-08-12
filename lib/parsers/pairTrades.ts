@@ -23,6 +23,21 @@ interface PositionExecution
 }
 
 // =================================================
+// CANONICAL EXECUTION DATETIME
+// NEW + LEGACY COMPATIBILITY
+// =================================================
+
+function getExecutionDateTime(
+  execution: NormalizedExecution
+): string {
+
+  return (
+    execution.executionTimestamp ||
+    execution.date
+  );
+}
+
+// =================================================
 // EXECUTION SORTING
 // =================================================
 
@@ -457,10 +472,14 @@ feeCurrency:
           isOpen: false,
 
 openedAt:
-  entryExecution.executionTimestamp,
+  getExecutionDateTime(
+    entryExecution
+  ),
 
 closedAt:
-  execution.executionTimestamp,
+  getExecutionDateTime(
+    execution
+  ),
 
             holdingDays:
 
@@ -629,10 +648,12 @@ if (
 
     isOpen: true,
 
- openedAt:
-  execution.executionTimestamp,
+openedAt:
+  getExecutionDateTime(
+    execution
+  ),
 
-    closedAt: null,
+closedAt: null,
 
     holdingDays: 0,
 
@@ -766,10 +787,12 @@ Object.entries(
 
           isOpen: true,
 
-       openedAt:
-  position.executionTimestamp,
+openedAt:
+  getExecutionDateTime(
+    position
+  ),
 
-          closedAt: null,
+closedAt: null,
 
           holdingDays: 0,
 
