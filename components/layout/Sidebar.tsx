@@ -11,7 +11,7 @@ import {
   BarChart3,
   Settings,
   NotebookPen,
-  LineChart,
+  Calculator,
   Bell,
   Monitor,
   CircleHelp,
@@ -51,11 +51,11 @@ const mainItems = [
 ];
 
 const toolItems = [
-  {
-    title: "Screeners",
-    icon: LineChart,
-    href: "#",
-  },
+{
+  title: "Toolkit",
+  icon: Calculator,
+  href: "#",
+},
   {
     title: "Watchlist",
     icon: Monitor,
