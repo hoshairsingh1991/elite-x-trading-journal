@@ -197,12 +197,12 @@ if (storedCurrency) {
   />
 </button>
 
-      {isOpen && (
-        <div className="absolute right-0 top-16 z-50 w-[445px] min-h-[710px] max-h-[80vh] overflow-y-auto rounded-[36px] border border-white/10 bg-[#071427] p-5 shadow-[0_40px_120px_rgba(0,0,0,0.85)]">
+{isOpen && (
+  <div className="absolute right-0 top-16 z-50 w-[360px] max-h-[80vh] overflow-y-auto rounded-[8px] border border-white/[0.06] bg-[#0f1728] p-5 shadow-[0_40px_120px_rgba(0,0,0,0.85)]">
 
-          <div className="overflow-hidden rounded-[40px] border border-blue-500/0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.35),transparent_35%),linear-gradient(180deg,#0b1e3b_0%,#071427_100%)] ">
+    <div className="overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#0b0c1e]">
 
-            <div className="px-8 pt-8 pb-10 flex min-h-[200px] flex-col justify-center gap-6">
+      <div className="flex min-h-[200px] flex-col justify-center gap-6 px-8 pt-8 pb-10">
 
  
 
@@ -269,7 +269,7 @@ if (storedCurrency) {
     items-center
     gap-2
 
-    rounded-full
+    rounded-[8px]
     border
     border-cyan-400/20
     bg-cyan-400/10
@@ -300,18 +300,18 @@ if (storedCurrency) {
 
 <div className="flex justify-center">
 
-  <div
-    className="
-      w-[95%]
-      h-[72px]
-      -translate-y-[10px]
-      overflow-hidden
-      rounded-[20px]
-      border
-      border-white/[0.08]
-      bg-[#081526]/80
-    "
-  >
+<div
+  className="
+    w-[95%]
+    h-[72px]
+    -translate-y-[10px]
+    overflow-hidden
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+  "
+>
 
     <div className="grid h-[72px] grid-cols-3">
 
@@ -359,145 +359,15 @@ if (storedCurrency) {
 </div>
 
 
-<div className="mt-4 flex justify-center">
-
-  <div className="w-[95%] min-h-[70px] -translate-y-[8px] rounded-[24px] border border-white/10 bg-white/[0.03] flex flex-col justify-center">
-
-    <div className="px-6 pt-5 pb-4">
-
-            {/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-<div className="h-[4px]" />
-
-      <div className="grid grid-cols-[1fr_auto] items-center">
-
-        <div className="relative left-8 flex items-center gap-3">
-
-            
-
-          <Crown
-            className="text-amber-400"
-            size={14}
-          />
-
-
-          <span className="text-[15px] font-semibold text-white">
-            Elite Plan
-          </span>
-
-        </div>
-
-        <div className="relative right-60 rounded-full bg-emerald-500/15 px-5 py-2 text-[12px] font-semibold text-emerald-400">
-  Active
-</div>
-
-      </div>
-
-    </div>
-
-       {/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-<div className="h-[4px]" />
-
-    <div className="border-t border-white/5" />
-
-    <div className="px-6 py-5">
-
-               {/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-<div className="h-[6px]" />
-
-      <div className="relative left-8 flex items-center gap-4">
-
-        <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(34,197,94,0.8)]" />
-
-        <p className="text-[15px] font-medium text-white">
-          All systems operational
-        </p>
-
-
-      </div>
-
-       {/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-<div className="h-[4px]" />
-
-    </div>
-
-  </div>
-
-</div>
-
-
   {/* ===================================== */}
 {/* INVISIBLE SPACER */}
 {/* ===================================== */}
 
-<div className="h-[4px]" />
-
-          <div className="mt-4 flex justify-center">
-
-  <button
-    onClick={comingSoon}
-    className="flex w-[95%] min-h-[70px] items-center justify-between rounded-[24px] border border-violet-500/20 bg-gradient-to-r from-violet-600/20 to-blue-600/10 p-6 text-left"
-  >
-    <div className="relative left-2 flex items-center gap-4">
-
-      <div className="rounded-2xl bg-violet-500/20 p-3">
-  <Zap
-    className="text-violet-300"
-    size={18}
-  />
-</div>
-
-      <div>
-        <p
-  className="
-    text-[13px]
-    font-semibold
-    text-white
-  "
->
-          Unlock Advanced Analytics
-        </p>
-
-        <p
-  className="
-    mt-1
-    text-[13px]
-    font-medium
-    text-slate-400
-  "
->
-          Upgrade to Elite Pro for deeper insights
-        </p>
-      </div>
-
-    </div>
-
-    <ChevronRight className="text-slate-500" />
-
-  </button>
-
-</div>
-
-  {/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-<div className="h-[12px]" />
+<div className="h-[0px]" />
 
 <div className="mt-6 flex justify-center">
 
-  <div className="w-[95%] rounded-[24px] border border-white/10 bg-white/[0.03] pb-8">
+  <div className="w-[95%] rounded-[8px] border border-white/[0.06] bg-[#0b1220] mb-4">
   
   
    {/* ===================================== */}
@@ -579,7 +449,7 @@ if (storedCurrency) {
   </div>
 
 </div>
-
+<div className="h-4" />
         </div>
       </div>
     )}
@@ -665,8 +535,8 @@ function Row({
 
         </div>
 
+
       </div>
-      
       
 
       <ChevronRight
@@ -674,5 +544,8 @@ function Row({
         size={18}
       />
     </button>
+
+
+
   );
 }
