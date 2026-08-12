@@ -739,7 +739,7 @@ if (editingExpense?.id) {
 }
 
 const inputCenter =
-  "h-[40px] w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-[12px] text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
+  "h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 text-[12px] text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
 
 const label =
   "mb-2.5 block text-[12px] font-medium text-slate-200";
@@ -758,7 +758,7 @@ const label =
 
       {/* Drawer */}
 <aside
-  className={`fixed right-0 top-0 z-[9999] h-screen w-[420px] max-w-[96vw] overflow-x-hidden border-l border-white/10 bg-[#07111d] transition-transform duration-300 ${
+  className={`fixed right-0 top-0 z-[9999] h-screen w-[420px] max-w-[96vw] overflow-x-hidden border-l border-white/[0.06] bg-[#07111d] transition-transform duration-300 ${
     open ? "translate-x-0" : "translate-x-full"
   }`}
 >
@@ -796,7 +796,7 @@ const label =
     <div className={`transform ${closeButtonX} ${closeButtonY}`}>
       <button
         onClick={onClose}
-        className={`flex ${closeButtonSize} items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-slate-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white`}
+        className={`flex ${closeButtonSize} items-center justify-center rounded-[8px]  border border-white/[0.06] bg-white/[0.02] text-slate-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white`}
       >
         <X size={closeIconSize} />
       </button>
@@ -832,7 +832,7 @@ const label =
   value={expenseName}
   readOnly={viewOnly}
   onChange={(e) => setExpenseName(e.target.value)}
-  className={`${expenseNameWidth} ${expenseNameHeight} rounded-xl border border-white/10 bg-white/[0.03] px-4 ${expenseNameTextIndent} text-sm text-white outline-none`}
+  className={`${expenseNameWidth} ${expenseNameHeight} rounded-[8px]  border border-white/[0.06] bg-[#0b1220] px-4 ${expenseNameTextIndent} text-sm text-white outline-none`}
   placeholder="Enter expense name"
 />
   </div>
@@ -886,7 +886,7 @@ const label =
   value={expenseDate}
   disabled={viewOnly}
   onChange={(e) => setExpenseDate(e.target.value)}
- className={`${expenseDateWidth} ${expenseDateHeight} expense-date-input rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center text-sm text-white outline-none`}
+ className={`${expenseDateWidth} ${expenseDateHeight} expense-date-input rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 text-center text-sm text-white outline-none`}
   style={{
     colorScheme: "dark",
   }}
@@ -906,7 +906,7 @@ const label =
     value={description}
     readOnly={viewOnly}
     onChange={(e) => setDescription(e.target.value)}
-    className={`h-20 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] ${descriptionTextIndent} pr-4 pt-4 pb-4 text-sm text-white outline-none`}
+    className={`h-20 w-full resize-none rounded-[8px] border border-white/[0.06] bg-[#0b1220] ${descriptionTextIndent} pr-4 pt-4 pb-4 text-sm text-white outline-none`}
     placeholder="Enter a brief description (optional)"
   />
 </div>
@@ -1015,10 +1015,10 @@ className={`
   ${businessPurposeWidth}
   ${businessPurposeHeight}
   resize-none
-  rounded-xl
+  rounded-[8px]
   border
-  border-white/10
-  bg-white/[0.03]
+  border-white/[0.06]
+  bg-[#0b1220]
   ${businessPurposeTextIndent}
   pr-4
   pt-4
@@ -1454,7 +1454,7 @@ className={`
       value={notes}
       readOnly={viewOnly}
       onChange={(e) => setNotes(e.target.value)}
-      className={`${notesWidth} ${notesHeight} resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 ${notesTextIndent} text-sm text-white outline-none`}
+      className={`${notesWidth} ${notesHeight} resize-none rounded-[8px]  border border-white/[0.06] bg-[#0b1220] p-4 ${notesTextIndent} text-sm text-white outline-none`}
       placeholder="Add any notes..."
     />
   </div>
@@ -1471,10 +1471,10 @@ className={`
       flex-col
       items-center
       justify-center
-      rounded-2xl
+      rounded-[8px] 
       border
       border-dashed
-      border-white/10
+      border-white/[0.06]
       text-center
       transition-all
       hover:border-blue-400/40
@@ -1569,7 +1569,7 @@ className={`
 {/* ===================== FOOTER ===================== */}
 
 <div
-  className={`border-t border-white/10 bg-[#07111d] px-8 py-5 transform ${footerX} ${footerY}`}
+  className={`border-l border-white/[0.06] bg-[#07111d] px-8 py-5 transform ${footerX} ${footerY}`}
 >
   <div className="flex gap-4">
 
@@ -1579,7 +1579,7 @@ className={`
     >
       <button
         onClick={onClose}
-        className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-xl border border-white/10 text-[14px] text-white`}
+        className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-[8px]  border border-white/[0.06] text-[14px] text-white`}
       >
         {viewOnly ? "Close" : "Cancel"}
       </button>
@@ -1594,7 +1594,7 @@ className={`
 
         <button
           onClick={onEdit}
-          className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 text-[14px] font-semibold text-white`}
+          className={`${saveButtonWidth} ${saveButtonHeight} rounded-[8px] bg-blue-600 text-[14px] font-semibold text-white`}
         >
           Edit Expense
         </button>
@@ -1603,7 +1603,7 @@ className={`
 
         <button
           onClick={handleSave}
-          className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 text-[14px] font-semibold text-white`}
+          className={`${saveButtonWidth} ${saveButtonHeight} rounded-[8px] bg-blue-600 text-[14px] font-semibold text-white`}
         >
           {editingExpense
             ? "Update Expense"

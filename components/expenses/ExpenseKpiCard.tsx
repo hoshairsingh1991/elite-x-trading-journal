@@ -60,7 +60,7 @@ const badgeRounded = "rounded-md";
 
 // Card dimensions
 const cardHeight = "h-[130px]";
-const cardRadius = "rounded-[22px]";
+const cardRadius = "rounded-[8px]";
 
 interface ExpenseKpiCardProps {
   icon: ReactNode;
@@ -110,8 +110,8 @@ export default function ExpenseKpiCard({
     ${cardRadius}
 
     border
-    border-white/10
-    bg-white/[0.035]
+border-white/[0.06]
+bg-[#0b1220]
 
     px-5
     py-5
@@ -119,9 +119,9 @@ export default function ExpenseKpiCard({
     transition-all
     duration-200
 
-    hover:-translate-y-[1px]
-    hover:border-white/20
-    hover:bg-white/[0.05]
+hover:-translate-y-[1px]
+hover:border-white/[0.12]
+hover:bg-[#0b0c1e]
 
     ${
       clickable
@@ -170,7 +170,7 @@ export default function ExpenseKpiCard({
                 w-[44px]
                 items-center
                 justify-center
-                rounded-2xl
+                rounded-[8px]
                 ${iconBg}
 
                 ${iconOffsetX}

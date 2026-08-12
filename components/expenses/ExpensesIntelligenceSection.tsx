@@ -236,7 +236,7 @@ const metricsWidth = "w-[90%]";
 
 
  const cardClass =
-  "group flex h-[200px] flex-col rounded-[22px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-200 hover:-translate-y-[1px] hover:border-white/20 hover:bg-white/[0.045]";
+  "group flex h-[200px] flex-col rounded-[8px] border border-white/[0.06] bg-[#0b1220] p-6 transition-all duration-200 hover:-translate-y-[1px] hover:border-white/[0.12] hover:bg-[#0b0c1e]";
 
 const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
 

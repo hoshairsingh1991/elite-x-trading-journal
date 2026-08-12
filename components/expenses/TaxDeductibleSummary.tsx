@@ -554,17 +554,17 @@ return (
   <div
     className="
       h-[560px]
-      rounded-3xl
-      border
-      border-white/10
-      bg-[#0B1220]
+rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
       p-8
 
       transition-all
       duration-300
 
       hover:border-white/20
-      hover:bg-[#0D1526]
+      hover:bg-[#0b0c1e]
       hover:shadow-[0_16px_40px_rgba(0,0,0,0.30)]
     "
   >
@@ -611,10 +611,11 @@ return (
         justify-center
         gap-2
 
-        rounded-2xl
-        border
-        border-emerald-500/25
-        bg-emerald-500/10
+rounded-[8px]
+border
+border-emerald-500/25
+bg-emerald-500/10
+text-emerald-400
 
         ${confidenceBadgeX}
         ${confidenceBadgeY}
@@ -655,9 +656,10 @@ return (
     ${editButtonWidth}
     ${editButtonHeight}
 
-    rounded-xl
+  rounded-[8px]
     border
     border-white/10
+    hover:bg-[#0b1220]
     px-3
     py-1.5
 
@@ -716,7 +718,7 @@ return (
     ${deductibleCardWidth}
     ${deductibleCardHeight}
 
-    rounded-2xl
+    rounded-[8px]
     border
     border-white/10
     bg-white/[0.02]
@@ -812,7 +814,7 @@ return (
     ${benefitCardWidth}
     ${benefitCardHeight}
 
-    rounded-2xl
+    rounded-[8px]
     border
     border-white/10
     bg-white/[0.02]
@@ -1009,7 +1011,7 @@ return (
     className={`
       ${taxProfileHeight}
 
-      rounded-2xl
+      rounded-[8px]
       border
       border-white/10
       bg-white/[0.02]
@@ -1341,7 +1343,7 @@ return (
     className={`
       ${calculationCardHeight}
 
-      rounded-2xl
+      rounded-[8px]
       border
       border-white/10
       bg-white/[0.02]
@@ -1582,7 +1584,7 @@ return (
     className={`
       ${disclaimerHeight}
 
-      rounded-2xl
+      rounded-[8px]
       border
       border-white/10
       bg-white/[0.02]

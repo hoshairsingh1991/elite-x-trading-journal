@@ -83,17 +83,17 @@ iconYOffset = "",
 ${
   variant === "form"
     ? `
-      rounded-xl
+      rounded-[8px]
       border
-      border-white/10
-      bg-white/[0.03]
+      border-white/[0.06]
+      bg-[#0b1220]
       px-4
     `
     : `
-      rounded-xl
+      rounded-[8px]
       border
-      border-white/10
-      bg-white/[0.03]
+      border-white/[0.06]
+     bg-[#0b1220]
       px-3
     `
 }
@@ -233,7 +233,7 @@ className="
   select-none
   items-center
 
-  rounded-xl
+  rounded-[8px]
 
     px-4
     py-3.5

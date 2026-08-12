@@ -142,10 +142,10 @@ export default function ExpensesHeader({
             ${reportingWidth}
             ${reportingHeight}
 
-            rounded-2xl
-            border
-            border-white/10
-            bg-white/[0.03]
+            rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b0c1e]
 
             px-5
 
@@ -234,7 +234,7 @@ onClick={onExport}
     ${exportWidth}
     ${exportHeight}
 
-    rounded-2xl
+    rounded-[8px]
     border
     border-sky-500/20
 

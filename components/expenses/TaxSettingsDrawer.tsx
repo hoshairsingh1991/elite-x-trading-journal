@@ -349,7 +349,7 @@ function handleReset() {
 }
 
   const inputCenter =
-    "h-[40px] w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
+  "h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 text-center placeholder:text-center text-sm text-white placeholder:text-slate-500 outline-none";
 
   const label =
     "mb-2.5 block text-[14px] font-medium text-slate-200";
@@ -554,10 +554,10 @@ function handleReset() {
       onClick={() =>
         setTaxRate(rate)
       }
-      className={`h-[36px] w-[70px] rounded-lg border text-xs font-medium transition-all ${
+className={`h-[36px] w-[70px] rounded-[8px] border text-xs font-medium transition-all ${
   taxRate === rate
     ? "border-blue-500 bg-blue-500/15 text-blue-300"
-    : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]"
+    : "border-white/[0.06] bg-[#0b1220] text-slate-300 hover:bg-[#0b0c1e]"
 }`}
     >
       {rate}%
@@ -614,7 +614,7 @@ function handleReset() {
   >
     <button
       onClick={onClose}
-      className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-xl border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]`}
+      className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-[8px] border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]`}
     >
       Cancel
     </button>
@@ -626,7 +626,7 @@ function handleReset() {
     <button
       type="button"
       onClick={handleReset}
-      className="h-10 w-[80px] rounded-xl border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]"
+      className="h-10 w-[80px] rounded-[8px] border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]"
     >
       Reset
     </button>
@@ -640,7 +640,7 @@ function handleReset() {
         disabled={
           loading || saving
         }
-        className={`${saveButtonWidth} ${saveButtonHeight} rounded-xl bg-blue-600 font-semibold text-[14px] text-white transition-all duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${saveButtonWidth} ${saveButtonHeight} rounded-[8px] bg-blue-600 font-semibold text-[14px] text-white transition-all duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
       >
         {saving
           ? "Saving..."

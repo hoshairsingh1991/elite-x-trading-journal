@@ -213,24 +213,24 @@ const dateButtonHeight =
   heightClass ??
   "h-[46px]";
 
-  // =====================================================
+// =====================================================
 // TRADE HISTORY VARIANT
 // =====================================================
 
 const dateButtonRadius =
   variant === "tradeHistory"
     ? "rounded-[8px]"
-    : "rounded-2xl";
+    : "rounded-[8px]";
 
 const dateButtonBorder =
   variant === "tradeHistory"
     ? "border-white/[0.06]"
-    : "border-white/10";
+    : "border-white/[0.06]";
 
 const dateButtonBackground =
   variant === "tradeHistory"
     ? "bg-[#0b1220]"
-    : "bg-white/[0.03]";
+    : "bg-[#0b1220]";
 
 
 /* =====================================================
@@ -319,7 +319,7 @@ ${dateButtonBackground}
       duration-200
 
       hover:border-white/20
-      hover:bg-white/[0.05]
+      hover:bg-[#0b1220]
     `}
   >
 <div className="flex items-center gap-3">

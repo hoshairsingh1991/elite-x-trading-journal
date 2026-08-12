@@ -469,11 +469,10 @@ const paymentMethodX = "translate-x-4";
 
     overflow-hidden
 
-    rounded-3xl
-    border
-    border-white/10
-
-    bg-[#0B1220]
+rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
 
     transition-all
     duration-300
@@ -517,7 +516,7 @@ const paymentMethodX = "translate-x-4";
     items-center
     justify-center
 
-    rounded-xl
+    rounded-[8px]
     bg-blue-600
 
     text-[12px]
@@ -541,7 +540,7 @@ const paymentMethodX = "translate-x-4";
     justify-center
     gap-2
 
-    rounded-xl
+    rounded-[8px]
     bg-blue-600
     text-[12px]
     font-semibold
@@ -582,10 +581,10 @@ const paymentMethodX = "translate-x-4";
     items-center
     justify-center
 
-    rounded-xl
+    rounded-[8px]
     border
-    border-white/10
-    bg-white/[0.03]
+    border-white/[0.06]
+    bg-[#0b1220]
 
     px-3
   `}

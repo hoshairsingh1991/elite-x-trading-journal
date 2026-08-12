@@ -451,7 +451,7 @@ return (
 {/* Expenses Over Time */}
 {/* ================================================= */}
 
-<div className="-translate-y-0 rounded-[20px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="-translate-y-0 rounded-[8px] border border-white/[0.06] bg-[#0b1220] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/[0.12] hover:bg-[#0b0c1e] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
   <div className="flex items-center justify-between">
     <div className={`${titleX} ${titleY}`}>
       <h3 className="text-[14px] font-semibold text-white">
@@ -468,11 +468,10 @@ return (
 
     overflow-hidden
 
-    rounded-xl
-    border
-    border-white/10
-
-    bg-white/[0.03]
+rounded-[8px]
+border
+border-white/10
+bg-[#0b0c1e]
 
     ${controlsX}
     ${controlsY}
@@ -602,10 +601,10 @@ return (
   >
     <div
       className={`
-        rounded-2xl
-        border
-        border-white/10
-        bg-black/75
+rounded-[8px]
+border
+border-white/[0.06]
+bg-[#0b1220]
         backdrop-blur-xl
         shadow-[0_10px_40px_rgba(0,0,0,0.45)]
 
@@ -932,7 +931,7 @@ duration-700
 {/* Expense Breakdown */}
 {/* ================================================= */}
 
-<div className="rounded-[20px] -translate-y-0 border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[8px] -translate-y-0 border border-white/[0.06] bg-[#0b1220] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/[0.12] hover:bg-[#0b0c1e] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
 
   {/* Top Spacer */}
   <div className="h-2" />
@@ -1018,7 +1017,7 @@ duration-700
 {/* Vendor Breakdown */}
 {/* ================================================= */}
 
-<div className="rounded-[20px] -translate-y-0 border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[8px] -translate-y-0 border border-white/[0.06] bg-[#0b1220] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/[0.12] hover:bg-[#0b0c1e] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
 
   {/* Top Spacer */}
   <div className="h-2" />
@@ -1123,7 +1122,7 @@ duration-700
 {/* Recurring Costs */}
 {/* ================================================= */}
 
-<div className="rounded-[20px] -translate-y-0 border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
+<div className="rounded-[8px] -translate-y-0 border border-white/[0.06] bg-[#0b1220] p-6 transition-all duration-300 hover:-translate-y-[2px] hover:border-white/[0.12] hover:bg-[#0b0c1e] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]">
 
   {/* Top Spacer */}
   <div className="h-2" />

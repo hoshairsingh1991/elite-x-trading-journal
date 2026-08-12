@@ -1000,21 +1000,17 @@ return (
   <div key={item.id}>
 
     <div
-      className="
-        flex
-        h-[50px]
-        items-center
-        gap-4
-
-        rounded-xl
-
-        border
-        border-white/[0.05]
-
-        bg-white/[0.035]
-
-        px-5
-      "
+className="
+  flex
+  h-[50px]
+  items-center
+  gap-4
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#0b1220]
+  px-5
+"
     >
 
         {/* Check */}
@@ -1112,11 +1108,10 @@ return (
     ${previewCardWidth}
     ${previewCardHeight}
 
-    rounded-2xl
+    rounded-[8px]
     border
     border-white/10
-
-    bg-white/[0.03]
+   bg-[#0b1220]
 
     p-5
 
@@ -1149,7 +1144,7 @@ return (
           items-center
           justify-center
 
-          rounded-xl
+          rounded-[8px]
 
           ${item.color}
 
@@ -1323,7 +1318,7 @@ whitespace-pre-line
     items-center
     justify-center
 
-    rounded-lg
+    rounded-[8px]
 
     ${
       selectedColumns[item.id as keyof typeof selectedColumns]
@@ -1416,11 +1411,11 @@ whitespace-pre-line
       ${estimatedCardWidth}
       ${estimatedCardHeight}
 
-      rounded-2xl
+      rounded-[8px]
       border
       border-white/10
 
-      bg-white/[0.03]
+      bg-[#0b1220]
 
       p-6
 
@@ -1908,7 +1903,7 @@ whitespace-pre-line
 
         h-11
 
-        rounded-xl
+        rounded-[8px]
         border
         border-white/10
 
@@ -2053,7 +2048,7 @@ const reportOwner =
         justify-center
         gap-2
 
-        rounded-xl
+        rounded-[8px]
 
         bg-blue-600
 
