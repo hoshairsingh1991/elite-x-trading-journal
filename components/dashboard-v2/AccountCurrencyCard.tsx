@@ -274,20 +274,19 @@ backdrop-blur-xl
     {/* INVISIBLE SPACER */}
     {/* ===================================== */}
 
-    <div className="h-[6px]" />
+<div className="h-[6px]" />
+
 {/* ===================================== */}
 {/* NATIVE P&L */}
 {/* ===================================== */}
 
 <div className="mt-10 flex justify-center">
 
-  <div className="w-[90%]">
+  <div className="w-[90%] @container">
 
     <div className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">
       Native P&amp;L By Currency
     </div>
-
-    
 
     {/* ===================================== */}
     {/* COLUMN HEADERS */}
@@ -296,28 +295,59 @@ backdrop-blur-xl
     <div className="flex items-center">
 
       {/* Currency */}
-      <div className="w-[150px] shrink-0 translate-x-4">
+
+      <div
+        className="
+          w-[150px]
+          shrink-0
+          translate-x-4
+
+          @max-[420px]:translate-x-4
+        "
+      >
         <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
           Currency
         </span>
       </div>
 
       {/* P&L */}
-      <div className="w-[100px] shrink-0 -translate-x-2 text-right">
+
+      <div
+        className="
+          w-[100px]
+          min-w-0
+          shrink
+          -translate-x-2
+          text-right
+
+          @max-[420px]:-translate-x-2
+        "
+      >
         <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
           P&amp;L
         </span>
       </div>
 
       {/* % */}
-      <div className="ml-auto w-[140px] shrink-0 -translate-x-4  text-right">
+
+      <div
+        className="
+          ml-auto
+          w-[140px]
+          min-w-0
+          shrink
+          -translate-x-4
+          text-right
+
+          @max-[420px]:-translate-x-6
+        "
+      >
         <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
           %
         </span>
       </div>
 
     </div>
-
 
     <div
       className="
@@ -342,8 +372,8 @@ backdrop-blur-xl
               item.currency as keyof typeof CURRENCY_INFO
             ];
 
-            const isPlaceholder =
-  item.currency === "";
+          const isPlaceholder =
+            item.currency === "";
 
           return (
             <div key={`${item.currency}-${index}`}>
@@ -358,93 +388,120 @@ backdrop-blur-xl
 
               <div className="flex items-center">
 
-{/* Currency */}
+                {/* Currency */}
 
-<div className="w-[150px] translate-x-4">
+                <div
+                  className="
+                    w-[150px]
+                    translate-x-4
 
-  {isPlaceholder ? (
+                    @max-[420px]:translate-x-4
+                  "
+                >
 
-    <>
-      <div className="text-[12px] text-slate-600">
-        —
-      </div>
+                  {isPlaceholder ? (
 
-      <div className="mt-1 text-[11px] text-slate-700">
-        —
-      </div>
-    </>
+                    <>
+                      <div className="text-[12px] text-slate-600">
+                        —
+                      </div>
 
-  ) : (
+                      <div className="mt-1 text-[11px] text-slate-700">
+                        —
+                      </div>
+                    </>
 
-    <>
-      <div className="text-[12px] font-medium text-slate-200">
-        <div className="flex items-center gap-2">
+                  ) : (
 
-  <CurrencyFlag
-  currency={item.currency}
-/>
+                    <>
+                      <div className="text-[12px] font-medium text-slate-200">
+                        <div className="flex items-center gap-2">
 
-  <span>{item.currency}</span>
+                          <CurrencyFlag
+                            currency={item.currency}
+                          />
 
-</div>
-      </div>
+                          <span>{item.currency}</span>
 
-      <div className="mt-1 text-[11px] text-slate-500">
-        {info?.name}
-      </div>
-    </>
+                        </div>
+                      </div>
 
-  )}
+                      <div className="mt-1 text-[11px] text-slate-500">
+                        {info?.name}
+                      </div>
+                    </>
 
-</div>
+                  )}
 
-{/* P&L */}
+                </div>
 
-<div className="w-[100px] translate-x-2 text-right">
+                {/* P&L */}
 
-  {isPlaceholder ? (
+                <div
+                  className="
+                    w-[100px]
+                    min-w-0
+                    shrink
+                    translate-x-2
+                    text-right
 
-    <span className="text-[12px] text-slate-600">
-      —
-    </span>
+                    @max-[420px]:translate-x-2
+                  "
+                >
 
-  ) : (
+                  {isPlaceholder ? (
 
-    <span
-      className={`text-[12px] font-semibold ${
-        item.pnl >= 0
-          ? "text-emerald-400"
-          : "text-rose-400"
-      }`}
-    >
-      {item.pnl >= 0 ? "+" : "-"}
-      {info?.symbol}
-      {Math.abs(item.pnl).toFixed(2)}
-    </span>
+                    <span className="text-[12px] text-slate-600">
+                      —
+                    </span>
 
-  )}
+                  ) : (
 
-</div>
+                    <span
+                      className={`text-[12px] font-semibold ${
+                        item.pnl >= 0
+                          ? "text-emerald-400"
+                          : "text-rose-400"
+                      }`}
+                    >
+                      {item.pnl >= 0 ? "+" : "-"}
+                      {info?.symbol}
+                      {Math.abs(item.pnl).toFixed(2)}
+                    </span>
 
-{/* Percentage */}
+                  )}
 
-<div className="ml-auto w-[140px] translate-x-0 text-right">
+                </div>
 
-  {isPlaceholder ? (
+                {/* Percentage */}
 
-    <span className="text-[12px] text-slate-600">
-      —
-    </span>
+                <div
+                  className="
+                    ml-auto
+                    w-[140px]
+                    min-w-0
+                    shrink
+                    text-right
 
-  ) : (
+                    @max-[420px]:-translate-x-3
+                  "
+                >
 
-    <span className="text-[12px] font-medium text-slate-400">
-      {item.percentage}%
-    </span>
+                  {isPlaceholder ? (
 
-  )}
+                    <span className="text-[12px] text-slate-600">
+                      —
+                    </span>
 
-</div>
+                  ) : (
+
+                    <span className="text-[12px] font-medium text-slate-400">
+                      {item.percentage}%
+                    </span>
+
+                  )}
+
+                </div>
 
               </div>
 
@@ -459,14 +516,16 @@ backdrop-blur-xl
   </div>
 
 </div>
+
 <div className="h-[12px]" />
+
 {/* ===================================== */}
 {/* COMMISSIONS */}
 {/* ===================================== */}
 
 <div className="mt-10 flex justify-center">
 
-  <div className="w-[90%]">
+  <div className="w-[90%] @container">
 
     <div className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">
       Commissions By Currency
@@ -488,7 +547,16 @@ backdrop-blur-xl
 
       {/* Commission */}
 
-      <div className="w-[100px] shrink-0 translate-x-6 text-right">
+      <div
+  className="
+    w-[100px]
+    shrink-0
+    translate-x-6
+    text-right
+
+    @max-[420px]:translate-x-2
+  "
+>
         <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
           Commission
         </span>
@@ -496,7 +564,17 @@ backdrop-blur-xl
 
       {/* % */}
 
-      <div className="ml-auto w-[140px] shrink-0 -translate-x-4 text-right">
+      <div
+  className="
+    ml-auto
+    w-[140px]
+    shrink-0
+    -translate-x-4
+    text-right
+
+    @max-[420px]:-translate-x-13
+  "
+>
         <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
           %
         </span>
@@ -589,7 +667,17 @@ backdrop-blur-xl
 
                 {/* Commission */}
 
-                <div className="w-[100px] shrink-0 translate-x-2 text-right">
+                <div
+  className="
+    w-[100px]
+    min-w-0
+    shrink
+    translate-x-2
+    text-right
+
+    @max-[420px]:translate-x-0
+  "
+>
 
                   {isPlaceholder ? (
 
@@ -610,7 +698,16 @@ backdrop-blur-xl
 
                 {/* Percentage */}
 
-                <div className="ml-auto w-[140px] shrink-0 translate-x-0 text-right">
+                <div
+  className="
+    w-[140px]
+    min-w-0
+    shrink
+    text-right
+
+    @max-[420px]:-translate-x-3
+  "
+>
 
                   {isPlaceholder ? (
 

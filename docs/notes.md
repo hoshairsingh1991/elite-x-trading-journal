@@ -381,6 +381,7 @@ git commit -m "checkpoint: sign in UI complete"
 git commit -m "checkpoint: authentication pages complete"
 git commit -m "checkpoint: signup page complete"
 git commit -m "checkpoint: expenses responsive layout"
+git commit -m "checkpoint: responsive dashboard and expenses"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
