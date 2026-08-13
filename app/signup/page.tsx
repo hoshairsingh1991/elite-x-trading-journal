@@ -998,7 +998,7 @@ export default function SignupPage() {
                 className="
                   relative
                   left-[35px]
-                  top-[240px]
+                  top-[215px]
                   mt-8
                   w-[80%]
                   pt-6

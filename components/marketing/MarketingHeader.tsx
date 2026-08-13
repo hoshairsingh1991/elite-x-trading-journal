@@ -82,7 +82,7 @@ export default function MarketingHeader() {
           </Link>
 
 <Link
-  href="/login"
+  href="/signup"
   className="
     relative
     left-[0px]
@@ -174,13 +174,13 @@ export default function MarketingHeader() {
               >
                 Log in
               </Link>
-              <Link
-                href="/login"
-                className="flex h-11 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 via-[#4F8CFF] to-cyan-500 text-sm font-bold text-white shadow-[0_0_20px_rgba(79,140,255,0.3)]"
-              >
-                <span>Start Free Trial</span>
-                <ArrowRight className="size-4" />
-              </Link>
+<Link
+  href="/signup"
+  className="flex h-11 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 via-[#4F8CFF] to-cyan-500 text-sm font-bold text-white shadow-[0_0_20px_rgba(79,140,255,0.3)]"
+>
+  <span>Start Free Trial</span>
+  <ArrowRight className="size-4" />
+</Link>
             </div>
           </div>
         </div>
