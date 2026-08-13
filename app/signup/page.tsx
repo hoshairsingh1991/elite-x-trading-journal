@@ -401,14 +401,31 @@ export default function SignupPage() {
                   className="
                     relative
                     left-[35px]
-                    top-[95px]
+                    top-[90px]
                     w-[80%]
                     text-center
                   "
                 >
-                  <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
-                    <CheckCircle2 className="size-7" />
-                  </div>
+<div
+  className="
+    relative
+    left-[120px]
+    top-[-20px]
+    mx-auto
+    mb-5
+    flex
+    size-14
+    items-center
+    justify-center
+    rounded-2xl
+    border
+    border-emerald-500/20
+    bg-emerald-500/10
+    text-emerald-400
+  "
+>
+  <CheckCircle2 className="size-7" />
+</div>
 
                   <h3 className="text-[22px] font-semibold text-white">
                     Account Created
@@ -419,29 +436,31 @@ export default function SignupPage() {
                     Elite X trading journal.
                   </p>
 
-                  <Link
-                    href="/login"
-                    className="
-                      mt-7
-                      flex
-                      h-[52px]
-                      w-full
-                      items-center
-                      justify-center
-                      gap-2
-                      rounded-[9px]
-                      bg-gradient-to-r
-                      from-[#4F46E5]
-                      via-[#4F8CFF]
-                      to-[#06B6D4]
-                      text-[13px]
-                      font-semibold
-                      text-white
-                      shadow-[0_6px_18px_rgba(79,140,255,0.10)]
-                      transition-all
-                      hover:brightness-[1.04]
-                    "
-                  >
+<Link
+  href="/login"
+  className="
+    relative
+    top-[30px]
+    mt-7
+    flex
+    h-[52px]
+    w-full
+    items-center
+    justify-center
+    gap-2
+    rounded-[9px]
+    bg-gradient-to-r
+    from-[#4F46E5]
+    via-[#4F8CFF]
+    to-[#06B6D4]
+    text-[13px]
+    font-semibold
+    text-white
+    shadow-[0_6px_18px_rgba(79,140,255,0.10)]
+    transition-all
+    hover:brightness-[1.04]
+  "
+>
                     <span>Proceed to Sign In</span>
                     <ArrowRight className="size-[15px]" />
                   </Link>
@@ -979,7 +998,7 @@ export default function SignupPage() {
                 className="
                   relative
                   left-[35px]
-                  top-[220px]
+                  top-[240px]
                   mt-8
                   w-[80%]
                   pt-6
