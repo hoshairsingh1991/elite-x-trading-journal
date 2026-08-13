@@ -11,7 +11,7 @@ export default function MarketingHeader() {
     <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#040914]/95 backdrop-blur-md">
       {/* Full-width Header Inner Flex Container with Explicit 40px Horizontal Edge Padding */}
       <div 
-        className="flex h-[70px] w-full items-center justify-between"
+        className="flex h-[60px] w-full items-center justify-between"
         style={{ paddingInline: "clamp(24px, 3vw, 40px)" }}
       >
         {/* LEFT ZONE: Official Elite X Brand Wordmark */}
@@ -81,13 +81,36 @@ export default function MarketingHeader() {
             Log in
           </Link>
 
-          <Link
-            href="/login"
-            className="inline-flex h-10 items-center justify-center gap-2.5 rounded-lg bg-gradient-to-r from-blue-600 via-[#4F8CFF] to-cyan-500 px-6 text-sm font-bold text-white shadow-[0_0_20px_rgba(79,140,255,0.3)] transition-all hover:opacity-95 hover:shadow-[0_0_25px_rgba(79,140,255,0.45)]"
-          >
-            <span>Start Free Trial</span>
-            <ArrowRight className="size-4" />
-          </Link>
+<Link
+  href="/login"
+  className="
+    relative
+    left-[0px]
+    top-[0px]
+    flex
+    h-[40px]
+    w-[145px]
+    shrink-0
+    items-center
+    justify-center
+    gap-2.5
+    rounded-[8px]
+    bg-gradient-to-r
+    from-blue-600
+    via-[#4F8CFF]
+    to-cyan-500
+    text-sm
+    font-bold
+    text-white
+    shadow-[0_0_20px_rgba(79,140,255,0.3)]
+    transition-all
+    hover:opacity-95
+    hover:shadow-[0_0_25px_rgba(79,140,255,0.45)]
+  "
+>
+  <span>Start Free Trial</span>
+  <ArrowRight className="size-4" />
+</Link>
         </div>
 
         {/* Mobile Menu Toggle Button */}
