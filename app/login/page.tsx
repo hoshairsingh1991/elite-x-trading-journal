@@ -39,7 +39,7 @@ export default function LoginPage() {
         throw error;
       }
 
-      router.push("/");
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message ?? "Something went wrong.");
     } finally {

@@ -2169,3 +2169,2763 @@ Do not reopen Antigravity unless there is a specific reason.
 # ============================================================
 # END OF MASTER HANDOFF NOTES
 # ============================================================
+
+
+
+
+
+# ============================================================
+# ELITE X TRADING JOURNAL
+# MASTER DEVELOPMENT NOTES — LANDING PAGE + PUBLIC ROUTING
+# ============================================================
+
+Date:
+August 13, 2026
+
+Current Environment:
+VS Code
+
+Development Mode:
+Manual development only
+
+Primary Branch:
+main
+
+Remote:
+origin/main
+
+Desktop Design Baseline:
+1440 × 900
+
+Browser Zoom:
+100%
+
+Primary Public Domain:
+https://www.elitextrading.ca
+
+
+# ============================================================
+# 01. CURRENT PROJECT STATE
+# ============================================================
+
+The Marketing + Authentication + Public Routing foundation is now
+functionally complete.
+
+Current public structure:
+
+/
+    → Public Landing Page when logged out
+    → /dashboard when already authenticated
+
+/login
+    → Sign In
+
+/signup
+    → Sign Up
+
+/dashboard
+    → Authenticated Trading Dashboard
+
+/trades
+    → Trade History
+
+/expenses
+    → Expenses
+
+/profile
+    → Profile
+
+/settings
+    → Settings / unfinished
+
+
+IMPORTANT:
+
+The authenticated application architecture was NOT rebuilt.
+
+The existing dashboard was moved from:
+
+app/page.tsx
+
+to:
+
+app/dashboard/page.tsx
+
+The dashboard implementation itself was preserved.
+
+The main architectural change was the URL ownership of `/`.
+
+
+# ============================================================
+# 02. OLD ROUTING MODEL
+# ============================================================
+
+Previously:
+
+/
+    → Authenticated Dashboard
+
+/landing
+    → Marketing Landing
+
+/login
+    → Sign In
+
+/signup
+    → Sign Up
+
+
+This created the problem that the public domain `/`
+was protected by the dashboard's ProtectedRoute.
+
+Therefore:
+
+www.elitextrading.ca
+    ↓
+/
+    ↓
+ProtectedRoute
+    ↓
+/login
+
+
+# ============================================================
+# 03. NEW ROUTING MODEL
+# ============================================================
+
+Current intended architecture:
+
+/
+    → Landing if logged out
+    → /dashboard if logged in
+
+/dashboard
+    → Protected Dashboard
+
+/login
+    → Sign In
+
+/signup
+    → Sign Up
+
+/trades
+    → Trade History
+
+/expenses
+    → Expenses
+
+/profile
+    → Profile
+
+/settings
+    → Settings
+
+
+FINAL USER FLOW:
+
+www.elitextrading.ca
+    |
+    ├── Logged Out
+    |      ↓
+    |   Landing Page
+    |
+    └── Logged In
+           ↓
+       /dashboard
+
+
+SIGN IN:
+
+/login
+    ↓
+Supabase email/password
+    ↓
+/dashboard
+
+
+SIGN OUT:
+
+Dashboard
+    ↓
+User Menu
+    ↓
+Sign Out
+    ↓
+supabase.auth.signOut()
+    ↓
+/login
+
+
+# ============================================================
+# 04. DASHBOARD ROUTE MIGRATION
+# ============================================================
+
+The previous dashboard lived at:
+
+app/page.tsx
+
+The dashboard was moved to:
+
+app/dashboard/page.tsx
+
+
+IMPORTANT:
+
+The dashboard source code was not architecturally rewritten.
+
+All existing:
+
+- dashboard analytics
+- execution loading
+- trade reconstruction
+- reporting currency
+- FX logic
+- IBKR sync
+- CSV import
+- modals
+- dashboard cards
+- Trading Calendar
+- Secondary Metrics
+- Equity Section
+- ProtectedRoute
+
+remain part of the same dashboard implementation.
+
+
+The purpose of the move was ONLY:
+
+OLD:
+
+/
+    → Dashboard
+
+
+NEW:
+
+/dashboard
+    → Dashboard
+
+
+# ============================================================
+# 05. PROTECTED ROUTE
+# ============================================================
+
+File:
+
+components/auth/ProtectedRoute.tsx
+
+
+STATUS:
+
+UNCHANGED
+
+
+Current behavior:
+
+useAuth()
+    ↓
+loading
+    ↓
+wait for session
+    ↓
+if no user:
+    router.replace("/login")
+    ↓
+if user:
+    render children
+
+
+IMPORTANT:
+
+ProtectedRoute is working correctly.
+
+It was tested directly through:
+
+/dashboard
+
+Logged-out behavior:
+
+/dashboard
+    ↓
+/login
+
+
+Logged-in behavior:
+
+/dashboard
+    ↓
+Dashboard
+
+
+DO NOT modify ProtectedRoute for the root-domain routing.
+
+
+# ============================================================
+# 06. AUTH PROVIDER
+# ============================================================
+
+Current auth source:
+
+providers/AuthProvider.tsx
+
+
+STATUS:
+
+UNCHANGED
+
+
+The existing AuthProvider remains responsible for restoring
+the Supabase authentication session.
+
+The root landing page uses the same existing auth state.
+
+No second browser authentication system was introduced.
+
+
+# ============================================================
+# 07. SUPABASE CLIENT
+# ============================================================
+
+File:
+
+lib/supabase.ts
+
+
+Current architecture:
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL!;
+
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase =
+  createClient(
+    supabaseUrl,
+    supabaseAnonKey
+  );
+
+
+IMPORTANT:
+
+This remains the existing browser-side Supabase client.
+
+It was NOT replaced.
+
+It was NOT duplicated.
+
+It continues to support:
+
+- Sign In
+- Sign Up
+- getUser()
+- getSession()
+- signOut()
+- broker connection queries
+- existing application auth operations
+
+
+# ============================================================
+# 08. ROOT PAGE AUTHENTICATION BEHAVIOR
+# ============================================================
+
+File:
+
+app/page.tsx
+
+
+The root route was changed from the old dashboard into
+the public landing page.
+
+The root page now uses:
+
+useAuth()
+
+
+Behavior:
+
+loading:
+    show loading state
+
+user exists:
+    router.replace("/dashboard")
+
+no user:
+    render landing page
+
+
+ROOT FLOW:
+
+/
+    ↓
+AuthProvider session state
+    ↓
+loading?
+    ↓
+YES → loading screen
+
+NO
+    ↓
+user exists?
+    |
+    ├── YES → /dashboard
+    |
+    └── NO  → Landing
+
+
+IMPORTANT:
+
+This prevents an authenticated user from remaining on the
+marketing page when manually entering `/`.
+
+
+# ============================================================
+# 09. ROOT PAGE — LANDING COMPOSITION
+# ============================================================
+
+app/page.tsx now renders the marketing page components:
+
+MarketingHeader
+HeroSection
+CapabilityStrip
+TradingIntelligenceSection
+MarketingFooter
+
+
+Marketing page hierarchy:
+
+HEADER
+↓
+HERO
+↓
+CAPABILITY STRIP
+↓
+TRADING INTELLIGENCE
+↓
+SUPPORTING TOOLS
+↓
+FOOTER
+
+
+The existing:
+
+/landing
+
+route may remain available as a duplicate marketing route
+until a later cleanup decision.
+
+Current production entry point is intended to be:
+
+/
+
+
+# ============================================================
+# 10. SIGN IN REDIRECT FIX
+# ============================================================
+
+File:
+
+app/login/page.tsx
+
+
+OLD:
+
+router.push("/");
+
+
+PROBLEM:
+
+After successful authentication:
+
+/login
+    ↓
+Supabase login
+    ↓
+/
+    ↓
+Landing
+
+
+NEW:
+
+router.push("/dashboard");
+
+
+FINAL FLOW:
+
+/login
+    ↓
+Supabase authentication
+    ↓
+/dashboard
+
+
+This was tested and confirmed working.
+
+
+# ============================================================
+# 11. SIGN UP STATUS
+# ============================================================
+
+File:
+
+app/signup/page.tsx
+
+
+STATUS:
+
+COMPLETE
+
+
+Real Supabase signup:
+
+supabase.auth.signUp({
+  email,
+  password,
+})
+
+
+Current signup features:
+
+- Full Name
+- Email
+- Password
+- Confirm Password
+- Password visibility toggle
+- Password confirmation validation
+- Minimum password length validation
+- Terms/Privacy UI
+- Success state
+- Proceed to Sign In
+- Existing Supabase authentication
+
+
+IMPORTANT:
+
+Full Name is still UI-only unless separately persisted.
+
+Terms/Privacy remain UI-only.
+
+Google remains UI-only.
+
+Forgot Password remains UI-only.
+
+Signup was tested and confirmed working.
+
+
+# ============================================================
+# 12. SIGN OUT BEHAVIOR
+# ============================================================
+
+File:
+
+components/layout/UserMenuV2.tsx
+
+
+Current implementation:
+
+async function handleSignOut() {
+  await supabase.auth.signOut();
+  window.location.href = "/login";
+}
+
+
+FINAL BEHAVIOR:
+
+Dashboard
+    ↓
+Sign Out
+    ↓
+Supabase session destroyed
+    ↓
+/login
+
+
+DECISION:
+
+Keep Sign Out → Sign In.
+
+Do NOT change Sign Out → Landing.
+
+
+REASON:
+
+The public landing page is the commercial entry point.
+
+The Sign In page is the more direct destination after an
+explicit authentication termination.
+
+
+The uploaded UserMenuV2 implementation confirms this existing
+behavior. :contentReference[oaicite:0]{index=0}
+
+
+# ============================================================
+# 13. SIDEBAR ROUTING FIX
+# ============================================================
+
+File:
+
+components/layout/Sidebar.tsx
+
+
+OLD Overview:
+
+href="/"
+
+
+PROBLEM:
+
+After `/` became the public landing page:
+
+Dashboard
+    ↓
+Overview
+    ↓
+Landing
+
+
+FIX:
+
+Overview now points to:
+
+href="/dashboard"
+
+
+FINAL:
+
+Overview
+    → /dashboard
+
+Trade History
+    → /trades
+
+Expenses
+    → /expenses
+
+
+This was tested and confirmed working.
+
+
+# ============================================================
+# 14. PROFILE BACK BUTTON FIX
+# ============================================================
+
+File:
+
+app/profile/page.tsx
+
+
+OLD:
+
+<Link
+  href="/"
+>
+
+
+PROBLEM:
+
+Profile
+    ↓
+Back Arrow
+    ↓
+Landing
+
+
+FIX:
+
+<Link
+  href="/dashboard"
+>
+
+
+FINAL:
+
+Dashboard
+    ↓
+User Menu
+    ↓
+My Profile
+    ↓
+Back Arrow
+    ↓
+/dashboard
+
+
+This was tested and confirmed working.
+
+
+The profile page itself still uses:
+
+ProtectedRoute
+
+
+Its current structure remains otherwise unchanged.
+
+
+# ============================================================
+# 15. USER MENU PROFILE ROUTE
+# ============================================================
+
+File:
+
+components/layout/UserMenuV2.tsx
+
+
+Current Profile action:
+
+onClick={() =>
+  window.location.href="/profile"
+}
+
+
+This is correct.
+
+DO NOT change it.
+
+Final flow:
+
+Dashboard
+    ↓
+User Menu
+    ↓
+My Profile
+    ↓
+/profile
+
+
+The uploaded file confirms the Profile row currently points to
+`/profile`. :contentReference[oaicite:1]{index=1}
+
+
+# ============================================================
+# 16. ROUTE SMOKE TEST COMPLETED
+# ============================================================
+
+Verified:
+
+/
+    → Landing when logged out
+
+/login
+    → Sign In
+
+Successful Sign In
+    → /dashboard
+
+/dashboard
+    → Dashboard when authenticated
+
+Overview
+    → /dashboard
+
+Trade History
+    → /trades
+
+Expenses
+    → /expenses
+
+Profile
+    → /profile
+
+Profile Back Arrow
+    → /dashboard
+
+Sign Out
+    → /login
+
+
+Settings:
+
+NOT FULLY IMPLEMENTED
+
+No meaningful settings navigation testing required yet.
+
+
+# ============================================================
+# 17. LANDING PAGE ROUTE STRUCTURE
+# ============================================================
+
+Marketing route:
+
+/landing
+
+
+File:
+
+app/landing/page.tsx
+
+
+Landing component architecture:
+
+components/marketing/
+
+MarketingHeader.tsx
+HeroSection.tsx
+ProductShowcase.tsx
+CapabilityStrip.tsx
+TradingIntelligenceSection.tsx
+MarketingFooter.tsx
+
+
+The marketing component structure is documented in the project
+handover material. :contentReference[oaicite:2]{index=2}
+
+
+# ============================================================
+# 18. LANDING PAGE DESIGN PHILOSOPHY
+# ============================================================
+
+Goal:
+
+Premium
+Cohesive
+Professional
+Commercial SaaS
+
+
+IMPORTANT:
+
+Pixel-perfect reference matching is no longer the objective.
+
+The goal is:
+
+MAKE ELITE X LOOK COHESIVE, PREMIUM, AND PROFESSIONAL.
+
+
+Judge:
+
+- hierarchy
+- spacing
+- balance
+- readability
+- visual weight
+- product emphasis
+- consistency
+- responsiveness
+
+
+# ============================================================
+# 19. LANDING HEADER
+# ============================================================
+
+File:
+
+components/marketing/MarketingHeader.tsx
+
+
+STATUS:
+
+GOOD / MOSTLY FROZEN
+
+
+Header:
+
+height:
+70px
+
+Full width.
+
+Desktop horizontal padding:
+
+clamp(24px, 3vw, 40px)
+
+
+At approximately 1440px:
+
+~40px left
+~40px right
+
+
+Navigation:
+
+Product
+Features
+Pricing
+Resources
+About
+
+
+Right actions:
+
+Log in
+Start Free Trial
+
+
+Desktop Start Free Trial now has explicit controls:
+
+left-[0px]
+top-[0px]
+w-[145px]
+h-[40px]
+
+Current button radius:
+
+rounded-[8px]
+
+
+IMPORTANT:
+
+There was initially confusion because the wrong Start Free Trial
+instance was being edited.
+
+The correct desktop button is the instance under:
+
+RIGHT ZONE: Desktop Action CTAs
+
+
+The mobile Start Free Trial button remains separate.
+
+
+# ============================================================
+# 20. HERO SECTION
+# ============================================================
+
+File:
+
+components/marketing/HeroSection.tsx
+
+
+STATUS:
+
+GOOD ENOUGH / FROZEN FOR NOW
+
+
+Left side:
+
+Built for serious traders
+
+Know your trading.
+
+Build your edge.
+
+
+Supporting copy:
+
+Elite X turns your executions into a complete performance
+system — combining analytics, multi-account tracking,
+journaling and trading-business intelligence in one platform.
+
+
+CTAs:
+
+Start Free Trial
+Explore Platform
+
+
+Trust indicators:
+
+No credit card required
+14-day free trial
+Cancel anytime
+
+
+IMPORTANT:
+
+Left hero composition was explicitly frozen while the right-side
+product showcase was being tuned.
+
+Do NOT reopen the left side unless a real visual issue appears.
+
+
+# ============================================================
+# 21. HERO LEFT-SIDE MANUAL CONTROLS
+# ============================================================
+
+Eyebrow:
+
+relative
+left-[...]
+top-[...]
+
+
+Headline:
+
+relative
+left-[...]
+top-[...]
+text-[48px] / responsive values
+
+
+Supporting paragraph:
+
+relative
+left-[...]
+top-[...]
+
+
+CTA row:
+
+shared positioning
+
+
+Each CTA:
+
+independent width
+independent height
+independent X
+independent Y
+
+
+Trust row:
+
+shared X/Y positioning
+
+
+Current rule:
+
+Do not continue micro-tuning these until the full page is
+finished.
+
+
+# ============================================================
+# 22. HERO PRODUCT SHOWCASE
+# ============================================================
+
+File:
+
+components/marketing/ProductShowcase.tsx
+
+
+STATUS:
+
+WORKING
+GOOD ENOUGH FOR STRUCTURE PASS
+IMAGE POLISH DEFERRED
+
+
+Assets:
+
+/images/showcase/dashboard-approved.webp
+/images/showcase/trade-history.webp
+/images/showcase/expenses.webp
+
+
+Current behavior:
+
+Autoplay every 5 seconds.
+
+
+Three screenshots rotate through three fixed visual positions.
+
+
+IMPORTANT:
+
+The slideshow does NOT dynamically resize the three cards.
+
+The visual positions remain fixed.
+
+Only which image occupies each position changes.
+
+
+# ============================================================
+# 23. PRODUCT SHOWCASE FIXED DECK POSITIONS
+# ============================================================
+
+BACK:
+
+left-[25%]
+top-[7%]
+h-[85%]
+w-[78%]
+rotate-[1deg]
+
+
+MIDDLE:
+
+left-[-18%]
+top-[5%]
+h-[88%]
+w-[90%]
+rotate-[1deg]
+
+
+FRONT:
+
+left-[-300px]
+top-[20px]
+h-[88%]
+w-[78%]
+rotate-[1deg]
+
+
+These values were manually tuned.
+
+DO NOT change unless deliberately continuing ProductShowcase polish.
+
+
+# ============================================================
+# 24. PRODUCT SHOWCASE IMAGE TREATMENT
+# ============================================================
+
+All images:
+
+quality={100}
+
+object-contain
+object-center
+
+
+Current image-level crop tuning:
+
+BACK:
+
+scale-[1.18]
+translate-x-[-50px]
+translate-y-[0px]
+
+
+MIDDLE:
+
+scale-[1.18]
+translate-x-[-50px]
+translate-y-[0px]
+
+
+FRONT:
+
+scale-[1.30]
+translate-x-[-18px]
+translate-y-[0px]
+
+
+These values were added because the source screenshots contain
+unwanted black margins / extra UI framing.
+
+
+IMPORTANT:
+
+Image crop/sharpness is NOT considered final.
+
+Do not spend more time on this until the final global polish pass.
+
+
+# ============================================================
+# 25. HERO PRODUCT FRONT GLOW
+# ============================================================
+
+Front card border:
+
+border-blue-400/50
+
+
+Accepted front-card shadow:
+
+shadow-[0_0_14px_rgba(79,140,255,0.22),0_28px_70px_rgba(2,6,23,0.55)]
+
+
+This is the currently approved hero glow.
+
+Do not increase it without a visual reason.
+
+
+# ============================================================
+# 26. HERO SLIDE INDICATORS
+# ============================================================
+
+Visible UI:
+
+Small slide indicator dots.
+
+
+No desktop left/right navigation arrows.
+
+No module labels.
+
+Removed:
+
+01 Overview
+02 Trade History
+03 Expenses
+
+
+The slide indicators have their own positioning control:
+
+left-[...]
+top-[...]
+
+
+Current concept:
+
+clean visual deck
+    +
+small indicator dots
+
+
+# ============================================================
+# 27. HERO SOURCE IMAGE QUALITY NOTES
+# ============================================================
+
+Source screenshots are visually acceptable in original quality.
+
+The source images are high quality.
+
+The main perceived softness comes from:
+
+- scaling
+- rotation
+- image cropping
+- presentation framing
+
+
+Current state:
+
+GOOD ENOUGH
+
+Future:
+
+Dedicated crop tuning for each marketing screenshot.
+
+
+# ============================================================
+# 28. CAPABILITY STRIP
+# ============================================================
+
+File:
+
+components/marketing/CapabilityStrip.tsx
+
+
+STATUS:
+
+GOOD ENOUGH / FROZEN FOR STRUCTURE PASS
+
+
+Target style:
+
+Single institutional capability rail.
+
+
+Current capabilities:
+
+Complete Trading System
+IBKR Integration
+Multi-Account Tracking
+Advanced Analytics
+Secure & Private
+
+
+Additional social proof:
+
+★★★★★
+4.9/5 from 1,200+ traders
+Trusted by serious traders worldwide
+
+
+# ============================================================
+# 29. CAPABILITY RAIL DIMENSIONS
+# ============================================================
+
+Outer rail:
+
+left-[300px]
+top-[0px]
+h-[102px]
+w-full
+
+
+Radius:
+
+rounded-[10px]
+
+
+Background:
+
+#07111C
+
+
+Border:
+
+white/[0.07]
+
+
+Shadow:
+
+shadow-[0_10px_30px_rgba(0,0,0,0.22)]
+
+
+# ============================================================
+# 30. CAPABILITY GRID
+# ============================================================
+
+Current grid:
+
+grid-cols-[1fr_1fr_1.08fr_1fr_1fr_1fr]
+
+
+The last rating column was initially too wide because it used:
+
+1.42fr
+
+It was changed to:
+
+1fr
+
+
+This produces more balanced six-column proportions.
+
+
+# ============================================================
+# 31. CAPABILITY INDIVIDUAL CONTROLS
+# ============================================================
+
+Each capability now has data-driven:
+
+x
+y
+
+
+Example:
+
+x: 0
+y: 0
+
+
+These are applied through:
+
+style={{
+  left: `${item.x}px`,
+  top: `${item.y}px`,
+}}
+
+
+IMPORTANT:
+
+The divider is owned by the fixed grid cell.
+
+The movable X/Y wrapper contains only:
+
+icon
++
+text
+
+
+Therefore moving a capability does NOT move the divider.
+
+
+# ============================================================
+# 32. CAPABILITY SUBTITLE CONTROLS
+# ============================================================
+
+Each capability subtitle has its own Y control.
+
+Examples:
+
+Performance + Business
+Real-time sync
+Everything in one place
+600+ insights
+Your data, always protected
+
+
+These can move vertically without moving:
+
+- icon
+- main title
+- divider
+
+
+# ============================================================
+# 33. CAPABILITY SOCIAL PROOF CONTROLS
+# ============================================================
+
+Rating column contains:
+
+Stars
+Rating line
+Trust line
+
+
+Rating line:
+
+4.9/5 from 1,200+ traders
+
+
+Trust line:
+
+Trusted by serious traders worldwide
+
+
+The divider remains fixed.
+
+The rating content has its own positioning controls.
+
+
+# ============================================================
+# 34. TRADING INTELLIGENCE
+# ============================================================
+
+File:
+
+components/marketing/TradingIntelligenceSection.tsx
+
+
+STATUS:
+
+GOOD ENOUGH / STRUCTURE COMPLETE
+
+
+Desktop target:
+
+Left editorial
++
+four compact product cards in one row.
+
+
+Cards:
+
+Performance Dashboard
+Trade History
+Trading Calendar
+Expense Management
+
+
+# ============================================================
+# 35. TRADING INTELLIGENCE CARD LAYOUT
+# ============================================================
+
+Desktop grid:
+
+lg:grid-cols-4
+
+
+Product area:
+
+lg:col-span-9
+
+
+Editorial area:
+
+lg:col-span-3
+
+
+Four cards are intentionally compact enough to fit on one line.
+
+
+Current card radius:
+
+rounded-[10px]
+
+
+Card background:
+
+#07111C / 90%
+
+
+Screenshot stage:
+
+h-[128px]
+
+
+Card spacing:
+
+gap-4
+
+
+# ============================================================
+# 36. TRADING INTELLIGENCE CARD POSITIONING
+# ============================================================
+
+Current manual temporary card adjustment:
+
+left-[400px]
+top-[20px]
+
+
+IMPORTANT:
+
+This was intentionally used during the manual design pass.
+
+It is NOT a final responsive architecture.
+
+
+Final polish should replace excessive manual offsets with a
+cleaner responsive structure if possible.
+
+
+# ============================================================
+# 37. TRADING INTELLIGENCE LEFT EDITORIAL
+# ============================================================
+
+Eyebrow:
+
+COMPLETE TRADING INTELLIGENCE
+
+
+Headline:
+
+Everything you need to
+run your trading business
+
+
+Highlighted text:
+
+trading business
+
+
+Headline currently uses:
+
+text-[30px]
+w-[520px]
+whitespace-nowrap
+
+
+Supporting text:
+
+From trade execution to profitability analysis, Elite X gives you
+complete visibility across performance, costs, and opportunities.
+
+
+Current editorial manual controls:
+
+left-[50px]
+top-[50px]  // eyebrow
+
+left-[50px]
+top-[60px]  // heading
+
+left-[50px]
+top-[70px]  // supporting copy
+
+
+Current objective:
+
+Structure complete.
+
+Typography/spacing can be refined later.
+
+
+# ============================================================
+# 38. TRADING INTELLIGENCE SUPPORTING TOOLS
+# ============================================================
+
+Added below the four main cards:
+
+More tools to help you trade smarter
+
+
+Tools:
+
+Notes & Journaling
+Advanced Analytics
+Watchlist & Alerts
+Manual Trade Entry
+Multi-Currency Support
+Custom Reports
+
+
+Current concept:
+
+small centered supporting tool rail.
+
+
+The supporting tools section has common positioning controls:
+
+left-[...]
+top-[...]
+
+
+# ============================================================
+# 39. CALENDAR MARKETING ASSET
+# ============================================================
+
+Trading Calendar currently has:
+
+imageSrc: null
+
+
+Placeholder:
+
+Calendar Marketing Asset Pending
+
+
+IMPORTANT:
+
+There is currently no approved:
+
+calendar.webp
+
+
+DO NOT fabricate a calendar screenshot.
+
+Existing marketing asset notes identify the same restriction. :contentReference[oaicite:3]{index=3}
+
+
+# ============================================================
+# 40. FOOTER
+# ============================================================
+
+File:
+
+components/marketing/MarketingFooter.tsx
+
+
+STATUS:
+
+MINIMAL
+GOOD ENOUGH FOR NOW
+
+
+Current content:
+
+© 2026 Elite X. All rights reserved.
+
+Deterministic Accounting & Institutional Analytics
+
+
+Removed:
+
+- logo
+- marketing description
+- Modules section
+- dashboard link
+- Trade History link
+- Expenses link
+- secondary copyright information
+
+
+# ============================================================
+# 41. FOOTER POSITIONING
+# ============================================================
+
+Footer:
+
+relative
+w-full
+
+
+Current height control:
+
+h-[90px]
+
+
+Copyright container:
+
+relative
+left-[...]
+top-[...]
+
+
+Footer content remains right aligned.
+
+
+Height can be tuned directly:
+
+h-[70px]
+h-[80px]
+h-[90px]
+h-[100px]
+h-[120px]
+
+
+Current footer is acceptable for structure pass.
+
+
+# ============================================================
+# 42. LANDING PAGE FOOTER SPACING
+# ============================================================
+
+TradingIntelligenceSection contains an intentional spacing area
+before the footer.
+
+Current spacer concept:
+
+h-[140px]
+
+
+Purpose:
+
+Create explicit breathing room between:
+
+Supporting Tools
+    ↓
+Footer
+
+
+This is a temporary visual tuning control.
+
+Final page polish may normalize this spacing.
+
+
+# ============================================================
+# 43. MARKETING SCREENSHOT ASSETS
+# ============================================================
+
+Directory:
+
+public/images/showcase/
+
+
+Assets:
+
+dashboard-approved.webp
+trade-history.webp
+expenses.webp
+expenses-master.png
+trade-history-master.png
+
+
+Approved source dimensions:
+
+1920 × 1200
+
+
+Existing documentation recommends high-resolution WebP assets
+for marketing screenshots. :contentReference[oaicite:4]{index=4}
+
+
+# ============================================================
+# 44. DEMO ROUTES
+# ============================================================
+
+/demo/dashboard
+/demo/trades
+/demo/expenses
+
+
+Purpose:
+
+Marketing screenshot/render targets.
+
+
+These routes use deterministic data.
+
+Do NOT connect them to live user data.
+
+
+# ============================================================
+# 45. DEMO DATA
+# ============================================================
+
+lib/demo/
+
+demoDataset.ts
+demoExpenses.ts
+
+
+Dataset:
+
+May 2026 deterministic marketing dataset.
+
+
+Do not use real production user data for marketing screenshots.
+
+
+# ============================================================
+# 46. PUBLIC LANDING PAGE COMPONENTS
+# ============================================================
+
+components/marketing/
+
+MarketingHeader.tsx
+HeroSection.tsx
+ProductShowcase.tsx
+CapabilityStrip.tsx
+TradingIntelligenceSection.tsx
+MarketingFooter.tsx
+
+
+Current hierarchy:
+
+MarketingHeader
+HeroSection
+CapabilityStrip
+TradingIntelligenceSection
+MarketingFooter
+
+
+The component structure is already documented in the handover
+notes. :contentReference[oaicite:5]{index=5}
+
+
+# ============================================================
+# 47. PRODUCTION APPLICATION — FROZEN
+# ============================================================
+
+DO NOT casually modify:
+
+app/dashboard/page.tsx
+components/dashboard-v2/*
+app/trades/page.tsx
+components/trades/*
+app/expenses/page.tsx
+providers/AuthProvider.tsx
+lib/supabase.ts
+components/auth/ProtectedRoute.tsx
+
+
+The landing/routing work must not break the production
+trading application.
+
+
+The previous master notes already identify these as protected
+production areas. :contentReference[oaicite:6]{index=6}
+
+
+# ============================================================
+# 48. IMPORTANT ROUTING RULE
+# ============================================================
+
+After this migration:
+
+"/" no longer means Dashboard.
+
+"/" means public Landing.
+
+
+Therefore:
+
+Authenticated app links that used to point to:
+
+"/"
+
+must now be reviewed.
+
+Examples already fixed:
+
+Sidebar Overview:
+
+/
+    ↓
+/dashboard
+
+
+Profile Back Arrow:
+
+/
+    ↓
+/dashboard
+
+
+Login success:
+
+/
+    ↓
+/dashboard
+
+
+DO NOT blindly replace every `"/"` reference in the project.
+
+Marketing links may intentionally use:
+
+/
+
+
+Only authenticated-app navigation should generally use:
+
+/dashboard
+
+
+# ============================================================
+# 49. ROUTING AUDIT REQUIREMENT
+# ============================================================
+
+Before final production deployment, search the project for:
+
+href="/"
+
+router.push("/")
+
+router.replace("/")
+
+window.location.href = "/"
+
+
+Every occurrence must be classified as:
+
+PUBLIC MARKETING
+    → "/" is correct
+
+
+AUTHENTICATED APP
+    → likely should be "/dashboard"
+
+
+This is required because `/` changed meaning.
+
+
+# ============================================================
+# 50. CURRENT AUTHENTICATION FLOW
+# ============================================================
+
+LOGGED OUT:
+
+www.elitextrading.ca
+    ↓
+Landing
+
+
+SIGN IN:
+
+/login
+    ↓
+email
+password
+    ↓
+supabase.auth.signInWithPassword()
+    ↓
+/dashboard
+
+
+SIGNED IN ROOT:
+
+/
+    ↓
+useAuth()
+    ↓
+user exists
+    ↓
+/dashboard
+
+
+SIGNED OUT:
+
+User Menu
+    ↓
+supabase.auth.signOut()
+    ↓
+/login
+
+
+# ============================================================
+# 51. AUTHENTICATION TESTS COMPLETED
+# ============================================================
+
+Confirmed:
+
+- Landing opens while logged out
+- Sign In works
+- Successful Sign In opens Dashboard
+- /dashboard works while authenticated
+- Sidebar Overview opens Dashboard
+- Trade History works
+- Expenses works
+- Profile works
+- Profile Back Arrow returns Dashboard
+- Sign Out goes to Sign In
+- Logged-out root opens Landing
+- Logged-in root redirects to Dashboard
+
+
+# ============================================================
+# 52. USER EXPERIENCE DECISION — SIGN OUT
+# ============================================================
+
+FINAL DECISION:
+
+Sign Out → Sign In
+
+
+NOT:
+
+Sign Out → Landing
+
+
+Reason:
+
+Landing is the public commercial surface.
+
+Sign In is the direct authentication surface.
+
+Explicitly signing out should make the next authentication
+action obvious.
+
+
+# ============================================================
+# 53. DOMAIN BEHAVIOR
+# ============================================================
+
+Target public behavior:
+
+https://www.elitextrading.ca
+
+
+Logged Out:
+
+www.elitextrading.ca
+    ↓
+Landing
+
+
+Logged In:
+
+www.elitextrading.ca
+    ↓
+/dashboard
+
+
+The custom domain should ultimately be attached to the same
+production deployment.
+
+No separate marketing deployment is required.
+
+
+# ============================================================
+# 54. DOMAIN / VERCEL ARCHITECTURE
+# ============================================================
+
+Expected production flow:
+
+Browser
+    ↓
+https://www.elitextrading.ca
+    ↓
+Vercel
+    ↓
+Next.js /
+    ↓
+Auth state
+    ↓
+Logged Out → Landing
+Logged In → /dashboard
+
+
+Important:
+
+The domain configuration and routing logic are separate.
+
+Vercel serves the project.
+
+Next.js determines what `/` renders.
+
+
+# ============================================================
+# 55. CURRENT LANDING DESIGN STATUS
+# ============================================================
+
+Structure:
+
+COMPLETE
+
+
+Visual polish:
+
+NOT COMPLETE
+
+
+Current status:
+
+GOOD ENOUGH FOR STRUCTURE PASS.
+
+
+The current goal is NOT perfection yet.
+
+
+Next phase:
+
+GLOBAL POLISH
+
+
+# ============================================================
+# 56. GLOBAL POLISH — FUTURE WORK
+# ============================================================
+
+After the full page is complete, perform one unified pass.
+
+Review:
+
+- Hero spacing
+- Hero typography
+- Product deck crop
+- Product deck sharpness
+- Product deck overlap
+- Capability strip alignment
+- Trading Intelligence alignment
+- Card proportions
+- Supporting tool spacing
+- Footer height
+- Footer positioning
+- Section-to-section rhythm
+- Responsive behavior
+- Tablet layout
+- Mobile layout
+
+
+DO NOT repeatedly polish one isolated section before
+the entire page is complete.
+
+
+# ============================================================
+# 57. RESPONSIVE PASS — FUTURE
+# ============================================================
+
+Primary desktop baseline:
+
+1440 × 900
+
+
+Future tests:
+
+1280
+1440
+1920
+2560
+Tablet
+Mobile
+
+
+The landing page currently contains several manual desktop
+positioning values.
+
+These must be audited during the responsive pass.
+
+
+Existing project design guidance recommends testing multiple
+desktop widths plus mobile before final merge. :contentReference[oaicite:7]{index=7}
+
+
+# ============================================================
+# 58. IMPORTANT MANUAL POSITIONING DOCTRINE
+# ============================================================
+
+Current landing-page development deliberately uses manual:
+
+left-[...]
+top-[...]
+w-[...]
+h-[...]
+
+where visual tuning was required.
+
+
+This is acceptable for the visual composition phase.
+
+
+However:
+
+Do NOT allow manual offsets to become the final architecture
+where responsive layout can be solved using:
+
+grid
+flex
+max-width
+gap
+padding
+responsive breakpoints
+
+
+The current manual values should be considered design-tuning
+values, not permanent architectural doctrine.
+
+
+# ============================================================
+# 59. CURRENT LANDING-PAGE COLOR SYSTEM
+# ============================================================
+
+Primary canvas:
+
+#040914
+
+
+Card / panel:
+
+#07111C
+
+
+Input:
+
+#0B1624
+
+
+Primary Blue:
+
+#4F8CFF
+
+
+Purple:
+
+#7C5CFF
+
+
+Accent Purple:
+
+#A78BFA
+
+
+Cyan:
+
+#06B6D4
+
+
+These remain the current marketing design colors.
+
+
+# ============================================================
+# 60. LANDING PAGE RADIUS STANDARD
+# ============================================================
+
+Current marketing tuning standard:
+
+8px
+
+
+Used for:
+
+small CTA containers
+small icon boxes
+slide indicators
+capability icons
+compact marketing UI elements
+
+
+Larger cards may use:
+
+rounded-[10px]
+
+
+The landing page currently uses both depending on visual role.
+
+
+# ============================================================
+# 61. CHECKPOINTS / GIT STATE
+# ============================================================
+
+Known previous commits from the session:
+
+282f1ad
+fix: refresh dashboard dynamic date ranges
+
+28fff52
+checkpoint: responsive dashboard and expenses
+
+a3102b
+checkpoint: expenses responsive layout
+
+31945f6
+checkpoint: signup page complete
+
+9cbdd9b
+checkpoint: authentication pages complete
+
+
+Earlier known marketing/auth foundation checkpoint:
+
+1c09863
+checkpoint: marketing and auth foundation
+
+
+A landing-page structure checkpoint was created during this
+session.
+
+A separate routing checkpoint was intended after the root
+routing work.
+
+
+IMPORTANT:
+
+The exact hashes of the newest landing-page and routing
+commits were not captured in the notes available here.
+
+Run:
+
+git log -5 --oneline
+
+to record the exact current hashes.
+
+
+# ============================================================
+# 62. CURRENT GIT WORKFLOW
+# ============================================================
+
+Standard checkpoint workflow:
+
+git status
+
+git add .
+
+git commit -m "checkpoint: <description>"
+
+git push origin main
+
+Then verify:
+
+git status
+
+git log -5 --oneline
+
+
+Current branch:
+
+main
+
+
+Remote:
+
+origin/main
+
+
+# ============================================================
+# 63. LAST VERIFIED ROUTING STATE
+# ============================================================
+
+The root routing change was tested manually.
+
+Confirmed:
+
+Logged Out:
+
+/
+    → Landing
+
+
+Logged In:
+
+/
+    → /dashboard
+
+
+Login:
+
+/login
+    → /dashboard
+
+
+Sign Out:
+
+User Menu
+    → /login
+
+
+Sidebar:
+
+Overview
+    → /dashboard
+
+
+Profile:
+
+Back Arrow
+    → /dashboard
+
+
+This is the current routing baseline.
+
+
+# ============================================================
+# 64. IMPORTANT FILES CHANGED IN THIS PHASE
+# ============================================================
+
+Marketing:
+
+app/page.tsx
+app/landing/page.tsx
+components/marketing/MarketingHeader.tsx
+components/marketing/HeroSection.tsx
+components/marketing/ProductShowcase.tsx
+components/marketing/CapabilityStrip.tsx
+components/marketing/TradingIntelligenceSection.tsx
+components/marketing/MarketingFooter.tsx
+
+
+Routing:
+
+app/dashboard/page.tsx
+app/login/page.tsx
+components/layout/Sidebar.tsx
+app/profile/page.tsx
+
+
+Existing auth files retained:
+
+providers/AuthProvider.tsx
+components/auth/ProtectedRoute.tsx
+lib/supabase.ts
+
+
+User menu:
+
+components/layout/UserMenuV2.tsx
+
+
+# ============================================================
+# 65. WHAT WAS NOT CHANGED
+# ============================================================
+
+NOT changed architecturally:
+
+Supabase database
+Supabase RLS
+Execution Ledger
+pairTrades()
+IBKR sync architecture
+Execution persistence
+Trade reconstruction
+FX system
+Reporting Currency
+Expense business logic
+Trade History business logic
+Dashboard analytics
+ProtectedRoute
+AuthProvider
+
+
+The routing work only changed URL ownership.
+
+
+# ============================================================
+# 66. LANDING PAGE CURRENT VISUAL STATE
+# ============================================================
+
+HEADER:
+
+Good enough.
+
+
+HERO LEFT:
+
+Good enough / frozen.
+
+
+HERO PRODUCT DECK:
+
+Good enough / frozen.
+
+
+CAPABILITY STRIP:
+
+Good enough / frozen.
+
+
+TRADING INTELLIGENCE:
+
+Good enough / frozen.
+
+
+SUPPORTING TOOLS:
+
+Added / good enough.
+
+
+FOOTER:
+
+Minimal / good enough.
+
+
+WHOLE PAGE:
+
+Complete enough to move to final polish.
+
+
+# ============================================================
+# 67. KNOWN FUTURE VISUAL ISSUES
+# ============================================================
+
+Product screenshots still need final crop/sharpness tuning.
+
+Hero deck overlap can be refined.
+
+Hero/product visual balance can be refined.
+
+Capability strip typography can be refined.
+
+Trading Intelligence left editorial spacing can be refined.
+
+Trading Intelligence card offsets should eventually be made
+more responsive.
+
+Footer spacing can be refined.
+
+Section-to-section vertical rhythm needs a final pass.
+
+Mobile behavior needs dedicated review.
+
+
+Do NOT start solving these randomly.
+
+Do them during the global polish pass.
+
+
+# ============================================================
+# 68. KNOWN FUTURE FUNCTIONAL ISSUES
+# ============================================================
+
+Calendar marketing screenshot:
+
+Missing.
+
+
+Forgot Password:
+
+UI only.
+
+
+Google OAuth:
+
+UI only.
+
+
+Terms of Service:
+
+UI only.
+
+
+Privacy Policy:
+
+UI only.
+
+
+Settings page:
+
+Not finished.
+
+
+Marketing navigation dropdowns:
+
+Currently visual / semantic trigger buttons unless separately
+implemented.
+
+
+Start Free Trial:
+
+Currently points to /login.
+
+
+These are not blockers for the current routing foundation.
+
+
+# ============================================================
+# 69. IMPORTANT MARKETING PRINCIPLE
+# ============================================================
+
+The landing page should communicate:
+
+BRAND
+↓
+VALUE
+↓
+REAL PRODUCT
+↓
+CAPABILITIES
+↓
+INTELLIGENCE
+↓
+TRUST
+↓
+CTA
+
+
+Product screenshots should remain the dominant visual proof.
+
+Avoid:
+
+- fake analytics
+- fabricated UI
+- decorative graphics replacing real product UI
+- excessive glow
+- excessive gradients
+- generic SaaS filler
+
+
+Existing master notes explicitly establish product screenshots
+as the dominant visual element. :contentReference[oaicite:8]{index=8}
+
+
+# ============================================================
+# 70. NEXT SESSION — RECOMMENDED ORDER
+# ============================================================
+
+DO NOT start by changing routing again.
+
+
+Next:
+
+01.
+Run git status
+
+02.
+Run git log -5 --oneline
+
+03.
+Confirm working tree clean
+
+04.
+Open /landing or /
+
+05.
+Take fresh screenshot at 1440 × 900
+
+06.
+Begin global landing-page polish
+
+
+POLISH ORDER:
+
+01.
+Header
+
+02.
+Hero left + product deck together
+
+03.
+Capability strip
+
+04.
+Trading Intelligence
+
+05.
+Supporting tools
+
+06.
+Footer
+
+07.
+Whole-page vertical rhythm
+
+08.
+Responsive desktop/tablet/mobile
+
+
+# ============================================================
+# 71. FUTURE ROOT ROUTING RULE
+# ============================================================
+
+Never restore:
+
+/
+    → Dashboard
+
+
+The intended architecture is permanently:
+
+/
+    → Public Landing
+
+/dashboard
+    → Authenticated Dashboard
+
+
+This distinction should remain part of the final Elite X
+architecture.
+
+
+# ============================================================
+# 72. FINAL ARCHITECTURAL SUMMARY
+# ============================================================
+
+PUBLIC:
+
+/
+    → Landing
+
+/login
+    → Sign In
+
+/signup
+    → Sign Up
+
+
+AUTHENTICATED APPLICATION:
+
+/dashboard
+/trades
+/expenses
+/profile
+/settings
+
+
+AUTH STATE:
+
+AuthProvider
+    ↓
+Supabase session
+
+
+PROTECTED PAGES:
+
+ProtectedRoute
+
+
+PUBLIC ROOT:
+
+useAuth()
+    ↓
+logged out → Landing
+logged in  → /dashboard
+
+
+SIGN OUT:
+
+supabase.auth.signOut()
+    ↓
+/login
+
+
+# ============================================================
+# 73. CURRENT SYSTEM STATUS
+# ============================================================
+
+MARKETING:
+
+✅ Landing structure complete
+✅ Header
+✅ Hero
+✅ Product showcase
+✅ Capability rail
+✅ Trading Intelligence
+✅ Supporting tools
+✅ Footer
+
+
+AUTH:
+
+✅ Sign In
+✅ Sign Up
+✅ Supabase email/password
+✅ Sign Out
+✅ Password visibility
+✅ Signup validation
+✅ Signup success state
+
+
+ROUTING:
+
+✅ / = public landing when logged out
+✅ / = /dashboard when logged in
+✅ /dashboard = protected application
+✅ Login → /dashboard
+✅ Overview → /dashboard
+✅ Profile Back → /dashboard
+✅ Sign Out → /login
+
+
+PRODUCTION APP:
+
+✅ Existing dashboard preserved
+✅ Existing app structure preserved
+✅ Existing Supabase architecture preserved
+✅ Existing trading system preserved
+
+
+# ============================================================
+# 74. FINAL REMINDER
+# ============================================================
+
+DO NOT mistake the routing migration for an application rewrite.
+
+The application architecture remains intact.
+
+The primary architectural change is:
+
+OLD:
+
+/
+    → Dashboard
+
+
+NEW:
+
+/
+    → Landing
+
+/dashboard
+    → Dashboard
+
+
+Everything else continues to use the existing architecture.
+
+
+# ============================================================
+# 75. END OF MASTER NOTES
+# ============================================================

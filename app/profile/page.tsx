@@ -133,14 +133,12 @@ if (profile) {
 
             <div className="flex items-center gap-5">
 
-              <Link
-                href="/"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0b1730] transition-all hover:bg-[#13203a]"
-              >
-
-                <ArrowLeft className="h-5 w-5 text-slate-300" />
-
-              </Link>
+<Link
+  href="/dashboard"
+  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0b1730] transition-all hover:bg-[#13203a]"
+>
+  <ArrowLeft className="h-5 w-5 text-slate-300" />
+</Link>
 
               <div>
 

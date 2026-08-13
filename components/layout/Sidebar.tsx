@@ -21,7 +21,7 @@ const mainItems = [
   {
     title: "Overview",
     icon: LayoutDashboard,
-    href: "/",
+    href: "/dashboard",
   },
   {
     title: "Trades",

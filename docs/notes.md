@@ -384,6 +384,7 @@ git commit -m "checkpoint: expenses responsive layout"
 git commit -m "checkpoint: responsive dashboard and expenses"
 git commit -m "fix: refresh dashboard dynamic date ranges"
 git commit -m "checkpoint: landing page structure complete"
+git commit -m "checkpoint: public landing and app routing"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
