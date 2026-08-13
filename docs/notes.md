@@ -373,6 +373,10 @@ git commit -m "checkpoint: v3 UI final refinements"
 git commit -m "checkpoint/sidebar-toolkit-rename"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Landing Page strats here 
+
+git commit -m "checkpoint: marketing and auth foundation"
+
 Status:
 PRODUCTION-STABLE HYBRID ARCHITECTURE
 

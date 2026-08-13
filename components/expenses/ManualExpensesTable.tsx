@@ -435,13 +435,13 @@ const filterWidth = "w-[100px]";
 const dateFilterWidth = "w-[145px]";
 
 const tableHeaderHeight = "h-[34px]";
-const tableRowHeight = "h-[38px]"; // <-- increase/decrease this only
+const tableRowHeight = "min-h-[38px] h-auto"; // Allow rows to grow naturally when text wraps
 
 const tableHeaderSpacerTop = "pt-1";
 const tableHeaderSpacerBottom = "pb-1";
 
-const tableRowSpacerTop = "pt-2";
-const tableRowSpacerBottom = "pb-2";
+const tableRowSpacerTop = "pt-1.5";
+const tableRowSpacerBottom = "pb-1.5";
 
 const actionIconSize = 14;
 
@@ -995,7 +995,7 @@ bg-[#0b1220]
 
     cursor-pointer
 
-    items-center
+    items-start
 
     px-6
 
@@ -1015,7 +1015,7 @@ bg-[#0b1220]
     last:border-b-0
   `}
 >
-      <span className="flex items-center justify-center">
+      <span className="flex items-start justify-center pt-0.5">
   {new Date(
   `${row.expense_date}T12:00:00`
 ).toLocaleDateString("en-US", {
@@ -1028,8 +1028,9 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
+    pt-0.5
 
     font-medium
     text-white
@@ -1043,8 +1044,9 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
+    pt-0.5
 
     ${categoryX}
   `}
@@ -1055,8 +1057,9 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
+    pt-0.5
 
     ${vendorX}
   `}
@@ -1067,8 +1070,9 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
+    pt-0.5
 
     ${originalAmountX}
   `}
@@ -1080,8 +1084,9 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
+    pt-0.5
 
     ${reportingAmountX}
   `}
@@ -1101,9 +1106,10 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
     gap-1
+    pt-0.5
 
     ${recurringX}
   `}
@@ -1179,9 +1185,10 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
     gap-2
+    pt-0.5
 
     font-medium
     text-white
@@ -1190,7 +1197,7 @@ bg-[#0b1220]
   `}
 >
   <span
-    className={`h-2 w-2 rounded-full ${
+    className={`h-2 w-2 rounded-full mt-1 ${
       row.is_tax_deductible
         ? "bg-emerald-400"
         : "bg-red-400"
@@ -1205,8 +1212,9 @@ bg-[#0b1220]
  <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
+    pt-0.5
 
     font-medium
     text-white
@@ -1221,8 +1229,9 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-center
+    items-start
     justify-center
+    pt-0.5
 
     ${typeX}
   `}
@@ -1249,7 +1258,7 @@ bg-[#0b1220]
   )}
 </span>
 
-<div className="flex items-center justify-center gap-3">
+<div className="flex items-start justify-center gap-3 pt-0.5">
 
   <button
     onClick={(e) => {
