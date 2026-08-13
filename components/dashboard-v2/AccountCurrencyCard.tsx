@@ -336,7 +336,7 @@ backdrop-blur-xl
           w-[140px]
           min-w-0
           shrink
-          -translate-x-4
+          translate-x-2
           text-right
 
           @max-[420px]:-translate-x-6
@@ -481,6 +481,7 @@ backdrop-blur-xl
                     w-[140px]
                     min-w-0
                     shrink
+                    translate-x-4
                     text-right
 
                     @max-[420px]:-translate-x-3
@@ -569,7 +570,7 @@ backdrop-blur-xl
     ml-auto
     w-[140px]
     shrink-0
-    -translate-x-4
+    translate-x-2
     text-right
 
     @max-[420px]:-translate-x-13
@@ -704,7 +705,7 @@ backdrop-blur-xl
     min-w-0
     shrink
     text-right
-
+translate-x-4
     @max-[420px]:-translate-x-3
   "
 >

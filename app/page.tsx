@@ -213,6 +213,175 @@ useEffect(() => {
 // DASHBOARD DATE RANGE PERSISTENCE
 // =================================================
 
+const getFreshDashboardDateRange = (
+  preset: string
+): {
+  startDate: Date | null;
+  endDate: Date | null;
+} => {
+
+  const now = new Date();
+
+  const startOfDay =
+    new Date(now);
+
+  startOfDay.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  const endOfDay =
+    new Date(now);
+
+  endOfDay.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  switch (preset) {
+
+    case "Today":
+
+      return {
+        startDate:
+          startOfDay,
+
+        endDate:
+          endOfDay,
+      };
+
+
+    case "This Week": {
+
+      const start =
+        new Date(
+          startOfDay
+        );
+
+      const day =
+        start.getDay();
+
+      const diff =
+        day === 0
+          ? -6
+          : 1 - day;
+
+      start.setDate(
+        start.getDate() +
+        diff
+      );
+
+      return {
+        startDate:
+          start,
+
+        endDate:
+          endOfDay,
+      };
+    }
+
+
+    case "This Month":
+
+      return {
+        startDate:
+          new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1,
+            0,
+            0,
+            0,
+            0
+          ),
+
+        endDate:
+          endOfDay,
+      };
+
+
+    case "Last 30 Days": {
+
+      const start =
+        new Date(
+          startOfDay
+        );
+
+      start.setDate(
+        start.getDate() - 29
+      );
+
+      return {
+        startDate:
+          start,
+
+        endDate:
+          endOfDay,
+      };
+    }
+
+
+    case "This Quarter": {
+
+      const quarterStartMonth =
+        Math.floor(
+          now.getMonth() / 3
+        ) * 3;
+
+      return {
+        startDate:
+          new Date(
+            now.getFullYear(),
+            quarterStartMonth,
+            1,
+            0,
+            0,
+            0,
+            0
+          ),
+
+        endDate:
+          endOfDay,
+      };
+    }
+
+
+    case "YTD":
+
+      return {
+        startDate:
+          new Date(
+            now.getFullYear(),
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ),
+
+        endDate:
+          endOfDay,
+      };
+
+
+    default:
+
+      return {
+        startDate:
+          null,
+
+        endDate:
+          null,
+      };
+  }
+};
+
+
 useEffect(() => {
 
   const saved =
@@ -227,24 +396,63 @@ useEffect(() => {
   const parsed =
     JSON.parse(saved);
 
+  const preset =
+    parsed.selectedPreset ??
+    "YTD";
+
   setSelectedPreset(
-    parsed.selectedPreset ?? "YTD"
+    preset
   );
+
+  const dynamicPresets =
+    new Set([
+      "Today",
+      "This Week",
+      "This Month",
+      "Last 30 Days",
+      "This Quarter",
+      "YTD",
+    ]);
+
+  if (
+    dynamicPresets.has(
+      preset
+    )
+  ) {
+
+    const freshRange =
+      getFreshDashboardDateRange(
+        preset
+      );
+
+    setStartDate(
+      freshRange.startDate
+    );
+
+    setEndDate(
+      freshRange.endDate
+    );
+
+    return;
+  }
 
   setStartDate(
     parsed.startDate
-      ? new Date(parsed.startDate)
+      ? new Date(
+          parsed.startDate
+        )
       : null
   );
 
   setEndDate(
     parsed.endDate
-      ? new Date(parsed.endDate)
+      ? new Date(
+          parsed.endDate
+        )
       : null
   );
 
 }, []);
-
 const [selectedTrade, setSelectedTrade] =
   useState<Trade | null>(null);
 
