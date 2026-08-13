@@ -4,7 +4,14 @@ import { useState, FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
@@ -18,6 +25,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
+
     try {
       setLoading(true);
       setError("");
@@ -40,175 +48,609 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col overflow-hidden bg-[#040914] text-slate-100 lg:flex-row">
-      {/* Darkened & Heavily Blurred Atmospheric Dashboard Background */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <main className="relative min-h-screen w-full overflow-hidden bg-[#040914] text-slate-100">
+      {/* ========================================================= */}
+      {/* ATMOSPHERIC BACKGROUND                                    */}
+      {/* ========================================================= */}
+
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <Image
           src="/images/showcase/dashboard-approved.webp"
-          alt="Elite X Atmospheric Background"
+          alt=""
           fill
           priority
-          quality={50}
-          className="object-cover object-top opacity-15 blur-2xl filter scale-105"
+          quality={45}
+          className="scale-[1.08] object-cover object-center opacity-30 blur-[18px]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#040914]/80 via-[#040914]/90 to-[#040914]" />
+
+        <div className="absolute inset-0 bg-[#040914]/58" />
+
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_48%,rgba(79,140,255,0.10),transparent_34%)]" />
+
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#040914_0%,rgba(4,9,20,0.88)_40%,rgba(4,9,20,0.64)_100%)]" />
       </div>
 
-      {/* LEFT SIDE (~42% Usable Width): Editorial Brand Stage */}
-      <div className="relative flex w-full flex-col justify-between border-b border-white/[0.06] p-8 sm:p-12 lg:w-[42%] lg:border-b-0 lg:border-r lg:p-16">
-        {/* Subtle Large Curved Arc Visual with Glowing Node */}
-        <svg 
-          className="pointer-events-none absolute right-0 top-1/2 -z-10 hidden h-[650px] w-[320px] -translate-y-1/2 opacity-25 lg:block" 
-          viewBox="0 0 320 650" 
-          fill="none"
-        >
-          <path 
-            d="M 320 0 A 320 320 0 0 0 320 650" 
-            stroke="url(#arc-gradient-login)" 
-            strokeWidth="1.5" 
-          />
-          <circle cx="2" cy="325" r="4" fill="#4F8CFF" className="animate-pulse" />
-          <defs>
-            <linearGradient id="arc-gradient-login" x1="320" y1="0" x2="320" y2="650" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#4F8CFF" stopOpacity="0.7" />
-              <stop offset="0.5" stopColor="#818cf8" stopOpacity="0.3" />
-              <stop offset="1" stopColor="#38bdf8" stopOpacity="0.1" />
-            </linearGradient>
-          </defs>
-        </svg>
+      {/* ========================================================= */}
+      {/* MAIN AUTH CANVAS                                           */}
+      {/* ========================================================= */}
 
-        {/* Top Official Elite X Wordmark Header */}
-        <div>
-          <Link href="/landing" className="inline-flex flex-col transition-opacity hover:opacity-90">
-            <div className="flex items-end leading-none">
-              <span className="text-2xl font-extrabold tracking-[-0.055em] text-white sm:text-3xl">Elite</span>
-              <span className="ml-0.5 text-3xl font-black tracking-[-0.08em] text-[#4F8CFF] sm:text-4xl">X</span>
-            </div>
-            <span className="mt-1 text-[10px] font-bold uppercase tracking-[0.38em] text-[#4F8CFF]/90">
-              TRADING OS
-            </span>
-          </Link>
-        </div>
+      <div className="relative flex min-h-screen w-full">
+        {/* ======================================================= */}
+        {/* LEFT BRAND PANEL                                         */}
+        {/* ======================================================= */}
 
-        {/* Center Editorial Messaging */}
-        <div className="my-10 max-w-md lg:my-auto">
-          <h2 className="flex flex-col gap-2 text-3xl font-black leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-[40px]">
-            <span>Track your trades.</span>
-            <span>Analyze your performance.</span>
-            <span className="bg-gradient-to-r from-[#4F8CFF] to-cyan-400 bg-clip-text text-transparent">
-              Elevate your edge.
-            </span>
-          </h2>
-          <div className="mt-6 h-0.5 w-16 rounded-full bg-gradient-to-r from-[#4F8CFF] to-transparent" />
-        </div>
+        <section className="relative hidden w-[40%] shrink-0 border-r border-white/[0.08] lg:flex">
+          {/* Large arc */}
+          <svg
+            aria-hidden="true"
+            className="pointer-events-none absolute right-[-155px] top-1/2 h-[760px] w-[380px] -translate-y-1/2 opacity-45"
+            viewBox="0 0 380 760"
+            fill="none"
+          >
+            <path
+              d="M380 0C170 72 42 276 42 380C42 484 170 688 380 760"
+              stroke="url(#login-arc)"
+              strokeWidth="1"
+            />
 
-        {/* Lower-Left Presentational Security Block */}
-        <div className="flex max-w-sm items-center gap-3.5 rounded-xl border border-white/[0.06] bg-[#07111C]/60 p-4 backdrop-blur-sm">
-          <div className="flex size-9 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400 shrink-0">
-            <ShieldCheck className="size-4" />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-200">Bank-grade security</p>
-            <p className="text-[11px] text-slate-400 leading-snug">Your data is encrypted and secure.</p>
-          </div>
-        </div>
-      </div>
+            <circle
+              cx="42"
+              cy="380"
+              r="4"
+              fill="#4F8CFF"
+            />
 
-      {/* RIGHT SIDE (~58% Usable Width): Centered Authentication Card */}
-      <div className="flex w-full flex-1 items-center justify-center p-6 sm:p-12 lg:w-[58%] lg:p-16">
-        <div className="w-full max-w-[460px] rounded-2xl border border-white/[0.08] bg-[#07111C]/95 p-8 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:p-10 lg:p-12">
-          
-          {/* Card Header */}
-          <div className="mb-8 sm:mb-9">
-            <h1 className="text-2xl font-bold leading-tight tracking-tight text-white sm:text-[28px]">
-              Sign in to <span className="bg-gradient-to-r from-[#4F8CFF] to-cyan-400 bg-clip-text text-transparent">Elite X</span>
-            </h1>
-            <p className="mt-2.5 text-xs text-slate-400 sm:text-sm">
-              Welcome back! Please enter your details.
-            </p>
-          </div>
+            <circle
+              cx="42"
+              cy="380"
+              r="9"
+              fill="#4F8CFF"
+              opacity="0.10"
+            />
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-6">
-            {/* Email Input */}
-            <div>
-              <label htmlFor="email" className="mb-2.5 block text-xs font-semibold text-slate-300">
-                Email
-              </label>
-              <div className="relative flex items-center">
-                <Mail className="pointer-events-none absolute left-4 size-4 text-slate-500" />
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="h-[52px] w-full rounded-xl border border-white/[0.08] bg-[#030814] pl-11 pr-4 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all focus:border-[#4F8CFF] focus:ring-1 focus:ring-[#4F8CFF]"
-                />
-              </div>
-            </div>
-
-            {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="mb-2.5 block text-xs font-semibold text-slate-300">
-                Password
-              </label>
-              <div className="relative flex items-center">
-                <Lock className="pointer-events-none absolute left-4 size-4 text-slate-500" />
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="h-[52px] w-full rounded-xl border border-white/[0.08] bg-[#030814] pl-11 pr-11 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all focus:border-[#4F8CFF] focus:ring-1 focus:ring-[#4F8CFF]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 text-slate-500 transition-colors hover:text-slate-300"
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Error Banner */}
-            {error && (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-medium text-red-400">
-                {error}
-              </div>
-            )}
-
-            {/* Primary Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-4 flex h-[52px] w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-[#4F8CFF] to-cyan-500 text-sm font-bold text-white shadow-[0_0_25px_rgba(79,140,255,0.3)] transition-all hover:opacity-95 hover:shadow-[0_0_30px_rgba(79,140,255,0.45)] disabled:opacity-50"
-            >
-              <span>{loading ? "Signing in..." : "Sign In"}</span>
-              {!loading && <ArrowRight className="size-4" />}
-            </button>
-          </form>
-
-          {/* Bottom Divider & Link to /signup */}
-          <div className="mt-8 border-t border-white/[0.06] pt-6 text-center">
-            <p className="text-xs text-slate-400">
-              Don't have an account?{" "}
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-1 font-semibold text-[#4F8CFF] transition-all hover:underline"
+            <defs>
+              <linearGradient
+                id="login-arc"
+                x1="380"
+                y1="0"
+                x2="42"
+                y2="760"
+                gradientUnits="userSpaceOnUse"
               >
-                <span>Create account</span>
-                <ArrowRight className="size-3" />
-              </Link>
-            </p>
-          </div>
+                <stop
+                  stopColor="#4F8CFF"
+                  stopOpacity="0"
+                />
+                <stop
+                  offset="0.48"
+                  stopColor="#4F8CFF"
+                  stopOpacity="0.75"
+                />
+                <stop
+                  offset="1"
+                  stopColor="#38BDF8"
+                  stopOpacity="0"
+                />
+              </linearGradient>
+            </defs>
+          </svg>
 
+          <div className="flex h-full w-full flex-col px-12 py-10 xl:px-16 xl:py-12">
+            {/* Brand */}
+            <Link
+              href="/landing"
+              className="inline-flex w-fit flex-col transition-opacity hover:opacity-90"
+            >
+              <div className="flex items-end leading-none">
+                <span className="text-[24px] font-extrabold tracking-[-0.055em] text-white">
+                  Elite
+                </span>
+
+                <span className="ml-[2px] text-[28px] font-black tracking-[-0.08em] text-[#4F8CFF]">
+                  X
+                </span>
+              </div>
+
+              <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.38em] text-[#4F8CFF]/90">
+                TRADING OS
+              </span>
+            </Link>
+
+            {/* Center editorial block */}
+            <div className="flex flex-1 items-center">
+              <div className="max-w-[420px]">
+                <h2 className="text-[42px] font-semibold leading-[1.16] tracking-[-0.035em] text-white xl:text-[46px]">
+                  <span className="block">Track your trades.</span>
+                  <span className="block">Analyze your performance.</span>
+                  <span className="block bg-gradient-to-r from-[#7C5CFF] via-[#4F8CFF] to-cyan-400 bg-clip-text text-transparent">
+                    Elevate your edge.
+                  </span>
+                </h2>
+
+                <p className="mt-6 max-w-[360px] text-[15px] leading-7 text-slate-400">
+                  Track, analyze and improve your trades — all in one place.
+                </p>
+
+                <div className="mt-8 h-px w-16 bg-gradient-to-r from-[#7C5CFF] to-cyan-400" />
+              </div>
+            </div>
+
+            {/* Security */}
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.025]">
+                <ShieldCheck className="size-4 text-[#7C5CFF]" />
+              </div>
+
+              <div>
+                <p className="text-[12px] font-semibold text-slate-200">
+                  Bank-grade security
+                </p>
+
+                <p className="mt-0.5 text-[11px] text-slate-500">
+                  Your data is encrypted and secure.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+{/* ======================================================= */}
+{/* RIGHT AUTH PANEL                                        */}
+{/* ======================================================= */}
+
+<section
+  className="
+    relative
+    left-[0px]
+    top-[0px]
+    flex
+    min-w-0
+    flex-1
+    items-center
+    justify-center
+    px-6
+    py-10
+    sm:px-10
+    lg:px-10
+    xl:px-14
+  "
+>
+  {/* AUTH CARD WRAPPER */}
+  <div className="relative left-[0px] top-[0px] w-full max-w-[380px]">
+
+    {/* AUTH CARD */}
+    <div
+      className="
+        relative
+        left-[0px]
+        top-[0px]
+        h-[542px]
+        w-full
+        rounded-[14px]
+        border
+        border-white/[0.09]
+        bg-[#07111C]/95
+        px-10
+        py-10
+        shadow-[0_24px_80px_rgba(0,0,0,0.42)]
+        backdrop-blur-xl
+        sm:px-11
+        sm:py-11
+      "
+    >
+
+      {/* ================================================= */}
+      {/* CARD HEADER                                       */}
+      {/* ================================================= */}
+
+<div>
+  {/* Sign In Heading */}
+  <h1
+    className="
+      relative
+      left-[50px]
+      top-[20px]
+      text-[30px]
+      font-semibold
+      leading-tight
+      tracking-[-0.025em]
+      text-white
+    "
+  >
+    Sign in to{" "}
+    <span className="bg-gradient-to-r from-[#4F8CFF] to-cyan-400 bg-clip-text text-transparent">
+      Elite X
+    </span>
+  </h1>
+
+  {/* Welcome Text */}
+  <p
+    className="
+      relative
+      left-[50px]
+      top-[20px]
+      mt-3
+      text-[13px]
+      leading-5
+      text-slate-400
+    "
+  >
+    Welcome back! Please enter your details.
+  </p>
+</div>
+
+      {/* ================================================= */}
+      {/* FORM                                              */}
+      {/* ================================================= */}
+
+      <form
+        onSubmit={handleLogin}
+        className="
+          relative
+          left-[0px]
+          top-[0px]
+          mt-9
+        "
+      >
+
+        {/* ================================================= */}
+        {/* EMAIL                                             */}
+        {/* ================================================= */}
+
+        <div className="relative left-[35px] top-[50px] mt-0 w-[80%]">
+<label
+  htmlFor="email"
+  className="
+    relative
+    left-[0px]
+    top-[-6px]
+    mb-2
+    block
+    text-[12px]
+    font-semibold
+    text-slate-300
+  "
+>
+  Email
+</label>
+
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-4 top-1/2 size-[16px] -translate-y-1/2 text-slate-500" />
+
+<input
+  id="email"
+  type="email"
+  required
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  placeholder="Enter your email"
+  autoComplete="email"
+  style={{
+    WebkitTextFillColor: "#ffffff",
+    caretColor: "#ffffff",
+    textIndent: "42px",
+  }}
+  className="
+    h-[52px]
+    w-full
+    rounded-[9px]
+    border
+    border-white/[0.08]
+    bg-[#0B1624]
+    pl-[58px]
+    pr-4
+    text-[13px]
+    font-medium
+    text-white
+    caret-white
+    outline-none
+    transition-colors
+    placeholder:text-slate-500
+    focus:border-[#4F8CFF]/70
+    focus:ring-1
+    focus:ring-[#4F8CFF]/30
+    [&:-webkit-autofill]:bg-[#0B1624]
+    [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0B1624_inset]
+  "
+/>
+          </div>
         </div>
+
+        {/* ================================================= */}
+        {/* PASSWORD                                          */}
+        {/* ================================================= */}
+
+        <div className="relative left-[35px] top-[80px] mt-7 w-[80%]">
+<label
+  htmlFor="password"
+  className="
+    relative
+    left-[0px]
+    top-[-6px]
+    mb-2
+    block
+    text-[12px]
+    font-semibold
+    text-slate-300
+  "
+>
+  Password
+</label>
+
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-4 top-1/2 size-[16px] -translate-y-1/2 text-slate-500" />
+
+<input
+  id="password"
+  type={showPassword ? "text" : "password"}
+  required
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  placeholder="Enter your password"
+  autoComplete="current-password"
+  style={{
+    WebkitTextFillColor: "#ffffff",
+    caretColor: "#ffffff",
+    textIndent: "42px",
+  }}
+  className="
+    h-[52px]
+    w-full
+    rounded-[9px]
+    border
+    border-white/[0.08]
+    bg-[#0B1624]
+    pl-[58px]
+    pr-12
+    text-[13px]
+    font-medium
+    text-white
+    caret-white
+    outline-none
+    transition-colors
+    placeholder:text-slate-500
+    focus:border-[#4F8CFF]/70
+    focus:ring-1
+    focus:ring-[#4F8CFF]/30
+    [&:-webkit-autofill]:bg-[#0B1624]
+    [&:-webkit-autofill]:text-fill-white
+    [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0B1624_inset]
+  "
+/>
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              className="
+                absolute
+                right-4
+                top-1/2
+                -translate-y-1/2
+                text-slate-500
+                transition-colors
+                hover:text-slate-300
+              "
+              aria-label="Toggle password visibility"
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* ================================================= */}
+        {/* REMEMBER / FORGOT                                 */}
+        {/* ================================================= */}
+
+        <div className="relative left-[35px] top-[100px] mt-7 flex w-[80%] items-center justify-between">
+
+          {/* Remember Me */}
+          <label className="relative left-[0px] top-[0px] flex cursor-pointer items-center gap-2">
+            <span className="relative flex size-[17px] items-center justify-center">
+              <input
+                type="checkbox"
+                className="
+                  peer
+                  size-[17px]
+                  cursor-pointer
+                  appearance-none
+                  rounded-[4px]
+                  border
+                  border-white/[0.12]
+                  bg-[#0B1624]
+                  checked:border-[#4F8CFF]
+                  checked:bg-[#4F8CFF]
+                "
+              />
+
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 12 12"
+                className="
+                  pointer-events-none
+                  absolute
+                  size-[11px]
+                  opacity-0
+                  transition-opacity
+                  peer-checked:opacity-100
+                "
+              >
+                <path
+                  d="M2.25 6.25 4.9 8.75 9.75 3.75"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+
+            <span className="text-[12px] text-slate-400">
+              Remember me
+            </span>
+          </label>
+
+          {/* Forgot Password */}
+          <button
+            type="button"
+            className="
+              relative
+              left-[0px]
+              top-[0px]
+              text-[12px]
+              font-semibold
+              text-[#4F8CFF]
+              transition-colors
+              hover:text-cyan-300
+            "
+          >
+            Forgot password?
+          </button>
+        </div>
+
+        {/* ================================================= */}
+        {/* SIGN IN BUTTON                                    */}
+        {/* ================================================= */}
+
+        <div className="relative left-[35px] top-[120px] mt-8 w-[80%]">
+<button
+  type="submit"
+  disabled={loading}
+  className="
+    mt-0
+    flex
+    h-[52px]
+    w-full
+    items-center
+    justify-center
+    gap-2
+    rounded-[9px]
+    bg-gradient-to-r
+    from-[#4F46E5]
+    via-[#4F8CFF]
+    to-[#06B6D4]
+    text-[13px]
+    font-semibold
+    text-white
+    shadow-[0_6px_18px_rgba(79,140,255,0.10)]
+    transition-all
+    hover:brightness-[1.04]
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+  "
+>
+            <span>
+              {loading ? "Signing in..." : "Sign In"}
+            </span>
+
+            {!loading && (
+              <ArrowRight className="size-[15px]" />
+            )}
+          </button>
+        </div>
+
+
+{/* ================================================= */}
+{/* DIVIDER                                           */}
+{/* ================================================= */}
+
+<div className="relative left-[35px] top-[130px] flex w-[80%] items-center gap-3">
+  <div className="h-px flex-1 bg-white/[0.08]" />
+
+  <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500">
+    OR
+  </span>
+
+  <div className="h-px flex-1 bg-white/[0.08]" />
+</div>
+
+        {/* ================================================= */}
+        {/* GOOGLE                                           */}
+        {/* ================================================= */}
+
+        <div className="relative left-[35px] top-[140px] mt-5 w-[80%]">
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            className="
+              flex
+              h-[52px]
+              w-full
+              cursor-not-allowed
+              items-center
+              justify-center
+              gap-3
+              rounded-[9px]
+              border
+              border-white/[0.08]
+              bg-white/[0.025]
+              text-[13px]
+              font-semibold
+              text-slate-500
+              opacity-80
+            "
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="size-[18px]"
+            >
+              <path
+                fill="#4285F4"
+                d="M21.35 12.27c0-.68-.06-1.35-.17-1.99H12v3.77h5.23a4.46 4.46 0 0 1-1.94 2.93v2.45h3.14c1.84-1.69 2.92-4.18 2.92-7.16Z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 21.75c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.55 0-4.71-1.72-5.49-4.03H3.27v2.53A9.75 9.75 0 0 0 12 21.75Z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M6.51 13.83A5.86 5.86 0 0 1 6.2 12c0-.64.11-1.26.31-1.83V7.64H3.27A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.02 4.36l3.24-2.53Z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 6.14c1.43 0 2.7.49 3.71 1.46l2.78-2.78C16.84 3.25 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.73 5.39l3.24 2.53C7.29 7.86 9.45 6.14 12 6.14Z"
+              />
+            </svg>
+
+            <span>Continue with Google</span>
+          </button>
+        </div>
+      </form>
+
+      {/* ================================================= */}
+      {/* FOOTER                                            */}
+      {/* ================================================= */}
+
+     <div className="relative left-[35px] top-[160px] mt-8 w-[80%] pt-6">
+        <p className="text-center text-[12px] text-slate-500">
+          Don&apos;t have an account?{" "}
+<Link
+  href="/signup"
+  className="
+    inline-flex
+    items-center
+    gap-1
+    font-semibold
+    transition-colors
+  "
+  style={{
+    color: "#A78BFA",
+  }}
+>
+  <span>Create account</span>
+  <ArrowRight className="size-[13px]" />
+</Link>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
       </div>
     </main>
   );
