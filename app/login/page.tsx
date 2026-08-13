@@ -75,124 +75,217 @@ export default function LoginPage() {
       {/* ========================================================= */}
 
       <div className="relative flex min-h-screen w-full">
-        {/* ======================================================= */}
-        {/* LEFT BRAND PANEL                                         */}
-        {/* ======================================================= */}
+{/* ======================================================= */}
+{/* LEFT BRAND PANEL                                        */}
+{/* ======================================================= */}
 
-        <section className="relative hidden w-[40%] shrink-0 border-r border-white/[0.08] lg:flex">
-          {/* Large arc */}
-          <svg
-            aria-hidden="true"
-            className="pointer-events-none absolute right-[-155px] top-1/2 h-[760px] w-[380px] -translate-y-1/2 opacity-45"
-            viewBox="0 0 380 760"
-            fill="none"
-          >
-            <path
-              d="M380 0C170 72 42 276 42 380C42 484 170 688 380 760"
-              stroke="url(#login-arc)"
-              strokeWidth="1"
-            />
+<section className="relative hidden w-[40%] shrink-0 border-r border-white/[0.08] lg:flex">
+  {/* ===================================================== */}
+  {/* LARGE BACKGROUND ARC                                  */}
+  {/* ===================================================== */}
 
-            <circle
-              cx="42"
-              cy="380"
-              r="4"
-              fill="#4F8CFF"
-            />
+  <svg
+    aria-hidden="true"
+className="
+  pointer-events-none
+  absolute
+  right-[-0px]
+  top-1/2
+  h-[820px]
+  w-[700px]
+  -translate-y-1/2
+  scale-x-[-0.8]
+  opacity-80
+"
+    viewBox="0 0 410 820"
+    fill="none"
+  >
+    <path
+      d="M410 0C180 85 30 295 30 410C30 525 180 735 410 820"
+      stroke="url(#login-arc)"
+      strokeWidth="1"
+    />
 
-            <circle
-              cx="42"
-              cy="380"
-              r="9"
-              fill="#4F8CFF"
-              opacity="0.10"
-            />
+    {/* Primary glowing node */}
+    <circle
+      cx="30"
+      cy="410"
+      r="4"
+      fill="#4F8CFF"
+    />
 
-            <defs>
-              <linearGradient
-                id="login-arc"
-                x1="380"
-                y1="0"
-                x2="42"
-                y2="760"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop
-                  stopColor="#4F8CFF"
-                  stopOpacity="0"
-                />
-                <stop
-                  offset="0.48"
-                  stopColor="#4F8CFF"
-                  stopOpacity="0.75"
-                />
-                <stop
-                  offset="1"
-                  stopColor="#38BDF8"
-                  stopOpacity="0"
-                />
-              </linearGradient>
-            </defs>
-          </svg>
+    {/* Soft glow around node */}
+    <circle
+      cx="30"
+      cy="410"
+      r="12"
+      fill="#4F8CFF"
+      opacity="0.08"
+    />
 
-          <div className="flex h-full w-full flex-col px-12 py-10 xl:px-16 xl:py-12">
-            {/* Brand */}
-            <Link
-              href="/landing"
-              className="inline-flex w-fit flex-col transition-opacity hover:opacity-90"
-            >
-              <div className="flex items-end leading-none">
-                <span className="text-[24px] font-extrabold tracking-[-0.055em] text-white">
-                  Elite
-                </span>
+    <defs>
+<linearGradient
+  id="login-arc"
+  x1="0"
+  y1="0"
+  x2="380"
+  y2="820"
+  gradientUnits="userSpaceOnUse"
+>
+  <stop
+    stopColor="#4F8CFF"
+    stopOpacity="0"
+  />
 
-                <span className="ml-[2px] text-[28px] font-black tracking-[-0.08em] text-[#4F8CFF]">
-                  X
-                </span>
-              </div>
+  <stop
+    offset="0.46"
+    stopColor="#7C5CFF"
+    stopOpacity="0.70"
+  />
 
-              <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.38em] text-[#4F8CFF]/90">
-                TRADING OS
-              </span>
-            </Link>
+  <stop
+    offset="0.62"
+    stopColor="#4F8CFF"
+    stopOpacity="0.45"
+  />
 
-            {/* Center editorial block */}
-            <div className="flex flex-1 items-center">
-              <div className="max-w-[420px]">
-                <h2 className="text-[42px] font-semibold leading-[1.16] tracking-[-0.035em] text-white xl:text-[46px]">
-                  <span className="block">Track your trades.</span>
-                  <span className="block">Analyze your performance.</span>
-                  <span className="block bg-gradient-to-r from-[#7C5CFF] via-[#4F8CFF] to-cyan-400 bg-clip-text text-transparent">
-                    Elevate your edge.
-                  </span>
-                </h2>
+  <stop
+    offset="1"
+    stopColor="#38BDF8"
+    stopOpacity="0"
+  />
+</linearGradient>
+    </defs>
+  </svg>
 
-                <p className="mt-6 max-w-[360px] text-[15px] leading-7 text-slate-400">
-                  Track, analyze and improve your trades — all in one place.
-                </p>
+  {/* ===================================================== */}
+  {/* LEFT PANEL CONTENT                                    */}
+  {/* ===================================================== */}
 
-                <div className="mt-8 h-px w-16 bg-gradient-to-r from-[#7C5CFF] to-cyan-400" />
-              </div>
-            </div>
+  <div className="relative h-full w-full">
+    {/* =================================================== */}
+    {/* BRAND                                               */}
+    {/* =================================================== */}
 
-            {/* Security */}
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.025]">
-                <ShieldCheck className="size-4 text-[#7C5CFF]" />
-              </div>
+    <Link
+      href="/landing"
+      className="
+        absolute
+        left-[200px]
+        top-[30%]
+        inline-flex
+        -translate-y-1/2
+        flex-col
+        transition-opacity
+        hover:opacity-90
+      "
+    >
+<div className="flex items-end leading-none">
+  <span className="text-[34px] font-extrabold tracking-[-0.055em] text-white">
+    Elite
+  </span>
 
-              <div>
-                <p className="text-[12px] font-semibold text-slate-200">
-                  Bank-grade security
-                </p>
+  <span className="relative left-[8px] text-[38px] font-black tracking-normal text-[#4F8CFF]">
+    X
+  </span>
+</div>
 
-                <p className="mt-0.5 text-[11px] text-slate-500">
-                  Your data is encrypted and secure.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+     <span className="mt-1 text-[11px] font-bold uppercase tracking-[0.38em] text-slate-300/80">
+  TRADING JOURNAL
+</span>
+    </Link>
+
+    {/* =================================================== */}
+    {/* EDITORIAL MESSAGE                                  */}
+    {/* =================================================== */}
+
+<div
+  className="
+    absolute
+    left-[140px]
+    top-[50%]
+    -translate-y-1/2
+  "
+>
+  <h2
+    className="
+      text-[32px]
+      font-medium
+      leading-[1.28]
+      tracking-[-0.02em]
+      text-white
+    "
+  >
+    <span className="block">
+      Track your trades.
+    </span>
+
+    <span className="block">
+      Analyze your performance.
+    </span>
+
+    <span className="block">
+      Elevate your edge.
+    </span>
+  </h2>
+
+  <div
+  className="
+    relative
+    left-[00px]
+    top-[20px]
+    mt-7
+    h-px
+    w-[68px]
+    bg-gradient-to-r
+    from-[#7C5CFF]
+    to-cyan-400
+  "
+/>
+</div>
+
+    {/* =================================================== */}
+    {/* SECURITY                                            */}
+    {/* =================================================== */}
+
+    <div
+      className="
+        absolute
+        bottom-[200px]
+        left-[140px]
+        flex
+        items-center
+        gap-3
+      "
+    >
+      <div
+        className="
+          flex
+          size-9
+          shrink-0
+          items-center
+          justify-center
+          rounded-lg
+          border
+          border-white/[0.08]
+          bg-white/[0.025]
+        "
+      >
+        <ShieldCheck className="size-4 text-[#7C5CFF]" />
+      </div>
+
+      <div>
+        <p className="text-[12px] font-semibold text-slate-200">
+          Bank-grade security
+        </p>
+
+        <p className="mt-0.5 text-[11px] text-slate-500">
+          Your data is encrypted and secure.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 {/* ======================================================= */}
 {/* RIGHT AUTH PANEL                                        */}
