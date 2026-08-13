@@ -217,6 +217,8 @@ backdrop-blur-xl
     flex
     h-full
     min-w-0
+    w-full
+    max-w-full
     items-center
     justify-center
     gap-5
@@ -327,17 +329,19 @@ backdrop-blur-xl
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      items-center
-      justify-center
-      gap-3
-      -translate-x-3
-    "
-  >
+<div
+  className="
+    flex
+    h-full
+    min-w-0
+    w-full
+    max-w-full
+    items-center
+    justify-center
+    gap-3
+    -translate-x-3
+  "
+>
     {/* ICON */}
 
     <div className="shrink-0">
@@ -450,10 +454,11 @@ backdrop-blur-xl
       flex
       h-full
       min-w-0
+      w-full
+      max-w-full
       items-center
       justify-center
-      gap-3
-      -translate-x-2
+      translate-x-0
     "
   >
     {/* ICON */}
@@ -482,7 +487,6 @@ backdrop-blur-xl
       <div className="flex items-center gap-1">
         <p
           className="
-            translate-x-3
             text-[11px]
             font-medium
             uppercase
@@ -494,7 +498,7 @@ backdrop-blur-xl
         </p>
 
         <MetricInfoTooltip
-          className="translate-x-[10px] translate-y-[0px]"
+          className="translate-x-0 translate-y-0"
           definition="Measures how consistently your trading produces stable results over time."
           formula="Composite Consistency Score (0–100)"
           calculation="Computed from your win/loss distribution and equity curve stability across the selected period."
@@ -568,10 +572,11 @@ backdrop-blur-xl
       flex
       h-full
       min-w-0
+      w-full
+      max-w-full
       items-center
       justify-center
-      gap-5
-      -translate-x-2
+      translate-x-0
     "
   >
     {/* ICON */}
@@ -670,17 +675,18 @@ backdrop-blur-xl
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      items-center
-      justify-center
-      gap-0
-      -translate-x-2
-    "
-  >
+<div
+  className="
+    flex
+    h-full
+    min-w-0
+    w-full
+    max-w-full
+    items-center
+    justify-center
+    translate-x-0
+  "
+>
     {/* ICON */}
 
     <div className="shrink-0">
@@ -695,6 +701,7 @@ backdrop-blur-xl
     <div
       className="
         min-w-0
+        ml-1
         -translate-y-1
         flex
         flex-col
@@ -782,10 +789,11 @@ backdrop-blur-xl
       flex
       h-full
       min-w-0
+      w-full
+      max-w-full
       items-center
       justify-center
-      gap-0
-      -translate-x-2
+      translate-x-0
     "
   >
     {/* ICON */}
@@ -814,7 +822,7 @@ backdrop-blur-xl
       <div className="flex items-center gap-1">
         <p
           className="
-            translate-x-3
+            translate-x-0
             text-[11px]
             font-medium
             uppercase
@@ -826,7 +834,7 @@ backdrop-blur-xl
         </p>
 
         <MetricInfoTooltip
-          className="translate-x-[12px] translate-y-[0px]"
+          className="translate-x-[0px] translate-y-[0px]"
           definition="Measures return achieved relative to maximum drawdown."
           formula="Total Return ÷ Maximum Drawdown"
           calculation="Calculated using your realized trading performance and maximum drawdown over the selected period."

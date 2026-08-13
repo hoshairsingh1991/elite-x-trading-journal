@@ -195,7 +195,7 @@ const topSectionGap = "gap-0";
 const leftColumnX = "translate-x-0";
 const leftColumnY = "translate-y-0";
 
-const leftColumnWidth = "w-[48%]";
+const leftColumnWidth = "w-[55%]";
 const leftColumnGap = "gap-3";
 
 /* =====================================================
@@ -261,7 +261,7 @@ const benefitSubtitleFontSize = "text-[11px]";
 const donutContainerX = "translate-x-0";
 const donutContainerY = "translate-y-10";
 
-const donutContainerWidth = "w-[45%]";
+const donutContainerWidth = "w-[38%]";
 const donutContainerHeight = "h-auto";
 
 const donutOuterSize = 140;
@@ -437,7 +437,7 @@ const calculationInfoY = "translate-y-8";
 
 /* FORMULA ROW */
 
-const calculationBoxesX = "translate-x-4";
+const calculationBoxesX = "translate-x-6";
 const calculationBoxesY = "-translate-y-1";
 
 /* AMOUNT BOX */
@@ -759,7 +759,7 @@ text-emerald-400
 
     {/* CONTENT */}
 
-    <div className="flex flex-col">
+    <div className="min-w-0 flex min-h-0 flex-col">
 
       <div
         className={`
@@ -789,18 +789,20 @@ text-emerald-400
         {deductibleAmount.toFixed(2)}
       </div>
 
-      <div
-        className={`
-          ${deductibleSubtitleFontSize}
+<div
+  className={`
+    ${deductibleSubtitleFontSize}
+    whitespace-nowrap
+    truncate
 
-          text-slate-400
+    text-slate-400
 
-          ${deductibleSubtitleX}
-          ${deductibleSubtitleY}
-        `}
-      >
-        Total deductible expenses
-      </div>
+    ${deductibleSubtitleX}
+    ${deductibleSubtitleY}
+  `}
+>
+  Total deductible expenses
+</div>
 
     </div>
 
@@ -1022,303 +1024,301 @@ text-emerald-400
     `}
   >
 
-   <div className="flex items-center justify-between h-full">
+   <div className="flex h-full min-w-0 w-full items-center">
 
-  {/* TAX RATE */}
+{/* TAX RATE */}
 
+<div
+  className="
+    min-w-0
+    flex-1
+    flex
+    items-center
+    justify-center
+    gap-3
+    px-3
+
+    -translate-x-0
+    translate-y-1
+  "
+>
   <div
     className={`
-      ${taxRateSectionWidth}
+      ${taxRateIconSize}
 
-      flex items-center gap-3 px-4
+      flex
+      shrink-0
+      items-center
+      justify-center
 
-      ${taxRateSectionX}
-      ${taxRateSectionY}
+      rounded-[8px]
+      border
+      border-emerald-500/20
+      bg-emerald-500/10
+
+      ${taxRateIconX}
+      ${taxRateIconY}
     `}
   >
-    <div
+    <Percent
       className={`
-        ${taxRateIconSize}
-
-        flex items-center justify-center
-
-        rounded-[8px]
-        border border-emerald-500/20
-        bg-emerald-500/10
-
-        ${taxRateIconX}
-        ${taxRateIconY}
+        ${taxRateIconSvgSize}
+        text-emerald-400
       `}
-    >
-      <Percent
-        className={`
-          ${taxRateIconSvgSize}
-          text-emerald-400
-        `}
-      />
-    </div>
-
-    <div>
-      <div
-        className={`
-          ${taxRateValueFontSize}
-          font-semibold
-          text-white
-          leading-none
-
-          ${taxRateValueX}
-          ${taxRateValueY}
-        `}
-      >
-        {TAX_RATE}%
-      </div>
-
-      <div
-        className={`
-          mt-0.5
-          text-slate-400
-
-          ${taxRateLabelFontSize}
-
-          ${taxRateLabelX}
-          ${taxRateLabelY}
-        `}
-      >
-        Tax Rate
-      </div>
-    </div>
+    />
   </div>
 
-  <div
-    className={`
-      ${divider1Height}
-      w-px
-      bg-white/10
-
-      ${divider1X}
-      ${divider1Y}
-    `}
-  />
-
-  {/* PROVINCE */}
-
-  <div
-    className={`
-      ${provinceSectionWidth}
-
-      flex items-center gap-3 px-4
-
-      ${provinceSectionX}
-      ${provinceSectionY}
-    `}
-  >
+  <div className="min-w-0">
     <div
       className={`
-        ${provinceIconSize}
+        ${taxRateValueFontSize}
+        font-semibold
+        leading-none
+        text-white
 
-        flex items-center justify-center
-
-        rounded-[8px]
-        border border-emerald-500/20
-        bg-emerald-500/10
-
-        ${provinceIconX}
-        ${provinceIconY}
+        ${taxRateValueX}
+        ${taxRateValueY}
       `}
     >
-      <MapPin
-        className={`
-          ${provinceIconSvgSize}
-          text-emerald-400
-        `}
-      />
+      {TAX_RATE}%
     </div>
 
-    <div>
-      <div
-        className={`
-          ${provinceValueFontSize}
-          font-semibold
-          text-white
-          leading-none
+    <div
+      className={`
+        mt-0.5
+        ${taxRateLabelFontSize}
+        text-slate-400
 
-          ${provinceValueX}
-          ${provinceValueY}
-        `}
-      >
-        {getProvinceDisplay(
-  taxProfile?.province
-)}
-      </div>
-
-      <div
-        className={`
-          mt-0.5
-          text-slate-400
-
-          ${provinceLabelFontSize}
-
-          ${provinceLabelX}
-          ${provinceLabelY}
-        `}
-      >
-        Province
-      </div>
+        ${taxRateLabelX}
+        ${taxRateLabelY}
+      `}
+    >
+      Tax Rate
     </div>
   </div>
-
-  <div
-    className={`
-      ${divider2Height}
-      w-px
-      bg-white/10
-
-      ${divider2X}
-      ${divider2Y}
-    `}
-  />
-
-  {/* ENTITY */}
-
-  <div
-    className={`
-      ${entitySectionWidth}
-
-      flex items-center gap-3 px-4
-
-      ${entitySectionX}
-      ${entitySectionY}
-    `}
-  >
-    <div
-      className={`
-        ${entityIconSize}
-
-        flex items-center justify-center
-
-        rounded-[8px]
-        border border-emerald-500/20
-        bg-emerald-500/10
-
-        ${entityIconX}
-        ${entityIconY}
-      `}
-    >
-      <User
-        className={`
-          ${entityIconSvgSize}
-          text-emerald-400
-        `}
-      />
-    </div>
-
-    <div>
-      <div
-        className={`
-          ${entityValueFontSize}
-          font-semibold
-          text-white
-          leading-none
-
-          ${entityValueX}
-          ${entityValueY}
-        `}
-      >
-        {getEntityTypeDisplay(
-  taxProfile?.entity_type
-)}
-      </div>
-
-      <div
-        className={`
-          mt-0.5
-          text-slate-400
-
-          ${entityLabelFontSize}
-
-          ${entityLabelX}
-          ${entityLabelY}
-        `}
-      >
-        Entity Type
-      </div>
-    </div>
-  </div>
-
-  <div
-    className={`
-      ${divider3Height}
-      w-px
-      bg-white/10
-
-      ${divider3X}
-      ${divider3Y}
-    `}
-  />
-
-  {/* YEAR */}
-
-  <div
-    className={`
-      ${yearSectionWidth}
-
-      flex items-center gap-3 px-4
-
-      ${yearSectionX}
-      ${yearSectionY}
-    `}
-  >
-    <div
-      className={`
-        ${yearIconSize}
-
-        flex items-center justify-center
-
-        rounded-[8px]
-        border border-emerald-500/20
-        bg-emerald-500/10
-
-        ${yearIconX}
-        ${yearIconY}
-      `}
-    >
-      <Calendar
-        className={`
-          ${yearIconSvgSize}
-          text-emerald-400
-        `}
-      />
-    </div>
-
-    <div>
-      <div
-        className={`
-          ${yearValueFontSize}
-          font-semibold
-          text-white
-          leading-none
-
-          ${yearValueX}
-          ${yearValueY}
-        `}
-      >
-        {taxProfile?.tax_year ?? 2026}
 </div>
 
 <div
   className={`
-    mt-0.5
-    text-slate-400
+    ${divider1Height}
+    w-px
+    shrink-0
+    bg-white/10
 
-        ${yearLabelFontSize}
+    -translate-x-1
+    translate-y-0
+  `}
+ />
 
-        ${yearLabelX}
-        ${yearLabelY}
-      `}
+{/* PROVINCE */}
+
+<div
+  className="
+    min-w-0
+    flex-1
+    flex
+    items-center
+    justify-center
+    gap-3
+    px-3
+
+    -translate-x-1
+    translate-y-1
+  "
+>
+  <div
+    className="
+      h-6
+      w-6
+      shrink-0
+      flex
+      items-center
+      justify-center
+
+      rounded-[8px]
+      border
+      border-emerald-500/20
+      bg-emerald-500/10
+    "
+  >
+    <MapPin
+      className="h-3.5 w-3.5 text-emerald-400"
+    />
+  </div>
+
+  <div className="min-w-0">
+    <div
+      className="
+        text-[12px]
+        font-semibold
+        leading-none
+        text-white
+      "
+    >
+      {getProvinceDisplay(
+        taxProfile?.province
+      )}
+    </div>
+
+    <div
+      className="
+        mt-0.5
+        text-[10px]
+        text-slate-400
+      "
+    >
+      Province
+    </div>
+  </div>
+</div>
+
+<div
+  className="
+    h-9
+    w-px
+    shrink-0
+    bg-white/10
+    -translate-x-1
+    translate-y-0
+  "
+/>
+
+{/* ENTITY */}
+
+<div
+  className="
+    min-w-0
+    flex-1
+    flex
+    items-center
+    justify-center
+    gap-3
+    px-3
+
+    translate-x-0
+    translate-y-1
+  "
+>
+  <div
+    className="
+      h-6
+      w-6
+      shrink-0
+      flex
+      items-center
+      justify-center
+
+      rounded-[8px]
+      border
+      border-emerald-500/20
+      bg-emerald-500/10
+    "
+  >
+    <User
+      className="h-3.5 w-3.5 text-emerald-400"
+    />
+  </div>
+
+  <div className="min-w-0">
+<div
+  className="
+    min-w-0
+    max-w-full
+    truncate
+    whitespace-nowrap
+    text-[12px]
+    font-semibold
+    leading-none
+    text-white
+  "
+>
+  {getEntityTypeDisplay(
+    taxProfile?.entity_type
+  )}
+</div>
+
+    <div
+      className="
+        mt-0.5
+        text-[10px]
+        text-slate-400
+      "
+    >
+      Entity Type
+    </div>
+  </div>
+</div>
+
+<div
+  className="
+    h-9
+    w-px
+    shrink-0
+    bg-white/10
+    translate-x-1
+    translate-y-0
+  "
+/>
+
+{/* YEAR */}
+
+<div
+  className="
+    min-w-0
+    flex-1
+    flex
+    items-center
+    justify-center
+    gap-3
+    px-3
+
+    translate-x-0
+    translate-y-1
+  "
+>
+  <div
+    className="
+      h-6
+      w-6
+      shrink-0
+      flex
+      items-center
+      justify-center
+
+      rounded-[8px]
+      border
+      border-emerald-500/20
+      bg-emerald-500/10
+    "
+  >
+    <Calendar
+      className="h-3.5 w-3.5 text-emerald-400"
+    />
+  </div>
+
+  <div className="min-w-0">
+    <div
+      className="
+        text-[12px]
+        font-semibold
+        leading-none
+        text-white
+      "
+    >
+      {taxProfile?.tax_year ?? 2026}
+    </div>
+
+    <div
+      className="
+        mt-0.5
+        text-[10px]
+        text-slate-400
+      "
     >
       Tax Year
     </div>
   </div>
+
 
   </div> {/* YEAR SECTION */}
 
@@ -1399,21 +1399,27 @@ text-emerald-400
 
     {/* FORMULA */}
 
-    <div
-      className={`
-        flex
-        items-center
-        justify-center
-        gap-3
+{/* FORMULA */}
 
-        ${calculationBoxesX}
-        ${calculationBoxesY}
-      `}
-    >
+<div
+  className={`
+    grid
+    min-w-0
+    w-full
+    max-w-full
+    grid-cols-[minmax(60px,70px)_auto_minmax(50px,55px)_auto_minmax(75px,90px)]
+    items-start
+    justify-center
+    gap-2
+
+    ${calculationBoxesX}
+    ${calculationBoxesY}
+  `}
+>
 
       {/* AMOUNT */}
 
-      <div className="flex flex-col items-center">
+      <div className="min-w-0 flex flex-1 flex-col items-center">
 
         <div
           className={`
@@ -1439,17 +1445,19 @@ text-emerald-400
           </span>
         </div>
 
-        <div
-          className={`
-            text-[11px]
-            text-slate-500
+<div
+  className={`
+    w-[100px]
+    whitespace-nowrap
+    text-[11px]
+    text-slate-500
 
-            ${calculationAmountLabelX}
-            ${calculationAmountLabelY}
-          `}
-        >
-          Deductible Expenses
-        </div>
+    ${calculationAmountLabelX}
+    ${calculationAmountLabelY}
+  `}
+>
+  Deductible Expenses
+</div>
 
       </div>
 
@@ -1469,7 +1477,7 @@ text-emerald-400
 
       {/* TAX */}
 
-      <div className="flex flex-col items-center">
+      <div className="min-w-0 flex flex-1 flex-col items-center">
 
         <div
           className={`
@@ -1524,7 +1532,7 @@ text-emerald-400
 
       {/* RESULT */}
 
-      <div className="flex flex-col items-center">
+      <div className="min-w-0 flex flex-1 flex-col items-center">
 
         <div
           className={`
@@ -1550,17 +1558,19 @@ text-emerald-400
           </span>
         </div>
 
-        <div
-          className={`
-            text-[11px]
-            text-slate-500
+<div
+  className={`
+    w-[120px]
+    whitespace-nowrap
+    text-[11px]
+    text-slate-500
 
-            ${calculationResultLabelX}
-            ${calculationResultLabelY}
-          `}
-        >
-          Estimated Tax Benefit
-        </div>
+    ${calculationResultLabelX}
+    ${calculationResultLabelY}
+  `}
+>
+  Estimated Tax Benefit
+</div>
 
       </div>
 

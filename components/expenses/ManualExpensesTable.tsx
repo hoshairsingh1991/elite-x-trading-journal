@@ -995,7 +995,7 @@ bg-[#0b1220]
 
     cursor-pointer
 
-    items-start
+    items-center
 
     px-6
 
@@ -1015,22 +1015,21 @@ bg-[#0b1220]
     last:border-b-0
   `}
 >
-      <span className="flex items-start justify-center pt-0.5">
+<span className="flex items-center justify-center">
   {new Date(
-  `${row.expense_date}T12:00:00`
-).toLocaleDateString("en-US", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-})}
+    `${row.expense_date}T12:00:00`
+  ).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })}
 </span>
 
 <span
   className={`
     flex
-    items-start
+    items-center
     justify-center
-    pt-0.5
 
     font-medium
     text-white
@@ -1044,7 +1043,7 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-start
+    justify-center
     justify-center
     pt-0.5
 
@@ -1057,7 +1056,7 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-start
+    justify-center
     justify-center
     pt-0.5
 
@@ -1070,7 +1069,7 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-start
+    justify-center
     justify-center
     pt-0.5
 
@@ -1084,7 +1083,7 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-start
+    justify-center
     justify-center
     pt-0.5
 
@@ -1106,7 +1105,7 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-start
+    justify-center
     justify-center
     gap-1
     pt-0.5
@@ -1185,10 +1184,9 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-start
+    items-center
     justify-center
     gap-2
-    pt-0.5
 
     font-medium
     text-white
@@ -1197,7 +1195,7 @@ bg-[#0b1220]
   `}
 >
   <span
-    className={`h-2 w-2 rounded-full mt-1 ${
+    className={`h-2 w-2 shrink-0 rounded-full ${
       row.is_tax_deductible
         ? "bg-emerald-400"
         : "bg-red-400"
@@ -1209,10 +1207,11 @@ bg-[#0b1220]
   </span>
 </span>
 
+
  <span
   className={`
     flex
-    items-start
+    justify-center
     justify-center
     pt-0.5
 
@@ -1229,7 +1228,7 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    items-start
+    justify-center
     justify-center
     pt-0.5
 
@@ -1258,7 +1257,7 @@ bg-[#0b1220]
   )}
 </span>
 
-<div className="flex items-start justify-center gap-3 pt-0.5">
+<div className="flex justify-centerjustify-center gap-3 pt-0.5">
 
   <button
     onClick={(e) => {

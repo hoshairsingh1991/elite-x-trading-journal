@@ -35,7 +35,7 @@ const valueOffsetX = "translate-x-2";
 const valueOffsetY = "-translate-y-7";
 
 // Trend text (e.g. ↑ 3.1% vs Previous 30 Days)
-const trendOffsetX = "translate-x-0";
+const trendOffsetX = "-translate-x-1";
 const trendOffsetY = "-translate-y-6";
 
 /* =====================================================
@@ -43,12 +43,12 @@ const trendOffsetY = "-translate-y-6";
    ===================================================== */
 
 // Position
-const badgeOffsetX = "translate-x-4";
+const badgeOffsetX = "translate-x-0";
 const badgeOffsetY = "translate-y-0";
 
 // Size
-const badgeWidth = "w-[42px]"; // e.g. w-[42px]
-const badgeHeight = "h-[28px]"; // e.g. h-[18px]
+const badgeWidth = "w-[40px]"; // e.g. w-[42px]
+const badgeHeight = "h-[24px]"; // e.g. h-[18px]
 
 // Padding
 const badgePaddingX = "px-2";
@@ -161,8 +161,8 @@ hover:bg-[#0b0c1e]
         `}
       >
         {/* Top */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+       <div className="flex min-w-0 items-start justify-between">
+  <div className="flex min-w-0 items-center gap-3">
             <div
               className={`
                 flex
@@ -237,26 +237,31 @@ hover:bg-[#0b0c1e]
           </div>
         </div>
 
-        {/* Bottom */}
-        <div>
-<div
-  className={`
-    text-[22px]
-    font-bold
-    tracking-tight
-    text-white
+{/* Bottom */}
 
-    ${valueOffsetX}
-    ${valueOffsetY}
-  `}
->
-  {value}
-</div>
+<div>
+  <div
+    className={`
+      text-[22px]
+      font-bold
+      tracking-tight
+      text-white
+
+      ${valueOffsetX}
+      ${valueOffsetY}
+    `}
+  >
+    {value}
+  </div>
 
 <p
   className={`
     mt-2
-    text-[12px]
+    max-w-[calc(100%_-_72px)]
+    truncate
+    whitespace-nowrap
+    overflow-hidden
+    text-[clamp(9px,0.65vw,12px)]
     font-medium
 ${
   trendColor === "green"
@@ -274,7 +279,7 @@ ${
 >
   {trend}
 </p>
-        </div>
+</div>
       </div>
     </div>
   );

@@ -103,15 +103,15 @@ bg-[#0b1220]
   className="
     grid
     min-w-0
-    grid-cols-[190px_minmax(0,1fr)]
+    grid-cols-[minmax(120px,42%)_minmax(0,1fr)]
     items-center
-    gap-2
+    gap-3
   "
 >
 <div
   className="
     flex
-    shrink-0
+    min-w-0
     items-center
     translate-x-7
     translate-y-1
@@ -217,8 +217,8 @@ bg-[#0b1220]
     text-[12px]
   "
 >
-          <div className="flex justify-between gap-5">
-            <span className="w-[70px] text-slate-350">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+           <span className="min-w-0 truncate text-slate-350">
               Profit
             </span>
             <span className={getScoreColor(profitability)}>
@@ -226,8 +226,8 @@ bg-[#0b1220]
             </span>
           </div>
 
-          <div className="flex justify-between gap-5">
-            <span className="w-[70px] text-slate-350">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <span className="min-w-0 truncate text-slate-350">
               Consistency
             </span>
             <span className={getScoreColor(consistency)}>
@@ -235,8 +235,8 @@ bg-[#0b1220]
 </span>
           </div>
 
-          <div className="flex justify-between gap-5">
-            <span className="w-[70px] text-slate-350">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <span className="min-w-0 truncate text-slate-350">
               Risk
             </span>
             <span className={getScoreColor(risk)}>
@@ -244,8 +244,8 @@ bg-[#0b1220]
 </span>
           </div>
 
-          <div className="flex justify-between gap-5">
-            <span className="w-[70px] text-slate-350">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <span className="min-w-0 truncate text-slate-350">
               Reliability
             </span>
             <span className={getScoreColor(reliability)}>
