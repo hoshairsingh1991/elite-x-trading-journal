@@ -20,7 +20,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -40,19 +40,27 @@ export default function SignupPage() {
       setError("Password must be at least 6 characters.");
       return;
     }
-
+if (!termsAccepted) {
+  setError("You must agree to the Terms of Service and Privacy Policy.");
+  return;
+}
     try {
       setLoading(true);
       setError("");
 
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+const { error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: {
+      full_name: fullName.trim(),
+    },
+  },
+});
 
-      if (error) {
-        throw error;
-      }
+if (error) {
+  throw error;
+}
 
       setSuccess(true);
     } catch (err: any) {
@@ -822,6 +830,12 @@ export default function SignupPage() {
   <label className="flex cursor-pointer items-start gap-2">
     <input
       type="checkbox"
+      required
+      checked={termsAccepted}
+      onChange={(e) => {
+        setTermsAccepted(e.target.checked);
+        setError("");
+      }}
       className="
         peer
         mt-[1px]
