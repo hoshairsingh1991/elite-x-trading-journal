@@ -35,31 +35,31 @@ export default function UpdatePasswordPage() {
   // VERIFY RECOVERY SESSION
   // =========================================================
 
-  useEffect(() => {
-    let mounted = true;
+useEffect(() => {
+  let mounted = true;
 
-    async function checkRecoverySession() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  async function checkRecoverySession() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      if (!session) {
-        setError(
-          "This password reset link is invalid or has expired."
-        );
-      }
-
-      setCheckingSession(false);
+    if (!session) {
+      setError(
+        "This password reset link is invalid or has expired."
+      );
     }
 
-    checkRecoverySession();
+    setCheckingSession(false);
+  }
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  checkRecoverySession();
+
+  return () => {
+    mounted = false;
+  };
+}, []);
 
   // =========================================================
   // UPDATE PASSWORD
@@ -396,7 +396,7 @@ export default function UpdatePasswordPage() {
             <div
               className="
                 relative
-                h-[590px]
+                h-[500px]
                 w-full
                 rounded-[14px]
                 border
@@ -420,7 +420,7 @@ export default function UpdatePasswordPage() {
                 <h1
                   className="
                     relative
-                    left-[50px]
+                    left-[30px]
                     top-[20px]
                     text-[30px]
                     font-semibold
@@ -554,7 +554,7 @@ export default function UpdatePasswordPage() {
                     className="
                       relative
                       left-[35px]
-                      top-[50px]
+                      top-[70px]
                       mt-0
                       w-[80%]
                     "
@@ -682,7 +682,7 @@ export default function UpdatePasswordPage() {
                     className="
                       relative
                       left-[35px]
-                      top-[120px]
+                      top-[100px]
                       mt-7
                       w-[80%]
                     "
@@ -823,7 +823,7 @@ export default function UpdatePasswordPage() {
                     className="
                       relative
                       left-[35px]
-                      top-[220px]
+                      top-[160px]
                       mt-8
                       w-[80%]
                     "

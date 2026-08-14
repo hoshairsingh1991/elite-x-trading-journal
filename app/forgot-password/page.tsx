@@ -349,42 +349,36 @@ const { error } =
               {/* HEADER                                             */}
               {/* ================================================= */}
 
-              <div>
+<div className="relative left-[35px] top-[20px] w-[80%]">
 
-                <h1
-                  className="
-                    relative
-                    left-[50px]
-                    top-[20px]
-                    text-[30px]
-                    font-semibold
-                    leading-tight
-                    tracking-[-0.025em]
-                    text-white
-                  "
-                >
-                  Reset your{" "}
-                  <span className="bg-gradient-to-r from-[#4F8CFF] to-cyan-400 bg-clip-text text-transparent">
-                    password
-                  </span>
-                </h1>
+  <h1
+    className="
+      text-[30px]
+      font-semibold
+      leading-tight
+      tracking-[-0.025em]
+      text-white
+    "
+  >
+    Reset your{" "}
+    <span className="bg-gradient-to-r from-[#4F8CFF] to-cyan-400 bg-clip-text text-transparent">
+      password
+    </span>
+  </h1>
 
-                <p
-                  className="
-                    relative
-                    left-[50px]
-                    top-[20px]
-                    mt-3
-                    text-[13px]
-                    leading-5
-                    text-slate-400
-                  "
-                >
-                  Enter your email and we&apos;ll send you a
-                  secure password reset link.
-                </p>
+  <p
+    className="
+      mt-3
+      text-[13px]
+      leading-5
+      text-slate-400
+    "
+  >
+    Enter your email and we&apos;ll send you a
+    secure password reset link.
+  </p>
 
-              </div>
+</div>
 
               {success ? (
 
@@ -588,7 +582,7 @@ const { error } =
                     className="
                       relative
                       left-[35px]
-                      top-[110px]
+                      top-[90px]
                       mt-8
                       w-[80%]
                     "
