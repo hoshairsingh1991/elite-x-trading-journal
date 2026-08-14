@@ -588,21 +588,21 @@ className="
           </label>
 
           {/* Forgot Password */}
-          <button
-            type="button"
-            className="
-              relative
-              left-[0px]
-              top-[0px]
-              text-[12px]
-              font-semibold
-              text-[#4F8CFF]
-              transition-colors
-              hover:text-cyan-300
-            "
-          >
-            Forgot password?
-          </button>
+<Link
+  href="/forgot-password"
+  className="
+    relative
+    left-[0px]
+    top-[0px]
+    text-[12px]
+    font-semibold
+    text-[#4F8CFF]
+    transition-colors
+    hover:text-cyan-300
+  "
+>
+  Forgot password?
+</Link>
         </div>
 
         {/* ================================================= */}
