@@ -510,23 +510,25 @@ useEffect(() => {
   const loadAllTrades =
     async () => {
 
-      // =========================================
-      // LOAD EXECUTIONS FROM SUPABASE
-      // =========================================
+// =========================================
+// LOAD EXECUTIONS FROM SUPABASE
+// =========================================
 
-     const storedExecutions =
+const storedExecutions =
   await loadExecutionsFromSupabase();
 
-  
+// =========================================
+// REBUILD TRADES FROM CANONICAL EXECUTIONS
+// =========================================
 
-      const rebuiltTrades =
-        pairTrades(
-          storedExecutions
-        );
+const rebuiltTrades =
+  pairTrades(
+    storedExecutions
+  );
 
-      // =========================================
-      // MANUAL TRADES
-      // =========================================
+// =========================================
+// MANUAL TRADES
+// =========================================
 
       const manualTrades =
         loadTrades();

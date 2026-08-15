@@ -98,22 +98,28 @@ export function saveNotes(
 
 export function createNote(): Note {
 
-  const newNote: Note = {
+const newNote: Note = {
 
-    id:
-      crypto.randomUUID(),
+  id:
+    crypto.randomUUID(),
 
-    title:
-      "Untitled Note",
+  title:
+    "Untitled Note",
 
-    content: "",
+  content: "",
 
-    createdAt:
-      new Date().toISOString(),
+  createdAt:
+    new Date().toISOString(),
 
-    updatedAt:
-      new Date().toISOString(),
-  };
+  updatedAt:
+    new Date().toISOString(),
+
+  tradeLinks:
+    [],
+
+  attachments:
+    [],
+};
 
   const existingNotes =
     loadNotes();

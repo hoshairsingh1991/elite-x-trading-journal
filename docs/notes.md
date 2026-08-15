@@ -390,6 +390,14 @@ git commit -m "checkpoint: landing routing and CTA fixes"
 git commit -m "checkpoint: complete signup profile provisioning"
 git commit -m "checkpoint: password reset flow complete"
 git commit -m "checkpoint: production stable"
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Notes section starts here
+git commit -m "checkpoint: stabilize Notes V2 architecture"
+
+
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:

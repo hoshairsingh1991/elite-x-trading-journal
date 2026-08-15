@@ -1,6 +1,73 @@
 import { supabase } from "@/lib/supabase";
 
-import { Note } from "@/types/note";
+import {
+  Note,
+  NoteTradeLink,
+} from "@/types/note";
+
+
+// =====================================================
+// DATABASE ROW TYPE
+// =====================================================
+
+type NoteRow = {
+  id: string;
+
+  title: string;
+  content: string;
+
+  created_at: string;
+  updated_at: string;
+
+  user_id: string;
+};
+
+
+// =====================================================
+// NOTE TRADE LINK ROW
+// =====================================================
+
+type NoteTradeLinkRow = {
+  note_id: string;
+  trade_id: string;
+
+  created_at: string;
+};
+
+
+// =====================================================
+// DATABASE → DOMAIN MAPPING
+// =====================================================
+
+function mapNoteRowToNote(
+  row: NoteRow,
+  tradeLinks: NoteTradeLink[]
+): Note {
+
+  return {
+
+    id:
+      row.id,
+
+    title:
+      row.title,
+
+    content:
+      row.content,
+
+    createdAt:
+      row.created_at,
+
+    updatedAt:
+      row.updated_at,
+
+    tradeLinks,
+
+    attachments:
+      [],
+  };
+}
+
 
 // =====================================================
 // LOAD NOTES FROM SUPABASE
@@ -16,7 +83,8 @@ Promise<Note[]> {
 
   const {
     data: authData,
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   const user =
     authData.user;
@@ -30,60 +98,173 @@ Promise<Note[]> {
     return [];
   }
 
+
   // ===================================================
-  // LOAD USER NOTES
+  // LOAD NOTES
   // ===================================================
 
   const {
-    data,
-    error,
-  } = await supabase
-    .from("notes")
-    .select("*")
-    .eq(
-      "user_id",
-      user.id
-    )
-    .order(
-      "updated_at",
-      {
-        ascending: false,
-      }
-    );
+    data: noteData,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select(`
+        id,
+        title,
+        content,
+        created_at,
+        updated_at,
+        user_id
+      `)
+      .eq(
+        "user_id",
+        user.id
+      )
+      .order(
+        "updated_at",
+        {
+          ascending: false,
+        }
+      );
 
-  if (error) {
+
+  if (noteError) {
 
     console.error(
       "FAILED TO LOAD NOTES FROM SUPABASE:",
-      error
+      noteError
     );
 
     return [];
   }
 
-  const formattedNotes =
-    (data || []).map(
-      (note: any) => ({
 
-        id:
-          note.id,
+  const notes =
+    (noteData as NoteRow[] | null) ?? [];
 
-        title:
-          note.title,
 
-        content:
-          note.content,
+  if (notes.length === 0) {
 
-        createdAt:
-          note.created_at,
+    return [];
+  }
 
-        updatedAt:
-          note.updated_at,
-      })
+
+  // ===================================================
+  // LOAD TRADE LINKS
+  // ===================================================
+
+  const noteIds =
+    notes.map(
+      (note) =>
+        note.id
     );
 
-  return formattedNotes;
+
+  const {
+    data: linkData,
+    error: linkError,
+  } =
+    await supabase
+      .from("note_trades")
+      .select(`
+        note_id,
+        trade_id,
+        created_at
+      `)
+      .in(
+        "note_id",
+        noteIds
+      )
+      .order(
+        "created_at",
+        {
+          ascending: true,
+        }
+      );
+
+
+  if (linkError) {
+
+    console.error(
+      "FAILED TO LOAD NOTE TRADE LINKS:",
+      linkError
+    );
+
+    return notes.map(
+      (note) =>
+        mapNoteRowToNote(
+          note,
+          []
+        )
+    );
+  }
+
+
+  const links =
+    (linkData as NoteTradeLinkRow[] | null) ?? [];
+
+
+  // ===================================================
+  // GROUP LINKS BY NOTE
+  // ===================================================
+
+  const linksByNote =
+    new Map<
+      string,
+      NoteTradeLink[]
+    >();
+
+
+  for (
+    const link of links
+  ) {
+
+    const existing =
+      linksByNote.get(
+        link.note_id
+      ) ?? [];
+
+
+    existing.push({
+
+      id:
+        `${link.note_id}:${link.trade_id}`,
+
+      noteId:
+        link.note_id,
+
+      tradeId:
+        link.trade_id,
+
+      createdAt:
+        link.created_at,
+
+    });
+
+
+    linksByNote.set(
+      link.note_id,
+      existing
+    );
+  }
+
+
+  // ===================================================
+  // BUILD DOMAIN NOTES
+  // ===================================================
+
+  return notes.map(
+    (note) =>
+      mapNoteRowToNote(
+        note,
+        linksByNote.get(
+          note.id
+        ) ?? []
+      )
+  );
 }
+
 
 // =====================================================
 // CREATE NOTE
@@ -99,7 +280,8 @@ Promise<Note | null> {
 
   const {
     data: authData,
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   const user =
     authData.user;
@@ -113,6 +295,19 @@ Promise<Note | null> {
     return null;
   }
 
+
+  // ===================================================
+  // TIMESTAMP
+  // ===================================================
+
+  const now =
+    new Date().toISOString();
+
+
+  // ===================================================
+  // NEW NOTE
+  // ===================================================
+
   const newNote: Note = {
 
     id:
@@ -121,39 +316,54 @@ Promise<Note | null> {
     title:
       "Untitled Note",
 
-    content: "",
+    content:
+      "",
 
     createdAt:
-      new Date().toISOString(),
+      now,
 
     updatedAt:
-      new Date().toISOString(),
+      now,
+
+    tradeLinks:
+      [],
+
+    attachments:
+      [],
   };
+
+
+  // ===================================================
+  // INSERT NOTE
+  // ===================================================
 
   const {
     error,
-  } = await supabase
-    .from("notes")
-    .insert({
+  } =
+    await supabase
+      .from("notes")
+      .insert({
 
-      id:
-        newNote.id,
+        id:
+          newNote.id,
 
-      title:
-        newNote.title,
+        title:
+          newNote.title,
 
-      content:
-        newNote.content,
+        content:
+          newNote.content,
 
-      created_at:
-        newNote.createdAt,
+        created_at:
+          newNote.createdAt,
 
-      updated_at:
-        newNote.updatedAt,
+        updated_at:
+          newNote.updatedAt,
 
-      user_id:
-        user.id,
-    });
+        user_id:
+          user.id,
+
+      });
+
 
   if (error) {
 
@@ -165,8 +375,10 @@ Promise<Note | null> {
     return null;
   }
 
+
   return newNote;
 }
+
 
 // =====================================================
 // UPDATE NOTE
@@ -183,7 +395,8 @@ updateNoteInSupabase(
 
   const {
     data: authData,
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   const user =
     authData.user;
@@ -197,29 +410,37 @@ updateNoteInSupabase(
     return;
   }
 
+
+  // ===================================================
+  // UPDATE NOTE
+  // ===================================================
+
   const {
     error,
-  } = await supabase
-    .from("notes")
-    .update({
+  } =
+    await supabase
+      .from("notes")
+      .update({
 
-      title:
-        note.title,
+        title:
+          note.title,
 
-      content:
-        note.content,
+        content:
+          note.content,
 
-      updated_at:
-        new Date().toISOString(),
-    })
-    .eq(
-      "id",
-      note.id
-    )
-    .eq(
-      "user_id",
-      user.id
-    );
+        updated_at:
+          new Date().toISOString(),
+
+      })
+      .eq(
+        "id",
+        note.id
+      )
+      .eq(
+        "user_id",
+        user.id
+      );
+
 
   if (error) {
 
@@ -229,6 +450,233 @@ updateNoteInSupabase(
     );
   }
 }
+
+
+// =====================================================
+// ADD TRADE TO NOTE
+// =====================================================
+
+export async function
+addTradeToNoteInSupabase(
+  noteId: string,
+  tradeId: string
+): Promise<NoteTradeLink | null> {
+
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } =
+    await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return null;
+  }
+
+
+  // ===================================================
+  // VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: note,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select("id")
+      .eq(
+        "id",
+        noteId
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+
+  if (
+    noteError ||
+    !note
+  ) {
+
+    console.error(
+      "FAILED TO VERIFY NOTE OWNERSHIP:",
+      noteError
+    );
+
+    return null;
+  }
+
+
+  // ===================================================
+  // INSERT TRADE LINK
+  // ===================================================
+
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("note_trades")
+      .insert({
+
+        note_id:
+          noteId,
+
+        trade_id:
+          tradeId,
+
+      })
+      .select(`
+        note_id,
+        trade_id,
+        created_at
+      `)
+      .single();
+
+
+  if (error) {
+
+    console.error(
+      "FAILED TO ADD TRADE TO NOTE:",
+      error
+    );
+
+    return null;
+  }
+
+
+  const row =
+    data as NoteTradeLinkRow;
+
+
+  return {
+
+    id:
+      `${row.note_id}:${row.trade_id}`,
+
+    noteId:
+      row.note_id,
+
+    tradeId:
+      row.trade_id,
+
+    createdAt:
+      row.created_at,
+
+  };
+}
+
+
+// =====================================================
+// REMOVE TRADE FROM NOTE
+// =====================================================
+
+export async function
+removeTradeFromNoteInSupabase(
+  noteId: string,
+  tradeId: string
+): Promise<void> {
+
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } =
+    await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return;
+  }
+
+
+  // ===================================================
+  // VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: note,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select("id")
+      .eq(
+        "id",
+        noteId
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+
+  if (
+    noteError ||
+    !note
+  ) {
+
+    console.error(
+      "FAILED TO VERIFY NOTE OWNERSHIP:",
+      noteError
+    );
+
+    return;
+  }
+
+
+  // ===================================================
+  // DELETE TRADE LINK
+  // ===================================================
+
+  const {
+    error,
+  } =
+    await supabase
+      .from("note_trades")
+      .delete()
+      .eq(
+        "note_id",
+        noteId
+      )
+      .eq(
+        "trade_id",
+        tradeId
+      );
+
+
+  if (error) {
+
+    console.error(
+      "FAILED TO REMOVE TRADE FROM NOTE:",
+      error
+    );
+  }
+}
+
 
 // =====================================================
 // DELETE NOTE
@@ -245,7 +693,8 @@ deleteNoteFromSupabase(
 
   const {
     data: authData,
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   const user =
     authData.user;
@@ -259,19 +708,26 @@ deleteNoteFromSupabase(
     return;
   }
 
+
+  // ===================================================
+  // DELETE NOTE
+  // ===================================================
+
   const {
     error,
-  } = await supabase
-    .from("notes")
-    .delete()
-    .eq(
-      "id",
-      noteId
-    )
-    .eq(
-      "user_id",
-      user.id
-    );
+  } =
+    await supabase
+      .from("notes")
+      .delete()
+      .eq(
+        "id",
+        noteId
+      )
+      .eq(
+        "user_id",
+        user.id
+      );
+
 
   if (error) {
 
