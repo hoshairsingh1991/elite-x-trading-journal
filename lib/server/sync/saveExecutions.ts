@@ -38,6 +38,9 @@ saveExecutions(
         contract_key:
           execution.contractKey,
 
+          exchange:
+  execution.exchange,
+
         side:
           execution.side,
 

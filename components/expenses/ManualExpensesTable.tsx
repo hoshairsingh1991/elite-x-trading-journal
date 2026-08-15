@@ -1257,7 +1257,7 @@ bg-[#0b1220]
   )}
 </span>
 
-<div className="flex justify-centerjustify-center gap-3 pt-0.5">
+<div className="flex justify-center gap-3 pt-0.5">
 
   <button
     onClick={(e) => {
