@@ -396,7 +396,7 @@ Notes section starts here
 git commit -m "checkpoint: stabilize Notes V2 architecture"
 git commit -m "checkpoint: stabilize Notes V2 legacy timestamps"
 git commit -m "checkpoint: Notes V2 ready for screenshot phase"
-
+git commit -m "feat: add note screenshot attachments"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

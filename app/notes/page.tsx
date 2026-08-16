@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -11,9 +12,19 @@ from "@/components/layout/UserMenuV2";
 import TiptapEditor from "@/components/notes/TiptapEditor";
 import NoteTradeSelector from "@/components/notes/NoteTradeSelector";
 
+import NoteAttachmentCanvas from "@/components/notes/NoteAttachmentCanvas";
+
+import {
+  uploadNoteAttachment,
+  deleteNoteAttachment,
+} from "@/lib/storage/noteAttachmentStorage";
+
+
+
 import {
   Plus,
   Trash2,
+  ImagePlus,
 } from "lucide-react";
 
 import { Note } from "@/types/note";
@@ -49,6 +60,14 @@ export default function NotesPage() {
     selectedNoteId,
     setSelectedNoteId,
   ] = useState<string>("");
+
+  const fileInputRef =
+  useRef<HTMLInputElement | null>(null);
+
+const [
+  isUploadingAttachment,
+  setIsUploadingAttachment,
+] = useState(false);
 
   // =================================================
   // LOAD NOTES
@@ -248,6 +267,143 @@ useEffect(() => {
   selectedNote,
   availableTrades,
 ]);
+
+// =================================================
+// UPLOAD NOTE ATTACHMENT
+// =================================================
+
+async function handleUploadAttachment(
+  event: React.ChangeEvent<HTMLInputElement>
+) {
+
+  const file =
+    event.target.files?.[0];
+
+  // Reset input so the same file
+  // can be selected again later.
+  event.target.value = "";
+
+  if (
+    !file ||
+    !selectedNote
+  ) {
+
+    return;
+  }
+
+
+
+  // =================================================
+  // IMAGE VALIDATION
+  // =================================================
+
+  if (
+    !file.type.startsWith("image/")
+  ) {
+
+    console.error(
+      "NOTE ATTACHMENT MUST BE AN IMAGE"
+    );
+
+    return;
+  }
+
+  // =================================================
+  // UPLOAD
+  // =================================================
+
+  setIsUploadingAttachment(
+    true
+  );
+
+  try {
+
+    const attachment =
+      await uploadNoteAttachment(
+        selectedNote.id,
+        file
+      );
+
+    if (!attachment) {
+
+      return;
+    }
+
+    // =================================================
+    // UPDATE LOCAL NOTE STATE
+    // =================================================
+
+    setNotes(
+      (currentNotes) =>
+        currentNotes.map(
+          (note) =>
+            note.id ===
+            selectedNote.id
+              ? {
+                  ...note,
+
+                  attachments: [
+                    ...note.attachments,
+                    attachment,
+                  ],
+                }
+              : note
+        )
+    );
+
+  } finally {
+
+    setIsUploadingAttachment(
+      false
+    );
+  }
+}
+
+// =================================================
+// DELETE NOTE ATTACHMENT
+// =================================================
+
+async function handleDeleteAttachment(
+  attachment: Note["attachments"][number]
+) {
+
+  if (
+    !selectedNote
+  ) {
+
+    return;
+  }
+
+  const deleted =
+    await deleteNoteAttachment(
+      attachment
+    );
+
+  if (!deleted) {
+
+    return;
+  }
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          selectedNote.id
+            ? {
+                ...note,
+
+                attachments:
+                  note.attachments.filter(
+                    (item) =>
+                      item.id !==
+                      attachment.id
+                  ),
+              }
+            : note
+      )
+  );
+}
 
   // =================================================
   // CREATE NOTE
@@ -769,30 +925,75 @@ tradeLinks:
 
 </div>
 
-                      {/* ============================================= */}
-                      {/* TIPTAP EDITOR */}
-                      {/* ============================================= */}
+{/* ============================================= */}
+{/* SCREENSHOT UPLOAD */}
+{/* ============================================= */}
 
-                      <div className="relative left-4 mt-8 min-h-[400px]">
+<div className="relative left-4 mt-4">
 
-                        <TiptapEditor
-                          key={
-                            selectedNote.id
-                          }
-                          content={
-                            selectedNote.content
-                          }
-                          onChange={(
-                            value
-                          ) =>
-                            handleUpdateNote(
-                              "content",
-                              value
-                            )
-                          }
-                        />
+  <button
+    type="button"
+    title="Add screenshot"
+    aria-label="Add screenshot"
+    onClick={() =>
+      fileInputRef.current?.click()
+    }
+    className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.04] bg-[#0b1730] text-blue-400 transition-all hover:bg-[#132347]"
+  >
+    <ImagePlus
+      size={17}
+      strokeWidth={1.8}
+    />
+  </button>
 
-                      </div>
+  <input
+    ref={fileInputRef}
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={handleUploadAttachment}
+  />
+
+</div>
+
+
+{/* ============================================= */}
+{/* SCREENSHOT ATTACHMENTS */}
+{/* ============================================= */}
+
+<NoteAttachmentCanvas
+  attachments={
+    selectedNote.attachments
+  }
+  onDelete={
+    handleDeleteAttachment
+  }
+/>
+
+{/* ============================================= */}
+{/* TIPTAP EDITOR */}
+{/* ============================================= */}
+
+<div className="relative left-4 mt-8 min-h-[400px]">
+
+  <TiptapEditor
+    key={
+      selectedNote.id
+    }
+    content={
+      selectedNote.content
+    }
+    onChange={(
+      value
+    ) =>
+      handleUpdateNote(
+        "content",
+        value
+      )
+    }
+  />
+
+</div>
 
                     </div>
 

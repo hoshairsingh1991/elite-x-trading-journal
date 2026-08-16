@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import {
   Note,
   NoteTradeLink,
+  NoteAttachment,
 } from "@/types/note";
 
 
@@ -38,12 +39,36 @@ type NoteTradeLinkRow = {
 
 
 // =====================================================
+// NOTE ATTACHMENT ROW
+// =====================================================
+
+type NoteAttachmentRow = {
+  id: string;
+
+  note_id: string;
+
+  file_name: string;
+  storage_path: string;
+  mime_type: string;
+  file_size: number;
+
+  position_x: number;
+  position_y: number;
+
+  width: number;
+  height: number;
+
+  created_at: string;
+};
+
+// =====================================================
 // DATABASE → DOMAIN MAPPING
 // =====================================================
 
 function mapNoteRowToNote(
   row: NoteRow,
-  tradeLinks: NoteTradeLink[]
+  tradeLinks: NoteTradeLink[],
+  attachments: NoteAttachment[] = []
 ): Note {
 
 return {
@@ -68,8 +93,7 @@ return {
 
     tradeLinks,
 
-    attachments:
-      [],
+attachments,
   };
 }
 
@@ -255,6 +279,129 @@ Promise<Note[]> {
     );
   }
 
+  // ===================================================
+  // LOAD ATTACHMENTS
+  // ===================================================
+
+const {
+  data: attachmentData,
+  error: attachmentError,
+} =
+  await supabase
+    .from("note_attachments")
+    .select(`
+      id,
+      note_id,
+      file_name,
+      storage_path,
+      mime_type,
+      file_size,
+      position_x,
+      position_y,
+      width,
+      height,
+      created_at
+    `)
+    .in(
+      "note_id",
+      noteIds
+    )
+    .order(
+      "created_at",
+      {
+        ascending: true,
+      }
+    );
+
+
+  if (attachmentError) {
+
+    console.error(
+      "FAILED TO LOAD NOTE ATTACHMENTS:",
+      attachmentError
+    );
+
+    return notes.map(
+      (note) =>
+        mapNoteRowToNote(
+          note,
+          linksByNote.get(
+            note.id
+          ) ?? [],
+          []
+        )
+    );
+  }
+
+
+  const attachments =
+    (attachmentData as NoteAttachmentRow[] | null) ?? [];
+
+      // ===================================================
+  // GROUP ATTACHMENTS BY NOTE
+  // ===================================================
+
+  const attachmentsByNote =
+    new Map<
+      string,
+      NoteAttachment[]
+    >();
+
+
+  for (
+    const attachment of attachments
+  ) {
+
+    const existing =
+      attachmentsByNote.get(
+        attachment.note_id
+      ) ?? [];
+
+
+existing.push({
+
+  id:
+    attachment.id,
+
+  noteId:
+    attachment.note_id,
+
+  fileName:
+    attachment.file_name,
+
+  storagePath:
+    attachment.storage_path,
+
+  mimeType:
+    attachment.mime_type,
+
+  fileSize:
+    attachment.file_size,
+
+  positionX:
+    attachment.position_x,
+
+  positionY:
+    attachment.position_y,
+
+  width:
+    attachment.width,
+
+  height:
+    attachment.height,
+
+  createdAt:
+    attachment.created_at,
+
+});
+
+
+    attachmentsByNote.set(
+      attachment.note_id,
+      existing
+    );
+  }
+  
 
   // ===================================================
   // BUILD DOMAIN NOTES
@@ -265,6 +412,9 @@ Promise<Note[]> {
       mapNoteRowToNote(
         note,
         linksByNote.get(
+          note.id
+        ) ?? [],
+        attachmentsByNote.get(
           note.id
         ) ?? []
       )
