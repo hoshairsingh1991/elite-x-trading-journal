@@ -17,8 +17,8 @@ import NoteAttachmentCanvas from "@/components/notes/NoteAttachmentCanvas";
 import {
   uploadNoteAttachment,
   deleteNoteAttachment,
+  updateNoteAttachmentLayout,
 } from "@/lib/storage/noteAttachmentStorage";
-
 
 
 import {
@@ -398,6 +398,79 @@ async function handleDeleteAttachment(
                     (item) =>
                       item.id !==
                       attachment.id
+                  ),
+              }
+            : note
+      )
+  );
+}
+
+// =================================================
+// UPDATE NOTE ATTACHMENT LAYOUT
+// =================================================
+
+async function handleUpdateAttachmentLayout(
+  attachment: Note["attachments"][number],
+  layout: {
+    positionX: number;
+    positionY: number;
+    width: number;
+    height: number;
+  }
+) {
+
+  if (
+    !selectedNote
+  ) {
+
+    return;
+  }
+
+  const updated =
+    await updateNoteAttachmentLayout(
+      attachment,
+      layout
+    );
+
+  if (!updated) {
+
+    return;
+  }
+
+  // =================================================
+  // UPDATE LOCAL NOTE STATE
+  // =================================================
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          selectedNote.id
+            ? {
+                ...note,
+
+                attachments:
+                  note.attachments.map(
+                    (item) =>
+                      item.id ===
+                      attachment.id
+                        ? {
+                            ...item,
+
+                            positionX:
+                              layout.positionX,
+
+                            positionY:
+                              layout.positionY,
+
+                            width:
+                              layout.width,
+
+                            height:
+                              layout.height,
+                          }
+                        : item
                   ),
               }
             : note
@@ -968,7 +1041,11 @@ tradeLinks:
   onDelete={
     handleDeleteAttachment
   }
+  onLayoutChange={
+    handleUpdateAttachmentLayout
+  }
 />
+
 
 {/* ============================================= */}
 {/* TIPTAP EDITOR */}

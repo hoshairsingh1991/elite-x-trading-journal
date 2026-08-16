@@ -406,3 +406,157 @@ deleteNoteAttachment(
 
   return true;
 }
+
+// =====================================================
+// UPDATE NOTE ATTACHMENT LAYOUT
+// =====================================================
+
+export async function
+updateNoteAttachmentLayout(
+  attachment: NoteAttachment,
+  layout: {
+    positionX: number;
+    positionY: number;
+    width: number;
+    height: number;
+  }
+): Promise<boolean> {
+
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+    error: authError,
+  } =
+    await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (
+    authError ||
+    !user
+  ) {
+
+    console.error(
+      "FAILED TO GET AUTHENTICATED USER:",
+      authError
+    );
+
+    return false;
+  }
+
+  // ===================================================
+  // VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: note,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select("id")
+      .eq(
+        "id",
+        attachment.noteId
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+  if (
+    noteError ||
+    !note
+  ) {
+
+    console.error(
+      "FAILED TO VERIFY NOTE OWNERSHIP:",
+      noteError
+    );
+
+    return false;
+  }
+
+  // ===================================================
+  // UPDATE ATTACHMENT LAYOUT
+  // ===================================================
+
+  const {
+    data,
+    error: updateError,
+  } =
+    await supabase
+      .from("note_attachments")
+      .update({
+
+        position_x:
+          layout.positionX,
+
+        position_y:
+          layout.positionY,
+
+        width:
+          layout.width,
+
+        height:
+          layout.height,
+
+      })
+      .eq(
+        "id",
+        attachment.id
+      )
+      .eq(
+        "note_id",
+        attachment.noteId
+      )
+      .select(`
+        id,
+        position_x,
+        position_y,
+        width,
+        height
+      `)
+      .maybeSingle();
+
+  if (updateError) {
+
+    console.error(
+      "FAILED TO UPDATE NOTE ATTACHMENT LAYOUT:",
+      updateError
+    );
+
+    return false;
+  }
+
+  if (!data) {
+
+    console.error(
+      "NOTE ATTACHMENT LAYOUT UPDATE AFFECTED ZERO ROWS:",
+      {
+        attachmentId:
+          attachment.id,
+
+        noteId:
+          attachment.noteId,
+
+        requestedLayout:
+          layout,
+      }
+    );
+
+    return false;
+  }
+
+  console.log(
+    "NOTE ATTACHMENT LAYOUT SAVED:",
+    data
+  );
+
+  return true;
+}

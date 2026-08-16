@@ -7,7 +7,13 @@ import {
 
 import { NoteAttachment } from "@/types/note";
 import { supabase } from "@/lib/supabase";
-import { Trash2 } from "lucide-react";
+import {
+  updateNoteAttachmentLayout,
+} from "@/lib/storage/noteAttachmentStorage";
+
+import {
+  Trash2,
+} from "lucide-react";
 
 type Props = {
   attachments: NoteAttachment[];
@@ -15,20 +21,44 @@ type Props = {
   onDelete: (
     attachment: NoteAttachment
   ) => Promise<void>;
-};
 
+  onLayoutChange: (
+    attachment: NoteAttachment,
+    layout: {
+      positionX: number;
+      positionY: number;
+      width: number;
+      height: number;
+    }
+  ) => Promise<void>;
+};
 type AttachmentImage = {
   id: string;
   url: string;
 };
 
-const STORAGE_BUCKET = "note-attachments";
+const STORAGE_BUCKET =
+  "note-attachments";
+
+const MIN_WIDTH = 250;
+const MIN_HEIGHT = 180;
+
+
 
 export default function NoteAttachmentCanvas({
   attachments,
   onDelete,
+  onLayoutChange,
 }: Props) {
 
+
+      const attachmentStorageKey =
+    attachments
+      .map(
+        (attachment) =>
+          `${attachment.id}:${attachment.storagePath}`
+      )
+      .join("|");
   const [
     attachmentImages,
     setAttachmentImages,
@@ -38,6 +68,39 @@ export default function NoteAttachmentCanvas({
     isLoading,
     setIsLoading,
   ] = useState(true);
+
+  const [
+    localAttachments,
+    setLocalAttachments,
+  ] = useState<NoteAttachment[]>(
+    attachments
+  );
+
+  const [
+    draggingId,
+    setDraggingId,
+  ] = useState<string | null>(
+    null
+  );
+
+  const [
+    resizingId,
+    setResizingId,
+  ] = useState<string | null>(
+    null
+  );
+
+  // =================================================
+  // SYNC LOCAL ATTACHMENTS
+  // =================================================
+
+  useEffect(() => {
+
+    setLocalAttachments(
+      attachments
+    );
+
+  }, [attachments]);
 
   // =================================================
   // LOAD SECURE IMAGE URLS
@@ -107,7 +170,320 @@ export default function NoteAttachmentCanvas({
       cancelled = true;
     };
 
-  }, [attachments]);
+}, [attachmentStorageKey]);
+
+  // =================================================
+  // DRAG START
+  // =================================================
+
+  function handleDragStart(
+    event: React.PointerEvent<HTMLDivElement>,
+    attachment: NoteAttachment
+  ) {
+
+    event.preventDefault();
+
+    const startX =
+      event.clientX;
+
+    const startY =
+      event.clientY;
+
+    const initialX =
+      attachment.positionX;
+
+    const initialY =
+      attachment.positionY;
+
+    setDraggingId(
+      attachment.id
+    );
+
+    event.currentTarget.setPointerCapture(
+      event.pointerId
+    );
+
+    function handlePointerMove(
+      moveEvent: PointerEvent
+    ) {
+
+      const deltaX =
+        moveEvent.clientX -
+        startX;
+
+      const deltaY =
+        moveEvent.clientY -
+        startY;
+
+      setLocalAttachments(
+        (current) =>
+          current.map(
+            (item) =>
+              item.id ===
+              attachment.id
+                ? {
+                    ...item,
+
+                    positionX:
+                      initialX +
+                      deltaX,
+
+                    positionY:
+                      initialY +
+                      deltaY,
+                  }
+                : item
+          )
+      );
+    }
+
+    function handlePointerUp(
+      upEvent: PointerEvent
+    ) {
+
+      const deltaX =
+        upEvent.clientX -
+        startX;
+
+      const deltaY =
+        upEvent.clientY -
+        startY;
+
+      const finalX =
+        initialX +
+        deltaX;
+
+      const finalY =
+        initialY +
+        deltaY;
+
+      setLocalAttachments(
+        (current) =>
+          current.map(
+            (item) =>
+              item.id ===
+              attachment.id
+                ? {
+                    ...item,
+
+                    positionX:
+                      finalX,
+
+                    positionY:
+                      finalY,
+                  }
+                : item
+          )
+      );
+
+      setDraggingId(
+        null
+      );
+
+      window.removeEventListener(
+        "pointermove",
+        handlePointerMove
+      );
+
+      window.removeEventListener(
+        "pointerup",
+        handlePointerUp
+      );
+
+onLayoutChange(
+  attachment,
+  {
+    positionX:
+      finalX,
+
+    positionY:
+      finalY,
+
+    width:
+      attachment.width,
+
+    height:
+      attachment.height,
+  }
+);
+    }
+
+    window.addEventListener(
+      "pointermove",
+      handlePointerMove
+    );
+
+    window.addEventListener(
+      "pointerup",
+      handlePointerUp
+    );
+  }
+
+  // =================================================
+  // RESIZE START
+  // =================================================
+
+  function handleResizeStart(
+    event: React.PointerEvent<HTMLDivElement>,
+    attachment: NoteAttachment
+  ) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const startX =
+      event.clientX;
+
+    const startY =
+      event.clientY;
+
+    const initialWidth =
+      attachment.width;
+
+    const initialHeight =
+      attachment.height;
+
+    setResizingId(
+      attachment.id
+    );
+
+    event.currentTarget.setPointerCapture(
+      event.pointerId
+    );
+
+    function handlePointerMove(
+      moveEvent: PointerEvent
+    ) {
+
+      const deltaX =
+        moveEvent.clientX -
+        startX;
+
+      const deltaY =
+        moveEvent.clientY -
+        startY;
+
+      const nextWidth =
+        Math.max(
+          MIN_WIDTH,
+          initialWidth +
+            deltaX
+        );
+
+      const nextHeight =
+        Math.max(
+          MIN_HEIGHT,
+          initialHeight +
+            deltaY
+        );
+
+      setLocalAttachments(
+        (current) =>
+          current.map(
+            (item) =>
+              item.id ===
+              attachment.id
+                ? {
+                    ...item,
+
+                    width:
+                      nextWidth,
+
+                    height:
+                      nextHeight,
+                  }
+                : item
+          )
+      );
+    }
+
+    function handlePointerUp(
+      upEvent: PointerEvent
+    ) {
+
+      const deltaX =
+        upEvent.clientX -
+        startX;
+
+      const deltaY =
+        upEvent.clientY -
+        startY;
+
+      const finalWidth =
+        Math.max(
+          MIN_WIDTH,
+          initialWidth +
+            deltaX
+        );
+
+      const finalHeight =
+        Math.max(
+          MIN_HEIGHT,
+          initialHeight +
+            deltaY
+        );
+
+      setLocalAttachments(
+        (current) =>
+          current.map(
+            (item) =>
+              item.id ===
+              attachment.id
+                ? {
+                    ...item,
+
+                    width:
+                      finalWidth,
+
+                    height:
+                      finalHeight,
+                  }
+                : item
+          )
+      );
+
+      setResizingId(
+        null
+      );
+
+      window.removeEventListener(
+        "pointermove",
+        handlePointerMove
+      );
+
+      window.removeEventListener(
+        "pointerup",
+        handlePointerUp
+      );
+
+onLayoutChange(
+  attachment,
+  {
+    positionX:
+      attachment.positionX,
+
+    positionY:
+      attachment.positionY,
+
+    width:
+      finalWidth,
+
+    height:
+      finalHeight,
+  }
+);
+    }
+
+    window.addEventListener(
+      "pointermove",
+      handlePointerMove
+    );
+
+    window.addEventListener(
+      "pointerup",
+      handlePointerUp
+    );
+  }
 
   // =================================================
   // EMPTY STATE
@@ -141,13 +517,15 @@ export default function NoteAttachmentCanvas({
 
   return (
 
-    <div className="mt-8 space-y-6">
+    <div
+      className="relative left-4 mt-8 min-h-[600px] w-[calc(100%-1rem)] overflow-hidden rounded-2xl border border-white/[0.04] bg-[#07101a]"
+    >
 
       {attachmentImages.map(
         (image) => {
 
           const attachment =
-            attachments.find(
+            localAttachments.find(
               (item) =>
                 item.id ===
                 image.id
@@ -158,37 +536,81 @@ export default function NoteAttachmentCanvas({
             return null;
           }
 
+          const isDragging =
+            draggingId ===
+            attachment.id;
+
+          const isResizing =
+            resizingId ===
+            attachment.id;
+
           return (
 
-<div
-  key={
-    attachment.id
-  }
-  className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#07101a]"
-  style={{
-    width:
-      attachment.width,
-    minHeight:
-      attachment.height,
-  }}
->
+            <div
+              key={
+                attachment.id
+              }
+              className={`group absolute overflow-hidden rounded-2xl border border-white/[0.06] bg-[#07101a] ${
+                isDragging
+                  ? "z-50 cursor-grabbing"
+                  : isResizing
+                    ? "z-50"
+                    : "cursor-grab"
+              }`}
+              style={{
+                left:
+                  attachment.positionX,
 
-    <button
-  type="button"
-  onClick={() =>
-    onDelete(
-      attachment
-    )
-  }
-  title="Delete screenshot"
-  aria-label="Delete screenshot"
-  className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-[#020817]/90 text-red-400 opacity-0 backdrop-blur-sm transition-all hover:bg-red-500/10 group-hover:opacity-100"
->
-  <Trash2
-    size={17}
-    strokeWidth={1.8}
-  />
-</button>
+                top:
+                  attachment.positionY,
+
+                width:
+                  attachment.width,
+
+                height:
+                  attachment.height,
+              }}
+              onPointerDown={(
+                event
+              ) =>
+                handleDragStart(
+                  event,
+                  attachment
+                )
+              }
+            >
+
+              {/* ===================================== */}
+              {/* DELETE */}
+              {/* ===================================== */}
+
+              <button
+                type="button"
+                onPointerDown={(
+                  event
+                ) => {
+                  event.stopPropagation();
+                }}
+                onClick={() =>
+                  onDelete(
+                    attachment
+                  )
+                }
+                title="Delete screenshot"
+                aria-label="Delete screenshot"
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-[#020817]/90 text-red-400 opacity-0 backdrop-blur-sm transition-all hover:bg-red-500/10 group-hover:opacity-100"
+              >
+
+                <Trash2
+                  size={17}
+                  strokeWidth={1.8}
+                />
+
+              </button>
+
+              {/* ===================================== */}
+              {/* IMAGE */}
+              {/* ===================================== */}
 
               <img
                 src={
@@ -197,11 +619,31 @@ export default function NoteAttachmentCanvas({
                 alt={
                   attachment.fileName
                 }
-                className="block h-auto w-full object-contain"
+                draggable={
+                  false
+                }
+                className="block h-full w-full select-none object-contain"
+              />
+
+              {/* ===================================== */}
+              {/* RESIZE HANDLE */}
+              {/* ===================================== */}
+
+              <div
+                onPointerDown={(
+                  event
+                ) =>
+                  handleResizeStart(
+                    event,
+                    attachment
+                  )
+                }
+                className="absolute bottom-2 right-2 z-20 h-5 w-5 cursor-nwse-resize rounded-md border border-white/[0.10] bg-[#020817]/90 opacity-0 transition-all group-hover:opacity-100"
+                title="Resize screenshot"
+                aria-label="Resize screenshot"
               />
 
             </div>
-
           );
         }
       )}
