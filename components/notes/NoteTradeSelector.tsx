@@ -281,34 +281,40 @@ export default function NoteTradeSelector({
   // FORMAT TIME
   // =====================================================
 
-  function formatTime(
-    value?: string | null
+function formatTime(
+  value?: string | null
+) {
+
+  if (!value) {
+    return "—";
+  }
+
+  // Legacy trades contain only YYYY-MM-DD.
+  // There is no real execution time to display.
+  if (!value.includes("T")) {
+    return "—";
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
   ) {
 
-    if (!value) {
-      return "—";
-    }
-
-    const date =
-      new Date(value);
-
-    if (
-      Number.isNaN(
-        date.getTime()
-      )
-    ) {
-
-      return "—";
-    }
-
-    return date.toLocaleTimeString(
-      undefined,
-      {
-        hour: "numeric",
-        minute: "2-digit",
-      }
-    );
+    return "—";
   }
+
+  return date.toLocaleTimeString(
+    undefined,
+    {
+      hour: "numeric",
+      minute: "2-digit",
+    }
+  );
+}
 
   // =====================================================
   // FORMAT PRICE
@@ -342,71 +348,198 @@ export default function NoteTradeSelector({
 
   // =====================================================
   // HOLDING TIME
+  // SUPPORTS NEW + LEGACY TRADES
+  //
+  // NEW TRADE:
+  // openedAt / closedAt contain exact timestamps.
+  //
+  // LEGACY TRADE:
+  // openedAt / closedAt contain date only.
+  // We calculate calendar-day holding instead of
+  // inventing an execution time.
   // =====================================================
 
   function getHoldingTime(
     trade: Trade
   ) {
 
-    if (
-      !trade.openedAt ||
-      !trade.closedAt
-    ) {
-
+    if (!trade.openedAt) {
       return "—";
     }
 
-    const opened =
+    const hasExactTimestamps =
+      trade.openedAt.includes("T") &&
+      !!trade.closedAt &&
+      trade.closedAt.includes("T");
+
+    // ===================================================
+    // NEW TRADE
+    // EXACT EXECUTION TIMESTAMPS
+    // ===================================================
+
+    if (hasExactTimestamps) {
+
+      const opened =
+        new Date(
+          trade.openedAt
+        ).getTime();
+
+      const closed =
+        new Date(
+          trade.closedAt!
+        ).getTime();
+
+      if (
+        Number.isNaN(opened) ||
+        Number.isNaN(closed) ||
+        closed < opened
+      ) {
+        return "—";
+      }
+
+      const minutes =
+        Math.floor(
+          (closed - opened) /
+          60000
+        );
+
+      const days =
+        Math.floor(
+          minutes / 1440
+        );
+
+      const hours =
+        Math.floor(
+          (minutes % 1440) / 60
+        );
+
+      const remainingMinutes =
+        minutes % 60;
+
+      if (days > 0) {
+        return `${days}d ${hours}h`;
+      }
+
+      if (hours > 0) {
+        return `${hours}h ${remainingMinutes}m`;
+      }
+
+      return `${remainingMinutes}m`;
+    }
+
+    // ===================================================
+    // LEGACY TRADE
+    // DATE ONLY — NO EXECUTION TIMESTAMP
+    // ===================================================
+
+    const openDate =
+      trade.openedAt.split("T")[0];
+
+    const closeDate =
+      trade.closedAt
+        ? trade.closedAt.split("T")[0]
+        : null;
+
+    // ---------------------------------------------------
+    // LEGACY CLOSED TRADE
+    // ---------------------------------------------------
+
+    if (closeDate) {
+
+      const [
+        openYear,
+        openMonth,
+        openDay,
+      ] = openDate
+        .split("-")
+        .map(Number);
+
+      const [
+        closeYear,
+        closeMonth,
+        closeDay,
+      ] = closeDate
+        .split("-")
+        .map(Number);
+
+      const openCalendarDate =
+        new Date(
+          openYear,
+          openMonth - 1,
+          openDay
+        );
+
+      const closeCalendarDate =
+        new Date(
+          closeYear,
+          closeMonth - 1,
+          closeDay
+        );
+
+      const calendarDays =
+        Math.floor(
+          (
+            closeCalendarDate.getTime() -
+            openCalendarDate.getTime()
+          ) /
+          (1000 * 60 * 60 * 24)
+        );
+
+      if (calendarDays < 0) {
+        return "—";
+      }
+
+      return calendarDays === 0
+        ? "1d"
+        : `${calendarDays}d`;
+    }
+
+    // ---------------------------------------------------
+    // LEGACY OPEN TRADE
+    // DATE ONLY — CALCULATE THROUGH TODAY
+    // ---------------------------------------------------
+
+    const [
+      openYear,
+      openMonth,
+      openDay,
+    ] = openDate
+      .split("-")
+      .map(Number);
+
+    const openCalendarDate =
       new Date(
-        trade.openedAt
-      ).getTime();
+        openYear,
+        openMonth - 1,
+        openDay
+      );
 
-    const closed =
+    const today =
+      new Date();
+
+    const todayCalendarDate =
       new Date(
-        trade.closedAt
-      ).getTime();
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
 
-    if (
-      Number.isNaN(opened) ||
-      Number.isNaN(closed) ||
-      closed < opened
-    ) {
+    const calendarDays =
+      Math.floor(
+        (
+          todayCalendarDate.getTime() -
+          openCalendarDate.getTime()
+        ) /
+        (1000 * 60 * 60 * 24)
+      );
 
+    if (calendarDays < 0) {
       return "—";
     }
 
-    const minutes =
-      Math.floor(
-        (closed - opened) /
-        60000
-      );
-
-    const days =
-      Math.floor(
-        minutes /
-        1440
-      );
-
-    const hours =
-      Math.floor(
-        (minutes % 1440) /
-        60
-      );
-
-    const remainingMinutes =
-      minutes % 60;
-
-    if (days > 0) {
-
-      return `${days}d ${hours}h`;
-    }
-
-    if (hours > 0) {
-
-      return `${hours}h ${remainingMinutes}m`;
-    }
-
-    return `${remainingMinutes}m`;
+    return calendarDays === 0
+      ? "1d"
+      : `${calendarDays}d`;
   }
 
   // =====================================================
@@ -481,19 +614,19 @@ export default function NoteTradeSelector({
 
                 <div className="mt-4 grid grid-cols-3 gap-3">
 
-                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
+<div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
 
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                      Date
-                    </p>
+  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+    Entry Date
+  </p>
 
-                    <p className="mt-1 text-xs font-medium text-slate-300">
-                      {formatDate(
-                        trade.date
-                      )}
-                    </p>
+  <p className="mt-1 text-xs font-medium text-slate-300">
+    {formatDate(
+      trade.openedAt || trade.date
+    )}
+  </p>
 
-                  </div>
+</div>
 
                   <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
 
@@ -508,6 +641,20 @@ export default function NoteTradeSelector({
                     </p>
 
                   </div>
+
+                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
+
+  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+    Exit Date
+  </p>
+
+  <p className="mt-1 text-xs font-medium text-slate-300">
+    {formatDate(
+      trade.closedAt || ""
+    )}
+  </p>
+
+</div>
 
                   <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
 

@@ -394,7 +394,7 @@ git commit -m "checkpoint: production stable"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Notes section starts here
 git commit -m "checkpoint: stabilize Notes V2 architecture"
-
+git commit -m "checkpoint: stabilize Notes V2 legacy timestamps"
 
 
 
