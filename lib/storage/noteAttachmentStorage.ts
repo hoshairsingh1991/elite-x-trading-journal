@@ -274,6 +274,9 @@ uploadNoteAttachment(
         data.height
       ),
 
+    annotations:
+      [],
+
     createdAt:
       data.created_at,
 

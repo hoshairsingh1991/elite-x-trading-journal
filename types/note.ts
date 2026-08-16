@@ -1,4 +1,101 @@
 // =====================================================
+// NOTE ANNOTATION
+// =====================================================
+
+export type NoteAnnotation = {
+  id: string;
+
+  attachmentId: string;
+
+  // ===================================================
+  // ANNOTATION TYPE
+  // ===================================================
+  //
+  // Examples:
+  // - pen
+  // - arrow
+  // - line
+  // - level
+  // - rectangle
+  // - highlight
+  // - text
+  // - quick_mark
+  //
+
+  type: string;
+
+  // ===================================================
+  // POSITION + SIZE
+  // ===================================================
+  //
+  // These values describe the annotation geometry
+  // relative to its parent screenshot.
+  //
+
+  positionX: number;
+  positionY: number;
+
+  width: number;
+  height: number;
+
+  rotation: number;
+
+  // ===================================================
+  // DRAWING STYLE
+  // ===================================================
+
+  color: string;
+
+  strokeWidth: number;
+
+  // ===================================================
+  // FREEHAND / MULTI-POINT GEOMETRY
+  // ===================================================
+  //
+  // Coordinates are normalized to the screenshot:
+  //
+  // x: 0 → left edge
+  // x: 1 → right edge
+  //
+  // y: 0 → top edge
+  // y: 1 → bottom edge
+  //
+  // This allows annotations to scale correctly when
+  // the screenshot itself is resized.
+  //
+
+  points: Array<{
+    x: number;
+    y: number;
+  }> | null;
+
+  // ===================================================
+  // TEXT
+  // ===================================================
+
+  text: string | null;
+
+  fontSize: number | null;
+
+  fontWeight: string | null;
+
+  fontStyle: string | null;
+
+  textDecoration: string | null;
+
+  textAlign: string | null;
+
+  // ===================================================
+  // TIMESTAMPS
+  // ===================================================
+
+  createdAt: string;
+
+  updatedAt: string;
+};
+
+
+// =====================================================
 // NOTE ATTACHMENT
 // =====================================================
 
@@ -18,14 +115,7 @@ export type NoteAttachment = {
   // IMAGE LAYOUT
   // ===================================================
   //
-  // These values will allow screenshots to support:
-  // - moving
-  // - resizing
-  // - saving their position
-  // - restoring their position after reload
-  //
-  // We are only defining the data model here.
-  // The actual UI behavior comes later.
+  // These values control the screenshot itself.
   //
 
   positionX: number;
@@ -33,6 +123,12 @@ export type NoteAttachment = {
 
   width: number;
   height: number;
+
+  // ===================================================
+  // SCREENSHOT ANNOTATIONS
+  // ===================================================
+
+  annotations: NoteAnnotation[];
 };
 
 
@@ -70,6 +166,7 @@ export type Note = {
    * When false, the title may be generated
    * automatically from attached trades.
    */
+
   isTitleCustom: boolean;
 
   content: string;

@@ -27,7 +27,11 @@ import {
   ImagePlus,
 } from "lucide-react";
 
-import { Note } from "@/types/note";
+import {
+  Note,
+  NoteAnnotation,
+} from "@/types/note";
+
 import { Trade } from "@/types/trade";
 
 import {
@@ -68,6 +72,14 @@ const [
   isUploadingAttachment,
   setIsUploadingAttachment,
 ] = useState(false);
+
+
+  const [
+    activeAnnotationTool,
+    setActiveAnnotationTool,
+  ] = useState<
+    "select" | "pen"
+  >("select");
 
   // =================================================
   // LOAD NOTES
@@ -478,6 +490,45 @@ async function handleUpdateAttachmentLayout(
   );
 }
 
+// =================================================
+// UPDATE NOTE ANNOTATION STATE
+// =================================================
+
+function handleAnnotationCreated(
+  attachmentId: string,
+  annotation: NoteAnnotation
+) {
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          selectedNoteId
+            ? {
+                ...note,
+
+                attachments:
+                  note.attachments.map(
+                    (attachment) =>
+                      attachment.id ===
+                      attachmentId
+                        ? {
+                            ...attachment,
+
+                            annotations: [
+                              ...attachment.annotations,
+                              annotation,
+                            ],
+                          }
+                        : attachment
+                  ),
+              }
+            : note
+      )
+  );
+}
+
   // =================================================
   // CREATE NOTE
   // =================================================
@@ -504,6 +555,8 @@ async function handleUpdateAttachmentLayout(
       newNote.id
     );
   }
+
+
 
   // =================================================
   // DELETE NOTE
@@ -1029,6 +1082,29 @@ tradeLinks:
 
 </div>
 
+{/* ============================================= */}
+{/* TEMP ANNOTATION TEST */}
+{/* ============================================= */}
+
+<div className="relative left-4 mt-3">
+
+  <button
+    type="button"
+    onClick={() =>
+      setActiveAnnotationTool(
+        activeAnnotationTool === "pen"
+          ? "select"
+          : "pen"
+      )
+    }
+    className="rounded-lg bg-[#0b1730] px-3 py-2 text-xs text-blue-400"
+  >
+    {activeAnnotationTool === "pen"
+      ? "Pen ON"
+      : "Pen OFF"}
+  </button>
+
+</div>
 
 {/* ============================================= */}
 {/* SCREENSHOT ATTACHMENTS */}
@@ -1037,6 +1113,12 @@ tradeLinks:
 <NoteAttachmentCanvas
   attachments={
     selectedNote.attachments
+  }
+  activeAnnotationTool={
+    activeAnnotationTool
+  }
+  onAnnotationCreated={
+    handleAnnotationCreated
   }
   onDelete={
     handleDeleteAttachment

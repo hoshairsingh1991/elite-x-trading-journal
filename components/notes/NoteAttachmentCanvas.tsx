@@ -5,8 +5,18 @@ import {
   useState,
 } from "react";
 
-import { NoteAttachment } from "@/types/note";
-import { supabase } from "@/lib/supabase";
+import {
+  NoteAttachment,
+  NoteAnnotation,
+} from "@/types/note";
+
+import NoteAnnotationCanvas
+from "@/components/notes/NoteAnnotationCanvas";
+
+import { supabase }
+from "@/lib/supabase";
+
+
 import {
   updateNoteAttachmentLayout,
 } from "@/lib/storage/noteAttachmentStorage";
@@ -15,8 +25,19 @@ import {
   Trash2,
 } from "lucide-react";
 
+
+
 type Props = {
   attachments: NoteAttachment[];
+
+  activeAnnotationTool:
+    | "select"
+    | "pen";
+
+  onAnnotationCreated: (
+    attachmentId: string,
+    annotation: NoteAnnotation
+  ) => void;
 
   onDelete: (
     attachment: NoteAttachment
@@ -32,6 +53,7 @@ type Props = {
     }
   ) => Promise<void>;
 };
+
 type AttachmentImage = {
   id: string;
   url: string;
@@ -47,6 +69,8 @@ const MIN_HEIGHT = 180;
 
 export default function NoteAttachmentCanvas({
   attachments,
+  activeAnnotationTool,
+  onAnnotationCreated,
   onDelete,
   onLayoutChange,
 }: Props) {
@@ -624,6 +648,31 @@ onLayoutChange(
                 }
                 className="block h-full w-full select-none object-contain"
               />
+
+              {/* ===================================== */}
+              {/* ANNOTATION LAYER */}
+              {/* ===================================== */}
+
+<NoteAnnotationCanvas
+  attachmentId={
+    attachment.id
+  }
+  annotations={
+    attachment.annotations
+  }
+  width={
+    attachment.width
+  }
+  height={
+    attachment.height
+  }
+  activeTool={
+    activeAnnotationTool
+  }
+  onAnnotationCreated={
+    onAnnotationCreated
+  }
+/>
 
               {/* ===================================== */}
               {/* RESIZE HANDLE */}

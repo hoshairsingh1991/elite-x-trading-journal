@@ -4,8 +4,8 @@ import {
   Note,
   NoteTradeLink,
   NoteAttachment,
+  NoteAnnotation,
 } from "@/types/note";
-
 
 // =====================================================
 // DATABASE ROW TYPE
@@ -60,6 +60,47 @@ type NoteAttachmentRow = {
 
   created_at: string;
 };
+
+// =====================================================
+// NOTE ANNOTATION ROW
+// =====================================================
+
+type NoteAnnotationRow = {
+  id: string;
+
+  attachment_id: string;
+
+  type: string;
+
+  position_x: number;
+  position_y: number;
+
+  width: number;
+  height: number;
+
+  rotation: number;
+
+  color: string;
+
+  stroke_width: number;
+
+  points: Array<{
+    x: number;
+    y: number;
+  }> | null;
+
+  text: string | null;
+
+  font_size: number | null;
+  font_weight: string | null;
+  font_style: string | null;
+  text_decoration: string | null;
+  text_align: string | null;
+
+  created_at: string;
+  updated_at: string;
+};
+
 
 // =====================================================
 // DATABASE → DOMAIN MAPPING
@@ -334,12 +375,170 @@ const {
   }
 
 
-  const attachments =
-    (attachmentData as NoteAttachmentRow[] | null) ?? [];
+const attachments =
+  (attachmentData as NoteAttachmentRow[] | null) ?? [];
 
-      // ===================================================
-  // GROUP ATTACHMENTS BY NOTE
-  // ===================================================
+
+// ===================================================
+// LOAD ANNOTATIONS
+// ===================================================
+
+const attachmentIds =
+  attachments.map(
+    (attachment) =>
+      attachment.id
+  );
+
+let annotations: NoteAnnotationRow[] = [];
+
+if (
+  attachmentIds.length > 0
+) {
+
+  const {
+    data: annotationData,
+    error: annotationError,
+  } =
+    await supabase
+      .from("note_annotations")
+      .select(`
+        id,
+        attachment_id,
+        type,
+        position_x,
+        position_y,
+        width,
+        height,
+        rotation,
+        color,
+        stroke_width,
+        points,
+        text,
+        font_size,
+        font_weight,
+        font_style,
+        text_decoration,
+        text_align,
+        created_at,
+        updated_at
+      `)
+      .in(
+        "attachment_id",
+        attachmentIds
+      )
+      .order(
+        "created_at",
+        {
+          ascending: true,
+        }
+      );
+
+  if (annotationError) {
+
+    console.error(
+      "FAILED TO LOAD NOTE ANNOTATIONS:",
+      annotationError
+    );
+
+  } else {
+
+    annotations =
+      (annotationData as NoteAnnotationRow[] | null) ?? [];
+  }
+}
+
+
+// ===================================================
+// GROUP ANNOTATIONS BY ATTACHMENT
+// ===================================================
+
+const annotationsByAttachment =
+  new Map<
+    string,
+    NoteAnnotation[]
+  >();
+
+
+for (
+  const annotation of annotations
+) {
+
+  const existing =
+    annotationsByAttachment.get(
+      annotation.attachment_id
+    ) ?? [];
+
+  existing.push({
+
+    id:
+      annotation.id,
+
+    attachmentId:
+      annotation.attachment_id,
+
+    type:
+      annotation.type,
+
+    positionX:
+      annotation.position_x,
+
+    positionY:
+      annotation.position_y,
+
+    width:
+      annotation.width,
+
+    height:
+      annotation.height,
+
+    rotation:
+      annotation.rotation,
+
+    color:
+      annotation.color,
+
+    strokeWidth:
+      annotation.stroke_width,
+
+    points:
+      annotation.points,
+
+    text:
+      annotation.text,
+
+    fontSize:
+      annotation.font_size,
+
+    fontWeight:
+      annotation.font_weight,
+
+    fontStyle:
+      annotation.font_style,
+
+    textDecoration:
+      annotation.text_decoration,
+
+    textAlign:
+      annotation.text_align,
+
+    createdAt:
+      annotation.created_at,
+
+    updatedAt:
+      annotation.updated_at,
+
+  });
+
+  annotationsByAttachment.set(
+    annotation.attachment_id,
+    existing
+  );
+}
+
+
+// ===================================================
+// GROUP ATTACHMENTS BY NOTE
+// ===================================================
 
   const attachmentsByNote =
     new Map<
@@ -390,6 +589,11 @@ existing.push({
   height:
     attachment.height,
 
+   annotations:
+    annotationsByAttachment.get(
+      attachment.id
+    ) ?? [],
+    
   createdAt:
     attachment.created_at,
 
