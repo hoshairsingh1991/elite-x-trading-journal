@@ -117,6 +117,138 @@ export default function NotesPage() {
         selectedNoteId
     );
 
+// =================================================
+// AUTOMATIC NOTE TITLE
+// =================================================
+
+function getAutomaticNoteTitle(
+  note: Note
+): string {
+
+  // No trades attached
+  if (
+    note.tradeLinks.length === 0
+  ) {
+
+    return "Trading Note";
+  }
+
+  // Resolve attached trade IDs
+  const tickers =
+    note.tradeLinks
+      .map(
+        (link) =>
+          availableTrades.find(
+            (trade) =>
+              trade.id ===
+              link.tradeId
+          )?.ticker
+      )
+      .filter(
+        (
+          ticker
+        ): ticker is string =>
+          Boolean(ticker)
+      );
+
+  // Safety fallback
+  if (
+    tickers.length === 0
+  ) {
+
+    return "Trading Note";
+  }
+
+  // Remove duplicate tickers
+  const uniqueTickers =
+    Array.from(
+      new Set(tickers)
+    );
+
+  // One unique ticker
+  if (
+    uniqueTickers.length === 1
+  ) {
+
+    return `Trade Review - ${uniqueTickers[0]}`;
+  }
+
+  // Two or three unique tickers
+  if (
+    uniqueTickers.length <= 3
+  ) {
+
+    return `Trade Review - ${uniqueTickers.join(", ")}`;
+  }
+
+  // More than three unique tickers
+  const visibleTickers =
+    uniqueTickers
+      .slice(0, 3)
+      .join(", ");
+
+  const remainingCount =
+    uniqueTickers.length - 3;
+
+  return `Trade Review - ${visibleTickers} +${remainingCount}`;
+}
+
+
+// =================================================
+// SYNC AUTOMATIC NOTE TITLE
+// =================================================
+
+useEffect(() => {
+
+  if (
+    !selectedNote ||
+    selectedNote.isTitleCustom
+  ) {
+
+    return;
+  }
+
+  const automaticTitle =
+    getAutomaticNoteTitle(
+      selectedNote
+    );
+
+  if (
+    selectedNote.title ===
+    automaticTitle
+  ) {
+
+    return;
+  }
+
+  const updatedNote: Note = {
+
+    ...selectedNote,
+
+    title:
+      automaticTitle,
+  };
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          updatedNote.id
+            ? updatedNote
+            : note
+      )
+  );
+
+  updateNoteInSupabase(
+    updatedNote
+  );
+
+}, [
+  selectedNote,
+  availableTrades,
+]);
+
   // =================================================
   // CREATE NOTE
   // =================================================
@@ -192,52 +324,67 @@ export default function NotesPage() {
   // UPDATE NOTE
   // =================================================
 
-  function handleUpdateNote(
-    field:
-      | "title"
-      | "content",
-    value: string
+function handleUpdateNote(
+  field:
+    | "title"
+    | "content",
+  value: string
+) {
+
+  if (
+    !selectedNote
   ) {
 
-    if (
-      !selectedNote
-    ) {
-
-      return;
-    }
-
-    const updatedNote = {
-
-      ...selectedNote,
-
-      [field]:
-        value,
-    };
-
-    const updatedNotes =
-      notes.map(
-        (note) => {
-
-          if (
-            note.id ===
-            updatedNote.id
-          ) {
-
-            return updatedNote;
-          }
-
-          return note;
-        }
-      );
-
-    setNotes(
-      updatedNotes
-    );
-
-    updateNoteInSupabase(
-      updatedNote
-    );
+    return;
   }
+
+  const updatedNote: Note = {
+
+    ...selectedNote,
+
+    [field]:
+      value,
+
+    // =================================================
+    // MANUAL TITLE OVERRIDE
+    // =================================================
+    //
+    // Once the user edits the title manually,
+    // automatic trade-based title generation
+    // must stop controlling the title.
+    //
+    ...(field === "title"
+      ? {
+          isTitleCustom:
+            true,
+        }
+      : {}),
+  };
+
+  const updatedNotes =
+    notes.map(
+      (note) => {
+
+        if (
+          note.id ===
+          updatedNote.id
+        ) {
+
+          return updatedNote;
+        }
+
+        return note;
+      }
+    );
+
+  setNotes(
+    updatedNotes
+  );
+
+  updateNoteInSupabase(
+    updatedNote
+  );
+}
 
   // =================================================
   // ADD TRADE TO NOTE

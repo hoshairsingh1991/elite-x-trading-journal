@@ -14,6 +14,8 @@ type NoteRow = {
   id: string;
 
   title: string;
+  is_title_custom: boolean;
+
   content: string;
 
   created_at: string;
@@ -44,16 +46,19 @@ function mapNoteRowToNote(
   tradeLinks: NoteTradeLink[]
 ): Note {
 
-  return {
+return {
 
-    id:
-      row.id,
+  id:
+    row.id,
 
-    title:
-      row.title,
+  title:
+    row.title,
 
-    content:
-      row.content,
+  isTitleCustom:
+    row.is_title_custom,
+
+  content:
+    row.content,
 
     createdAt:
       row.created_at,
@@ -109,14 +114,15 @@ Promise<Note[]> {
   } =
     await supabase
       .from("notes")
-      .select(`
-        id,
-        title,
-        content,
-        created_at,
-        updated_at,
-        user_id
-      `)
+.select(`
+  id,
+  title,
+  is_title_custom,
+  content,
+  created_at,
+  updated_at,
+  user_id
+`)
       .eq(
         "user_id",
         user.id
@@ -308,17 +314,19 @@ Promise<Note | null> {
   // NEW NOTE
   // ===================================================
 
-  const newNote: Note = {
+const newNote: Note = {
 
-    id:
-      crypto.randomUUID(),
+  id:
+    crypto.randomUUID(),
 
-    title:
-      "Untitled Note",
+  title:
+    "Trading Note",
 
-    content:
-      "",
+  isTitleCustom:
+    false,
 
+  content:
+    "",
     createdAt:
       now,
 
@@ -342,16 +350,19 @@ Promise<Note | null> {
   } =
     await supabase
       .from("notes")
-      .insert({
+.insert({
 
-        id:
-          newNote.id,
+  id:
+    newNote.id,
 
-        title:
-          newNote.title,
+  title:
+    newNote.title,
 
-        content:
-          newNote.content,
+  is_title_custom:
+    newNote.isTitleCustom,
+
+  content:
+    newNote.content,
 
         created_at:
           newNote.createdAt,
@@ -420,13 +431,16 @@ updateNoteInSupabase(
   } =
     await supabase
       .from("notes")
-      .update({
+.update({
 
-        title:
-          note.title,
+  title:
+    note.title,
 
-        content:
-          note.content,
+  is_title_custom:
+    note.isTitleCustom,
+
+  content:
+    note.content,
 
         updated_at:
           new Date().toISOString(),

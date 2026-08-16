@@ -106,6 +106,9 @@ const newNote: Note = {
   title:
     "Untitled Note",
 
+     isTitleCustom:
+    false,
+
   content: "",
 
   createdAt:

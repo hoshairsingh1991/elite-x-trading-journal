@@ -208,31 +208,28 @@ export default function NoteTradeSelector({
   // ADD TRADE
   // =====================================================
 
-  function handleSelectTrade(
-    tradeId: string
+function handleSelectTrade(
+  tradeId: string
+) {
+
+  if (
+    attachedTradeIds.has(
+      tradeId
+    )
   ) {
 
-    if (
-      attachedTradeIds.has(
-        tradeId
-      )
-    ) {
-
-      return;
-    }
-
-    onAddTrade(
-      tradeId
-    );
-
-    setSearch("");
-
-    /*
-     * Keep picker open so multiple
-     * trades can be attached.
-     */
-    setIsOpen(true);
+    return;
   }
+
+  onAddTrade(
+    tradeId
+  );
+
+  setSearch("");
+
+  // Close picker after selecting a trade.
+  setIsOpen(false);
+}
 
   // =====================================================
   // REMOVE TRADE
@@ -344,6 +341,43 @@ function formatTime(
   ) {
 
     return `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
+  }
+
+  // =====================================================
+  // DISPLAY SIDE
+  // MATCHES TRADE HISTORY
+  // =====================================================
+
+  function getDisplaySide(
+    trade: Trade
+  ) {
+
+    if (
+      trade.assetType === "Options"
+    ) {
+
+      if (
+        trade.contractKey?.endsWith(
+          "_C"
+        )
+      ) {
+
+        return "CALL";
+      }
+
+      if (
+        trade.contractKey?.endsWith(
+          "_P"
+        )
+      ) {
+
+        return "PUT";
+      }
+
+      return "OPTION";
+    }
+
+    return trade.side;
   }
 
   // =====================================================
@@ -863,21 +897,23 @@ function formatTime(
                             {trade.ticker}
                           </p>
 
-                          <p className="mt-1 text-xs text-slate-500">
+<p className="mt-1 text-xs text-slate-500">
 
-                            {trade.side}
+  {getDisplaySide(
+    trade
+  )}
 
-                            {" · "}
+  {" · "}
 
-                            {trade.quantity}
+  {trade.quantity}
 
-                            {" · "}
+  {" · "}
 
-                            {formatDate(
-                              trade.date
-                            )}
+  {formatDate(
+    trade.date
+  )}
 
-                          </p>
+</p>
 
                         </div>
 

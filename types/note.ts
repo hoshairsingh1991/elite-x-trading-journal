@@ -13,6 +13,26 @@ export type NoteAttachment = {
   fileSize: number;
 
   createdAt: string;
+
+  // ===================================================
+  // IMAGE LAYOUT
+  // ===================================================
+  //
+  // These values will allow screenshots to support:
+  // - moving
+  // - resizing
+  // - saving their position
+  // - restoring their position after reload
+  //
+  // We are only defining the data model here.
+  // The actual UI behavior comes later.
+  //
+
+  positionX: number;
+  positionY: number;
+
+  width: number;
+  height: number;
 };
 
 
@@ -37,7 +57,21 @@ export type NoteTradeLink = {
 export type Note = {
   id: string;
 
+  // ===================================================
+  // TITLE
+  // ===================================================
+
   title: string;
+
+  /**
+   * True when the user has manually customized
+   * the note title.
+   *
+   * When false, the title may be generated
+   * automatically from attached trades.
+   */
+  isTitleCustom: boolean;
+
   content: string;
 
   createdAt: string;
