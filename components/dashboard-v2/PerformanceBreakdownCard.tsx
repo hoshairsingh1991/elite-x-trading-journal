@@ -6,7 +6,7 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   ResponsiveContainer,
@@ -28,6 +28,32 @@ export default function PerformanceBreakdownCard({
 
   const [activeIndex, setActiveIndex] =
   useState<number | null>(null);
+
+  const [isCompact, setIsCompact] =
+  useState(false);
+
+useEffect(() => {
+  const mediaQuery =
+    window.matchMedia("(max-width: 1599px)");
+
+  const updateCompactMode = () => {
+    setIsCompact(mediaQuery.matches);
+  };
+
+  updateCompactMode();
+
+  mediaQuery.addEventListener(
+    "change",
+    updateCompactMode
+  );
+
+  return () => {
+    mediaQuery.removeEventListener(
+      "change",
+      updateCompactMode
+    );
+  };
+}, []);
 
 const currencySymbol =
   getCurrencySymbol(
@@ -80,6 +106,7 @@ hover:bg-[#0b0c1e]
 hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
   "
 >
+
       {/* ===================================== */}
       {/* INVISIBLE SPACER */}
       {/* ===================================== */}
@@ -107,35 +134,52 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 {/* ================================================= */}
 
 <div className="mt-8 flex justify-center">
-  <div className="w-[95%]">
+  <div className="w-full">
 
-    <div className="relative top-10 flex items-center justify-center gap-7">
+    <div className="relative top-10 flex items-center justify-center gap-3 min-[1600px]:gap-7">
 
       {/* DONUT PLACEHOLDER */}
 
-      <div className="relative -left-3 h-[165px] w-[165px]">
+<div
+  className={`
+    relative
+    shrink-0
+    ${isCompact
+      ? "left-0 h-[135px] w-[135px]"
+      : "left-0 h-[165px] w-[165px]"
+    }
+  `}
+>
 
-        <ResponsiveContainer
-          width={165}
-          height={165}
-        >
+  <ResponsiveContainer
+    width="100%"
+    height="100%"
+  >
 
-          <PieChart>
+    <PieChart>
 
-            <Pie
-              data={donutData}
-              dataKey="value"
-              innerRadius={60}
-              outerRadius={82}
-              paddingAngle={3}
-              stroke="none"
-              onMouseEnter={(_, index) =>
-                setActiveIndex(index)
-              }
-              onMouseLeave={() =>
-                setActiveIndex(null)
-              }
-            >
+      <Pie
+        data={donutData}
+        dataKey="value"
+        innerRadius={
+          isCompact
+            ? 49
+            : 60
+        }
+        outerRadius={
+          isCompact
+            ? 67
+            : 82
+        }
+        paddingAngle={3}
+        stroke="none"
+        onMouseEnter={(_, index) =>
+          setActiveIndex(index)
+        }
+        onMouseLeave={() =>
+          setActiveIndex(null)
+        }
+      >
 
 {donutData.map(
   (entry, index) => (
@@ -165,48 +209,59 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
         </ResponsiveContainer>
 
-        {/* CENTER LABEL */}
+{/* CENTER LABEL */}
 
-        <div
-          className="
-            absolute
-            inset-0
-            flex
-            flex-col
-            items-center
-            justify-center
-            pointer-events-none
-          "
-        >
+<div
+  className="
+    absolute
+    inset-0
+    flex
+    flex-col
+    items-center
+    justify-center
+    pointer-events-none
+  "
+>
 
-          <div className="text-[20px] font-bold text-slate-300">
-            {currencySymbol}
-            {performanceBreakdownAnalytics.netTradingPnL.toFixed(2)}
-          </div>
+  <div className="text-[18px] font-bold text-slate-300 min-[1600px]:text-[20px]">
+    {currencySymbol}
+    {performanceBreakdownAnalytics.netTradingPnL.toFixed(2)}
+  </div>
 
-          <div
-            className="
-              mt-1
-              text-[9px]
-              uppercase
-              tracking-[0.14em]
-              text-slate-400
-            "
-          >
-            Net P&amp;L
-          </div>
+  <div
+    className="
+      mt-1
+      text-[8px]
+      min-[1600px]:text-[9px]
+      uppercase
+      tracking-[0.14em]
+      text-slate-400
+    "
+  >
+    Net P&amp;L
+  </div>
 
-        </div>
+</div>
 
       </div>
 
 {/* LEGEND */}
 
-<div className="relative left-0 w-[200px] flex flex-col gap-5">
+<div
+  className={`
+    relative
+    left-0
+    shrink-0
+    flex
+    flex-col
+    gap-5
+    ${isCompact ? "w-[155px]" : "w-[185px]"}
+  `}
+>
 
 {/* LONG */}
 
-<div className="flex items-center justify-between">
+<div className="flex min-w-0 items-center justify-between gap-2">
 
   <div
     className={`
@@ -413,7 +468,7 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 {/* ================================================= */}
 
 <div className="flex justify-center">
-  <div className="w-[92%]">
+ <div className="w-[92%] min-[1600px]:w-[92%]">
 
     <div className="grid grid-cols-3 gap-5">
 
@@ -421,9 +476,9 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
       <div className="flex flex-col items-center">
 
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
-          Long Trades
-        </p>
+       <p className="whitespace-nowrap text-[11px] uppercase tracking-[0.12em] text-slate-500">
+  Long Trades
+</p>
 
         <p className="mt-2.5 text-[18px] font-semibold text-white">
           {performanceBreakdownAnalytics.longTrades}
@@ -435,9 +490,9 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
 
       <div className="flex flex-col items-center">
 
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
-          Short Trades
-        </p>
+       <p className="whitespace-nowrap text-[11px] uppercase tracking-[0.12em] text-slate-500">
+  Short Trades
+</p>
 
         <p className="mt-2.5 text-[18px] font-semibold text-white">
           {performanceBreakdownAnalytics.shortTrades}

@@ -187,7 +187,7 @@ else if (
     <div className="flex justify-center">
       <div className="w-[98%]">
 
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid grid-cols-6 gap-4 min-[1400px]:gap-2 min-[1600px]:gap-4">
 
 {/* STREAK */}
 
@@ -221,8 +221,10 @@ backdrop-blur-xl
     max-w-full
     items-center
     justify-center
-    gap-5
-    -translate-x-2
+    gap-3
+    min-[1600px]:gap-5
+    -translate-x-1
+    min-[1600px]:-translate-x-2
   "
 >
     {/* ICON */}
@@ -338,8 +340,10 @@ backdrop-blur-xl
     max-w-full
     items-center
     justify-center
-    gap-3
-    -translate-x-3
+    gap-2
+    min-[1600px]:gap-3
+    -translate-x-2
+    min-[1600px]:-translate-x-3
   "
 >
     {/* ICON */}
@@ -449,56 +453,67 @@ backdrop-blur-xl
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      w-full
-      max-w-full
-      items-center
-      justify-center
-      translate-x-0
-    "
-  >
+<div
+  className="
+    flex
+    h-full
+    min-w-0
+    w-full
+    max-w-full
+    items-center
+    justify-center
+    gap-2
+    translate-x-0
+    min-[1600px]:gap-0
+    min-[1600px]:translate-x-0
+  "
+>
     {/* ICON */}
 
-    <div className="shrink-0">
-      <LocateFixed
-        className={`h-7 w-7 ${consistencyColor}`}
-        strokeWidth={2}
-      />
-    </div>
+<div className="shrink-0">
+  <LocateFixed
+    className={`h-6 w-6 min-[1600px]:h-7 min-[1600px]:w-7 ${consistencyColor}`}
+    strokeWidth={2}
+  />
+</div>
 
     {/* TEXT */}
 
-    <div
-      className="
-        min-w-0
-        -translate-y-1
-        flex
-        flex-col
-        items-center
-        text-center
-      "
-    >
+<div
+  className="
+    min-w-0
+    w-[115px]
+    -translate-x-2
+    -translate-y-1
+    flex
+    flex-col
+    items-center
+    text-center
+    min-[1600px]:w-auto
+    min-[1600px]:translate-x-0
+  "
+>
       {/* TITLE */}
 
-      <div className="flex items-center gap-1">
-        <p
-          className="
-            text-[11px]
-            font-medium
-            uppercase
-            tracking-[0.12em]
-            text-slate-500
-          "
-        >
-          Consistency
-        </p>
+<div className="flex items-center gap-0.5 min-[1600px]:gap-1">
+  <p
+    className="
+      text-[11px]
+      font-medium
+      uppercase
+      tracking-[0.12em]
+      text-slate-500
+    "
+  >
+    Consistency
+  </p>
 
-        <MetricInfoTooltip
-          className="translate-x-0 translate-y-0"
+  <MetricInfoTooltip
+    className="
+      translate-x-0
+      translate-y-0
+      min-[1600px]:translate-x-0
+    "
           definition="Measures how consistently your trading produces stable results over time."
           formula="Composite Consistency Score (0–100)"
           calculation="Computed from your win/loss distribution and equity curve stability across the selected period."
@@ -506,40 +521,43 @@ backdrop-blur-xl
         />
       </div>
 
-      {/* VALUE */}
+{/* VALUE */}
 
-      <div
-        className="
-          mt-2
-          translate-y-1
-          flex
-          flex-col
-          items-center
-        "
-      >
-        <p
-          className={`
-            text-[20px]
-            font-semibold
-            leading-none
-            ${consistencyColor}
-          `}
-        >
-          {consistencyLabel}
-        </p>
+<div
+  className="
+    mt-2
+    translate-y-1
+    flex
+    flex-col
+    items-center
+    text-center
+  "
+>
+  <p
+    className={`
+      text-[20px]
+      font-semibold
+      leading-none
+      whitespace-nowrap
+      ${consistencyColor}
+    `}
+  >
+    {consistencyLabel}
+  </p>
 
-        <p
-          className="
-            mt-2
-            translate-y-1
-            text-[12px]
-            font-medium
-            text-slate-400
-          "
-        >
-          Score: {consistencyScore}/100
-        </p>
-      </div>
+  <p
+    className="
+      mt-2
+      translate-y-1
+      whitespace-nowrap
+      text-[12px]
+      font-medium
+      text-slate-400
+    "
+  >
+    Score: {consistencyScore}/100
+  </p>
+</div>
     </div>
   </div>
 </div>
@@ -684,44 +702,62 @@ backdrop-blur-xl
     max-w-full
     items-center
     justify-center
-    translate-x-0
+    gap-2
+    translate-x-1
+
+    min-[1600px]:gap-3
+    min-[1600px]:translate-x-[2px]
   "
 >
     {/* ICON */}
 
     <div className="shrink-0">
       <Repeat
-        className="h-6 w-6 text-cyan-400"
+        className="
+          h-6 w-6
+          min-[1600px]:h-6
+          min-[1600px]:w-6
+          text-cyan-400
+        "
         strokeWidth={2}
       />
     </div>
 
     {/* TEXT */}
 
-    <div
-      className="
-        min-w-0
-        ml-1
-        -translate-y-1
-        flex
-        flex-col
-        items-center
-        text-center
-      "
-    >
+<div
+  className="
+    min-w-0
+    w-[135px]
+    -translate-x-3
+    -translate-y-1
+    flex
+    flex-col
+    items-center
+    text-center
+
+    min-[1600px]:w-auto
+    min-[1600px]:-translate-x-3
+  "
+>
       {/* TITLE */}
 
-      <p
-        className="
-          text-[11px]
-          font-medium
-          uppercase
-          tracking-[0.12em]
-          text-slate-500
-        "
-      >
-        Trade Frequency
-      </p>
+<p
+  className="
+    relative
+    -translate-x-1
+    whitespace-nowrap
+    text-[11px]
+    font-medium
+    uppercase
+    tracking-[0.12em]
+    text-slate-500
+
+    min-[1600px]:translate-x-0
+  "
+>
+  Trade Frequency
+</p>
 
       {/* VALUE */}
 
@@ -732,10 +768,12 @@ backdrop-blur-xl
           flex
           flex-col
           items-center
+          text-center
         "
       >
         <p
           className="
+            whitespace-nowrap
             text-[20px]
             font-semibold
             leading-none
@@ -749,6 +787,7 @@ backdrop-blur-xl
           className="
             mt-2
             translate-y-1
+            whitespace-nowrap
             text-[12px]
             font-medium
             text-slate-400
@@ -784,100 +823,117 @@ backdrop-blur-xl
     hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
   "
 >
+<div
+  className="
+    flex
+    h-full
+    min-w-0
+    w-full
+    max-w-full
+    items-center
+    justify-center
+    gap-2
+    translate-x-0
+
+    min-[1600px]:gap-3
+  "
+>
+  {/* ICON */}
+
+  <div className="shrink-0 translate-x-2">
+    <Shield
+      className={`
+        h-6 w-6
+        min-[1600px]:h-7
+        min-[1600px]:w-7
+        ${calmarColor}
+      `}
+      strokeWidth={2}
+    />
+  </div>
+
+  {/* TEXT */}
+
   <div
     className="
-      flex
-      h-full
       min-w-0
-      w-full
-      max-w-full
+      w-[125px]
+      -translate-y-1
+      flex
+      flex-col
       items-center
-      justify-center
-      translate-x-0
+      text-center
+
+      min-[1600px]:w-[135px]
     "
   >
-    {/* ICON */}
+    {/* TITLE */}
 
-    <div className="shrink-0">
-      <Shield
-        className={`h-7 w-7 ${calmarColor}`}
-        strokeWidth={2}
+    <div className="flex items-center justify-center gap-1">
+<p
+  className="
+    whitespace-nowrap
+    -translate-x-2
+    text-[11px]
+    font-medium
+    uppercase
+    tracking-[0.12em]
+    text-slate-500
+  "
+>
+  Calmar Ratio
+</p>
+
+      <MetricInfoTooltip
+  className="-translate-x-2 translate-y-0"
+        definition="Measures return achieved relative to maximum drawdown."
+        formula="Total Return ÷ Maximum Drawdown"
+        calculation="Calculated using your realized trading performance and maximum drawdown over the selected period."
+        interpretation="Higher values indicate stronger risk-adjusted performance by generating more return for each unit of drawdown."
       />
     </div>
 
-    {/* TEXT */}
+    {/* VALUE */}
 
     <div
       className="
-        min-w-0
-        -translate-y-1
+        mt-2
+        -translate-x-3
+translate-y-1
         flex
         flex-col
         items-center
+        justify-center
         text-center
       "
     >
-      {/* TITLE */}
-
-      <div className="flex items-center gap-1">
-        <p
-          className="
-            translate-x-0
-            text-[11px]
-            font-medium
-            uppercase
-            tracking-[0.12em]
-            text-slate-500
-          "
-        >
-          Calmar Ratio
-        </p>
-
-        <MetricInfoTooltip
-          className="translate-x-[0px] translate-y-[0px]"
-          definition="Measures return achieved relative to maximum drawdown."
-          formula="Total Return ÷ Maximum Drawdown"
-          calculation="Calculated using your realized trading performance and maximum drawdown over the selected period."
-          interpretation="Higher values indicate stronger risk-adjusted performance by generating more return for each unit of drawdown."
-        />
-      </div>
-
-      {/* VALUE */}
-
-      <div
+      <p
         className="
-          mt-2
-          translate-y-1
-          flex
-          flex-col
-          items-center
+          whitespace-nowrap
+          text-[20px]
+          font-semibold
+          leading-none
+          text-white
         "
       >
-        <p
-          className="
-            text-[20px]
-            font-semibold
-            leading-none
-            text-white
-          "
-        >
-          {calmarRatio.toFixed(2)}
-        </p>
+        {calmarRatio.toFixed(2)}
+      </p>
 
-        <p
-          className={`
-            mt-2
-            translate-y-1
-            text-[12px]
-            font-medium
-            ${calmarColor}
-          `}
-        >
-          {calmarLabel}
-        </p>
-      </div>
+      <p
+        className={`
+          mt-2
+          translate-y-1
+          whitespace-nowrap
+          text-[12px]
+          font-medium
+          ${calmarColor}
+        `}
+      >
+        {calmarLabel}
+      </p>
     </div>
   </div>
+</div>
 </div>
 
 {/* END OF GRID */}

@@ -209,7 +209,10 @@ bg-[#0b1220]
 <div
   className="
     min-w-0
-    w-[170px]
+    w-[125px]
+    min-[1600px]:w-[170px]
+    translate-x-2
+    min-[1600px]:translate-x-0
     -translate-y-1
     flex
     flex-col

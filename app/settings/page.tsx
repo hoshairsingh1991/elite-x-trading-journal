@@ -38,6 +38,14 @@ export default function SettingsPage() {
     setBrokerConnections,
   ] = useState<any[]>([]);
 
+const [
+  viewportSize,
+  setViewportSize,
+] = useState({
+  width: 0,
+  height: 0,
+});
+
   const [
     isEditModalOpen,
     setIsEditModalOpen,
@@ -330,7 +338,38 @@ setIsEditModalOpen(
 
 };
 
+// =====================================
+// VIEWPORT SIZE MONITOR
+// =====================================
 
+useEffect(() => {
+
+  const updateViewportSize = () => {
+
+    setViewportSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
+  };
+
+  updateViewportSize();
+
+  window.addEventListener(
+    "resize",
+    updateViewportSize
+  );
+
+  return () => {
+
+    window.removeEventListener(
+      "resize",
+      updateViewportSize
+    );
+
+  };
+
+}, []);
 
   // =====================================
   // LOAD BROKER CONNECTIONS
@@ -1903,6 +1942,37 @@ setIsEditModalOpen(
 
 
 )}
+
+{/* ===================================== */}
+{/* VIEWPORT SIZE MONITOR */}
+{/* ===================================== */}
+
+<div
+  className="
+    fixed
+    bottom-3
+    left-1/2
+    z-[99999]
+    -translate-x-1/2
+    rounded-lg
+    border
+    border-white/[0.08]
+    bg-[#050816]/95
+    px-4
+    py-2
+    text-[12px]
+    font-medium
+    tracking-wide
+    text-slate-400
+    shadow-[0_4px_20px_rgba(0,0,0,0.35)]
+    backdrop-blur-md
+  "
+>
+  Viewport:&nbsp;
+  <span className="text-white">
+    {viewportSize.width} × {viewportSize.height}
+  </span>
+</div>
 
 </>
 

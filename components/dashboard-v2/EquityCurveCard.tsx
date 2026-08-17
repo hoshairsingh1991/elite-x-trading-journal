@@ -208,12 +208,12 @@ backdrop-blur-xl
 <div className="relative -top-2 mt-5 flex justify-center">
   <div className="w-[95%]">
 
-    <div className="grid grid-cols-6 gap-4">
+    <div className="grid grid-cols-6 gap-2 min-[1600px]:gap-4">
 
       {/* STARTING */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 min-[1400px]:max-[1599px]:whitespace-nowrap">
           Starting
         </p>
 
@@ -225,7 +225,7 @@ backdrop-blur-xl
       {/* ENDING */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
+       <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 min-[1400px]:max-[1599px]:whitespace-nowrap">
           Ending
         </p>
 
@@ -243,7 +243,7 @@ backdrop-blur-xl
       {/* NET CHANGE */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 min-[1400px]:max-[1599px]:whitespace-nowrap">
           Net Change
         </p>
 
@@ -261,7 +261,7 @@ backdrop-blur-xl
       {/* PERCENT CHANGE */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 min-[1400px]:max-[1599px]:whitespace-nowrap">
           % Change
         </p>
 
@@ -279,7 +279,7 @@ backdrop-blur-xl
       {/* HIGH */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 min-[1400px]:max-[1599px]:whitespace-nowrap">
           High
         </p>
 
@@ -291,7 +291,7 @@ backdrop-blur-xl
       {/* LOW */}
 
       <div className="flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 min-[1400px]:max-[1599px]:whitespace-nowrap">
           Low
         </p>
 

@@ -1343,7 +1343,7 @@ setImportedTrades([
     {/* MAIN CONTENT */}
     {/* ================================================= */}
 
-    <section className="flex min-w-0 flex-1 flex-col overflow-hidden px-8 pt-[10px]">
+    <section className="flex min-w-0 flex-1 flex-col overflow-hidden px-6 pt-[10px]">
 
 
 
@@ -1443,7 +1443,7 @@ onDateRangeChange={(
 {/* PNL ANALYTICS */}
 {/* ================================================= */}
 
-<div className="px-8">
+<div className="px-4 min-[1600px]:px-8">
 <EquitySection
   equityAnalytics={equityAnalytics}
   dailyPnL={dailyPnL}
