@@ -25,6 +25,8 @@ import {
   Plus,
   Trash2,
   ImagePlus,
+  Search,
+  SlidersHorizontal,
 } from "lucide-react";
 
 import {
@@ -80,6 +82,11 @@ const [
   ] = useState<
     "select" | "pen"
   >("select");
+
+    const [
+    openNoteMenuId,
+    setOpenNoteMenuId,
+  ] = useState<string | null>(null);
 
   // =================================================
   // LOAD NOTES
@@ -147,6 +154,142 @@ const [
         note.id ===
         selectedNoteId
     );
+
+// =================================================
+// NOTE SIDEBAR DATE GROUPING
+// =================================================
+
+function getDateKey(
+  date: Date
+): string {
+
+  return [
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  ].join("-");
+}
+
+function getNoteGroupLabel(
+  dateString: string
+): string {
+
+  const date =
+    new Date(
+      dateString
+    );
+
+  const now =
+    new Date();
+
+  const todayKey =
+    getDateKey(
+      now
+    );
+
+  const yesterday =
+    new Date(
+      now
+    );
+
+  yesterday.setDate(
+    yesterday.getDate() - 1
+  );
+
+  const yesterdayKey =
+    getDateKey(
+      yesterday
+    );
+
+  const noteKey =
+    getDateKey(
+      date
+    );
+
+  if (
+    noteKey ===
+    todayKey
+  ) {
+
+    return "TODAY";
+  }
+
+  if (
+    noteKey ===
+    yesterdayKey
+  ) {
+
+    return "YESTERDAY";
+  }
+
+  return date.toLocaleDateString(
+    undefined,
+    {
+      month:
+        "short",
+
+      day:
+        "numeric",
+
+      year:
+        "numeric",
+    }
+  ).toUpperCase();
+}
+
+function getNoteTime(
+  dateString: string
+): string {
+
+  return new Date(
+    dateString
+  ).toLocaleTimeString(
+    undefined,
+    {
+      hour:
+        "numeric",
+
+      minute:
+        "2-digit",
+    }
+  );
+}
+
+// =================================================
+// GROUP NOTES BY UPDATED DATE
+// =================================================
+
+const groupedNotes =
+  notes.reduce(
+    (
+      groups,
+      note
+    ) => {
+
+      const label =
+        getNoteGroupLabel(
+          note.updatedAt
+        );
+
+      if (
+        !groups[label]
+      ) {
+
+        groups[label] = [];
+      }
+
+      groups[label].push(
+        note
+      );
+
+      return groups;
+
+    },
+    {} as Record<
+      string,
+      Note[]
+    >
+  );
 
 // =================================================
 // AUTOMATIC NOTE TITLE
@@ -765,7 +908,7 @@ tradeLinks:
 
   return (
 
-    <main className="flex h-screen gap-[18px] overflow-hidden bg-[#020817] p-[18px] pb-[36px] pt-[36px] text-white">
+    <main className="flex h-screen min-h-0 w-full gap-[18px] overflow-hidden bg-[#020817] px-[18px] pb-[36px] pt-[18px] text-white">
 
       {/* ================================================= */}
       {/* SIDEBAR */}
@@ -777,23 +920,23 @@ tradeLinks:
       {/* NOTES LAYOUT */}
       {/* ================================================= */}
 
-      <div className="flex flex-1 gap-[18px] overflow-hidden py-[18px]">
+         <div className="grid h-[calc(100vh-40px)] min-h-0 flex-1 grid-cols-[clamp(300px,24vw,340px)_minmax(0,1fr)] gap-[18px] overflow-hidden translate-y-[22px]">
 
         {/* ================================================= */}
         {/* NOTES SIDEBAR */}
         {/* ================================================= */}
 
-        <div className="flex w-[340px] flex-col overflow-hidden rounded-[32px] border border-white/[0.04] bg-[#07101a]">
+        <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]">
 
           {/* TOP SAFE ZONE */}
 
-          <div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
+          <div className="h-[0px] shrink-0 opacity-0 pointer-events-none select-none">
             spacer
           </div>
 
-          {/* MAIN CONTENT */}
+{/* MAIN CONTENT */}
 
-          <div className="flex flex-1">
+<div className="flex min-h-0 flex-1">
 
             {/* LEFT SAFE ZONE */}
 
@@ -803,119 +946,300 @@ tradeLinks:
 
             {/* CONTENT */}
 
-            <div className="flex flex-1 flex-col overflow-hidden">
+<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 
-              {/* ============================================= */}
-              {/* HEADER */}
-              {/* ============================================= */}
+{/* ============================================= */}
+{/* HEADER */}
+{/* ============================================= */}
 
-              <div className="flex items-center justify-between rounded-[24px] border border-white/[0.04] bg-[#09111d] px-6 py-5">
+<div className="relative flex h-[78px] shrink-0 items-center justify-between px-5">
 
-                <div className="relative left-4">
+  <div>
 
-                  <h1 className="text-xl font-bold text-white">
-                    Notes
-                  </h1>
+    <h1 className="text-[20px] font-bold leading-none text-white">
+      Notes
+    </h1>
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    Trading workspace
-                  </p>
+    <p className="mt-2 text-[13px] leading-none text-slate-500">
+      Your trading journal
+    </p>
 
-                </div>
+  </div>
 
-                <button
-                  onClick={
-                    handleCreateNote
-                  }
-                  className="relative right-2 flex h-10 w-11 items-center justify-center rounded-xl bg-[#0b1730] text-blue-400 transition-all hover:bg-[#132347]"
-                >
+  <button
+    type="button"
+    onClick={
+      handleCreateNote
+    }
+    aria-label="Create note"
+    title="Create note"
+    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-[#0b0c1e] text-blue-400 transition-colors hover:border-white/[0.12] hover:bg-[#0b1730]"
+  >
 
-                  <Plus size={18} />
+    <Plus
+      size={19}
+      strokeWidth={2}
+    />
 
-                </button>
+  </button>
 
-              </div>
+  <div className="absolute bottom-[8px] left-0 right-0 h-px bg-white/[0.06]" />
 
-              {/* ============================================= */}
-              {/* SPACER */}
-              {/* ============================================= */}
+</div>
 
-              <div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
-                spacer
-              </div>
+{/* ============================================= */}
+{/* SEARCH / ACTIONS */}
+{/* ============================================= */}
 
-              {/* ============================================= */}
-              {/* NOTES LIST */}
-              {/* ============================================= */}
+<div className="flex h-[56px] shrink-0 translate-y-[-4px] items-center gap-2 px-5">
 
-              <div className="mt-[18px] flex-1 overflow-y-auto">
+<div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] focus-within:border-white/[0.12]">
 
-                <div className="space-y-3">
+  <div className="flex h-9 w-9 shrink-0 items-center justify-center">
 
-                  {notes.map(
-                    (note) => {
+    <Search
+      size={15}
+      strokeWidth={1.8}
+      className="text-slate-500"
+    />
 
-                      const isActive =
-                        note.id ===
-                        selectedNoteId;
+  </div>
 
-                      return (
+  <input
+    type="text"
+    placeholder="Search notes..."
+    className="h-9 min-w-0 flex-1 border-none bg-transparent pr-3 text-xs text-white outline-none placeholder:text-slate-500"
+  />
 
-                        <button
-                          key={note.id}
-                          onClick={() =>
-                            setSelectedNoteId(
-                              note.id
-                            )
-                          }
-                          className={`w-full rounded-2xl border px-4 py-4 text-left transition-all ${
-                            isActive
-                              ? "border-blue-500/30 bg-[#0b1730]"
-                              : "border-white/[0.04] bg-[#09111d] hover:bg-[#0b1730]"
-                          }`}
-                        >
+</div>
 
-                          <div className="flex items-center justify-between px-2">
+  <button
+    type="button"
+    aria-label="Note filters"
+    title="Note filters"
+    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] text-slate-400 transition-colors hover:border-white/[0.12] hover:text-white"
+  >
 
-                            <p className="relative left-2 truncate text-sm font-semibold text-white">
-                              {note.title}
-                            </p>
+    <SlidersHorizontal
+      size={15}
+      strokeWidth={1.8}
+    />
 
-                            {isActive && (
+  </button>
 
-                              <div
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteNote();
-                                }}
-                                className="relative right-2 top-[8px] flex h-7 w-7 items-center justify-center rounded-lg text-red-400 transition-all hover:bg-red-500/10"
-                              >
+</div>
 
-                                <Trash2 size={20} />
+{/* ============================================= */}
+{/* NOTES LIST */}
+{/* ============================================= */}
 
-                              </div>
+<div className="notes-scrollbar relative mt-[22px] flex flex-1 translate-y-[14px] flex-col overflow-y-auto">
 
-                            )}
+  <div className="relative left-[0px] space-y-6 pt-3">
 
-                          </div>
+    {Object.entries(
+      groupedNotes
+    ).map(
+      ([
+        groupLabel,
+        groupNotes,
+      ]) => (
 
-                          <p className="relative left-2 mt-2 line-clamp-2 text-xs text-slate-500">
+        <section
+          key={
+            groupLabel
+          }
+        >
 
-                            {note.content
-                              .replace(/<[^>]+>/g, "")
-                              || "Empty note"}
+{/* ===================================== */}
+{/* DATE GROUP */}
+{/* ===================================== */}
 
-                          </p>
+<div className="relative translate-y-[-4px] px-1">
 
-                        </button>
+  <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
+    {groupLabel}
+  </p>
 
-                      );
+</div>
+          {/* ===================================== */}
+          {/* NOTE CARDS */}
+          {/* ===================================== */}
+
+          <div className="flex flex-col gap-3">
+
+            {groupNotes.map(
+              (
+                note
+              ) => {
+
+                const isActive =
+                  note.id ===
+                  selectedNoteId;
+
+                const preview =
+                  note.content
+                    .replace(
+                      /<[^>]+>/g,
+                      ""
+                    )
+                    .trim();
+
+                const linkedTrade =
+                  note.tradeLinks.length >
+                  0
+                    ? availableTrades.find(
+                        (trade) =>
+                          trade.id ===
+                          note.tradeLinks[0].tradeId
+                      )
+                    : undefined;
+
+                return (
+
+                  <button
+                    key={
+                      note.id
                     }
-                  )}
+                    type="button"
+                    onClick={() =>
+                      setSelectedNoteId(
+                        note.id
+                      )
+                    }
+className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 text-left transition-all ${
+  isActive
+    ? "border-blue-500/60 bg-[#0b1220]"
+    : "border-white/[0.06] bg-[#0b1220] hover:border-white/[0.12] hover:bg-[#0b1730]"
+}`}
+                  >
 
-                </div>
+{/* ================================= */}
+{/* CARD HEADER */}
+{/* ================================= */}
 
-              </div>
+<div className="relative left-[8px] translate-y-[-12px] flex items-start gap-2">
+
+                      <div className="min-w-0 flex-1">
+
+                        <p className="truncate text-[13px] font-semibold leading-5 text-white">
+                          {note.title}
+                        </p>
+
+                      </div>
+
+<p className="relative left-[-20px] translate-y-[-0px] shrink-0 pt-[1px] text-[10px] text-slate-500">
+  {getNoteTime(
+    note.updatedAt
+  )}
+</p>
+
+                    </div>
+
+{/* ================================= */}
+{/* PREVIEW / TRADE STATE */}
+{/* ================================= */}
+
+<div className="relative left-[8px] mt-2 translate-y-[-8px] min-h-[16px]">
+
+                      {linkedTrade ? (
+
+                        <div className="flex items-center gap-2">
+
+                          <span className="text-[11px] font-medium text-slate-400">
+                            Trade linked
+                          </span>
+
+                          {linkedTrade.ticker && (
+
+                            <span className="rounded-[4px] bg-[#0b0c1e] px-1.5 py-0.5 text-[9px] font-medium text-slate-400">
+                              {linkedTrade.ticker}
+                            </span>
+
+                          )}
+
+                        </div>
+
+                      ) : (
+
+                        <p className="line-clamp-2 text-[11px] leading-4 text-slate-500">
+                          {preview ||
+                            "Empty note"}
+                        </p>
+
+                      )}
+
+                    </div>
+
+{/* ================================= */}
+{/* CARD DELETE ACTION */}
+{/* ================================= */}
+
+<span
+  role="button"
+  tabIndex={0}
+  onClick={(event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (
+      note.id ===
+      selectedNoteId
+    ) {
+      handleDeleteNote();
+    }
+  }}
+  onKeyDown={(event) => {
+
+    if (
+      (
+        event.key ===
+        "Enter"
+      ) ||
+      (
+        event.key ===
+        " "
+      )
+    ) {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (
+        note.id ===
+        selectedNoteId
+      ) {
+        handleDeleteNote();
+      }
+    }
+  }}
+ className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1 cursor-pointer items-center justify-center rounded-[6px] text-slate-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400"
+  title="Delete note"
+  aria-label="Delete note"
+>
+
+  <Trash2
+    size={16}
+    strokeWidth={1.8}
+  />
+
+</span>
+                  </button>
+
+                );
+              }
+            )}
+
+          </div>
+
+        </section>
+
+      )
+    )}
+
+  </div>
+
+</div>
 
             </div>
 
@@ -939,7 +1263,7 @@ tradeLinks:
         {/* NOTE EDITOR */}
         {/* ================================================= */}
 
-        <div className="flex flex-1 flex-col overflow-hidden rounded-[32px] border border-white/[0.04] bg-[#07101a]">
+        <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[32px] border border-white/[0.04] bg-[#07101a]">
 
           {/* TOP SAFE ZONE */}
 

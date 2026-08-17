@@ -297,3 +297,24 @@ Elite X drawer design system.
   transform: translateX(-10px);
 }
 
+.notes-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.notes-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notes-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notes-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+
+.notes-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

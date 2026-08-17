@@ -2876,3 +2876,301 @@ FINAL UI POLISH
 
 
 =======================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=======================================================================
+PEN IMPLEMENTATION — REFERENCE PATTERN FOR ALL FUTURE TOOLS
+=======================================================================
+
+Every future annotation tool should follow this general lifecycle:
+
+1. TOOL SELECTION
+   activeAnnotationTool
+        ↓
+   specific tool becomes active
+
+2. POINTER INTERACTION
+   pointerdown
+        ↓
+   establish interaction origin/state
+
+   pointermove
+        ↓
+   update LOCAL visual state only
+
+   pointerup
+        ↓
+   finalize geometry
+
+3. NORMALIZATION
+   Convert screen/pixel coordinates into the normalized annotation
+   coordinate system before persistence.
+
+4. DOMAIN OBJECT
+   Build a complete NoteAnnotation-compatible object containing:
+   - attachmentId
+   - type
+   - geometry
+   - styling
+   - tool-specific data
+
+5. PERSISTENCE
+   Call the shared annotation storage layer exactly once at the
+   completed interaction boundary whenever possible.
+
+   NEVER write to Supabase on every pointermove.
+
+6. LOCAL STATE
+   Immediately add the created/updated annotation to local annotation
+   state so the UI remains responsive.
+
+7. PARENT STATE
+   Notify NotesPage so the authoritative NoteAttachment.annotations[]
+   state also contains the change.
+
+8. RELOAD SAFETY
+   The persisted annotation must be loadable through the existing
+   batched annotation-loading pipeline.
+
+9. RENDERING
+   Rendering must be deterministic from NoteAnnotation data alone.
+
+10. MODE SAFETY
+    Annotation tools must never interfere with screenshot movement,
+    resizing, deletion, or other Notes interactions when the tool is
+    inactive.
+
+
+=======================================================================
+TOOL-SPECIFIC IMPLEMENTATION
+=======================================================================
+
+PEN
+    Input:
+      freehand pointer path
+
+    Persistent geometry:
+      points[]
+
+    Finalization:
+      pointerup
+
+    Rendering:
+      canvas stroke
+
+    Status:
+      ✅ PROVEN REFERENCE IMPLEMENTATION
+
+
+ARROW
+    Input:
+      start point + end point
+
+    Persistent geometry:
+      points[] OR a defined start/end representation
+
+    Rendering:
+      line + arrowhead
+
+    Persistence:
+      same annotation storage pipeline
+
+
+LINE
+    Input:
+      start point + end point
+
+    Rendering:
+      straight line
+
+
+HORIZONTAL LEVEL
+    Input:
+      Y coordinate
+
+    Rendering:
+      horizontal level across annotation/screenshot bounds
+
+
+ZONE / RECTANGLE
+    Input:
+      start point + end point
+
+    Persistent geometry:
+      position + width + height
+
+    Rendering:
+      rectangle / filled zone
+
+
+HIGHLIGHT
+    Input:
+      rectangle/region
+
+    Rendering:
+      translucent fill
+
+    Important:
+      Must remain visually distinguishable from a normal zone.
+
+
+TEXT
+    Input:
+      click/drag text location/box
+
+    Persistent fields:
+      text
+      fontSize
+      fontWeight
+      fontStyle
+      textDecoration
+      textAlign
+      color
+      rotation
+
+    Rendering:
+      deterministic text layer
+
+    Additional UI:
+      Text Formatting Toolbar
+
+
+ERASER
+    Input:
+      annotation selection / hit testing
+
+    Action:
+      delete existing annotation
+
+    Persistence:
+      shared deleteNoteAnnotation()
+
+
+UNDO / REDO
+    Important:
+      Should operate as an annotation command/history layer.
+
+    Do NOT:
+      create a second annotation database.
+
+    Candidate command model:
+      CREATE
+      UPDATE
+      DELETE
+
+    Persistence:
+      execute the required database mutation when the command is
+      committed.
+
+
+QUICK MARK
+    Purpose:
+      predefined trading-specific annotations.
+
+    Examples:
+      Entry
+      Stop
+      Target
+      Support
+      Resistance
+      Breakout
+
+    Architecture:
+      generate standard NoteAnnotation objects.
+
+    Do NOT:
+      create a separate storage architecture unless future product
+      requirements prove it necessary.
+
+
+=======================================================================
+UI IMPLEMENTATION ORDER
+=======================================================================
+
+FIRST:
+    Build the complete toolbar shell.
+
+SECOND:
+    Build Text Formatting toolbar.
+
+THIRD:
+    Build Quick Mark UI.
+
+FOURTH:
+    Replace temporary Pen ON/OFF control.
+
+FIFTH:
+    Wire tools into the completed UI one by one.
+
+
+=======================================================================
+CRITICAL INTERACTION RULE
+=======================================================================
+
+Normal Mode:
+
+    Select
+       ↓
+    screenshot:
+      movable
+      resizable
+      deletable
+
+Annotation Mode:
+
+    Pen / Arrow / Line / etc.
+       ↓
+    screenshot:
+      fixed
+    annotation layer:
+      receives pointer input
+
+
+Never solve tool conflicts by stacking random event propagation
+workarounds.
+
+The selected tool must determine which layer owns pointer interaction.
+
+
+=======================================================================
+QUALITY GATE FOR EVERY NEW TOOL
+=======================================================================
+
+Before declaring a tool complete, verify:
+
+✅ UI selection
+✅ pointer interaction
+✅ immediate visual feedback
+✅ correct normalized geometry
+✅ one appropriate persistence operation
+✅ local state update
+✅ parent Notes state update
+✅ note switching persistence
+✅ page refresh persistence
+✅ screenshot resize compatibility
+✅ screenshot movement compatibility
+✅ no screen flashing
+✅ RLS / ownership
+✅ production build passes
+
+
+=======================================================================
