@@ -1,259 +1,431 @@
 "use client";
 
 import {
+  AlignCenter,
+  ChevronDown,
+  Circle,
+  Eraser,
+  Highlighter,
+  Italic,
+  Minus,
+  MousePointer2,
+  PenLine,
+  Redo2,
+  Square,
+  Strikethrough,
+  Type,
+  Underline,
+  Undo2,
+} from "lucide-react";
+
+import {
   Editor,
 } from "@tiptap/core";
-
 
 type Props = {
   editor: Editor;
 };
 
-
 export default function NoteToolsBar({
   editor,
 }: Props) {
 
-  return (
+  // -------------------------------------------------
+  // UI-ONLY CHECKPOINT
+  // -------------------------------------------------
+  //
+  // Keep the shared editor connection intact.
+  // Commands will be wired after the visual design
+  // is approved.
+  //
+  void editor;
 
-    <div className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
 
-      {/* ========================================= */}
-      {/* BOLD */}
-      {/* ========================================= */}
+return (
+
+  <div className="relative left-[-8px] top-[6px] w-full">
+
+    {/* ================================================= */}
+    {/* TOOLBAR ROW */}
+    {/* ================================================= */}
+
+    <div className="flex min-h-[38px] w-full items-center gap-2">
+
+      {/* ================================================= */}
+      {/* TEXT SIZE GROUP */}
+      {/* ================================================= */}
+
+      <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-2">
+
+        <button
+          type="button"
+          title="Text size"
+          className="flex h-full min-w-[62px] items-center justify-center gap-1 rounded-[6px] px-2 text-[11px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Type
+            size={14}
+            strokeWidth={1.7}
+          />
+
+          <span>
+            16
+          </span>
+
+          <ChevronDown
+            size={11}
+            strokeWidth={1.8}
+            className="text-slate-500"
+          />
+
+        </button>
+
+      </div>
+
+
+      {/* ================================================= */}
+      {/* TEXT FORMATTING GROUP */}
+      {/* ================================================= */}
+
+      <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+
+        <button
+          type="button"
+          title="Bold"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[12px] font-bold text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+          B
+        </button>
+
+        <button
+          type="button"
+          title="Italic"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Italic
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+        <button
+          type="button"
+          title="Underline"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Underline
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+        <button
+          type="button"
+          title="Strikethrough"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Strikethrough
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+      </div>
+
+
+      {/* ================================================= */}
+      {/* LIST + ALIGNMENT GROUP */}
+      {/* ================================================= */}
+
+      <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+
+        <button
+          type="button"
+          title="Bullet list"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Circle
+            size={7}
+            fill="currentColor"
+            strokeWidth={0}
+          />
+
+        </button>
+
+        <button
+          type="button"
+          title="Numbered list"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[10px] font-semibold text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+          1.
+        </button>
+
+        <button
+          type="button"
+          title="Alignment"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <AlignCenter
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+      </div>
+
+
+      {/* ================================================= */}
+      {/* TEXT COLOR GROUP */}
+      {/* ================================================= */}
+
+      <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+
+        <button
+          type="button"
+          title="Text color"
+          className="relative flex h-8 min-w-[42px] items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Type
+            size={14}
+            strokeWidth={1.8}
+          />
+
+          <span className="absolute bottom-[6px] left-1/2 h-[2px] w-3 -translate-x-1/2 rounded-full bg-blue-400" />
+
+          <ChevronDown
+            size={10}
+            strokeWidth={1.8}
+            className="ml-1 text-slate-500"
+          />
+
+        </button>
+
+      </div>
+
+
+      {/* ================================================= */}
+      {/* ANNOTATION GROUP */}
+      {/* ================================================= */}
+
+      <div className="flex h-[38px] min-w-0 flex-1 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+
+        {/* SELECT */}
+
+        <button
+          type="button"
+          title="Select"
+          className="flex h-8 items-center gap-1.5 rounded-[6px] border border-blue-400/40 bg-[#0b1730] px-3 text-[10px] font-medium text-blue-300 transition-colors hover:bg-[#102044]"
+        >
+
+          <MousePointer2
+            size={14}
+            strokeWidth={1.8}
+          />
+
+          <span>
+            Select
+          </span>
+
+        </button>
+
+
+        {/* PEN */}
+
+        <button
+          type="button"
+          title="Pen"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <PenLine
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+
+        {/* LINE */}
+
+        <button
+          type="button"
+          title="Line"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Minus
+            size={15}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+
+        {/* ARROW */}
+
+        <button
+          type="button"
+          title="Arrow"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <span className="text-[16px] leading-none">
+            ↗
+          </span>
+
+        </button>
+
+
+        {/* ZONE */}
+
+        <button
+          type="button"
+          title="Zone"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Square
+            size={14}
+            strokeWidth={1.7}
+          />
+
+        </button>
+
+
+        {/* HIGHLIGHT */}
+
+        <button
+          type="button"
+          title="Highlight"
+          className="relative flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Highlighter
+            size={14}
+            strokeWidth={1.8}
+          />
+
+          <span className="absolute bottom-[5px] h-[2px] w-3 rounded-full bg-yellow-300" />
+
+        </button>
+
+
+        {/* ERASER */}
+
+        <button
+          type="button"
+          title="Eraser"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Eraser
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+      </div>
+
+
+      {/* ================================================= */}
+      {/* STROKE WIDTH GROUP */}
+      {/* ================================================= */}
+
+      <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+
+        <button
+          type="button"
+          title="Stroke width"
+          className="flex h-8 min-w-[54px] items-center justify-center gap-1.5 rounded-[6px] px-2 text-[10px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <span className="flex h-3 w-3 items-center justify-center">
+            <span className="h-[3px] w-3 rounded-full bg-slate-300" />
+          </span>
+
+          2
+
+          <ChevronDown
+            size={10}
+            strokeWidth={1.8}
+            className="text-slate-500"
+          />
+
+        </button>
+
+      </div>
+
+
+      {/* ================================================= */}
+      {/* HISTORY GROUP */}
+      {/* ================================================= */}
+
+      <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+
+        <button
+          type="button"
+          title="Undo"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Undo2
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+        <button
+          type="button"
+          title="Redo"
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+        >
+
+          <Redo2
+            size={14}
+            strokeWidth={1.8}
+          />
+
+        </button>
+
+      </div>
+
+
+      {/* ================================================= */}
+      {/* MORE */}
+      {/* ================================================= */}
 
       <button
         type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .toggleBold()
-            .run()
-        }
-        className={`flex h-9 w-9 items-center justify-center rounded-[8px] text-sm font-bold transition-all ${
-          editor.isActive(
-            "bold"
-          )
-            ? "bg-[#0b1730] text-white"
-            : "bg-[#0b0c1e] text-slate-400 hover:bg-[#111827] hover:text-white"
-        }`}
+        title="More tools"
+        className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] text-slate-400 transition-colors hover:border-white/[0.1] hover:bg-[#101a28] hover:text-white"
       >
-        B
-      </button>
 
+        <span className="text-sm tracking-[0.2em]">
+          ···
+        </span>
 
-      {/* ========================================= */}
-      {/* ITALIC */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .toggleItalic()
-            .run()
-        }
-        className={`flex h-9 w-9 items-center justify-center rounded-[8px] text-sm italic transition-all ${
-          editor.isActive(
-            "italic"
-          )
-            ? "bg-[#0b1730] text-white"
-            : "bg-[#0b0c1e] text-slate-400 hover:bg-[#111827] hover:text-white"
-        }`}
-      >
-        I
-      </button>
-
-
-      {/* ========================================= */}
-      {/* BULLET LIST */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .toggleBulletList()
-            .run()
-        }
-        className={`flex h-9 w-9 items-center justify-center rounded-[8px] text-sm transition-all ${
-          editor.isActive(
-            "bulletList"
-          )
-            ? "bg-[#0b1730] text-white"
-            : "bg-[#0b0c1e] text-slate-400 hover:bg-[#111827] hover:text-white"
-        }`}
-      >
-        •
-      </button>
-
-
-      {/* ========================================= */}
-      {/* H1 */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .toggleHeading({
-              level: 1,
-            })
-            .run()
-        }
-        className={`flex h-9 w-9 items-center justify-center rounded-[8px] text-xs font-semibold transition-all ${
-          editor.isActive(
-            "heading",
-            {
-              level: 1,
-            }
-          )
-            ? "bg-[#0b1730] text-white"
-            : "bg-[#0b0c1e] text-slate-400 hover:bg-[#111827] hover:text-white"
-        }`}
-      >
-        H1
-      </button>
-
-
-      {/* ========================================= */}
-      {/* H2 */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .toggleHeading({
-              level: 2,
-            })
-            .run()
-        }
-        className={`flex h-9 w-9 items-center justify-center rounded-[8px] text-xs font-semibold transition-all ${
-          editor.isActive(
-            "heading",
-            {
-              level: 2,
-            }
-          )
-            ? "bg-[#0b1730] text-white"
-            : "bg-[#0b0c1e] text-slate-400 hover:bg-[#111827] hover:text-white"
-        }`}
-      >
-        H2
-      </button>
-
-
-      {/* ========================================= */}
-      {/* DIVIDER */}
-      {/* ========================================= */}
-
-      <div className="mx-1 h-6 w-px bg-white/[0.06]" />
-
-
-      {/* ========================================= */}
-      {/* BLUE */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .setColor("#60a5fa")
-            .run()
-        }
-        aria-label="Blue text"
-        title="Blue text"
-        className="h-9 w-9 rounded-[8px] bg-blue-400 transition-all hover:scale-105"
-      />
-
-
-      {/* ========================================= */}
-      {/* GREEN */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .setColor("#4ade80")
-            .run()
-        }
-        aria-label="Green text"
-        title="Green text"
-        className="h-9 w-9 rounded-[8px] bg-green-400 transition-all hover:scale-105"
-      />
-
-
-      {/* ========================================= */}
-      {/* RED */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .setColor("#f87171")
-            .run()
-        }
-        aria-label="Red text"
-        title="Red text"
-        className="h-9 w-9 rounded-[8px] bg-red-400 transition-all hover:scale-105"
-      />
-
-
-      {/* ========================================= */}
-      {/* YELLOW */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .setColor("#facc15")
-            .run()
-        }
-        aria-label="Yellow text"
-        title="Yellow text"
-        className="h-9 w-9 rounded-[8px] bg-yellow-400 transition-all hover:scale-105"
-      />
-
-
-      {/* ========================================= */}
-      {/* RESET COLOR */}
-      {/* ========================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .unsetColor()
-            .run()
-        }
-        className="flex h-9 items-center justify-center rounded-[8px] bg-[#0b0c1e] px-3 text-xs text-slate-400 transition-all hover:bg-[#111827] hover:text-white"
-      >
-        Reset
       </button>
 
     </div>
+
+{/* ================================================= */}
+{/* TOOLBAR DIVIDER */}
+{/* ================================================= */}
+
+<div className="relative top-[5px] mt-3 h-px w-full bg-white/[0.06]" />
+
+  </div>
   );
 }

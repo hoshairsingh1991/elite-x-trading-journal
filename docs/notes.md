@@ -403,7 +403,7 @@ git commit -m "feat: redesign notes sidebar UI"
 git commit -m "Redesign notes editor layout"
 git commit -m "fix dashboard responsive layout"
 git commit -m "Polish notes sidebar spacing and scrolling"
-
+git commit -m "Redesign notes tools toolbar"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
