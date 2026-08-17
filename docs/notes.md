@@ -402,7 +402,7 @@ git commit -m "feat: add notes screenshot annotation foundation and pen tool"
 git commit -m "feat: redesign notes sidebar UI"
 git commit -m "Redesign notes editor layout"
 git commit -m "fix dashboard responsive layout"
-
+git commit -m "Polish notes sidebar spacing and scrolling"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

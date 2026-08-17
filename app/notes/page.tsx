@@ -1081,40 +1081,48 @@ tradeLinks:
 {/* NOTES LIST */}
 {/* ============================================= */}
 
-<div className="notes-scrollbar relative mt-[22px] flex flex-1 translate-y-[10px] flex-col overflow-y-auto">
+<div className="notes-scrollbar relative mt-[22px] flex min-w-0 flex-1 translate-y-[0px] flex-col overflow-y-auto overflow-x-hidden">
 
-  <div className="relative left-[0px] space-y-6 pt-3">
+  <div className="relative left-[0px] space-y-[34px] pt-3">
 
-    {Object.entries(
-      groupedNotes
-    ).map(
-      ([
-        groupLabel,
-        groupNotes,
-      ]) => (
+{Object.entries(
+  groupedNotes
+).map(
+  ([
+    groupLabel,
+    groupNotes,
+  ], groupIndex) => (
 
-        <section
-          key={
-            groupLabel
-          }
-        >
+<section
+  key={
+    groupLabel
+  }
+  className="relative"
+  style={{
+    transform:
+      groupIndex === 1
+        ? "translateY(20px)"
+        : undefined,
+  }}
+>
 
 {/* ===================================== */}
 {/* DATE GROUP */}
 {/* ===================================== */}
 
-<div className="relative translate-y-[-4px] px-1">
+<div className="px-1 pb-[6px]">
 
   <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
     {groupLabel}
   </p>
 
 </div>
-          {/* ===================================== */}
-          {/* NOTE CARDS */}
-          {/* ===================================== */}
 
-          <div className="flex flex-col translate-y-[6px] gap-3">
+{/* ===================================== */}
+{/* NOTE CARDS */}
+{/* ===================================== */}
+
+<div className="relative top-[6px] flex flex-col gap-3">
 
             {groupNotes.map(
               (
