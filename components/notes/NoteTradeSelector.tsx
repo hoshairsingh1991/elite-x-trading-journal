@@ -9,7 +9,6 @@ import {
 
 import {
   Search,
-  X,
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
@@ -27,6 +26,14 @@ type Props = {
   onRemoveTrade: (
     tradeId: string
   ) => void;
+
+  isOpen?: boolean;
+
+  onOpenChange?: (
+    open: boolean
+  ) => void;
+
+  hideTrigger?: boolean;
 };
 
 export default function NoteTradeSelector({
@@ -34,6 +41,9 @@ export default function NoteTradeSelector({
   tradeLinks,
   onAddTrade,
   onRemoveTrade,
+  isOpen: controlledIsOpen,
+  onOpenChange,
+  hideTrigger = false,
 }: Props) {
 
   const [
@@ -41,10 +51,32 @@ export default function NoteTradeSelector({
     setSearch,
   ] = useState("");
 
-  const [
-    isOpen,
-    setIsOpen,
-  ] = useState(false);
+const [
+  internalIsOpen,
+  setInternalIsOpen,
+] = useState(false);
+
+const isOpen =
+  controlledIsOpen ??
+  internalIsOpen;
+
+function setIsOpen(
+  open: boolean
+) {
+
+  if (
+    controlledIsOpen === undefined
+  ) {
+
+    setInternalIsOpen(
+      open
+    );
+  }
+
+  onOpenChange?.(
+    open
+  );
+}
 
   const pickerRef =
     useRef<HTMLDivElement>(null);
@@ -67,33 +99,7 @@ export default function NoteTradeSelector({
       tradeLinks,
     ]);
 
-  // =====================================================
-  // ATTACHED TRADES
-  // =====================================================
 
-  const attachedTrades =
-    useMemo(() => {
-
-      return tradeLinks
-        .map(
-          (link) =>
-            trades.find(
-              (trade) =>
-                trade.id ===
-                link.tradeId
-            )
-        )
-        .filter(
-          (
-            trade
-          ): trade is Trade =>
-            Boolean(trade)
-        );
-
-    }, [
-      trades,
-      tradeLinks,
-    ]);
 
   // =====================================================
   // CLOSE PICKER WHEN CLICKING OUTSIDE
@@ -231,18 +237,7 @@ function handleSelectTrade(
   setIsOpen(false);
 }
 
-  // =====================================================
-  // REMOVE TRADE
-  // =====================================================
 
-  function handleRemoveTrade(
-    tradeId: string
-  ) {
-
-    onRemoveTrade(
-      tradeId
-    );
-  }
 
   // =====================================================
   // FORMAT DATE
@@ -587,241 +582,46 @@ function formatTime(
       className="relative"
     >
 
-      {/* ================================================= */}
-      {/* ATTACHED TRADES */}
-      {/* ================================================= */}
 
-      {attachedTrades.length > 0 && (
+{/* ================================================= */}
+{/* ADD TRADE BUTTON */}
+{/* ================================================= */}
 
-        <div className="space-y-3">
+{!hideTrigger && (
 
-          {attachedTrades.map(
-            (trade) => (
+  <button
+    type="button"
+    onClick={() =>
+      setIsOpen(
+        !isOpen
+      )
+    }
+    className="flex w-full items-center justify-between rounded-[8px] border border-dashed border-white/[0.08] bg-[#09111d] px-4 py-3 text-left transition-all hover:border-blue-400/20 hover:bg-[#0b1730]"
+  >
 
-              <div
-                key={trade.id}
-                className="rounded-[20px] border border-white/[0.05] bg-[#0b1730] px-5 py-4"
-              >
+    <div>
 
-                {/* TRADE HEADER */}
+      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+        Trade
+      </p>
 
-                <div className="flex items-start justify-between">
+      <p className="mt-1 text-sm font-medium text-slate-400">
+        Attach a trade to this note
+      </p>
 
-                  <div>
+    </div>
 
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Trade Review
-                    </p>
+    <span className="text-lg text-blue-400">
+      +
+    </span>
 
-                    <div className="mt-2 flex items-center gap-3">
+  </button>
 
-                      <p className="text-sm font-bold text-white">
-                        {trade.ticker}
-                      </p>
+)}
 
-                      <span className="rounded-md bg-white/[0.05] px-2 py-1 text-[10px] font-semibold text-slate-400">
-                        {trade.side}
-                      </span>
-
-                    </div>
-
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleRemoveTrade(
-                        trade.id
-                      )
-                    }
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400"
-                    aria-label={`Remove ${trade.ticker} trade`}
-                  >
-
-                    <X size={16} />
-
-                  </button>
-
-                </div>
-
-                {/* TRADE DATA */}
-
-                <div className="mt-4 grid grid-cols-3 gap-3">
-
-<div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
-
-  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-    Entry Date
-  </p>
-
-  <p className="mt-1 text-xs font-medium text-slate-300">
-    {formatDate(
-      trade.openedAt || trade.date
-    )}
-  </p>
-
-</div>
-
-                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
-
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                      Entry
-                    </p>
-
-                    <p className="mt-1 text-xs font-medium text-slate-300">
-                      {formatPrice(
-                        trade.entryPrice
-                      )}
-                    </p>
-
-                  </div>
-
-                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
-
-  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-    Exit Date
-  </p>
-
-  <p className="mt-1 text-xs font-medium text-slate-300">
-    {formatDate(
-      trade.closedAt || ""
-    )}
-  </p>
-
-</div>
-
-                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
-
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                      Exit
-                    </p>
-
-                    <p className="mt-1 text-xs font-medium text-slate-300">
-                      {formatPrice(
-                        trade.exitPrice
-                      )}
-                    </p>
-
-                  </div>
-
-                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
-
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                      Entry Time
-                    </p>
-
-                    <p className="mt-1 text-xs font-medium text-slate-300">
-                      {formatTime(
-                        trade.openedAt
-                      )}
-                    </p>
-
-                  </div>
-
-                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
-
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                      Exit Time
-                    </p>
-
-                    <p className="mt-1 text-xs font-medium text-slate-300">
-                      {formatTime(
-                        trade.closedAt
-                      )}
-                    </p>
-
-                  </div>
-
-                  <div className="rounded-xl border border-white/[0.04] bg-[#09111d] px-3 py-3">
-
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                      Holding
-                    </p>
-
-                    <p className="mt-1 text-xs font-medium text-slate-300">
-                      {getHoldingTime(
-                        trade
-                      )}
-                    </p>
-
-                  </div>
-
-                </div>
-
-                {/* P&L */}
-
-                <div className="mt-3 flex items-center justify-between border-t border-white/[0.05] pt-3">
-
-                  <span className="text-xs text-slate-500">
-                    P&L
-                  </span>
-
-                  <span
-                    className={`text-sm font-semibold ${
-                      trade.pnl > 0
-                        ? "text-emerald-400"
-                        : trade.pnl < 0
-                          ? "text-red-400"
-                          : "text-slate-400"
-                    }`}
-                  >
-                    {formatPnL(
-                      trade.pnl
-                    )}
-                  </span>
-
-                </div>
-
-              </div>
-
-            )
-          )}
-
-        </div>
-
-      )}
-
-      {/* ================================================= */}
-      {/* ADD TRADE BUTTON */}
-      {/* ================================================= */}
-
-      <button
-        type="button"
-        onClick={() =>
-          setIsOpen(
-            !isOpen
-          )
-        }
-        className={`flex w-full items-center justify-between rounded-[20px] border border-dashed border-white/[0.08] bg-[#09111d] px-5 py-4 text-left transition-all hover:border-blue-400/20 hover:bg-[#0b1730] ${
-          attachedTrades.length > 0
-            ? "mt-3"
-            : ""
-        }`}
-      >
-
-        <div>
-
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-            Trade
-          </p>
-
-          <p className="mt-1 text-sm font-medium text-slate-400">
-            {attachedTrades.length > 0
-              ? "Add another trade to this note"
-              : "Attach a trade to this note"}
-          </p>
-
-        </div>
-
-        <span className="text-lg text-blue-400">
-          +
-        </span>
-
-      </button>
-
-      {/* ================================================= */}
-      {/* TRADE PICKER */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* TRADE PICKER */}
+{/* ================================================= */}
 
       {isOpen && (
 

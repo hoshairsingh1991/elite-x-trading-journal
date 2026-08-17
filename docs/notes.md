@@ -400,7 +400,7 @@ git commit -m "feat: add note screenshot attachments"
 git commit -m "feat: add movable and resizable note attachments"
 git commit -m "feat: add notes screenshot annotation foundation and pen tool"
 git commit -m "feat: redesign notes sidebar UI"
-
+git commit -m "Redesign notes editor layout"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:

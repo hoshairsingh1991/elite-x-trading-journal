@@ -6,12 +6,16 @@ import {
   useState,
 } from "react";
 
-import Sidebar from "@/components/layout/Sidebar";
-import UserMenuV2
-from "@/components/layout/UserMenuV2";
-import TiptapEditor from "@/components/notes/TiptapEditor";
-import NoteTradeSelector from "@/components/notes/NoteTradeSelector";
+import {
+  Editor,
+} from "@tiptap/core";
 
+import Sidebar from "@/components/layout/Sidebar";
+
+import TiptapEditor from "@/components/notes/TiptapEditor";
+import NoteToolsBar from "@/components/notes/NoteToolsBar";
+import NoteTradeSelector from "@/components/notes/NoteTradeSelector";
+import NoteLinkedTrades from "@/components/notes/NoteLinkedTrades";
 import NoteAttachmentCanvas from "@/components/notes/NoteAttachmentCanvas";
 
 import {
@@ -70,6 +74,14 @@ export default function NotesPage() {
   const fileInputRef =
   useRef<HTMLInputElement | null>(null);
 
+  const noteTitleMeasureRef =
+  useRef<HTMLSpanElement | null>(null);
+
+  const [
+  noteTitleWidth,
+  setNoteTitleWidth,
+] = useState(0);
+
 const [
   isUploadingAttachment,
   setIsUploadingAttachment,
@@ -82,6 +94,18 @@ const [
   ] = useState<
     "select" | "pen"
   >("select");
+
+const [
+  tiptapEditor,
+  setTiptapEditor,
+] = useState<Editor | null>(
+  null
+);
+  
+const [
+  isTradeSelectorOpen,
+  setIsTradeSelectorOpen,
+] = useState(false);
 
     const [
     openNoteMenuId,
@@ -154,6 +178,31 @@ const [
         note.id ===
         selectedNoteId
     );
+
+    useEffect(() => {
+
+  if (
+    !noteTitleMeasureRef.current ||
+    !selectedNote
+  ) {
+
+    setNoteTitleWidth(
+      0
+    );
+
+    return;
+  }
+
+  setNoteTitleWidth(
+    noteTitleMeasureRef.current
+      .getBoundingClientRect()
+      .width
+  );
+
+}, [
+  selectedNote?.title,
+  selectedNoteId,
+]);
 
 // =================================================
 // NOTE SIDEBAR DATE GROUPING
@@ -908,8 +957,7 @@ tradeLinks:
 
   return (
 
-    <main className="flex h-screen min-h-0 w-full gap-[18px] overflow-hidden bg-[#020817] px-[18px] pb-[36px] pt-[18px] text-white">
-
+   <main className="flex h-screen min-h-0 w-full gap-[18px] overflow-hidden bg-[#020817] px-[18px] pb-[36px] pt-[18px] text-white">
       {/* ================================================= */}
       {/* SIDEBAR */}
       {/* ================================================= */}
@@ -920,13 +968,13 @@ tradeLinks:
       {/* NOTES LAYOUT */}
       {/* ================================================= */}
 
-         <div className="grid h-[calc(100vh-40px)] min-h-0 flex-1 grid-cols-[clamp(300px,24vw,340px)_minmax(0,1fr)] gap-[18px] overflow-hidden translate-y-[22px]">
+  <div className="grid h-[calc(100vh-40px)] min-h-0 min-w-0 flex-1 grid-cols-[clamp(300px,24vw,340px)_minmax(0,1fr)] gap-[18px] overflow-hidden translate-y-[22px] pr-[18px]">
 
         {/* ================================================= */}
         {/* NOTES SIDEBAR */}
         {/* ================================================= */}
 
-        <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]">
+        <div className="mr-[18px] flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]">
 
           {/* TOP SAFE ZONE */}
 
@@ -1033,7 +1081,7 @@ tradeLinks:
 {/* NOTES LIST */}
 {/* ============================================= */}
 
-<div className="notes-scrollbar relative mt-[22px] flex flex-1 translate-y-[14px] flex-col overflow-y-auto">
+<div className="notes-scrollbar relative mt-[22px] flex flex-1 translate-y-[10px] flex-col overflow-y-auto">
 
   <div className="relative left-[0px] space-y-6 pt-3">
 
@@ -1066,7 +1114,7 @@ tradeLinks:
           {/* NOTE CARDS */}
           {/* ===================================== */}
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col translate-y-[6px] gap-3">
 
             {groupNotes.map(
               (
@@ -1263,7 +1311,13 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
         {/* NOTE EDITOR */}
         {/* ================================================= */}
 
-        <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[32px] border border-white/[0.04] bg-[#07101a]">
+       <div
+  className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]"
+  style={{
+    marginRight: "20px",
+    width: "calc(100% - 20px)",
+  }}
+>
 
           {/* TOP SAFE ZONE */}
 
@@ -1273,7 +1327,7 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 
           {/* MAIN CONTENT */}
 
-          <div className="flex flex-1">
+<div className="flex min-h-0 flex-1">
 
             {/* LEFT SAFE ZONE */}
 
@@ -1281,82 +1335,140 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
               spacer
             </div>
 
-            {/* CONTENT */}
+{/* CONTENT */}
 
-            <div className="flex flex-1 flex-col overflow-hidden">
+<div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 
               {selectedNote ? (
 
                 <>
 
-                  {/* ============================================= */}
-                  {/* TOP BAR */}
-                  {/* ============================================= */}
 
-                  <div className="flex items-center justify-between rounded-[24px] border border-white/[0.04] bg-[#09111d] pl-8 pr-4 py-5">
-
-                    <p className="relative left-4 text-sm text-slate-500">
-
-                      Last updated{" "}
-
-                      {new Date(
-                        selectedNote.updatedAt
-                      ).toLocaleString()}
-
-                    </p>
-
-                    <div className="flex items-center gap-4">
-
-                      <UserMenuV2
-                        totalTrades={0}
-                        totalPnL={0}
-                        tradingDays={0}
-                      />
-
-                    </div>
-
-                  </div>
-
-                  {/* ============================================= */}
-                  {/* SPACER */}
-                  {/* ============================================= */}
-
-                  <div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
-                    spacer
-                  </div>
 
                   {/* ============================================= */}
                   {/* EDITOR */}
                   {/* ============================================= */}
 
-                  <div className="flex flex-1 overflow-hidden">
-
-                    <div className="mt-[18px] flex flex-1 flex-col overflow-y-auto rounded-[24px] border border-white/[0.04] bg-[#09111d] px-8 py-8">
+                  <div className="flex min-h-0 flex-1 overflow-hidden">
+<div className="mt-[18px] flex min-h-0 flex-1 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-8 py-8">
+                    
 
                       <div className="h-[18px] shrink-0 opacity-0 pointer-events-none select-none">
                         spacer
                       </div>
 
-                      <input
-                        type="text"
-                        value={
-                          selectedNote.title
-                        }
-                        onChange={(e) =>
-                          handleUpdateNote(
-                            "title",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Note title..."
-                        className="relative left-4 mt-4 border-none bg-transparent text-3xl font-black tracking-[-0.03em] text-white outline-none placeholder:text-slate-600"
-                      />
-
 {/* ============================================= */}
-{/* TRADE ATTACHMENTS */}
+{/* NOTE HEADER */}
 {/* ============================================= */}
 
-<div className="relative left-4 mt-8 w-[calc(100%-1rem)]">
+<div className="flex min-w-0 items-start justify-between border-b border-white/[0.06] px-6 pb-5">
+
+{/* =========================================== */}
+{/* TITLE + LINK TRADE */}
+{/* =========================================== */}
+
+<div className="flex min-w-0 flex-1 items-center">
+
+  {/* ========================================= */}
+  {/* TITLE */}
+  {/* ========================================= */}
+
+  <div className="relative min-w-0">
+
+    <span
+      ref={
+        noteTitleMeasureRef
+      }
+      className="pointer-events-none invisible absolute left-0 top-0 whitespace-pre text-[28px] font-black tracking-[-0.03em]"
+      aria-hidden="true"
+    >
+      {selectedNote.title ||
+        "Note title..."}
+    </span>
+
+    <input
+      type="text"
+      value={
+        selectedNote.title
+      }
+      onChange={(e) =>
+        handleUpdateNote(
+          "title",
+          e.target.value
+        )
+      }
+      placeholder="Note title..."
+      className="relative left-[10px] translate-y-[-10px] border-none bg-transparent text-[28px] font-black tracking-[-0.03em] text-white outline-none placeholder:text-slate-600"
+      style={{
+        width:
+          Math.max(
+            noteTitleWidth + 4,
+            80
+          ),
+      }}
+    />
+
+  </div>
+
+  {/* ========================================= */}
+  {/* NOTE ACTIONS */}
+  {/* ========================================= */}
+
+ <div className="relative flex items-center gap-2">
+
+    {/* ========================================= */}
+    {/* LINK TRADE */}
+    {/* ========================================= */}
+
+<button
+  type="button"
+  onClick={() =>
+    setIsTradeSelectorOpen(
+      (current) => !current
+    )
+  }
+  className="relative left-[50px] mt-3 flex h-[36px] w-[92px] shrink-0 translate-y-[-10px] items-center justify-center gap-1.5 rounded-[8px] border border-white/[0.12] bg-[#0b1220] px-0 text-[11px] font-medium text-slate-300 transition-colors hover:border-white/[0.22] hover:bg-[#0b0c1e] hover:text-white"
+>
+
+      <Plus
+        size={13}
+        strokeWidth={1.8}
+      />
+
+      <span>
+        Link Trade
+      </span>
+
+    </button>
+
+    {/* ========================================= */}
+    {/* ADD SCREENSHOT */}
+    {/* ========================================= */}
+
+    <button
+      type="button"
+      title="Add screenshot"
+      aria-label="Add screenshot"
+      onClick={() =>
+        fileInputRef.current?.click()
+      }
+      className="relative mt-3 flex left-[50px] h-[36px] w-[36px] shrink-0 translate-y-[-10px] items-center justify-center rounded-[8px] border border-white/[0.12] bg-[#0b1220] text-slate-300 transition-colors hover:border-white/[0.22] hover:bg-[#0b0c1e] hover:text-white"
+    >
+
+      <ImagePlus
+        size={16}
+        strokeWidth={1.8}
+      />
+
+    </button>
+
+    {/* ========================================= */}
+    {/* TRADE SELECTOR */}
+    {/* ========================================= */}
+
+    {isTradeSelectorOpen && (
+
+      <div className="absolute left-[50px] top-[42px] z-50 w-[320px]">
 
 <NoteTradeSelector
   trades={
@@ -1365,116 +1477,181 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   tradeLinks={
     selectedNote.tradeLinks
   }
+  isOpen={
+    isTradeSelectorOpen
+  }
+  onOpenChange={
+    setIsTradeSelectorOpen
+  }
+  hideTrigger={
+    true
+  }
   onAddTrade={
-    handleAddTrade
+    async (
+      tradeId
+    ) => {
+
+      await handleAddTrade(
+        tradeId
+      );
+
+      setIsTradeSelectorOpen(
+        false
+      );
+
+    }
   }
   onRemoveTrade={
     handleRemoveTrade
   }
 />
 
+      </div>
+
+    )}
+
+  </div>
+</div>
+
+{/* =========================================== */}
+{/* SAVE STATUS */}
+{/* =========================================== */}
+
+  <div className="relative left-[-10px] flex shrink-0 translate-y-[0px] items-center gap-2 pt-2 text-xs">
+
+    <span className="flex items-center gap-1.5 text-emerald-400">
+
+      <span className="flex h-3 w-3 items-center justify-center rounded-full border border-emerald-400">
+
+        <span className="text-[9px] font-bold leading-none">
+          ✓
+        </span>
+
+      </span>
+
+      Saved
+
+    </span>
+
+    <span className="text-slate-500">
+      {getNoteTime(
+        selectedNote.updatedAt
+      )}
+    </span>
+
+  </div>
+
 </div>
 
 {/* ============================================= */}
-{/* SCREENSHOT UPLOAD */}
+{/* NOTE TOOLS BAR */}
 {/* ============================================= */}
 
-<div className="relative left-4 mt-4">
+{tiptapEditor && (
 
-  <button
-    type="button"
-    title="Add screenshot"
-    aria-label="Add screenshot"
-    onClick={() =>
-      fileInputRef.current?.click()
-    }
-    className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.04] bg-[#0b1730] text-blue-400 transition-all hover:bg-[#132347]"
-  >
-    <ImagePlus
-      size={17}
-      strokeWidth={1.8}
+  <div className="relative left-4 mt-4 w-[calc(100%-1rem)]">
+
+    <NoteToolsBar
+      editor={
+        tiptapEditor
+      }
     />
-  </button>
 
-  <input
-    ref={fileInputRef}
-    type="file"
-    accept="image/*"
-    className="hidden"
-    onChange={handleUploadAttachment}
+  </div>
+
+)}
+
+{/* ============================================= */}
+{/* NOTE BODY */}
+{/* ============================================= */}
+
+<div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+
+  {/* ============================================= */}
+  {/* LINKED TRADES */}
+  {/* ============================================= */}
+
+  <NoteLinkedTrades
+    trades={
+      availableTrades
+    }
+    tradeLinks={
+      selectedNote.tradeLinks
+    }
+    onRemoveTrade={
+      handleRemoveTrade
+    }
   />
 
-</div>
+  {/* ============================================= */}
+  {/* SCREENSHOT UPLOAD */}
+  {/* ============================================= */}
 
-{/* ============================================= */}
-{/* TEMP ANNOTATION TEST */}
-{/* ============================================= */}
+  <div className="relative left-4 mt-4">
 
-<div className="relative left-4 mt-3">
+    <input
+      ref={
+        fileInputRef
+      }
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={
+        handleUploadAttachment
+      }
+    />
 
-  <button
-    type="button"
-    onClick={() =>
-      setActiveAnnotationTool(
-        activeAnnotationTool === "pen"
-          ? "select"
-          : "pen"
-      )
+  </div>
+
+  {/* ============================================= */}
+  {/* SCREENSHOT ATTACHMENTS */}
+  {/* ============================================= */}
+
+  <NoteAttachmentCanvas
+    attachments={
+      selectedNote.attachments
     }
-    className="rounded-lg bg-[#0b1730] px-3 py-2 text-xs text-blue-400"
-  >
-    {activeAnnotationTool === "pen"
-      ? "Pen ON"
-      : "Pen OFF"}
-  </button>
-
-</div>
-
-{/* ============================================= */}
-{/* SCREENSHOT ATTACHMENTS */}
-{/* ============================================= */}
-
-<NoteAttachmentCanvas
-  attachments={
-    selectedNote.attachments
-  }
-  activeAnnotationTool={
-    activeAnnotationTool
-  }
-  onAnnotationCreated={
-    handleAnnotationCreated
-  }
-  onDelete={
-    handleDeleteAttachment
-  }
-  onLayoutChange={
-    handleUpdateAttachmentLayout
-  }
-/>
-
-
-{/* ============================================= */}
-{/* TIPTAP EDITOR */}
-{/* ============================================= */}
-
-<div className="relative left-4 mt-8 min-h-[400px]">
-
-  <TiptapEditor
-    key={
-      selectedNote.id
+    activeAnnotationTool={
+      activeAnnotationTool
     }
-    content={
-      selectedNote.content
+    onAnnotationCreated={
+      handleAnnotationCreated
     }
-    onChange={(
-      value
-    ) =>
-      handleUpdateNote(
-        "content",
+    onDelete={
+      handleDeleteAttachment
+    }
+    onLayoutChange={
+      handleUpdateAttachmentLayout
+    }
+  />
+
+  {/* ============================================= */}
+  {/* TIPTAP EDITOR */}
+  {/* ============================================= */}
+
+  <div className="relative left-4 min-h-[400px]">
+
+    <TiptapEditor
+      key={
+        selectedNote.id
+      }
+      content={
+        selectedNote.content
+      }
+      onChange={(
         value
-      )
-    }
-  />
+      ) =>
+        handleUpdateNote(
+          "content",
+          value
+        )
+      }
+      onEditorReady={
+        setTiptapEditor
+      }
+    />
+
+  </div>
 
 </div>
 
