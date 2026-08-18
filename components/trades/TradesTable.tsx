@@ -168,27 +168,36 @@ const handleSelectTrade =
       ? trades
       : [];
 
-  // =================================================
-  // SORT TRADES
-  // NEWEST → OLDEST
-  // =================================================
+// =================================================
+// SORT TRADES
+// NEWEST → OLDEST
+// OPEN TIME WITHIN DAY
+// =================================================
 
-  const sortedTrades = [
-    ...safeTrades,
-  ].sort((a, b) => {
+const sortedTrades = [
+  ...safeTrades,
+].sort((a, b) => {
 
-    const dateA =
-      parseLocalDate(
-        a.date
-      ).getTime();
+  const timeA =
+    a.openedAt
+      ? new Date(
+          a.openedAt
+        ).getTime()
+      : parseLocalDate(
+          a.date
+        ).getTime();
 
-    const dateB =
-      parseLocalDate(
-        b.date
-      ).getTime();
+  const timeB =
+    b.openedAt
+      ? new Date(
+          b.openedAt
+        ).getTime()
+      : parseLocalDate(
+          b.date
+        ).getTime();
 
-    return dateB - dateA;
-  });
+  return timeB - timeA;
+});
 
 // =================================================
 // PAGINATION CALCULATION

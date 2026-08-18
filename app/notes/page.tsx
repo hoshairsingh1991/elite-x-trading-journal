@@ -1098,19 +1098,16 @@ tradeLinks:
     groupLabel
   }
   className="relative"
-  style={{
-    transform:
-      groupIndex === 1
-        ? "translateY(20px)"
-        : undefined,
-  }}
 >
+  {groupIndex > 0 && (
+    <div className="h-[10px] shrink-0" />
+  )}
 
 {/* ===================================== */}
 {/* DATE GROUP */}
 {/* ===================================== */}
 
-<div className="px-1 pb-[6px]">
+<div className="px-1">
 
   <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
     {groupLabel}
@@ -1119,10 +1116,16 @@ tradeLinks:
 </div>
 
 {/* ===================================== */}
+{/* GAP BELOW DATE GROUP */}
+{/* ===================================== */}
+
+<div className="h-[6px] shrink-0" />
+
+{/* ===================================== */}
 {/* NOTE CARDS */}
 {/* ===================================== */}
 
-<div className="relative top-[6px] flex flex-col gap-3">
+<div className="flex flex-col gap-3">
 
             {groupNotes.map(
               (
