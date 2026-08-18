@@ -8,6 +8,9 @@ import {
 
 import {
   AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
   ChevronDown,
   Circle,
   Eraser,
@@ -56,6 +59,7 @@ export default function NoteToolsBar({
     isTextSizeOpen,
     setIsTextSizeOpen,
   ] = useState(false);
+
 
 const [
   selectedFontSize,
@@ -445,40 +449,170 @@ setIsTextSizeOpen(
 
       <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
 
-        <button
-          type="button"
-          title="Bullet list"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Bullet list"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleBulletList()
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    editor.isActive("bulletList")
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
 
-          <Circle
-            size={7}
-            fill="currentColor"
-            strokeWidth={0}
-          />
+  <Circle
+    size={7}
+    fill="currentColor"
+    strokeWidth={0}
+  />
 
-        </button>
+</button>
 
-        <button
-          type="button"
-          title="Numbered list"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[10px] font-semibold text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
-          1.
-        </button>
+<button
+  type="button"
+  title="Numbered list"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleOrderedList()
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[10px] font-semibold transition-colors ${
+    editor.isActive("orderedList")
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  1.
+</button>
 
-        <button
-          type="button"
-          title="Alignment"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<div className="relative flex items-center gap-0.5">
 
-          <AlignCenter
-            size={14}
-            strokeWidth={1.8}
-          />
+{/* ALIGN LEFT */}
 
-        </button>
+<button
+  type="button"
+  title="Align left"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign(
+        "left"
+      )
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
+    editor.isActive({
+      textAlign: "left",
+    })
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <AlignLeft
+    size={14}
+    strokeWidth={1.8}
+  />
+</button>
+
+
+{/* ALIGN CENTER */}
+
+<button
+  type="button"
+  title="Align center"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign(
+        "center"
+      )
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
+    editor.isActive({
+      textAlign: "center",
+    })
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <AlignCenter
+    size={14}
+    strokeWidth={1.8}
+  />
+</button>
+
+
+{/* ALIGN RIGHT */}
+
+<button
+  type="button"
+  title="Align right"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign(
+        "right"
+      )
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
+    editor.isActive({
+      textAlign: "right",
+    })
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <AlignRight
+    size={14}
+    strokeWidth={1.8}
+  />
+</button>
+
+
+{/* JUSTIFY */}
+
+<button
+  type="button"
+  title="Justify"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign(
+        "justify"
+      )
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
+    editor.isActive({
+      textAlign: "justify",
+    })
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <AlignJustify
+    size={14}
+    strokeWidth={1.8}
+  />
+</button>
+
+  
+
+</div>
 
       </div>
 
@@ -517,7 +651,7 @@ setIsTextSizeOpen(
       {/* ANNOTATION GROUP */}
       {/* ================================================= */}
 
-      <div className="flex h-[38px] min-w-0 flex-1 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+      <div className="flex h-[38px] min-w-0 flex-[0.92] items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
 
         {/* SELECT */}
 

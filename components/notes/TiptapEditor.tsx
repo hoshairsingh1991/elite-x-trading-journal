@@ -17,6 +17,9 @@ import StarterKit from "@tiptap/starter-kit";
 
 import UnderlineExtension from "@tiptap/extension-underline";
 
+import TextAlign from "@tiptap/extension-text-align";
+
+
 import {
   TextStyle,
 } from "@tiptap/extension-text-style";
@@ -99,17 +102,23 @@ extensions: [
   TextStyle,
   FontSizeExtension,
   Color,
+  TextAlign.configure({
+    types: [
+      "heading",
+      "paragraph",
+    ],
+  }),
 ],
 
       content,
 
-      editorProps: {
+editorProps: {
 
-        attributes: {
-          class:
-  "h-full min-h-full outline-none text-slate-300 text-[15px] leading-8 [&_h1]:text-4xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mb-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mb-4",
-        },
-      },
+  attributes: {
+    class:
+  "box-border w-full h-full min-h-full outline-none text-slate-300 text-[15px] leading-8 [&_h1]:text-4xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mb-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mb-4",
+  },
+},
 
       onUpdate({
         editor,
@@ -158,12 +167,17 @@ extensions: [
       {/* EDITOR */}
       {/* ============================================= */}
 
-      <div className="flex-1 overflow-y-auto pt-6">
+<div className="min-w-0 flex-1 pt-6">
 
-  <EditorContent
-    editor={editor}
-    className="h-full"
-  />
+  <div className="box-border w-full min-w-0 px-6">
+
+<EditorContent
+  editor={editor}
+  className="w-[calc(100%-35px)] min-w-0 ml-6"
+/>
+
+  </div>
+
 </div>
     </div>
   );
