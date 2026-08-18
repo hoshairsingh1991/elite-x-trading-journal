@@ -452,13 +452,23 @@ setIsTextSizeOpen(
 <button
   type="button"
   title="Bullet list"
-  onClick={() =>
+onClick={() => {
+  console.log(
+    "Bullet list available:",
     editor
+      .can()
       .chain()
       .focus()
       .toggleBulletList()
       .run()
-  }
+  );
+
+  editor
+    .chain()
+    .focus()
+    .toggleBulletList()
+    .run();
+}}
   className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
     editor.isActive("bulletList")
       ? "bg-[#0b1730] text-blue-300"
@@ -477,13 +487,23 @@ setIsTextSizeOpen(
 <button
   type="button"
   title="Numbered list"
-  onClick={() =>
+onClick={() => {
+  console.log(
+    "Ordered list available:",
     editor
+      .can()
       .chain()
       .focus()
       .toggleOrderedList()
       .run()
-  }
+  );
+
+  editor
+    .chain()
+    .focus()
+    .toggleOrderedList()
+    .run();
+}}
   className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[10px] font-semibold transition-colors ${
     editor.isActive("orderedList")
       ? "bg-[#0b1730] text-blue-300"

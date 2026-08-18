@@ -409,7 +409,7 @@ git commit -m "Fix notes date group spacing"
 git commit -m "Fix notes attachments workspace and resizing"
 git commit -m "Add per-note font size preference"
 git commit -m "Complete notes toolbar text controls"
-
+git commit -m "Complete notes text editing toolbar"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
