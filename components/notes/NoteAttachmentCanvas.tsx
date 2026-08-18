@@ -367,6 +367,10 @@ onLayoutChange(
     const initialHeight =
       attachment.height;
 
+      const aspectRatio =
+  initialWidth /
+  initialHeight;
+
     setResizingId(
       attachment.id
     );
@@ -387,19 +391,19 @@ onLayoutChange(
         moveEvent.clientY -
         startY;
 
-      const nextWidth =
-        Math.max(
-          MIN_WIDTH,
-          initialWidth +
-            deltaX
-        );
+const nextWidth =
+  Math.max(
+    MIN_WIDTH,
+    initialWidth +
+      deltaX
+  );
 
-      const nextHeight =
-        Math.max(
-          MIN_HEIGHT,
-          initialHeight +
-            deltaY
-        );
+const nextHeight =
+  Math.max(
+    MIN_HEIGHT,
+    nextWidth /
+      aspectRatio
+  );
 
       setLocalAttachments(
         (current) =>
@@ -433,19 +437,19 @@ onLayoutChange(
         upEvent.clientY -
         startY;
 
-      const finalWidth =
-        Math.max(
-          MIN_WIDTH,
-          initialWidth +
-            deltaX
-        );
+const finalWidth =
+  Math.max(
+    MIN_WIDTH,
+    initialWidth +
+      deltaX
+  );
 
-      const finalHeight =
-        Math.max(
-          MIN_HEIGHT,
-          initialHeight +
-            deltaY
-        );
+const finalHeight =
+  Math.max(
+    MIN_HEIGHT,
+    finalWidth /
+      aspectRatio
+  );
 
       setLocalAttachments(
         (current) =>
@@ -539,11 +543,9 @@ onLayoutChange(
   // RENDER
   // =================================================
 
-  return (
+return (
 
-    <div
-      className="relative left-4 mt-8 min-h-[600px] w-[calc(100%-1rem)] overflow-hidden rounded-2xl border border-white/[0.04] bg-[#07101a]"
-    >
+  <div className="pointer-events-none absolute inset-0 z-20">
 
       {attachmentImages.map(
         (image) => {
@@ -570,11 +572,11 @@ onLayoutChange(
 
           return (
 
-            <div
-              key={
-                attachment.id
-              }
-              className={`group absolute overflow-hidden rounded-2xl border border-white/[0.06] bg-[#07101a] ${
+<div
+  key={
+    attachment.id
+  }
+  className={`pointer-events-auto group absolute overflow-visible rounded-[12px] ${
                 isDragging
                   ? "z-50 cursor-grabbing"
                   : isResizing
@@ -636,18 +638,20 @@ onLayoutChange(
               {/* IMAGE */}
               {/* ===================================== */}
 
-              <img
-                src={
-                  image.url
-                }
-                alt={
-                  attachment.fileName
-                }
-                draggable={
-                  false
-                }
-                className="block h-full w-full select-none object-contain"
-              />
+<div className="h-full w-full overflow-hidden rounded-[12px]">
+  <img
+    src={
+      image.url
+    }
+    alt={
+      attachment.fileName
+    }
+    draggable={
+      false
+    }
+    className="block h-full w-full select-none object-contain"
+  />
+</div>
 
               {/* ===================================== */}
               {/* ANNOTATION LAYER */}
@@ -687,7 +691,7 @@ onLayoutChange(
                     attachment
                   )
                 }
-                className="absolute bottom-2 right-2 z-20 h-5 w-5 cursor-nwse-resize rounded-md border border-white/[0.10] bg-[#020817]/90 opacity-0 transition-all group-hover:opacity-100"
+                className="absolute bottom-2 right-2 z-30 h-5 w-5 cursor-nwse-resize rounded-md border border-white/[0.10] bg-[#020817]/90 opacity-0 transition-opacity group-hover:opacity-100"
                 title="Resize screenshot"
                 aria-label="Resize screenshot"
               />

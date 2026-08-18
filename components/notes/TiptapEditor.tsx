@@ -15,6 +15,8 @@ import {
 
 import StarterKit from "@tiptap/starter-kit";
 
+import UnderlineExtension from "@tiptap/extension-underline";
+
 import { TextStyle } from "@tiptap/extension-text-style";
 
 import { Color } from "@tiptap/extension-color";
@@ -41,11 +43,12 @@ export default function TiptapEditor({
     useEditor({
       immediatelyRender: true,
 
-      extensions: [
-        StarterKit,
-        TextStyle,
-        Color,
-      ],
+extensions: [
+  StarterKit,
+  UnderlineExtension,
+  TextStyle,
+  Color,
+],
 
       content,
 

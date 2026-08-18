@@ -22,12 +22,26 @@ import {
   Editor,
 } from "@tiptap/core";
 
+import UnderlineExtension from "@tiptap/extension-underline";
+
 type Props = {
   editor: Editor;
+
+  activeAnnotationTool:
+    | "select"
+    | "pen";
+
+  onAnnotationToolChange: (
+    tool:
+      | "select"
+      | "pen"
+  ) => void;
 };
 
 export default function NoteToolsBar({
   editor,
+  activeAnnotationTool,
+  onAnnotationToolChange,
 }: Props) {
 
   // -------------------------------------------------
@@ -89,52 +103,90 @@ return (
 
       <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
 
-        <button
-          type="button"
-          title="Bold"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[12px] font-bold text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
-          B
-        </button>
+<button
+  type="button"
+  title="Bold"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleBold()
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[12px] font-bold transition-colors ${
+    editor.isActive("bold")
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  B
+</button>
 
-        <button
-          type="button"
-          title="Italic"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Italic"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleItalic()
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    editor.isActive("italic")
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <Italic
+    size={14}
+    strokeWidth={1.8}
+  />
+</button>
 
-          <Italic
-            size={14}
-            strokeWidth={1.8}
-          />
+<button
+  type="button"
+  title="Underline"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleUnderline()
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    editor.isActive("underline")
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <Underline
+    size={14}
+    strokeWidth={1.8}
+  />
+</button>
 
-        </button>
-
-        <button
-          type="button"
-          title="Underline"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
-
-          <Underline
-            size={14}
-            strokeWidth={1.8}
-          />
-
-        </button>
-
-        <button
-          type="button"
-          title="Strikethrough"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
-
-          <Strikethrough
-            size={14}
-            strokeWidth={1.8}
-          />
-
-        </button>
+<button
+  type="button"
+  title="Strikethrough"
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleStrike()
+      .run()
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    editor.isActive("strike")
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <Strikethrough
+    size={14}
+    strokeWidth={1.8}
+  />
+</button>
 
       </div>
 
@@ -241,18 +293,29 @@ return (
 
         {/* PEN */}
 
-        <button
-          type="button"
-          title="Pen"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Pen"
+  onClick={() =>
+    onAnnotationToolChange(
+      activeAnnotationTool === "pen"
+        ? "select"
+        : "pen"
+    )
+  }
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    activeAnnotationTool === "pen"
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
 
-          <PenLine
-            size={14}
-            strokeWidth={1.8}
-          />
+  <PenLine
+    size={14}
+    strokeWidth={1.8}
+  />
 
-        </button>
+</button>
 
 
         {/* LINE */}

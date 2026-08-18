@@ -1562,11 +1562,17 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 
   <div className="relative left-4 mt-4 w-[calc(100%-1rem)]">
 
-    <NoteToolsBar
-      editor={
-        tiptapEditor
-      }
-    />
+<NoteToolsBar
+  editor={
+    tiptapEditor
+  }
+  activeAnnotationTool={
+    activeAnnotationTool
+  }
+  onAnnotationToolChange={
+    setActiveAnnotationTool
+  }
+/>
 
   </div>
 
@@ -1576,7 +1582,7 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 {/* NOTE BODY */}
 {/* ============================================= */}
 
-<div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+<div className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
 
   {/* ============================================= */}
   {/* LINKED TRADES */}

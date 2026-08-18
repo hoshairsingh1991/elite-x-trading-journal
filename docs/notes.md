@@ -393,6 +393,7 @@ git commit -m "checkpoint: production stable"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Notes section starts here
+
 git commit -m "checkpoint: stabilize Notes V2 architecture"
 git commit -m "checkpoint: stabilize Notes V2 legacy timestamps"
 git commit -m "checkpoint: Notes V2 ready for screenshot phase"
@@ -404,6 +405,9 @@ git commit -m "Redesign notes editor layout"
 git commit -m "fix dashboard responsive layout"
 git commit -m "Polish notes sidebar spacing and scrolling"
 git commit -m "Redesign notes tools toolbar"
+git commit -m "Fix notes date group spacing"
+git commit -m "Fix notes attachments workspace and resizing"
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
