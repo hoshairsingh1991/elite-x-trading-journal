@@ -1566,6 +1566,9 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   editor={
     tiptapEditor
   }
+  noteId={
+    selectedNote.id
+  }
   activeAnnotationTool={
     activeAnnotationTool
   }

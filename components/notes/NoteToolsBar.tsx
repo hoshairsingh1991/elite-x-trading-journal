@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  useEffect,
+  useState,
+} from "react";
+
+
+import {
   AlignCenter,
   ChevronDown,
   Circle,
@@ -22,10 +28,11 @@ import {
   Editor,
 } from "@tiptap/core";
 
-import UnderlineExtension from "@tiptap/extension-underline";
 
 type Props = {
   editor: Editor;
+
+  noteId: string;
 
   activeAnnotationTool:
     | "select"
@@ -40,19 +47,177 @@ type Props = {
 
 export default function NoteToolsBar({
   editor,
+  noteId,
   activeAnnotationTool,
   onAnnotationToolChange,
 }: Props) {
 
+  const [
+    isTextSizeOpen,
+    setIsTextSizeOpen,
+  ] = useState(false);
+
+const [
+  selectedFontSize,
+  setSelectedFontSize,
+] = useState("16");
+
+
+function applyTypingFontSize(
+  size: string
+) {
+
+  const fontSize =
+    `${size}px`;
+
+  const textStyleMark =
+    editor.schema.marks.textStyle;
+
+  if (
+    !textStyleMark
+  ) {
+
+    return;
+  }
+
+  const existingStoredMarks =
+    editor.state.storedMarks ||
+    editor.state.selection.$from.marks();
+
+  const filteredMarks =
+    existingStoredMarks.filter(
+      (mark) =>
+        mark.type !==
+        textStyleMark
+    );
+
+  const fontSizeMark =
+    textStyleMark.create({
+      fontSize,
+    });
+
+  editor.view.dispatch(
+    editor.state.tr.setStoredMarks([
+      ...filteredMarks,
+      fontSizeMark,
+    ])
+  );
+}
+
+
+useEffect(() => {
+
+  const storageKey =
+    `elite-x-note-font-size-${noteId}`;
+
+  const savedSize =
+    window.localStorage.getItem(
+      storageKey
+    );
+
+  let initialSize =
+    savedSize ||
+    "";
+
   // -------------------------------------------------
-  // UI-ONLY CHECKPOINT
+  // FIRST-TIME NOTE INITIALIZATION
   // -------------------------------------------------
   //
-  // Keep the shared editor connection intact.
-  // Commands will be wired after the visual design
-  // is approved.
+  // If this note has never had a saved editor size,
+  // inspect its existing content once and use the
+  // last explicit font size found in the document.
   //
-  void editor;
+  // Otherwise default to 16px.
+  //
+
+  if (!initialSize) {
+
+    let documentSize =
+      "";
+
+    editor.state.doc.descendants(
+      (node) => {
+
+        if (
+          !node.isText
+        ) {
+
+          return;
+        }
+
+        for (
+          const mark of node.marks
+        ) {
+
+          if (
+            mark.type.name ===
+              "textStyle" &&
+            typeof mark.attrs?.fontSize ===
+              "string"
+          ) {
+
+            documentSize =
+              mark.attrs.fontSize.replace(
+                "px",
+                ""
+              );
+          }
+
+        }
+
+      }
+    );
+
+    initialSize =
+      documentSize ||
+      "16";
+
+    window.localStorage.setItem(
+      storageKey,
+      initialSize
+    );
+  }
+
+  // -------------------------------------------------
+  // SET TOOLBAR STATE
+  // -------------------------------------------------
+
+  setSelectedFontSize(
+    initialSize
+  );
+
+  // -------------------------------------------------
+  // SET TYPING STATE
+  // -------------------------------------------------
+  //
+  // Important:
+  // This makes NEW text typed in this note use
+  // the note's remembered font size.
+  //
+
+const frameId =
+  requestAnimationFrame(() => {
+
+    applyTypingFontSize(
+      initialSize
+    );
+
+  });
+
+return () => {
+
+  cancelAnimationFrame(
+    frameId
+  );
+
+};
+
+}, [
+  editor,
+  noteId,
+]);
+
+
 
 
 return (
@@ -71,28 +236,111 @@ return (
 
       <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-2">
 
-        <button
-          type="button"
-          title="Text size"
-          className="flex h-full min-w-[62px] items-center justify-center gap-1 rounded-[6px] px-2 text-[11px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<div className="relative">
 
-          <Type
-            size={14}
-            strokeWidth={1.7}
-          />
+  <button
+    type="button"
+    title="Text size"
+    onClick={() =>
+      setIsTextSizeOpen(
+        (current) => !current
+      )
+    }
+    className="flex h-full min-w-[62px] items-center justify-center gap-1 rounded-[6px] px-2 text-[11px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+  >
 
-          <span>
-            16
-          </span>
+    <Type
+      size={14}
+      strokeWidth={1.7}
+    />
 
-          <ChevronDown
-            size={11}
-            strokeWidth={1.8}
-            className="text-slate-500"
-          />
+    <span>
+      {selectedFontSize}
+    </span>
 
-        </button>
+    <ChevronDown
+      size={11}
+      strokeWidth={1.8}
+      className="text-slate-500"
+    />
+
+  </button>
+
+  {isTextSizeOpen && (
+
+    <div className="absolute left-0 top-[42px] z-50 w-[88px] overflow-hidden rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-1 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+
+      {[
+        "12",
+        "14",
+        "16",
+        "18",
+        "20",
+        "24",
+        "28",
+        "32",
+      ].map(
+        (size) => (
+
+          <button
+            key={
+              size
+            }
+            type="button"
+            onClick={() => {
+
+const storageKey =
+  `elite-x-note-font-size-${noteId}`;
+
+editor
+  .chain()
+  .focus()
+  .setMark(
+    "textStyle",
+    {
+      fontSize:
+        `${size}px`,
+    }
+  )
+  .run();
+
+applyTypingFontSize(
+  size
+);
+
+window.localStorage.setItem(
+  storageKey,
+  size
+);
+
+setSelectedFontSize(
+  size
+);
+
+setIsTextSizeOpen(
+  false
+);
+
+            }}
+            className={`flex w-full items-center rounded-[6px] px-3 py-2 text-[11px] transition-colors ${
+              selectedFontSize === size
+                ? "bg-[#0b1730] text-blue-300"
+                : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+            }`}
+          >
+
+            {size}px
+
+          </button>
+
+        )
+      )}
+
+    </div>
+
+  )}
+
+</div>
 
       </div>
 

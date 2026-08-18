@@ -17,9 +17,59 @@ import StarterKit from "@tiptap/starter-kit";
 
 import UnderlineExtension from "@tiptap/extension-underline";
 
-import { TextStyle } from "@tiptap/extension-text-style";
+import {
+  TextStyle,
+} from "@tiptap/extension-text-style";
+
+import { Extension } from "@tiptap/core";
 
 import { Color } from "@tiptap/extension-color";
+
+const FontSizeExtension =
+  Extension.create({
+    name: "fontSize",
+
+    addGlobalAttributes() {
+
+      return [
+        {
+          types: [
+            "textStyle",
+          ],
+
+          attributes: {
+
+            fontSize: {
+
+              default:
+                null,
+
+              parseHTML:
+                element =>
+                  element.style.fontSize ||
+                  null,
+
+              renderHTML:
+                attributes => {
+
+                  if (
+                    !attributes.fontSize
+                  ) {
+
+                    return {};
+                  }
+
+                  return {
+                    style:
+                      `font-size: ${attributes.fontSize}`,
+                  };
+                },
+            },
+          },
+        },
+      ];
+    },
+  });
 
 type Props = {
   content: string;
@@ -47,6 +97,7 @@ extensions: [
   StarterKit,
   UnderlineExtension,
   TextStyle,
+  FontSizeExtension,
   Color,
 ],
 

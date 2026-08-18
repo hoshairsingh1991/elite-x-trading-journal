@@ -407,7 +407,7 @@ git commit -m "Polish notes sidebar spacing and scrolling"
 git commit -m "Redesign notes tools toolbar"
 git commit -m "Fix notes date group spacing"
 git commit -m "Fix notes attachments workspace and resizing"
-
+git commit -m "Add per-note font size preference"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

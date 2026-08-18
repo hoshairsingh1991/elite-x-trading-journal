@@ -303,3 +303,383 @@ DO NOT REWRITE THE WORKING UPLOAD/DELETE SYSTEM.
 NEXT:
 MOVABLE ATTACHMENTS
 ===============================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ELITE X — NOTES V2 CHECKPOINT
+Date: 2026-08-18
+STATUS: Notes Workspace + Toolbar Functionalization
+
+=================================================
+NOTES SIDEBAR
+=================================================
+
+✅ TODAY / YESTERDAY / historical date grouping
+✅ Future-proof date group spacing
+✅ Real layout spacers used for group separation
+✅ Date → card spacing controlled independently
+✅ Vertical scrolling
+✅ Horizontal scrollbar removed
+✅ Selected note state
+✅ Delete note
+✅ Note timestamps
+✅ Linked-trade indicator
+
+Current grouping model:
+
+groupIndex 0
+→ TODAY
+→ no preceding spacer
+
+groupIndex > 0
+→ real 10px spacer before group
+
+Date label
+→ real 6px spacer
+
+Cards
+→ normal flex flow
+
+No:
+- YESTERDAY-specific transform
+- translateY for date-group positioning
+- top-position hacks for group spacing
+
+=================================================
+NOTE EDITOR
+=================================================
+
+✅ Fixed note header
+✅ Fixed toolbar
+✅ Scrollable Note Body
+✅ Dynamic note title width
+✅ Link Trade
+✅ Screenshot upload
+✅ Saved status
+✅ Trade picker
+✅ Trade Snapshots
+✅ Tiptap content
+✅ Shared Note Body workspace
+
+Target composition:
+
+HEADER
+  ↓
+TOOLBAR
+  ↓
+SHARED NOTE BODY
+  ├── Trade Snapshots
+  ├── Tiptap content
+  └── Attachments
+
+=================================================
+TRADE SNAPSHOT
+=================================================
+
+✅ Compact Trade Snapshot
+✅ Responsive width
+✅ Card spacing
+✅ Entry Date
+✅ Entry
+✅ Exit Date
+✅ Exit
+✅ Entry Time
+✅ Exit Time
+✅ Holding
+✅ P&L
+✅ Remove action
+
+Direction:
+
+LONG  → green
+SHORT → red
+CALL  → green
+PUT   → red
+
+Trade data remains UI-only reference data.
+
+=================================================
+ATTACHMENT WORKSPACE
+=================================================
+
+✅ Existing upload architecture preserved
+✅ Existing Supabase storage preserved
+✅ Existing attachment persistence preserved
+✅ Existing drag functionality preserved
+✅ Existing resize functionality preserved
+✅ Existing annotation layer preserved
+
+IMPORTANT CHANGE
+----------------
+
+Removed the concept of a separate visible attachment canvas.
+
+Attachments now exist as movable objects inside
+the shared Note Body workspace.
+
+Before:
+
+Note Body
+ ├── Trade Snapshot
+ ├── Attachment Canvas
+ └── Tiptap
+
+Now:
+
+Note Body / Shared Workspace
+ ├── Trade Snapshot
+ ├── Tiptap
+ └── Attachment Layer
+
+Attachment layer:
+- transparent
+- absolute
+- shares Note Body coordinate space
+
+=================================================
+ATTACHMENT RESIZING
+=================================================
+
+✅ Screenshot preserves aspect ratio
+✅ Width/height resize is proportional
+✅ Delete control stays attached
+✅ Resize handle stays attached
+✅ No large empty attachment box after resize
+✅ No detached controls after resize
+
+Resize model:
+
+aspectRatio =
+  initialWidth / initialHeight
+
+newWidth =
+  max(MIN_WIDTH, initialWidth + deltaX)
+
+newHeight =
+  newWidth / aspectRatio
+
+This is intentional.
+
+Screenshots should not be freely distorted.
+
+=================================================
+PEN
+=================================================
+
+✅ Existing Pen architecture reused
+✅ Existing activeAnnotationTool state reused
+✅ No duplicate pen state
+✅ No second canvas
+✅ Toolbar Pen toggles:
+
+select → pen
+pen → select
+
+Existing NoteAnnotationCanvas remains the rendering
+and annotation engine.
+
+=================================================
+TIPTAP
+=================================================
+
+✅ Existing Tiptap editor preserved
+✅ Same editor instance
+✅ Existing content persistence preserved
+✅ Existing StarterKit
+✅ TextStyle
+✅ Color
+✅ Underline extension added
+✅ Bold wired
+✅ Italic wired
+✅ Underline wired
+✅ Strikethrough wired
+
+Active formatting state reflected in toolbar.
+
+=================================================
+NOTE TOOLS BAR
+=================================================
+
+File:
+components/notes/NoteToolsBar.tsx
+
+VISUAL DESIGN LOCKED
+--------------------
+
+Premium Carded design.
+
+Current structure:
+
+[ Text Size ]
+[ B I U S ]
+[ Lists / Alignment ]
+[ Text Color ]
+[ Select | Pen | Line | Arrow | Zone | Highlight | Eraser ]
+[ Stroke Width ]
+[ Undo / Redo ]
+[ More ]
+
+✅ Large outer toolbar background removed
+✅ Individual tool groups retained
+✅ Compact 38px group height
+✅ 8px radius
+✅ Subtle borders
+✅ Premium dark surfaces
+✅ Active Select state
+✅ Pen active state
+✅ Toolbar positioning tuned
+✅ Divider below toolbar
+
+Current toolbar:
+
+left-[-8px]
+top-[6px]
+
+Divider:
+
+top-[5px]
+mt-[3px]
+
+Do not redesign the visual structure unless necessary.
+
+=================================================
+CURRENT FUNCTIONAL TOOLING
+=================================================
+
+WORKING:
+- Bold
+- Italic
+- Underline
+- Strikethrough
+- Pen
+- Select
+
+VISUAL ONLY / NEXT:
+- Custom text size
+- Bullet list
+- Numbered list
+- Alignment
+- Text color
+- Line
+- Arrow
+- Zone
+- Highlight
+- Eraser
+- Stroke width
+- Undo
+- Redo
+- More menu
+
+=================================================
+NEXT SESSION
+=================================================
+
+1. Finish text commands:
+
+- Bullet list
+- Numbered list
+- Alignment
+- Text color
+- Custom text size
+
+2. Then drawing tools:
+
+- Line
+- Arrow
+- Zone
+- Highlight
+- Eraser
+- Stroke width
+
+Reuse existing annotation architecture.
+
+Do NOT:
+- create a second canvas
+- create duplicate annotation state
+- create a second editor
+- modify trading architecture
+
+3. Wire Undo / Redo appropriately.
+
+Important:
+Determine whether these should control:
+- Tiptap history
+- annotation history
+- or separate history stacks
+
+Do not fake a unified history until the behavior is defined correctly.
+
+4. Responsive toolbar behavior.
+
+Evaluate:
+- narrow editor width
+- overflow
+- secondary controls
+- More menu
+
+Do not arbitrarily shrink icons until they become unusable.
+
+5. Final cleanup
+- unused state
+- obsolete props
+- obsolete imports
+- temporary comments
+- test UI
+
+6. Production verification:
+
+npm run build
+
+=================================================
+ARCHITECTURAL RULES
+=================================================
+
+Notes remains READ-ONLY relative to the trading system.
+
+Never modify:
+- executions
+- FIFO reconstruction
+- pairTrades
+- reconciliation
+- P&L
+- analytics
+- canonical trading data
+
+Trade information is a read-only reference/snapshot.
+
+Executions remain canonical.
+Trades remain derived.
+
+=================================================
+CHECKPOINT
+=================================================
+
+✅ Good stable checkpoint.
+
+Next work starts at:
+
+components/notes/NoteToolsBar.tsx
+
+Primary next task:
+Finish wiring the remaining text tools.
