@@ -9,6 +9,12 @@ npm run dev
 
 
 Best screen Aspect ratio is 1440 X 900
+
+1440 × 900   → primary development
+1680 × 1050  → primary large-screen test
+1920 × 1080  → final wide-screen validation
+
+
 ----------------------------------------------------------------------
 
 Run server.  by     npm run dev
@@ -410,7 +416,7 @@ git commit -m "Fix notes attachments workspace and resizing"
 git commit -m "Add per-note font size preference"
 git commit -m "Complete notes toolbar text controls"
 git commit -m "Complete notes text editing toolbar"
-
+git commit -m "Polish responsive notes toolbar"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

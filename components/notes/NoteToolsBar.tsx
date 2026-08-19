@@ -353,7 +353,7 @@ setIsTextSizeOpen(
       {/* TEXT FORMATTING GROUP */}
       {/* ================================================= */}
 
-      <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+      <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5 max-[1535px]:gap-0 max-[1535px]:px-1">
 
 <button
   type="button"
@@ -365,7 +365,7 @@ setIsTextSizeOpen(
       .toggleBold()
       .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[12px] font-bold transition-colors ${
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] text-[12px] font-bold transition-colors ${
     editor.isActive("bold")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
@@ -384,7 +384,7 @@ setIsTextSizeOpen(
       .toggleItalic()
       .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+ className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-colors ${
     editor.isActive("italic")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
@@ -406,7 +406,7 @@ setIsTextSizeOpen(
       .toggleUnderline()
       .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] transition-colors max-[1535px]:w-7 ${
     editor.isActive("underline")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
@@ -428,7 +428,7 @@ setIsTextSizeOpen(
       .toggleStrike()
       .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] transition-colors max-[1535px]:w-7 ${
     editor.isActive("strike")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
@@ -453,15 +453,7 @@ setIsTextSizeOpen(
   type="button"
   title="Bullet list"
 onClick={() => {
-  console.log(
-    "Bullet list available:",
-    editor
-      .can()
-      .chain()
-      .focus()
-      .toggleBulletList()
-      .run()
-  );
+
 
   editor
     .chain()
@@ -469,7 +461,7 @@ onClick={() => {
     .toggleBulletList()
     .run();
 }}
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-colors ${
     editor.isActive("bulletList")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
@@ -504,7 +496,7 @@ onClick={() => {
     .toggleOrderedList()
     .run();
 }}
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[10px] font-semibold transition-colors ${
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[10px] font-semibold transition-colors ${
     editor.isActive("orderedList")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
@@ -513,7 +505,7 @@ onClick={() => {
   1.
 </button>
 
-<div className="relative flex items-center gap-0.5">
+<div className="relative flex w-auto shrink-0 items-center gap-0">
 
 {/* ALIGN LEFT */}
 
@@ -529,7 +521,7 @@ onClick={() => {
       )
       .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
     editor.isActive({
       textAlign: "left",
     })
@@ -558,7 +550,7 @@ onClick={() => {
       )
       .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
     editor.isActive({
       textAlign: "center",
     })
@@ -671,26 +663,26 @@ onClick={() => {
       {/* ANNOTATION GROUP */}
       {/* ================================================= */}
 
-      <div className="flex h-[38px] min-w-0 flex-[0.92] items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+      <div className="flex h-[38px] min-w-0 flex-1 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1">
 
         {/* SELECT */}
 
-        <button
-          type="button"
-          title="Select"
-          className="flex h-8 items-center gap-1.5 rounded-[6px] border border-blue-400/40 bg-[#0b1730] px-3 text-[10px] font-medium text-blue-300 transition-colors hover:bg-[#102044]"
-        >
+<button
+  type="button"
+  title="Select"
+  className="flex h-8 w-auto shrink-0 items-center justify-center gap-1.5 rounded-[6px] border border-blue-400/40 bg-[#0b1730] px-3 text-[10px] font-medium text-blue-300 transition-colors hover:bg-[#102044] max-[1535px]:w-8 max-[1535px]:px-0"
+>
 
-          <MousePointer2
-            size={14}
-            strokeWidth={1.8}
-          />
+  <MousePointer2
+    size={14}
+    strokeWidth={1.8}
+  />
 
-          <span>
-            Select
-          </span>
+  <span className="max-[1535px]:hidden">
+    Select
+  </span>
 
-        </button>
+</button>
 
 
         {/* PEN */}
@@ -705,7 +697,7 @@ onClick={() => {
         : "pen"
     )
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors max-[1535px]:w-7 ${
     activeAnnotationTool === "pen"
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
@@ -836,12 +828,12 @@ onClick={() => {
       {/* HISTORY GROUP */}
       {/* ================================================= */}
 
-      <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+      <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5 max-[1535px]:gap-0 max-[1535px]:px-1">
 
         <button
           type="button"
           title="Undo"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+         className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
         >
 
           <Undo2
@@ -854,7 +846,7 @@ onClick={() => {
         <button
           type="button"
           title="Redo"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+          className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
         >
 
           <Redo2
