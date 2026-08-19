@@ -60,6 +60,58 @@ export default function NoteToolsBar({
     setIsTextSizeOpen,
   ] = useState(false);
 
+const [
+  isTextColorOpen,
+  setIsTextColorOpen,
+] = useState(false);
+
+const [
+  selectedTextColor,
+  setSelectedTextColor,
+] = useState("#f8fafc");
+
+const textColors = [
+  {
+    name: "White",
+    value: "#f8fafc",
+  },
+  {
+    name: "Slate",
+    value: "#cbd5e1",
+  },
+  {
+    name: "Blue",
+    value: "#60a5fa",
+  },
+  {
+    name: "Cyan",
+    value: "#22d3ee",
+  },
+  {
+    name: "Green",
+    value: "#4ade80",
+  },
+  {
+    name: "Yellow",
+    value: "#facc15",
+  },
+  {
+    name: "Orange",
+    value: "#fb923c",
+  },
+  {
+    name: "Red",
+    value: "#f87171",
+  },
+  {
+    name: "Purple",
+    value: "#c084fc",
+  },
+  {
+    name: "Pink",
+    value: "#f472b6",
+  },
+];
 
 const [
   selectedFontSize,
@@ -221,7 +273,13 @@ return () => {
   noteId,
 ]);
 
+useEffect(() => {
+  const currentColor = editor.getAttributes("textStyle")?.color;
 
+  if (typeof currentColor === "string" && currentColor.length > 0) {
+    setSelectedTextColor(currentColor);
+  }
+}, [editor]);
 
 
 return (
@@ -301,6 +359,13 @@ editor
   .focus()
   .setMark(
     "textStyle",
+    {
+      fontSize:
+        `${size}px`,
+    }
+  )
+  .updateAttributes(
+    "listItem",
     {
       fontSize:
         `${size}px`,
@@ -629,35 +694,117 @@ onClick={() => {
       </div>
 
 
-      {/* ================================================= */}
-      {/* TEXT COLOR GROUP */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* TEXT COLOR GROUP */}
+{/* ================================================= */}
 
-      <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+<div className="relative flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
 
-        <button
-          type="button"
-          title="Text color"
-          className="relative flex h-8 min-w-[42px] items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+  <button
+    type="button"
+    title="Text color"
+    onClick={() =>
+      setIsTextColorOpen(
+        (current) => !current
+      )
+    }
+    className="relative flex h-8 min-w-[52px] items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+  >
 
-          <Type
-            size={14}
-            strokeWidth={1.8}
-          />
+    <Type
+      size={14}
+      strokeWidth={1.8}
+    />
 
-          <span className="absolute bottom-[6px] left-1/2 h-[2px] w-3 -translate-x-1/2 rounded-full bg-blue-400" />
+    <span
+      className="absolute bottom-[5px] left-1/2 h-[2px] w-3 -translate-x-1/2 rounded-full"
+      style={{
+        backgroundColor:
+          selectedTextColor,
+      }}
+    />
 
-          <ChevronDown
-            size={10}
-            strokeWidth={1.8}
-            className="ml-1 text-slate-500"
-          />
+    <ChevronDown
+      size={10}
+      strokeWidth={1.8}
+      className="ml-1 text-slate-500"
+    />
 
-        </button>
+  </button>
+
+
+  {/* ================================================= */}
+  {/* COLOR DROPDOWN */}
+  {/* ================================================= */}
+
+  {isTextColorOpen && (
+
+    <div className="absolute left-0 top-[42px] z-50 w-[148px] rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+
+      <div className="mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
+        Text Color
+      </div>
+
+      <div className="grid grid-cols-5 gap-1.5">
+
+        {textColors.map(
+          (color) => (
+
+            <button
+              key={
+                color.value
+              }
+              type="button"
+              title={
+                color.name
+              }
+              onClick={() => {
+
+                editor
+                  .chain()
+                  .focus()
+                  .setColor(
+                    color.value
+                  )
+                  .run();
+
+                setSelectedTextColor(
+                  color.value
+                );
+
+                setIsTextColorOpen(
+                  false
+                );
+
+              }}
+              className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all ${
+                selectedTextColor ===
+                color.value
+                  ? "border-white/80"
+                  : "border-white/[0.08] hover:border-white/40"
+              }`}
+            >
+
+              <span
+                className="h-4 w-4 rounded-full"
+                style={{
+                  backgroundColor:
+                    color.value,
+                }}
+              />
+
+            </button>
+
+          )
+        )}
 
       </div>
 
+    </div>
+
+  )}
+
+</div>
 
       {/* ================================================= */}
       {/* ANNOTATION GROUP */}
