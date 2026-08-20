@@ -34,6 +34,10 @@ type Props = {
     | "select"
     | "pen";
 
+  penColor: string;
+
+  penWidth: number;
+
   onAnnotationCreated: (
     attachmentId: string,
     annotation: NoteAnnotation
@@ -70,6 +74,8 @@ const MIN_HEIGHT = 180;
 export default function NoteAttachmentCanvas({
   attachments,
   activeAnnotationTool,
+  penColor,
+  penWidth,
   onAnnotationCreated,
   onDelete,
   onLayoutChange,
@@ -672,6 +678,12 @@ return (
   }
   activeTool={
     activeAnnotationTool
+  }
+  penColor={
+    penColor
+  }
+  penWidth={
+    penWidth
   }
   onAnnotationCreated={
     onAnnotationCreated

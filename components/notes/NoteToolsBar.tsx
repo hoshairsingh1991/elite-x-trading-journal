@@ -46,6 +46,18 @@ type Props = {
       | "select"
       | "pen"
   ) => void;
+
+  penColor: string;
+
+  onPenColorChange: (
+    color: string
+  ) => void;
+
+  penWidth: number;
+
+  onPenWidthChange: (
+    width: number
+  ) => void;
 };
 
 export default function NoteToolsBar({
@@ -53,6 +65,10 @@ export default function NoteToolsBar({
   noteId,
   activeAnnotationTool,
   onAnnotationToolChange,
+  penColor,
+  onPenColorChange,
+  penWidth,
+  onPenWidthChange,
 }: Props) {
 
   const [
@@ -63,6 +79,11 @@ export default function NoteToolsBar({
 const [
   isTextColorOpen,
   setIsTextColorOpen,
+] = useState(false);
+
+const [
+  isPenSettingsOpen,
+  setIsPenSettingsOpen,
 ] = useState(false);
 
 const [
@@ -817,9 +838,16 @@ onClick={() => {
 <button
   type="button"
   title="Select"
-  className="flex h-8 w-auto shrink-0 items-center justify-center gap-1.5 rounded-[6px] border border-blue-400/40 bg-[#0b1730] px-3 text-[10px] font-medium text-blue-300 transition-colors hover:bg-[#102044] max-[1535px]:w-8 max-[1535px]:px-0"
+  onClick={() => {
+    onAnnotationToolChange("select");
+    setIsPenSettingsOpen(false);
+  }}
+  className={`flex h-8 w-auto shrink-0 items-center justify-center gap-1.5 rounded-[6px] border px-3 text-[10px] font-medium transition-colors max-[1535px]:w-8 max-[1535px]:px-0 ${
+    activeAnnotationTool === "select"
+      ? "border-blue-400/40 bg-[#0b1730] text-blue-300"
+      : "border-transparent text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
 >
-
   <MousePointer2
     size={14}
     strokeWidth={1.8}
@@ -828,35 +856,208 @@ onClick={() => {
   <span className="max-[1535px]:hidden">
     Select
   </span>
-
 </button>
 
 
         {/* PEN */}
 
-<button
-  type="button"
-  title="Pen"
-  onClick={() =>
-    onAnnotationToolChange(
+<div className="relative shrink-0">
+
+  <button
+    type="button"
+    title="Pen"
+    onClick={() => {
+
+      if (
+        activeAnnotationTool === "pen"
+      ) {
+
+        // Pen → Select
+        onAnnotationToolChange(
+          "select"
+        );
+
+        setIsPenSettingsOpen(
+          false
+        );
+
+        return;
+      }
+
+      // Select → Pen
+      onAnnotationToolChange(
+        "pen"
+      );
+
+      setIsPenSettingsOpen(
+        true
+      );
+
+    }}
+    className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors max-[1535px]:w-7 ${
       activeAnnotationTool === "pen"
-        ? "select"
-        : "pen"
-    )
-  }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors max-[1535px]:w-7 ${
-    activeAnnotationTool === "pen"
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
->
+        ? "bg-[#0b1730] text-blue-300"
+        : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+    }`}
+  >
 
-  <PenLine
-    size={14}
-    strokeWidth={1.8}
-  />
+    <PenLine
+      size={14}
+      strokeWidth={1.8}
+    />
 
-</button>
+  </button>
+
+
+{isPenSettingsOpen && (
+
+ <div className="absolute left-[-20px] top-[42px] z-50 h-[215px] w-[207px] rounded-[10px] border border-white/[0.08] bg-[#0b1421] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.4)]">
+
+    {/* ============================================= */}
+    {/* PEN SETTINGS TITLE */}
+    {/* ============================================= */}
+
+    <div className="relative left-[10px] top-[6px] mb-4 px-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+  Pen Settings
+</div>
+
+
+
+{/* ============================================= */}
+{/* COLOR */}
+{/* ============================================= */}
+
+<div className="relative left-[8px] top-[10px] h-[100px] w-[190px] rounded-[8px] border border-white/[0.05] bg-[#09111d] px-4 py-3">
+
+  {/* COLOR WORD */}
+
+  <div className="relative left-[4px] top-[4px] mb-3 text-[12px] font-medium text-slate-400">
+    Color
+  </div>
+
+
+  {/* COLOR OPTIONS */}
+
+  <div className="relative left-[2px] top-[8px] grid grid-cols-5 gap-2">
+
+    {[
+      "#ef4444",
+      "#f97316",
+      "#facc15",
+      "#4ade80",
+      "#22d3ee",
+      "#60a5fa",
+      "#a78bfa",
+      "#f472b6",
+      "#f8fafc",
+      "#000000",
+    ].map(
+      (color) => (
+
+        <button
+          key={color}
+          type="button"
+          title={color}
+          onClick={() => {
+            onPenColorChange(
+              color
+            );
+          }}
+          className={`flex h-7 w-7 items-center justify-center rounded-full border transition-all ${
+            penColor === color
+              ? "border-white bg-white/[0.08]"
+              : "border-white/[0.08] hover:border-white/40 hover:bg-white/[0.04]"
+          }`}
+        >
+
+          <span
+            className="h-4 w-4 rounded-full"
+            style={{
+              backgroundColor:
+                color,
+            }}
+          />
+
+        </button>
+
+      )
+    )}
+
+  </div>
+
+</div>
+
+
+{/* ============================================= */}
+{/* WIDTH */}
+{/* ============================================= */}
+
+<div className="relative left-[6px] top-[20px] h-[70px] w-[190px] rounded-[8px] border border-white/[0.05] bg-[#09111d] p-3">
+
+  {/* WIDTH WORD */}
+
+  <div className="relative left-[4px] top-[4px] mb-3 text-[10px] font-medium text-slate-400">
+    Width
+  </div>
+
+
+  {/* WIDTH OPTIONS */}
+
+  <div className="relative left-[0px] top-[10px] flex items-center justify-between gap-2">
+
+    {[
+      1,
+      2,
+      3,
+      4,
+      6,
+    ].map(
+      (width) => (
+
+        <button
+          key={width}
+          type="button"
+          title={`${width}px`}
+          onClick={() => {
+            onPenWidthChange(
+              width
+            );
+          }}
+          className={`flex h-8 w-8 items-center justify-center rounded-[6px] border transition-all ${
+            penWidth === width
+              ? "border-blue-400/50 bg-[#0b1730]"
+              : "border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.05]"
+          }`}
+        >
+
+          <span
+            className="rounded-full bg-slate-300"
+            style={{
+              width: `${Math.min(
+                width * 2,
+                12
+              )}px`,
+              height: `${Math.min(
+                width,
+                6
+              )}px`,
+            }}
+          />
+
+        </button>
+
+      )
+    )}
+
+  </div>
+
+</div>
+
+  </div>
+
+)}
+
+</div>
 
 
         {/* LINE */}

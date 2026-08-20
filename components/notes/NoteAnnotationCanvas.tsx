@@ -27,6 +27,10 @@ type Props = {
     | "select"
     | "pen";
 
+  penColor: string;
+
+  penWidth: number;
+
   onAnnotationCreated: (
     attachmentId: string,
     annotation: NoteAnnotation
@@ -45,6 +49,8 @@ export default function NoteAnnotationCanvas({
   width,
   height,
   activeTool,
+  penColor,
+  penWidth,
   onAnnotationCreated,
 }: Props) {
 
@@ -284,11 +290,11 @@ export default function NoteAnnotationCanvas({
       }
     );
 
-    context.strokeStyle =
-      "#ef4444";
+context.strokeStyle =
+  penColor;
 
-    context.lineWidth =
-      2;
+context.lineWidth =
+  penWidth;
 
     context.lineCap =
       "round";
@@ -303,16 +309,18 @@ export default function NoteAnnotationCanvas({
   // REDRAW
   // =================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-    drawCanvas();
+  drawCanvas();
 
-  }, [
-    localAnnotations,
-    width,
-    height,
-    currentPoints,
-  ]);
+}, [
+  localAnnotations,
+  width,
+  height,
+  currentPoints,
+  penColor,
+  penWidth,
+]);
 
   // =================================================
   // POINTER → CANVAS COORDINATES
@@ -628,11 +636,11 @@ attachmentId:
       rotation:
         0,
 
-      color:
-        "#ef4444",
+color:
+  penColor,
 
-      strokeWidth:
-        2,
+strokeWidth:
+  penWidth,
 
       points:
         normalizedPoints,
@@ -729,12 +737,17 @@ return (
       height={
         height
       }
-      className="absolute inset-0 z-10 h-full w-full touch-none"
+className="absolute inset-0 z-10 h-full w-full touch-none"
 style={{
   pointerEvents:
     activeTool === "pen"
       ? "auto"
       : "none",
+
+cursor:
+  activeTool === "pen"
+    ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z' fill='%23f8fafc' stroke='%230b1421' stroke-width='1.5'/%3E%3Cpath d='M14.5 7.5l2 2' stroke='%230b1421' stroke-width='1.5'/%3E%3C/svg%3E") 3 21, auto`
+    : "grab",
 }}
       onPointerDown={
         handlePointerDown

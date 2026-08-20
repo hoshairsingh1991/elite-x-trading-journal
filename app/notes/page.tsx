@@ -88,12 +88,24 @@ const [
 ] = useState(false);
 
 
-  const [
-    activeAnnotationTool,
-    setActiveAnnotationTool,
-  ] = useState<
-    "select" | "pen"
-  >("select");
+const [
+  activeAnnotationTool,
+  setActiveAnnotationTool,
+] = useState<
+  "select" | "pen"
+>("select");
+
+
+
+const [
+  penColor,
+  setPenColor,
+] = useState("#ef4444");
+
+const [
+  penWidth,
+  setPenWidth,
+] = useState(2);
 
 const [
   tiptapEditor,
@@ -1575,6 +1587,18 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   onAnnotationToolChange={
     setActiveAnnotationTool
   }
+  penColor={
+    penColor
+  }
+  onPenColorChange={
+    setPenColor
+  }
+  penWidth={
+    penWidth
+  }
+  onPenWidthChange={
+    setPenWidth
+  }
 />
 
   </div>
@@ -1627,23 +1651,29 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   {/* SCREENSHOT ATTACHMENTS */}
   {/* ============================================= */}
 
-  <NoteAttachmentCanvas
-    attachments={
-      selectedNote.attachments
-    }
-    activeAnnotationTool={
-      activeAnnotationTool
-    }
-    onAnnotationCreated={
-      handleAnnotationCreated
-    }
-    onDelete={
-      handleDeleteAttachment
-    }
-    onLayoutChange={
-      handleUpdateAttachmentLayout
-    }
-  />
+<NoteAttachmentCanvas
+  attachments={
+    selectedNote.attachments
+  }
+  activeAnnotationTool={
+    activeAnnotationTool
+  }
+  penColor={
+    penColor
+  }
+  penWidth={
+    penWidth
+  }
+  onAnnotationCreated={
+    handleAnnotationCreated
+  }
+  onDelete={
+    handleDeleteAttachment
+  }
+  onLayoutChange={
+    handleUpdateAttachmentLayout
+  }
+/>
 
   {/* ============================================= */}
   {/* TIPTAP EDITOR */}
