@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -85,6 +86,53 @@ const [
   isPenSettingsOpen,
   setIsPenSettingsOpen,
 ] = useState(false);
+
+const penSettingsRef =
+  useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+
+  if (!isPenSettingsOpen) {
+    return;
+  }
+
+  function handleOutsideClick(
+    event: PointerEvent
+  ) {
+
+    const target =
+      event.target as Node;
+
+    if (
+      penSettingsRef.current &&
+      !penSettingsRef.current.contains(
+        target
+      )
+    ) {
+
+      setIsPenSettingsOpen(
+        false
+      );
+    }
+  }
+
+  document.addEventListener(
+    "pointerdown",
+    handleOutsideClick
+  );
+
+  return () => {
+
+    document.removeEventListener(
+      "pointerdown",
+      handleOutsideClick
+    );
+
+  };
+
+}, [
+  isPenSettingsOpen,
+]);
 
 const [
   selectedTextColor,
@@ -861,7 +909,10 @@ onClick={() => {
 
         {/* PEN */}
 
-<div className="relative shrink-0">
+<div
+  ref={penSettingsRef}
+  className="relative shrink-0"
+>
 
   <button
     type="button"
