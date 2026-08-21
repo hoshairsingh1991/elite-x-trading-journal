@@ -98,26 +98,33 @@ export function saveNotes(
 
 export function createNote(): Note {
 
-const newNote: Note = {
+  const now =
+    new Date().toISOString();
+
+  const newNote: Note = {
 
   id:
     crypto.randomUUID(),
 
   title:
-    "Untitled Note",
+    "Trading Note",
 
-     isTitleCustom:
+  isTitleCustom:
     false,
 
-  content: "",
+  content:
+    "",
 
   createdAt:
-    new Date().toISOString(),
+    now,
 
   updatedAt:
-    new Date().toISOString(),
+    now,
 
   tradeLinks:
+    [],
+
+  blocks:
     [],
 
   attachments:

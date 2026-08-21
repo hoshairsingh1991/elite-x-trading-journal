@@ -5,6 +5,7 @@ import {
   NoteTradeLink,
   NoteAttachment,
   NoteAnnotation,
+  NoteBlock,
 } from "@/types/note";
 
 // =====================================================
@@ -101,6 +102,46 @@ type NoteAnnotationRow = {
   updated_at: string;
 };
 
+// =====================================================
+// NOTE BLOCK ROW
+// =====================================================
+
+type NoteBlockRow = {
+  id: string;
+
+  note_id: string;
+
+  type: string;
+
+  position_x: number;
+  position_y: number;
+
+  width: number;
+  height: number;
+
+  z_index: number;
+
+  content: string;
+
+  // ===================================================
+  // TEXT STYLE
+  // ===================================================
+
+  font_size: number | null;
+
+  color: string | null;
+
+  font_weight: string | null;
+
+  font_style: string | null;
+
+  text_decoration: string | null;
+
+  text_align: string | null;
+
+  created_at: string;
+  updated_at: string;
+};
 
 // =====================================================
 // DATABASE → DOMAIN MAPPING
@@ -109,7 +150,8 @@ type NoteAnnotationRow = {
 function mapNoteRowToNote(
   row: NoteRow,
   tradeLinks: NoteTradeLink[],
-  attachments: NoteAttachment[] = []
+  attachments: NoteAttachment[] = [],
+  blocks: NoteBlock[] = []
 ): Note {
 
 return {
@@ -132,9 +174,12 @@ return {
     updatedAt:
       row.updated_at,
 
-    tradeLinks,
+tradeLinks,
+
+blocks,
 
 attachments,
+
   };
 }
 
@@ -607,22 +652,177 @@ existing.push({
   }
   
 
-  // ===================================================
-  // BUILD DOMAIN NOTES
-  // ===================================================
+// ===================================================
+// LOAD NOTE BLOCKS
+// ===================================================
 
-  return notes.map(
-    (note) =>
-      mapNoteRowToNote(
-        note,
-        linksByNote.get(
-          note.id
-        ) ?? [],
-        attachmentsByNote.get(
-          note.id
-        ) ?? []
-      )
+const {
+  data: blockData,
+  error: blockError,
+} =
+  await supabase
+    .from("note_blocks")
+    .select(`
+id,
+note_id,
+type,
+position_x,
+position_y,
+width,
+height,
+z_index,
+content,
+font_size,
+color,
+font_weight,
+font_style,
+text_decoration,
+text_align,
+created_at,
+updated_at
+    `)
+    .in(
+      "note_id",
+      noteIds
+    )
+    .order(
+      "created_at",
+      {
+        ascending: true,
+      }
+    );
+
+
+if (blockError) {
+
+  console.error(
+    "FAILED TO LOAD NOTE BLOCKS:",
+    JSON.stringify(
+      blockError,
+      null,
+      2
+    )
   );
+
+}
+
+// ===================================================
+// MAP DATABASE BLOCKS
+// ===================================================
+
+const blocks =
+  (blockData as NoteBlockRow[] | null) ?? [];
+
+
+// ===================================================
+// GROUP BLOCKS BY NOTE
+// =====================================================
+
+const blocksByNote =
+  new Map<
+    string,
+    NoteBlock[]
+  >();
+
+
+for (
+  const block of blocks
+) {
+
+  const existing =
+    blocksByNote.get(
+      block.note_id
+    ) ?? [];
+
+  existing.push({
+
+    id:
+      block.id,
+
+    noteId:
+      block.note_id,
+
+    type:
+      block.type,
+
+    positionX:
+      block.position_x,
+
+    positionY:
+      block.position_y,
+
+    width:
+      block.width,
+
+    height:
+      block.height,
+
+    zIndex:
+      block.z_index,
+
+content:
+  block.content,
+
+// ===================================================
+// TEXT STYLE
+// ===================================================
+
+fontSize:
+  block.font_size ?? 13,
+
+color:
+  block.color ?? "#ffffff",
+
+fontWeight:
+  block.font_weight ?? "400",
+
+fontStyle:
+  block.font_style ?? "normal",
+
+textDecoration:
+  block.text_decoration ?? "none",
+
+textAlign:
+  block.text_align ?? "left",
+
+createdAt:
+  block.created_at,
+
+updatedAt:
+  block.updated_at,
+
+  });
+
+  blocksByNote.set(
+    block.note_id,
+    existing
+  );
+}
+
+
+// ===================================================
+// BUILD DOMAIN NOTES
+// ===================================================
+
+return notes.map(
+  (note) =>
+    mapNoteRowToNote(
+      note,
+
+      linksByNote.get(
+        note.id
+      ) ?? [],
+
+      attachmentsByNote.get(
+        note.id
+      ) ?? [],
+
+      blocksByNote.get(
+        note.id
+      ) ?? []
+    )
+);
+
 }
 
 
@@ -681,19 +881,22 @@ const newNote: Note = {
 
   content:
     "",
-    createdAt:
-      now,
 
-    updatedAt:
-      now,
+  createdAt:
+    now,
 
-    tradeLinks:
-      [],
+  updatedAt:
+    now,
 
-    attachments:
-      [],
-  };
+  tradeLinks:
+    [],
 
+  blocks:
+    [],
+
+  attachments:
+    [],
+};
 
   // ===================================================
   // INSERT NOTE
@@ -818,6 +1021,512 @@ updateNoteInSupabase(
     );
   }
 }
+
+// =====================================================
+// CREATE NOTE BLOCK
+// =====================================================
+
+export async function
+createNoteBlockInSupabase(
+  block: NoteBlock
+): Promise<NoteBlock | null> {
+
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } =
+    await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return null;
+  }
+
+
+  // ===================================================
+  // VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: note,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select("id")
+      .eq(
+        "id",
+        block.noteId
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+
+  if (
+    noteError ||
+    !note
+  ) {
+
+    console.error(
+      "FAILED TO VERIFY NOTE OWNERSHIP FOR BLOCK:",
+      noteError
+    );
+
+    return null;
+  }
+
+
+  // ===================================================
+  // INSERT BLOCK
+  // ===================================================
+
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("note_blocks")
+      .insert({
+
+        id:
+          block.id,
+
+        note_id:
+          block.noteId,
+
+        type:
+          block.type,
+
+        position_x:
+          block.positionX,
+
+        position_y:
+          block.positionY,
+
+        width:
+          block.width,
+
+        height:
+          block.height,
+
+        z_index:
+          block.zIndex,
+
+content:
+  block.content,
+
+font_size:
+  block.fontSize,
+
+color:
+  block.color,
+
+font_weight:
+  block.fontWeight,
+
+font_style:
+  block.fontStyle,
+
+text_decoration:
+  block.textDecoration,
+
+text_align:
+  block.textAlign,
+
+created_at:
+  block.createdAt,
+
+        updated_at:
+          block.updatedAt,
+
+      })
+.select(`
+  id,
+  note_id,
+  type,
+  position_x,
+  position_y,
+  width,
+  height,
+  z_index,
+  content,
+  font_size,
+  color,
+  font_weight,
+  font_style,
+  text_decoration,
+  text_align,
+  created_at,
+  updated_at
+`)
+      .single();
+
+
+  if (error) {
+
+    console.error(
+      "FAILED TO CREATE NOTE BLOCK:",
+      error
+    );
+
+    return null;
+  }
+
+
+  const row =
+    data as NoteBlockRow;
+
+
+  // ===================================================
+  // DATABASE → DOMAIN
+  // ===================================================
+
+  return {
+
+    id:
+      row.id,
+
+    noteId:
+      row.note_id,
+
+    type:
+      row.type,
+
+    positionX:
+      row.position_x,
+
+    positionY:
+      row.position_y,
+
+    width:
+      row.width,
+
+    height:
+      row.height,
+
+    zIndex:
+      row.z_index,
+
+content:
+  row.content,
+
+// ===================================================
+// TEXT STYLE
+// ===================================================
+
+fontSize:
+  row.font_size ?? 13,
+
+color:
+  row.color ?? "#ffffff",
+
+fontWeight:
+  row.font_weight ?? "400",
+
+fontStyle:
+  row.font_style ?? "normal",
+
+textDecoration:
+  row.text_decoration ?? "none",
+
+textAlign:
+  row.text_align ?? "left",
+
+createdAt:
+  row.created_at,
+
+updatedAt:
+  row.updated_at,
+
+  };
+}
+
+// =====================================================
+// UPDATE NOTE BLOCK
+// =====================================================
+
+export async function
+updateNoteBlockInSupabase(
+  block: NoteBlock
+): Promise<void> {
+
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } =
+    await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return;
+  }
+
+
+  // ===================================================
+  // VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: note,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select("id")
+      .eq(
+        "id",
+        block.noteId
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+
+  if (
+    noteError ||
+    !note
+  ) {
+
+    console.error(
+      "FAILED TO VERIFY NOTE OWNERSHIP FOR BLOCK UPDATE:",
+      noteError
+    );
+
+    return;
+  }
+
+
+  // ===================================================
+  // UPDATE BLOCK
+  // ===================================================
+
+  const {
+    error,
+  } =
+    await supabase
+      .from("note_blocks")
+      .update({
+
+        type:
+          block.type,
+
+        position_x:
+          block.positionX,
+
+        position_y:
+          block.positionY,
+
+        width:
+          block.width,
+
+        height:
+          block.height,
+
+        z_index:
+          block.zIndex,
+
+        content:
+          block.content,
+
+        font_size:
+          block.fontSize,
+
+        color:
+          block.color,
+
+        font_weight:
+          block.fontWeight,
+
+        font_style:
+          block.fontStyle,
+
+        text_decoration:
+          block.textDecoration,
+
+        text_align:
+          block.textAlign,
+
+        updated_at:
+          new Date().toISOString(),
+
+      })
+      .eq(
+        "id",
+        block.id
+      )
+      .eq(
+        "note_id",
+        block.noteId
+      );
+
+
+  if (error) {
+
+    console.error(
+      "FAILED TO UPDATE NOTE BLOCK:",
+      error
+    );
+  }
+}
+
+
+
+// =====================================================
+// DELETE NOTE BLOCK
+// =====================================================
+
+export async function
+deleteNoteBlockFromSupabase(
+  blockId: string
+): Promise<void> {
+
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } =
+    await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return;
+  }
+
+
+  // ===================================================
+  // LOAD BLOCK + VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: block,
+    error: blockError,
+  } =
+    await supabase
+      .from("note_blocks")
+      .select(`
+        id,
+        note_id
+      `)
+      .eq(
+        "id",
+        blockId
+      )
+      .maybeSingle();
+
+
+  if (
+    blockError ||
+    !block
+  ) {
+
+    console.error(
+      "FAILED TO FIND NOTE BLOCK FOR DELETE:",
+      blockError
+    );
+
+    return;
+  }
+
+
+  // ===================================================
+  // VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: note,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select("id")
+      .eq(
+        "id",
+        block.note_id
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+
+  if (
+    noteError ||
+    !note
+  ) {
+
+    console.error(
+      "FAILED TO VERIFY NOTE OWNERSHIP FOR BLOCK DELETE:",
+      noteError
+    );
+
+    return;
+  }
+
+
+  // ===================================================
+  // DELETE BLOCK
+  // ===================================================
+
+  const {
+    error,
+  } =
+    await supabase
+      .from("note_blocks")
+      .delete()
+      .eq(
+        "id",
+        blockId
+      )
+      .eq(
+        "note_id",
+        block.note_id
+      );
+
+
+  if (error) {
+
+    console.error(
+      "FAILED TO DELETE NOTE BLOCK:",
+      error
+    );
+  }
+}
+
 
 
 // =====================================================

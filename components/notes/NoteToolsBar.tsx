@@ -38,6 +38,28 @@ type Props = {
 
   noteId: string;
 
+  onAddTextBlock: () => void;
+
+    activeBlockStyle: {
+    fontSize: number;
+    color: string;
+    fontWeight: string;
+    fontStyle: string;
+    textDecoration: string;
+    textAlign: string;
+  };
+
+  onBlockStyleChange: (
+    style: {
+      fontSize: number;
+      color: string;
+      fontWeight: string;
+      fontStyle: string;
+      textDecoration: string;
+      textAlign: string;
+    }
+  ) => void;
+
   activeAnnotationTool:
     | "select"
     | "pen";
@@ -64,6 +86,9 @@ type Props = {
 export default function NoteToolsBar({
   editor,
   noteId,
+  onAddTextBlock,
+  activeBlockStyle,
+  onBlockStyleChange,
   activeAnnotationTool,
   onAnnotationToolChange,
   penColor,
@@ -1258,21 +1283,30 @@ onClick={() => {
       </div>
 
 
-      {/* ================================================= */}
-      {/* MORE */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* ADD TEXT BLOCK */}
+{/* ================================================= */}
 
-      <button
-        type="button"
-        title="More tools"
-        className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] text-slate-400 transition-colors hover:border-white/[0.1] hover:bg-[#101a28] hover:text-white"
-      >
+<button
+  type="button"
+  title="Add text block"
+  aria-label="Add text block"
+  onClick={
+    onAddTextBlock
+  }
+  className="flex h-[38px] shrink-0 items-center justify-center gap-1.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-3 text-slate-400 transition-colors hover:border-white/[0.1] hover:bg-[#101a28] hover:text-white"
+>
 
-        <span className="text-sm tracking-[0.2em]">
-          ···
-        </span>
+  <Type
+    size={14}
+    strokeWidth={1.8}
+  />
 
-      </button>
+  <span className="text-[10px] font-medium">
+    Text Block
+  </span>
+
+</button>
 
     </div>
 

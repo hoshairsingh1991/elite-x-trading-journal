@@ -24,6 +24,7 @@ import {
   updateNoteAttachmentLayout,
 } from "@/lib/storage/noteAttachmentStorage";
 
+import NoteBlockCanvas from "@/components/notes/NoteBlockCanvas";
 
 import {
   Plus,
@@ -47,6 +48,7 @@ import {
   deleteNoteFromSupabase,
   addTradeToNoteInSupabase,
   removeTradeFromNoteInSupabase,
+  createNoteBlockInSupabase,
 } from "@/lib/storage/supabaseNoteStorage";
 
 import {
@@ -114,6 +116,18 @@ const [
   null
 );
   
+const [
+  activeBlockStyle,
+  setActiveBlockStyle,
+] = useState({
+  fontSize: 13,
+  color: "#ffffff",
+  fontWeight: "400",
+  fontStyle: "normal",
+  textDecoration: "none",
+  textAlign: "left",
+});
+
 const [
   isTradeSelectorOpen,
   setIsTradeSelectorOpen,
@@ -732,6 +746,172 @@ function handleAnnotationCreated(
       )
   );
 }
+
+
+// =================================================
+// UPDATE NOTE BLOCKS
+// =================================================
+
+function handleBlocksChange(
+  updatedBlocks: Note["blocks"]
+) {
+
+  if (
+    !selectedNote
+  ) {
+
+    return;
+  }
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          selectedNote.id
+            ? {
+                ...note,
+
+                blocks:
+                  updatedBlocks,
+              }
+            : note
+      )
+  );
+}
+
+// =================================================
+// CREATE TEXT BLOCK
+// =================================================
+
+async function handleAddTextBlock() {
+
+  console.log(
+    "ADD TEXT BLOCK CLICKED"
+  );
+
+  if (
+    !selectedNote
+  ) {
+
+    console.log(
+      "NO SELECTED NOTE"
+    );
+
+    return;
+  }
+
+  const now =
+    new Date().toISOString();
+
+  const newBlock = {
+
+    id:
+      crypto.randomUUID(),
+
+    noteId:
+      selectedNote.id,
+
+    type:
+      "text",
+
+    positionX:
+      40,
+
+    positionY:
+      40,
+
+    width:
+      320,
+
+    height:
+      120,
+
+    zIndex:
+      selectedNote.blocks.length,
+
+content:
+  "",
+
+// =================================================
+// DEFAULT TEXT STYLE
+// =================================================
+
+fontSize:
+  13,
+
+color:
+  "#ffffff",
+
+fontWeight:
+  "400",
+
+fontStyle:
+  "normal",
+
+textDecoration:
+  "none",
+
+textAlign:
+  "left",
+
+createdAt:
+  now,
+
+updatedAt:
+  now,
+
+  };
+
+  console.log(
+    "CREATING TEXT BLOCK:",
+    newBlock
+  );
+
+  const createdBlock =
+    await createNoteBlockInSupabase(
+      newBlock
+    );
+
+  console.log(
+    "CREATED TEXT BLOCK:",
+    createdBlock
+  );
+
+  if (
+    !createdBlock
+  ) {
+
+    console.error(
+      "TEXT BLOCK CREATION FAILED"
+    );
+
+    return;
+  }
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          selectedNote.id
+            ? {
+                ...note,
+
+                blocks: [
+                  ...note.blocks,
+                  createdBlock,
+                ],
+              }
+            : note
+      )
+  );
+
+  console.log(
+    "TEXT BLOCK ADDED TO LOCAL NOTE STATE"
+  );
+}
+
 
   // =================================================
   // CREATE NOTE
@@ -1536,6 +1716,9 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   </div>
 </div>
 
+
+
+
 {/* =========================================== */}
 {/* SAVE STATUS */}
 {/* =========================================== */}
@@ -1578,24 +1761,43 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   editor={
     tiptapEditor
   }
+
   noteId={
     selectedNote.id
   }
+
+  onAddTextBlock={
+    handleAddTextBlock
+  }
+
+  activeBlockStyle={
+    activeBlockStyle
+  }
+
+  onBlockStyleChange={
+    setActiveBlockStyle
+  }
+
   activeAnnotationTool={
     activeAnnotationTool
   }
+
   onAnnotationToolChange={
     setActiveAnnotationTool
   }
+
   penColor={
     penColor
   }
+
   onPenColorChange={
     setPenColor
   }
+
   penWidth={
     penWidth
   }
+
   onPenWidthChange={
     setPenWidth
   }
@@ -1672,6 +1874,25 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   }
   onLayoutChange={
     handleUpdateAttachmentLayout
+  }
+/>
+
+{/* ============================================= */}
+{/* NOTE BLOCK CANVAS */}
+{/* ============================================= */}
+
+<NoteBlockCanvas
+  noteId={
+    selectedNote.id
+  }
+  blocks={
+    selectedNote.blocks
+  }
+  onBlocksChange={
+    handleBlocksChange
+  }
+  activeBlockStyle={
+    activeBlockStyle
   }
 />
 
