@@ -11,10 +11,16 @@ import {
 } from "@/types/note";
 
 import {
+  Editor,
+} from "@tiptap/core";
+
+import {
   createNoteBlockInSupabase,
   updateNoteBlockInSupabase,
   deleteNoteBlockFromSupabase,
 } from "@/lib/storage/supabaseNoteStorage";
+
+import NoteBlockEditor from "@/components/notes/NoteBlockEditor";
 
 import {
   Trash2,
@@ -33,6 +39,10 @@ type Props = {
     blocks: NoteBlock[]
   ) => void;
 
+onActiveBlockEditorChange: (
+  editor: Editor | null,
+  blockId: string | null
+) => void;
 
   activeBlockStyle: {
     fontSize: number;
@@ -78,10 +88,17 @@ type ResizeState = {
 // =====================================================
 
 export default function NoteBlockCanvas({
+
   noteId,
+
   blocks,
+
   onBlocksChange,
+
+  onActiveBlockEditorChange,
+
   activeBlockStyle,
+
 }: Props) {
   const canvasRef =
     useRef<HTMLDivElement | null>(null);
@@ -1291,79 +1308,70 @@ className={`
               />
 
 
-              {/* ===================================== */}
-              {/* TEXT */}
-              {/* ===================================== */}
+{/* ===================================== */}
+{/* TEXT */}
+{/* ===================================== */}
 
-              <textarea
-                value={
-                  block.content
-                }
+<div
+  className="
+    h-full
+    w-full
+    bg-transparent
+  "
+  style={{
+    padding: "10px",
+  }}
+  onPointerDown={(event) => {
 
-style={{
-  padding: "10px",
-}}
+    event.stopPropagation();
 
-                onChange={(
-                  event
-                ) => {
+    setSelectedBlockId(
+      block.id
+    );
 
-                  handleBlockContentChange(
-                    block,
-                    event.target.value
-                  );
+  }}
+>
 
-                }}
+<NoteBlockEditor
+  content={
+    block.content
+  }
 
-                onFocus={() => {
+  onChange={(
+    content
+  ) => {
 
-                  setSelectedBlockId(
-                    block.id
-                  );
+    handleBlockContentChange(
+      block,
+      content
+    );
 
-                }}
+  }}
 
-                onPointerDown={(
-                  event
-                ) => {
+  onFocus={(
+    editor
+  ) => {
 
-                  event.stopPropagation();
+    setSelectedBlockId(
+      block.id
+    );
 
-                  setSelectedBlockId(
-                    block.id
-                  );
+    onActiveBlockEditorChange(
+      editor,
+      block.id
+    );
 
-                }}
+  }}
 
-                onKeyDown={(
-                  event
-                ) =>
-                  handleBlockKeyDown(
-                    event,
-                    block
-                  )
-                }
+  onEditorReady={(
+    editor
+  ) => {
 
-                placeholder={
-                  isSelected
-                    ? "Write here..."
-                    : ""
-                }
+    void editor;
 
-                className="
-                  h-full
-                  w-full
-                  resize-none
-                  border-none
-                  bg-transparent
-                  p-2
-                  text-[13px]
-                  leading-5
-                  text-white
-                  outline-none
-                  placeholder:text-slate-600
-                "
-              />
+  }}
+/>
+</div>
 
 
 {/* ===================================== */}

@@ -117,6 +117,13 @@ const [
 );
   
 const [
+  activeBlockEditor,
+  setActiveBlockEditor,
+] = useState<Editor | null>(
+  null
+);
+
+const [
   activeBlockStyle,
   setActiveBlockStyle,
 ] = useState({
@@ -1762,6 +1769,10 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
     tiptapEditor
   }
 
+  activeBlockEditor={
+    activeBlockEditor
+  }
+
   noteId={
     selectedNote.id
   }
@@ -1885,12 +1896,23 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
   noteId={
     selectedNote.id
   }
+
   blocks={
     selectedNote.blocks
   }
+
   onBlocksChange={
     handleBlocksChange
   }
+
+onActiveBlockEditorChange={(
+  editor
+) => {
+  setActiveBlockEditor(
+    editor
+  );
+}}
+
   activeBlockStyle={
     activeBlockStyle
   }
@@ -1902,25 +1924,30 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 
   <div className="relative left-4 min-h-[400px]">
 
-    <TiptapEditor
-      key={
-        selectedNote.id
-      }
-      content={
-        selectedNote.content
-      }
-      onChange={(
-        value
-      ) =>
-        handleUpdateNote(
-          "content",
-          value
-        )
-      }
-      onEditorReady={
-        setTiptapEditor
-      }
-    />
+<TiptapEditor
+  key={
+    selectedNote.id
+  }
+  content={
+    selectedNote.content
+  }
+  onChange={(
+    value
+  ) =>
+    handleUpdateNote(
+      "content",
+      value
+    )
+  }
+  onEditorReady={
+    setTiptapEditor
+  }
+  onFocus={() => {
+    setActiveBlockEditor(
+      null
+    );
+  }}
+/>
 
   </div>
 

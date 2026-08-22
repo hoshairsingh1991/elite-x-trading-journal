@@ -1312,3 +1312,576 @@ components/notes/NoteToolsBar.tsx
 
 Next task:
 Text Color dropdown.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```text
+# ============================================================
+# ELITE X — NOTES V2 CHECKPOINT
+# ============================================================
+# DATE: 2026-08-21
+# PROJECT: Elite X Trading Journal
+# AREA: Notes V2 — Text Block Toolbar Integration
+# ============================================================
+
+
+# ============================================================
+# 1. CURRENT BUILD STATUS
+# ============================================================
+
+# Production build PASSES.
+
+npm run build
+
+# Result:
+
+✓ Compiled successfully
+✓ TypeScript passes
+
+# DO NOT REVERT THIS CHECKPOINT.
+
+
+# ============================================================
+# 2. GITHUB STATUS
+# ============================================================
+
+# Previous GitHub push:
+
+main -> origin/main
+
+# Last known push:
+
+4f20860..eff01d8
+
+# Treat the current local working state as the active
+# development checkpoint unless another commit was created.
+
+
+# ============================================================
+# 3. NOTES V2 EDITOR ARCHITECTURE
+# ============================================================
+
+# Notes V2 has TWO independent Tiptap editing contexts.
+
+#
+# NORMAL NOTE EDITOR
+#
+
+TiptapEditor
+    ↓
+tiptapEditor
+
+
+#
+# TEXT BLOCK EDITOR
+#
+
+NoteBlockCanvas
+    ↓
+NoteBlockEditor
+    ↓
+activeBlockEditor
+
+
+# The toolbar must support BOTH editors.
+
+
+# ============================================================
+# 4. REQUIRED TOOLBAR BEHAVIOR
+# ============================================================
+
+# The toolbar must always operate on the CURRENTLY ACTIVE
+# editing context only.
+
+
+# NORMAL EDITOR
+
+User selects text in the normal editor
+    ↓
+Toolbar action
+    ↓
+NORMAL Tiptap editor only
+
+
+# TEXT BLOCK
+
+User selects text inside a Text Block
+    ↓
+Toolbar action
+    ↓
+THAT Text Block editor only
+
+
+# Example:
+
+Normal Editor:
+    "Hello world"
+
+Text Block:
+    "TEST BLOCK"
+
+
+# If TEST BLOCK is selected and Bold is clicked:
+
+TEST BLOCK → BOLD
+Hello world → UNCHANGED
+
+
+# If Hello world is then selected and Bold is clicked:
+
+Hello world → BOLD
+TEST BLOCK → UNCHANGED
+
+
+# ============================================================
+# 5. NOTES PAGE STATE
+# ============================================================
+
+# File:
+
+app/notes/page.tsx
+
+
+# Existing normal editor state:
+
+const [
+  tiptapEditor,
+  setTiptapEditor,
+] = useState<Editor | null>(
+  null
+);
+
+
+# Added Text Block editor state:
+
+const [
+  activeBlockEditor,
+  setActiveBlockEditor,
+] = useState<Editor | null>(
+  null
+);
+
+
+# NoteBlockCanvas now receives:
+
+onActiveBlockEditorChange={
+  setActiveBlockEditor
+}
+
+
+# NoteToolsBar now receives:
+
+activeBlockEditor={
+  activeBlockEditor
+}
+
+
+# ============================================================
+# 6. NOTE BLOCK CANVAS
+# ============================================================
+
+# File:
+
+components/notes/NoteBlockCanvas.tsx
+
+
+# Props currently include:
+
+onActiveBlockEditorChange: (
+  editor: Editor | null
+) => void;
+
+
+# Text Block editor exposes itself through:
+
+onEditorReady={(
+  editor
+) => {
+
+  onActiveBlockEditorChange(
+    editor
+  );
+
+}}
+
+
+# This successfully allows NotesPage to know which Text Block
+# editor is active.
+
+
+# ============================================================
+# 7. NOTE TOOLBAR
+# ============================================================
+
+# File:
+
+components/notes/NoteToolsBar.tsx
+
+
+# Props now include:
+
+activeBlockEditor: Editor | null;
+
+
+# Current active editor logic:
+
+const activeEditor =
+  activeBlockEditor ?? editor;
+
+
+# Toolbar actions should use:
+
+activeEditor
+
+
+# Example — Bold:
+
+activeEditor
+  .chain()
+  .focus()
+  .toggleBold()
+  .run();
+
+
+# This successfully made Bold work on Text Blocks.
+
+
+# ============================================================
+# 8. CURRENT BUG
+# ============================================================
+
+# The following logic is currently TOO SIMPLE:
+
+const activeEditor =
+  activeBlockEditor ?? editor;
+
+
+# Why?
+
+# Once a Text Block becomes active:
+
+activeBlockEditor !== null
+
+
+# Therefore the toolbar continues using that Text Block editor
+# even after the user moves back to the normal editor.
+
+
+# Current behavior:
+
+Text Block selected
+    ↓
+Bold works on Text Block
+    ↓
+Leave Text Block
+    ↓
+Normal editor selected
+    ↓
+Toolbar may still target Text Block
+
+
+# This is NOT a Bold-button problem.
+
+# This is an ACTIVE EDITOR CONTEXT MANAGEMENT problem.
+
+
+# ============================================================
+# 9. IMPORTANT ARCHITECTURAL DECISION
+# ============================================================
+
+# DO NOT create separate logic for every toolbar button.
+
+# BAD:
+
+if text block:
+    change color one way
+else:
+    change color another way
+
+# Then repeat for:
+
+Bold
+Italic
+Underline
+Strike
+Font Size
+Color
+Alignment
+Lists
+etc.
+
+
+# GOOD:
+
+Maintain ONE authoritative active editor:
+
+activeEditor
+
+
+# Then every toolbar operation uses:
+
+activeEditor
+
+
+# The system itself must correctly switch the active editor.
+
+
+# ============================================================
+# 10. REQUIRED EDITOR SWITCHING
+# ============================================================
+
+# NORMAL EDITOR FOCUS
+
+Normal Tiptap editor receives focus
+    ↓
+setActiveBlockEditor(null)
+    ↓
+activeEditor becomes tiptapEditor
+
+
+# TEXT BLOCK FOCUS
+
+Text Block receives focus
+    ↓
+setActiveBlockEditor(blockEditor)
+    ↓
+activeEditor becomes that Text Block editor
+
+
+# Desired state:
+
+NORMAL EDITOR
+    ↓
+activeBlockEditor = null
+    ↓
+activeEditor = tiptapEditor
+
+
+TEXT BLOCK
+    ↓
+activeBlockEditor = blockEditor
+    ↓
+activeEditor = blockEditor
+
+
+# ============================================================
+# 11. CURRENTLY VERIFIED
+# ============================================================
+
+# VERIFIED:
+
+✓ Text Block creation works
+✓ Text Block editing works
+✓ Text Block positioning works
+✓ Text Block resizing works
+✓ Text Block deletion works
+✓ Text Block persistence works
+✓ Text Block editor uses Tiptap
+✓ TextStyle installed at compatible version
+✓ Color extension installed
+✓ TextAlign extension installed
+✓ Underline extension installed
+✓ Text Block editor exposes Editor instance
+✓ activeBlockEditor state exists
+✓ NoteToolsBar receives activeBlockEditor
+✓ Bold works on Text Block
+✓ Production build passes
+
+
+# ============================================================
+# 12. NOT YET VERIFIED / NOT FINISHED
+# ============================================================
+
+# Toolbar functionality on Text Blocks is NOT finished.
+
+# Still need to correctly support:
+
+- Bold
+- Italic
+- Underline
+- Strikethrough
+- Font size
+- Text color
+- Alignment
+- Bullet list
+- Numbered list
+
+
+# But DO NOT work on those yet.
+
+# First fix active editor switching.
+
+
+# ============================================================
+# 13. NEXT STEP — STEP 5
+# ============================================================
+
+# STEP 5:
+# FIX ACTIVE EDITOR CONTEXT SWITCHING
+
+
+# First inspect:
+
+components/notes/TiptapEditor.tsx
+
+
+# Specifically inspect:
+
+1. Props type
+2. TiptapEditor function parameters
+3. useEditor(...)
+4. Existing onFocus handling
+
+
+# We need to determine whether TiptapEditor already supports
+# an onFocus callback.
+
+
+# DO NOT assume it does.
+
+# DO NOT modify it until inspected.
+
+
+# ============================================================
+# 14. RESUME PROCEDURE
+# ============================================================
+
+# When we resume:
+
+STEP 5.1
+--------
+Inspect:
+
+components/notes/TiptapEditor.tsx
+
+
+STEP 5.2
+--------
+Check whether Props contains:
+
+onFocus
+
+
+STEP 5.3
+--------
+If it does not exist, add the smallest required change.
+
+
+STEP 5.4
+--------
+Make normal editor focus clear:
+
+setActiveBlockEditor(null)
+
+
+STEP 5.5
+--------
+Build:
+
+npm run build
+
+
+STEP 5.6
+--------
+Test independently:
+
+NORMAL EDITOR
+    → select text
+    → Bold
+    → only normal editor changes
+
+
+TEXT BLOCK
+    → select text
+    → Bold
+    → only Text Block changes
+
+
+STEP 5.7
+--------
+Only after both contexts work independently:
+
+Proceed to Font Size.
+
+
+# ============================================================
+# 15. DO NOT CHANGE YET
+# ============================================================
+
+# Until active editor switching is fixed, DO NOT modify:
+
+NoteBlock data model
+Supabase persistence
+Text Block positioning
+Text Block resizing
+Text Block creation
+Text Block deletion
+Color logic
+Font-size logic
+Alignment logic
+activeBlockStyle
+Notes canonical data
+Normal editor architecture
+
+
+# ============================================================
+# 16. DEVELOPMENT RULE
+# ============================================================
+
+# ONE STEP AT A TIME.
+
+# For every change:
+
+1. Identify exact file path.
+2. Identify exact section.
+3. Tell exactly what to add/replace.
+4. Make only that change.
+5. Run npm run build.
+6. Test.
+7. Report result.
+8. Move to next step.
+
+
+# Do NOT rewrite entire files unless necessary.
+
+# Do NOT introduce duplicate state-management mechanisms.
+
+# Do NOT add toolbar-specific hacks for Text Blocks.
+
+# Keep the editor architecture deterministic and scalable.
+
+
+# ============================================================
+# CURRENT RESUME POINT
+# ============================================================
+
+# STOPPED HERE:
+
+Text Block Bold works.
+
+Normal editor needs to regain control of the toolbar when
+the user focuses/selects text outside the Text Block.
+
+NEXT ACTION:
+
+Inspect:
+
+components/notes/TiptapEditor.tsx
+
+
+# ============================================================
+# END CHECKPOINT
+# ============================================================
+```

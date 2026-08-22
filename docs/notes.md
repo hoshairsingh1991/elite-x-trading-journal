@@ -421,7 +421,7 @@ git commit -m "feat(notes): add text color dropdown"
 git commit -m "Improve pen annotation settings"
 git commit -m "Close pen settings on outside click"
 git commit -m "checkpoint: text blocks working before rich text formatting"
-
+git commit -m "fix notes editor context switching"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

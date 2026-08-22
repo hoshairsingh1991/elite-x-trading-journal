@@ -85,12 +85,15 @@ type Props = {
   onEditorReady?: (
     editor: Editor
   ) => void;
+
+  onFocus?: () => void;
 };
 
 export default function TiptapEditor({
   content,
   onChange,
   onEditorReady,
+  onFocus,
 }: Props) {
 
   const editor =
@@ -121,14 +124,20 @@ editorProps: {
   },
 },
 
-      onUpdate({
-        editor,
-      }) {
+onUpdate({
+  editor,
+}) {
 
-        onChange(
-          editor.getHTML()
-        );
-      },
+  onChange(
+    editor.getHTML()
+  );
+},
+
+onFocus() {
+
+  onFocus?.();
+
+},
     });
 
   useEffect(() => {

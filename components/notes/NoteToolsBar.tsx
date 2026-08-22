@@ -36,6 +36,8 @@ import {
 type Props = {
   editor: Editor;
 
+activeBlockEditor: Editor | null;
+
   noteId: string;
 
   onAddTextBlock: () => void;
@@ -85,6 +87,7 @@ type Props = {
 
 export default function NoteToolsBar({
   editor,
+  activeBlockEditor,
   noteId,
   onAddTextBlock,
   activeBlockStyle,
@@ -96,6 +99,9 @@ export default function NoteToolsBar({
   penWidth,
   onPenWidthChange,
 }: Props) {
+
+  const activeEditor =
+    activeBlockEditor ?? editor;
 
   const [
     isTextSizeOpen,
@@ -368,12 +374,20 @@ return () => {
 ]);
 
 useEffect(() => {
-  const currentColor = editor.getAttributes("textStyle")?.color;
+  const currentColor =
+    activeEditor.getAttributes("textStyle")?.color;
 
-  if (typeof currentColor === "string" && currentColor.length > 0) {
-    setSelectedTextColor(currentColor);
+  if (
+    typeof currentColor === "string" &&
+    currentColor.length > 0
+  ) {
+    setSelectedTextColor(
+      currentColor
+    );
   }
-}, [editor]);
+}, [
+  activeEditor,
+]);
 
 
 return (
@@ -518,14 +532,14 @@ setIsTextSizeOpen(
   type="button"
   title="Bold"
   onClick={() =>
-    editor
+    activeEditor
       .chain()
       .focus()
       .toggleBold()
       .run()
   }
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] text-[12px] font-bold transition-colors ${
-    editor.isActive("bold")
+  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[12px] font-bold transition-colors ${
+    activeEditor.isActive("bold")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -854,13 +868,17 @@ onClick={() => {
               }
               onClick={() => {
 
-                editor
-                  .chain()
-                  .focus()
-                  .setColor(
-                    color.value
-                  )
-                  .run();
+activeEditor
+  .chain()
+  .focus()
+  .setMark(
+    "textStyle",
+    {
+      color:
+        color.value,
+    }
+  )
+  .run();
 
                 setSelectedTextColor(
                   color.value
