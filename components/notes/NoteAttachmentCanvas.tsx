@@ -48,6 +48,11 @@ activeAnnotationTool:
     annotation: NoteAnnotation
   ) => void;
 
+onAnnotationDeleted: (
+  attachmentId: string,
+  annotation: NoteAnnotation
+) => void;
+
   onDelete: (
     attachment: NoteAttachment
   ) => Promise<void>;
@@ -82,6 +87,7 @@ export default function NoteAttachmentCanvas({
   penColor,
   penWidth,
   onAnnotationCreated,
+  onAnnotationDeleted,
   onDelete,
   onLayoutChange,
 }: Props) {
@@ -692,6 +698,9 @@ return (
   }
   onAnnotationCreated={
     onAnnotationCreated
+  }
+  onAnnotationDeleted={
+    onAnnotationDeleted
   }
 />
 

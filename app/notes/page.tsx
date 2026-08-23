@@ -24,6 +24,11 @@ import {
   updateNoteAttachmentLayout,
 } from "@/lib/storage/noteAttachmentStorage";
 
+import {
+  createNoteAnnotation,
+  deleteNoteAnnotation,
+} from "@/lib/storage/noteAnnotationStorage";
+
 import NoteBlockCanvas from "@/components/notes/NoteBlockCanvas";
 
 import {
@@ -103,7 +108,39 @@ const [
   | "eraser"
 >("select");
 
+// =================================================
+// DRAWING HISTORY
+// =================================================
 
+type AnnotationHistoryAction =
+  | {
+      type:
+        "create";
+
+      annotation:
+        NoteAnnotation;
+    }
+  | {
+      type:
+        "delete";
+
+      annotation:
+        NoteAnnotation;
+    };
+
+const [
+  annotationHistory,
+  setAnnotationHistory,
+] = useState<
+  AnnotationHistoryAction[]
+>([]);
+
+const [
+  annotationRedoStack,
+  setAnnotationRedoStack,
+] = useState<
+  AnnotationHistoryAction[]
+>([]);
 
 const [
   penColor,
@@ -224,6 +261,24 @@ const [
         note.id ===
         selectedNoteId
     );
+
+    // =================================================
+// RESET DRAWING HISTORY WHEN NOTE CHANGES
+// =================================================
+
+useEffect(() => {
+
+  setAnnotationHistory(
+    []
+  );
+
+  setAnnotationRedoStack(
+    []
+  );
+
+}, [
+  selectedNoteId,
+]);
 
     useEffect(() => {
 
@@ -765,8 +820,464 @@ function handleAnnotationCreated(
             : note
       )
   );
+
+  // =================================================
+  // RECORD DRAWING CREATE
+  // =================================================
+
+  setAnnotationHistory(
+    (currentHistory) => [
+      ...currentHistory,
+      {
+        type:
+          "create",
+
+        annotation:
+          annotation,
+      },
+    ]
+  );
+
+  // =================================================
+  // CLEAR REDO AFTER NEW ACTION
+  // =================================================
+
+  setAnnotationRedoStack(
+    []
+  );
 }
 
+// =================================================
+// HANDLE ANNOTATION DELETED
+// =================================================
+
+function handleAnnotationDeleted(
+  attachmentId: string,
+  annotation: NoteAnnotation
+) {
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          selectedNoteId
+            ? {
+                ...note,
+
+                attachments:
+                  note.attachments.map(
+                    (attachment) =>
+                      attachment.id ===
+                      attachmentId
+                        ? {
+                            ...attachment,
+
+                            annotations:
+                              attachment.annotations.filter(
+                                (item) =>
+                                  item.id !==
+                                  annotation.id
+                              ),
+                          }
+                        : attachment
+                  ),
+              }
+            : note
+      )
+  );
+
+  // =================================================
+  // RECORD DRAWING DELETE
+  // =================================================
+
+  setAnnotationHistory(
+    (currentHistory) => [
+      ...currentHistory,
+      {
+        type:
+          "delete",
+
+        annotation:
+          annotation,
+      },
+    ]
+  );
+
+  // =================================================
+  // CLEAR REDO AFTER NEW ACTION
+  // =================================================
+
+  setAnnotationRedoStack(
+    []
+  );
+}
+
+// =================================================
+// DRAWING UNDO
+// =================================================
+
+async function handleDrawingUndo() {
+
+  if (
+    annotationHistory.length === 0
+  ) {
+
+    return;
+  }
+
+  const lastAction =
+    annotationHistory[
+      annotationHistory.length - 1
+    ];
+
+  const annotation =
+    lastAction.annotation;
+
+    let actionForRedo =
+  lastAction;
+
+  // =================================================
+  // CREATE → DELETE
+  // =================================================
+
+  if (
+    lastAction.type === "create"
+  ) {
+
+    const deleted =
+      await deleteNoteAnnotation(
+        annotation
+      );
+
+    if (
+      !deleted
+    ) {
+
+      console.error(
+        "FAILED TO UNDO CREATED ANNOTATION:",
+        annotation.id
+      );
+
+      return;
+    }
+
+    setNotes(
+      (currentNotes) =>
+        currentNotes.map(
+          (note) =>
+            note.id ===
+            selectedNoteId
+              ? {
+                  ...note,
+
+                  attachments:
+                    note.attachments.map(
+                      (item) =>
+                        item.id ===
+                        annotation.attachmentId
+                          ? {
+                              ...item,
+
+                              annotations:
+                                item.annotations.filter(
+                                  (existing) =>
+                                    existing.id !==
+                                    annotation.id
+                                ),
+                            }
+                          : item
+                    ),
+                }
+              : note
+        )
+    );
+
+  }
+
+  // =================================================
+  // DELETE → RESTORE
+  // =================================================
+
+  if (
+    lastAction.type === "delete"
+  ) {
+
+    const restored =
+      await createNoteAnnotation(
+        annotation
+      );
+
+    if (
+      !restored
+    ) {
+
+      console.error(
+        "FAILED TO UNDO DELETED ANNOTATION:",
+        annotation.id
+      );
+
+      return;
+    }
+
+    // =================================================
+// UPDATE ACTION WITH RESTORED ANNOTATION
+// =================================================
+
+actionForRedo = {
+
+  type:
+    "delete",
+
+  annotation:
+    restored,
+};
+
+    setNotes(
+      (currentNotes) =>
+        currentNotes.map(
+          (note) =>
+            note.id ===
+            selectedNoteId
+              ? {
+                  ...note,
+
+                  attachments:
+                    note.attachments.map(
+                      (item) =>
+                        item.id ===
+                        annotation.attachmentId
+                          ? {
+                              ...item,
+
+                              annotations: [
+                                ...item.annotations,
+                                restored,
+                              ],
+                            }
+                          : item
+                    ),
+                }
+              : note
+        )
+    );
+
+  }
+
+  // =================================================
+  // MOVE ACTION TO REDO
+  // =================================================
+
+  setAnnotationHistory(
+    (currentHistory) =>
+      currentHistory.slice(
+        0,
+        -1
+      )
+  );
+
+setAnnotationRedoStack(
+  (currentRedo) => [
+    ...currentRedo,
+    actionForRedo,
+  ]
+);
+
+}
+
+// =================================================
+// DRAWING REDO
+// =================================================
+
+async function handleDrawingRedo() {
+
+  if (
+    annotationRedoStack.length === 0
+  ) {
+
+    return;
+  }
+
+  const lastAction =
+    annotationRedoStack[
+      annotationRedoStack.length - 1
+    ];
+
+  const annotation =
+    lastAction.annotation;
+
+
+let actionForHistory =
+  lastAction;
+
+  // =================================================
+  // REDO CREATE
+  // =================================================
+
+  if (
+    lastAction.type === "create"
+  ) {
+
+    const recreated =
+      await createNoteAnnotation(
+        annotation
+      );
+
+
+    if (
+      !recreated
+    ) {
+
+      console.error(
+        "FAILED TO REDO CREATED ANNOTATION:",
+        annotation.id
+      );
+
+      return;
+    }
+
+// =================================================
+// UPDATE ACTION WITH RECREATED ANNOTATION
+// =================================================
+
+actionForHistory = {
+
+  type:
+    "create",
+
+  annotation:
+    recreated,
+};
+
+    setNotes(
+      (currentNotes) =>
+        currentNotes.map(
+          (note) =>
+            note.id ===
+            selectedNoteId
+              ? {
+                  ...note,
+
+                  attachments:
+                    note.attachments.map(
+                      (item) =>
+                        item.id ===
+                        annotation.attachmentId
+                          ? {
+                              ...item,
+
+                              annotations: [
+                                ...item.annotations,
+                                recreated,
+                              ],
+                            }
+                          : item
+                    ),
+                }
+              : note
+        )
+    );
+
+  }
+
+  // =================================================
+  // REDO DELETE
+  // =================================================
+
+  if (
+    lastAction.type === "delete"
+  ) {
+
+    const currentAnnotation =
+      selectedNote?.attachments
+        .find(
+          (item) =>
+            item.id ===
+            annotation.attachmentId
+        )
+        ?.annotations.find(
+          (item) =>
+            item.id ===
+            annotation.id
+        );
+
+    if (
+      !currentAnnotation
+    ) {
+
+      return;
+    }
+
+    const deleted =
+      await deleteNoteAnnotation(
+        currentAnnotation
+      );
+
+    if (
+      !deleted
+    ) {
+
+      console.error(
+        "FAILED TO REDO DELETED ANNOTATION:",
+        currentAnnotation.id
+      );
+
+      return;
+    }
+
+    setNotes(
+      (currentNotes) =>
+        currentNotes.map(
+          (note) =>
+            note.id ===
+            selectedNoteId
+              ? {
+                  ...note,
+
+                  attachments:
+                    note.attachments.map(
+                      (item) =>
+                        item.id ===
+                        annotation.attachmentId
+                          ? {
+                              ...item,
+
+                              annotations:
+                                item.annotations.filter(
+                                  (existing) =>
+                                    existing.id !==
+                                    currentAnnotation.id
+                                ),
+                            }
+                          : item
+                    ),
+                }
+              : note
+        )
+    );
+
+  }
+
+// =================================================
+// MOVE ACTION BACK TO HISTORY
+// =================================================
+
+setAnnotationRedoStack(
+  (currentRedo) =>
+    currentRedo.slice(
+      0,
+      -1
+    )
+);
+
+setAnnotationHistory(
+  (currentHistory) => [
+    ...currentHistory,
+    actionForHistory,
+  ]
+);
+
+}
 
 // =================================================
 // UPDATE NOTE BLOCKS
@@ -1829,6 +2340,14 @@ noteId={
   onPenWidthChange={
     setPenWidth
   }
+  onDrawingUndo={
+    handleDrawingUndo
+  }
+
+  onDrawingRedo={
+    handleDrawingRedo
+  }
+
 />
 
   </div>
@@ -1885,21 +2404,31 @@ noteId={
   attachments={
     selectedNote.attachments
   }
+
   activeAnnotationTool={
     activeAnnotationTool
   }
+
   penColor={
     penColor
   }
+
   penWidth={
     penWidth
   }
+
   onAnnotationCreated={
     handleAnnotationCreated
   }
+
+  onAnnotationDeleted={
+    handleAnnotationDeleted
+  }
+
   onDelete={
     handleDeleteAttachment
   }
+
   onLayoutChange={
     handleUpdateAttachmentLayout
   }

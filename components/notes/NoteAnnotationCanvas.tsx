@@ -46,6 +46,11 @@ activeTool:
     attachmentId: string,
     annotation: NoteAnnotation
   ) => void;
+
+  onAnnotationDeleted: (
+    attachmentId: string,
+    annotation: NoteAnnotation
+  ) => void;
 };
 
 type Point = {
@@ -63,6 +68,7 @@ export default function NoteAnnotationCanvas({
   penColor,
   penWidth,
   onAnnotationCreated,
+  onAnnotationDeleted,
 }: Props) {
 
   const canvasRef =
@@ -105,66 +111,19 @@ const deletedAnnotationIds =
     new Set()
   );
 
-  // =================================================
-  // SYNC ANNOTATIONS
-  // =================================================
+// =================================================
+// SYNC ANNOTATIONS
+// =================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-    setLocalAnnotations(
-      (current) => {
-
-        const parentIds =
-          new Set(
-            annotations.map(
-              (annotation) =>
-                annotation.id
-            )
-          );
-
-for (
-  const id of
-  deletedAnnotationIds.current
-) {
-
-  if (
-    !parentIds.has(id)
-  ) {
-
-    deletedAnnotationIds.current.delete(
-      id
-    );
-
-  }
-
-}
-
-const locallyCreated =
-  current.filter(
-    (annotation) =>
-      !parentIds.has(
-        annotation.id
-      ) &&
-      !deletedAnnotationIds.current.has(
-        annotation.id
-      )
+  setLocalAnnotations(
+    annotations
   );
 
-
-
-return [
-  ...annotations.filter(
-    (annotation) =>
-      !deletedAnnotationIds.current.has(
-        annotation.id
-      )
-  ),
-  ...locallyCreated,
-];
-      }
-    );
-
-  }, [annotations]);
+}, [
+  annotations,
+]);
 
   // =================================================
 // RESET LINE STATE WHEN TOOL CHANGES
@@ -1470,6 +1429,11 @@ deletedAnnotationIds.current.add(
           annotation.id
       )
   );
+
+onAnnotationDeleted(
+  attachmentId,
+  annotation
+);
 
   return;
 }

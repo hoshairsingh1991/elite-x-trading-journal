@@ -95,7 +95,13 @@ onAnnotationToolChange: (
   onPenWidthChange: (
     width: number
   ) => void;
+
+  onDrawingUndo: () => void;
+
+onDrawingRedo: () => void;
 };
+
+
 
 export default function NoteToolsBar({
   editor,
@@ -109,8 +115,10 @@ export default function NoteToolsBar({
   onAnnotationToolChange,
   penColor,
   onPenColorChange,
-  penWidth,
-  onPenWidthChange,
+penWidth,
+onPenWidthChange,
+onDrawingUndo,
+onDrawingRedo,
 }: Props) {
 
   const activeEditor =
@@ -1319,33 +1327,6 @@ setIsDrawingSettingsOpen(
       </div>
 
 
-      {/* ================================================= */}
-      {/* STROKE WIDTH GROUP */}
-      {/* ================================================= */}
-
-      <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
-
-        <button
-          type="button"
-          title="Stroke width"
-          className="flex h-8 min-w-[54px] items-center justify-center gap-1.5 rounded-[6px] px-2 text-[10px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
-
-          <span className="flex h-3 w-3 items-center justify-center">
-            <span className="h-[3px] w-3 rounded-full bg-slate-300" />
-          </span>
-
-          2
-
-          <ChevronDown
-            size={10}
-            strokeWidth={1.8}
-            className="text-slate-500"
-          />
-
-        </button>
-
-      </div>
 
 
       {/* ================================================= */}
@@ -1354,11 +1335,14 @@ setIsDrawingSettingsOpen(
 
       <div className="flex h-[38px] shrink-0 items-center gap-0.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5 max-[1535px]:gap-0 max-[1535px]:px-1">
 
-        <button
-          type="button"
-          title="Undo"
-         className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Undo"
+  onClick={
+    onDrawingUndo
+  }
+  className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+>
 
           <Undo2
             size={14}
@@ -1367,11 +1351,14 @@ setIsDrawingSettingsOpen(
 
         </button>
 
-        <button
-          type="button"
-          title="Redo"
-          className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Redo"
+  onClick={
+    onDrawingRedo
+  }
+  className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+>
 
           <Redo2
             size={14}
