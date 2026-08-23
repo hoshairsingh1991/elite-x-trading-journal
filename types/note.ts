@@ -216,6 +216,18 @@ export type NoteTradeLink = {
   noteId: string;
   tradeId: string;
 
+  // ===================================================
+  // TRADE CARD LAYOUT
+  // ===================================================
+
+  positionX: number;
+  positionY: number;
+
+  width: number;
+  height: number;
+
+  zIndex: number;
+
   createdAt: string;
 };
 

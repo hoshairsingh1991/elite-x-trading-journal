@@ -42,6 +42,7 @@ import {
 import {
   Note,
   NoteAnnotation,
+  NoteTradeLink,
 } from "@/types/note";
 
 import { Trade } from "@/types/trade";
@@ -52,6 +53,7 @@ import {
   updateNoteInSupabase,
   deleteNoteFromSupabase,
   addTradeToNoteInSupabase,
+  updateNoteTradeLinkPositionInSupabase,
   removeTradeFromNoteInSupabase,
   createNoteBlockInSupabase,
 } from "@/lib/storage/supabaseNoteStorage";
@@ -1598,11 +1600,39 @@ function handleUpdateNote(
       return;
     }
 
-    const link =
-      await addTradeToNoteInSupabase(
-        selectedNote.id,
-        tradeId
-      );
+const tradeCardIndex =
+  selectedNote.tradeLinks.length;
+
+const tradeCardLayout = {
+
+  positionX:
+    20,
+
+  positionY:
+    20 +
+    (
+      tradeCardIndex *
+      150
+    ),
+
+  width:
+    320,
+
+  height:
+    150,
+
+  zIndex:
+    1000 +
+    tradeCardIndex,
+
+};
+
+const link =
+  await addTradeToNoteInSupabase(
+    selectedNote.id,
+    tradeId,
+    tradeCardLayout
+  );
 
     if (!link) {
       return;
@@ -1674,9 +1704,63 @@ tradeLinks:
     );
   }
 
-  // =================================================
-  // PAGE
-  // =================================================
+// =================================================
+// UPDATE TRADE LINK POSITION
+// =================================================
+
+async function handleTradeLinkPositionChange(
+  link: NoteTradeLink,
+  positionX: number,
+  positionY: number
+) {
+
+  if (
+    !selectedNote
+  ) {
+
+    return;
+  }
+
+const updatedTradeLink =
+  await updateNoteTradeLinkPositionInSupabase(
+    link,
+    positionX,
+    positionY
+  );
+
+  if (
+    !updatedTradeLink
+  ) {
+
+    return;
+  }
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          selectedNote.id
+            ? {
+                ...note,
+
+                tradeLinks:
+                  note.tradeLinks.map(
+                    (item) =>
+                      item.id ===
+                      link.id
+                        ? updatedTradeLink
+                        : item
+                  ),
+              }
+            : note
+      )
+  );
+}
+
+// =================================================
+// PAGE
+// =================================================
 
   return (
 
@@ -2364,17 +2448,20 @@ noteId={
   {/* LINKED TRADES */}
   {/* ============================================= */}
 
-  <NoteLinkedTrades
-    trades={
-      availableTrades
-    }
-    tradeLinks={
-      selectedNote.tradeLinks
-    }
-    onRemoveTrade={
-      handleRemoveTrade
-    }
-  />
+<NoteLinkedTrades
+  trades={
+    availableTrades
+  }
+  tradeLinks={
+    selectedNote.tradeLinks
+  }
+  onRemoveTrade={
+    handleRemoveTrade
+  }
+  onTradeLinkPositionChange={
+    handleTradeLinkPositionChange
+  }
+/>
 
   {/* ============================================= */}
   {/* SCREENSHOT UPLOAD */}

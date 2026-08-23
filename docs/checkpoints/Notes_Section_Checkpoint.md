@@ -1885,3 +1885,2746 @@ components/notes/TiptapEditor.tsx
 # END CHECKPOINT
 # ============================================================
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+```text
+# ============================================================
+# ELITE X — NOTES V2 CHECKPOINT
+# ============================================================
+# DATE: 2026-08-23
+# PROJECT: Elite X Trading Journal
+# AREA: Notes V2 — Annotation Tools + Drawing History
+# PURPOSE:
+# Complete handover checkpoint containing the architecture,
+# implementation details, fixes, current behavior, known
+# intentional limitations, and exact resume point.
+# ============================================================
+
+
+# ============================================================
+# 1. CURRENT GITHUB CHECKPOINT
+# ============================================================
+
+# IMPORTANT:
+#
+# The user requested a GitHub push immediately before creating
+# this checkpoint.
+#
+# The final push output / commit hash has NOT been provided yet
+# in the current conversation.
+#
+# Therefore:
+#
+# DO NOT INVENT THE COMMIT HASH.
+#
+# Before resuming future work, verify:
+#
+#     git status
+#     git log -1 --oneline
+#
+# Confirm:
+#
+#     HEAD == origin/main
+#
+# and confirm the drawing Undo/Redo checkpoint is actually
+# pushed.
+
+
+# ============================================================
+# 2. LAST KNOWN BUILD STATUS
+# ============================================================
+
+# Last verified state:
+
+npm run build
+
+# Result:
+
+✓ Compiled successfully
+✓ TypeScript passed
+✓ Notes V2 annotation system compiles
+
+
+# ============================================================
+# 3. CORE NOTES ARCHITECTURE
+# ============================================================
+
+# Notes V2 remains strictly isolated from the trading system.
+#
+# Notes MUST NEVER modify:
+#
+# - executions
+# - FIFO reconstruction
+# - pairTrades
+# - reconstructed trades
+# - reconciliation
+# - P&L
+# - analytics
+# - dashboard calculations
+# - canonical trading data
+#
+# Trade information shown in Notes is READ-ONLY reference data.
+#
+# Canonical trading architecture remains:
+#
+# Broker
+#   ↓
+# Normalized Executions
+#   ↓
+# Supabase Execution Ledger
+#   ↓
+# Deterministic FIFO Reconstruction
+#   ↓
+# Canonical Trades
+#   ↓
+# Analytics / Dashboard
+#
+# Notes exists beside this architecture.
+
+
+# ============================================================
+# 4. NOTES WORKSPACE MODEL
+# ============================================================
+
+# Main Notes workspace:
+#
+# HEADER
+#   ↓
+# TOOLBAR
+#   ↓
+# SHARED NOTE BODY
+#
+# Shared Note Body contains:
+#
+# ├── Trade snapshots / linked trades
+# ├── Main Tiptap editor
+# ├── Text Blocks
+# └── Screenshot Attachments
+#
+# Attachments and Text Blocks are movable objects inside
+# the Note Body workspace.
+
+
+# ============================================================
+# 5. TWO INDEPENDENT TEXT EDITORS
+# ============================================================
+
+# NORMAL NOTE EDITOR
+#
+# components/notes/TiptapEditor.tsx
+#       ↓
+# tiptapEditor
+#
+#
+# TEXT BLOCK EDITOR
+#
+# NoteBlockCanvas
+#       ↓
+# NoteBlockEditor
+#       ↓
+# activeBlockEditor
+#
+#
+# Toolbar must operate on the editor that currently has focus.
+#
+# Current authoritative editor selection:
+#
+# const activeEditor =
+#   activeBlockEditor ?? editor;
+#
+#
+# IMPORTANT:
+#
+# Text Block editor ownership is FOCUS-BASED.
+#
+# onEditorReady means:
+#
+#     editor instance exists
+#
+# It does NOT mean:
+#
+#     editor is the active editing context.
+
+
+# ============================================================
+# 6. ACTIVE EDITOR FOCUS ARCHITECTURE
+# ============================================================
+
+# FILE:
+#
+# components/notes/TiptapEditor.tsx
+#
+# Props include:
+#
+# onFocus?: () => void;
+#
+# Editor configuration invokes:
+#
+# onFocus() {
+#
+#   onFocus?.();
+#
+# }
+#
+#
+# This allows the main Note editor to notify NotesPage that
+# the Text Block editor should no longer be considered active.
+#
+#
+# FILE:
+#
+# components/notes/NoteBlockEditor.tsx
+#
+# Props include:
+#
+# onFocus: (
+#   editor: Editor
+# ) => void;
+#
+# onEditorReady: (
+#   editor: Editor
+# ) => void;
+#
+#
+# Text Block focus calls:
+#
+# onFocus(
+#   editor
+# );
+#
+#
+# FILE:
+#
+# components/notes/NoteBlockCanvas.tsx
+#
+# Focus handler:
+#
+# onFocus={(
+#   editor
+# ) => {
+#
+#   setSelectedBlockId(
+#     block.id
+#   );
+#
+#   onActiveBlockEditorChange(
+#     editor,
+#     block.id
+#   );
+#
+# }}
+#
+#
+# onEditorReady is NOT the active editor ownership mechanism.
+#
+# It currently remains because NoteBlockEditor still expects it.
+#
+# Safe current callback:
+#
+# onEditorReady={(
+#   editor
+# ) => {
+#
+#   void editor;
+# }}
+#
+#
+# DO NOT casually reintroduce onEditorReady as active-editor
+# ownership.
+
+
+# ============================================================
+# 7. NOTES TOOLBAR
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteToolsBar.tsx
+#
+# Current toolbar drawing tools:
+#
+# ✓ Select
+# ✓ Pen
+# ✓ Line
+# ✓ Arrow
+# ✓ Zone
+# ✓ Highlight
+# ✓ Eraser
+#
+#
+# Text controls include:
+#
+# ✓ Font Size
+# ✓ Bold
+# ✓ Italic
+# ✓ Underline
+# ✓ Strikethrough
+# ✓ Bullet List
+# ✓ Ordered List
+# ✓ Left Align
+# ✓ Center Align
+# ✓ Right Align
+# ✓ Justify
+# ✓ Text Color
+#
+#
+# History:
+#
+# ✓ Undo
+# ✓ Redo
+#
+# Drawing-only history.
+#
+#
+# REMOVED:
+#
+# Separate Stroke Width toolbar group was removed.
+#
+# Reason:
+#
+# Drawing Settings already contains:
+#
+# Color
+# Width
+#
+# Therefore a second Stroke Width control was redundant.
+#
+# The old visual-only:
+#
+# [ line  2 ▼ ]
+#
+# control was removed from NoteToolsBar.tsx.
+#
+# Future toolbar space can be used for another genuinely useful
+# feature later.
+
+
+# ============================================================
+# 8. MAIN DRAWING SETTINGS
+# ============================================================
+
+# Drawing settings are shared.
+#
+# State:
+#
+# penColor
+# penWidth
+#
+# Parent:
+#
+# app/notes/page.tsx
+#
+# Default:
+#
+# penColor = "#ef4444"
+# penWidth = 2
+#
+#
+# Current Color options:
+#
+# #ef4444
+# #f97316
+# #facc15
+# #4ade80
+# #22d3ee
+# #60a5fa
+# #a78bfa
+# #f472b6
+# #f8fafc
+# #000000
+#
+#
+# Current Width options:
+#
+# 1
+# 2
+# 3
+# 4
+# 6
+#
+#
+# Shared by:
+#
+# Pen
+# Line
+# Arrow
+# Zone
+# Highlight
+#
+#
+# IMPORTANT:
+#
+# Do NOT create:
+#
+# lineColor
+# arrowColor
+# zoneColor
+# highlightColor
+# etc.
+#
+# Shared drawing settings are intentional.
+
+
+# ============================================================
+# 9. CURRENT DRAWING TOOL TYPE CHAIN
+# ============================================================
+
+# Drawing tool union is currently:
+#
+# "select"
+# | "pen"
+# | "line"
+# | "arrow"
+# | "zone"
+# | "highlight"
+# | "eraser"
+#
+#
+# This union is intentionally passed through the complete chain:
+#
+# app/notes/page.tsx
+#        ↓
+# NoteToolsBar.tsx
+#        ↓
+# NoteAttachmentCanvas.tsx
+#        ↓
+# NoteAnnotationCanvas.tsx
+#
+#
+# IMPORTANT:
+#
+# When another drawing tool is introduced,
+# update the complete chain.
+
+
+# ============================================================
+# 10. ANNOTATION DOMAIN
+# ============================================================
+
+# FILE:
+#
+# types/note.ts
+#
+# Existing NoteAnnotation model includes:
+#
+# id
+# attachmentId
+# type
+# positionX
+# positionY
+# width
+# height
+# rotation
+# color
+# strokeWidth
+# points
+# text
+# fontSize
+# fontWeight
+# fontStyle
+# textDecoration
+# textAlign
+# createdAt
+# updatedAt
+#
+#
+# Existing schema already supports generic annotation types.
+#
+# No database schema change was required for:
+#
+# Pen
+# Line
+# Arrow
+# Zone
+# Highlight
+# Eraser
+#
+#
+# Annotation geometry uses NORMALIZED coordinates:
+#
+# x: 0 → 1
+# y: 0 → 1
+#
+# This is critical because screenshots can be resized.
+#
+# Never persist raw screen pixel coordinates as canonical
+# annotation geometry.
+
+
+# ============================================================
+# 11. ANNOTATION STORAGE
+# ============================================================
+
+# FILE:
+#
+# lib/storage/noteAnnotationStorage.ts
+#
+# Existing APIs:
+#
+# createNoteAnnotation(...)
+# updateNoteAnnotation(...)
+# deleteNoteAnnotation(...)
+#
+#
+# Existing ownership validation remains:
+#
+# attachment
+#     ↓
+# note
+#     ↓
+# user
+#
+# RLS / ownership architecture remains unchanged.
+#
+# No second annotation store was created.
+
+
+# ============================================================
+# 12. ANNOTATION CANVAS
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteAnnotationCanvas.tsx
+#
+# This remains the SINGLE annotation engine.
+#
+# All drawing tools operate through this component.
+#
+# DO NOT:
+#
+# - create another drawing canvas
+# - create another annotation store
+# - duplicate annotation persistence logic
+#
+#
+# Current props include:
+#
+# attachmentId
+# annotations
+# width
+# height
+# activeTool
+# penColor
+# penWidth
+# onAnnotationCreated
+# onAnnotationDeleted
+#
+#
+# The new onAnnotationDeleted callback was added so parent
+# Note state is updated when Eraser removes an annotation.
+
+
+# ============================================================
+# 13. CANVAS LOCAL STATE
+# ============================================================
+
+# Current local canvas state includes:
+#
+# isDrawing
+# currentPoints
+# lineStartPoint
+# highlightCursorPosition
+# eraserHoveringAnnotation
+# localAnnotations
+#
+#
+# localAnnotations is used for immediate canvas rendering.
+#
+# IMPORTANT:
+#
+# Parent Notes state is now the effective source of truth.
+#
+# Current annotation synchronization is intentionally simple:
+#
+# useEffect(() => {
+#
+#   setLocalAnnotations(
+#     annotations
+#   );
+#
+# }, [
+#   annotations,
+# ]);
+#
+#
+# This replaced the older merge logic that attempted to retain
+# locally-created annotations.
+#
+# The older merge architecture caused an important bug:
+#
+# Undo parent state changed
+#     ↓
+# localAnnotations still held deleted annotation
+#     ↓
+# sync treated it as locally-created
+#     ↓
+# deleted annotation returned visually
+#
+# The simple parent → local sync fixed this.
+
+
+# ============================================================
+# 14. OLD DELETION SYNCHRONIZATION BUG
+# ============================================================
+
+# BEFORE:
+#
+# Eraser deleted annotation from database and localAnnotations.
+#
+# But parent annotations still contained the annotation.
+#
+# When tools changed / sync ran:
+#
+# parent annotations
+#     +
+# locally-created annotations
+#     ↓
+# deleted annotation returned
+#
+#
+# FIX:
+#
+# Added:
+#
+# onAnnotationDeleted
+#
+# callback chain:
+#
+# NoteAnnotationCanvas
+#     ↓
+# NoteAttachmentCanvas
+#     ↓
+# NotesPage
+#
+#
+# Parent Notes state now removes the annotation.
+#
+# Then annotation sync became:
+#
+# annotations
+#     ↓
+# localAnnotations
+#
+# only.
+
+
+# ============================================================
+# 15. PEN TOOL
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteAnnotationCanvas.tsx
+#
+# Interaction:
+#
+# click + hold
+#     ↓
+# freehand drawing
+#     ↓
+# release
+#     ↓
+# save
+#
+#
+# Pen stores multiple normalized points.
+#
+# Rendering uses:
+#
+# context.moveTo()
+# context.lineTo()
+#
+# with:
+#
+# lineCap = "round"
+# lineJoin = "round"
+#
+#
+# Pen is true freehand.
+#
+#
+# IMPORTANT:
+#
+# A regression previously caused Pen to behave like a short
+# straight line because the rendering logic had accidentally
+# collapsed current freehand points to start/end behavior.
+#
+# The Pen renderer was corrected to iterate ALL current points:
+#
+# currentPoints.forEach(...)
+#
+# and line through all points.
+#
+# This restored:
+#
+# ✓ circles
+# ✓ curves
+# ✓ arbitrary freehand drawings
+# ✓ large freehand strokes
+
+
+# ============================================================
+# 16. LINE TOOL
+# ============================================================
+
+# Interaction:
+#
+# click A
+#     ↓
+# move
+#     ↓
+# live straight preview
+#     ↓
+# click B
+#     ↓
+# save
+#
+#
+# Line:
+#
+# type = "line"
+#
+# points:
+#
+# [
+#   startPoint,
+#   endPoint
+# ]
+#
+#
+# Cursor:
+#
+# crosshair
+#
+#
+# Persistence:
+#
+# normalized coordinates
+#
+#
+# Verified:
+#
+# ✓ line renders
+# ✓ line persists
+# ✓ line reloads
+# ✓ shared color
+# ✓ shared width
+
+
+# ============================================================
+# 17. ARROW TOOL
+# ============================================================
+
+# Interaction matches Line:
+#
+# click A
+#     ↓
+# move
+#     ↓
+# preview shaft + arrowhead
+#     ↓
+# click B
+#     ↓
+# save
+#
+#
+# type:
+#
+# "arrow"
+#
+#
+# points:
+#
+# [
+#   startPoint,
+#   endPoint
+# ]
+#
+#
+# Arrow rendering:
+#
+# angle =
+#   Math.atan2(
+#     endY - startY,
+#     endX - startX
+#   );
+#
+# arrowLength =
+#   Math.max(
+#     10,
+#     strokeWidth * 4
+#   );
+#
+# arrowAngle =
+#   Math.PI / 7;
+#
+#
+# Triangular arrowhead is drawn at endpoint.
+#
+# Shared:
+#
+# color
+# width
+#
+#
+# Verified:
+#
+# ✓ shaft
+# ✓ arrowhead
+# ✓ live preview
+# ✓ persistence
+
+
+# ============================================================
+# 18. ZONE / RECTANGLE TOOL
+# ============================================================
+
+# Interaction:
+#
+# click A
+#     ↓
+# move
+#     ↓
+# preview rectangle
+#     ↓
+# click B
+#     ↓
+# save
+#
+#
+# type:
+#
+# "zone"
+#
+#
+# Uses:
+#
+# points:
+#   [startPoint, endPoint]
+#
+#
+# Rendering:
+#
+# context.strokeRect(
+#   startX,
+#   startY,
+#   endX - startX,
+#   endY - startY
+# );
+#
+#
+# Shared:
+#
+# color
+# width
+#
+#
+# IMPORTANT BUG FIX:
+#
+# Initial implementation accidentally rendered:
+#
+# line
+# +
+# rectangle
+#
+# resulting in a diagonal line through the rectangle.
+#
+# Cause:
+#
+# Zone was falling through the Line / Arrow rendering path.
+#
+# Fix:
+#
+# Zone has its own explicit rendering branch:
+#
+# if (
+#   annotation.type === "zone"
+# ) {
+#
+#   ...
+#
+#   context.strokeRect(...)
+#
+#   continue;
+#
+# }
+#
+#
+# Current drawing preview also has an early Zone return after
+# drawing strokeRect, preventing line preview from executing.
+#
+# Verified:
+#
+# ✓ rectangle only
+# ✓ no diagonal line
+# ✓ live rectangle preview
+# ✓ persistence
+
+
+# ============================================================
+# 19. HIGHLIGHT TOOL
+# ============================================================
+
+# Highlight is FREEHAND, not rectangle-based.
+#
+# Interaction:
+#
+# click + hold
+#     ↓
+# freehand highlight stroke
+#     ↓
+# release
+#     ↓
+# save
+#
+#
+# Rendering:
+#
+# globalAlpha = 0.35
+#
+# lineWidth =
+#   Math.max(
+#     strokeWidth * 4,
+#     8
+#   )
+#
+# lineCap = "round"
+# lineJoin = "round"
+#
+#
+# Stored type:
+#
+# "highlight"
+#
+#
+# Highlight uses:
+#
+# penColor
+# penWidth
+#
+#
+# Single click is allowed.
+#
+# A single-click Highlight can produce a large dot when using
+# maximum width.
+#
+# This is intentional behavior.
+
+
+# ============================================================
+# 20. HIGHLIGHT LIVE PREVIEW
+# ============================================================
+
+# Initial issue:
+#
+# Highlight only appeared after mouse release.
+#
+# Cause:
+#
+# Saved rendering existed,
+# but current-drawing rendering did not include Highlight.
+#
+# Fix:
+#
+# Added CURRENT DRAWING → HIGHLIGHT PREVIEW.
+#
+# The live preview uses:
+#
+# globalAlpha = 0.35
+# lineWidth =
+#   Math.max(
+#     penWidth * 4,
+#     8
+#   )
+# color =
+#   penColor
+#
+#
+# Verified:
+#
+# ✓ highlight follows cursor while holding mouse
+# ✓ smooth freehand preview
+# ✓ same stroke appears after release
+#
+#
+# Highlight persistence uses existing annotation storage.
+
+
+# ============================================================
+# 21. HIGHLIGHT CURSOR
+# ============================================================
+
+# Requirement:
+#
+# User did not like a generic pointer / plus cursor.
+#
+# Final design:
+#
+# Exact Lucide Highlighter icon:
+#
+# <Highlighter
+#   size={14}
+#   strokeWidth={1.8}
+# />
+#
+#
+# Native cursor is hidden:
+#
+# cursor:
+#   activeTool === "highlight"
+#     ? "none"
+#     : ...
+#
+#
+# A small color indicator line is rendered underneath it.
+#
+# Indicator:
+#
+# backgroundColor =
+#   penColor
+#
+#
+# Therefore:
+#
+# yellow selected → yellow line
+# green selected  → green line
+# red selected    → red line
+# blue selected   → blue line
+#
+#
+# This uses the existing penColor state.
+#
+# No additional color state was created.
+
+
+# ============================================================
+# 22. ERASER TOOL — OVERALL MODEL
+# ============================================================
+
+# Eraser does NOT erase pixels from the canvas.
+#
+# It deletes annotation objects.
+#
+# Flow:
+#
+# Eraser
+#     ↓
+# hover annotation
+#     ↓
+# hit-test
+#     ↓
+# click
+#     ↓
+# deleteNoteAnnotation()
+#     ↓
+# remove local annotation
+#     ↓
+# notify parent
+#     ↓
+# parent state updates
+#
+#
+# This preserves annotation persistence and object semantics.
+
+
+# ============================================================
+# 23. ERASER HIT TESTING
+# ============================================================
+
+# Added:
+#
+# findAnnotationAtPoint(
+#   pixelX,
+#   pixelY
+# )
+#
+#
+# It converts the pointer to normalized coordinates.
+#
+# It checks annotations in reverse order:
+#
+# newest annotation first
+#
+# This approximates topmost-object behavior when annotations
+# overlap.
+
+
+# ============================================================
+# 24. ERASER — PEN / HIGHLIGHT HIT TEST
+# ============================================================
+
+# For Pen / Highlight:
+#
+# test each segment between consecutive points.
+#
+# Calculate closest point on the segment.
+#
+# Compare distance to tolerance.
+#
+#
+# Normalized tolerance is derived from:
+#
+# hitTolerance =
+#   Math.max(
+#     penWidth * 2,
+#     8
+#   );
+#
+#
+# Special case was added for zero-length segments.
+
+
+# ============================================================
+# 25. ERASER — SINGLE CLICK HIGHLIGHT DOT FIX
+# ============================================================
+
+# Problem:
+#
+# User can:
+#
+# Highlight
+#     ↓
+# maximum width
+#     ↓
+# single click
+#
+# Result:
+#
+# large highlight dot.
+#
+#
+# Original hit-test skipped zero-length segments:
+#
+# if (
+#   lengthSquared ===
+#   0
+# ) {
+#
+#   continue;
+# }
+#
+#
+# Therefore Eraser could not detect the dot.
+#
+#
+# Fix:
+#
+# Zero-length segment now performs point-distance hit testing.
+#
+# Point tolerance additionally accounts for:
+#
+# annotation.strokeWidth * 4
+#
+#
+# Result:
+#
+# ✓ large Highlight dot can be detected
+# ✓ cursor activates over dot
+# ✓ Eraser deletes dot
+
+
+# ============================================================
+# 26. ERASER CURSOR
+# ============================================================
+
+# Eraser originally showed browser "+" / crosshair.
+#
+# Final behavior:
+#
+# Native cursor:
+#
+# cursor:
+#   activeTool === "eraser"
+#     ? "none"
+#
+#
+# Custom overlay uses:
+#
+# <Eraser
+#   size={14}
+#   strokeWidth={1.8}
+# />
+#
+#
+# Cursor position is tracked using:
+#
+# highlightCursorPosition
+#
+# The same pointer-position state is reused intentionally.
+#
+#
+# Eraser also has:
+#
+# eraserHoveringAnnotation
+#
+# state:
+#
+# const [
+#   eraserHoveringAnnotation,
+#   setEraserHoveringAnnotation,
+# ] = useState<string | null>(null);
+#
+#
+# This stores the annotation ID currently under the Eraser.
+
+
+# ============================================================
+# 27. ERASER HOVER FEEDBACK
+# ============================================================
+
+# UX requirement:
+#
+# User should know when the cursor is actually over something
+# that can be erased.
+#
+#
+# Empty area:
+#
+# normal Eraser icon
+#
+#
+# Annotation underneath:
+#
+# red Eraser icon
+# +
+# red line underneath
+#
+#
+# This is controlled by:
+#
+# eraserHoveringAnnotation
+#
+#
+# Cursor class:
+#
+# eraserHoveringAnnotation
+#   ? "text-red-400"
+#   : "text-slate-300"
+#
+#
+# Red indicator line appears only while:
+#
+# eraserHoveringAnnotation
+#
+# is truthy.
+
+
+# ============================================================
+# 28. ERASER TOOLBAR WIRING
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteToolsBar.tsx
+#
+# Eraser button:
+#
+# onClick={() => {
+#
+#   onAnnotationToolChange(
+#     "eraser"
+#   );
+#
+#   setIsDrawingSettingsOpen(
+#     false
+#   );
+#
+# }}
+#
+#
+# Active state:
+#
+# activeAnnotationTool === "eraser"
+#
+# receives:
+#
+# bg-[#0b1730]
+# text-blue-300
+#
+#
+# Eraser uses the existing Lucide icon.
+
+
+# ============================================================
+# 29. ERASER DELETE PERSISTENCE
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteAnnotationCanvas.tsx
+#
+# Eraser flow:
+#
+# const annotation =
+#   findAnnotationAtPoint(...)
+#
+# if none:
+#
+#   return
+#
+# delete:
+#
+# await deleteNoteAnnotation(
+#   annotation
+# )
+#
+#
+# After successful deletion:
+#
+# setLocalAnnotations(
+#   current =>
+#     current.filter(
+#       item =>
+#         item.id !==
+#         annotation.id
+#     )
+# )
+#
+#
+# Then:
+#
+# onAnnotationDeleted(
+#   attachmentId,
+#   annotation
+# )
+#
+#
+# IMPORTANT:
+#
+# Eraser must remain object-based.
+#
+# Do NOT implement pixel erasing.
+
+
+# ============================================================
+# 30. PARENT ANNOTATION CALLBACK CHAIN
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteAttachmentCanvas.tsx
+#
+# Props now include:
+#
+# onAnnotationCreated
+# onAnnotationDeleted
+#
+#
+# It passes:
+#
+# onAnnotationDeleted={
+#   onAnnotationDeleted
+# }
+#
+# into NoteAnnotationCanvas.
+#
+#
+# FILE:
+#
+# app/notes/page.tsx
+#
+# NoteAttachmentCanvas receives:
+#
+# onAnnotationDeleted={
+#   handleAnnotationDeleted
+# }
+#
+#
+# This means parent Notes state is now updated for both:
+#
+# CREATE
+# DELETE
+#
+#
+# This was required to make Undo/Redo reliable.
+
+
+# ============================================================
+# 31. DRAWING HISTORY — PRODUCT DECISION
+# ============================================================
+
+# Undo/Redo applies ONLY to drawing annotations.
+#
+# It does NOT affect:
+#
+# - Main Note Tiptap editor
+# - Text Blocks
+# - note title
+# - linked trades
+# - screenshot attachment object itself
+# - screenshot movement
+# - screenshot resizing
+# - trading data
+#
+#
+# Drawing history v1 supports:
+#
+# ✓ Create annotation
+# ✓ Delete annotation
+#
+#
+# Not included:
+#
+# ✗ Move annotation
+# ✗ Resize annotation
+# ✗ Move screenshot
+# ✗ Resize screenshot
+# ✗ Text history
+# ✗ Tiptap history
+
+
+# ============================================================
+# 32. DRAWING HISTORY DATA MODEL
+# ============================================================
+
+# FILE:
+#
+# app/notes/page.tsx
+#
+# Type:
+#
+# type AnnotationHistoryAction =
+#   | {
+#       type:
+#         "create";
+#
+#       annotation:
+#         NoteAnnotation;
+#     }
+#   | {
+#       type:
+#         "delete";
+#
+#       annotation:
+#         NoteAnnotation;
+#     };
+#
+#
+# State:
+#
+# annotationHistory
+#
+# annotationRedoStack
+#
+#
+# Initial:
+#
+# []
+# []
+#
+#
+# History stores complete annotation objects, not just IDs.
+#
+# This is important for exact geometry restoration.
+
+
+# ============================================================
+# 33. DRAWING HISTORY RECORDING
+# ============================================================
+
+# CREATE:
+#
+# handleAnnotationCreated(...)
+#
+# does:
+#
+# setNotes(...)
+#
+# then:
+#
+# setAnnotationHistory(
+#   current => [
+#     ...current,
+#     {
+#       type:
+#         "create",
+#
+#       annotation:
+#         annotation,
+#     },
+#   ]
+# )
+#
+# and:
+#
+# setAnnotationRedoStack(
+#   []
+# )
+#
+#
+# DELETE:
+#
+# handleAnnotationDeleted(...)
+#
+# does:
+#
+# setNotes(...)
+#
+# then:
+#
+# setAnnotationHistory(
+#   current => [
+#     ...current,
+#     {
+#       type:
+#         "delete",
+#
+#       annotation:
+#         annotation,
+#     },
+#   ]
+# )
+#
+# and:
+#
+# setAnnotationRedoStack(
+#   []
+# )
+#
+#
+# Important rule:
+#
+# Any new drawing action after Undo invalidates Redo.
+
+
+# ============================================================
+# 34. DRAWING UNDO
+# ============================================================
+
+# FILE:
+#
+# app/notes/page.tsx
+#
+# handleDrawingUndo()
+#
+#
+# If history empty:
+#
+# return
+#
+#
+# Last action:
+#
+# annotationHistory[
+#   annotationHistory.length - 1
+# ]
+#
+#
+# CREATE → UNDO:
+#
+# deleteNoteAnnotation(
+#   annotation
+# )
+#
+# then remove it from:
+#
+# selectedNote.attachments
+#
+#
+# DELETE → UNDO:
+#
+# createNoteAnnotation(
+#   annotation
+# )
+#
+# then append restored annotation to:
+#
+# selectedNote.attachments
+#
+#
+# After Undo:
+#
+# last history action removed
+# action moved to redo stack
+
+
+# ============================================================
+# 35. DRAWING REDO
+# ============================================================
+
+# FILE:
+#
+# app/notes/page.tsx
+#
+# handleDrawingRedo()
+#
+#
+# If redo stack empty:
+#
+# return
+#
+#
+# CREATE → REDO:
+#
+# createNoteAnnotation(
+#   annotation
+# )
+#
+# then append recreated annotation into selected attachment.
+#
+#
+# DELETE → REDO:
+#
+# find current annotation
+# deleteNoteAnnotation(...)
+#
+# then remove it from selected attachment.
+#
+#
+# After Redo:
+#
+# redo action removed
+# action moved back to history
+
+
+# ============================================================
+# 36. ANNOTATION ID LIFECYCLE — IMPORTANT
+# ============================================================
+
+# Supabase createNoteAnnotation()
+# can return a NEW database ID.
+#
+# Therefore:
+#
+# CREATE
+# → Undo
+# → Redo
+#
+# creates a NEW annotation ID.
+#
+#
+# Same:
+#
+# DELETE
+# → Undo
+#
+# recreates annotation with a NEW ID.
+#
+#
+# This was explicitly handled.
+#
+#
+# Undo DELETE:
+#
+# restored =
+#   await createNoteAnnotation(
+#     annotation
+#   );
+#
+# Then:
+#
+# actionForRedo =
+# {
+#   type:
+#     "delete",
+#
+#   annotation:
+#     restored,
+# };
+#
+#
+# Undo later moves:
+#
+# actionForRedo
+#
+# to Redo stack, not stale `lastAction`.
+#
+#
+# Redo CREATE:
+#
+# recreated =
+#   await createNoteAnnotation(
+#     annotation
+#   );
+#
+# Then:
+#
+# actionForHistory =
+# {
+#   type:
+#     "create",
+#
+#   annotation:
+#     recreated,
+# };
+#
+#
+# Redo later moves:
+#
+# actionForHistory
+#
+# back into history.
+#
+#
+# This prevents stale annotation IDs from breaking future
+# Undo/Redo operations after recreated database rows.
+
+
+# ============================================================
+# 37. NOTE ISOLATION FOR HISTORY
+# ============================================================
+
+# IMPORTANT:
+#
+# annotationHistory and annotationRedoStack are page-level
+# state, not durable per-note history.
+#
+# Therefore we explicitly reset them when selectedNoteId changes.
+#
+# FILE:
+#
+# app/notes/page.tsx
+#
+# useEffect(() => {
+#
+#   setAnnotationHistory(
+#     []
+#   );
+#
+#   setAnnotationRedoStack(
+#     []
+#   );
+#
+# }, [
+#   selectedNoteId,
+# ]);
+#
+#
+# This prevents:
+#
+# Note A history
+#     ↓
+# switch to Note B
+#     ↓
+# Undo accidentally affecting Note A
+#
+#
+# Current product behavior:
+#
+# Switching Notes starts with clean drawing history.
+
+
+# ============================================================
+# 38. HISTORY PERSISTENCE DECISION
+# ============================================================
+
+# Drawing history is SESSION-ONLY.
+#
+# It is intentionally NOT persisted to Supabase.
+#
+#
+# Therefore:
+#
+# Draw
+#   ↓
+# Undo
+#   ↓
+# Redo
+#
+# works during current page session.
+#
+#
+# But:
+#
+# Draw
+#   ↓
+# Refresh
+#   ↓
+# Undo
+#
+# does NOT work.
+#
+#
+# This is INTENTIONAL.
+#
+# Reason:
+#
+# Persisting Undo/Redo would require a durable history model,
+# versioning, branching, retention, cleanup, and clear semantics
+# across browser sessions.
+#
+# For current Notes V2:
+#
+# persisted annotations = durable state
+#
+# Undo/Redo = transient editing history
+#
+#
+# Treat this as a deliberate v1 product decision, not a bug.
+
+
+# ============================================================
+# 39. TOOLBAR HISTORY WIRING
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteToolsBar.tsx
+#
+# Props now include:
+#
+# onDrawingUndo: () => void;
+# onDrawingRedo: () => void;
+#
+#
+# Component destructures:
+#
+# onDrawingUndo
+# onDrawingRedo
+#
+#
+# Undo button:
+#
+# onClick={
+#   onDrawingUndo
+# }
+#
+#
+# Redo button:
+#
+# onClick={
+#   onDrawingRedo
+# }
+#
+#
+# IMPORTANT:
+#
+# Redo was initially left visual-only during development.
+#
+# Later it was correctly wired.
+#
+# Final expected behavior:
+#
+# Undo button invokes parent handler.
+# Redo button invokes parent handler.
+
+
+# ============================================================
+# 40. DRAWING HISTORY CALLBACK CHAIN
+# ============================================================
+
+# Current chain:
+#
+# NoteToolsBar
+#     ↓
+# onDrawingUndo
+# onDrawingRedo
+#     ↓
+# app/notes/page.tsx
+#     ↓
+# handleDrawingUndo()
+# handleDrawingRedo()
+#     ↓
+# Supabase annotation storage
+#     +
+# parent selectedNote state
+#
+#
+# Tiptap Undo/Redo is NOT involved.
+
+
+# ============================================================
+# 41. IMPORTANT DEBUGGING EVENTS DURING IMPLEMENTATION
+# ============================================================
+
+# REDO initially appeared to do nothing.
+#
+# Root cause:
+#
+# The Redo toolbar button had never been wired.
+#
+# After wiring:
+#
+# DRAWING REDO CLICKED:
+#
+# showed:
+#
+# redoLength: 1
+# actionType: "create"
+# annotationId: existing annotation ID
+# attachmentId: attachment ID
+#
+#
+# Then:
+#
+# REDO CREATE:
+#
+# showed:
+#
+# originalId:
+# old annotation ID
+#
+# recreatedId:
+# new annotation ID
+#
+#
+# This confirmed:
+#
+# ✓ Redo callback executed
+# ✓ redo stack contained action
+# ✓ createNoteAnnotation() succeeded
+# ✓ Supabase generated new ID
+#
+#
+# Redo was subsequently confirmed visually working.
+#
+#
+# IMPORTANT:
+#
+# Temporary debug logs added during troubleshooting should be
+# removed before the final production checkpoint if they have
+# not already been removed.
+#
+# Known debug strings used:
+#
+# "DRAWING REDO CLICKED:"
+#
+# "REDO CREATE:"
+#
+# "REDO CREATE STATE UPDATE:"
+#
+#
+# The third state-update diagnostic was NOT needed once Redo was
+# confirmed working.
+#
+# Before pushing final production checkpoint, inspect and remove
+# temporary console logs if still present.
+
+
+# ============================================================
+# 42. TESTING RESULTS / CURRENT VERIFIED BEHAVIOR
+# ============================================================
+
+# Verified:
+#
+# ✓ Pen works as freehand
+# ✓ Line works
+# ✓ Arrow works
+# ✓ Zone works
+# ✓ Highlight works
+# ✓ Highlight live preview works
+# ✓ Eraser works
+# ✓ Eraser hover feedback works
+# ✓ Eraser deletes persisted annotation
+# ✓ Deleted annotations remain deleted
+# ✓ Deleted annotations no longer resurrect on tool change
+# ✓ Parent annotation synchronization works
+# ✓ Drawing Undo works during session
+# ✓ Drawing Redo works during session
+# ✓ Recreated annotation IDs are tracked
+# ✓ Build passes
+#
+#
+# User's latest manual testing result:
+#
+# "looks like we are good"
+#
+# User requested to test the system over the next few days.
+
+
+# ============================================================
+# 43. KNOWN INTENTIONAL LIMITATION
+# ============================================================
+
+# AFTER PAGE REFRESH:
+#
+# Undo / Redo history is empty.
+#
+# Therefore:
+#
+# Draw → Refresh → Undo
+#
+# does nothing.
+#
+# This is expected and intentional for v1.
+#
+#
+# The annotation itself remains persisted and visible after
+# refresh.
+
+
+# ============================================================
+# 44. Tiptap WARNING OBSERVED
+# ============================================================
+
+# Browser console currently shows:
+#
+# [tiptap warn]:
+# Duplicate extension names found:
+# ['underline']
+#
+#
+# This warning is separate from annotation functionality.
+#
+# It did NOT cause the drawing Undo/Redo bug.
+#
+# Do not mix this cleanup into the annotation checkpoint.
+#
+# Treat as a separate future Tiptap cleanup task.
+
+
+# ============================================================
+# 45. ATTACHMENT CANVAS ARCHITECTURE
+# ============================================================
+
+# FILE:
+#
+# components/notes/NoteAttachmentCanvas.tsx
+#
+# Parent responsibilities:
+#
+# ✓ render screenshot attachments
+# ✓ drag screenshots
+# ✓ resize screenshots
+# ✓ persist attachment layout
+# ✓ render NoteAnnotationCanvas
+#
+#
+# Existing:
+#
+# localAttachments
+#
+# remains responsible for attachment drag/resize UI state.
+#
+#
+# Annotation callbacks:
+#
+# onAnnotationCreated
+# onAnnotationDeleted
+#
+# now pass annotation changes upward to NotesPage.
+
+
+# ============================================================
+# 46. ATTACHMENT LAYOUT ARCHITECTURE
+# ============================================================
+
+# Existing screenshot drag behavior:
+#
+# pointer down
+#     ↓
+# calculate delta
+#     ↓
+# update localAttachments
+#     ↓
+# pointer up
+#     ↓
+# onLayoutChange()
+#     ↓
+# updateNoteAttachmentLayout()
+#
+#
+# Existing resize:
+#
+# pointer down
+#     ↓
+# aspect ratio preserved
+#     ↓
+# min width / height enforced
+#     ↓
+# localAttachments updated
+#     ↓
+# persistence on pointer up
+#
+#
+# Undo/Redo currently does NOT include these layout operations.
+
+
+# ============================================================
+# 47. CURRENT IMPORTANT FILE MAP
+# ============================================================
+
+# Notes page:
+#
+# app/notes/page.tsx
+#
+# Main editor:
+#
+# components/notes/TiptapEditor.tsx
+#
+# Text block editor:
+#
+# components/notes/NoteBlockEditor.tsx
+#
+# Text block canvas:
+#
+# components/notes/NoteBlockCanvas.tsx
+#
+# Toolbar:
+#
+# components/notes/NoteToolsBar.tsx
+#
+# Screenshot / attachment canvas:
+#
+# components/notes/NoteAttachmentCanvas.tsx
+#
+# Drawing annotation engine:
+#
+# components/notes/NoteAnnotationCanvas.tsx
+#
+# Annotation storage:
+#
+# lib/storage/noteAnnotationStorage.ts
+#
+# Note storage:
+#
+# lib/storage/supabaseNoteStorage.ts
+#
+# Domain types:
+#
+# types/note.ts
+
+
+# ============================================================
+# 48. CURRENT ANNOTATION TOOL INTERACTION MODEL
+# ============================================================
+
+# SELECT
+#
+# normal attachment interaction
+#
+#
+# PEN
+#
+# click + hold
+# → freehand
+# → release
+#
+#
+# LINE
+#
+# click
+# → move
+# → click
+#
+#
+# ARROW
+#
+# click
+# → move
+# → click
+#
+#
+# ZONE
+#
+# click
+# → move
+# → click
+#
+#
+# HIGHLIGHT
+#
+# click + hold
+# → freehand highlight
+# → release
+#
+#
+# ERASER
+#
+# hover annotation
+# → visual active feedback
+# → click
+# → delete annotation
+
+
+# ============================================================
+# 49. DRAWING PREVIEW ARCHITECTURE
+# ============================================================
+
+# Existing annotations:
+#
+# localAnnotations
+#     ↓
+# drawCanvas()
+#
+#
+# Current drawing:
+#
+# currentPoints
+#     ↓
+# drawCanvas()
+#
+#
+# Pen:
+#
+# all currentPoints rendered
+#
+#
+# Highlight:
+#
+# all currentPoints rendered with:
+#
+# globalAlpha = 0.35
+#
+#
+# Line / Arrow:
+#
+# start + end only
+#
+#
+# Zone:
+#
+# start + end
+#     ↓
+# strokeRect
+#
+#
+# Important:
+#
+# Zone preview returns after drawing the rectangle so it does
+# not fall into Line/Arrow preview.
+
+
+# ============================================================
+# 50. NORMALIZED GEOMETRY RULE
+# ============================================================
+
+# Pointer coordinates:
+#
+# browser pixels
+#     ↓
+# pixelToNormalized()
+#     ↓
+# normalized geometry
+#
+#
+# Render:
+#
+# normalized geometry
+#     ↓
+# normalizedToPixel()
+#     ↓
+# canvas pixels
+#
+#
+# This ensures annotations scale with screenshots.
+
+
+# ============================================================
+# 51. DRAWING SETTINGS SHARED RULE
+# ============================================================
+
+# Current state:
+#
+# penColor
+# penWidth
+#
+#
+# Shared across:
+#
+# Pen
+# Line
+# Arrow
+# Zone
+# Highlight
+#
+#
+# Eraser does not need its own color/width.
+#
+#
+# Do not introduce separate state unless product requirements
+# explicitly require per-tool preferences.
+
+
+# ============================================================
+# 52. DRAWING HISTORY RULES
+# ============================================================
+
+# New action:
+#
+# append to history
+# clear redo
+#
+#
+# Undo:
+#
+# pop history
+# perform inverse operation
+# push action onto redo
+#
+#
+# Redo:
+#
+# pop redo
+# perform original operation
+# push updated action back to history
+#
+#
+# Recreated annotations may receive new database IDs.
+#
+# Therefore history action must hold the CURRENT annotation
+# object returned from Supabase after recreation.
+
+
+# ============================================================
+# 53. DO NOT MIX DRAWING HISTORY WITH TEXT HISTORY
+# ============================================================
+
+# Drawing history:
+#
+# annotationHistory
+# annotationRedoStack
+#
+#
+# Tiptap history:
+#
+# managed independently by Tiptap
+#
+#
+# Do NOT create:
+#
+# one giant unified history stack.
+#
+#
+# Reason:
+#
+# annotations are persisted objects,
+# Tiptap uses document transactions.
+#
+# Their history semantics are fundamentally different.
+
+
+# ============================================================
+# 54. CURRENT PRODUCT DECISION — UNDO SCOPE
+# ============================================================
+
+# Undo/Redo is DRAWING-ONLY.
+#
+# If user is typing:
+#
+# Tiptap handles text history.
+#
+#
+# If user is using drawing tools:
+#
+# drawing Undo/Redo handles annotation history.
+#
+#
+# Current toolbar buttons are wired to drawing history
+# callbacks from NotesPage.
+
+
+# ============================================================
+# 55. CURRENT PRODUCT DECISION — TOOLBAR CLEANUP
+# ============================================================
+
+# Removed redundant Stroke Width group.
+#
+# Reason:
+#
+# Drawing Settings already has Width.
+#
+#
+# Future toolbar slot should only receive a genuinely useful
+# feature.
+#
+# Do not add another duplicate width control.
+
+
+# ============================================================
+# 56. FUTURE TOOLS NOT IMPLEMENTED
+# ============================================================
+
+# Possible future annotation tools:
+#
+# - additional trading markup tools
+# - opacity
+# - other chart-specific drawing tools
+#
+#
+# However:
+#
+# DO NOT add more tools immediately.
+#
+# Current priority:
+#
+# stabilize existing annotation system through real-world use.
+
+
+# ============================================================
+# 57. TESTING PERIOD
+# ============================================================
+
+# User will now test the annotation system over several days.
+#
+# Recommended real-world tests:
+#
+# 1. Pen circles / curves
+# 2. Large Pen strokes
+# 3. Multiple Lines
+# 4. Arrow creation
+# 5. Zone creation
+# 6. Highlight short + long strokes
+# 7. Highlight maximum width
+# 8. Highlight single-click dot
+# 9. Eraser over every annotation type
+# 10. Eraser over empty space
+# 11. Eraser hover activation
+# 12. Undo create
+# 13. Redo create
+# 14. Undo delete
+# 15. Redo delete
+# 16. Multiple Undo
+# 17. Multiple Redo
+# 18. Undo → new drawing → Redo should be cleared
+# 19. Switch Notes
+# 20. Refresh persistence
+# 21. Resize screenshot after annotations
+# 22. Move screenshot after annotations
+#
+#
+# Any unexpected behavior should be reported before changing
+# architecture.
+
+
+# ============================================================
+# 58. IMPORTANT TESTING EXPECTATION
+# ============================================================
+
+# EXPECTED:
+#
+# Draw
+# → Undo
+# → Redo
+#
+# works during the current session.
+#
+#
+# EXPECTED:
+#
+# Draw
+# → Refresh
+# → Undo
+#
+# does nothing.
+#
+#
+# This is intentional because:
+#
+# annotation state = persisted
+# history state = transient
+
+
+# ============================================================
+# 59. CURRENT STABLE ARCHITECTURE SUMMARY
+# ============================================================
+
+# DRAWING:
+#
+# Toolbar
+#     ↓
+# activeAnnotationTool
+#     ↓
+# NoteAttachmentCanvas
+#     ↓
+# NoteAnnotationCanvas
+#     ↓
+# NoteAnnotation
+#     ↓
+# Supabase annotation storage
+#
+#
+# CREATE:
+#
+# NoteAnnotationCanvas
+#     ↓
+# createNoteAnnotation()
+#     ↓
+# localAnnotations
+#     ↓
+# onAnnotationCreated()
+#     ↓
+# NotesPage
+#     ↓
+# selectedNote.attachments
+#
+#
+# DELETE:
+#
+# Eraser
+#     ↓
+# deleteNoteAnnotation()
+#     ↓
+# localAnnotations
+#     ↓
+# onAnnotationDeleted()
+#     ↓
+# NotesPage
+#     ↓
+# selectedNote.attachments
+#
+#
+# UNDO / REDO:
+#
+# NotesPage
+#     ↓
+# annotationHistory
+# annotationRedoStack
+#     ↓
+# create/delete exact annotation objects
+#
+#
+# This is the current canonical Notes drawing architecture.
+
+
+# ============================================================
+# 60. KNOWN CODE QUALITY / FUTURE CLEANUP
+# ============================================================
+
+# Some Notes V2 code is intentionally verbose and heavily
+# sectioned.
+#
+# Keep incremental changes.
+#
+# Do NOT rewrite whole files while debugging individual features.
+#
+#
+# Temporary / transitional items that may be cleaned later:
+#
+# 1. NoteBlockEditor onEditorReady callback
+#    - currently required by contract
+#    - not used for active editor ownership
+#
+# 2. Any remaining deletedAnnotationIds state / tombstone logic
+#    - may now be redundant after parent source-of-truth sync
+#    - do not remove during the testing period unless necessary
+#
+# 3. Temporary console debug logs from Redo debugging
+#    - remove before final production cleanup if still present
+#
+# 4. Duplicate Tiptap underline warning
+#    - separate cleanup task
+#
+#
+# DO NOT perform broad cleanup during this testing checkpoint.
+
+
+# ============================================================
+# 61. IMPORTANT — CURRENT BUGS / WARNINGS
+# ============================================================
+
+# Known console warning:
+#
+# [tiptap warn]:
+# Duplicate extension names found:
+# ['underline']
+#
+#
+# Status:
+#
+# Existing warning.
+# Not related to drawing tools.
+#
+#
+# Drawing bugs discovered during development were fixed:
+#
+# ✓ Pen freehand regression
+# ✓ Zone diagonal line
+# ✓ Highlight delayed preview
+# ✓ Highlight cursor
+# ✓ Eraser plus cursor
+# ✓ Eraser hover detection
+# ✓ Eraser dot detection
+# ✓ Eraser parent persistence
+# ✓ Deleted annotation resurrection
+# ✓ Undo parent/local synchronization
+# ✓ Redo button not wired
+# ✓ recreated annotation ID lifecycle
+#
+#
+# Current user report:
+#
+# Drawing system appears good.
+# User wants to test for several days.
+
+
+# ============================================================
+# 62. GIT / DEVELOPMENT RULE
+# ============================================================
+
+# Before continuing future work:
+#
+#     git status
+#     git log -1 --oneline
+#
+#
+# Verify clean / pushed state.
+#
+#
+# Development workflow:
+#
+# 1. identify exact file
+# 2. identify exact section
+# 3. provide exact replacement
+# 4. make ONE logical change
+# 5. npm run build
+# 6. manually test
+# 7. checkpoint
+# 8. push
+#
+#
+# Avoid multiple unrelated modifications in one step.
+
+
+# ============================================================
+# 63. CURRENT RESUME POINT
+# ============================================================
+
+# DO NOT immediately add another drawing feature.
+#
+# User is entering a multi-day stability testing period.
+#
+# First action when resuming:
+#
+#     git status
+#     git log -1 --oneline
+#
+# Confirm current GitHub checkpoint.
+#
+#
+# Then review any user-reported drawing issues.
+#
+#
+# If no bugs are reported:
+#
+# perform a cleanup pass for:
+#
+# - temporary debug logs
+# - redundant deletedAnnotationIds state
+# - Tiptap underline warning
+#
+# but do this in separate deliberate checkpoints.
+#
+#
+# Do NOT introduce:
+#
+# - persisted history
+# - more drawing tools
+# - screenshot movement history
+# - annotation resize history
+#
+# until current system has been proven stable.
+
+
+# ============================================================
+# 64. FINAL CURRENT FEATURE MATRIX
+# ============================================================
+
+# TEXT:
+#
+# ✓ Main Note editor
+# ✓ Text Block editor
+# ✓ Focus-based active editor
+# ✓ Independent font size
+# ✓ Independent text color
+# ✓ Bold
+# ✓ Italic
+# ✓ Underline
+# ✓ Strike
+# ✓ Bullet list
+# ✓ Ordered list
+# ✓ Alignment
+#
+#
+# SCREENSHOTS:
+#
+# ✓ Upload
+# ✓ Delete
+# ✓ Drag
+# ✓ Resize
+# ✓ Secure signed URLs
+# ✓ Persistence
+#
+#
+# DRAWING:
+#
+# ✓ Select
+# ✓ Pen
+# ✓ Line
+# ✓ Arrow
+# ✓ Zone
+# ✓ Highlight
+# ✓ Eraser
+#
+#
+# DRAWING SETTINGS:
+#
+# ✓ Color
+# ✓ Width
+#
+#
+# DRAWING HISTORY:
+#
+# ✓ Undo
+# ✓ Redo
+# ✓ Session-only
+#
+#
+# BUILD:
+#
+# ✓ Production build passes
+
+
+# ============================================================
+# 65. FINAL RESUME INSTRUCTIONS
+# ============================================================
+
+# When we resume:
+#
+# FIRST:
+#
+#     git status
+#     git log -1 --oneline
+#
+#
+# SECOND:
+#
+# Confirm whether the multi-day testing found:
+#
+# - drawing bugs
+# - eraser bugs
+# - Undo/Redo bugs
+# - persistence bugs
+# - UI bugs
+#
+#
+# THIRD:
+#
+# Do NOT change anything merely for aesthetics while testing.
+#
+#
+# FOURTH:
+#
+# If a bug is reported:
+#
+# 1. reproduce
+# 2. identify exact layer
+# 3. determine whether issue is:
+#
+#    UI
+#    state
+#    persistence
+#    synchronization
+#    geometry
+#    history
+#
+# 4. make smallest correct change
+# 5. build
+# 6. retest
+#
+#
+# ============================================================
+# END OF CHECKPOINT
+# ============================================================
+```

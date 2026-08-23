@@ -35,6 +35,14 @@ type NoteTradeLinkRow = {
   note_id: string;
   trade_id: string;
 
+  position_x: number;
+  position_y: number;
+
+  width: number;
+  height: number;
+
+  z_index: number;
+
   created_at: string;
 };
 
@@ -282,12 +290,17 @@ Promise<Note[]> {
     error: linkError,
   } =
     await supabase
-      .from("note_trades")
-      .select(`
-        note_id,
-        trade_id,
-        created_at
-      `)
+.from("note_trades")
+.select(`
+  note_id,
+  trade_id,
+  position_x,
+  position_y,
+  width,
+  height,
+  z_index,
+  created_at
+`)
       .in(
         "note_id",
         noteIds
@@ -342,21 +355,36 @@ Promise<Note[]> {
       ) ?? [];
 
 
-    existing.push({
+existing.push({
 
-      id:
-        `${link.note_id}:${link.trade_id}`,
+  id:
+    `${link.note_id}:${link.trade_id}`,
 
-      noteId:
-        link.note_id,
+  noteId:
+    link.note_id,
 
-      tradeId:
-        link.trade_id,
+  tradeId:
+    link.trade_id,
 
-      createdAt:
-        link.created_at,
+  positionX:
+    link.position_x,
 
-    });
+  positionY:
+    link.position_y,
+
+  width:
+    link.width,
+
+  height:
+    link.height,
+
+  zIndex:
+    link.z_index,
+
+  createdAt:
+    link.created_at,
+
+});
 
 
     linksByNote.set(
@@ -1536,7 +1564,14 @@ deleteNoteBlockFromSupabase(
 export async function
 addTradeToNoteInSupabase(
   noteId: string,
-  tradeId: string
+  tradeId: string,
+  layout: {
+    positionX: number;
+    positionY: number;
+    width: number;
+    height: number;
+    zIndex: number;
+  }
 ): Promise<NoteTradeLink | null> {
 
   // ===================================================
@@ -1607,20 +1642,40 @@ addTradeToNoteInSupabase(
   } =
     await supabase
       .from("note_trades")
-      .insert({
+.insert({
 
-        note_id:
-          noteId,
+  note_id:
+    noteId,
 
-        trade_id:
-          tradeId,
+  trade_id:
+    tradeId,
 
-      })
-      .select(`
-        note_id,
-        trade_id,
-        created_at
-      `)
+  position_x:
+    layout.positionX,
+
+  position_y:
+    layout.positionY,
+
+  width:
+    layout.width,
+
+  height:
+    layout.height,
+
+  z_index:
+    layout.zIndex,
+
+})
+.select(`
+  note_id,
+  trade_id,
+  position_x,
+  position_y,
+  width,
+  height,
+  z_index,
+  created_at
+`)
       .single();
 
 
@@ -1639,28 +1694,179 @@ addTradeToNoteInSupabase(
     data as NoteTradeLinkRow;
 
 
+return {
+
+  id:
+    `${row.note_id}:${row.trade_id}`,
+
+  noteId:
+    row.note_id,
+
+  tradeId:
+    row.trade_id,
+
+  positionX:
+    row.position_x,
+
+  positionY:
+    row.position_y,
+
+  width:
+    row.width,
+
+  height:
+    row.height,
+
+  zIndex:
+    row.z_index,
+
+  createdAt:
+    row.created_at,
+
+};
+}
+
+// =====================================================
+// UPDATE NOTE TRADE LINK POSITION
+// =====================================================
+
+export async function
+updateNoteTradeLinkPositionInSupabase(
+  link: NoteTradeLink,
+  positionX: number,
+  positionY: number
+): Promise<NoteTradeLink | null> {
+
+  // ===================================================
+  // AUTHENTICATED USER
+  // ===================================================
+
+  const {
+    data: authData,
+  } =
+    await supabase.auth.getUser();
+
+  const user =
+    authData.user;
+
+  if (!user) {
+
+    console.error(
+      "NO AUTHENTICATED USER FOUND"
+    );
+
+    return null;
+  }
+
+  // ===================================================
+  // VERIFY NOTE OWNERSHIP
+  // ===================================================
+
+  const {
+    data: note,
+    error: noteError,
+  } =
+    await supabase
+      .from("notes")
+      .select("id")
+      .eq(
+        "id",
+        link.noteId
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+  if (
+    noteError ||
+    !note
+  ) {
+
+    console.error(
+      "FAILED TO VERIFY NOTE OWNERSHIP FOR TRADE LINK POSITION:",
+      noteError
+    );
+
+    return null;
+  }
+
+  // ===================================================
+  // UPDATE TRADE LINK
+  // ===================================================
+
+
+  const {
+    error,
+  } =
+    await supabase
+      .from("note_trades")
+      .update({
+
+        position_x:
+          positionX,
+
+        position_y:
+          positionY,
+
+      })
+      .eq(
+        "note_id",
+        link.noteId
+      )
+      .eq(
+        "trade_id",
+        link.tradeId
+      );
+
+  if (
+    error
+  ) {
+
+    console.error(
+      "FAILED TO UPDATE NOTE TRADE LINK POSITION:",
+      {
+        message:
+          error.message,
+
+        details:
+          error.details,
+
+        hint:
+          error.hint,
+
+        code:
+          error.code,
+
+        string:
+          String(error),
+      }
+    );
+
+    return null;
+  }
+
+  // ===================================================
+  // RETURN UPDATED DOMAIN OBJECT
+  // ===================================================
+
   return {
 
-    id:
-      `${row.note_id}:${row.trade_id}`,
+    ...link,
 
-    noteId:
-      row.note_id,
+    positionX:
+      positionX,
 
-    tradeId:
-      row.trade_id,
-
-    createdAt:
-      row.created_at,
+    positionY:
+      positionY,
 
   };
 }
 
-
 // =====================================================
 // REMOVE TRADE FROM NOTE
 // =====================================================
-
 export async function
 removeTradeFromNoteInSupabase(
   noteId: string,

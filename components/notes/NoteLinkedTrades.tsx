@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  X,
+  Trash2,
 } from "lucide-react";
 
 import {
@@ -12,6 +12,11 @@ import {
   NoteTradeLink,
 } from "@/types/note";
 
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type Props = {
   trades: Trade[];
@@ -21,6 +26,12 @@ type Props = {
   onRemoveTrade: (
     tradeId: string
   ) => void;
+
+  onTradeLinkPositionChange: (
+    link: NoteTradeLink,
+    positionX: number,
+    positionY: number
+  ) => void;
 };
 
 
@@ -28,28 +39,302 @@ export default function NoteLinkedTrades({
   trades,
   tradeLinks,
   onRemoveTrade,
+  onTradeLinkPositionChange,
 }: Props) {
+
+  // =====================================================
+  // DRAG STATE
+  // =====================================================
+
+const dragStateRef =
+  useRef<{
+    tradeLinkId: string;
+    offsetX: number;
+    offsetY: number;
+    currentX: number;
+    currentY: number;
+  } | null>(null);
+
+  const canvasRef =
+    useRef<HTMLDivElement | null>(null);
+
+      // =====================================================
+  // LOCAL TRADE LINK POSITIONS
+  // =====================================================
+
+  const [
+    localTradeLinks,
+    setLocalTradeLinks,
+  ] = useState<NoteTradeLink[]>(
+    tradeLinks
+  );
+
+  // =====================================================
+  // SYNC PARENT TRADE LINKS
+  // =====================================================
+
+  useEffect(() => {
+
+    setLocalTradeLinks(
+      tradeLinks
+    );
+
+  }, [
+    tradeLinks,
+  ]);
+
+  // =====================================================
+  // START TRADE CARD DRAG
+  // =====================================================
+
+  function handleTradePointerDown(
+    event: React.PointerEvent<HTMLDivElement>,
+    link: NoteTradeLink
+  ) {
+
+    if (
+      event.button !== 0
+    ) {
+
+      return;
+    }
+
+    const canvas =
+      canvasRef.current;
+
+    if (
+      !canvas
+    ) {
+
+      return;
+    }
+
+    const canvasRect =
+      canvas.getBoundingClientRect();
+
+    const pointerX =
+      event.clientX -
+      canvasRect.left;
+
+    const pointerY =
+      event.clientY -
+      canvasRect.top;
+
+    dragStateRef.current = {
+
+      tradeLinkId:
+        link.id,
+
+      offsetX:
+        pointerX -
+        link.positionX,
+
+      offsetY:
+        pointerY -
+        link.positionY,
+
+      currentX:
+        link.positionX,
+
+      currentY:
+        link.positionY,
+
+    };
+
+    event.currentTarget.setPointerCapture(
+      event.pointerId
+    );
+
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+
+  // =====================================================
+  // DRAG TRADE CARD
+  // =====================================================
+
+  function handleTradePointerMove(
+    event: React.PointerEvent<HTMLDivElement>
+  ) {
+
+    const dragState =
+      dragStateRef.current;
+
+    if (
+      !dragState
+    ) {
+
+      return;
+    }
+
+    const canvas =
+      canvasRef.current;
+
+    if (
+      !canvas
+    ) {
+
+      return;
+    }
+
+    const canvasRect =
+      canvas.getBoundingClientRect();
+
+    const pointerX =
+      event.clientX -
+      canvasRect.left;
+
+    const pointerY =
+      event.clientY -
+      canvasRect.top;
+
+    const positionX =
+      Math.max(
+        0,
+        pointerX -
+          dragState.offsetX
+      );
+
+    const positionY =
+      Math.max(
+        0,
+        pointerY -
+          dragState.offsetY
+      );
+
+    // ===================================================
+    // UPDATE DRAG STATE
+    // ===================================================
+
+    dragState.currentX =
+      positionX;
+
+    dragState.currentY =
+      positionY;
+
+    // ===================================================
+    // LOCAL UI UPDATE ONLY
+    // ===================================================
+
+    setLocalTradeLinks(
+      (currentLinks) =>
+        currentLinks.map(
+          (item) =>
+            item.id ===
+            dragState.tradeLinkId
+              ? {
+                  ...item,
+
+                  positionX:
+                    positionX,
+
+                  positionY:
+                    positionY,
+                }
+              : item
+        )
+    );
+
+  }
+
+
+  // =====================================================
+  // END TRADE CARD DRAG
+  // =====================================================
+
+  async function handleTradePointerUp(
+    event: React.PointerEvent<HTMLDivElement>
+  ) {
+
+    const dragState =
+      dragStateRef.current;
+
+    if (
+      !dragState
+    ) {
+
+      return;
+    }
+
+    dragStateRef.current =
+      null;
+
+    const link =
+      localTradeLinks.find(
+        (item) =>
+          item.id ===
+          dragState.tradeLinkId
+      );
+
+    if (
+      link
+    ) {
+
+      await onTradeLinkPositionChange(
+        link,
+        dragState.currentX,
+        dragState.currentY
+      );
+
+    }
+
+    try {
+
+      event.currentTarget.releasePointerCapture(
+        event.pointerId
+      );
+
+    } catch {
+
+      // Pointer capture may already
+      // have been released.
+
+    }
+
+  }
+
+
 
   // =====================================================
   // ATTACHED TRADES
   // =====================================================
 
-  const attachedTrades =
-    tradeLinks
-      .map(
-        (link) =>
+const attachedTrades =
+  localTradeLinks
+    .map(
+      (link) => {
+
+        const trade =
           trades.find(
-            (trade) =>
-              trade.id ===
+            (item) =>
+              item.id ===
               link.tradeId
-          )
-      )
-      .filter(
-        (
-          trade
-        ): trade is Trade =>
-          Boolean(trade)
-      );
+          );
+
+        if (
+          !trade
+        ) {
+
+          return null;
+        }
+
+        return {
+          link,
+          trade,
+        };
+
+      }
+    )
+    .filter(
+      (
+        item
+      ): item is {
+        link: NoteTradeLink;
+        trade: Trade;
+      } =>
+        Boolean(item)
+    );
 
 
   // =====================================================
@@ -472,16 +757,61 @@ function getDisplaySide(
 
 return (
 
-  <div className="relative left-[20px] translate-y-[20px] flex flex-col gap-3">
+  <div
+  ref={
+    canvasRef
+  }
+  className="pointer-events-none absolute inset-0"
+  onPointerMove={
+    handleTradePointerMove
+  }
+  onPointerUp={
+    handleTradePointerUp
+  }
+  onPointerCancel={
+    handleTradePointerUp
+  }
+>
 
-    {attachedTrades.map(
-        (trade) => (
+{attachedTrades.map(
+  ({
+    link,
+    trade,
+  }) => (
 
 <div
   key={
     trade.id
   }
-  className="relative h-[130px] w-[clamp(280px,32vw,360px)] rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-3"
+  className="pointer-events-auto group absolute cursor-grab rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-3 active:cursor-grabbing"
+  style={{
+    left:
+      link.positionX,
+
+    top:
+      link.positionY,
+
+    width:
+      link.width,
+
+    height:
+      link.height,
+
+    zIndex:
+      1000 +
+      link.zIndex,
+
+    touchAction:
+      "none",
+  }}
+  onPointerDown={(
+    event
+  ) =>
+    handleTradePointerDown(
+      event,
+      link
+    )
+  }
 >
 
 {/* ========================================= */}
@@ -490,25 +820,62 @@ return (
 
 <div className="relative border-b border-white/[0.06] pb-2">
 
-<p className="relative left-[8px] text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-  Trade Snapshot
-</p>
+  <p className="relative left-[8px] text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+    Trade Snapshot
+  </p>
+
+  {/* ========================================= */}
+  {/* DELETE ACTION */}
+  {/* ========================================= */}
 
   <button
     type="button"
-    onClick={() =>
+    title="Remove trade"
+    aria-label={`Remove ${trade.ticker} trade`}
+    onPointerDown={(
+      event
+    ) => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+    }}
+    onClick={(
+      event
+    ) => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
       onRemoveTrade(
         trade.id
-      )
-    }
-    className="absolute right-[2px] top-[-4px] flex h-6 w-6 items-center justify-center rounded-[6px] text-slate-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
-    aria-label={`Remove ${trade.ticker} trade`}
+      );
+
+    }}
+    className="
+      absolute
+      right-[2px]
+      top-[-4px]
+      z-20
+      flex
+      h-6
+      w-6
+      items-center
+      justify-center
+      rounded-[6px]
+      text-slate-500
+      opacity-0
+      transition-all
+      group-hover:opacity-100
+      hover:bg-red-500/10
+      hover:text-red-400
+    "
   >
 
-    <X
-      size={14}
-      strokeWidth={1.8}
-    />
+<Trash2
+  size={14}
+  strokeWidth={1.8}
+/>
 
   </button>
 
@@ -565,12 +932,12 @@ return (
                   Entry Date
                 </p>
 
-                <p className="mt-1 text-[12px] font-medium text-slate-300">
-                  {formatDate(
-                    trade.openedAt ||
-                    trade.date
-                  )}
-                </p>
+<p className="mt-1 whitespace-nowrap text-[12px] font-medium text-slate-300">
+  {formatDate(
+    trade.openedAt ||
+    trade.date
+  )}
+</p>
 
               </div>
 
@@ -600,12 +967,12 @@ return (
                   Exit Date
                 </p>
 
-                <p className="mt-1 text-[12px] font-medium text-slate-300">
-                  {formatDate(
-                    trade.closedAt ||
-                    ""
-                  )}
-                </p>
+<p className="mt-1 whitespace-nowrap text-[12px] font-medium text-slate-300">
+  {formatDate(
+    trade.closedAt ||
+    ""
+  )}
+</p>
 
               </div>
 

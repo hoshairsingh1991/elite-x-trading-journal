@@ -431,6 +431,8 @@ git commit -m "add zone annotation tool"
 git commit -m "add highlight annotation tool"
 git commit -m "add eraser annotation tool"
 git commit -m "add drawing undo redo"
+git commit -m "feat(notes): add movable trade snapshot cards"
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
