@@ -423,7 +423,7 @@ git commit -m "Close pen settings on outside click"
 git commit -m "checkpoint: text blocks working before rich text formatting"
 git commit -m "fix notes editor context switching"
 git commit -m "fix notes editor formatting contexts"
-
+git commit -m "fix notes text formatting contexts"
 
 
 

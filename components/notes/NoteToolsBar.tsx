@@ -559,15 +559,15 @@ setIsTextSizeOpen(
 <button
   type="button"
   title="Italic"
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleItalic()
-      .run()
-  }
+onClick={() =>
+  activeEditor
+    .chain()
+    .focus()
+    .toggleItalic()
+    .run()
+}
  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-colors ${
-    editor.isActive("italic")
+    activeEditor.isActive("italic")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -581,15 +581,15 @@ setIsTextSizeOpen(
 <button
   type="button"
   title="Underline"
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleUnderline()
-      .run()
-  }
+onClick={() =>
+  activeEditor
+    .chain()
+    .focus()
+    .toggleUnderline()
+    .run()
+}
   className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] transition-colors max-[1535px]:w-7 ${
-    editor.isActive("underline")
+    activeEditor.isActive("underline")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -603,15 +603,15 @@ setIsTextSizeOpen(
 <button
   type="button"
   title="Strikethrough"
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleStrike()
-      .run()
-  }
+onClick={() =>
+  activeEditor
+    .chain()
+    .focus()
+    .toggleStrike()
+    .run()
+}
   className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] transition-colors max-[1535px]:w-7 ${
-    editor.isActive("strike")
+    activeEditor.isActive("strike")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -637,14 +637,14 @@ setIsTextSizeOpen(
 onClick={() => {
 
 
-  editor
-    .chain()
-    .focus()
-    .toggleBulletList()
-    .run();
+activeEditor
+  .chain()
+  .focus()
+  .toggleBulletList()
+  .run();
 }}
   className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-colors ${
-    editor.isActive("bulletList")
+   activeEditor.isActive("bulletList")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -662,24 +662,14 @@ onClick={() => {
   type="button"
   title="Numbered list"
 onClick={() => {
-  console.log(
-    "Ordered list available:",
-    editor
-      .can()
-      .chain()
-      .focus()
-      .toggleOrderedList()
-      .run()
-  );
-
-  editor
+  activeEditor
     .chain()
     .focus()
     .toggleOrderedList()
     .run();
 }}
   className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[10px] font-semibold transition-colors ${
-    editor.isActive("orderedList")
+    activeEditor.isActive("orderedList")
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -695,18 +685,18 @@ onClick={() => {
   type="button"
   title="Align left"
   onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign(
-        "left"
-      )
-      .run()
+activeEditor
+  .chain()
+  .focus()
+  .setTextAlign(
+    "left"
+  )
+  .run()
   }
   className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
-    editor.isActive({
-      textAlign: "left",
-    })
+ activeEditor.isActive({
+  textAlign: "left",
+})
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -724,18 +714,18 @@ onClick={() => {
   type="button"
   title="Align center"
   onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign(
-        "center"
-      )
-      .run()
+activeEditor
+  .chain()
+  .focus()
+  .setTextAlign(
+    "center"
+  )
+  .run()
   }
   className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
-    editor.isActive({
-      textAlign: "center",
-    })
+activeEditor.isActive({
+  textAlign: "center",
+})
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -753,18 +743,18 @@ onClick={() => {
   type="button"
   title="Align right"
   onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign(
-        "right"
-      )
-      .run()
+activeEditor
+  .chain()
+  .focus()
+  .setTextAlign(
+    "right"
+  )
+  .run()
   }
   className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
-    editor.isActive({
-      textAlign: "right",
-    })
+activeEditor.isActive({
+  textAlign: "right",
+})
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}
@@ -782,18 +772,18 @@ onClick={() => {
   type="button"
   title="Justify"
   onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign(
-        "justify"
-      )
-      .run()
+activeEditor
+  .chain()
+  .focus()
+  .setTextAlign(
+    "justify"
+  )
+  .run()
   }
   className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
-    editor.isActive({
-      textAlign: "justify",
-    })
+activeEditor.isActive({
+  textAlign: "justify",
+})
       ? "bg-[#0b1730] text-blue-300"
       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`}

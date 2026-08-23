@@ -122,16 +122,16 @@ extensions: [
       immediatelyRender:
         false,
 
-      editorProps: {
+editorProps: {
 
-        attributes: {
+  attributes: {
 
-          class:
-            "h-full w-full outline-none",
+    class:
+      "h-full w-full outline-none [&_ul]:list-disc [&_ul]:list-inside [&_ul]:ml-0 [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:ml-0 [&_ol_li>p]:inline [&_ul_li>p]:inline",
 
-        },
+  },
 
-      },
+},
 
       onUpdate: ({
         editor,
