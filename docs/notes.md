@@ -432,7 +432,7 @@ git commit -m "add highlight annotation tool"
 git commit -m "add eraser annotation tool"
 git commit -m "add drawing undo redo"
 git commit -m "feat(notes): add movable trade snapshot cards"
-
+git commit -m "docs(notes): update Notes V2 master architecture"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
