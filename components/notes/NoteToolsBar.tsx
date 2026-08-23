@@ -36,7 +36,9 @@ import {
 type Props = {
   editor: Editor;
 
-activeBlockEditor: Editor | null;
+  activeBlockEditor: Editor | null;
+
+  activeBlockId: string | null;
 
   noteId: string;
 
@@ -88,6 +90,7 @@ activeBlockEditor: Editor | null;
 export default function NoteToolsBar({
   editor,
   activeBlockEditor,
+  activeBlockId,
   noteId,
   onAddTextBlock,
   activeBlockStyle,
@@ -227,7 +230,7 @@ function applyTypingFontSize(
     `${size}px`;
 
   const textStyleMark =
-    editor.schema.marks.textStyle;
+    activeEditor.schema.marks.textStyle;
 
   if (
     !textStyleMark
@@ -236,9 +239,9 @@ function applyTypingFontSize(
     return;
   }
 
-  const existingStoredMarks =
-    editor.state.storedMarks ||
-    editor.state.selection.$from.marks();
+const existingStoredMarks =
+  activeEditor.state.storedMarks ||
+  activeEditor.state.selection.$from.marks();
 
   const filteredMarks =
     existingStoredMarks.filter(
@@ -252,19 +255,21 @@ function applyTypingFontSize(
       fontSize,
     });
 
-  editor.view.dispatch(
-    editor.state.tr.setStoredMarks([
-      ...filteredMarks,
-      fontSizeMark,
-    ])
-  );
+activeEditor.view.dispatch(
+  activeEditor.state.tr.setStoredMarks([
+    ...filteredMarks,
+    fontSizeMark,
+  ])
+);
 }
 
 
 useEffect(() => {
 
-  const storageKey =
-    `elite-x-note-font-size-${noteId}`;
+const storageKey =
+  activeBlockId
+    ? `elite-x-note-font-size-${noteId}-block-${activeBlockId}`
+    : `elite-x-note-font-size-${noteId}-note`;
 
   const savedSize =
     window.localStorage.getItem(
@@ -291,8 +296,8 @@ useEffect(() => {
     let documentSize =
       "";
 
-    editor.state.doc.descendants(
-      (node) => {
+    activeEditor.state.doc.descendants(
+  (node) => {
 
         if (
           !node.isText
@@ -370,6 +375,8 @@ return () => {
 
 }, [
   editor,
+  activeBlockEditor,
+  activeBlockId,
   noteId,
 ]);
 
@@ -460,9 +467,11 @@ return (
             onClick={() => {
 
 const storageKey =
-  `elite-x-note-font-size-${noteId}`;
+  activeBlockId
+    ? `elite-x-note-font-size-${noteId}-block-${activeBlockId}`
+    : `elite-x-note-font-size-${noteId}-note`;
 
-editor
+activeEditor
   .chain()
   .focus()
   .setMark(

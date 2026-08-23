@@ -11,6 +11,7 @@ import {
 
 import {
   Editor,
+  Extension,
 } from "@tiptap/core";
 
 import StarterKit from "@tiptap/starter-kit";
@@ -22,6 +23,52 @@ import Color from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 
+const FontSizeExtension =
+  Extension.create({
+    name: "fontSize",
+
+    addGlobalAttributes() {
+
+      return [
+        {
+          types: [
+            "textStyle",
+            "listItem",
+          ],
+
+          attributes: {
+
+            fontSize: {
+
+              default:
+                null,
+
+              parseHTML:
+                element =>
+                  element.style.fontSize ||
+                  null,
+
+              renderHTML:
+                attributes => {
+
+                  if (
+                    !attributes.fontSize
+                  ) {
+
+                    return {};
+                  }
+
+                  return {
+                    style:
+                      `font-size: ${attributes.fontSize}`,
+                  };
+                },
+            },
+          },
+        },
+      ];
+    },
+  });
 
 type Props = {
   content: string;
@@ -50,23 +97,25 @@ export default function NoteBlockEditor({
   const editor =
     useEditor({
 
-      extensions: [
+extensions: [
 
-        StarterKit,
+  StarterKit,
 
-        TextStyle,
+  TextStyle,
 
-        Color,
+  FontSizeExtension,
 
-        Underline,
+  Color,
 
-        TextAlign.configure({
-          types: [
-            "paragraph",
-          ],
-        }),
+  Underline,
 
-      ],
+  TextAlign.configure({
+    types: [
+      "paragraph",
+    ],
+  }),
+
+],
 
       content,
 

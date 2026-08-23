@@ -124,6 +124,13 @@ const [
 );
 
 const [
+  activeBlockId,
+  setActiveBlockId,
+] = useState<string | null>(
+  null
+);
+
+const [
   activeBlockStyle,
   setActiveBlockStyle,
 ] = useState({
@@ -1769,13 +1776,17 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
     tiptapEditor
   }
 
-  activeBlockEditor={
-    activeBlockEditor
-  }
+activeBlockEditor={
+  activeBlockEditor
+}
 
-  noteId={
-    selectedNote.id
-  }
+activeBlockId={
+  activeBlockId
+}
+
+noteId={
+  selectedNote.id
+}
 
   onAddTextBlock={
     handleAddTextBlock
@@ -1905,13 +1916,20 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
     handleBlocksChange
   }
 
-onActiveBlockEditorChange={(
-  editor
-) => {
-  setActiveBlockEditor(
-    editor
-  );
-}}
+  onActiveBlockEditorChange={(
+    editor,
+    blockId
+  ) => {
+
+    setActiveBlockEditor(
+      editor
+    );
+
+    setActiveBlockId(
+      blockId
+    );
+
+  }}
 
   activeBlockStyle={
     activeBlockStyle
