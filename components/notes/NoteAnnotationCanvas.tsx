@@ -11,11 +11,13 @@ import {
 } from "@/types/note";
 
 import {
+  Eraser,
   Highlighter,
 } from "lucide-react";
 
 import {
   createNoteAnnotation,
+  deleteNoteAnnotation,
 } from "@/lib/storage/noteAnnotationStorage";
 
 
@@ -33,7 +35,8 @@ activeTool:
   | "line"
   | "arrow"
   | "zone"
-  | "highlight";
+  | "highlight"
+  | "eraser";
 
   penColor: string;
 
@@ -85,11 +88,21 @@ const [
   setHighlightCursorPosition,
 ] = useState<Point | null>(null);
 
+const [
+  eraserHoveringAnnotation,
+  setEraserHoveringAnnotation,
+] = useState<string | null>(null);
+
   const [
     localAnnotations,
     setLocalAnnotations,
   ] = useState<NoteAnnotation[]>(
     annotations
+  );
+
+const deletedAnnotationIds =
+  useRef<Set<string>>(
+    new Set()
   );
 
   // =================================================
@@ -109,18 +122,45 @@ const [
             )
           );
 
-        const locallyCreated =
-          current.filter(
-            (annotation) =>
-              !parentIds.has(
-                annotation.id
-              )
-          );
+for (
+  const id of
+  deletedAnnotationIds.current
+) {
 
-        return [
-          ...annotations,
-          ...locallyCreated,
-        ];
+  if (
+    !parentIds.has(id)
+  ) {
+
+    deletedAnnotationIds.current.delete(
+      id
+    );
+
+  }
+
+}
+
+const locallyCreated =
+  current.filter(
+    (annotation) =>
+      !parentIds.has(
+        annotation.id
+      ) &&
+      !deletedAnnotationIds.current.has(
+        annotation.id
+      )
+  );
+
+
+
+return [
+  ...annotations.filter(
+    (annotation) =>
+      !deletedAnnotationIds.current.has(
+        annotation.id
+      )
+  ),
+  ...locallyCreated,
+];
       }
     );
 
@@ -210,6 +250,439 @@ useEffect(() => {
 
     return value / size;
   }
+
+// =================================================
+// FIND ANNOTATION AT POINT
+// =================================================
+
+function findAnnotationAtPoint(
+  pixelX: number,
+  pixelY: number
+): NoteAnnotation | null {
+
+  const normalizedX =
+    pixelToNormalized(
+      pixelX,
+      width
+    );
+
+  const normalizedY =
+    pixelToNormalized(
+      pixelY,
+      height
+    );
+
+  const hitTolerance =
+    Math.max(
+      penWidth * 2,
+      8
+    );
+
+  // Check newest annotations first.
+  for (
+    let index =
+      localAnnotations.length - 1;
+    index >= 0;
+    index--
+  ) {
+
+    const annotation =
+      localAnnotations[index];
+
+    if (
+      !annotation.points ||
+      annotation.points.length < 2
+    ) {
+
+      continue;
+    }
+
+    // =================================================
+    // ZONE
+    // =================================================
+
+    if (
+      annotation.type === "zone"
+    ) {
+
+      const start =
+        annotation.points[0];
+
+      const end =
+        annotation.points[
+          annotation.points.length - 1
+        ];
+
+      const minX =
+        Math.min(
+          start.x,
+          end.x
+        );
+
+      const maxX =
+        Math.max(
+          start.x,
+          end.x
+        );
+
+      const minY =
+        Math.min(
+          start.y,
+          end.y
+        );
+
+      const maxY =
+        Math.max(
+          start.y,
+          end.y
+        );
+
+      const tolerance =
+        hitTolerance /
+        Math.max(
+          width,
+          height
+        );
+
+      const nearLeft =
+        Math.abs(
+          normalizedX -
+            minX
+        ) <= tolerance;
+
+      const nearRight =
+        Math.abs(
+          normalizedX -
+            maxX
+        ) <= tolerance;
+
+      const nearTop =
+        Math.abs(
+          normalizedY -
+            minY
+        ) <= tolerance;
+
+      const nearBottom =
+        Math.abs(
+          normalizedY -
+            maxY
+        ) <= tolerance;
+
+      const insideHorizontal =
+        normalizedX >=
+          minX -
+            tolerance &&
+        normalizedX <=
+          maxX +
+            tolerance;
+
+      const insideVertical =
+        normalizedY >=
+          minY -
+            tolerance &&
+        normalizedY <=
+          maxY +
+            tolerance;
+
+      if (
+        (nearLeft ||
+          nearRight) &&
+        insideVertical
+      ) {
+
+        return annotation;
+      }
+
+      if (
+        (nearTop ||
+          nearBottom) &&
+        insideHorizontal
+      ) {
+
+        return annotation;
+      }
+
+      continue;
+    }
+
+    // =================================================
+    // PEN / HIGHLIGHT
+    // =================================================
+
+    if (
+      annotation.type === "pen" ||
+      annotation.type === "highlight"
+    ) {
+
+      const tolerance =
+        hitTolerance /
+        Math.max(
+          width,
+          height
+        );
+
+      for (
+        let pointIndex = 1;
+        pointIndex <
+          annotation.points.length;
+        pointIndex++
+      ) {
+
+        const previous =
+          annotation.points[
+            pointIndex - 1
+          ];
+
+        const current =
+          annotation.points[
+            pointIndex
+          ];
+
+        const minX =
+          Math.min(
+            previous.x,
+            current.x
+          );
+
+        const maxX =
+          Math.max(
+            previous.x,
+            current.x
+          );
+
+        const minY =
+          Math.min(
+            previous.y,
+            current.y
+          );
+
+        const maxY =
+          Math.max(
+            previous.y,
+            current.y
+          );
+
+        if (
+          normalizedX <
+            minX -
+              tolerance ||
+          normalizedX >
+            maxX +
+              tolerance ||
+          normalizedY <
+            minY -
+              tolerance ||
+          normalizedY >
+            maxY +
+              tolerance
+        ) {
+
+          continue;
+        }
+
+        const dx =
+          current.x -
+          previous.x;
+
+        const dy =
+          current.y -
+          previous.y;
+
+const lengthSquared =
+  dx * dx +
+  dy * dy;
+
+if (
+  lengthSquared ===
+  0
+) {
+
+  const distanceToPoint =
+    Math.hypot(
+      normalizedX -
+        previous.x,
+
+      normalizedY -
+        previous.y
+    );
+
+  const pointTolerance =
+    Math.max(
+      hitTolerance,
+      (
+        annotation.strokeWidth *
+        4
+      ) /
+        Math.max(
+          width,
+          height
+        )
+    );
+
+  if (
+    distanceToPoint <=
+    pointTolerance
+  ) {
+
+    return annotation;
+  }
+
+  continue;
+}
+
+        const projection =
+          (
+            (
+              normalizedX -
+              previous.x
+            ) *
+              dx +
+            (
+              normalizedY -
+              previous.y
+            ) *
+              dy
+          ) /
+          lengthSquared;
+
+        const clampedProjection =
+          Math.max(
+            0,
+            Math.min(
+              1,
+              projection
+            )
+          );
+
+        const closestX =
+          previous.x +
+          clampedProjection *
+            dx;
+
+        const closestY =
+          previous.y +
+          clampedProjection *
+            dy;
+
+        const distance =
+          Math.hypot(
+            normalizedX -
+              closestX,
+            normalizedY -
+              closestY
+          );
+
+        if (
+          distance <=
+          tolerance
+        ) {
+
+          return annotation;
+        }
+      }
+
+      continue;
+    }
+
+    // =================================================
+    // LINE / ARROW
+    // =================================================
+
+    if (
+      annotation.type === "line" ||
+      annotation.type === "arrow"
+    ) {
+
+      const start =
+        annotation.points[0];
+
+      const end =
+        annotation.points[
+          annotation.points.length - 1
+        ];
+
+      const dx =
+        end.x -
+        start.x;
+
+      const dy =
+        end.y -
+        start.y;
+
+      const lengthSquared =
+        dx * dx +
+        dy * dy;
+
+      if (
+        lengthSquared ===
+        0
+      ) {
+
+        continue;
+      }
+
+      const projection =
+        (
+          (
+            normalizedX -
+            start.x
+          ) *
+            dx +
+          (
+            normalizedY -
+            start.y
+          ) *
+            dy
+        ) /
+        lengthSquared;
+
+      const clampedProjection =
+        Math.max(
+          0,
+          Math.min(
+            1,
+            projection
+          )
+        );
+
+      const closestX =
+        start.x +
+        clampedProjection *
+          dx;
+
+      const closestY =
+        start.y +
+        clampedProjection *
+          dy;
+
+      const tolerance =
+        hitTolerance /
+        Math.max(
+          width,
+          height
+        );
+
+      const distance =
+        Math.hypot(
+          normalizedX -
+            closestX,
+          normalizedY -
+            closestY
+        );
+
+      if (
+        distance <=
+        tolerance
+      ) {
+
+        return annotation;
+      }
+    }
+
+  }
+
+  return null;
+}
 
   // =================================================
   // DRAW CANVAS
@@ -923,7 +1396,8 @@ if (
   activeTool !== "highlight" &&
   activeTool !== "line" &&
   activeTool !== "arrow" &&
-  activeTool !== "zone"
+  activeTool !== "zone" &&
+  activeTool !== "eraser"
 ) {
 
   return;
@@ -943,6 +1417,62 @@ if (
 
     return;
   }
+
+// =================================================
+// ERASER
+// =================================================
+
+if (
+  activeTool === "eraser"
+) {
+
+  const annotation =
+    findAnnotationAtPoint(
+      point.pixelX,
+      point.pixelY
+    );
+
+  if (
+    !annotation
+  ) {
+
+    return;
+  }
+
+  const deleted =
+    await deleteNoteAnnotation(
+      annotation
+    );
+
+
+
+  if (
+    !deleted
+  ) {
+
+    console.error(
+      "FAILED TO DELETE NOTE ANNOTATION:",
+      annotation.id
+    );
+
+    return;
+  }
+
+deletedAnnotationIds.current.add(
+  annotation.id
+);
+
+  setLocalAnnotations(
+    (current) =>
+      current.filter(
+        (item) =>
+          item.id !==
+          annotation.id
+      )
+  );
+
+  return;
+}
 
   // =================================================
   // LINE TOOL
@@ -1204,6 +1734,58 @@ function handlePointerMove(
   event:
     React.PointerEvent<HTMLCanvasElement>
 ) {
+
+// =================================================
+// ERASER HOVER DETECTION
+// =================================================
+
+if (
+  activeTool === "eraser"
+) {
+
+  const point =
+    getCanvasPoint(
+      event
+    );
+
+  if (
+    point
+  ) {
+
+    setHighlightCursorPosition({
+
+      x:
+        point.pixelX,
+
+      y:
+        point.pixelY,
+
+    });
+
+    const annotation =
+      findAnnotationAtPoint(
+        point.pixelX,
+        point.pixelY
+      );
+
+    setEraserHoveringAnnotation(
+      annotation?.id ?? null
+    );
+
+  } else {
+
+    setEraserHoveringAnnotation(
+      null
+    );
+
+  }
+
+  return;
+}
+
+  // =================================================
+  // HIGHLIGHT CURSOR
+  // =================================================
 
   if (
     activeTool === "highlight"
@@ -1635,6 +2217,60 @@ return (
 
   )}
 
+{/* ================================================= */}
+{/* ERASER CURSOR */}
+{/* ================================================= */}
+
+{activeTool === "eraser" && (
+
+  <div
+    className="
+      pointer-events-none
+      absolute
+      z-40
+      -translate-x-[4px]
+      -translate-y-[18px]
+    "
+    style={{
+      left:
+        highlightCursorPosition?.x ?? 0,
+
+      top:
+        highlightCursorPosition?.y ?? 0,
+    }}
+  >
+
+    <Eraser
+      size={14}
+      strokeWidth={1.8}
+      className={
+        eraserHoveringAnnotation
+          ? "text-red-400"
+          : "text-slate-300"
+      }
+    />
+
+    {eraserHoveringAnnotation && (
+
+      <span
+        className="
+          absolute
+          left-1/2
+          top-[16px]
+          h-[2px]
+          w-[12px]
+          -translate-x-1/2
+          rounded-full
+          bg-red-400
+        "
+      />
+
+    )}
+
+  </div>
+
+)}
+
     <canvas
       ref={
         canvasRef
@@ -1652,7 +2288,8 @@ pointerEvents:
   activeTool === "line" ||
   activeTool === "arrow" ||
   activeTool === "zone" ||
-  activeTool === "highlight"
+  activeTool === "highlight" ||
+  activeTool === "eraser"
     ? "auto"
     : "none",
 
@@ -1663,9 +2300,11 @@ cursor:
   activeTool === "arrow" ||
   activeTool === "zone"
   ? "crosshair"
-  : activeTool === "highlight"
-    ? "none"
-    : "grab",
+: activeTool === "highlight"
+  ? "none"
+: activeTool === "eraser"
+  ? "none"
+  : "grab",
 }}
       onPointerDown={
         handlePointerDown

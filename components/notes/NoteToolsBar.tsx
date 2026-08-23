@@ -70,7 +70,8 @@ activeAnnotationTool:
   | "line"
   | "arrow"
   | "zone"
-  | "highlight";
+  | "highlight"
+  | "eraser";
 
 onAnnotationToolChange: (
   tool:
@@ -80,6 +81,7 @@ onAnnotationToolChange: (
     | "arrow"
     | "zone"
     | "highlight"
+    | "eraser"
 ) => void;
 
   penColor: string;
@@ -1286,11 +1288,26 @@ setIsDrawingSettingsOpen(
 
         {/* ERASER */}
 
-        <button
-          type="button"
-          title="Eraser"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Eraser"
+  onClick={() => {
+
+    onAnnotationToolChange(
+      "eraser"
+    );
+
+    setIsDrawingSettingsOpen(
+      false
+    );
+
+  }}
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    activeAnnotationTool === "eraser"
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
 
           <Eraser
             size={14}

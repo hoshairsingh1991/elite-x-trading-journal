@@ -100,6 +100,7 @@ const [
   | "arrow"
   | "zone"
   | "highlight"
+  | "eraser"
 >("select");
 
 
