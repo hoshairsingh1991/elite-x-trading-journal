@@ -67,13 +67,15 @@ type Props = {
 activeAnnotationTool:
   | "select"
   | "pen"
-  | "line";
+  | "line"
+  | "arrow";
 
 onAnnotationToolChange: (
   tool:
     | "select"
     | "pen"
     | "line"
+    | "arrow"
 ) => void;
 
   penColor: string;
@@ -1186,11 +1188,26 @@ setIsDrawingSettingsOpen(
 
         {/* ARROW */}
 
-        <button
-          type="button"
-          title="Arrow"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Arrow"
+  onClick={() => {
+
+    onAnnotationToolChange(
+      "arrow"
+    );
+
+    setIsDrawingSettingsOpen(
+      true
+    );
+
+  }}
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    activeAnnotationTool === "arrow"
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
 
           <span className="text-[16px] leading-none">
             ↗

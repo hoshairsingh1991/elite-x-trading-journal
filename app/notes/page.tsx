@@ -94,7 +94,10 @@ const [
   activeAnnotationTool,
   setActiveAnnotationTool,
 ] = useState<
-  "select" | "pen" | "line"
+  "select"
+  | "pen"
+  | "line"
+  | "arrow"
 >("select");
 
 

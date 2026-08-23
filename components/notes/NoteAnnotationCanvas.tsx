@@ -26,7 +26,8 @@ type Props = {
 activeTool:
   | "select"
   | "pen"
-  | "line";
+  | "line"
+  | "arrow";
 
   penColor: string;
 
@@ -120,18 +121,19 @@ export default function NoteAnnotationCanvas({
 
 useEffect(() => {
 
-  if (
-    activeTool !== "line"
-  ) {
+if (
+  activeTool !== "line" &&
+  activeTool !== "arrow"
+) {
 
-    setLineStartPoint(
-      null
-    );
+  setLineStartPoint(
+    null
+  );
 
-    setCurrentPoints(
-      []
-    );
-  }
+  setCurrentPoints(
+    []
+  );
+}
 
 }, [
   activeTool,
@@ -213,7 +215,8 @@ useEffect(() => {
     ) {
 if (
   annotation.type !== "pen" &&
-  annotation.type !== "line"
+  annotation.type !== "line" &&
+  annotation.type !== "arrow"
 ) {
 
   continue;
@@ -227,58 +230,123 @@ if (
         continue;
       }
 
-      context.beginPath();
+const startPoint =
+  annotation.points[0];
 
-      annotation.points.forEach(
-        (
-          point,
-          index
-        ) => {
+const endPoint =
+  annotation.points[
+    annotation.points.length - 1
+  ];
 
-          const x =
-            normalizedToPixel(
-              point.x,
-              width
-            );
+const startX =
+  normalizedToPixel(
+    startPoint.x,
+    width
+  );
 
-          const y =
-            normalizedToPixel(
-              point.y,
-              height
-            );
+const startY =
+  normalizedToPixel(
+    startPoint.y,
+    height
+  );
 
-          if (
-            index === 0
-          ) {
+const endX =
+  normalizedToPixel(
+    endPoint.x,
+    width
+  );
 
-            context.moveTo(
-              x,
-              y
-            );
+const endY =
+  normalizedToPixel(
+    endPoint.y,
+    height
+  );
 
-          } else {
+context.strokeStyle =
+  annotation.color;
 
-            context.lineTo(
-              x,
-              y
-            );
-          }
-        }
-      );
+context.fillStyle =
+  annotation.color;
 
-      context.strokeStyle =
-        annotation.color;
+context.lineWidth =
+  annotation.strokeWidth;
 
-      context.lineWidth =
-        annotation.strokeWidth;
+context.lineCap =
+  "round";
 
-      context.lineCap =
-        "round";
+context.lineJoin =
+  "round";
 
-      context.lineJoin =
-        "round";
+context.beginPath();
 
-      context.stroke();
+context.moveTo(
+  startX,
+  startY
+);
+
+context.lineTo(
+  endX,
+  endY
+);
+
+context.stroke();
+
+if (
+  annotation.type === "arrow"
+) {
+
+  const angle =
+    Math.atan2(
+      endY - startY,
+      endX - startX
+    );
+
+  const arrowLength =
+    Math.max(
+      10,
+      annotation.strokeWidth * 4
+    );
+
+  const arrowAngle =
+    Math.PI / 7;
+
+  context.beginPath();
+
+  context.moveTo(
+    endX,
+    endY
+  );
+
+  context.lineTo(
+    endX -
+      arrowLength *
+      Math.cos(
+        angle - arrowAngle
+      ),
+    endY -
+      arrowLength *
+      Math.sin(
+        angle - arrowAngle
+      )
+  );
+
+  context.lineTo(
+    endX -
+      arrowLength *
+      Math.cos(
+        angle + arrowAngle
+      ),
+    endY -
+      arrowLength *
+      Math.sin(
+        angle + arrowAngle
+      )
+  );
+
+  context.closePath();
+
+  context.fill();
+}
     }
 
 // =================================================
@@ -342,7 +410,8 @@ if (
 }
 
 if (
-  activeTool === "line"
+  activeTool === "line" ||
+  activeTool === "arrow"
 ) {
 
   const start =
@@ -366,6 +435,66 @@ if (
   );
 
   context.stroke();
+
+  if (
+    activeTool === "arrow"
+  ) {
+
+    const angle =
+      Math.atan2(
+        end.y - start.y,
+        end.x - start.x
+      );
+
+    const arrowLength =
+      Math.max(
+        10,
+        penWidth * 4
+      );
+
+    const arrowAngle =
+      Math.PI / 7;
+
+    context.fillStyle =
+      penColor;
+
+    context.beginPath();
+
+    context.moveTo(
+      end.x,
+      end.y
+    );
+
+    context.lineTo(
+      end.x -
+        arrowLength *
+        Math.cos(
+          angle - arrowAngle
+        ),
+      end.y -
+        arrowLength *
+        Math.sin(
+          angle - arrowAngle
+        )
+    );
+
+    context.lineTo(
+      end.x -
+        arrowLength *
+        Math.cos(
+          angle + arrowAngle
+        ),
+      end.y -
+        arrowLength *
+        Math.sin(
+          angle + arrowAngle
+        )
+    );
+
+    context.closePath();
+
+    context.fill();
+  }
 
 }
   }
@@ -447,10 +576,11 @@ async function handlePointerDown(
     React.PointerEvent<HTMLCanvasElement>
 ) {
 
-  if (
-    activeTool !== "pen" &&
-    activeTool !== "line"
-  ) {
+if (
+  activeTool !== "pen" &&
+  activeTool !== "line" &&
+  activeTool !== "arrow"
+) {
 
     return;
   }
@@ -474,9 +604,10 @@ async function handlePointerDown(
   // LINE TOOL
   // =================================================
 
-  if (
-    activeTool === "line"
-  ) {
+if (
+  activeTool === "line" ||
+  activeTool === "arrow"
+) {
 
     if (
       !lineStartPoint
@@ -593,8 +724,10 @@ async function handlePointerDown(
       attachmentId:
         attachmentId,
 
-      type:
-        "line",
+type:
+  activeTool === "arrow"
+    ? "arrow"
+    : "line",
 
       positionX:
         minX,
@@ -655,9 +788,13 @@ async function handlePointerDown(
       !createdAnnotation
     ) {
 
-      console.error(
-        "FAILED TO SAVE LINE ANNOTATION"
-      );
+console.error(
+  `FAILED TO SAVE ${
+    activeTool === "arrow"
+      ? "ARROW"
+      : "LINE"
+  } ANNOTATION`
+);
 
       return;
     }
@@ -725,9 +862,10 @@ function handlePointerMove(
   // LINE PREVIEW
   // =================================================
 
-  if (
-    activeTool === "line"
-  ) {
+if (
+  activeTool === "line" ||
+  activeTool === "arrow"
+) {
 
     if (
       !lineStartPoint
@@ -1087,14 +1225,16 @@ className="absolute inset-0 z-10 h-full w-full touch-none"
 style={{
 pointerEvents:
   activeTool === "pen" ||
-  activeTool === "line"
+  activeTool === "line" ||
+  activeTool === "arrow"
     ? "auto"
     : "none",
 
 cursor:
   activeTool === "pen"
     ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 20l4.5-1 10-10a2.1 2.1 0 0 1 3 3l-10 10L4 20z' fill='%23f8fafc' stroke='%230b1421' stroke-width='1.5'/%3E%3Cpath d='M14.5 7.5l2 2' stroke='%230b1421' stroke-width='1.5'/%3E%3C/svg%3E") 3 21, auto`
-    : activeTool === "line"
+    : activeTool === "line" ||
+      activeTool === "arrow"
       ? "crosshair"
       : "grab",
 }}

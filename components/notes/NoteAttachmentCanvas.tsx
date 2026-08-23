@@ -33,7 +33,8 @@ type Props = {
 activeAnnotationTool:
   | "select"
   | "pen"
-  | "line";
+  | "line"
+  | "arrow";
 
   penColor: string;
 
