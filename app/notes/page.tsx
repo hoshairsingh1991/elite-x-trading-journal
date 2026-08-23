@@ -99,6 +99,7 @@ const [
   | "line"
   | "arrow"
   | "zone"
+  | "highlight"
 >("select");
 
 

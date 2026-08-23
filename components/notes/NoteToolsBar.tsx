@@ -69,7 +69,8 @@ activeAnnotationTool:
   | "pen"
   | "line"
   | "arrow"
-  | "zone";
+  | "zone"
+  | "highlight";
 
 onAnnotationToolChange: (
   tool:
@@ -78,6 +79,7 @@ onAnnotationToolChange: (
     | "line"
     | "arrow"
     | "zone"
+    | "highlight"
 ) => void;
 
   penColor: string;
@@ -1251,11 +1253,26 @@ setIsDrawingSettingsOpen(
 
         {/* HIGHLIGHT */}
 
-        <button
-          type="button"
-          title="Highlight"
-          className="relative flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Highlight"
+  onClick={() => {
+
+    onAnnotationToolChange(
+      "highlight"
+    );
+
+    setIsDrawingSettingsOpen(
+      true
+    );
+
+  }}
+  className={`relative flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    activeAnnotationTool === "highlight"
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
 
           <Highlighter
             size={14}

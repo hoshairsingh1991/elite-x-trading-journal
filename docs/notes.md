@@ -428,7 +428,7 @@ git commit -m "add line annotation tool"
 git commit -m "add arrow annotation tool"
 git commit -m "fix freehand pen annotation rendering"
 git commit -m "add zone annotation tool"
-
+git commit -m "add highlight annotation tool"
 
 
 

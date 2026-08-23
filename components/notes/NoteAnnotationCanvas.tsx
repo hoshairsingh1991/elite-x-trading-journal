@@ -11,6 +11,10 @@ import {
 } from "@/types/note";
 
 import {
+  Highlighter,
+} from "lucide-react";
+
+import {
   createNoteAnnotation,
 } from "@/lib/storage/noteAnnotationStorage";
 
@@ -28,7 +32,8 @@ activeTool:
   | "pen"
   | "line"
   | "arrow"
-  | "zone";
+  | "zone"
+  | "highlight";
 
   penColor: string;
 
@@ -73,6 +78,11 @@ export default function NoteAnnotationCanvas({
   const [
   lineStartPoint,
   setLineStartPoint,
+] = useState<Point | null>(null);
+
+const [
+  highlightCursorPosition,
+  setHighlightCursorPosition,
 ] = useState<Point | null>(null);
 
   const [
@@ -131,11 +141,40 @@ if (
   setLineStartPoint(
     null
   );
+}
+
+if (
+  activeTool !== "pen" &&
+  activeTool !== "highlight" &&
+  activeTool !== "line" &&
+  activeTool !== "arrow" &&
+  activeTool !== "zone"
+) {
 
   setCurrentPoints(
     []
   );
 }
+
+}, [
+  activeTool,
+]);
+
+// =================================================
+// RESET HIGHLIGHT CURSOR WHEN TOOL CHANGES
+// =================================================
+
+useEffect(() => {
+
+  if (
+    activeTool !== "highlight"
+  ) {
+
+    setHighlightCursorPosition(
+      null
+    );
+
+  }
 
 }, [
   activeTool,
@@ -219,7 +258,8 @@ if (
   annotation.type !== "pen" &&
   annotation.type !== "line" &&
   annotation.type !== "arrow" &&
-  annotation.type !== "zone"
+  annotation.type !== "zone" &&
+  annotation.type !== "highlight"
 ) {
 
   continue;
@@ -302,6 +342,83 @@ if (
   );
 
   context.stroke();
+
+  continue;
+}
+
+
+// =================================================
+// HIGHLIGHT
+// =================================================
+
+if (
+  annotation.type === "highlight"
+) {
+
+  context.save();
+
+  context.globalAlpha =
+    0.35;
+
+  context.strokeStyle =
+    annotation.color;
+
+  context.lineWidth =
+    Math.max(
+      annotation.strokeWidth * 4,
+      8
+    );
+
+  context.lineCap =
+    "round";
+
+  context.lineJoin =
+    "round";
+
+  context.beginPath();
+
+  annotation.points.forEach(
+    (
+      point,
+      index
+    ) => {
+
+      const x =
+        normalizedToPixel(
+          point.x,
+          width
+        );
+
+      const y =
+        normalizedToPixel(
+          point.y,
+          height
+        );
+
+      if (
+        index === 0
+      ) {
+
+        context.moveTo(
+          x,
+          y
+        );
+
+      } else {
+
+        context.lineTo(
+          x,
+          y
+        );
+
+      }
+
+    }
+  );
+
+  context.stroke();
+
+  context.restore();
 
   continue;
 }
@@ -537,6 +654,69 @@ if (
 
 }
 
+// =================================================
+// HIGHLIGHT PREVIEW
+// =================================================
+
+if (
+  activeTool === "highlight"
+) {
+
+  context.save();
+
+  context.globalAlpha =
+    0.35;
+
+  context.strokeStyle =
+    penColor;
+
+  context.lineWidth =
+    Math.max(
+      penWidth * 4,
+      8
+    );
+
+  context.lineCap =
+    "round";
+
+  context.lineJoin =
+    "round";
+
+  context.beginPath();
+
+  currentPoints.forEach(
+    (
+      point,
+      index
+    ) => {
+
+      if (
+        index === 0
+      ) {
+
+        context.moveTo(
+          point.x,
+          point.y
+        );
+
+      } else {
+
+        context.lineTo(
+          point.x,
+          point.y
+        );
+
+      }
+
+    }
+  );
+
+  context.stroke();
+
+  context.restore();
+
+}
+
 if (
   activeTool === "line" ||
   activeTool === "arrow" ||
@@ -740,6 +920,7 @@ async function handlePointerDown(
 
 if (
   activeTool !== "pen" &&
+  activeTool !== "highlight" &&
   activeTool !== "line" &&
   activeTool !== "arrow" &&
   activeTool !== "zone"
@@ -991,9 +1172,9 @@ console.error(
     return;
   }
 
-  // =================================================
-  // PEN TOOL
-  // =================================================
+// =================================================
+// FREEHAND TOOL — PEN / HIGHLIGHT
+// =================================================
 
   setIsDrawing(
     true
@@ -1015,14 +1196,41 @@ console.error(
 
 }
 
-  // =================================================
-  // POINTER MOVE
-  // =================================================
+// =================================================
+// POINTER MOVE
+// =================================================
 
 function handlePointerMove(
   event:
     React.PointerEvent<HTMLCanvasElement>
 ) {
+
+  if (
+    activeTool === "highlight"
+  ) {
+
+    const point =
+      getCanvasPoint(
+        event
+      );
+
+    if (
+      point
+    ) {
+
+      setHighlightCursorPosition({
+
+        x:
+          point.pixelX,
+
+        y:
+          point.pixelY,
+
+      });
+
+    }
+
+  }
 
   // =================================================
   // LINE PREVIEW
@@ -1082,10 +1290,11 @@ if (
   // PEN
   // =================================================
 
-  if (
-    activeTool !== "pen" ||
-    !isDrawing
-  ) {
+if (
+  activeTool !== "pen" &&
+  activeTool !== "highlight" ||
+  !isDrawing
+) {
 
     return;
   }
@@ -1132,7 +1341,10 @@ async function handlePointerUp(
 ) {
 
 if (
-  activeTool !== "pen" ||
+  (
+    activeTool !== "pen" &&
+    activeTool !== "highlight"
+  ) ||
   !isDrawing
 ) {
 
@@ -1262,7 +1474,9 @@ attachmentId:
   attachmentId,
 
 type:
-  "pen",
+  activeTool === "highlight"
+    ? "highlight"
+    : "pen",
 
       positionX:
         minX,
@@ -1376,7 +1590,50 @@ return (
 
   <div className="pointer-events-none absolute inset-0 z-30">
 
+{activeTool === "highlight" &&
+  highlightCursorPosition && (
 
+    <div
+      className="
+        pointer-events-none
+        absolute
+        z-40
+        -translate-x-[4px]
+        -translate-y-[18px]
+      "
+      style={{
+        left:
+          highlightCursorPosition.x,
+
+        top:
+          highlightCursorPosition.y,
+      }}
+    >
+
+      <Highlighter
+        size={14}
+        strokeWidth={1.8}
+      />
+
+      <span
+        className="
+          absolute
+          left-1/2
+          top-[16px]
+          h-[2px]
+          w-[12px]
+          -translate-x-1/2
+          rounded-full
+        "
+        style={{
+          backgroundColor:
+            penColor,
+        }}
+      />
+
+    </div>
+
+  )}
 
     <canvas
       ref={
@@ -1394,7 +1651,8 @@ pointerEvents:
   activeTool === "pen" ||
   activeTool === "line" ||
   activeTool === "arrow" ||
-  activeTool === "zone"
+  activeTool === "zone" ||
+  activeTool === "highlight"
     ? "auto"
     : "none",
 
@@ -1405,7 +1663,9 @@ cursor:
   activeTool === "arrow" ||
   activeTool === "zone"
   ? "crosshair"
-  : "grab",
+  : activeTool === "highlight"
+    ? "none"
+    : "grab",
 }}
       onPointerDown={
         handlePointerDown

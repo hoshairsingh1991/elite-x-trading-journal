@@ -35,7 +35,8 @@ activeAnnotationTool:
   | "pen"
   | "line"
   | "arrow"
-  | "zone";
+  | "zone"
+  | "highlight";
 
   penColor: string;
 
