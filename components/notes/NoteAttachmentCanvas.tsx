@@ -30,9 +30,10 @@ import {
 type Props = {
   attachments: NoteAttachment[];
 
-  activeAnnotationTool:
-    | "select"
-    | "pen";
+activeAnnotationTool:
+  | "select"
+  | "pen"
+  | "line";
 
   penColor: string;
 

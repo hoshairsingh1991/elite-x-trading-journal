@@ -64,15 +64,17 @@ type Props = {
     }
   ) => void;
 
-  activeAnnotationTool:
-    | "select"
-    | "pen";
+activeAnnotationTool:
+  | "select"
+  | "pen"
+  | "line";
 
-  onAnnotationToolChange: (
-    tool:
-      | "select"
-      | "pen"
-  ) => void;
+onAnnotationToolChange: (
+  tool:
+    | "select"
+    | "pen"
+    | "line"
+) => void;
 
   penColor: string;
 
@@ -117,18 +119,18 @@ const [
 ] = useState(false);
 
 const [
-  isPenSettingsOpen,
-  setIsPenSettingsOpen,
+  isDrawingSettingsOpen,
+  setIsDrawingSettingsOpen,
 ] = useState(false);
 
-const penSettingsRef =
+const drawingSettingsRef =
   useRef<HTMLDivElement | null>(null);
 
 useEffect(() => {
 
-  if (!isPenSettingsOpen) {
-    return;
-  }
+if (!isDrawingSettingsOpen) {
+  return;
+}
 
   function handleOutsideClick(
     event: PointerEvent
@@ -137,17 +139,17 @@ useEffect(() => {
     const target =
       event.target as Node;
 
-    if (
-      penSettingsRef.current &&
-      !penSettingsRef.current.contains(
-        target
-      )
-    ) {
+if (
+  drawingSettingsRef.current &&
+  !drawingSettingsRef.current.contains(
+    target
+  )
+) {
 
-      setIsPenSettingsOpen(
-        false
-      );
-    }
+  setIsDrawingSettingsOpen(
+    false
+  );
+}
   }
 
   document.addEventListener(
@@ -165,7 +167,7 @@ useEffect(() => {
   };
 
 }, [
-  isPenSettingsOpen,
+  isDrawingSettingsOpen,
 ]);
 
 const [
@@ -928,10 +930,10 @@ activeEditor
 <button
   type="button"
   title="Select"
-  onClick={() => {
-    onAnnotationToolChange("select");
-    setIsPenSettingsOpen(false);
-  }}
+onClick={() => {
+  onAnnotationToolChange("select");
+  setIsDrawingSettingsOpen(false);
+}}
   className={`flex h-8 w-auto shrink-0 items-center justify-center gap-1.5 rounded-[6px] border px-3 text-[10px] font-medium transition-colors max-[1535px]:w-8 max-[1535px]:px-0 ${
     activeAnnotationTool === "select"
       ? "border-blue-400/40 bg-[#0b1730] text-blue-300"
@@ -952,7 +954,7 @@ activeEditor
         {/* PEN */}
 
 <div
-  ref={penSettingsRef}
+  ref={drawingSettingsRef}
   className="relative shrink-0"
 >
 
@@ -970,7 +972,7 @@ activeEditor
           "select"
         );
 
-        setIsPenSettingsOpen(
+        setIsDrawingSettingsOpen(
           false
         );
 
@@ -982,9 +984,9 @@ activeEditor
         "pen"
       );
 
-      setIsPenSettingsOpen(
-        true
-      );
+setIsDrawingSettingsOpen(
+  true
+);
 
     }}
     className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors max-[1535px]:w-7 ${
@@ -1002,7 +1004,7 @@ activeEditor
   </button>
 
 
-{isPenSettingsOpen && (
+{isDrawingSettingsOpen && (
 
  <div className="absolute left-[-20px] top-[42px] z-50 h-[215px] w-[207px] rounded-[10px] border border-white/[0.08] bg-[#0b1421] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.4)]">
 
@@ -1010,8 +1012,8 @@ activeEditor
     {/* PEN SETTINGS TITLE */}
     {/* ============================================= */}
 
-    <div className="relative left-[10px] top-[6px] mb-4 px-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
-  Pen Settings
+<div className="relative left-[10px] top-[6px] mb-4 px-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+  Drawing Settings
 </div>
 
 
@@ -1155,18 +1157,31 @@ activeEditor
 
         {/* LINE */}
 
-        <button
-          type="button"
-          title="Line"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Line"
+  onClick={() => {
 
-          <Minus
-            size={15}
-            strokeWidth={1.8}
-          />
+    onAnnotationToolChange(
+      "line"
+    );
 
-        </button>
+    setIsDrawingSettingsOpen(
+      true
+    );
+
+  }}
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    activeAnnotationTool === "line"
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
+  <Minus
+    size={15}
+    strokeWidth={1.8}
+  />
+</button>
 
 
         {/* ARROW */}

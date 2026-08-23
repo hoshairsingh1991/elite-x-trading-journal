@@ -23,9 +23,10 @@ type Props = {
   width: number;
   height: number;
 
-  activeTool:
-    | "select"
-    | "pen";
+activeTool:
+  | "select"
+  | "pen"
+  | "line";
 
   penColor: string;
 
@@ -68,6 +69,11 @@ export default function NoteAnnotationCanvas({
   ] = useState<Point[]>([]);
 
   const [
+  lineStartPoint,
+  setLineStartPoint,
+] = useState<Point | null>(null);
+
+  const [
     localAnnotations,
     setLocalAnnotations,
   ] = useState<NoteAnnotation[]>(
@@ -107,6 +113,29 @@ export default function NoteAnnotationCanvas({
     );
 
   }, [annotations]);
+
+  // =================================================
+// RESET LINE STATE WHEN TOOL CHANGES
+// =================================================
+
+useEffect(() => {
+
+  if (
+    activeTool !== "line"
+  ) {
+
+    setLineStartPoint(
+      null
+    );
+
+    setCurrentPoints(
+      []
+    );
+  }
+
+}, [
+  activeTool,
+]);
 
   // =================================================
   // NORMALIZED → PIXEL
@@ -182,13 +211,13 @@ export default function NoteAnnotationCanvas({
       const annotation of
       localAnnotations
     ) {
-      if (
-        annotation.type !==
-        "pen"
-      ) {
+if (
+  annotation.type !== "pen" &&
+  annotation.type !== "line"
+) {
 
-        continue;
-      }
+  continue;
+}
 
       if (
         !annotation.points ||
@@ -252,43 +281,16 @@ export default function NoteAnnotationCanvas({
       context.stroke();
     }
 
-    // =================================================
-    // CURRENT DRAWING
-    // =================================================
+// =================================================
+// CURRENT DRAWING
+// =================================================
 
-    if (
-      currentPoints.length < 2
-    ) {
+if (
+  currentPoints.length < 2
+) {
 
-      return;
-    }
-
-    context.beginPath();
-
-    currentPoints.forEach(
-      (
-        point,
-        index
-      ) => {
-
-        if (
-          index === 0
-        ) {
-
-          context.moveTo(
-            point.x,
-            point.y
-          );
-
-        } else {
-
-          context.lineTo(
-            point.x,
-            point.y
-          );
-        }
-      }
-    );
+  return;
+}
 
 context.strokeStyle =
   penColor;
@@ -296,13 +298,76 @@ context.strokeStyle =
 context.lineWidth =
   penWidth;
 
-    context.lineCap =
-      "round";
+context.lineCap =
+  "round";
 
-    context.lineJoin =
-      "round";
+context.lineJoin =
+  "round";
 
-    context.stroke();
+if (
+  activeTool === "pen"
+) {
+
+  context.beginPath();
+
+  currentPoints.forEach(
+    (
+      point,
+      index
+    ) => {
+
+      if (
+        index === 0
+      ) {
+
+        context.moveTo(
+          point.x,
+          point.y
+        );
+
+      } else {
+
+        context.lineTo(
+          point.x,
+          point.y
+        );
+
+      }
+
+    }
+  );
+
+  context.stroke();
+
+}
+
+if (
+  activeTool === "line"
+) {
+
+  const start =
+    currentPoints[0];
+
+  const end =
+    currentPoints[
+      currentPoints.length - 1
+    ];
+
+  context.beginPath();
+
+  context.moveTo(
+    start.x,
+    start.y
+  );
+
+  context.lineTo(
+    end.x,
+    end.y
+  );
+
+  context.stroke();
+
+}
   }
 
   // =================================================
@@ -377,52 +442,275 @@ useEffect(() => {
   // POINTER DOWN
   // =================================================
 
-function handlePointerDown(
+async function handlePointerDown(
   event:
     React.PointerEvent<HTMLCanvasElement>
 ) {
 
-if (
-  activeTool !== "pen"
-) {
+  if (
+    activeTool !== "pen" &&
+    activeTool !== "line"
+  ) {
 
-  return;
-}
+    return;
+  }
 
-event.preventDefault();
-event.stopPropagation();
+  event.preventDefault();
+  event.stopPropagation();
 
-const point =
-
-      getCanvasPoint(
-        event
-      );
-
-    if (
-      !point
-    ) {
-
-      return;
-    }
-
-    setIsDrawing(
-      true
+  const point =
+    getCanvasPoint(
+      event
     );
 
-    setCurrentPoints([
-      {
+  if (
+    !point
+  ) {
+
+    return;
+  }
+
+  // =================================================
+  // LINE TOOL
+  // =================================================
+
+  if (
+    activeTool === "line"
+  ) {
+
+    if (
+      !lineStartPoint
+    ) {
+
+      setLineStartPoint({
+
         x:
           point.pixelX,
 
         y:
           point.pixelY,
-      },
-    ]);
 
-    event.currentTarget.setPointerCapture(
-      event.pointerId
+      });
+
+      setCurrentPoints([
+
+        {
+          x:
+            point.pixelX,
+
+          y:
+            point.pixelY,
+        },
+
+        {
+          x:
+            point.pixelX,
+
+          y:
+            point.pixelY,
+        },
+
+      ]);
+
+      return;
+    }
+
+    const startPoint =
+      lineStartPoint;
+
+    const endPoint = {
+
+      x:
+        point.pixelX,
+
+      y:
+        point.pixelY,
+
+    };
+
+    const normalizedPoints =
+      [
+        startPoint,
+        endPoint,
+      ].map(
+        (item) => ({
+
+          x:
+            pixelToNormalized(
+              item.x,
+              width
+            ),
+
+          y:
+            pixelToNormalized(
+              item.y,
+              height
+            ),
+
+        })
+      );
+
+    const xs =
+      normalizedPoints.map(
+        (item) =>
+          item.x
+      );
+
+    const ys =
+      normalizedPoints.map(
+        (item) =>
+          item.y
+      );
+
+    const minX =
+      Math.min(
+        ...xs
+      );
+
+    const maxX =
+      Math.max(
+        ...xs
+      );
+
+    const minY =
+      Math.min(
+        ...ys
+      );
+
+    const maxY =
+      Math.max(
+        ...ys
+      );
+
+    const annotation:
+      Omit<
+        NoteAnnotation,
+        "id" |
+        "createdAt" |
+        "updatedAt"
+      > = {
+
+      attachmentId:
+        attachmentId,
+
+      type:
+        "line",
+
+      positionX:
+        minX,
+
+      positionY:
+        minY,
+
+      width:
+        Math.max(
+          maxX - minX,
+          0.001
+        ),
+
+      height:
+        Math.max(
+          maxY - minY,
+          0.001
+        ),
+
+      rotation:
+        0,
+
+      color:
+        penColor,
+
+      strokeWidth:
+        penWidth,
+
+      points:
+        normalizedPoints,
+
+      text:
+        null,
+
+      fontSize:
+        null,
+
+      fontWeight:
+        null,
+
+      fontStyle:
+        null,
+
+      textDecoration:
+        null,
+
+      textAlign:
+        null,
+
+    };
+
+    const createdAnnotation =
+      await createNoteAnnotation(
+        annotation
+      );
+
+    if (
+      !createdAnnotation
+    ) {
+
+      console.error(
+        "FAILED TO SAVE LINE ANNOTATION"
+      );
+
+      return;
+    }
+
+    setLocalAnnotations(
+      (current) => [
+
+        ...current,
+
+        createdAnnotation,
+
+      ]
     );
+
+    onAnnotationCreated(
+      attachmentId,
+      createdAnnotation
+    );
+
+    setLineStartPoint(
+      null
+    );
+
+    setCurrentPoints(
+      []
+    );
+
+    return;
   }
+
+  // =================================================
+  // PEN TOOL
+  // =================================================
+
+  setIsDrawing(
+    true
+  );
+
+  setCurrentPoints([
+    {
+      x:
+        point.pixelX,
+
+      y:
+        point.pixelY,
+    },
+  ]);
+
+  event.currentTarget.setPointerCapture(
+    event.pointerId
+  );
+
+}
 
   // =================================================
   // POINTER MOVE
@@ -433,17 +721,24 @@ function handlePointerMove(
     React.PointerEvent<HTMLCanvasElement>
 ) {
 
-if (
-  activeTool !== "pen" ||
-  !isDrawing
-) {
+  // =================================================
+  // LINE PREVIEW
+  // =================================================
 
-  return;
-}
+  if (
+    activeTool === "line"
+  ) {
 
-event.stopPropagation();
+    if (
+      !lineStartPoint
+    ) {
 
-const point =
+      return;
+    }
+
+    event.stopPropagation();
+
+    const point =
       getCanvasPoint(
         event
       );
@@ -455,20 +750,72 @@ const point =
       return;
     }
 
-    setCurrentPoints(
-      (current) => [
-        ...current,
+    setCurrentPoints([
 
-        {
-          x:
-            point.pixelX,
+      {
+        x:
+          lineStartPoint.x,
 
-          y:
-            point.pixelY,
-        },
-      ]
-    );
+        y:
+          lineStartPoint.y,
+      },
+
+      {
+        x:
+          point.pixelX,
+
+        y:
+          point.pixelY,
+      },
+
+    ]);
+
+    return;
   }
+
+  // =================================================
+  // PEN
+  // =================================================
+
+  if (
+    activeTool !== "pen" ||
+    !isDrawing
+  ) {
+
+    return;
+  }
+
+  event.stopPropagation();
+
+  const point =
+    getCanvasPoint(
+      event
+    );
+
+  if (
+    !point
+  ) {
+
+    return;
+  }
+
+  setCurrentPoints(
+    (current) => [
+
+      ...current,
+
+      {
+        x:
+          point.pixelX,
+
+        y:
+          point.pixelY,
+      },
+
+    ]
+  );
+
+}
 
   // =================================================
   // POINTER UP
@@ -517,18 +864,17 @@ const point =
     // BUILD NORMALIZED POINTS
     // =================================================
 
-    const normalizedPoints =
-      [
-        ...currentPoints,
-        {
-          x:
-            point.pixelX,
+const normalizedPoints =
+  [
+    ...currentPoints,
+    {
+      x:
+        point.pixelX,
 
-          y:
-            point.pixelY,
-        },
-      ]
-        .map(
+      y:
+        point.pixelY,
+    },
+  ].map(
           (item) => ({
             x:
               pixelToNormalized(
@@ -610,8 +956,8 @@ const point =
 attachmentId:
   attachmentId,
 
-      type:
-        "pen",
+type:
+  "pen",
 
       positionX:
         minX,
@@ -739,15 +1085,18 @@ return (
       }
 className="absolute inset-0 z-10 h-full w-full touch-none"
 style={{
-  pointerEvents:
-    activeTool === "pen"
-      ? "auto"
-      : "none",
+pointerEvents:
+  activeTool === "pen" ||
+  activeTool === "line"
+    ? "auto"
+    : "none",
 
 cursor:
   activeTool === "pen"
-    ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z' fill='%23f8fafc' stroke='%230b1421' stroke-width='1.5'/%3E%3Cpath d='M14.5 7.5l2 2' stroke='%230b1421' stroke-width='1.5'/%3E%3C/svg%3E") 3 21, auto`
-    : "grab",
+    ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 20l4.5-1 10-10a2.1 2.1 0 0 1 3 3l-10 10L4 20z' fill='%23f8fafc' stroke='%230b1421' stroke-width='1.5'/%3E%3Cpath d='M14.5 7.5l2 2' stroke='%230b1421' stroke-width='1.5'/%3E%3C/svg%3E") 3 21, auto`
+    : activeTool === "line"
+      ? "crosshair"
+      : "grab",
 }}
       onPointerDown={
         handlePointerDown

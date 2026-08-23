@@ -424,7 +424,7 @@ git commit -m "checkpoint: text blocks working before rich text formatting"
 git commit -m "fix notes editor context switching"
 git commit -m "fix notes editor formatting contexts"
 git commit -m "fix notes text formatting contexts"
-
+git commit -m "add line annotation tool"
 
 
 
