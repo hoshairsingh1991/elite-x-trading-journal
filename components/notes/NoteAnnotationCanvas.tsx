@@ -230,6 +230,83 @@ if (
         continue;
       }
 
+// =================================================
+// DRAW EXISTING ANNOTATION
+// =================================================
+
+context.strokeStyle =
+  annotation.color;
+
+context.fillStyle =
+  annotation.color;
+
+context.lineWidth =
+  annotation.strokeWidth;
+
+context.lineCap =
+  "round";
+
+context.lineJoin =
+  "round";
+
+// =================================================
+// PEN
+// =================================================
+
+if (
+  annotation.type === "pen"
+) {
+
+  context.beginPath();
+
+  annotation.points.forEach(
+    (
+      point,
+      index
+    ) => {
+
+      const x =
+        normalizedToPixel(
+          point.x,
+          width
+        );
+
+      const y =
+        normalizedToPixel(
+          point.y,
+          height
+        );
+
+      if (
+        index === 0
+      ) {
+
+        context.moveTo(
+          x,
+          y
+        );
+
+      } else {
+
+        context.lineTo(
+          x,
+          y
+        );
+
+      }
+
+    }
+  );
+
+  context.stroke();
+
+  continue;
+}
+
+// =================================================
+// LINE / ARROW
+// =================================================
+
 const startPoint =
   annotation.points[0];
 
@@ -262,21 +339,6 @@ const endY =
     height
   );
 
-context.strokeStyle =
-  annotation.color;
-
-context.fillStyle =
-  annotation.color;
-
-context.lineWidth =
-  annotation.strokeWidth;
-
-context.lineCap =
-  "round";
-
-context.lineJoin =
-  "round";
-
 context.beginPath();
 
 context.moveTo(
@@ -290,6 +352,10 @@ context.lineTo(
 );
 
 context.stroke();
+
+// =================================================
+// ARROW HEAD
+// =================================================
 
 if (
   annotation.type === "arrow"
