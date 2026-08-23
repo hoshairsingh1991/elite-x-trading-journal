@@ -98,6 +98,7 @@ const [
   | "pen"
   | "line"
   | "arrow"
+  | "zone"
 >("select");
 
 

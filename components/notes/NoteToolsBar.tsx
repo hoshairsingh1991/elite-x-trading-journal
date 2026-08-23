@@ -68,7 +68,8 @@ activeAnnotationTool:
   | "select"
   | "pen"
   | "line"
-  | "arrow";
+  | "arrow"
+  | "zone";
 
 onAnnotationToolChange: (
   tool:
@@ -76,6 +77,7 @@ onAnnotationToolChange: (
     | "pen"
     | "line"
     | "arrow"
+    | "zone"
 ) => void;
 
   penColor: string;
@@ -1218,11 +1220,26 @@ setIsDrawingSettingsOpen(
 
         {/* ZONE */}
 
-        <button
-          type="button"
-          title="Zone"
-          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-        >
+<button
+  type="button"
+  title="Zone"
+  onClick={() => {
+
+    onAnnotationToolChange(
+      "zone"
+    );
+
+    setIsDrawingSettingsOpen(
+      true
+    );
+
+  }}
+  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
+    activeAnnotationTool === "zone"
+      ? "bg-[#0b1730] text-blue-300"
+      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+  }`}
+>
 
           <Square
             size={14}
