@@ -360,175 +360,273 @@ onLayoutChange(
     );
   }
 
-  // =================================================
-  // RESIZE START
-  // =================================================
+// =================================================
+// RESIZE START
+// =================================================
 
-  function handleResizeStart(
-    event: React.PointerEvent<HTMLDivElement>,
-    attachment: NoteAttachment
+function handleResizeStart(
+  event: React.PointerEvent<HTMLDivElement>,
+  attachment: NoteAttachment,
+  mode:
+    | "width"
+    | "height"
+    | "both"
+) {
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const startX =
+    event.clientX;
+
+  const startY =
+    event.clientY;
+
+  const initialWidth =
+    attachment.width;
+
+  const initialHeight =
+    attachment.height;
+
+  const aspectRatio =
+    initialWidth /
+    initialHeight;
+
+  setResizingId(
+    attachment.id
+  );
+
+  event.currentTarget.setPointerCapture(
+    event.pointerId
+  );
+
+  function handlePointerMove(
+    moveEvent: PointerEvent
   ) {
 
-    event.preventDefault();
-    event.stopPropagation();
+    const deltaX =
+      moveEvent.clientX -
+      startX;
 
-    const startX =
-      event.clientX;
+    const deltaY =
+      moveEvent.clientY -
+      startY;
 
-    const startY =
-      event.clientY;
+    let nextWidth =
+      initialWidth;
 
-    const initialWidth =
-      attachment.width;
+    let nextHeight =
+      initialHeight;
 
-    const initialHeight =
-      attachment.height;
+    // =============================================
+    // WIDTH ONLY
+    // =============================================
 
-      const aspectRatio =
-  initialWidth /
-  initialHeight;
+    if (
+      mode === "width"
+    ) {
+
+      nextWidth =
+        Math.max(
+          MIN_WIDTH,
+          initialWidth +
+            deltaX
+        );
+    }
+
+    // =============================================
+    // HEIGHT ONLY
+    // =============================================
+
+    if (
+      mode === "height"
+    ) {
+
+      nextHeight =
+        Math.max(
+          MIN_HEIGHT,
+          initialHeight +
+            deltaY
+        );
+    }
+
+    // =============================================
+    // BOTH
+    // =============================================
+
+    if (
+      mode === "both"
+    ) {
+
+      nextWidth =
+        Math.max(
+          MIN_WIDTH,
+          initialWidth +
+            deltaX
+        );
+
+      nextHeight =
+        Math.max(
+          MIN_HEIGHT,
+          nextWidth /
+            aspectRatio
+        );
+    }
+
+    setLocalAttachments(
+      (current) =>
+        current.map(
+          (item) =>
+            item.id ===
+            attachment.id
+              ? {
+                  ...item,
+
+                  width:
+                    nextWidth,
+
+                  height:
+                    nextHeight,
+                }
+              : item
+        )
+    );
+  }
+
+  function handlePointerUp(
+    upEvent: PointerEvent
+  ) {
+
+    const deltaX =
+      upEvent.clientX -
+      startX;
+
+    const deltaY =
+      upEvent.clientY -
+      startY;
+
+    let finalWidth =
+      initialWidth;
+
+    let finalHeight =
+      initialHeight;
+
+    // =============================================
+    // WIDTH ONLY
+    // =============================================
+
+    if (
+      mode === "width"
+    ) {
+
+      finalWidth =
+        Math.max(
+          MIN_WIDTH,
+          initialWidth +
+            deltaX
+        );
+    }
+
+    // =============================================
+    // HEIGHT ONLY
+    // =============================================
+
+    if (
+      mode === "height"
+    ) {
+
+      finalHeight =
+        Math.max(
+          MIN_HEIGHT,
+          initialHeight +
+            deltaY
+        );
+    }
+
+    // =============================================
+    // BOTH
+    // =============================================
+
+    if (
+      mode === "both"
+    ) {
+
+      finalWidth =
+        Math.max(
+          MIN_WIDTH,
+          initialWidth +
+            deltaX
+        );
+
+      finalHeight =
+        Math.max(
+          MIN_HEIGHT,
+          finalWidth /
+            aspectRatio
+        );
+    }
+
+    setLocalAttachments(
+      (current) =>
+        current.map(
+          (item) =>
+            item.id ===
+            attachment.id
+              ? {
+                  ...item,
+
+                  width:
+                    finalWidth,
+
+                  height:
+                    finalHeight,
+                }
+              : item
+        )
+    );
 
     setResizingId(
-      attachment.id
+      null
     );
 
-    event.currentTarget.setPointerCapture(
-      event.pointerId
-    );
-
-    function handlePointerMove(
-      moveEvent: PointerEvent
-    ) {
-
-      const deltaX =
-        moveEvent.clientX -
-        startX;
-
-      const deltaY =
-        moveEvent.clientY -
-        startY;
-
-const nextWidth =
-  Math.max(
-    MIN_WIDTH,
-    initialWidth +
-      deltaX
-  );
-
-const nextHeight =
-  Math.max(
-    MIN_HEIGHT,
-    nextWidth /
-      aspectRatio
-  );
-
-      setLocalAttachments(
-        (current) =>
-          current.map(
-            (item) =>
-              item.id ===
-              attachment.id
-                ? {
-                    ...item,
-
-                    width:
-                      nextWidth,
-
-                    height:
-                      nextHeight,
-                  }
-                : item
-          )
-      );
-    }
-
-    function handlePointerUp(
-      upEvent: PointerEvent
-    ) {
-
-      const deltaX =
-        upEvent.clientX -
-        startX;
-
-      const deltaY =
-        upEvent.clientY -
-        startY;
-
-const finalWidth =
-  Math.max(
-    MIN_WIDTH,
-    initialWidth +
-      deltaX
-  );
-
-const finalHeight =
-  Math.max(
-    MIN_HEIGHT,
-    finalWidth /
-      aspectRatio
-  );
-
-      setLocalAttachments(
-        (current) =>
-          current.map(
-            (item) =>
-              item.id ===
-              attachment.id
-                ? {
-                    ...item,
-
-                    width:
-                      finalWidth,
-
-                    height:
-                      finalHeight,
-                  }
-                : item
-          )
-      );
-
-      setResizingId(
-        null
-      );
-
-      window.removeEventListener(
-        "pointermove",
-        handlePointerMove
-      );
-
-      window.removeEventListener(
-        "pointerup",
-        handlePointerUp
-      );
-
-onLayoutChange(
-  attachment,
-  {
-    positionX:
-      attachment.positionX,
-
-    positionY:
-      attachment.positionY,
-
-    width:
-      finalWidth,
-
-    height:
-      finalHeight,
-  }
-);
-    }
-
-    window.addEventListener(
+    window.removeEventListener(
       "pointermove",
       handlePointerMove
     );
 
-    window.addEventListener(
+    window.removeEventListener(
       "pointerup",
       handlePointerUp
     );
+
+    onLayoutChange(
+      attachment,
+      {
+        positionX:
+          attachment.positionX,
+
+        positionY:
+          attachment.positionY,
+
+        width:
+          finalWidth,
+
+        height:
+          finalHeight,
+      }
+    );
   }
+
+  window.addEventListener(
+    "pointermove",
+    handlePointerMove
+  );
+
+  window.addEventListener(
+    "pointerup",
+    handlePointerUp
+  );
+}
 
   // =================================================
   // EMPTY STATE
@@ -656,18 +754,18 @@ return (
               {/* ===================================== */}
 
 <div className="h-full w-full overflow-hidden rounded-[12px]">
-  <img
-    src={
-      image.url
-    }
-    alt={
-      attachment.fileName
-    }
-    draggable={
-      false
-    }
-    className="block h-full w-full select-none object-contain"
-  />
+<img
+  src={
+    image.url
+  }
+  alt={
+    attachment.fileName
+  }
+  draggable={
+    false
+  }
+  className="block h-full w-full select-none object-fill"
+/>
 </div>
 
               {/* ===================================== */}
@@ -704,23 +802,117 @@ return (
   }
 />
 
-              {/* ===================================== */}
-              {/* RESIZE HANDLE */}
-              {/* ===================================== */}
+{/* ===================================== */}
+{/* WIDTH HANDLE */}
+{/* ===================================== */}
 
-              <div
-                onPointerDown={(
-                  event
-                ) =>
-                  handleResizeStart(
-                    event,
-                    attachment
-                  )
-                }
-                className="absolute bottom-2 right-2 z-30 h-5 w-5 cursor-nwse-resize rounded-md border border-white/[0.10] bg-[#020817]/90 opacity-0 transition-opacity group-hover:opacity-100"
-                title="Resize screenshot"
-                aria-label="Resize screenshot"
-              />
+<div
+  onPointerDown={(
+    event
+  ) =>
+    handleResizeStart(
+      event,
+      attachment,
+      "width"
+    )
+  }
+  className="
+    absolute
+    right-[-4px]
+    top-1/2
+    z-30
+    h-8
+    w-2
+    -translate-y-1/2
+    cursor-ew-resize
+    rounded-full
+    bg-white/[0.18]
+    opacity-0
+    transition-opacity
+    group-hover:opacity-100
+  "
+  title="Resize width"
+  aria-label="Resize width"
+/>
+
+{/* ===================================== */}
+{/* HEIGHT HANDLE */}
+{/* ===================================== */}
+
+<div
+  onPointerDown={(
+    event
+  ) =>
+    handleResizeStart(
+      event,
+      attachment,
+      "height"
+    )
+  }
+  className="
+    absolute
+    bottom-[-4px]
+    left-1/2
+    z-30
+    h-2
+    w-8
+    -translate-x-1/2
+    cursor-ns-resize
+    rounded-full
+    bg-white/[0.18]
+    opacity-0
+    transition-opacity
+    group-hover:opacity-100
+  "
+  title="Resize height"
+  aria-label="Resize height"
+/>
+
+{/* ===================================== */}
+{/* BOTH HANDLE */}
+{/* ===================================== */}
+
+<div
+  onPointerDown={(
+    event
+  ) =>
+    handleResizeStart(
+      event,
+      attachment,
+      "both"
+    )
+  }
+className="
+  absolute
+  bottom-2
+  right-2
+  z-30
+  flex
+  h-6
+  w-6
+  cursor-nwse-resize
+  items-center
+  justify-center
+  rounded-md
+  border
+  border-slate-400
+  bg-slate-300
+  text-slate-900
+  opacity-0
+  shadow-[0_4px_12px_rgba(0,0,0,0.35)]
+  transition-all
+  group-hover:opacity-100
+  hover:border-slate-200
+  hover:bg-slate-100
+  hover:text-black
+"
+  title="Resize"
+  aria-label="Resize"
+>
+  <span className="text-[11px] leading-none">
+    ↖↘
+  </span>
+</div>
 
             </div>
           );
