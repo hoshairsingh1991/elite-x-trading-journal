@@ -11,6 +11,21 @@ import {
 const STORAGE_BUCKET =
   "note-attachments";
 
+  // =================================================
+// SIGNED IMAGE URL CACHE
+// =================================================
+
+const signedUrlCache =
+  new Map<
+    string,
+    {
+      url: string;
+      expiresAt: number;
+    }
+  >();
+
+const SIGNED_URL_TTL =
+  50 * 60 * 1000;
 
 // =====================================================
 // UPLOAD NOTE ATTACHMENT

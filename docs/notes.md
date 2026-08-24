@@ -435,7 +435,7 @@ git commit -m "feat(notes): add movable trade snapshot cards"
 git commit -m "docs(notes): update Notes V2 master architecture"
 git commit -m "fix(notes): stabilize text block editor lifecycle"
 git commit -m "fix(notes): improve screenshot resize controls"
-
+git commit -m "fix(notes): preload screenshot attachments"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

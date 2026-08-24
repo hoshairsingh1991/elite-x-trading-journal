@@ -79,7 +79,21 @@ const STORAGE_BUCKET =
 const MIN_WIDTH = 250;
 const MIN_HEIGHT = 180;
 
+// =================================================
+// SIGNED IMAGE URL CACHE
+// =================================================
 
+const signedUrlCache =
+  new Map<
+    string,
+    {
+      url: string;
+      expiresAt: number;
+    }
+  >();
+
+const SIGNED_URL_TTL =
+  50 * 60 * 1000;
 
 export default function NoteAttachmentCanvas({
   attachments,
@@ -104,6 +118,13 @@ export default function NoteAttachmentCanvas({
     attachmentImages,
     setAttachmentImages,
   ] = useState<AttachmentImage[]>([]);
+
+const [
+  loadedImageIds,
+  setLoadedImageIds,
+] = useState<Set<string>>(
+  new Set()
+);
 
   const [
     isLoading,
@@ -143,75 +164,263 @@ export default function NoteAttachmentCanvas({
 
   }, [attachments]);
 
-  // =================================================
-  // LOAD SECURE IMAGE URLS
-  // =================================================
+// =================================================
+// LOAD SECURE IMAGE URLS
+// =================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-    let cancelled = false;
+  let cancelled = false;
 
-    async function loadAttachmentUrls() {
+  async function preloadImage(
+    image: AttachmentImage
+  ): Promise<boolean> {
 
-      setIsLoading(true);
+    return new Promise(
+      (resolve) => {
 
-      const results: AttachmentImage[] = [];
+        const element =
+          new Image();
 
-      for (
-        const attachment of attachments
-      ) {
+        element.onload = () => {
 
-        const {
-          data,
-          error,
-        } =
-          await supabase.storage
-            .from(STORAGE_BUCKET)
-            .createSignedUrl(
-              attachment.storagePath,
-              60 * 60
-            );
-
-        if (
-          error ||
-          !data?.signedUrl
-        ) {
-
-          console.error(
-            "FAILED TO CREATE NOTE ATTACHMENT URL:",
-            error
+          resolve(
+            true
           );
 
-          continue;
-        }
+        };
 
-        results.push({
+        element.onerror = () => {
+
+          resolve(
+            false
+          );
+
+        };
+
+        element.src =
+          image.url;
+
+      }
+    );
+  }
+
+  async function loadAttachmentUrls() {
+
+    // =================================================
+    // BUILD CACHED RESULTS FIRST
+    // =================================================
+
+    const cachedResults: AttachmentImage[] = [];
+
+    const attachmentsNeedingUrls:
+      NoteAttachment[] = [];
+
+    const now =
+      Date.now();
+
+    for (
+      const attachment of attachments
+    ) {
+
+      const cached =
+        signedUrlCache.get(
+          attachment.storagePath
+        );
+
+      if (
+        cached &&
+        cached.expiresAt > now
+      ) {
+
+        cachedResults.push({
+
           id:
             attachment.id,
 
           url:
-            data.signedUrl,
+            cached.url,
+
         });
-      }
 
-      if (!cancelled) {
+      } else {
 
-        setAttachmentImages(
-          results
+        attachmentsNeedingUrls.push(
+          attachment
         );
 
-        setIsLoading(false);
       }
     }
 
-    loadAttachmentUrls();
+    // =================================================
+    // LOAD MISSING URLS IN PARALLEL
+    // =================================================
 
-    return () => {
+    const urlResults =
+      await Promise.all(
+        attachmentsNeedingUrls.map(
+          async (
+            attachment
+          ) => {
 
-      cancelled = true;
-    };
+            const {
+              data,
+              error,
+            } =
+              await supabase.storage
+                .from(
+                  STORAGE_BUCKET
+                )
+                .createSignedUrl(
+                  attachment.storagePath,
+                  60 * 60
+                );
 
-}, [attachmentStorageKey]);
+            if (
+              error ||
+              !data?.signedUrl
+            ) {
+
+              console.error(
+                "FAILED TO CREATE NOTE ATTACHMENT URL:",
+                error
+              );
+
+              return null;
+            }
+
+            const image: AttachmentImage = {
+
+              id:
+                attachment.id,
+
+              url:
+                data.signedUrl,
+
+            };
+
+            signedUrlCache.set(
+              attachment.storagePath,
+              {
+                url:
+                  data.signedUrl,
+
+                expiresAt:
+                  Date.now() +
+                  SIGNED_URL_TTL,
+              }
+            );
+
+            return image;
+          }
+        )
+      );
+
+    if (
+      cancelled
+    ) {
+
+      return;
+    }
+
+    const newlyLoadedUrls =
+      urlResults.filter(
+        (
+          result
+        ): result is AttachmentImage =>
+          Boolean(result)
+      );
+
+    const allImages = [
+      ...cachedResults,
+      ...newlyLoadedUrls,
+    ];
+
+    // =================================================
+    // PRELOAD ACTUAL IMAGE FILES
+    // =================================================
+
+    const preloadResults =
+      await Promise.all(
+        allImages.map(
+          async (
+            image
+          ) => {
+
+            const loaded =
+              await preloadImage(
+                image
+              );
+
+            return {
+              image,
+              loaded,
+            };
+
+          }
+        )
+      );
+
+    if (
+      cancelled
+    ) {
+
+      return;
+    }
+
+    const successfullyLoaded =
+      preloadResults
+        .filter(
+          (
+            result
+          ) =>
+            result.loaded
+        )
+        .map(
+          (
+            result
+          ) =>
+            result.image
+        );
+
+    const successfullyLoadedIds =
+      new Set(
+        successfullyLoaded.map(
+          (
+            image
+          ) =>
+            image.id
+        )
+      );
+
+    // =================================================
+    // UPDATE LOADED STATE
+    // =================================================
+
+    setAttachmentImages(
+      successfullyLoaded
+    );
+
+    setLoadedImageIds(
+      successfullyLoadedIds
+    );
+
+    setIsLoading(
+      false
+    );
+  }
+
+  loadAttachmentUrls();
+
+  return () => {
+
+    cancelled = true;
+
+  };
+
+}, [
+  attachmentStorageKey,
+]);
 
   // =================================================
   // DRAG START
@@ -772,35 +981,50 @@ return (
               {/* ANNOTATION LAYER */}
               {/* ===================================== */}
 
-<NoteAnnotationCanvas
-  attachmentId={
-    attachment.id
-  }
-  annotations={
-    attachment.annotations
-  }
-  width={
-    attachment.width
-  }
-  height={
-    attachment.height
-  }
-  activeTool={
-    activeAnnotationTool
-  }
-  penColor={
-    penColor
-  }
-  penWidth={
-    penWidth
-  }
-  onAnnotationCreated={
-    onAnnotationCreated
-  }
-  onAnnotationDeleted={
-    onAnnotationDeleted
-  }
-/>
+{loadedImageIds.has(
+  attachment.id
+) && (
+
+  <NoteAnnotationCanvas
+    attachmentId={
+      attachment.id
+    }
+
+    annotations={
+      attachment.annotations
+    }
+
+    width={
+      attachment.width
+    }
+
+    height={
+      attachment.height
+    }
+
+    activeTool={
+      activeAnnotationTool
+    }
+
+    penColor={
+      penColor
+    }
+
+    penWidth={
+      penWidth
+    }
+
+    onAnnotationCreated={
+      onAnnotationCreated
+    }
+
+    onAnnotationDeleted={
+      onAnnotationDeleted
+    }
+
+  />
+
+)}
 
 {/* ===================================== */}
 {/* WIDTH HANDLE */}
