@@ -96,6 +96,13 @@ const [
   setIsUploadingAttachment,
 ] = useState(false);
 
+const [
+  noteSaveState,
+  setNoteSaveState,
+] = useState<
+  "saved" |
+  "saving"
+>("saved");
 
 const [
   activeAnnotationTool,
@@ -1519,11 +1526,11 @@ updatedAt:
     }
   }
 
-  // =================================================
-  // UPDATE NOTE
-  // =================================================
+// =================================================
+// UPDATE NOTE
+// =================================================
 
-function handleUpdateNote(
+async function handleUpdateNote(
   field:
     | "title"
     | "content",
@@ -1537,6 +1544,13 @@ function handleUpdateNote(
     return;
   }
 
+  // =================================================
+  // LOCAL UPDATE TIMESTAMP
+  // =================================================
+
+  const localUpdatedAt =
+    new Date().toISOString();
+
   const updatedNote: Note = {
 
     ...selectedNote,
@@ -1544,14 +1558,13 @@ function handleUpdateNote(
     [field]:
       value,
 
+    updatedAt:
+      localUpdatedAt,
+
     // =================================================
     // MANUAL TITLE OVERRIDE
     // =================================================
-    //
-    // Once the user edits the title manually,
-    // automatic trade-based title generation
-    // must stop controlling the title.
-    //
+
     ...(field === "title"
       ? {
           isTitleCustom:
@@ -1560,28 +1573,80 @@ function handleUpdateNote(
       : {}),
   };
 
-  const updatedNotes =
-    notes.map(
-      (note) => {
 
-        if (
-          note.id ===
-          updatedNote.id
-        ) {
+  // =================================================
+  // SHOW SAVING STATE
+  // =================================================
 
-          return updatedNote;
-        }
-
-        return note;
-      }
-    );
-
-  setNotes(
-    updatedNotes
+  setNoteSaveState(
+    "saving"
   );
 
-  updateNoteInSupabase(
-    updatedNote
+
+  // =================================================
+  // UPDATE LOCAL STATE IMMEDIATELY
+  // =================================================
+
+  setNotes(
+    (currentNotes) =>
+      currentNotes.map(
+        (note) =>
+          note.id ===
+          updatedNote.id
+            ? updatedNote
+            : note
+      )
+  );
+
+
+  // =================================================
+  // PERSIST TO SUPABASE
+  // =================================================
+
+  const savedUpdatedAt =
+    await updateNoteInSupabase(
+      updatedNote
+    );
+
+
+  // =================================================
+  // HANDLE SAVE RESULT
+  // =================================================
+
+  if (
+    savedUpdatedAt
+  ) {
+
+    setNotes(
+      (currentNotes) =>
+        currentNotes.map(
+          (note) =>
+            note.id ===
+            updatedNote.id
+              ? {
+                  ...note,
+
+                  updatedAt:
+                    savedUpdatedAt,
+                }
+              : note
+        )
+    );
+
+    setNoteSaveState(
+      "saved"
+    );
+
+    return;
+  }
+
+
+  // =================================================
+  // SAVE FAILED
+  // =================================================
+
+  setNoteSaveState(
+    "saved"
   );
 }
 
@@ -2338,7 +2403,19 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 {/* SAVE STATUS */}
 {/* =========================================== */}
 
-  <div className="relative left-[-10px] flex shrink-0 translate-y-[0px] items-center gap-2 pt-2 text-xs">
+<div className="relative left-[-10px] flex shrink-0 translate-y-[0px] items-center gap-2 pt-2 text-xs">
+
+  {noteSaveState === "saving" ? (
+
+    <span className="flex items-center gap-1.5 text-slate-400">
+
+      <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400" />
+
+      Saving...
+
+    </span>
+
+  ) : (
 
     <span className="flex items-center gap-1.5 text-emerald-400">
 
@@ -2354,13 +2431,15 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 
     </span>
 
-    <span className="text-slate-500">
-      {getNoteTime(
-        selectedNote.updatedAt
-      )}
-    </span>
+  )}
 
-  </div>
+  <span className="text-slate-500">
+    {getNoteTime(
+      selectedNote.updatedAt
+    )}
+  </span>
+
+</div>
 
 </div>
 

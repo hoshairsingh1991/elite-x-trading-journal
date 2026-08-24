@@ -983,7 +983,7 @@ const newNote: Note = {
 export async function
 updateNoteInSupabase(
   note: Note
-): Promise<void> {
+): Promise<string | null> {
 
   // ===================================================
   // AUTHENTICATED USER
@@ -1003,7 +1003,7 @@ updateNoteInSupabase(
       "NO AUTHENTICATED USER FOUND"
     );
 
-    return;
+    return null;
   }
 
 
@@ -1012,20 +1012,21 @@ updateNoteInSupabase(
   // ===================================================
 
   const {
+    data,
     error,
   } =
     await supabase
       .from("notes")
-.update({
+      .update({
 
-  title:
-    note.title,
+        title:
+          note.title,
 
-  is_title_custom:
-    note.isTitleCustom,
+        is_title_custom:
+          note.isTitleCustom,
 
-  content:
-    note.content,
+        content:
+          note.content,
 
         updated_at:
           new Date().toISOString(),
@@ -1038,7 +1039,11 @@ updateNoteInSupabase(
       .eq(
         "user_id",
         user.id
-      );
+      )
+      .select(
+        "updated_at"
+      )
+      .single();
 
 
   if (error) {
@@ -1047,7 +1052,12 @@ updateNoteInSupabase(
       "FAILED TO UPDATE NOTE:",
       error
     );
+
+    return null;
   }
+
+
+  return data.updated_at;
 }
 
 // =====================================================
