@@ -247,8 +247,30 @@ function applyTypingFontSize(
   const fontSize =
     `${size}px`;
 
+  // =================================================
+  // EDITOR SAFETY
+  // =================================================
+
+  if (
+    !activeEditor ||
+    activeEditor.isDestroyed
+  ) {
+
+    return;
+  }
+
+  const state =
+    activeEditor.state;
+
+  if (
+    !state
+  ) {
+
+    return;
+  }
+
   const textStyleMark =
-    activeEditor.schema.marks.textStyle;
+    state.schema.marks.textStyle;
 
   if (
     !textStyleMark
@@ -257,9 +279,22 @@ function applyTypingFontSize(
     return;
   }
 
-const existingStoredMarks =
-  activeEditor.state.storedMarks ||
-  activeEditor.state.selection.$from.marks();
+  // =================================================
+  // SAFE EXISTING MARKS
+  // =================================================
+
+  const selection =
+    state.selection;
+
+  const existingStoredMarks =
+    state.storedMarks ??
+    (
+      selection &&
+      "$from" in selection &&
+      selection.$from
+        ? selection.$from.marks()
+        : []
+    );
 
   const filteredMarks =
     existingStoredMarks.filter(
@@ -268,17 +303,33 @@ const existingStoredMarks =
         textStyleMark
     );
 
+  // =================================================
+  // CREATE FONT SIZE MARK
+  // =================================================
+
   const fontSizeMark =
     textStyleMark.create({
       fontSize,
     });
 
-activeEditor.view.dispatch(
-  activeEditor.state.tr.setStoredMarks([
-    ...filteredMarks,
-    fontSizeMark,
-  ])
-);
+  // =================================================
+  // FINAL EDITOR SAFETY
+  // =================================================
+
+  if (
+    activeEditor.isDestroyed ||
+    !activeEditor.view
+  ) {
+
+    return;
+  }
+
+  activeEditor.view.dispatch(
+    state.tr.setStoredMarks([
+      ...filteredMarks,
+      fontSizeMark,
+    ])
+  );
 }
 
 

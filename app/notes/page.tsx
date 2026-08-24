@@ -1619,7 +1619,7 @@ const tradeCardLayout = {
     320,
 
   height:
-    150,
+    130,
 
   zIndex:
     1000 +
@@ -2532,6 +2532,10 @@ noteId={
 
   blocks={
     selectedNote.blocks
+  }
+
+  attachments={
+    selectedNote.attachments
   }
 
   onBlocksChange={

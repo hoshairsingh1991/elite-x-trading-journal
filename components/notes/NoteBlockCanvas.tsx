@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import {
+  Note,
   NoteBlock,
 } from "@/types/note";
 
@@ -34,6 +35,8 @@ type Props = {
   noteId: string;
 
   blocks: NoteBlock[];
+
+  attachments: Note["attachments"];
 
   onBlocksChange: (
     blocks: NoteBlock[]
@@ -92,6 +95,8 @@ export default function NoteBlockCanvas({
   noteId,
 
   blocks,
+
+  attachments,
 
   onBlocksChange,
 
@@ -1169,6 +1174,8 @@ onPointerCancel={(
             selectedBlockId ===
             block.id;
 
+            const isEmpty =
+  block.content.trim() === "";
 
           return (
 
@@ -1184,12 +1191,12 @@ className={`
   overflow-hidden
   rounded-[8px]
   border
-  bg-[#0b1220]/95
-  shadow-[0_8px_24px_rgba(0,0,0,0.18)]
   ${
     isSelected
       ? "border-blue-400/60 ring-1 ring-blue-400/40"
-      : "border-white/[0.12]"
+      : isEmpty
+        ? "border-dashed border-white/[0.18]"
+        : "border-transparent"
   }
 `}
 
@@ -1294,16 +1301,17 @@ className={`
                   )
                 }
 
-                className="
-                  absolute
-                  -top-[1px]
-                  left-0
-                  right-0
-                  h-5
-                  cursor-grab
-                  select-none
-                  active:cursor-grabbing
-                "
+className="
+  absolute
+  -top-[1px]
+  left-0
+  right-0
+  z-20
+  h-5
+  cursor-grab
+  select-none
+  active:cursor-grabbing
+"
                 aria-label="Move text block"
               />
 
@@ -1314,6 +1322,7 @@ className={`
 
 <div
   className="
+    relative
     h-full
     w-full
     bg-transparent
@@ -1331,6 +1340,23 @@ className={`
 
   }}
 >
+
+{isEmpty && (
+  <div
+    className="
+      pointer-events-none
+      absolute
+      left-[10px]
+      top-[10px]
+      z-10
+      text-[13px]
+      font-medium
+      text-slate-600
+    "
+  >
+    Click to type...
+  </div>
+)}
 
 <NoteBlockEditor
   content={
