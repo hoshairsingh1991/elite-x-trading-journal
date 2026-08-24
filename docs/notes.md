@@ -441,7 +441,7 @@ git commit -m "fix(notes): refine font size toolbar dropdown"
 git commit -m "fix(notes): update save status and timestamps"
 git commit -m "feat(notes): add tab indentation to editors"
 git commit -m "fix(notes): align sidebar note cards"
-
+git commit -m "fix(notes): refine sidebar note previews"
 
 
 

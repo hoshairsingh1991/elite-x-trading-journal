@@ -2079,7 +2079,8 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 {/* PREVIEW / TRADE STATE */}
 {/* ================================= */}
 
-<div className="relative left-[8px] mt-2 top-[10px] min-h-[16px]">
+<div className="relative left-[8px] mt-2 top-[10px] w-[calc(100%-8px)] min-h-[16px]">
+  <div className="pr-[10px]">
 
                       {linkedTrade ? (
 
@@ -2101,7 +2102,7 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 
                       ) : (
 
-                        <p className="line-clamp-2 text-[11px] leading-4 text-slate-500">
+                        <p className="line-clamp-2 w-[calc(100%-10px)] text-[11px] leading-4 text-slate-500">
                           {preview ||
                             "Empty note"}
                         </p>
@@ -2109,7 +2110,7 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
                       )}
 
                     </div>
-
+  </div>
 {/* ================================= */}
 {/* CARD DELETE ACTION */}
 {/* ================================= */}
