@@ -517,7 +517,7 @@ return (
       {/* TEXT SIZE GROUP */}
       {/* ================================================= */}
 
-      <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-2">
+     <div className="group flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-2 transition-colors hover:bg-white/[0.04]">
 
 <div
   ref={
@@ -526,15 +526,14 @@ return (
   className="relative"
 >
 
-  <button
-    type="button"
-    title="Text size"
-    onClick={() =>
-      setIsTextSizeOpen(
-        (current) => !current
-      )
-    }
-    className="flex h-full min-w-[62px] items-center justify-center gap-1 rounded-[6px] px-2 text-[11px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+<button
+  type="button"
+  onClick={() =>
+    setIsTextSizeOpen(
+      (current) => !current
+    )
+  }
+   className="flex h-full min-w-[62px] items-center justify-center gap-1 rounded-[6px] px-2 text-[11px] font-medium text-slate-300 transition-colors group-hover:text-white"
   >
 
     <Type
@@ -556,7 +555,7 @@ return (
 
   {isTextSizeOpen && (
 
-    <div className="absolute left-0 top-[42px] z-50 w-[88px] overflow-hidden rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-1 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+  <div className="absolute left-0 top-[42px] z-50 w-[60px] overflow-hidden rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-1 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
 
       {[
         "12",
@@ -619,14 +618,22 @@ setIsTextSizeOpen(
 );
 
             }}
-            className={`flex w-full items-center rounded-[6px] px-3 py-2 text-[11px] transition-colors ${
-              selectedFontSize === size
-                ? "bg-[#0b1730] text-blue-300"
-                : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-            }`}
+className={`flex h-[24px] w-full items-center justify-between rounded-[6px] px-3 text-[12px] font-medium transition-colors ${
+  selectedFontSize === size
+    ? "bg-[#0b1730]/70 text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.04] hover:text-white"
+}`}
           >
 
-            {size}px
+<span className="relative left-[6px]">
+  {size} px
+</span>
+
+{selectedFontSize === size && (
+  <span className="text-[11px] text-blue-300">
+    ✓
+  </span>
+)}
 
           </button>
 

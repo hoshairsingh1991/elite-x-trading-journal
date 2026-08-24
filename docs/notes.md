@@ -437,7 +437,7 @@ git commit -m "fix(notes): stabilize text block editor lifecycle"
 git commit -m "fix(notes): improve screenshot resize controls"
 git commit -m "fix(notes): preload screenshot attachments"
 git commit -m "fix(notes): close toolbar dropdowns on outside click"
-
+git commit -m "fix(notes): refine font size toolbar dropdown"
 
 
 
