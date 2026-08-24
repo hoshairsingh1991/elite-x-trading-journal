@@ -439,7 +439,7 @@ git commit -m "fix(notes): preload screenshot attachments"
 git commit -m "fix(notes): close toolbar dropdowns on outside click"
 git commit -m "fix(notes): refine font size toolbar dropdown"
 git commit -m "fix(notes): update save status and timestamps"
-
+git commit -m "feat(notes): add tab indentation to editors"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

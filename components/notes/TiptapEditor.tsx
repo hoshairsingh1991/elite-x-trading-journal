@@ -75,6 +75,8 @@ types: [
     },
   });
 
+
+
 type Props = {
   content: string;
 
@@ -119,9 +121,35 @@ extensions: [
 editorProps: {
 
   attributes: {
-   class:
-  "box-border w-full h-full min-h-full outline-none text-slate-300 text-[15px] leading-8 [&_h1]:text-4xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mb-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mb-4 [&_ul]:list-disc [&_ul]:list-inside [&_ul]:ml-0 [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:ml-0 [&_ol_li>p]:inline [&_ul_li>p]:inline [&_ol>li]:text-[inherit] [&_ul>li]:text-[inherit]",
+    class:
+      "box-border w-full h-full min-h-full outline-none text-slate-300 text-[15px] leading-8 [&_h1]:text-4xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mb-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mb-4 [&_ul]:list-disc [&_ul]:list-inside [&_ul]:ml-0 [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:ml-0 [&_ol_li>p]:inline [&_ul_li>p]:inline [&_ol>li]:text-[inherit] [&_ul>li]:text-[inherit]",
   },
+
+handleKeyDown(
+  view,
+  event
+) {
+
+  if (
+    event.key !== "Tab"
+  ) {
+
+    return false;
+  }
+
+  event.preventDefault();
+
+  editor
+    .chain()
+    .focus()
+    .insertContent(
+      "\u00A0\u00A0\u00A0\u00A0"
+    )
+    .run();
+
+  return true;
+},
+
 },
 
 onUpdate({

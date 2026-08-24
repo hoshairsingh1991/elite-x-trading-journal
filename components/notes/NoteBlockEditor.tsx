@@ -127,9 +127,42 @@ editorProps: {
   attributes: {
 
     class:
-      "h-full w-full outline-none [&_ul]:list-disc [&_ul]:list-inside [&_ul]:ml-0 [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:ml-0 [&_ol_li>p]:inline [&_ul_li>p]:inline",
+      "h-full w-full outline-none [&_ul]:list-disc [&_ul]:list-inside [&_ul]:ml-0 [&_ol]:list-decimal [&_ol]:list-inside [&_ol_li>p]:inline [&_ul_li>p]:inline",
 
   },
+
+handleKeyDown(
+  view,
+  event
+) {
+
+  if (
+    event.key !== "Tab"
+  ) {
+
+    return false;
+  }
+
+  event.preventDefault();
+
+  if (
+    !editor ||
+    editor.isDestroyed
+  ) {
+
+    return false;
+  }
+
+  editor
+    .chain()
+    .focus()
+    .insertContent(
+      "\u00A0\u00A0\u00A0\u00A0"
+    )
+    .run();
+
+  return true;
+},
 
 },
 
