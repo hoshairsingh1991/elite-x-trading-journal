@@ -2057,24 +2057,27 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 {/* CARD HEADER */}
 {/* ================================= */}
 
-<div className="relative left-[8px] top-[8px] flex h-[20px] items-start gap-2">
+<div className="relative left-[8px] top-[8px] flex h-[20px] min-w-0 w-[calc(100%-8px)] items-start">
 
-                      <div className="min-w-0 flex-1">
+<div className="min-w-0 flex-1 pr-[32px]">
 
-                        <p className="truncate text-[13px] font-semibold leading-5 text-white">
-                          {note.title}
-                        </p>
+  <p className="block min-w-0 truncate text-[13px] font-semibold leading-5 text-white">
+    {note.title}
+  </p>
 
-                      </div>
+</div>
 
-<p className="relative left-[-20px] shrink-0 pt-[1px] text-[10px] text-slate-500">
-  {getNoteTime(
-    note.updatedAt
-  )}
-</p>
+<div className="relative w-[54px] shrink-0">
 
-                    </div>
+ <p className="relative left-[-0px] top-[2px] whitespace-nowrap pt-[1px] text-[10px] text-slate-500">
+    {getNoteTime(
+      note.updatedAt
+    )}
+  </p>
 
+</div>
+
+</div>
 {/* ================================= */}
 {/* PREVIEW / TRADE STATE */}
 {/* ================================= */}
