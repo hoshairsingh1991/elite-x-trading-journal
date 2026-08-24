@@ -204,6 +204,14 @@ const [
     setOpenNoteMenuId,
   ] = useState<string | null>(null);
 
+  const [
+  expandedLinkedTradesNoteId,
+  setExpandedLinkedTradesNoteId,
+] = useState<string | null>(null);
+
+const expandedTradesRef =
+  useRef<HTMLDivElement | null>(null);
+
   // =================================================
   // LOAD NOTES
   // =================================================
@@ -313,6 +321,46 @@ useEffect(() => {
   selectedNote?.title,
   selectedNoteId,
 ]);
+
+useEffect(() => {
+
+  function handleClickOutside(
+    event: MouseEvent
+  ) {
+
+    const target =
+      event.target as Node;
+
+    if (
+      expandedTradesRef.current &&
+      !expandedTradesRef.current.contains(
+        target
+      )
+    ) {
+
+      setExpandedLinkedTradesNoteId(
+        null
+      );
+
+    }
+
+  }
+
+  document.addEventListener(
+    "mousedown",
+    handleClickOutside
+  );
+
+  return () => {
+
+    document.removeEventListener(
+      "mousedown",
+    handleClickOutside
+    );
+
+  };
+
+}, []);
 
 // =================================================
 // NOTE SIDEBAR DATE GROUPING
@@ -2024,15 +2072,43 @@ const preview =
     )
     .trim();
 
-                const linkedTrade =
-                  note.tradeLinks.length >
-                  0
-                    ? availableTrades.find(
-                        (trade) =>
-                          trade.id ===
-                          note.tradeLinks[0].tradeId
-                      )
-                    : undefined;
+const linkedTrades =
+  note.tradeLinks
+    .map(
+      (link) =>
+        availableTrades.find(
+          (trade) =>
+            trade.id ===
+            link.tradeId
+        )
+    )
+    .filter(
+      (
+        trade
+      ): trade is Trade =>
+        Boolean(trade)
+    );
+
+const visibleLinkedTrades =
+  linkedTrades.slice(
+    0,
+    3
+  );
+
+const hiddenTradeCount =
+  linkedTrades.length -
+  visibleLinkedTrades.length;
+
+const linkedTradePnl =
+  linkedTrades.reduce(
+    (
+      total,
+      trade
+    ) =>
+      total +
+      trade.pnl,
+    0
+  );
 
                 return (
 
@@ -2082,28 +2158,102 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 {/* PREVIEW / TRADE STATE */}
 {/* ================================= */}
 
-<div className="relative left-[8px] mt-2 top-[10px] w-[calc(100%-8px)] min-h-[16px]">
+<div className="relative left-[8px] mt-2 top-[12px] w-[calc(100%-8px)] min-h-[16px]">
   <div className="pr-[10px]">
+{linkedTrades.length > 0 ? (
 
-                      {linkedTrade ? (
+  <div className="flex min-w-0 items-center gap-2">
 
-                        <div className="flex items-center gap-2">
+    <span className="shrink-0 text-[11px] font-medium text-slate-400">
+      Trade linked
+    </span>
 
-                          <span className="text-[11px] font-medium text-slate-400">
-                            Trade linked
-                          </span>
+   <div className="relative flex min-w-0 items-center gap-1.5 overflow-hidden">
 
-                          {linkedTrade.ticker && (
 
-                            <span className="rounded-[4px] bg-[#0b0c1e] px-1.5 py-0.5 text-[9px] font-medium text-slate-400">
-                              {linkedTrade.ticker}
-                            </span>
 
-                          )}
+{visibleLinkedTrades.map(
+  (
+    trade
+  ) => (
 
-                        </div>
+<span
+  key={
+    trade.id
+  }
+  className={`flex h-[20px] w-[36px] shrink-0 items-center justify-center rounded-[4px] text-[9px] font-medium ${
+    trade.pnl > 0
+      ? "bg-emerald-500/10 text-emerald-400"
+      : trade.pnl < 0
+        ? "bg-red-500/10 text-red-400"
+        : "bg-[#0b0c1e] text-slate-400"
+  }`}
+>
+  {trade.ticker}
+</span>
 
-                      ) : (
+        )
+      )}
+{hiddenTradeCount > 0 && (
+
+  <span
+    onClick={(event) => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      setExpandedLinkedTradesNoteId(
+        expandedLinkedTradesNoteId === note.id
+          ? null
+          : note.id
+      );
+
+    }}
+    className="flex h-[20px] w-[36px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] bg-[#0b0c1e] text-[9px] font-medium text-slate-400 hover:bg-[#111827] hover:text-white"
+  >
+    +{hiddenTradeCount}
+  </span>
+
+)}
+    </div>
+{expandedLinkedTradesNoteId === note.id && (
+
+<div
+  ref={expandedTradesRef}
+  className="absolute left-[75%] top-[30px] z-50 flex w-[60px] -translate-x-[50%] flex-col gap-1 rounded-[8px] border border-white/[0.08] bg-[#07101a] p-2 shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
+>
+<div className="h-[4px]" />
+    {linkedTrades
+      .slice(3)
+      .map(
+        (
+          trade
+        ) => (
+
+          <div
+            key={
+              trade.id
+            }
+            className={`flex h-[20px] w-[50px] self-center items-center justify-center rounded-[4px] text-[9px] font-medium  ${
+              trade.pnl > 0
+                ? "bg-emerald-500/10 text-emerald-400"
+                : trade.pnl < 0
+                  ? "bg-red-500/10 text-red-400"
+                  : "bg-[#0b0c1e] text-slate-400"
+            }`}
+          >
+            {trade.ticker}
+          </div>
+
+        )
+      )}
+<div className="h-[4px]" />
+  </div>
+
+)}
+  </div>
+
+) : (
 
                         <p className="line-clamp-2 w-[calc(100%-10px)] text-[11px] leading-4 text-slate-500">
                           {preview ||
