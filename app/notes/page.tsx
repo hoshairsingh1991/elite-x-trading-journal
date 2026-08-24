@@ -2008,13 +2008,21 @@ const updatedTradeLink =
                   note.id ===
                   selectedNoteId;
 
-                const preview =
-                  note.content
-                    .replace(
-                      /<[^>]+>/g,
-                      ""
-                    )
-                    .trim();
+const preview =
+  note.content
+    .replace(
+      /<[^>]+>/g,
+      " "
+    )
+    .replace(
+      /&nbsp;/gi,
+      " "
+    )
+    .replace(
+      /\s+/g,
+      " "
+    )
+    .trim();
 
                 const linkedTrade =
                   note.tradeLinks.length >
@@ -2038,7 +2046,7 @@ const updatedTradeLink =
                         note.id
                       )
                     }
-className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 text-left transition-all ${
+className={`group relative flex min-h-[80px] w-full flex-col justify-start rounded-[8px] border px-3 py-4 text-left transition-all ${
   isActive
     ? "border-blue-500/60 bg-[#0b1220]"
     : "border-white/[0.06] bg-[#0b1220] hover:border-white/[0.12] hover:bg-[#0b1730]"
@@ -2049,7 +2057,7 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 {/* CARD HEADER */}
 {/* ================================= */}
 
-<div className="relative left-[8px] translate-y-[-12px] flex items-start gap-2">
+<div className="relative left-[8px] top-[8px] flex h-[20px] items-start gap-2">
 
                       <div className="min-w-0 flex-1">
 
@@ -2059,7 +2067,7 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 
                       </div>
 
-<p className="relative left-[-20px] translate-y-[-0px] shrink-0 pt-[1px] text-[10px] text-slate-500">
+<p className="relative left-[-20px] shrink-0 pt-[1px] text-[10px] text-slate-500">
   {getNoteTime(
     note.updatedAt
   )}
@@ -2071,7 +2079,7 @@ className={`group relative min-h-[80px] w-full rounded-[8px] border px-3 py-4 te
 {/* PREVIEW / TRADE STATE */}
 {/* ================================= */}
 
-<div className="relative left-[8px] mt-2 translate-y-[-8px] min-h-[16px]">
+<div className="relative left-[8px] mt-2 top-[10px] min-h-[16px]">
 
                       {linkedTrade ? (
 
