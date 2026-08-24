@@ -142,11 +142,22 @@ const [
 const drawingSettingsRef =
   useRef<HTMLDivElement | null>(null);
 
+  const textSizeRef =
+  useRef<HTMLDivElement | null>(null);
+
+const textColorRef =
+  useRef<HTMLDivElement | null>(null);
+
 useEffect(() => {
 
-if (!isDrawingSettingsOpen) {
-  return;
-}
+  if (
+    !isDrawingSettingsOpen &&
+    !isTextSizeOpen &&
+    !isTextColorOpen
+  ) {
+
+    return;
+  }
 
   function handleOutsideClick(
     event: PointerEvent
@@ -155,17 +166,41 @@ if (!isDrawingSettingsOpen) {
     const target =
       event.target as Node;
 
-if (
-  drawingSettingsRef.current &&
-  !drawingSettingsRef.current.contains(
-    target
-  )
-) {
+    const clickedInsideTextSize =
+      textSizeRef.current?.contains(
+        target
+      );
 
-  setIsDrawingSettingsOpen(
-    false
-  );
-}
+    const clickedInsideTextColor =
+      textColorRef.current?.contains(
+        target
+      );
+
+    const clickedInsideDrawingSettings =
+      drawingSettingsRef.current?.contains(
+        target
+      );
+
+    if (
+      clickedInsideTextSize ||
+      clickedInsideTextColor ||
+      clickedInsideDrawingSettings
+    ) {
+
+      return;
+    }
+
+    setIsTextSizeOpen(
+      false
+    );
+
+    setIsTextColorOpen(
+      false
+    );
+
+    setIsDrawingSettingsOpen(
+      false
+    );
   }
 
   document.addEventListener(
@@ -184,6 +219,8 @@ if (
 
 }, [
   isDrawingSettingsOpen,
+  isTextSizeOpen,
+  isTextColorOpen,
 ]);
 
 const [
@@ -482,7 +519,12 @@ return (
 
       <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-2">
 
-<div className="relative">
+<div
+  ref={
+    textSizeRef
+  }
+  className="relative"
+>
 
   <button
     type="button"
@@ -874,7 +916,12 @@ activeEditor.isActive({
 {/* TEXT COLOR GROUP */}
 {/* ================================================= */}
 
-<div className="relative flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5">
+<div
+  ref={
+    textColorRef
+  }
+  className="relative flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5"
+>
 
   <button
     type="button"
