@@ -2256,7 +2256,7 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 {/* NOTE HEADER */}
 {/* ============================================= */}
 
-<div className="flex min-w-0 items-start justify-between border-b border-white/[0.06] px-6 pb-5">
+<div className="relative z-[3000] flex min-w-0 items-start justify-between border-b border-white/[0.06] px-6 pb-5">
 
 {/* =========================================== */}
 {/* TITLE + LINK TRADE */}
@@ -2363,7 +2363,7 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 
     {isTradeSelectorOpen && (
 
-      <div className="absolute left-[50px] top-[42px] z-50 w-[320px]">
+      <div className="absolute left-[50px] top-[42px] z-[2000] w-[320px]">
 
 <NoteTradeSelector
   trades={

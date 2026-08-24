@@ -625,137 +625,152 @@ function formatTime(
 
       {isOpen && (
 
-        <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-50 overflow-hidden rounded-[22px] border border-white/[0.06] bg-[#07101a] shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+        <div className="absolute left-1 top-[calc(100%-4px)] z-[2000] w-[270px] overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07101a] shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
 
           {/* SEARCH */}
 
           <div className="border-b border-white/[0.05] p-3">
 
-            <div className="flex h-11 items-center gap-3 rounded-xl border border-white/[0.05] bg-[#09111d] px-3">
+<div className="flex h-9 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-2">
 
-              <Search
-                size={16}
-                className="shrink-0 text-slate-500"
-              />
+  <div className="flex h-full w-8 shrink-0 items-center justify-center">
 
-              <input
-                type="text"
-                value={search}
-                onChange={(event) =>
-                  setSearch(
-                    event.target.value
-                  )
-                }
-                autoFocus
-                placeholder="Search ticker, contract or account..."
-                className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-600"
-              />
+    <Search
+      size={15}
+      strokeWidth={1.8}
+      className="text-slate-500"
+    />
 
-            </div>
+  </div>
 
-          </div>
+  <input
+    type="text"
+    value={search}
+    onChange={(event) =>
+      setSearch(
+        event.target.value
+      )
+    }
+    autoFocus
+    placeholder="Search ticker, contract or account..."
+    className="min-w-0 flex-1 bg-transparent pr-2 text-[12px] text-white outline-none placeholder:text-slate-500"
+  />
 
-          {/* RESULTS */}
-
-          <div className="max-h-[320px] overflow-y-auto p-2">
-
-            {filteredTrades.length > 0 ? (
-
-              filteredTrades.map(
-                (trade) => {
-
-                  const isAttached =
-                    attachedTradeIds.has(
-                      trade.id
-                    );
-
-                  return (
-
-                    <button
-                      key={trade.id}
-                      type="button"
-                      disabled={
-                        isAttached
-                      }
-                      onClick={() =>
-                        handleSelectTrade(
-                          trade.id
-                        )
-                      }
-                      className={`w-full rounded-xl px-4 py-3 text-left transition-all ${
-                        isAttached
-                          ? "cursor-not-allowed opacity-40"
-                          : "hover:bg-[#0b1730]"
-                      }`}
-                    >
-
-                      <div className="flex items-center justify-between">
-
-                        <div>
-
-                          <p className="text-sm font-semibold text-white">
-                            {trade.ticker}
-                          </p>
-
-<p className="mt-1 text-xs text-slate-500">
-
-  {getDisplaySide(
-    trade
-  )}
-
-  {" · "}
-
-  {trade.quantity}
-
-  {" · "}
-
-  {formatDate(
-    trade.date
-  )}
-
-</p>
-
-                        </div>
-
-                        <span
-                          className={`text-xs font-semibold ${
-                            trade.pnl > 0
-                              ? "text-emerald-400"
-                              : trade.pnl < 0
-                                ? "text-red-400"
-                                : "text-slate-500"
-                          }`}
-                        >
-
-                          {isAttached
-                            ? "Added"
-                            : formatPnL(
-                                trade.pnl
-                              )}
-
-                        </span>
-
-                      </div>
-
-                    </button>
-
-                  );
-                }
-              )
-
-            ) : (
-
-              <div className="px-4 py-8 text-center">
-
-                <p className="text-sm text-slate-500">
-                  No matching trades
-                </p>
-
-              </div>
-
-            )}
+</div>
 
           </div>
+
+<div className="h-[8px] shrink-0" />
+
+{/* RESULTS */}
+
+<div className="max-h-[335px] overflow-y-auto px-2 py-2">
+
+  {filteredTrades.length > 0 ? (
+
+    <div className="mt-[8px] flex flex-col gap-2">
+
+      {filteredTrades.map(
+        (trade) => {
+
+          const isAttached =
+            attachedTradeIds.has(
+              trade.id
+            );
+
+          return (
+
+            <button
+              key={
+                trade.id
+              }
+              type="button"
+              disabled={
+                isAttached
+              }
+              onClick={() =>
+                handleSelectTrade(
+                  trade.id
+                )
+              }
+              className={`relative left-[4px] w-[calc(100%-8px)] ${
+  trade.id === filteredTrades[0]?.id
+    ? "mt-2"
+    : ""
+} rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-3 py-2.5 text-left transition-all ${
+                isAttached
+                  ? "cursor-not-allowed opacity-40"
+                  : "hover:border-white/[0.12] hover:bg-[#0b1730]"
+              }`}
+            >
+
+<div className="flex min-h-[46px] items-center justify-between py-[3px]">
+
+  <div className="relative left-[10px]">
+
+    <p className="text-sm font-semibold text-white">
+      {trade.ticker}
+    </p>
+
+    <p className="mt-1 text-xs text-slate-500">
+
+      {getDisplaySide(
+        trade
+      )}
+
+      {" · "}
+
+      {trade.quantity}
+
+      {" · "}
+
+      {formatDate(
+        trade.date
+      )}
+
+    </p>
+
+  </div>
+
+<span
+  className={`relative left-[-10px] text-xs font-semibold ${
+    trade.pnl > 0
+      ? "text-emerald-400"
+      : trade.pnl < 0
+        ? "text-red-400"
+        : "text-slate-500"
+  }`}
+>
+    {isAttached
+      ? "Added"
+      : formatPnL(
+          trade.pnl
+        )}
+  </span>
+
+</div>
+
+            </button>
+
+          );
+        }
+      )}
+
+    </div>
+
+  ) : (
+
+    <div className="px-4 py-8 text-center">
+
+      <p className="text-sm text-slate-500">
+        No matching trades
+      </p>
+
+    </div>
+
+  )}
+
+</div>
 
         </div>
 
