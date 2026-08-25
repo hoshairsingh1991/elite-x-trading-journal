@@ -528,6 +528,7 @@ return (
 
 <button
   type="button"
+  title="Text size"
   onClick={() =>
     setIsTextSizeOpen(
       (current) => !current
@@ -1066,9 +1067,9 @@ onClick={() => {
     strokeWidth={1.8}
   />
 
-  <span className="max-[1535px]:hidden">
-    Select
-  </span>
+<span className="relative left-[-3px] max-[1535px]:hidden">
+  Select
+</span>
 </button>
 
 
@@ -1449,12 +1450,14 @@ setIsDrawingSettingsOpen(
   className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
 >
 
-          <Undo2
-            size={14}
-            strokeWidth={1.8}
-          />
+  <Undo2
+    size={14}
+    strokeWidth={1.8}
+  />
 
-        </button>
+</button>
+
+<div className="h-4 w-px bg-white/[0.08]" />
 
 <button
   type="button"
@@ -1465,12 +1468,12 @@ setIsDrawingSettingsOpen(
   className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
 >
 
-          <Redo2
-            size={14}
-            strokeWidth={1.8}
-          />
+  <Redo2
+    size={14}
+    strokeWidth={1.8}
+  />
 
-        </button>
+</button>
 
       </div>
 
@@ -1494,9 +1497,9 @@ setIsDrawingSettingsOpen(
     strokeWidth={1.8}
   />
 
-  <span className="text-[10px] font-medium">
-    Text Block
-  </span>
+<span className="relative left-[-3px] text-[10px] font-medium">
+  Text Block
+</span>
 
 </button>
 

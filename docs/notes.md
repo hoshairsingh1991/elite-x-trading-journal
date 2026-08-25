@@ -448,7 +448,7 @@ git commit -m "Complete Notes V2 linked trade UI improvements"
 git commit -m "Polish notes search and draggable cursors"
 git commit -m "Polish notes workspace interactions"
 git commit -m "Polish notes workspace layout"
-
+git commit -m "Finalize Notes V2"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Status:
