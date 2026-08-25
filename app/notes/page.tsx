@@ -36,7 +36,7 @@ import {
   Trash2,
   ImagePlus,
   Search,
-  SlidersHorizontal,
+    X,
 } from "lucide-react";
 
 import {
@@ -79,6 +79,11 @@ export default function NotesPage() {
     selectedNoteId,
     setSelectedNoteId,
   ] = useState<string>("");
+
+const [
+  noteSearchQuery,
+  setNoteSearchQuery,
+] = useState<string>("");
 
   const fileInputRef =
   useRef<HTMLInputElement | null>(null);
@@ -463,11 +468,59 @@ function getNoteTime(
 }
 
 // =================================================
+// NOTE SEARCH FILTER
+// =================================================
+
+const normalizedNoteSearchQuery =
+  noteSearchQuery
+    .trim()
+    .toLowerCase();
+
+const filteredNotes =
+  normalizedNoteSearchQuery.length === 0
+    ? notes
+    : notes.filter(
+        (note) => {
+
+          const title =
+            note.title
+              .toLowerCase();
+
+          const content =
+            note.content
+              .replace(
+                /<[^>]+>/g,
+                " "
+              )
+              .replace(
+                /&nbsp;/gi,
+                " "
+              )
+              .replace(
+                /\s+/g,
+                " "
+              )
+              .trim()
+              .toLowerCase();
+
+          return (
+            title.includes(
+              normalizedNoteSearchQuery
+            ) ||
+            content.includes(
+              normalizedNoteSearchQuery
+            )
+          );
+
+        }
+      );
+
+// =================================================
 // GROUP NOTES BY UPDATED DATE
 // =================================================
 
 const groupedNotes =
-  notes.reduce(
+  filteredNotes.reduce(
     (
       groups,
       note
@@ -1973,27 +2026,42 @@ const updatedTradeLink =
 
   </div>
 
-  <input
-    type="text"
-    placeholder="Search notes..."
-    className="h-9 min-w-0 flex-1 border-none bg-transparent pr-3 text-xs text-white outline-none placeholder:text-slate-500"
-  />
+<input
+  type="text"
+  value={noteSearchQuery}
+  onChange={(event) =>
+    setNoteSearchQuery(
+      event.target.value
+    )
+  }
+  placeholder="Search notes..."
+  className="h-9 min-w-0 flex-1 border-none bg-transparent pr-1 text-xs text-white outline-none placeholder:text-slate-500"
+/>
 
-</div>
+{noteSearchQuery && (
 
   <button
     type="button"
-    aria-label="Note filters"
-    title="Note filters"
-    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] text-slate-400 transition-colors hover:border-white/[0.12] hover:text-white"
+    onClick={() =>
+      setNoteSearchQuery("")
+    }
+    aria-label="Clear search"
+    title="Clear search"
+    className="mr-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] text-slate-500 transition-colors hover:bg-white/[0.05] hover:text-white"
   >
 
-    <SlidersHorizontal
-      size={15}
+    <X
+      size={14}
       strokeWidth={1.8}
     />
 
   </button>
+
+)}
+
+</div>
+
+
 
 </div>
 
@@ -2137,7 +2205,7 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 
 <div className="min-w-0 flex-1 pr-[32px]">
 
-  <p className="block min-w-0 truncate text-[13px] font-semibold leading-5 text-white">
+  <p className="block min-w-0 truncate text-[12px] font-semibold leading-5 text-white">
     {note.title}
   </p>
 
@@ -2145,7 +2213,7 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 
 <div className="relative w-[54px] shrink-0">
 
- <p className="relative left-[-0px] top-[2px] whitespace-nowrap pt-[1px] text-[10px] text-slate-500">
+ <p className="relative left-[0px] top-[2px] whitespace-nowrap pt-[1px] text-[10px] text-slate-500">
     {getNoteTime(
       note.updatedAt
     )}

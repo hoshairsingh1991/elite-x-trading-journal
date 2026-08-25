@@ -1308,9 +1308,8 @@ className="
   right-0
   z-20
   h-5
-  cursor-grab
+  cursor-move
   select-none
-  active:cursor-grabbing
 "
                 aria-label="Move text block"
               />

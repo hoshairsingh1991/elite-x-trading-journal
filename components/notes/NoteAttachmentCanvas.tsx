@@ -900,13 +900,13 @@ return (
   key={
     attachment.id
   }
-  className={`pointer-events-auto group absolute overflow-visible rounded-[12px] ${
-                isDragging
-                  ? "z-50 cursor-grabbing"
-                  : isResizing
-                    ? "z-50"
-                    : "cursor-grab"
-              }`}
+className={`pointer-events-auto group absolute overflow-visible rounded-[12px] ${
+  isDragging
+    ? "z-50 cursor-move"
+    : isResizing
+      ? "z-50"
+      : "cursor-move"
+}`}
               style={{
                 left:
                   attachment.positionX,

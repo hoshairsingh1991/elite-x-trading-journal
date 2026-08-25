@@ -445,6 +445,9 @@ git commit -m "fix(notes): refine sidebar note previews"
 git commit -m "fix(notes): refine sidebar note layout"
 git commit -m "fix(notes): refine trade selector UI"
 git commit -m "Complete Notes V2 linked trade UI improvements"
+git commit -m "Polish notes search and draggable cursors"
+
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

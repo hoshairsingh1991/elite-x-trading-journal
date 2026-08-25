@@ -783,7 +783,7 @@ return (
   key={
     trade.id
   }
-  className="pointer-events-auto group absolute cursor-grab rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-3 active:cursor-grabbing"
+  className="pointer-events-auto group absolute cursor-move rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-3"
   style={{
     left:
       link.positionX,
