@@ -2213,11 +2213,11 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 
 <div className="relative w-[54px] shrink-0">
 
- <p className="relative left-[0px] top-[2px] whitespace-nowrap pt-[1px] text-[10px] text-slate-500">
-    {getNoteTime(
-      note.updatedAt
-    )}
-  </p>
+<p className="relative left-[0px] top-[2px] whitespace-nowrap pt-[1px] text-[10px] text-slate-400">
+  {getNoteTime(
+    note.updatedAt
+  )}
+</p>
 
 </div>
 
@@ -2512,13 +2512,13 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
       }
       placeholder="Note title..."
       className="relative left-[10px] translate-y-[-10px] border-none bg-transparent text-[28px] font-black tracking-[-0.03em] text-white outline-none placeholder:text-slate-600"
-      style={{
-        width:
-          Math.max(
-            noteTitleWidth + 4,
-            80
-          ),
-      }}
+style={{
+  width:
+    Math.max(
+      noteTitleWidth + 24,
+      80
+    ),
+}}
     />
 
   </div>
