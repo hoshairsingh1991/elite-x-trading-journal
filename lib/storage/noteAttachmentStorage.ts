@@ -188,11 +188,11 @@ uploadNoteAttachment(
         file_size:
           file.size,
 
-        position_x:
-          0,
+position_x:
+  10,
 
-        position_y:
-          0,
+position_y:
+  20,
 
         width:
           600,

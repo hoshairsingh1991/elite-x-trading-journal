@@ -447,7 +447,7 @@ git commit -m "fix(notes): refine trade selector UI"
 git commit -m "Complete Notes V2 linked trade UI improvements"
 git commit -m "Polish notes search and draggable cursors"
 git commit -m "Polish notes workspace interactions"
-
+git commit -m "Polish notes workspace layout"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

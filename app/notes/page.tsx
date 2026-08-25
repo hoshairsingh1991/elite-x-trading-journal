@@ -1751,6 +1751,137 @@ async function handleUpdateNote(
   );
 }
 
+
+// =================================================
+// FIND FIRST AVAILABLE TRADE CARD POSITION
+// =================================================
+
+function getNextTradeCardPosition(
+  tradeLinks: NoteTradeLink[]
+) {
+
+  const CARD_WIDTH =
+    320;
+
+  const CARD_HEIGHT =
+    130;
+
+  const GAP =
+    20;
+
+  const START_X =
+    20;
+
+  const START_Y =
+    20;
+
+  const COLUMN_GAP =
+    24;
+
+  const ROW_STEP =
+    CARD_HEIGHT +
+    GAP;
+
+  const COLUMN_STEP =
+    CARD_WIDTH +
+    COLUMN_GAP;
+
+  function overlapsExistingCard(
+    x: number,
+    y: number
+  ) {
+
+    return tradeLinks.some(
+      (link) => {
+
+        const existingLeft =
+          link.positionX;
+
+        const existingRight =
+          link.positionX +
+          link.width;
+
+        const existingTop =
+          link.positionY;
+
+        const existingBottom =
+          link.positionY +
+          link.height;
+
+        const candidateRight =
+          x +
+          CARD_WIDTH;
+
+        const candidateBottom =
+          y +
+          CARD_HEIGHT;
+
+        return (
+          x <
+            existingRight &&
+          candidateRight >
+            existingLeft &&
+          y <
+            existingBottom &&
+          candidateBottom >
+            existingTop
+        );
+
+      }
+    );
+  }
+
+  for (
+    let row = 0;
+    row < 100;
+    row++
+  ) {
+
+    for (
+      let column = 0;
+      column < 2;
+      column++
+    ) {
+
+      const positionX =
+        START_X +
+        column *
+          COLUMN_STEP;
+
+      const positionY =
+        START_Y +
+        row *
+          ROW_STEP;
+
+      if (
+        !overlapsExistingCard(
+          positionX,
+          positionY
+        )
+      ) {
+
+        return {
+          positionX,
+          positionY,
+        };
+
+      }
+
+    }
+
+  }
+
+  return {
+    positionX:
+      START_X,
+
+    positionY:
+      START_Y +
+      tradeLinks.length *
+        ROW_STEP,
+  };
+}
+
   // =================================================
   // ADD TRADE TO NOTE
   // =================================================
@@ -1766,20 +1897,18 @@ async function handleUpdateNote(
       return;
     }
 
-const tradeCardIndex =
-  selectedNote.tradeLinks.length;
+const tradeCardPosition =
+  getNextTradeCardPosition(
+    selectedNote.tradeLinks
+  );
 
 const tradeCardLayout = {
 
   positionX:
-    20,
+    tradeCardPosition.positionX,
 
   positionY:
-    20 +
-    (
-      tradeCardIndex *
-      150
-    ),
+    tradeCardPosition.positionY,
 
   width:
     320,
@@ -1789,7 +1918,7 @@ const tradeCardLayout = {
 
   zIndex:
     1000 +
-    tradeCardIndex,
+    selectedNote.tradeLinks.length,
 
 };
 

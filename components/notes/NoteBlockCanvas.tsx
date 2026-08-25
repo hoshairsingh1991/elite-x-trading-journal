@@ -1092,8 +1092,8 @@ function updateSelectedBlockStyle(
         pointer-events-none
         absolute
         inset-0
-        z-[100]
-        min-h-[1600px]
+        z-[2000]
+        min-h-full
         w-full
       "
 
