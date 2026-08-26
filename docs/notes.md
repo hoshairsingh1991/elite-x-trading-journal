@@ -453,7 +453,7 @@ git commit -m "Polish trade and notes search UX"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 EXECUTION / FIFO / LONG-SHORT MASTER HANDOVER NOTES
 git commit -m "fix execution side persistence and trade reconstruction"
-
+git commit -m "fix execution side persistence and broker sync"
 
 
 

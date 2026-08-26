@@ -41,11 +41,14 @@ saveExecutions(
           exchange:
   execution.exchange,
 
-       action:
+action:
   execution.action,
 
-        quantity:
-          execution.quantity,
+side:
+  execution.action,
+
+quantity:
+  execution.quantity,
 
         execution_price:
           execution.executionPrice,
