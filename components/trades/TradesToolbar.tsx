@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import {
+  Search,
+  X,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 
 import {
@@ -305,6 +308,42 @@ border-white/[0.06]
           focus:border-blue-500/40
         "
       />
+
+<button
+  type="button"
+  aria-label="Clear trade search"
+  title="Clear search"
+  onClick={() =>
+    setSearchQuery("")
+  }
+  className={`
+    absolute
+    right-2
+    top-1/2
+    flex
+    h-7
+    w-7
+    -translate-y-1/2
+    items-center
+    justify-center
+    rounded-[6px]
+    text-slate-500
+    transition-all
+    hover:bg-white/[0.05]
+    hover:text-white
+    ${
+      searchQuery
+        ? "pointer-events-auto opacity-100"
+        : "pointer-events-none opacity-0"
+    }
+  `}
+>
+  <X
+    size={13}
+    strokeWidth={1.8}
+  />
+</button>
+
 
     </div>
 

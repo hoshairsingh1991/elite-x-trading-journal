@@ -650,6 +650,152 @@ className={`flex h-[24px] w-full items-center justify-between rounded-[6px] px-3
       </div>
 
 
+{/* ================================================= */}
+{/* TEXT COLOR GROUP */}
+{/* ================================================= */}
+
+<div
+  ref={
+    textColorRef
+  }
+  className="relative flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5"
+>
+
+  <button
+    type="button"
+    title="Text color"
+    onClick={() =>
+      setIsTextColorOpen(
+        (current) => !current
+      )
+    }
+    className="relative flex h-8 min-w-[52px] items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+  >
+
+    <Type
+      size={14}
+      strokeWidth={1.8}
+    />
+
+    <span
+      className="absolute bottom-[5px] left-1/2 h-[2px] w-3 -translate-x-1/2 rounded-full"
+      style={{
+        backgroundColor:
+          selectedTextColor,
+      }}
+    />
+
+    <ChevronDown
+      size={10}
+      strokeWidth={1.8}
+      className="ml-1 text-slate-500"
+    />
+
+  </button>
+
+
+  {/* ================================================= */}
+  {/* COLOR DROPDOWN */}
+  {/* ================================================= */}
+
+  {isTextColorOpen && (
+
+    <div className="absolute left-0 top-[42px] z-50 w-[148px] rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+
+      <div className="mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
+        Text Color
+      </div>
+
+      <div className="grid grid-cols-5 gap-1.5">
+
+        {textColors.map(
+          (color) => (
+
+            <button
+              key={
+                color.value
+              }
+              type="button"
+              title={
+                color.name
+              }
+              onClick={() => {
+
+activeEditor
+  .chain()
+  .focus()
+  .setMark(
+    "textStyle",
+    {
+      color:
+        color.value,
+    }
+  )
+  .run();
+
+                setSelectedTextColor(
+                  color.value
+                );
+
+                setIsTextColorOpen(
+                  false
+                );
+
+              }}
+              className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all ${
+                selectedTextColor ===
+                color.value
+                  ? "border-white/80"
+                  : "border-white/[0.08] hover:border-white/40"
+              }`}
+            >
+
+              <span
+                className="h-4 w-4 rounded-full"
+                style={{
+                  backgroundColor:
+                    color.value,
+                }}
+              />
+
+            </button>
+
+          )
+        )}
+
+      </div>
+
+    </div>
+
+  )}
+
+</div>
+
+{/* ================================================= */}
+{/* ADD TEXT BLOCK */}
+{/* ================================================= */}
+
+<button
+  type="button"
+  title="Add text block"
+  aria-label="Add text block"
+  onClick={
+    onAddTextBlock
+  }
+  className="flex h-[38px] shrink-0 items-center justify-center gap-1.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-3 text-slate-400 transition-colors hover:border-white/[0.1] hover:bg-[#101a28] hover:text-white"
+>
+
+  <Type
+    size={14}
+    strokeWidth={1.8}
+  />
+
+<span className="relative left-[-3px] text-[10px] font-medium">
+  Text Block
+</span>
+
+</button>
+
       {/* ================================================= */}
       {/* TEXT FORMATTING GROUP */}
       {/* ================================================= */}
@@ -920,126 +1066,7 @@ activeEditor.isActive({
       </div>
 
 
-{/* ================================================= */}
-{/* TEXT COLOR GROUP */}
-{/* ================================================= */}
 
-<div
-  ref={
-    textColorRef
-  }
-  className="relative flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5"
->
-
-  <button
-    type="button"
-    title="Text color"
-    onClick={() =>
-      setIsTextColorOpen(
-        (current) => !current
-      )
-    }
-    className="relative flex h-8 min-w-[52px] items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-  >
-
-    <Type
-      size={14}
-      strokeWidth={1.8}
-    />
-
-    <span
-      className="absolute bottom-[5px] left-1/2 h-[2px] w-3 -translate-x-1/2 rounded-full"
-      style={{
-        backgroundColor:
-          selectedTextColor,
-      }}
-    />
-
-    <ChevronDown
-      size={10}
-      strokeWidth={1.8}
-      className="ml-1 text-slate-500"
-    />
-
-  </button>
-
-
-  {/* ================================================= */}
-  {/* COLOR DROPDOWN */}
-  {/* ================================================= */}
-
-  {isTextColorOpen && (
-
-    <div className="absolute left-0 top-[42px] z-50 w-[148px] rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
-
-      <div className="mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
-        Text Color
-      </div>
-
-      <div className="grid grid-cols-5 gap-1.5">
-
-        {textColors.map(
-          (color) => (
-
-            <button
-              key={
-                color.value
-              }
-              type="button"
-              title={
-                color.name
-              }
-              onClick={() => {
-
-activeEditor
-  .chain()
-  .focus()
-  .setMark(
-    "textStyle",
-    {
-      color:
-        color.value,
-    }
-  )
-  .run();
-
-                setSelectedTextColor(
-                  color.value
-                );
-
-                setIsTextColorOpen(
-                  false
-                );
-
-              }}
-              className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all ${
-                selectedTextColor ===
-                color.value
-                  ? "border-white/80"
-                  : "border-white/[0.08] hover:border-white/40"
-              }`}
-            >
-
-              <span
-                className="h-4 w-4 rounded-full"
-                style={{
-                  backgroundColor:
-                    color.value,
-                }}
-              />
-
-            </button>
-
-          )
-        )}
-
-      </div>
-
-    </div>
-
-  )}
-
-</div>
 
       {/* ================================================= */}
       {/* ANNOTATION GROUP */}
@@ -1478,30 +1505,7 @@ setIsDrawingSettingsOpen(
       </div>
 
 
-{/* ================================================= */}
-{/* ADD TEXT BLOCK */}
-{/* ================================================= */}
 
-<button
-  type="button"
-  title="Add text block"
-  aria-label="Add text block"
-  onClick={
-    onAddTextBlock
-  }
-  className="flex h-[38px] shrink-0 items-center justify-center gap-1.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-3 text-slate-400 transition-colors hover:border-white/[0.1] hover:bg-[#101a28] hover:text-white"
->
-
-  <Type
-    size={14}
-    strokeWidth={1.8}
-  />
-
-<span className="relative left-[-3px] text-[10px] font-medium">
-  Text Block
-</span>
-
-</button>
 
     </div>
 

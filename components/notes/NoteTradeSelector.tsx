@@ -9,6 +9,7 @@ import {
 
 import {
   Search,
+  X,
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
@@ -655,6 +656,27 @@ function formatTime(
     placeholder="Search ticker, contract or account..."
     className="min-w-0 flex-1 bg-transparent pr-2 text-[12px] text-white outline-none placeholder:text-slate-500"
   />
+
+{search && (
+
+  <button
+    type="button"
+    aria-label="Clear trade search"
+    title="Clear search"
+    onClick={() => {
+      setSearch("");
+    }}
+    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[5px] text-slate-500 transition-colors hover:bg-white/[0.05] hover:text-white"
+  >
+
+    <X
+      size={13}
+      strokeWidth={1.8}
+    />
+
+  </button>
+
+)}
 
 </div>
 

@@ -2110,9 +2110,9 @@ const updatedTradeLink =
       Notes
     </h1>
 
-    <p className="mt-2 text-[13px] leading-none text-slate-500">
-      Your trading journal
-    </p>
+<p className="relative top-[5px] text-[13px] leading-none text-slate-500">
+Your trading workspace
+</p>
 
   </div>
 
