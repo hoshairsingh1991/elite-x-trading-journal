@@ -1,5 +1,9 @@
 export type TradeSide = "LONG" | "SHORT";
 
+export type ExecutionAction =
+  | "BUY"
+  | "SELL";
+
 export type TradeStatus =
   | "WIN"
   | "LOSS"
@@ -53,8 +57,7 @@ export interface NormalizedExecution {
 
   exchange?: string;
 
-  side: TradeSide;
-
+  action: ExecutionAction;
   quantity: number;
 
   executionPrice: number;

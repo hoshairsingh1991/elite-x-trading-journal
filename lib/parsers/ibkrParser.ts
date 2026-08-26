@@ -1,7 +1,5 @@
 import Papa from "papaparse";
 
-import { pairTrades } from "./pairTrades";
-
 import {
   NormalizedExecution,
 } from "@/types/trade";
@@ -29,12 +27,15 @@ function parseNumber(
     .replace(/[$,]/g, "")
     .trim();
 
-  const parsed = Number(cleanedValue);
+  const parsed = Number(
+    cleanedValue
+  );
 
   return Number.isNaN(parsed)
     ? fallback
     : parsed;
 }
+
 
 // =================================================
 // FORMAT ASSET TYPE
@@ -66,6 +67,7 @@ function formatAssetType(
   }
 }
 
+
 // =================================================
 // IBKR CSV PARSER
 // =================================================
@@ -74,232 +76,356 @@ export async function parseIBKRCsv(
   file: File | string
 ): Promise<NormalizedExecution[]> {
 
-  return new Promise((resolve, reject) => {
+  return new Promise(
+    (resolve, reject) => {
 
-    Papa.parse(file, {
+      Papa.parse(
+        file,
+        {
 
-      header: true,
+          header: true,
 
-      skipEmptyLines: true,
+          skipEmptyLines: true,
 
-      complete: (results) => {
+          complete: (
+            results
+          ) => {
 
-        try {
+            try {
 
-          const rows =
-            results.data as any[];
+              const rows =
+                results.data as any[];
 
-          // =================================================
-          // FILTER EXECUTION ROWS
-          // =================================================
 
-          const executionRows =
-            rows.filter((row) => {
+              // =================================================
+              // FILTER EXECUTION ROWS
+              // =================================================
 
-              const isExecution =
-                row.LevelOfDetail ===
-                "EXECUTION";
+              const executionRows =
+                rows.filter(
+                  (row) => {
 
-              const symbol =
-                row.UnderlyingSymbol ||
-                row.Symbol ||
-                "";
+                    const isExecution =
+                      row.LevelOfDetail ===
+                      "EXECUTION";
 
-              const isForexConversion =
-                symbol.includes("USD.CAD") ||
-                symbol.includes("CAD.USD");
+                    const symbol =
+                      row.UnderlyingSymbol ||
+                      row.Symbol ||
+                      "";
 
-              return (
-                isExecution &&
-                !isForexConversion
+                    const isForexConversion =
+                      symbol.includes(
+                        "USD.CAD"
+                      ) ||
+                      symbol.includes(
+                        "CAD.USD"
+                      );
+
+                    return (
+                      isExecution &&
+                      !isForexConversion
+                    );
+                  }
+                );
+
+
+              // =================================================
+              // NORMALIZE EXECUTIONS
+              // =================================================
+
+              const normalizedExecutions:
+                (
+                  NormalizedExecution |
+                  null
+                )[] =
+                executionRows.map(
+                  (
+                    row,
+                    index
+                  ) => {
+
+                    // =================================================
+                    // EXECUTION TIMESTAMP
+                    // =================================================
+
+                    const rawExecutionTimestamp =
+                      (
+                        row["Date/Time"] ||
+                        ""
+                      ).trim();
+
+                    const year =
+                      rawExecutionTimestamp.slice(
+                        0,
+                        4
+                      );
+
+                    const month =
+                      rawExecutionTimestamp.slice(
+                        4,
+                        6
+                      );
+
+                    const day =
+                      rawExecutionTimestamp.slice(
+                        6,
+                        8
+                      );
+
+                    const hour =
+                      rawExecutionTimestamp.slice(
+                        9,
+                        11
+                      );
+
+                    const minute =
+                      rawExecutionTimestamp.slice(
+                        11,
+                        13
+                      );
+
+                    const second =
+                      rawExecutionTimestamp.slice(
+                        13,
+                        15
+                      );
+
+                    const formattedDate =
+                      `${year}-${month}-${day}`;
+
+                    const executionTimestamp =
+                      `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+
+
+                    // =================================================
+                    // BASIC CONTRACT INFORMATION
+                    // =================================================
+
+                    const ticker =
+                      row.UnderlyingSymbol ||
+                      row.Symbol ||
+                      "UNKNOWN";
+
+                    const contract =
+                      row.Description ||
+                      row.Symbol ||
+                      ticker;
+
+                    const contractKey =
+                      contract
+                        .replace(
+                          /\s+/g,
+                          "_"
+                        )
+                        .toUpperCase();
+
+                    const exchange =
+                      row.UnderlyingListingExchange ||
+                      undefined;
+
+
+                    // =================================================
+                    // PRICE
+                    // =================================================
+
+                    const executionPrice =
+                      parseNumber(
+                        row["T. Price"] ||
+                        row["Trade Price"] ||
+                        row["TradePrice"] ||
+                        row["Price"]
+                      );
+
+
+                    // =================================================
+                    // QUANTITY
+                    // =================================================
+
+                    const quantity =
+                      Math.abs(
+                        parseNumber(
+                          row.Quantity
+                        )
+                      );
+
+
+                    // =================================================
+                    // EXECUTION VALUE
+                    // =================================================
+
+                    const executionValue =
+                      parseNumber(
+                        row.NetCash
+                      );
+
+
+                    // =================================================
+                    // FEES
+                    // =================================================
+
+                    const fees =
+                      Math.abs(
+                        parseNumber(
+                          row.Commission
+                        )
+                      );
+
+
+                    // =================================================
+                    // MULTIPLIER
+                    // =================================================
+
+                    const multiplier =
+                      parseNumber(
+                        row.Multiplier,
+                        100
+                      );
+
+
+                    // =================================================
+                    // CURRENCY
+                    // =================================================
+
+                    const currency =
+                      row.CurrencyPrimary ||
+                      row.Currency ||
+                      "USD";
+
+                    const feeCurrency =
+                      row.CommissionCurrency ||
+                      currency;
+
+
+                    // =================================================
+                    // NORMALIZE ACTION
+                    // =================================================
+
+                    const action =
+                      row["Buy/Sell"]
+                        ?.trim()
+                        .toUpperCase();
+
+
+                    // =================================================
+                    // VALIDATE ACTION
+                    // =================================================
+
+                    if (
+                      action !== "BUY" &&
+                      action !== "SELL"
+                    ) {
+
+                      console.error(
+                        "INVALID IBKR BUY/SELL ACTION:",
+                        row["Buy/Sell"],
+                        row
+                      );
+
+                      return null;
+                    }
+
+
+                    // =================================================
+                    // NORMALIZED EXECUTION
+                    // =================================================
+
+                    return {
+
+                      id:
+`${row.ClientAccountID || "IBKR"}-${rawExecutionTimestamp}-${ticker}-${contractKey}-${action}-${quantity}-${executionPrice}-${executionValue}`,
+
+                      brokerExecutionId:
+                        row.ExecID ||
+                        undefined,
+
+                      date:
+                        formattedDate,
+
+                      executionTimestamp,
+
+                      ticker,
+
+                      contract,
+
+                      contractKey,
+
+                      exchange,
+
+                      action,
+
+                      quantity,
+
+                      executionPrice,
+
+                      executionValue,
+
+                      fees:
+                        Number(
+                          fees.toFixed(2)
+                        ),
+
+                      currency,
+
+                      feeCurrency,
+
+                      account:
+                        row.ClientAccountID ||
+                        "IBKR",
+
+                      assetType:
+                        formatAssetType(
+                          row.AssetClass
+                        ),
+
+                      multiplier,
+                    };
+                  }
+                );
+
+
+              // =================================================
+              // REMOVE INVALID EXECUTIONS
+              // =================================================
+
+              const validExecutions:
+                NormalizedExecution[] =
+                normalizedExecutions.filter(
+                  (
+                    execution
+                  ): execution is NormalizedExecution =>
+                    execution !== null
+                );
+
+
+              // =================================================
+              // RETURN NORMALIZED EXECUTIONS
+              // =================================================
+
+              resolve(
+                validExecutions
               );
-            });
 
-          // =================================================
-          // NORMALIZE EXECUTIONS
-          // =================================================
+            } catch (
+              error
+            ) {
 
-          const normalizedExecutions:
-            NormalizedExecution[] =
-              executionRows.map(
-                (row, index) => {
+              reject(
+                error
+              );
+            }
+          },
 
-const rawExecutionTimestamp =
-  (row["Date/Time"] || "").trim();
+          error: (
+            error
+          ) => {
 
-const year =
-  rawExecutionTimestamp.slice(0, 4);
-
-const month =
-  rawExecutionTimestamp.slice(4, 6);
-
-const day =
-  rawExecutionTimestamp.slice(6, 8);
-
-const hour =
-  rawExecutionTimestamp.slice(9, 11);
-
-const minute =
-  rawExecutionTimestamp.slice(11, 13);
-
-const second =
-  rawExecutionTimestamp.slice(13, 15);
-
-const formattedDate =
-  `${year}-${month}-${day}`;
-
-const executionTimestamp =
-  `${year}-${month}-${day}T${hour}:${minute}:${second}`;
-
-                  const ticker =
-                    row.UnderlyingSymbol ||
-                    row.Symbol ||
-                    "UNKNOWN";
-
-                  const contract =
-                    row.Description ||
-                    row.Symbol ||
-                    ticker;
-
-const contractKey =
-  contract
-    .replace(/\s+/g, "_")
-    .toUpperCase();
-
-const exchange =
-  row.UnderlyingListingExchange ||
-  undefined;
-
-// =================================================
-// FIXED PRICE MAPPING
-// =================================================
-
-const executionPrice =
-  parseNumber(
-    row["T. Price"] ||
-    row["Trade Price"] ||
-    row["TradePrice"] ||
-    row["Price"]
-  );
-
-const quantity =
-  Math.abs(
-    parseNumber(
-      row.Quantity
-    )
-  );
-
-const executionValue =
-  parseNumber(
-    row.NetCash
-  );
-
-const fees =
-  Math.abs(
-    parseNumber(
-      row.Commission
-    )
-  );
-
-const multiplier =
-  parseNumber(
-    row.Multiplier,
-    100
-  );
-
-// =================================================
-// CURRENCY
-// =================================================
-
-const currency =
-  row.CurrencyPrimary ||
-  row.Currency ||
-  "USD";
-
-const feeCurrency =
-  row.CommissionCurrency ||
-  currency;
-
-
-// =================================================
-// NORMALIZED EXECUTION
-// =================================================
-
-return {
-
-  id:
-`${row.ClientAccountID || "IBKR"}-${rawExecutionTimestamp}-${ticker}-${contractKey}-${row["Buy/Sell"]}-${quantity}-${executionPrice}-${executionValue}`,
-
-brokerExecutionId:
-  row.ExecID ||
-  undefined,
-
-date:
-  formattedDate,
-
-executionTimestamp,
-
-ticker,
-
-contract,
-
-contractKey,
-
-exchange,
-
-side:
-row["Buy/Sell"] ===
-"BUY"
-? "LONG"
-: "SHORT",
-
-  quantity,
-
-  executionPrice,
-
-  executionValue,
-
-  fees:
-    Number(
-      fees.toFixed(2)
-    ),
-
-  currency,
-
-  feeCurrency,
-
-  account:
-    row.ClientAccountID ||
-    "IBKR",
-
-  assetType:
-    formatAssetType(
-      row.AssetClass
-    ),
-
-  multiplier,
-};
-}
-);
-
-          // =================================================
-          // PAIR EXECUTIONS
-          // =================================================
-
-resolve(
-  normalizedExecutions
-);
-
-        } catch (error) {
-
-          reject(error);
+            reject(
+              error
+            );
+          },
         }
-      },
-
-      error: (error) => {
-
-        reject(error);
-      },
-    });
-  });
+      );
+    }
+  );
 }

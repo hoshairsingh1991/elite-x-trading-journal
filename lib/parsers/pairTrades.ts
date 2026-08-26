@@ -7,8 +7,7 @@ import {
 // EPSILON NORMALIZATION
 // =================================================
 
-const EPSILON =
-  0.00000001;
+const EPSILON = 0.00000001;
 
 // =================================================
 // EXTENDED EXECUTION TYPE
@@ -24,7 +23,6 @@ interface PositionExecution
 
 // =================================================
 // CANONICAL EXECUTION DATETIME
-// NEW + LEGACY COMPATIBILITY
 // =================================================
 
 function getExecutionDateTime(
@@ -46,69 +44,425 @@ function compareExecutions(
   b: NormalizedExecution
 ): number {
 
-  // =============================================
-  // NEW EXECUTIONS
-  // =============================================
+  const timestampA =
+    getExecutionDateTime(a);
+
+  const timestampB =
+    getExecutionDateTime(b);
+
+  const timestampCompare =
+    new Date(timestampA).getTime() -
+    new Date(timestampB).getTime();
 
   if (
-    a.executionTimestamp &&
-    b.executionTimestamp
+    timestampCompare !== 0
   ) {
 
-    const timestampCompare =
-      new Date(
-        a.executionTimestamp
-      ).getTime() -
-      new Date(
-        b.executionTimestamp
-      ).getTime();
-
-    if (
-      timestampCompare !== 0
-    ) {
-
-      return timestampCompare;
-    }
-
-    const brokerCompare =
-      (
-        a.brokerExecutionId ??
-        ""
-      ).localeCompare(
-        b.brokerExecutionId ??
-        ""
-      );
-
-    if (
-      brokerCompare !== 0
-    ) {
-
-      return brokerCompare;
-    }
-
-    return a.id.localeCompare(
-      b.id
-    );
+    return timestampCompare;
   }
 
-  // =============================================
-  // LEGACY EXECUTIONS
-  // =============================================
-
-  const dateCompare =
-    new Date(a.date).getTime() -
-    new Date(b.date).getTime();
+  const brokerCompare =
+    (
+      a.brokerExecutionId ??
+      ""
+    ).localeCompare(
+      b.brokerExecutionId ??
+      ""
+    );
 
   if (
-    dateCompare !== 0
+    brokerCompare !== 0
   ) {
 
-    return dateCompare;
+    return brokerCompare;
   }
 
   return a.id.localeCompare(
     b.id
   );
+}
+
+// =================================================
+// CASH FX FILTER
+// =================================================
+
+function isCashFx(
+  ticker: string
+): boolean {
+
+  return (
+    ticker === "USD.CAD" ||
+    ticker === "EUR.CAD" ||
+    ticker === "EUR.USD"
+  );
+}
+
+// =================================================
+// POSITION BUCKET
+// =================================================
+//
+// IMPORTANT
+//
+// BUY / SELL is an execution action.
+//
+// LONG / SHORT is a position direction.
+//
+// They are intentionally separate concepts.
+//
+// =================================================
+
+interface PositionBuckets {
+
+  LONG: PositionExecution[];
+
+  SHORT: PositionExecution[];
+}
+
+// =================================================
+// CREATE POSITION BUCKET
+// =================================================
+
+function createPositionBuckets():
+  PositionBuckets {
+
+  return {
+    LONG: [],
+    SHORT: [],
+  };
+}
+
+// =================================================
+// GET / CREATE POSITION BUCKET
+// =================================================
+
+function getPositionBuckets(
+  positions: Record<
+    string,
+    PositionBuckets
+  >,
+  contractKey: string
+): PositionBuckets {
+
+  if (
+    !positions[contractKey]
+  ) {
+
+    positions[contractKey] =
+      createPositionBuckets();
+  }
+
+  return positions[contractKey];
+}
+
+// =================================================
+// CREATE CLOSED TRADE
+// =================================================
+
+function createClosedTrade(
+  entryExecution: PositionExecution,
+  exitExecution: PositionExecution,
+  consumeQuantity: number,
+  positionSide: "LONG" | "SHORT",
+  index: number
+): Trade {
+
+  const priceDifference =
+    positionSide === "LONG"
+
+      ? (
+          exitExecution.executionPrice -
+          entryExecution.executionPrice
+        )
+
+      : (
+          entryExecution.executionPrice -
+          exitExecution.executionPrice
+        );
+
+  const realizedPnL =
+    (
+      priceDifference *
+      consumeQuantity *
+      exitExecution.multiplier
+    ) -
+    (
+      entryExecution.fees +
+      exitExecution.fees
+    );
+
+  let status:
+    | "WIN"
+    | "LOSS"
+    | "BREAKEVEN";
+
+  if (
+    realizedPnL > 0
+  ) {
+
+    status = "WIN";
+
+  } else if (
+    realizedPnL < 0
+  ) {
+
+    status = "LOSS";
+
+  } else {
+
+    status = "BREAKEVEN";
+  }
+
+  const now =
+    new Date().toISOString();
+
+  return {
+
+    id:
+      `${entryExecution.id}-${exitExecution.id}-${index}-${consumeQuantity}`,
+
+    // =================================================
+    // BASIC INFO
+    // =================================================
+
+    ticker:
+      exitExecution.ticker,
+
+    contract:
+      exitExecution.contract,
+
+    contractKey:
+      exitExecution.contractKey ||
+      entryExecution.contractKey,
+
+    // =================================================
+    // EXECUTIONS
+    // =================================================
+
+    executions: [
+      entryExecution,
+      exitExecution,
+    ],
+
+    // =================================================
+    // POSITION
+    // =================================================
+
+    side:
+      positionSide,
+
+    status,
+
+    date:
+      exitExecution.date,
+
+    assetType:
+      exitExecution.assetType,
+
+    account:
+      exitExecution.account,
+
+    // =================================================
+    // EXECUTION
+    // =================================================
+
+    entryPrice:
+      entryExecution.executionPrice,
+
+    exitPrice:
+      exitExecution.executionPrice,
+
+    quantity:
+      consumeQuantity,
+
+    // =================================================
+    // PERFORMANCE
+    // =================================================
+
+    pnl:
+      Number(
+        realizedPnL.toFixed(2)
+      ),
+
+    fees:
+      Number(
+        (
+          entryExecution.fees +
+          exitExecution.fees
+        ).toFixed(2)
+      ),
+
+    currency:
+      exitExecution.currency,
+
+    feeCurrency:
+      exitExecution.feeCurrency,
+
+    // =================================================
+    // POSITION LIFECYCLE
+    // =================================================
+
+    isOpen: false,
+
+    openedAt:
+      getExecutionDateTime(
+        entryExecution
+      ),
+
+    closedAt:
+      getExecutionDateTime(
+        exitExecution
+      ),
+
+    holdingDays:
+      Math.max(
+        0,
+        Math.floor(
+          (
+            new Date(
+              getExecutionDateTime(
+                exitExecution
+              )
+            ).getTime() -
+
+            new Date(
+              getExecutionDateTime(
+                entryExecution
+              )
+            ).getTime()
+          ) /
+
+          (
+            1000 *
+            60 *
+            60 *
+            24
+          )
+        )
+      ),
+
+    // =================================================
+    // METADATA
+    // =================================================
+
+    createdAt:
+      now,
+
+    updatedAt:
+      now,
+  };
+}
+
+// =================================================
+// CREATE OPEN TRADE
+// =================================================
+
+function createOpenTrade(
+  position: PositionExecution,
+  quantity: number
+): Trade {
+
+  const now =
+    new Date().toISOString();
+
+  return {
+
+    id:
+      `${position.id}-open-${quantity}`,
+
+    // =================================================
+    // BASIC INFO
+    // =================================================
+
+    ticker:
+      position.ticker,
+
+    contract:
+      position.contract,
+
+    contractKey:
+      position.contractKey,
+
+    executions: [
+      position,
+    ],
+
+    // =================================================
+    // POSITION
+    // =================================================
+
+    side:
+      position.action === "BUY"
+        ? "LONG"
+        : "SHORT",
+
+    status:
+      "OPEN",
+
+    date:
+      position.date,
+
+    assetType:
+      position.assetType,
+
+    account:
+      position.account,
+
+    // =================================================
+    // EXECUTION
+    // =================================================
+
+    entryPrice:
+      position.executionPrice,
+
+    exitPrice:
+      null,
+
+    quantity,
+
+    // =================================================
+    // PERFORMANCE
+    // =================================================
+
+    pnl:
+      -position.fees,
+
+    fees:
+      position.fees,
+
+    currency:
+      position.currency,
+
+    feeCurrency:
+      position.feeCurrency,
+
+    // =================================================
+    // POSITION LIFECYCLE
+    // =================================================
+
+    isOpen:
+      true,
+
+    openedAt:
+      getExecutionDateTime(
+        position
+      ),
+
+    closedAt:
+      null,
+
+    holdingDays:
+      0,
+
+    // =================================================
+    // METADATA
+    // =================================================
+
+    createdAt:
+      now,
+
+    updatedAt:
+      now,
+  };
 }
 
 // =================================================
@@ -122,149 +476,190 @@ export function pairTrades(
 
   const finalTrades: Trade[] = [];
 
+  // =================================================
+  // POSITION STATE
+  // =================================================
+  //
+  // Each contract has TWO independent position
+  // buckets:
+  //
+  // LONG
+  // SHORT
+  //
+  // This is critical because execution action and
+  // position direction are different concepts.
+  //
+  // =================================================
+
   const openPositions:
     Record<
       string,
-      PositionExecution[]
+      PositionBuckets
     > = {};
 
-
   // =================================================
-// LOAD EXISTING OPEN POSITIONS
-// =================================================
+  // LOAD EXISTING OPEN POSITIONS
+  // =================================================
 
-existingTrades.forEach(
-  (trade) => {
-
-    if (
-      !trade.isOpen ||
-      !trade.contractKey
-    ) {
-
-      return;
-    }
-
-    // =============================================
-    // IGNORE CASH FX
-    // =============================================
-
-    if (
-      trade.ticker ===
-        "USD.CAD" ||
-
-      trade.ticker ===
-        "EUR.CAD" ||
-
-      trade.ticker ===
-        "EUR.USD"
-    ) {
-
-      return;
-    }
-
-    // =============================================
-    // CREATE POSITION BUCKET
-    // =============================================
-
-    if (
-      !openPositions[
-        trade.contractKey
-      ]
-    ) {
-
-      openPositions[
-        trade.contractKey
-      ] = [];
-    }
-
-    // =============================================
-    // HYDRATE OPEN POSITION
-    // =============================================
-
-    openPositions[
-      trade.contractKey
-    ].push({
-
-      id:
-        trade.id,
-
-      fromStorage: true,
-
-      date:
-        trade.openedAt ||
-        trade.date,
-
-        executionTimestamp:
-  "",
-
-      ticker:
-        trade.ticker,
-
-      contract:
-        trade.contract || "",
-
-      contractKey:
-        trade.contractKey,
-
-      side:
-        trade.side,
-
-      quantity:
-        trade.quantity,
-
-      remainingQuantity:
-        trade.quantity,
-
-      executionPrice:
-        trade.entryPrice,
-
-      executionValue:
-        trade.pnl,
-
-      fees:
-        trade.fees,
-
-      currency:
-        trade.currency,
-
-      feeCurrency:
-        trade.feeCurrency,
-
-      account:
-        trade.account || "",
-
-      assetType:
-        trade.assetType || "",
-
-      multiplier: 100,
-    });
-  }
-);
-
-// =================================================
-// PROCESS EXECUTIONS
-// =================================================
-
-const sortedExecutions =
-  [...executions].sort(
-    compareExecutions
-  );
-
-sortedExecutions.forEach(
-  (execution, index) => {
-
-    // =============================================
-    // IGNORE CASH FX
-    // =============================================
+  existingTrades.forEach(
+    (trade) => {
 
       if (
-  execution.ticker ===
-    "USD.CAD" ||
-  execution.ticker ===
-    "EUR.CAD" ||
-  execution.ticker ===
-    "EUR.USD"
+        !trade.isOpen ||
+        !trade.contractKey
+      ) {
+
+        return;
+      }
+
+      if (
+        isCashFx(
+          trade.ticker
+        )
+      ) {
+
+        return;
+      }
+
+      const buckets =
+        getPositionBuckets(
+          openPositions,
+          trade.contractKey
+        );
+
+      const position:
+        PositionExecution = {
+
+        id:
+          trade.id,
+
+        fromStorage:
+          true,
+
+        date:
+          trade.openedAt ||
+          trade.date,
+
+        executionTimestamp:
+          trade.openedAt ||
+          trade.date,
+
+        ticker:
+          trade.ticker,
+
+        contract:
+          trade.contract ||
+          "",
+
+        contractKey:
+          trade.contractKey,
+
+        action:
+          trade.side === "LONG"
+            ? "BUY"
+            : "SELL",
+
+        quantity:
+          trade.quantity,
+
+        remainingQuantity:
+          trade.quantity,
+
+        executionPrice:
+          trade.entryPrice,
+
+        executionValue:
+          0,
+
+        fees:
+          trade.fees,
+
+        currency:
+          trade.currency,
+
+        feeCurrency:
+          trade.feeCurrency,
+
+        account:
+          trade.account ||
+          "",
+
+        assetType:
+          trade.assetType ||
+          "",
+
+        multiplier:
+          trade.executions?.[0]
+            ?.multiplier ||
+          1,
+      };
+
+      buckets[
+        trade.side
+      ].push(
+        position
+      );
+    }
+  );
+
+  // =================================================
+  // SORT EXECUTIONS
+  // =================================================
+
+  const sortedExecutions =
+    [...executions].sort(
+      compareExecutions
+    );
+
+  // =================================================
+  // PROCESS EXECUTIONS
+  // =================================================
+
+  sortedExecutions.forEach(
+    (execution, index) => {
+
+      // =================================================
+      // IGNORE CASH FX
+      // =================================================
+
+      if (
+        isCashFx(
+          execution.ticker
+        )
+      ) {
+
+        return;
+      }
+
+      // =================================================
+      // REQUIRE VALID ACTION
+      // =================================================
+
+if (
+  execution.action !== "BUY" &&
+  execution.action !== "SELL"
 ) {
+
+  console.error(
+    "INVALID EXECUTION ACTION:",
+    {
+      id: execution.id,
+      ticker: execution.ticker,
+      contract: execution.contract,
+      contractKey: execution.contractKey,
+      action: execution.action,
+      quantity: execution.quantity,
+      date: execution.date,
+      account: execution.account,
+      assetType: execution.assetType,
+      brokerExecutionId:
+        execution.brokerExecutionId,
+      executionTimestamp:
+        execution.executionTimestamp,
+      rawExecution:
+        execution,
+    }
+  );
 
   return;
 }
@@ -273,61 +668,68 @@ sortedExecutions.forEach(
         execution.contractKey ||
         execution.contract;
 
-      // =================================================
-      // CREATE POSITION BUCKET
-      // =================================================
+      if (!contractKey) {
 
-      if (
-        !openPositions[
-          contractKey
-        ]
-      ) {
-
-        openPositions[
-          contractKey
-        ] = [];
-      }
-
-      // =================================================
-      // LONG ENTRY
-      // =================================================
-
-      if (
-        execution.side === "LONG"
-      ) {
-
-        openPositions[
-          contractKey
-        ].push({
-
-          ...execution,
-
-          remainingQuantity:
-            execution.quantity,
-        });
+        console.error(
+          "EXECUTION HAS NO CONTRACT KEY:",
+          execution
+        );
 
         return;
       }
 
+      const buckets =
+        getPositionBuckets(
+          openPositions,
+          contractKey
+        );
+
       // =================================================
-      // SHORT EXIT
+      // DETERMINE EXECUTION INTENT
+      // =================================================
+      //
+      // BUY:
+      //   1. Close existing SHORT
+      //   2. Remaining BUY opens LONG
+      //
+      // SELL:
+      //   1. Close existing LONG
+      //   2. Remaining SELL opens SHORT
+      //
       // =================================================
 
-      let remainingExitQuantity =
+      const closingSide =
+        execution.action === "BUY"
+          ? "SHORT"
+          : "LONG";
+
+      const openingSide =
+        execution.action === "BUY"
+          ? "LONG"
+          : "SHORT";
+
+      let remainingQuantity =
         execution.quantity;
 
+      // =================================================
+      // CLOSE EXISTING OPPOSITE POSITION
+      // =================================================
+
       while (
-        remainingExitQuantity >
+        remainingQuantity >
         EPSILON
       ) {
 
+        const positionQueue =
+          buckets[
+            closingSide
+          ];
+
         const entryExecution =
-          openPositions[
-            contractKey
-          ][0];
+          positionQueue[0];
 
         // =============================================
-        // NO MATCH FOUND
+        // NO OPPOSITE POSITION
         // =============================================
 
         if (!entryExecution) {
@@ -336,359 +738,50 @@ sortedExecutions.forEach(
         }
 
         // =============================================
-        // DETERMINE MATCH SIZE
+        // MATCH QUANTITY
         // =============================================
+
+        const availableQuantity =
+          entryExecution.remainingQuantity ??
+          entryExecution.quantity;
 
         const consumeQuantity =
           Math.min(
-            remainingExitQuantity,
-            entryExecution.remainingQuantity ||
-              entryExecution.quantity
+            remainingQuantity,
+            availableQuantity
           );
-
-        // =============================================
-        // CALCULATE PNL
-        // =============================================
-
-        const realizedPnL =
-          (
-            (
-              execution.executionPrice -
-              entryExecution.executionPrice
-            ) *
-            consumeQuantity *
-            execution.multiplier
-          ) -
-          (
-            entryExecution.fees +
-            execution.fees
-          );
-
-        // =============================================
-        // TRADE STATUS
-        // =============================================
-
-        let status:
-          | "WIN"
-          | "LOSS"
-          | "BREAKEVEN";
-
-        if (realizedPnL > 0) {
-
-          status = "WIN";
-
-        } else if (
-          realizedPnL < 0
-        ) {
-
-          status = "LOSS";
-
-        } else {
-
-          status =
-            "BREAKEVEN";
-        }
 
         // =============================================
         // CREATE CLOSED TRADE
         // =============================================
 
-        finalTrades.push({
-
-          id:
-            `${entryExecution.id}-${index}-${consumeQuantity}`,
-
-          // =================================================
-          // BASIC INFO
-          // =================================================
-
-          ticker:
-            execution.ticker,
-
-          contract:
-            execution.contract,
-
-          contractKey,
-
-            executions: [
-    entryExecution,
-    execution,
-  ],
-
-          side: "LONG",
-
-          status,
-
-          date:
-  execution.date,
-
-          assetType:
-            execution.assetType,
-
-          account:
-            execution.account,
-
-          // =================================================
-// EXECUTION
-// =================================================
-
-entryPrice:
-  entryExecution.executionPrice,
-
-exitPrice:
-  execution.executionPrice,
-
-quantity:
-  consumeQuantity,
-
-// =================================================
-// PERFORMANCE
-// =================================================
-
-pnl:
-  Number(
-    realizedPnL.toFixed(2)
-  ),
-
-fees:
-  Number(
-
-    (
-      entryExecution.fees +
-      execution.fees
-    ).toFixed(2)
-  ),
-
-currency:
-  execution.currency,
-
-feeCurrency:
-  execution.feeCurrency,
-
-// =================================================
-// OPEN POSITION SUPPORT
-// =================================================
-
-          isOpen: false,
-
-openedAt:
-  getExecutionDateTime(
-    entryExecution
-  ),
-
-closedAt:
-  getExecutionDateTime(
-    execution
-  ),
-
-            holdingDays:
-
-  Math.max(
-
-    0,
-
-    Math.floor(
-
-      (
-        new Date(
-          execution.date
-        ).getTime()
-
-        -
-
-        new Date(
-          entryExecution.date
-        ).getTime()
-
-      ) /
-
-      (
-        1000 *
-        60 *
-        60 *
-        24
-      )
-    )
-  ),
-
-          // =================================================
-          // METADATA
-          // =================================================
-
-          createdAt:
-            new Date().toISOString(),
-
-          updatedAt:
-            new Date().toISOString(),
-        });
+        finalTrades.push(
+          createClosedTrade(
+            entryExecution,
+            execution,
+            consumeQuantity,
+            closingSide,
+            index
+          )
+        );
 
         // =============================================
-        // REDUCE QUANTITIES
+        // REDUCE EXIT QUANTITY
         // =============================================
 
-        remainingExitQuantity -=
+        remainingQuantity -=
           consumeQuantity;
 
+        // =============================================
+        // REDUCE POSITION QUANTITY
+        // =============================================
+
         entryExecution.remainingQuantity =
-          (
-            entryExecution.remainingQuantity ||
-            entryExecution.quantity
-          ) - consumeQuantity;
+          availableQuantity -
+          consumeQuantity;
 
         // =============================================
         // FLOATING POINT CLEANUP
-        // =============================================
-
-        if (
-          Math.abs(
-            remainingExitQuantity
-          ) < EPSILON
-        ) {
-
-          remainingExitQuantity = 0;
-        }
-
-        if (
-          Math.abs(
-            entryExecution.remainingQuantity
-          ) < EPSILON
-        ) {
-
-          entryExecution.remainingQuantity = 0;
-        }
-
-        // =============================================
-        // REMOVE FULLY CLOSED POSITION
-        // =============================================
-
-        if (
-          (
-            entryExecution.remainingQuantity ||
-            0
-          ) <= EPSILON
-        ) {
-
-          openPositions[
-            contractKey
-          ].shift();
-        }
-      }
-
-// =================================================
-// UNMATCHED SHORT
-// =================================================
-
-if (
-  remainingExitQuantity >
-  EPSILON
-) {
-
-  finalTrades.push({
-
-    id:
-      `${contractKey}-open-short-${index}`,
-
-    ticker:
-      execution.ticker,
-
-    contract:
-      execution.contract,
-
-    contractKey,
-
-    side:
-      execution.side,
-
-        executions: [
-    execution,
-  ],
-
-    status: "OPEN",
-
-    date:
-      execution.date,
-
-    assetType:
-      execution.assetType,
-
-    account:
-      execution.account,
-
-    // =================================================
-    // EXECUTION
-    // =================================================
-
-    entryPrice:
-      execution.executionPrice,
-
-    exitPrice: null,
-
-    quantity:
-      remainingExitQuantity,
-
-    // =================================================
-    // PERFORMANCE
-    // =================================================
-
-    pnl:
-      -execution.fees,
-
-    fees:
-      execution.fees,
-
-    currency:
-      execution.currency,
-
-    feeCurrency:
-      execution.feeCurrency,
-
-    // =================================================
-    // OPEN POSITION SUPPORT
-    // =================================================
-
-    isOpen: true,
-
-openedAt:
-  getExecutionDateTime(
-    execution
-  ),
-
-closedAt: null,
-
-    holdingDays: 0,
-
-    // =================================================
-    // METADATA
-    // =================================================
-
-    createdAt:
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString(),
-  });
-}
-}
-);
-
-// =================================================
-// REMAINING OPEN POSITIONS
-// =================================================
-
-Object.entries(
-  openPositions
-).forEach(
-  ([contractKey, positions]) => {
-
-    positions.forEach(
-      (position) => {
-
-        const remainingQuantity =
-          position.remainingQuantity ||
-          position.quantity;
-
-        // =============================================
-        // REMOVE FLOATING DUST
         // =============================================
 
         if (
@@ -697,120 +790,129 @@ Object.entries(
           ) < EPSILON
         ) {
 
-          return;
+          remainingQuantity = 0;
+        }
+
+        if (
+          Math.abs(
+            entryExecution.remainingQuantity
+          ) < EPSILON
+        ) {
+
+          entryExecution.remainingQuantity =
+            0;
         }
 
         // =============================================
-        // IGNORE CASH FX
+        // REMOVE FULLY CLOSED POSITION
         // =============================================
 
         if (
-          position.ticker ===
-            "USD.CAD" ||
-
-          position.ticker ===
-            "EUR.CAD" ||
-
-          position.ticker ===
-            "EUR.USD"
+          (
+            entryExecution.remainingQuantity ??
+            0
+          ) <= EPSILON
         ) {
 
-          return;
+          positionQueue.shift();
         }
-
-        finalTrades.push({
-
-          id:
-            `${contractKey}-${position.date}-${position.executionPrice}-${position.quantity}`,
-
-          // =================================================
-          // BASIC INFO
-          // =================================================
-
-          ticker:
-            position.ticker,
-
-          contract:
-            position.contract,
-
-          contractKey,
-
-            executions: [
-    position,
-  ],
-
-          side:
-            position.side,
-
-          status: "OPEN",
-
-          date:
-            position.date,
-
-          assetType:
-            position.assetType,
-
-          account:
-            position.account,
-
-          // =================================================
-          // EXECUTION
-          // =================================================
-
-          entryPrice:
-            position.executionPrice,
-
-          exitPrice: null,
-
-          quantity:
-            remainingQuantity,
-
-          // =================================================
-          // PERFORMANCE
-          // =================================================
-
-          pnl:
-            -position.fees,
-
-          fees:
-            position.fees,
-
-          currency:
-            position.currency,
-
-          feeCurrency:
-            position.feeCurrency,
-
-          // =================================================
-          // OPEN POSITION SUPPORT
-          // =================================================
-
-          isOpen: true,
-
-openedAt:
-  getExecutionDateTime(
-    position
-  ),
-
-closedAt: null,
-
-          holdingDays: 0,
-
-          // =================================================
-          // METADATA
-          // =================================================
-
-          createdAt:
-            new Date().toISOString(),
-
-          updatedAt:
-            new Date().toISOString(),
-        });
       }
-    );
-  }
-);
 
+      // =================================================
+      // REMAINING QUANTITY OPENS NEW POSITION
+      // =================================================
 
-return finalTrades;
+      if (
+        remainingQuantity >
+        EPSILON
+      ) {
+
+        const openingPosition:
+          PositionExecution = {
+
+          ...execution,
+
+          remainingQuantity:
+            remainingQuantity,
+        };
+
+        buckets[
+          openingSide
+        ].push(
+          openingPosition
+        );
+      }
+    }
+  );
+
+  // =================================================
+  // REMAINING OPEN POSITIONS
+  // =================================================
+
+  Object.entries(
+    openPositions
+  ).forEach(
+    ([contractKey, buckets]) => {
+
+      (
+        [
+          "LONG",
+          "SHORT",
+        ] as const
+      ).forEach(
+        (positionSide) => {
+
+          buckets[
+            positionSide
+          ].forEach(
+            (position) => {
+
+              const remainingQuantity =
+                position.remainingQuantity ??
+                position.quantity;
+
+              // =====================================
+              // REMOVE FLOATING DUST
+              // =====================================
+
+              if (
+                Math.abs(
+                  remainingQuantity
+                ) < EPSILON
+              ) {
+
+                return;
+              }
+
+              // =====================================
+              // IGNORE CASH FX
+              // =====================================
+
+              if (
+                isCashFx(
+                  position.ticker
+                )
+              ) {
+
+                return;
+              }
+
+              // =====================================
+              // CREATE OPEN TRADE
+              // =====================================
+
+              finalTrades.push(
+                createOpenTrade(
+                  position,
+                  remainingQuantity
+                )
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+
+  return finalTrades;
 }

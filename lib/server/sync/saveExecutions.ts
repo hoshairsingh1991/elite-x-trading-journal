@@ -41,8 +41,8 @@ saveExecutions(
           exchange:
   execution.exchange,
 
-        side:
-          execution.side,
+       action:
+  execution.action,
 
         quantity:
           execution.quantity,

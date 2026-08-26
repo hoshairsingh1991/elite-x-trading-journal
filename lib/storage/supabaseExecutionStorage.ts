@@ -156,8 +156,8 @@ ticker:
     exchange:
       execution.exchange,
 
-    side:
-      execution.side,
+   action:
+  execution.action,
 
         quantity:
           execution.quantity,
@@ -258,11 +258,14 @@ ticker:
     exchange:
       execution.exchange,
 
-    side:
-      execution.side,
+action:
+  execution.action,
 
-        quantity:
-          execution.quantity,
+side:
+  execution.action,
+
+quantity:
+  execution.quantity,
 
         execution_price:
           execution.executionPrice,
@@ -328,12 +331,43 @@ ticker:
       }
     );
 
-  if (error) {
+if (error) {
 
-    console.error(
-      "FAILED TO SAVE EXECUTIONS TO SUPABASE:",
-      error
-    );
-  }
+  console.error(
+    "FAILED TO SAVE EXECUTIONS TO SUPABASE"
+  );
+
+  console.error(
+    "MESSAGE:",
+    error.message
+  );
+
+  console.error(
+    "DETAILS:",
+    error.details
+  );
+
+  console.error(
+    "HINT:",
+    error.hint
+  );
+
+  console.error(
+    "CODE:",
+    error.code
+  );
+
+  console.error(
+    "EXECUTIONS ATTEMPTED:",
+    uniqueExecutions.length
+  );
+
+  console.error(
+    "FIRST EXECUTION:",
+    uniqueExecutions[0]
+  );
+
+  return;
+}
 }
 

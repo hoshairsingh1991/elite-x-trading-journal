@@ -54,51 +54,51 @@ NormalizedExecution[] {
     crypto.randomUUID();
 
   const contractKey =
-  `MANUAL-${ticker.toUpperCase()}-${lifecycleId}`;
+    `MANUAL-${ticker.toUpperCase()}-${lifecycleId}`;
 
   // =============================================
-// ASSET MULTIPLIER
-// =============================================
+  // ASSET MULTIPLIER
+  // =============================================
 
-const multiplier =
-  assetType === "OPTIONS"
-    ? 100
-    : 1;
+  const multiplier =
+    assetType === "OPTIONS"
+      ? 100
+      : 1;
 
-    // =============================================
-// FEE RECONCILIATION
-// =============================================
+  // =============================================
+  // FEE RECONCILIATION
+  // =============================================
 
-const entryFees =
-  Number(
-    (
-      commission / 2
-    ).toFixed(2)
-  );
+  const entryFees =
+    Number(
+      (
+        commission / 2
+      ).toFixed(2)
+    );
 
-const exitFees =
-  Number(
-    (
-      commission -
-      entryFees
-    ).toFixed(2)
-  );
+  const exitFees =
+    Number(
+      (
+        commission -
+        entryFees
+      ).toFixed(2)
+    );
 
-// =============================================
-// ENTRY EXECUTION
-// =============================================
+  // =============================================
+  // ENTRY EXECUTION
+  // =============================================
 
-const entryExecution:
-  NormalizedExecution = {
+  const entryExecution:
+    NormalizedExecution = {
 
     id:
       crypto.randomUUID(),
 
     date:
-  tradeDate,
+      tradeDate,
 
-executionTimestamp:
-  `${tradeDate}T09:30:00`,
+    executionTimestamp:
+      `${tradeDate}T09:30:00`,
 
     ticker:
       ticker.toUpperCase(),
@@ -108,7 +108,17 @@ executionTimestamp:
 
     contractKey,
 
-    side: "LONG",
+    // =========================================
+    // EXECUTION ACTION
+    // =========================================
+    // BUY does NOT mean LONG by itself.
+    //
+    // pairTrades() determines whether this BUY
+    // opens a LONG position or closes a SHORT
+    // position.
+
+    action:
+      "BUY",
 
     quantity,
 
@@ -140,21 +150,21 @@ executionTimestamp:
     multiplier,
   };
 
-// =============================================
-// EXIT EXECUTION
-// =============================================
+  // =============================================
+  // EXIT EXECUTION
+  // =============================================
 
-const exitExecution:
-  NormalizedExecution = {
+  const exitExecution:
+    NormalizedExecution = {
 
     id:
       crypto.randomUUID(),
 
     date:
-  tradeDate,
+      tradeDate,
 
-executionTimestamp:
-  `${tradeDate}T16:00:00`,
+    executionTimestamp:
+      `${tradeDate}T16:00:00`,
 
     ticker:
       ticker.toUpperCase(),
@@ -162,9 +172,17 @@ executionTimestamp:
     contract:
       ticker.toUpperCase(),
 
-    contractKey,
+    // =========================================
+    // EXECUTION ACTION
+    // =========================================
+    // SELL does NOT mean SHORT by itself.
+    //
+    // pairTrades() determines whether this SELL
+    // closes a LONG position or opens a SHORT
+    // position.
 
-    side: "SHORT",
+    action:
+      "SELL",
 
     quantity,
 
@@ -196,8 +214,8 @@ executionTimestamp:
     multiplier,
   };
 
-return [
-  entryExecution,
-  exitExecution,
-];
+  return [
+    entryExecution,
+    exitExecution,
+  ];
 }

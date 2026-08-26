@@ -451,8 +451,8 @@ git commit -m "Polish notes workspace layout"
 git commit -m "Finalize Notes V2"
 git commit -m "Polish trade and notes search UX"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
+EXECUTION / FIFO / LONG-SHORT MASTER HANDOVER NOTES
+git commit -m "fix execution side persistence and trade reconstruction"
 
 
 
