@@ -7,6 +7,10 @@ import {
 } from "@/lib/trades/createManualExecutions";
 
 import {
+  TradeSide,
+} from "@/types/trade";
+
+import {
   saveExecutionsToSupabase,
 } from "@/lib/storage/supabaseExecutionStorage";
 
@@ -43,6 +47,9 @@ export default function AddTradeModal({
   const [commission, setCommission] =
     useState("");
 
+    const [side, setSide] =
+  useState<TradeSide>("LONG");
+
 
   const [assetType, setAssetType] =
     useState("FUTURES");
@@ -72,6 +79,18 @@ const [tradeDate, setTradeDate] =
     return `${year}-${month}-${day}`;
   });
 
+const [entryTime, setEntryTime] =
+  useState("");
+
+const [exitTime, setExitTime] =
+  useState("");
+
+const [currency, setCurrency] =
+  useState("USD");
+
+const [exchange, setExchange] =
+  useState("");
+
   // =================================================
   // SAVE TRADE
   // =================================================
@@ -79,21 +98,119 @@ const [tradeDate, setTradeDate] =
   const handleSaveTrade =
   async () => {
 
-    if (
-      !ticker ||
-      !quantity ||
-      !entryPrice ||
-      !exitPrice
-    ) {
+// =================================================
+// VALIDATE REQUIRED FIELDS
+// =================================================
 
-      alert(
-        "Please complete all required fields."
-      );
+const normalizedTicker =
+  ticker.trim();
 
-      return;
-    }
+const normalizedAccount =
+  account.trim();
 
-    const executions =
+const parsedQuantity =
+  Number(quantity);
+
+const parsedEntryPrice =
+  Number(entryPrice);
+
+const parsedExitPrice =
+  Number(exitPrice);
+
+if (!normalizedTicker) {
+
+  alert(
+    "Ticker is required."
+  );
+
+  return;
+}
+
+if (!normalizedAccount) {
+
+  alert(
+    "Account is required."
+  );
+
+  return;
+}
+
+if (
+  !quantity ||
+  !Number.isFinite(parsedQuantity) ||
+  parsedQuantity <= 0
+) {
+
+  alert(
+    "Quantity must be greater than 0."
+  );
+
+  return;
+}
+
+if (
+  !entryPrice ||
+  !Number.isFinite(parsedEntryPrice) ||
+  parsedEntryPrice <= 0
+) {
+
+  alert(
+    "Entry price must be greater than 0."
+  );
+
+  return;
+}
+
+if (
+  !exitPrice ||
+  !Number.isFinite(parsedExitPrice) ||
+  parsedExitPrice <= 0
+) {
+
+  alert(
+    "Exit price must be greater than 0."
+  );
+
+  return;
+}
+
+if (!tradeDate) {
+
+  alert(
+    "Trade date is required."
+  );
+
+  return;
+}
+
+if (!entryTime) {
+
+  alert(
+    "Entry time is required."
+  );
+
+  return;
+}
+
+if (!exitTime) {
+
+  alert(
+    "Exit time is required."
+  );
+
+  return;
+}
+
+if (!currency) {
+
+  alert(
+    "Currency is required."
+  );
+
+  return;
+}
+
+const executions =
   createManualExecutions({
 
     ticker,
@@ -112,11 +229,21 @@ const [tradeDate, setTradeDate] =
         commission || 0
       ),
 
+    side,
+
     assetType,
 
     account,
 
     tradeDate,
+
+    entryTime,
+
+    exitTime,
+
+    currency,
+
+    exchange,
   });
 
 await saveExecutionsToSupabase(
@@ -188,7 +315,7 @@ window.location.reload();
 
           <div className="flex flex-1 items-center justify-center py-10">
 
-            <div className="relative w-full max-w-[700px] rounded-[32px] border border-white/[0.06] bg-[#071427] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
+            <div className="relative w-full max-w-[1100px] rounded-[32px] border border-white/[0.06] bg-[#071427] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
 
               <div className="h-6 opacity-0">
                 spacing
@@ -303,72 +430,118 @@ window.location.reload();
 
                       <div className="mt-10 flex flex-col items-center">
 
-                        {/* ================================================= */}
-                        {/* ROW 1 */}
-                        {/* ================================================= */}
+{/* ================================================= */}
+{/* ROW 1 */}
+{/* ================================================= */}
 
-                        <div className="flex items-start justify-center gap-5">
+<div className="flex items-start justify-center gap-5">
 
-                          {/* ACCOUNT */}
+  {/* ACCOUNT */}
 
-                          <div className="flex flex-col items-center">
+  <div className="flex flex-col items-center">
 
-                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-                              Account
-                            </p>
+    <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
+      Account
+    </p>
 
-                            <div className="flex h-[50px] w-[200px] translate-y-4 items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+    <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
-                              <input
-                                type="text"
-                                value={account}
-                                onChange={(e) =>
-                                  setAccount(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Account"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-                            </div>
-                          </div>
+      <input
+        type="text"
+        value={account}
+        onChange={(e) =>
+          setAccount(
+            e.target.value
+          )
+        }
+        placeholder="Account"
+        className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
+      />
 
-                          {/* ASSET TYPE */}
+    </div>
 
-                          <div className="flex flex-col items-center">
+  </div>
 
-                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-                              Asset Type
-                            </p>
+  {/* SIDE */}
 
-                            <div className="flex h-[50px] w-[360px] translate-y-4 items-center justify-center gap-[6px] rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-[10px]">
+  <div className="flex flex-col items-center">
 
-                              {[
-                                "STOCKS",
-                                "OPTIONS",
-                                "FUTURES",
-                                "CRYPTO",
-                                "CFD",
-                                "FOREX",
-                              ].map((item) => (
+    <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
+      Side
+    </p>
 
-                                <button
-                                  key={item}
-                                  onClick={() =>
-                                    setAssetType(item)
-                                  }
-                                  className={`flex h-[30px] min-w-[54px] items-center justify-center rounded-[10px] px-[12px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                    assetType === item
-                                      ? "bg-blue-500 text-white"
-                                      : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
-                                  }`}
-                                >
-                                  {item}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
+    <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center gap-2 rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-2">
+
+      {(
+        [
+          "LONG",
+          "SHORT",
+        ] as TradeSide[]
+      ).map((item) => (
+
+        <button
+          key={item}
+          type="button"
+          onClick={() =>
+            setSide(item)
+          }
+          className={`flex h-[32px] flex-1 items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
+            side === item
+              ? "bg-blue-500 text-white"
+              : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
+          }`}
+        >
+          {item}
+        </button>
+
+      ))}
+
+    </div>
+
+  </div>
+
+  {/* ASSET TYPE */}
+
+  <div className="flex flex-col items-center">
+
+    <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
+      Asset Type
+    </p>
+
+    <div className="flex h-[50px] w-[360px] translate-y-4 items-center justify-center gap-[6px] rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-[10px]">
+
+      {[
+        "STOCKS",
+        "OPTIONS",
+        "FUTURES",
+        "CRYPTO",
+        "CFD",
+        "FOREX",
+      ].map((item) => (
+
+        <button
+          key={item}
+          type="button"
+          onClick={() =>
+            setAssetType(item)
+          }
+          className={`flex h-[30px] min-w-[54px] items-center justify-center rounded-[10px] px-[12px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
+            assetType === item
+              ? "bg-blue-500 text-white"
+              : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
+          }`}
+        >
+          {item}
+        </button>
+
+      ))}
+
+    </div>
+
+  </div>
+
+</div>
+
 
                         {/* ================================================= */}
                         {/* GAP */}
@@ -408,38 +581,199 @@ window.location.reload();
                             </div>
                           </div>
 
-                          {/* TRADE DATE */}
+{/* TRADE DATE */}
 
-                          <div className="flex flex-col items-center">
+<div className="flex flex-col items-center">
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Trade Date
-                            </p>
+  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+    Trade Date
+  </p>
 
-                            <div className="relative flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
+  <div className="relative flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
 
-                              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
 
-                                <span className="text-[13px] font-medium text-white">
+      <span className="text-[13px] font-medium text-white">
+        {tradeDate}
+      </span>
 
-                                  {tradeDate}
+    </div>
 
-                                </span>
-                              </div>
+    <input
+      type="date"
+      value={tradeDate}
+      onChange={(e) =>
+        setTradeDate(
+          e.target.value
+        )
+      }
+      className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
+    />
 
-                              <input
-                                type="date"
-                                value={tradeDate}
-                                onChange={(e) =>
-                                  setTradeDate(
-                                    e.target.value
-                                  )
-                                }
-                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
-                              />
-                            </div>
-                          </div>
+  </div>
 
+</div>
+
+{/* ENTRY TIME */}
+
+<div className="flex flex-col items-center">
+
+  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+    Entry Time
+  </p>
+
+  <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+
+    <input
+      type="time"
+      value={entryTime}
+      onChange={(e) =>
+        setEntryTime(
+          e.target.value
+        )
+      }
+      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+    />
+
+  </div>
+
+</div>
+
+{/* EXIT TIME */}
+
+<div className="flex flex-col items-center">
+
+  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+    Exit Time
+  </p>
+
+  <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+
+    <input
+      type="time"
+      value={exitTime}
+      onChange={(e) =>
+        setExitTime(
+          e.target.value
+        )
+      }
+      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+    />
+
+  </div>
+
+</div>
+
+
+{/* CURRENCY */}
+
+<div className="flex flex-col items-center">
+
+  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+    Currency
+  </p>
+
+  <div className="flex h-[50px] w-[120px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+
+    <select
+      value={currency}
+      onChange={(e) =>
+        setCurrency(
+          e.target.value
+        )
+      }
+      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+    >
+<option value="USD">USD</option>
+<option value="CAD">CAD</option>
+<option value="EUR">EUR</option>
+<option value="JPY">JPY</option>
+<option value="INR">INR</option>
+    </select>
+
+  </div>
+
+</div>
+
+{/* ================================================= */}
+{/* EXCHANGE */}
+{/* ================================================= */}
+
+<div className="flex flex-col items-center">
+
+  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+    Exchange
+  </p>
+
+  <div className="flex h-[50px] w-[140px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+
+    <select
+      value={exchange}
+      onChange={(e) =>
+        setExchange(
+          e.target.value
+        )
+      }
+      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+    >
+
+      <option value="">
+        Select
+      </option>
+
+      <option value="NASDAQ">
+        NASDAQ
+      </option>
+
+      <option value="NYSE">
+        NYSE
+      </option>
+
+      <option value="ARCA">
+        ARCA
+      </option>
+
+      <option value="CBOE">
+        CBOE
+      </option>
+
+      <option value="CME">
+        CME
+      </option>
+
+      <option value="CBOT">
+        CBOT
+      </option>
+
+      <option value="NYMEX">
+        NYMEX
+      </option>
+
+      <option value="COMEX">
+        COMEX
+      </option>
+
+      <option value="TSX">
+        TSX
+      </option>
+
+      <option value="TSXV">
+        TSXV
+      </option>
+
+      <option value="ICE">
+        ICE
+      </option>
+
+      <option value="Other">
+        Other
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
 
                           {/* QUANTITY */}
 

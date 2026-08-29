@@ -6,6 +6,9 @@ export function formatCurrency(
   const absoluteValue =
     Math.abs(value);
 
+  const normalizedCurrency =
+    currency?.trim().toUpperCase() || "USD";
+
   const formattedNumber =
     absoluteValue.toLocaleString(
       "en-US",
@@ -15,7 +18,7 @@ export function formatCurrency(
       }
     );
 
-  switch (currency) {
+  switch (normalizedCurrency) {
 
     case "CAD":
       return `C$${formattedNumber}`;
@@ -25,6 +28,12 @@ export function formatCurrency(
 
     case "GBP":
       return `£${formattedNumber}`;
+
+    case "JPY":
+      return `¥${formattedNumber}`;
+
+    case "INR":
+      return `₹${formattedNumber}`;
 
     case "USD":
     default:

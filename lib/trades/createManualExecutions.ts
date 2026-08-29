@@ -1,8 +1,32 @@
+
 import {
   NormalizedExecution,
+  TradeSide,
 } from "@/types/trade";
 
-interface CreateManualExecutionsParams {
+// =================================================
+// CREATE MANUAL EXECUTIONS
+// =================================================
+//
+// Manual Entry is an execution producer.
+//
+// IMPORTANT:
+// - Executions remain the canonical trading data.
+// - Manual Entry does NOT create trades directly.
+// - pairTrades() remains responsible for reconstructing
+//   trades from executions.
+//
+// LONG:
+//   BUY  = entry
+//   SELL = exit
+//
+// SHORT:
+//   SELL = entry
+//   BUY  = exit
+//
+// =================================================
+
+interface CreateManualExecutionsInput {
 
   ticker: string;
 
@@ -14,208 +38,510 @@ interface CreateManualExecutionsParams {
 
   commission: number;
 
-  assetType?: string;
+  side: TradeSide;
 
-  account?: string;
+  assetType: string;
 
-  tradeDate?: string;
+  account: string;
+
+  tradeDate: string;
+
+  entryTime?: string;
+
+  exitTime?: string;
+
+  currency: string;
+
+  exchange?: string;
 }
 
-export function
-createManualExecutions({
+// =================================================
+// VALIDATE MANUAL EXECUTION INPUT
+// =================================================
 
-  ticker,
+function validateManualExecutionInput(
+  input: CreateManualExecutionsInput
+): void {
 
-  quantity,
+  const {
+    ticker,
+    quantity,
+    entryPrice,
+    exitPrice,
+    commission,
+    side,
+    assetType,
+    account,
+    tradeDate,
+    entryTime,
+    exitTime,
+    currency,
+  } = input;
 
-  entryPrice,
+  // =================================================
+  // REQUIRED TEXT FIELDS
+  // =================================================
 
-  exitPrice,
+  if (!ticker?.trim()) {
 
-  commission,
+    throw new Error(
+      "Manual trade ticker is required."
+    );
+  }
 
-  assetType = "FUTURES",
+  if (!account?.trim()) {
 
-  account = "",
+    throw new Error(
+      "Manual trade account is required."
+    );
+  }
 
-  tradeDate =
-    new Date()
-      .toISOString()
-      .split("T")[0],
+  if (!tradeDate?.trim()) {
 
-}: CreateManualExecutionsParams):
-NormalizedExecution[] {
+    throw new Error(
+      "Manual trade date is required."
+    );
+  }
 
-  // =============================================
-  // CANONICAL IDS
-  // =============================================
+  if (!assetType?.trim()) {
+
+    throw new Error(
+      "Manual trade asset type is required."
+    );
+  }
+
+  // =================================================
+  // QUANTITY
+  // =================================================
+
+  if (
+    !Number.isFinite(quantity) ||
+    quantity <= 0
+  ) {
+
+    throw new Error(
+      "Manual trade quantity must be greater than zero."
+    );
+  }
+
+  // =================================================
+  // ENTRY PRICE
+  // =================================================
+
+  if (
+    !Number.isFinite(entryPrice) ||
+    entryPrice <= 0
+  ) {
+
+    throw new Error(
+      "Manual trade entry price must be greater than zero."
+    );
+  }
+
+  // =================================================
+  // EXIT PRICE
+  // =================================================
+
+  if (
+    !Number.isFinite(exitPrice) ||
+    exitPrice <= 0
+  ) {
+
+    throw new Error(
+      "Manual trade exit price must be greater than zero."
+    );
+  }
+
+  // =================================================
+  // COMMISSION
+  // =================================================
+  //
+  // Zero commission is valid.
+  //
+  // =================================================
+
+  if (
+    !Number.isFinite(commission) ||
+    commission < 0
+  ) {
+
+    throw new Error(
+      "Manual trade commission cannot be negative."
+    );
+  }
+
+  // =================================================
+  // SIDE
+  // =================================================
+
+  if (
+    side !== "LONG" &&
+    side !== "SHORT"
+  ) {
+
+    throw new Error(
+      "Manual trade side must be LONG or SHORT."
+    );
+  }
+
+  // =================================================
+  // CURRENCY
+  // =================================================
+
+  const normalizedCurrency =
+    currency?.trim().toUpperCase();
+
+const supportedCurrencies = [
+  "USD",
+  "CAD",
+  "EUR",
+  "GBP",
+  "JPY",
+  "INR",
+];
+
+  if (
+    !supportedCurrencies.includes(
+      normalizedCurrency
+    )
+  ) {
+
+    throw new Error(
+      "Unsupported manual trade currency."
+    );
+  }
+
+  // =================================================
+  // OPTIONAL TIME VALIDATION
+  // =================================================
+
+  const timePattern =
+    /^([01]\d|2[0-3]):[0-5]\d$/;
+
+  if (
+    entryTime &&
+    !timePattern.test(entryTime)
+  ) {
+
+    throw new Error(
+      "Invalid manual trade entry time."
+    );
+  }
+
+  if (
+    exitTime &&
+    !timePattern.test(exitTime)
+  ) {
+
+    throw new Error(
+      "Invalid manual trade exit time."
+    );
+  }
+}
+
+// =================================================
+// CREATE MANUAL EXECUTIONS
+// =================================================
+
+export function createManualExecutions(
+  input: CreateManualExecutionsInput
+): NormalizedExecution[] {
+
+  // =================================================
+  // VALIDATE BEFORE CREATING ANY EXECUTIONS
+  // =================================================
+
+  validateManualExecutionInput(
+    input
+  );
+
+  const {
+    ticker,
+    quantity,
+    entryPrice,
+    exitPrice,
+    commission,
+    side,
+    assetType,
+    account,
+    tradeDate,
+    entryTime,
+    exitTime,
+    currency,
+    exchange,
+  } = input;
+
+  // =================================================
+  // NORMALIZE BASIC VALUES
+  // =================================================
+
+  const normalizedTicker =
+    ticker.trim().toUpperCase();
+
+  const normalizedAssetType =
+    assetType.trim().toUpperCase();
+
+  const normalizedAccount =
+    account.trim();
+
+  const normalizedCurrency =
+    currency.trim().toUpperCase();
+
+  const normalizedExchange =
+    exchange?.trim() || "";
+
+  // =================================================
+  // UNIQUE MANUAL LIFECYCLE ID
+  // =================================================
 
   const lifecycleId =
     crypto.randomUUID();
 
-  const contractKey =
-    `MANUAL-${ticker.toUpperCase()}-${lifecycleId}`;
+  // =================================================
+  // CANONICAL CONTRACT KEY
+  // =================================================
+  //
+  // Every manual trade gets its own lifecycle.
+  //
+  // This prevents unrelated manual trades from being
+  // accidentally paired together by the FIFO engine.
+  //
+  // Broker executions continue using their own
+  // broker-derived contract keys.
+  //
+  // =================================================
 
-  // =============================================
+  const contractKey =
+    `MANUAL-${normalizedTicker}-${lifecycleId}`;
+
+  // =================================================
   // ASSET MULTIPLIER
-  // =============================================
+  // =================================================
+  //
+  // Options:
+  //   100
+  //
+  // Everything else:
+  //   1
+  //
+  // =================================================
 
   const multiplier =
-    assetType === "OPTIONS"
+    normalizedAssetType === "OPTIONS"
       ? 100
       : 1;
 
-  // =============================================
-  // FEE RECONCILIATION
-  // =============================================
+  // =================================================
+  // EXECUTION IDS
+  // =================================================
+
+  const entryExecutionId =
+    `manual-${lifecycleId}-entry`;
+
+  const exitExecutionId =
+    `manual-${lifecycleId}-exit`;
+
+  // =================================================
+  // MANUAL EXECUTION IDS
+  // =================================================
+
+  const entryBrokerExecutionId =
+    `MANUAL-${lifecycleId}-ENTRY`;
+
+  const exitBrokerExecutionId =
+    `MANUAL-${lifecycleId}-EXIT`;
+
+  // =================================================
+  // EXECUTION ACTIONS
+  // =================================================
+  //
+  // LONG:
+  //   BUY -> SELL
+  //
+  // SHORT:
+  //   SELL -> BUY
+  //
+  // =================================================
+
+  const entryAction =
+    side === "LONG"
+      ? "BUY"
+      : "SELL";
+
+  const exitAction =
+    side === "LONG"
+      ? "SELL"
+      : "BUY";
+
+  // =================================================
+  // COMMISSION ALLOCATION
+  // =================================================
+  //
+  // Total commission supplied by the user is split
+  // across the two executions.
+  //
+  // The sum always equals the original commission.
+  //
+  // =================================================
 
   const entryFees =
-    Number(
-      (
-        commission / 2
-      ).toFixed(2)
-    );
+    commission / 2;
 
   const exitFees =
-    Number(
-      (
-        commission -
-        entryFees
-      ).toFixed(2)
-    );
+    commission - entryFees;
 
-  // =============================================
-  // ENTRY EXECUTION
-  // =============================================
+// =================================================
+// EXECUTION TIMESTAMPS
+// =================================================
+//
+// Manual Entry always produces a canonical timestamp.
+//
+// Entry:
+//   tradeDate + entryTime
+//
+// Exit:
+//   tradeDate + exitTime
+//
+// executionTimestamp remains REQUIRED in
+// NormalizedExecution.
+//
+// =================================================
 
-  const entryExecution:
-    NormalizedExecution = {
+const entryTimestamp: string =
+  `${tradeDate}T${entryTime}:00`;
 
-    id:
-      crypto.randomUUID(),
+const exitTimestamp: string =
+  `${tradeDate}T${exitTime}:00`;
 
-    date:
-      tradeDate,
+// =================================================
+// ENTRY EXECUTION
+// =================================================
 
-    executionTimestamp:
-      `${tradeDate}T09:30:00`,
+const entryExecution:
+  NormalizedExecution = {
 
-    ticker:
-      ticker.toUpperCase(),
+  id:
+    entryExecutionId,
 
-    contract:
-      ticker.toUpperCase(),
+  date:
+    tradeDate,
 
-    contractKey,
+  ticker:
+    normalizedTicker,
 
-    // =========================================
-    // EXECUTION ACTION
-    // =========================================
-    // BUY does NOT mean LONG by itself.
-    //
-    // pairTrades() determines whether this BUY
-    // opens a LONG position or closes a SHORT
-    // position.
+  contract:
+    normalizedTicker,
 
-    action:
-      "BUY",
+  contractKey,
 
-    quantity,
+  exchange:
+    normalizedExchange,
 
-    executionPrice:
-      entryPrice,
+  action:
+    entryAction,
 
-    executionValue:
-      Number(
-        (
-          quantity *
-          entryPrice *
-          multiplier
-        ).toFixed(2)
-      ),
+  quantity,
 
-    fees:
-      entryFees,
+  executionPrice:
+    entryPrice,
 
-    currency:
-      "USD",
-
-    feeCurrency:
-      "USD",
-
-    account,
-
-    assetType,
-
+  executionValue:
+    entryPrice *
+    quantity *
     multiplier,
-  };
 
-  // =============================================
-  // EXIT EXECUTION
-  // =============================================
+  fees:
+    entryFees,
 
-  const exitExecution:
-    NormalizedExecution = {
+  account:
+    normalizedAccount,
 
-    id:
-      crypto.randomUUID(),
+  assetType:
+    normalizedAssetType,
 
-    date:
-      tradeDate,
+  multiplier,
 
-    executionTimestamp:
-      `${tradeDate}T16:00:00`,
+  currency:
+    normalizedCurrency,
 
-    ticker:
-      ticker.toUpperCase(),
+  feeCurrency:
+    normalizedCurrency,
 
-    contract:
-      ticker.toUpperCase(),
+  brokerExecutionId:
+    entryBrokerExecutionId,
 
-    // =========================================
-    // EXECUTION ACTION
-    // =========================================
-    // SELL does NOT mean SHORT by itself.
-    //
-    // pairTrades() determines whether this SELL
-    // closes a LONG position or opens a SHORT
-    // position.
+  executionTimestamp:
+    entryTimestamp,
+};
 
-    action:
-      "SELL",
+// =================================================
+// EXIT EXECUTION
+// =================================================
 
-    quantity,
+const exitExecution:
+  NormalizedExecution = {
 
-    executionPrice:
-      exitPrice,
+  id:
+    exitExecutionId,
 
-    executionValue:
-      Number(
-        (
-          quantity *
-          exitPrice *
-          multiplier
-        ).toFixed(2)
-      ),
+  date:
+    tradeDate,
 
-    fees:
-      exitFees,
+  ticker:
+    normalizedTicker,
 
-    currency:
-      "USD",
+  contract:
+    normalizedTicker,
 
-    feeCurrency:
-      "USD",
+  contractKey,
 
-    account,
+  exchange:
+    normalizedExchange,
 
-    assetType,
+  action:
+    exitAction,
 
+  quantity,
+
+  executionPrice:
+    exitPrice,
+
+  executionValue:
+    exitPrice *
+    quantity *
     multiplier,
-  };
+
+  fees:
+    exitFees,
+
+  account:
+    normalizedAccount,
+
+  assetType:
+    normalizedAssetType,
+
+  multiplier,
+
+  currency:
+    normalizedCurrency,
+
+  feeCurrency:
+    normalizedCurrency,
+
+  brokerExecutionId:
+    exitBrokerExecutionId,
+
+  executionTimestamp:
+    exitTimestamp,
+};
+
+  // =================================================
+  // RETURN NORMALIZED EXECUTIONS
+  // =================================================
 
   return [
     entryExecution,
     exitExecution,
   ];
 }
+

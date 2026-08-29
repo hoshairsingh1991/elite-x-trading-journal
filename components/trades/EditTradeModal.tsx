@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
-import { Trade } from "@/types/trade";
+import {
+  Trade,
+} from "@/types/trade";
 
-import { supabase } from "@/lib/supabase";
+import {
+  supabase,
+} from "@/lib/supabase";
 
 import {
   createManualExecutions,
@@ -32,241 +39,469 @@ export default function EditTradeModal({
 }: EditTradeModalProps) {
 
   // =================================================
-  // SAFETY
-  // =================================================
-
-  if (!open || !trade) {
-
-    return null;
-  }
-
-  // =================================================
   // FORM STATE
   // =================================================
 
   const [ticker, setTicker] =
-    useState(trade.ticker);
+    useState("");
 
   const [quantity, setQuantity] =
-    useState(
-      String(trade.quantity)
-    );
+    useState("");
 
   const [entryPrice, setEntryPrice] =
-    useState(
-      String(trade.entryPrice)
-    );
+    useState("");
 
   const [exitPrice, setExitPrice] =
-  useState(
-    trade.exitPrice != null
-      ? String(trade.exitPrice)
-      : ""
-  );
+    useState("");
 
   const [commission, setCommission] =
-    useState(
-      String(trade.fees)
-    );
+    useState("");
 
   const [side, setSide] =
     useState<"LONG" | "SHORT">(
-      trade.side
+      "LONG"
     );
 
   const [assetType, setAssetType] =
-    useState(
-      trade.assetType || "FUTURES"
-    );
+    useState("FUTURES");
 
   const [account, setAccount] =
-    useState(
-      trade.account || ""
-    );
+    useState("");
 
   const [tradeDate, setTradeDate] =
-  useState(
+    useState("");
 
-    trade.date.includes("T")
-      ? trade.date.split("T")[0]
-      : trade.date
+  const [entryTime, setEntryTime] =
+    useState("");
 
-  );
+  const [exitTime, setExitTime] =
+    useState("");
+
+  const [currency, setCurrency] =
+    useState("USD");
+
+  const [exchange, setExchange] =
+    useState("");
+
+  // =================================================
+  // LOAD TRADE INTO FORM
+  // =================================================
+
+  useEffect(() => {
+
+    if (!trade) {
+      return;
+    }
+
+    setTicker(
+      trade.ticker || ""
+    );
+
+    setQuantity(
+      String(
+        trade.quantity ?? ""
+      )
+    );
+
+    setEntryPrice(
+      String(
+        trade.entryPrice ?? ""
+      )
+    );
+
+    setExitPrice(
+      trade.exitPrice != null
+        ? String(
+            trade.exitPrice
+          )
+        : ""
+    );
+
+    setCommission(
+      String(
+        trade.fees ?? 0
+      )
+    );
+
+    setSide(
+      trade.side === "SHORT"
+        ? "SHORT"
+        : "LONG"
+    );
+
+    setAssetType(
+      trade.assetType ||
+      "FUTURES"
+    );
+
+    setAccount(
+      trade.account ||
+      ""
+    );
+
+    setTradeDate(
+      trade.date?.includes("T")
+        ? trade.date.split("T")[0]
+        : trade.date || ""
+    );
+
+    const entryExecution =
+      trade.executions?.find(
+        (execution) =>
+          execution.action ===
+          (
+            trade.side === "SHORT"
+              ? "SELL"
+              : "BUY"
+          )
+      );
+
+    const exitExecution =
+      trade.executions?.find(
+        (execution) =>
+          execution.action ===
+          (
+            trade.side === "SHORT"
+              ? "BUY"
+              : "SELL"
+          )
+      );
+
+    setEntryTime(
+      entryExecution?.executionTimestamp
+        ? entryExecution.executionTimestamp.slice(
+            11,
+            16
+          )
+        : ""
+    );
+
+    setExitTime(
+      exitExecution?.executionTimestamp
+        ? exitExecution.executionTimestamp.slice(
+            11,
+            16
+          )
+        : ""
+    );
+
+    setCurrency(
+      entryExecution?.currency ||
+      trade.currency ||
+      "USD"
+    );
+
+    setExchange(
+      entryExecution?.exchange ||
+      ""
+    );
+
+  }, [
+    trade,
+  ]);
 
   // =================================================
   // SAVE EDITS
   // =================================================
 
-  const handleSaveTrade = async () => {
+  const handleSaveTrade =
+    async () => {
+
+    // =================================================
+    // SAFETY
+    // =================================================
+
+    if (!trade) {
+      return;
+    }
 
     if (
-      !ticker ||
-      !quantity ||
-      !entryPrice
+      !trade.contractKey?.startsWith(
+        "MANUAL-"
+      )
     ) {
 
       alert(
-        "Please complete all required fields."
+        "Only manual trades can be edited."
       );
 
       return;
     }
 
-    const entry =
-      Number(entryPrice);
+    // =================================================
+    // NORMALIZE BASIC VALUES
+    // =================================================
 
-    const exit =
-      Number(exitPrice || 0);
+    const normalizedTicker =
+      ticker.trim();
 
-    const qty =
+    const normalizedAccount =
+      account.trim();
+
+    const normalizedCurrency =
+      currency.trim();
+
+    const normalizedExchange =
+      exchange.trim();
+
+    // =================================================
+    // PARSE NUMERIC VALUES
+    // =================================================
+
+    const parsedQuantity =
       Number(quantity);
 
-    const fees =
-      Number(commission || 0);
+    const parsedEntryPrice =
+      Number(entryPrice);
 
-        // =================================================
-    // ASSET MULTIPLIER
+    const parsedExitPrice =
+      Number(exitPrice);
+
+    const parsedCommission =
+      Number(
+        commission || 0
+      );
+
+    // =================================================
+    // REQUIRED FIELD VALIDATION
     // =================================================
 
-    const multiplier =
-      assetType === "OPTIONS"
-        ? 100
-        : 1;
+    if (!normalizedTicker) {
 
-    // =================================================
-    // CALCULATE PNL
-    // =================================================
+      alert(
+        "Ticker is required."
+      );
 
-    let pnl = 0;
+      return;
+    }
+
+    if (!normalizedAccount) {
+
+      alert(
+        "Account is required."
+      );
+
+      return;
+    }
 
     if (
-      exitPrice &&
-      !Number.isNaN(exit)
+      !quantity ||
+      !Number.isFinite(
+        parsedQuantity
+      ) ||
+      parsedQuantity <= 0
     ) {
 
-      pnl =
-        side === "LONG"
-          ? (
-              exit -
-              entry
-            ) *
-            qty *
-            multiplier
-          : (
-              entry -
-              exit
-            ) *
-            qty *
-            multiplier;
+      alert(
+        "Quantity must be greater than 0."
+      );
 
-      pnl -= fees;
+      return;
+    }
+
+    if (
+      !entryPrice ||
+      !Number.isFinite(
+        parsedEntryPrice
+      ) ||
+      parsedEntryPrice <= 0
+    ) {
+
+      alert(
+        "Entry price must be greater than 0."
+      );
+
+      return;
+    }
+
+    if (
+      !exitPrice ||
+      !Number.isFinite(
+        parsedExitPrice
+      ) ||
+      parsedExitPrice <= 0
+    ) {
+
+      alert(
+        "Exit price must be greater than 0."
+      );
+
+      return;
+    }
+
+    if (!tradeDate) {
+
+      alert(
+        "Trade date is required."
+      );
+
+      return;
+    }
+
+    if (!entryTime) {
+
+      alert(
+        "Entry time is required."
+      );
+
+      return;
+    }
+
+    if (!exitTime) {
+
+      alert(
+        "Exit time is required."
+      );
+
+      return;
+    }
+
+    if (!normalizedCurrency) {
+
+      alert(
+        "Currency is required."
+      );
+
+      return;
+    }
+
+    if (!normalizedExchange) {
+
+      alert(
+        "Exchange is required."
+      );
+
+      return;
+    }
+
+    if (
+      !Number.isFinite(
+        parsedCommission
+      ) ||
+      parsedCommission < 0
+    ) {
+
+      alert(
+        "Commission must be 0 or greater."
+      );
+
+      return;
     }
 
     // =================================================
-    // STATUS
+    // DELETE OLD LIFECYCLE
     // =================================================
 
-    let status:
-      | "WIN"
-      | "LOSS"
-      | "BREAKEVEN"
-      | "OPEN" = "OPEN";
+    const {
+      error: deleteError,
+    } = await supabase
+      .from("executions")
+      .delete()
+      .eq(
+        "contract_key",
+        trade.contractKey
+      );
 
-    if (exitPrice) {
+    if (deleteError) {
 
-      if (pnl > 0) {
+      console.error(
+        "FAILED TO DELETE OLD MANUAL LIFECYCLE:",
+        deleteError
+      );
 
-        status = "WIN";
+      alert(
+        "Failed to replace manual trade lifecycle."
+      );
 
-      } else if (pnl < 0) {
-
-        status = "LOSS";
-
-      } else {
-
-        status = "BREAKEVEN";
-      }
+      return;
     }
 
     // =================================================
-// MANUAL TRADE SAFETY
-// =================================================
+    // CREATE CORRECTED EXECUTIONS
+    // =================================================
 
-if (
-  !trade.contractKey?.startsWith(
-    "MANUAL-"
-  )
-) {
+    const correctedExecutions =
+      createManualExecutions({
 
-  alert(
-    "Only manual trades can be edited."
-  );
+        ticker:
+          normalizedTicker,
 
-  return;
-}
+        quantity:
+          parsedQuantity,
 
-// =================================================
-// DELETE OLD LIFECYCLE
-// =================================================
+        entryPrice:
+          parsedEntryPrice,
 
-const {
-  error: deleteError,
-} = await supabase
-  .from("executions")
-  .delete()
-  .eq(
-    "contract_key",
-    trade.contractKey
-  );
+        exitPrice:
+          parsedExitPrice,
 
-if (deleteError) {
+        commission:
+          parsedCommission,
 
-  console.error(
-    "FAILED TO DELETE OLD MANUAL LIFECYCLE:",
-    deleteError
-  );
+        side,
 
-  alert(
-    "Failed to replace manual trade lifecycle."
-  );
+        assetType,
 
-  return;
-}
+        account:
+          normalizedAccount,
 
-// =================================================
-// CREATE CORRECTED EXECUTIONS
-// =================================================
+        tradeDate,
 
-const correctedExecutions =
-  createManualExecutions({
+        entryTime,
 
-    ticker,
+        exitTime,
 
-    quantity: qty,
+        currency:
+          normalizedCurrency,
 
-    entryPrice: entry,
+        exchange:
+          normalizedExchange,
+      });
 
-    exitPrice:
-    exitPrice
-    ? exit
-    : entry,
+    // =================================================
+    // PRESERVE EXISTING MANUAL LIFECYCLE
+    // =================================================
+    //
+    // Editing a trade must not create a new lifecycle.
+    //
+    // createManualExecutions() generates a new
+    // contractKey internally, so restore the original
+    // lifecycle identity before saving.
+    //
+    // =================================================
 
-    commission: fees,
-
-    assetType,
-
-    account,
-
-    tradeDate,
-  });
+    const correctedExecutionsWithLifecycle =
+      correctedExecutions.map(
+        (execution) => ({
+          ...execution,
+          contractKey:
+            trade.contractKey,
+        })
+      );
 
 // =================================================
 // SAVE CORRECTED EXECUTIONS
 // =================================================
 
-await saveExecutionsToSupabase(
-  correctedExecutions
-);
+try {
+
+  await saveExecutionsToSupabase(
+    correctedExecutionsWithLifecycle
+  );
+
+} catch (error) {
+
+  console.error(
+    "FAILED TO SAVE CORRECTED MANUAL LIFECYCLE:",
+    error
+  );
+
+  alert(
+    "Failed to save edited trade."
+  );
+
+  return;
+}
 
 // =================================================
 // CLOSE + RELOAD
@@ -275,13 +510,73 @@ await saveExecutionsToSupabase(
 onClose();
 
 window.location.reload();
+  };
 
-};
+  // =================================================
+  // DELETE TRADE
+  // =================================================
 
-return (
+  const handleDeleteTrade =
+    async () => {
+
+    if (
+      !trade?.contractKey
+    ) {
+
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Delete this manual trade?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const {
+      error,
+    } = await supabase
+      .from("executions")
+      .delete()
+      .eq(
+        "contract_key",
+        trade.contractKey
+      );
+
+    if (error) {
+
+      console.error(
+        "FAILED TO DELETE TRADE:",
+        error
+      );
+
+      alert(
+        "Failed to delete trade."
+      );
+
+      return;
+    }
+
+    onClose();
+
+    window.location.reload();
+  };
+
+  // =================================================
+  // SAFETY
+  // =================================================
+
+  if (!open || !trade) {
+
+    return null;
+  }
+
+  return (
 
     <>
-    
+
       {/* ================================================= */}
       {/* REMOVE NUMBER INPUT ARROWS */}
       {/* ================================================= */}
@@ -335,9 +630,9 @@ return (
 
           <div className="flex flex-1 items-center justify-center py-10">
 
-            <div className="relative w-full max-w-[740px] rounded-[32px] border border-white/[0.06] bg-[#071427] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
+            <div className="relative w-full max-w-[1100px] rounded-[32px] border border-white/[0.06] bg-[#071427] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
 
-              <div className="h-8 opacity-0">
+              <div className="h-6 opacity-0">
                 spacing
               </div>
 
@@ -355,17 +650,18 @@ return (
 
                   <div>
 
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-blue-400">
+                    <p className="text-[10px] -translate-y-2 font-black uppercase tracking-[0.24em] text-blue-400">
                       Trade Reconciliation
                     </p>
 
-                    <h2 className="mt-3 text-[34px] font-black tracking-tight text-white">
+                    <h2 className="mt-3 text-[24px] font-black tracking-tight text-white">
                       Edit Trade
                     </h2>
 
                     <p className="mt-3 text-[14px] text-slate-400">
                       Correct and reconcile institutional execution data safely.
                     </p>
+
                   </div>
 
                   {/* ================================================= */}
@@ -375,80 +671,48 @@ return (
                   <div className="flex items-center gap-3">
 
                     <button
-  onClick={async () => {
-
-    if (
-      !trade.contractKey
-    ) {
-
-      return;
-    }
-
-    const confirmed =
-      window.confirm(
-        "Delete this manual trade?"
-      );
-
-    if (!confirmed) {
-
-      return;
-    }
-
-    const {
-      error,
-    } = await supabase
-      .from("executions")
-      .delete()
-      .eq(
-        "contract_key",
-        trade.contractKey
-      );
-
-    if (error) {
-
-      console.error(
-        "FAILED TO DELETE TRADE:",
-        error
-      );
-
-      return;
-    }
-
-    onClose();
-
-    window.location.reload();
-  }}
-  className="flex h-[42px] w-[92px] items-center justify-center rounded-[12px] border border-red-500/20 bg-red-500/10 text-[10px] font-black uppercase tracking-[0.14em] text-red-400 transition-all hover:bg-red-500/20"
->
-  Delete
-</button>
+                      type="button"
+                      onClick={
+                        handleDeleteTrade
+                      }
+                      className="flex h-[30px] w-[72px] items-center justify-center rounded-[12px] border border-red-500/20 bg-red-500/10 text-[10px] font-black uppercase tracking-[0.14em] text-red-400 transition-all hover:bg-red-500/20"
+                    >
+                      Delete
+                    </button>
 
                     <button
-                      onClick={handleSaveTrade}
-                      className="flex h-[42px] w-[92px] items-center justify-center rounded-[12px] border border-blue-400/20 bg-blue-500/90 text-[10px] font-black uppercase tracking-[0.14em] text-white transition-all hover:bg-blue-400"
+                      type="button"
+                      onClick={
+                        handleSaveTrade
+                      }
+                      className="flex h-[30px] w-[72px] items-center justify-center rounded-[12px] border border-blue-400/20 bg-blue-500/90 text-[10px] font-black uppercase tracking-[0.14em] text-white transition-all hover:bg-blue-400"
                     >
                       Save
                     </button>
 
                     <button
+                      type="button"
                       onClick={onClose}
-                      className="flex h-[46px] w-[46px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] text-[17px] font-bold text-slate-400 transition-all hover:border-white/[0.10] hover:text-white"
+                      className="flex h-[34px] w-[34px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] text-[16px] font-bold text-slate-400 transition-all hover:border-white/[0.10] hover:text-white"
                     >
                       ×
                     </button>
+
                   </div>
+
                 </div>
 
-                <div className="w-[18px] shrink-0 opacity-0">
+                <div className="w-[10px] shrink-0 opacity-0">
                   spacing
                 </div>
+
               </div>
 
               {/* ================================================= */}
               {/* GAP */}
               {/* ================================================= */}
 
-              <div className="h-10 opacity-0">
+              <div className="h-2 opacity-0">
                 spacing
               </div>
 
@@ -458,7 +722,7 @@ return (
 
               <div className="px-5">
 
-                <div className="rounded-[26px] border border-white/[0.05] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] px-6 py-8">
+                <div className="rounded-[24px] border border-white/[0.05] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] px-6 py-8">
 
                   <div className="flex">
 
@@ -469,22 +733,48 @@ return (
                     <div className="flex-1">
 
                       {/* ================================================= */}
+                      {/* HEADER */}
+                      {/* ================================================= */}
+
+                      <div>
+
+                        <p className="text-[14px] translate-y-2 font-black uppercase tracking-[0.18em] text-slate-500">
+                          Trade Details
+                        </p>
+
+                        <p className="mt-2 text-[12px] translate-y-2 text-slate-400">
+                          Edit manual trade execution details and workflow metadata.
+                        </p>
+
+                        <p className="mt-2 text-[8px] opacity-0">
+                          Edit manual trade execution details and workflow metadata.
+                        </p>
+
+                      </div>
+
+                      <div className="mt-6 h-px bg-white/[0.05]" />
+
+                      {/* ================================================= */}
                       {/* FORM */}
                       {/* ================================================= */}
 
-                      <div className="mt-2 flex flex-col items-center">
+                      <div className="mt-10 flex flex-col items-center">
 
+                        {/* ================================================= */}
                         {/* ROW 1 */}
+                        {/* ================================================= */}
 
                         <div className="flex items-start justify-center gap-5">
 
+                          {/* ACCOUNT */}
+
                           <div className="flex flex-col items-center">
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
                               Account
                             </p>
 
-                            <div className="flex h-[60px] w-[240px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+                            <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
                                 type="text"
@@ -494,18 +784,65 @@ return (
                                     e.target.value
                                   )
                                 }
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none"
+                                placeholder="Account"
+                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
                               />
+
                             </div>
+
                           </div>
+
+                          {/* SIDE */}
 
                           <div className="flex flex-col items-center">
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
+                              Side
+                            </p>
+
+                            <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center gap-2 rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-2">
+
+                              {(
+                                [
+                                  "LONG",
+                                  "SHORT",
+                                ] as const
+                              ).map(
+                                (item) => (
+
+                                  <button
+                                    key={item}
+                                    type="button"
+                                    onClick={() =>
+                                      setSide(
+                                        item
+                                      )
+                                    }
+                                    className={`flex h-[32px] flex-1 items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
+                                      side === item
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
+                                    }`}
+                                  >
+                                    {item}
+                                  </button>
+
+                                )
+                              )}
+
+                            </div>
+
+                          </div>
+
+                          {/* ASSET TYPE */}
+
+                          <div className="flex flex-col items-center">
+
+                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
                               Asset Type
                             </p>
 
-                            <div className="flex h-[60px] w-[360px] items-center justify-center gap-[6px] rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-[10px]">
+                            <div className="flex h-[50px] w-[360px] translate-y-4 items-center justify-center gap-[6px] rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-[10px]">
 
                               {[
                                 "STOCKS",
@@ -514,33 +851,50 @@ return (
                                 "CRYPTO",
                                 "CFD",
                                 "FOREX",
-                              ].map((item) => (
+                              ].map(
+                                (item) => (
 
-                                <button
-                                  key={item}
-                                  onClick={() =>
-                                    setAssetType(item)
-                                  }
-                                  className={`flex h-[32px] min-w-[52px] items-center justify-center rounded-[10px] px-[12px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                    assetType === item
-                                      ? "bg-blue-500 text-white"
-                                      : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
-                                  }`}
-                                >
-                                  {item}
-                                </button>
-                              ))}
+                                  <button
+                                    key={item}
+                                    type="button"
+                                    onClick={() =>
+                                      setAssetType(
+                                        item
+                                      )
+                                    }
+                                    className={`flex h-[30px] min-w-[54px] items-center justify-center rounded-[10px] px-[12px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
+                                      assetType === item
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
+                                    }`}
+                                  >
+                                    {item}
+                                  </button>
+
+                                )
+                              )}
+
                             </div>
+
                           </div>
+
                         </div>
 
-                        <div className="h-10 opacity-0">
+                        {/* ================================================= */}
+                        {/* GAP */}
+                        {/* ================================================= */}
+
+                        <div className="h-8 opacity-0">
                           spacing
                         </div>
 
+                        {/* ================================================= */}
                         {/* ROW 2 */}
+                        {/* ================================================= */}
 
                         <div className="flex items-start justify-center gap-4">
+
+                          {/* TICKER */}
 
                           <div className="flex flex-col items-center">
 
@@ -548,7 +902,7 @@ return (
                               Ticker
                             </p>
 
-                            <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+                            <div className="flex h-[50px] w-[120px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
                                 type="text"
@@ -558,10 +912,15 @@ return (
                                     e.target.value
                                   )
                                 }
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none"
+                                placeholder="Ticker"
+                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
                               />
+
                             </div>
+
                           </div>
+
+                          {/* TRADE DATE */}
 
                           <div className="flex flex-col items-center">
 
@@ -569,15 +928,14 @@ return (
                               Trade Date
                             </p>
 
-                            <div className="relative flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
+                            <div className="relative flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
 
                               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
 
                                 <span className="text-[13px] font-medium text-white">
-
                                   {tradeDate}
-
                                 </span>
+
                               </div>
 
                               <input
@@ -588,46 +946,208 @@ return (
                                     e.target.value
                                   )
                                 }
-                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
                               />
+
                             </div>
+
                           </div>
+
+                          {/* ENTRY TIME */}
 
                           <div className="flex flex-col items-center">
 
                             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Position Side
+                              Entry Time
                             </p>
 
-                            <div className="flex h-[60px] w-[190px] items-center justify-center gap-4 rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-2">
+                            <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
-                              <button
-                                onClick={() =>
-                                  setSide("LONG")
+                              <input
+                                type="time"
+                                value={entryTime}
+                                onChange={(e) =>
+                                  setEntryTime(
+                                    e.target.value
+                                  )
                                 }
-                                className={`flex h-[32px] w-[68px] items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                  side === "LONG"
-                                    ? "bg-emerald-500 text-white"
-                                    : "bg-white/[0.04] text-slate-400"
-                                }`}
-                              >
-                                Long
-                              </button>
+                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+                              />
 
-                              <button
-                                onClick={() =>
-                                  setSide("SHORT")
-                                }
-                                className={`flex h-[32px] w-[68px] items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                  side === "SHORT"
-                                    ? "bg-red-500 text-white"
-                                    : "bg-white/[0.04] text-slate-400"
-                                }`}
-                              >
-                                Short
-                              </button>
                             </div>
+
                           </div>
+
+                          {/* EXIT TIME */}
+
+                          <div className="flex flex-col items-center">
+
+                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                              Exit Time
+                            </p>
+
+                            <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+
+                              <input
+                                type="time"
+                                value={exitTime}
+                                onChange={(e) =>
+                                  setExitTime(
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+                              />
+
+                            </div>
+
+                          </div>
+
+                          {/* CURRENCY */}
+
+                          <div className="flex flex-col items-center">
+
+                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                              Currency
+                            </p>
+
+                            <div className="flex h-[50px] w-[120px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+
+                              <select
+                                value={currency}
+                                onChange={(e) =>
+                                  setCurrency(
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+                              >
+
+                                <option value="USD">
+                                  USD
+                                </option>
+
+                                <option value="CAD">
+                                  CAD
+                                </option>
+
+                                <option value="EUR">
+                                  EUR
+                                </option>
+
+                                <option value="JPY">
+                                  JPY
+                                </option>
+
+                                <option value="INR">
+                                  INR
+                                </option>
+
+                                <option value="GBP">
+                                  GBP
+                                </option>
+
+                              </select>
+
+                            </div>
+
+                          </div>
+
+                          {/* EXCHANGE */}
+
+                          <div className="flex flex-col items-center">
+
+                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                              Exchange
+                            </p>
+
+                            <div className="flex h-[50px] w-[140px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+
+                              <select
+                                value={exchange}
+                                onChange={(e) =>
+                                  setExchange(
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
+                              >
+
+                                <option value="">
+                                  Select
+                                </option>
+
+                                <option value="NASDAQ">
+                                  NASDAQ
+                                </option>
+
+                                <option value="NYSE">
+                                  NYSE
+                                </option>
+
+                                <option value="ARCA">
+                                  ARCA
+                                </option>
+
+                                <option value="CBOE">
+                                  CBOE
+                                </option>
+
+                                <option value="CME">
+                                  CME
+                                </option>
+
+                                <option value="CBOT">
+                                  CBOT
+                                </option>
+
+                                <option value="NYMEX">
+                                  NYMEX
+                                </option>
+
+                                <option value="COMEX">
+                                  COMEX
+                                </option>
+
+                                <option value="TSX">
+                                  TSX
+                                </option>
+
+                                <option value="TSXV">
+                                  TSXV
+                                </option>
+
+                                <option value="ICE">
+                                  ICE
+                                </option>
+
+                                <option value="Other">
+                                  Other
+                                </option>
+
+                              </select>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+
+                        {/* ================================================= */}
+                        {/* GAP */}
+                        {/* ================================================= */}
+
+                        <div className="h-10 opacity-0">
+                          spacing
+                        </div>
+
+                        {/* ================================================= */}
+                        {/* ROW 3 */}
+                        {/* ================================================= */}
+
+                        <div className="flex items-start justify-center gap-4">
+
+                          {/* QUANTITY */}
 
                           <div className="flex flex-col items-center">
 
@@ -635,7 +1155,7 @@ return (
                               Quantity
                             </p>
 
-                            <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
                                 type="number"
@@ -645,19 +1165,15 @@ return (
                                     e.target.value
                                   )
                                 }
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none"
+                                placeholder="Quantity"
+                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
                               />
+
                             </div>
+
                           </div>
-                        </div>
 
-                        <div className="h-10 opacity-0">
-                          spacing
-                        </div>
-
-                        {/* ROW 3 */}
-
-                        <div className="flex items-start justify-center gap-4">
+                          {/* ENTRY PRICE */}
 
                           <div className="flex flex-col items-center">
 
@@ -665,21 +1181,26 @@ return (
                               Entry Price
                             </p>
 
-                            <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                              type="number"
-                               step="0.01"
-                               value={entryPrice}
+                                type="number"
+                                step="0.01"
+                                value={entryPrice}
                                 onChange={(e) =>
                                   setEntryPrice(
                                     e.target.value
                                   )
                                 }
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none"
+                                placeholder="Entry"
+                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
                               />
+
                             </div>
+
                           </div>
+
+                          {/* EXIT PRICE */}
 
                           <div className="flex flex-col items-center">
 
@@ -687,22 +1208,44 @@ return (
                               Exit Price
                             </p>
 
-                            <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                              type="number"
-                              step="0.01"
-                               value={exitPrice}
+                                type="number"
+                                step="0.01"
+                                value={exitPrice}
                                 onChange={(e) =>
                                   setExitPrice(
                                     e.target.value
                                   )
                                 }
-                                placeholder="Leave empty for OPEN"
+                                placeholder="Exit"
                                 className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
                               />
+
                             </div>
+
                           </div>
+
+                          {/* PNL */}
+
+                          <div className="flex flex-col items-center">
+
+                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                              PnL
+                            </p>
+
+                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
+
+                              <span className="text-[16px] text-slate-500">
+                                Auto
+                              </span>
+
+                            </div>
+
+                          </div>
+
+                          {/* COMMISSION */}
 
                           <div className="flex flex-col items-center">
 
@@ -710,51 +1253,65 @@ return (
                               Commission
                             </p>
 
-                            <div className="flex h-[60px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
 
                               <input
-                             type="number"
-                             step="0.01"
-                             value={commission}
+                                type="number"
+                                step="0.01"
+                                value={commission}
                                 onChange={(e) =>
                                   setCommission(
                                     e.target.value
                                   )
                                 }
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none"
+                                placeholder="Commission"
+                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
                               />
+
                             </div>
+
                           </div>
+
                         </div>
+
                       </div>
+
                     </div>
 
                     <div className="w-[18px] shrink-0 opacity-0">
                       spacing
                     </div>
+
                   </div>
 
                   <div className="h-6 opacity-0">
                     spacing
                   </div>
+
                 </div>
+
               </div>
 
               <div className="h-5 opacity-0">
                 spacing
               </div>
+
             </div>
+
           </div>
 
           <div className="w-[18px] opacity-0">
             spacing
           </div>
+
         </div>
 
         <div className="h-[18px] opacity-0">
           spacing
         </div>
+
       </div>
+
     </>
   );
 }
