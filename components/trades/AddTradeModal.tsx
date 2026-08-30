@@ -258,682 +258,1118 @@ window.location.reload();
     return null;
   }
 
-  return (
-
+    return (
     <>
-    
-      {/* ================================================= */}
-      {/* REMOVE NUMBER INPUT ARROWS */}
-      {/* ================================================= */}
 
-      <style jsx>{`
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-
-        input[type="number"] {
-          -moz-appearance: textfield;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          cursor: pointer;
-          opacity: 0;
-        }
-      `}</style>
 
       {/* ================================================= */}
       {/* BACKDROP */}
       {/* ================================================= */}
 
-      <div className="fixed inset-0 z-[90] bg-black/75 backdrop-blur-[4px]" />
-
-      {/* ================================================= */}
-      {/* VIEWPORT */}
-      {/* ================================================= */}
-
-      <div className="fixed inset-0 z-[100] overflow-y-auto">
-
-        <div className="h-[0px] opacity-0">
-          spacing
-        </div>
-
-        <div className="flex min-h-[calc(100vh-36px)]">
-
-          <div className="w-[0px] opacity-0">
-            spacing
-          </div>
-
-          {/* ================================================= */}
-          {/* CENTER */}
-          {/* ================================================= */}
-
-          <div className="flex flex-1 items-center justify-center py-10">
-
-            <div className="relative w-full max-w-[1100px] rounded-[32px] border border-white/[0.06] bg-[#071427] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
-
-              <div className="h-6 opacity-0">
-                spacing
-              </div>
-
-              {/* ================================================= */}
-              {/* HEADER */}
-              {/* ================================================= */}
-
-              <div className="flex items-start justify-between">
-
-                <div className="w-[18px] shrink-0 opacity-0">
-                  spacing
-                </div>
-
-                <div className="flex flex-1 items-start justify-between">
-
-                  <div>
-
-                    <p className="text-[10px] -translate-y-2 font-black uppercase tracking-[0.24em] text-blue-400">
-                      Manual Trade Entry
-                    </p>
-
-                    <h2 className="mt-3 text-[24px] font-black tracking-tight text-white">
-                      Add Trade
-                    </h2>
-
-                    <p className="mt-3 text-[14px] text-slate-400">
-                      Create manual trade entries with institutional workflow precision.
-                    </p>
-                  </div>
-
-                  {/* ================================================= */}
-                  {/* ACTIONS */}
-                  {/* ================================================= */}
-
-                  <div className="flex items-center gap-3">
-
-                    <button
-                      onClick={handleSaveTrade}
-                      className="flex h-[30px] w-[72px] items-center justify-center rounded-[12px] border border-blue-400/20 bg-blue-500/90 text-[12px] font-black uppercase tracking-[0.14em] text-white transition-all hover:bg-blue-400"
-                    >
-                      Save
-                    </button>
-
-                    <button
-                      onClick={onClose}
-                      className="flex h-[34px] w-[34px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] text-[16px] font-bold text-slate-400 transition-all hover:border-white/[0.10] hover:text-white"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-
-                <div className="w-[10px] shrink-0 opacity-0">
-                  spacing
-                </div>
-              </div>
-
-              {/* ================================================= */}
-              {/* GAP */}
-              {/* ================================================= */}
-
-              <div className="h-2 opacity-0">
-                spacing
-              </div>
-
-              {/* ================================================= */}
-              {/* BODY */}
-              {/* ================================================= */}
-
-              <div className="px-5">
-
-                <div className="rounded-[24px] border border-white/[0.05] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] px-6 py-8">
-
-                  <div className="flex">
-
-                    <div className="w-[18px] shrink-0 opacity-0">
-                      spacing
-                    </div>
-
-                    {/* ================================================= */}
-                    {/* CONTENT */}
-                    {/* ================================================= */}
-
-                    <div className="flex-1">
-
-                      {/* ================================================= */}
-                      {/* HEADER */}
-                      {/* ================================================= */}
-
-                      <div>
-
-                        <p className="text-[14px] translate-y-2 font-black uppercase tracking-[0.18em] text-slate-500">
-                          Trade Details
-                        </p>
-
-                        <p className="mt-2 text-[12px] translate-y-2 text-slate-400">
-                          Configure manual trade execution details and workflow metadata.
-                        </p>
-
-                        <p className="mt-2 text-[8px] opacity-0">
-                          Configure manual trade execution details and workflow metadata.
-                        </p>
-                      </div>
-
-                      <div className="mt-6 h-px bg-white/[0.05]" />
-
-                      {/* ================================================= */}
-                      {/* FORM */}
-                      {/* ================================================= */}
-
-                      <div className="mt-10 flex flex-col items-center">
+      <div className="fixed inset-0 z-[90] bg-black/75 backdrop-blur-[5px]" />
 
 {/* ================================================= */}
-{/* ROW 1 */}
+{/* MODAL VIEWPORT */}
 {/* ================================================= */}
 
-<div className="flex items-start justify-center gap-5">
+<div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
 
-  {/* ACCOUNT */}
+  <div
+    className="
+      grid
+      h-[700px]
+      max-h-[calc(100vh-48px)]
+      w-full
+      max-w-[1280px]
+      grid-cols-1
+      gap-3
+      min-[1100px]:grid-cols-[minmax(0,1.8fr)_minmax(340px,0.8fr)]
+    "
+  >
 
-  <div className="flex flex-col items-center">
+    {/* ================================================= */}
+    {/* LEFT — MANUAL ENTRY */}
+    {/* ================================================= */}
 
-    <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-      Account
-    </p>
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]">
 
-    <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+            {/* ================================================= */}
+            {/* HEADER */}
+            {/* ================================================= */}
 
+            <header className="flex shrink-0 items-start justify-between px-6 pb-5 pt-5 translate-x-[0px] translate-y-[-0px] min-[1100px]:translate-x-[10px] min-[1100px]:translate-y-[6px]">
+
+              <div>
+
+                <div className="flex items-center gap-2">
+
+                  <h2 className="text-[25px] font-semibold tracking-[-0.02em] text-white">
+                    Add Manual Trade
+                  </h2>
+
+                </div>
+
+                <p className="mt-1.5 text-[14px] text-slate-400">
+                  Record a trade or execution manually in your journal.
+                </p>
+
+              </div>
+
+              <div className="flex items-center gap-3 translate-x-[-12px] translate-y-[6px]">
+
+                <div className="rounded-[8px] bg-[#0b0c1e] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-violet-400">
+                  Manual Entry
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="flex h-9 w-9 items-center justify-center rounded-[8px] text-[26px] leading-none text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
+                >
+                  ×
+                </button>
+
+              </div>
+
+            </header>
+
+            {/* ================================================= */}
+            {/* LEFT CONTENT */}
+            {/* ================================================= */}
+
+<div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pb-5">
+
+  <div className="h-5 shrink-0" />
+
+{/* ================================================= */}
+{/* 1. TRADE TYPE */}
+{/* ================================================= */}
+
+<section className="pb-5">
+
+  <div className="translate-x-[10px]">
+    <SectionHeading
+      number="1"
+      title="Trade Type"
+    />
+  </div>
+
+ <div className="h-2 shrink-0" />
+
+<div className="grid w-[calc(100%-20px)] translate-x-[10px] grid-cols-3 gap-3">
+
+    <TradeTypeCard
+      selected
+      accent="purple"
+      title="Complete Trade"
+      description="Entry and exit"
+      icon="↔"
+    />
+
+    <TradeTypeCard
+      accent="green"
+      title="Open Position (Entry)"
+      description="Entry only"
+      icon="↑"
+    />
+
+    <TradeTypeCard
+      accent="red"
+      title="Close / Reduce (Exit)"
+      description="Exit only"
+      icon="↓"
+    />
+
+  </div>
+
+</section>
+
+{/* ================================================= */}
+{/* 2. TRADE SETUP */}
+{/* ================================================= */}
+
+<section className="py-5">
+
+  <div className="h-5 shrink-0" />
+
+  <div className="translate-x-[10px]">
+    <SectionHeading
+      number="2"
+      title="Trade Setup"
+    />
+  </div>
+
+  <div className="h-2 shrink-0" />
+
+  <div className="grid w-[calc(100%-20px)] translate-x-[10px] grid-cols-4 gap-3">
+
+    <Field label="Account">
       <input
         type="text"
         value={account}
         onChange={(e) =>
-          setAccount(
-            e.target.value
-          )
+          setAccount(e.target.value)
         }
-        placeholder="Account"
-        className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
+        placeholder="Manual Account"
+        className={inputClass}
+      />
+    </Field>
+
+    <Field label="Symbol">
+      <div className="relative">
+
+        <input
+          type="text"
+          value={ticker}
+          onChange={(e) =>
+            setTicker(e.target.value)
+          }
+          placeholder="AAPL"
+          className={`${inputClass} pr-10`}
+        />
+
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
+          ⌕
+        </span>
+
+      </div>
+    </Field>
+
+    <Field label="Direction">
+
+      <div className="flex h-10 rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] p-1">
+
+        {(
+          ["LONG", "SHORT"] as TradeSide[]
+        ).map((item) => (
+
+          <button
+            key={item}
+            type="button"
+            onClick={() => setSide(item)}
+            className={`flex flex-1 items-center justify-center rounded-[6px] text-[12px] font-semibold transition ${
+              side === item
+                ? "bg-blue-500 text-white shadow-[0_0_18px_rgba(59,130,246,0.18)]"
+                : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+            }`}
+          >
+            {item}
+          </button>
+
+        ))}
+
+      </div>
+
+    </Field>
+
+    <Field label="Asset Type">
+
+      <select
+        value={assetType}
+        onChange={(e) =>
+          setAssetType(e.target.value)
+        }
+        className={selectClass}
+      >
+        <option value="STOCKS">Stocks</option>
+        <option value="OPTIONS">Options</option>
+        <option value="FUTURES">Futures</option>
+        <option value="CRYPTO">Crypto</option>
+        <option value="CFD">CFD</option>
+        <option value="FOREX">Forex</option>
+      </select>
+
+    </Field>
+
+  </div>
+
+</section>
+
+{/* ================================================= */}
+{/* 3 + 4. ENTRY / EXIT */}
+{/* ================================================= */}
+
+<div className="grid grid-cols-1 lg:grid-cols-2">
+
+  {/* ================================================= */}
+  {/* ENTRY */}
+  {/* ================================================= */}
+
+<section className="py-5 lg:pr-5">
+
+  <div className="h-5 shrink-0" />
+
+  <div className="translate-x-[10px]">
+    <SectionHeading
+      number="3"
+      title="Entry Details"
+    />
+  </div>
+
+  <div className="h-2 shrink-0" />
+
+  <div className="grid w-[calc(100%-20px)] translate-x-[10px] grid-cols-2 gap-3">
+
+      <Field label="Quantity">
+        <input
+          type="number"
+          value={quantity}
+          onChange={(e) =>
+            setQuantity(e.target.value)
+          }
+          placeholder="100"
+          className={inputClass}
+        />
+      </Field>
+
+      <Field label="Price">
+        <input
+          type="number"
+          step="0.01"
+          value={entryPrice}
+          onChange={(e) =>
+            setEntryPrice(e.target.value)
+          }
+          placeholder="200.00"
+          className={inputClass}
+        />
+      </Field>
+
+      <Field label="Date">
+        <input
+          type="date"
+          value={tradeDate}
+          onChange={(e) =>
+            setTradeDate(e.target.value)
+          }
+          className={`${inputClass} [color-scheme:dark]`}
+        />
+      </Field>
+
+      <Field label="Time">
+        <input
+          type="time"
+          value={entryTime}
+          onChange={(e) =>
+            setEntryTime(e.target.value)
+          }
+          className={`${inputClass} [color-scheme:dark]`}
+        />
+      </Field>
+
+    </div>
+
+  </section>
+
+{/* ================================================= */}
+{/* EXIT */}
+{/* ================================================= */}
+
+<section className="py-5 lg:pl-5">
+
+  <div className="h-5 shrink-0" />
+
+  <div className="translate-x-[10px]">
+    <SectionHeading
+      number="4"
+      title="Exit Details"
+    />
+  </div>
+
+  <div className="h-2 shrink-0" />
+
+  <div className="grid w-[calc(100%-20px)] translate-x-[10px] grid-cols-2 gap-3">
+
+    <Field label="Quantity">
+      <input
+        type="number"
+        value={quantity}
+        onChange={(e) =>
+          setQuantity(e.target.value)
+        }
+        placeholder="100"
+        className={inputClass}
+      />
+    </Field>
+
+    <Field label="Price">
+      <input
+        type="number"
+        step="0.01"
+        value={exitPrice}
+        onChange={(e) =>
+          setExitPrice(e.target.value)
+        }
+        placeholder="215.00"
+        className={inputClass}
+      />
+    </Field>
+
+    <Field label="Date">
+      <input
+        type="date"
+        value={tradeDate}
+        onChange={(e) =>
+          setTradeDate(e.target.value)
+        }
+        className={`${inputClass} [color-scheme:dark]`}
+      />
+    </Field>
+
+    <Field label="Time">
+      <input
+        type="time"
+        value={exitTime}
+        onChange={(e) =>
+          setExitTime(e.target.value)
+        }
+        className={`${inputClass} [color-scheme:dark]`}
+      />
+    </Field>
+
+  </div>
+
+</section>
+
+</div>
+
+{/* ================================================= */}
+{/* 5. TRADE DETAILS */}
+{/* ================================================= */}
+
+<section className="py-5">
+
+  <div className="h-5 shrink-0" />
+
+  <div className="translate-x-[10px]">
+    <SectionHeading
+      number="5"
+      title="Trade Details"
+    />
+  </div>
+
+  <div className="h-2 shrink-0" />
+
+  <div className="grid w-[calc(100%-20px)] translate-x-[10px] grid-cols-2 gap-3 xl:grid-cols-4">
+
+    <Field label="Currency">
+
+      <select
+        value={currency}
+        onChange={(e) =>
+          setCurrency(e.target.value)
+        }
+        className={selectClass}
+      >
+        <option value="USD">USD</option>
+        <option value="CAD">CAD</option>
+        <option value="EUR">EUR</option>
+        <option value="JPY">JPY</option>
+        <option value="INR">INR</option>
+      </select>
+
+    </Field>
+
+    <Field label="Exchange">
+
+      <select
+        value={exchange}
+        onChange={(e) =>
+          setExchange(e.target.value)
+        }
+        className={selectClass}
+      >
+        <option value="">Select</option>
+        <option value="NASDAQ">NASDAQ</option>
+        <option value="NYSE">NYSE</option>
+        <option value="ARCA">ARCA</option>
+        <option value="CBOE">CBOE</option>
+        <option value="CME">CME</option>
+        <option value="CBOT">CBOT</option>
+        <option value="NYMEX">NYMEX</option>
+        <option value="COMEX">COMEX</option>
+        <option value="TSX">TSX</option>
+        <option value="TSXV">TSXV</option>
+        <option value="ICE">ICE</option>
+        <option value="Other">Other</option>
+      </select>
+
+    </Field>
+
+    <Field label="Commission / Fees">
+
+      <div className="relative">
+
+        <input
+          type="number"
+          step="0.01"
+          value={commission}
+          onChange={(e) =>
+            setCommission(e.target.value)
+          }
+          placeholder="5.00"
+          className={`${inputClass} pr-14`}
+        />
+
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500">
+          {currency}
+        </span>
+
+      </div>
+
+    </Field>
+
+    <Field label="Notes">
+
+      <input
+        type="text"
+        placeholder="Optional"
+        className={inputClass}
       />
 
-    </div>
+    </Field>
 
   </div>
 
-  {/* SIDE */}
+</section>
 
-  <div className="flex flex-col items-center">
+{/* ================================================= */}
+{/* ADVANCED */}
+{/* ================================================= */}
 
-    <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-      Side
-    </p>
+<div className="h-4 shrink-0" />
 
-    <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center gap-2 rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-2">
+<button
+  type="button"
+  className="flex h-10 w-[calc(100%-20px)] translate-x-[10px] items-center justify-between rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-4 text-left transition hover:border-white/[0.12]"
+>
+  <span className="text-[13px] font-medium text-slate-300">
+    Advanced
+    <span className="ml-2 text-slate-500">
+      Multiplier, Tags, Strategy, etc.
+    </span>
+  </span>
 
-      {(
-        [
-          "LONG",
-          "SHORT",
-        ] as TradeSide[]
-      ).map((item) => (
+  <span className="text-slate-500">
+    ⌄
+  </span>
+</button>
 
-        <button
-          key={item}
-          type="button"
-          onClick={() =>
-            setSide(item)
-          }
-          className={`flex h-[32px] flex-1 items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-            side === item
-              ? "bg-blue-500 text-white"
-              : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
-          }`}
-        >
-          {item}
-        </button>
+</div>
 
-      ))}
+{/* ================================================= */}
+{/* ACTIONS — FIXED BOTTOM */}
+{/* ================================================= */}
 
-    </div>
+<div className="shrink-0 px-5 pb-5 pt-4">
 
-  </div>
+ <div className="grid w-[calc(100%-20px)] translate-x-[10px] translate-y-[-14px] grid-cols-[180px_minmax(0,1fr)] gap-3">
 
-  {/* ASSET TYPE */}
+    <button
+      type="button"
+      onClick={onClose}
+      className="h-11 rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-[14px] font-medium text-white transition hover:border-white/[0.12] hover:bg-[#0b0c1e]"
+    >
+      Cancel
+    </button>
 
-  <div className="flex flex-col items-center">
-
-    <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-      Asset Type
-    </p>
-
-    <div className="flex h-[50px] w-[360px] translate-y-4 items-center justify-center gap-[6px] rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-[10px]">
-
-      {[
-        "STOCKS",
-        "OPTIONS",
-        "FUTURES",
-        "CRYPTO",
-        "CFD",
-        "FOREX",
-      ].map((item) => (
-
-        <button
-          key={item}
-          type="button"
-          onClick={() =>
-            setAssetType(item)
-          }
-          className={`flex h-[30px] min-w-[54px] items-center justify-center rounded-[10px] px-[12px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-            assetType === item
-              ? "bg-blue-500 text-white"
-              : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
-          }`}
-        >
-          {item}
-        </button>
-
-      ))}
-
-    </div>
+    <button
+      type="button"
+      onClick={handleSaveTrade}
+      className="flex h-11 items-center justify-center gap-3 rounded-[8px] bg-gradient-to-r from-violet-700 to-violet-600 text-[14px] font-semibold text-white shadow-[0_8px_30px_rgba(109,40,217,0.22)] transition hover:from-violet-600 hover:to-violet-500"
+    >
+      Review & Save Trade
+      <span className="text-lg">
+        →
+      </span>
+    </button>
 
   </div>
 
 </div>
 
+</section>
 
-                        {/* ================================================= */}
-                        {/* GAP */}
-                        {/* ================================================= */}
+{/* ================================================= */}
+{/* RIGHT — TRADE PREVIEW */}
+{/* ================================================= */}
 
-                        <div className="h-8 opacity-0">
-                          spacing
-                        </div>
+          <aside className="flex min-h-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]">
 
-                        {/* ================================================= */}
-                        {/* ROW 2 */}
-                        {/* ================================================= */}
+            {/* PREVIEW HEADER */}
 
-                        <div className="flex items-start justify-center gap-4">
+            <div className="flex shrink-0 items-start justify-between px-6 pb-4 pt-5">
 
-                          {/* TICKER */}
+              <div>
 
-                          <div className="flex flex-col items-center">
+                <h3 className="text-[19px] font-semibold text-white">
+                  Trade Preview
+                </h3>
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Ticker
-                            </p>
+                <p className="mt-1 text-[13px] text-slate-400">
+                  Live summary of your trade
+                </p>
 
-                            <div className="flex h-[50px] w-[120px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+              </div>
 
-                              <input
-                                type="text"
-                                value={ticker}
-                                onChange={(e) =>
-                                  setTicker(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Ticker"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-                            </div>
-                          </div>
+              <button
+                type="button"
+                aria-label="Refresh preview"
+                className="text-[24px] text-slate-300 transition hover:text-white"
+              >
+                ↻
+              </button>
 
-{/* TRADE DATE */}
+            </div>
 
-<div className="flex flex-col items-center">
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-3">
 
-  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-    Trade Date
-  </p>
+              {/* INSTRUMENT */}
 
-  <div className="relative flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
+              <PreviewCard>
 
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="flex items-center justify-between">
 
-      <span className="text-[13px] font-medium text-white">
-        {tradeDate}
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-[#0b0c1e] text-xl">
+                      {ticker ? ticker.slice(0, 1).toUpperCase() : "•"}
+                    </div>
+
+                    <div>
+
+                      <div className="text-[20px] font-semibold text-white">
+                        {ticker || "AAPL"}
+                      </div>
+
+                      <div className="text-[13px] text-slate-400">
+                        {assetType === "STOCKS"
+                          ? "Stocks"
+                          : assetType}
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2">
+
+                    <span className="rounded-[6px] bg-emerald-500/15 px-2.5 py-1 text-[12px] font-semibold text-emerald-400">
+                      {side}
+                    </span>
+
+                    <span className="rounded-[6px] bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-300">
+                      Complete Trade
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </PreviewCard>
+
+              {/* FINANCIAL SUMMARY */}
+
+              <PreviewCard>
+
+                <div className="grid grid-cols-3 divide-x divide-white/[0.06]">
+
+                  <PreviewMetric
+                    label="Net P&L"
+                    value="—"
+                    positive
+                  />
+
+                  <PreviewMetric
+                    label="Return"
+                    value="—"
+                    positive
+                  />
+
+                  <PreviewMetric
+                    label="Holding Time"
+                    value="—"
+                  />
+
+                </div>
+
+              </PreviewCard>
+
+              {/* VALUES */}
+
+              <PreviewCard>
+
+                <div className="grid grid-cols-2 divide-x divide-white/[0.06]">
+
+                  <div className="space-y-3 pr-4">
+
+                    <PreviewRow
+                      label="Entry Value"
+                      value={
+                        quantity && entryPrice
+                          ? `$${(
+                              Number(quantity) *
+                              Number(entryPrice)
+                            ).toLocaleString()}`
+                          : "—"
+                      }
+                    />
+
+                    <PreviewRow
+                      label="Exit Value"
+                      value={
+                        quantity && exitPrice
+                          ? `$${(
+                              Number(quantity) *
+                              Number(exitPrice)
+                            ).toLocaleString()}`
+                          : "—"
+                      }
+                    />
+
+                    <PreviewRow
+                      label="Fees"
+                      value={
+                        commission
+                          ? `$${Number(commission).toFixed(2)}`
+                          : "—"
+                      }
+                    />
+
+                  </div>
+
+                  <div className="space-y-3 pl-4">
+
+                    <PreviewRow
+                      label="Net P&L"
+                      value="—"
+                      positive
+                    />
+
+                    <PreviewRow
+                      label="Return"
+                      value="—"
+                      positive
+                    />
+
+                  </div>
+
+                </div>
+
+              </PreviewCard>
+
+              {/* POSITION IMPACT */}
+
+              <PreviewCard>
+
+                <div className="flex items-center justify-between">
+
+                  <div>
+
+                    <div className="text-[16px] font-semibold text-white">
+                      Position Impact
+                    </div>
+
+                    <div className="mt-3 text-[13px] text-slate-400">
+                      Shares After Trade
+                    </div>
+
+                    <div className="mt-1 text-[17px] font-medium text-white">
+                      {quantity
+                        ? `${quantity} Shares`
+                        : "0 Shares"}
+                    </div>
+
+                    <div className="mt-1 text-[12px] text-slate-500">
+                      Position impact preview
+                    </div>
+
+                  </div>
+
+                  <div className="text-right">
+
+                    <div className="text-[13px] text-slate-400">
+                      Status
+                    </div>
+
+                    <span className="mt-3 inline-flex rounded-[6px] bg-emerald-500/15 px-2.5 py-1 text-[12px] font-semibold text-emerald-400">
+                      PREVIEW
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </PreviewCard>
+
+              {/* TIMELINE */}
+
+              <PreviewCard>
+
+                <div className="text-[16px] font-semibold text-white">
+                  Timeline
+                </div>
+
+                <div className="mt-4 space-y-4">
+
+                  <TimelineRow
+                    type="BUY"
+                    label="Entry"
+                    price={entryPrice}
+                    date={tradeDate}
+                    time={entryTime}
+                    color="green"
+                  />
+
+                  <TimelineRow
+                    type="SELL"
+                    label="Exit"
+                    price={exitPrice}
+                    date={tradeDate}
+                    time={exitTime}
+                    color="red"
+                  />
+
+                </div>
+
+              </PreviewCard>
+
+              {/* QUICK SUMMARY */}
+
+              <PreviewCard>
+
+                <div className="text-[16px] font-semibold text-white">
+                  Quick Summary
+                </div>
+
+                <div className="mt-4 grid grid-cols-4 divide-x divide-white/[0.06]">
+
+                  <QuickMetric
+                    label="Hold Duration"
+                    value="—"
+                  />
+
+                  <QuickMetric
+                    label="Avg Entry Price"
+                    value={
+                      entryPrice
+                        ? `$${entryPrice}`
+                        : "—"
+                    }
+                  />
+
+                  <QuickMetric
+                    label="Avg Exit Price"
+                    value={
+                      exitPrice
+                        ? `$${exitPrice}`
+                        : "—"
+                    }
+                  />
+
+                  <QuickMetric
+                    label="Shares Traded"
+                    value={quantity || "—"}
+                  />
+
+                </div>
+
+              </PreviewCard>
+
+              {/* DISCLAIMER */}
+
+              <div className="rounded-[8px] border border-violet-500/20 bg-violet-500/[0.06] px-4 py-3">
+
+                <div className="flex gap-3">
+
+                  <div className="mt-0.5 text-violet-400">
+                    ⓘ
+                  </div>
+
+                  <p className="text-[11px] leading-5 text-violet-300/90">
+                    This preview is an estimate. Actual results may vary after saving and FIFO processing.
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </aside>
+
+        </div>
+
+      </div>
+    </>
+  );
+}
+
+/* ================================================= */
+/* UI HELPERS */
+/* ================================================= */
+
+const inputClass =
+  "h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10";
+
+const selectClass =
+  "h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-3 text-[13px] font-medium text-white outline-none transition focus:border-blue-500/40 [color-scheme:dark]";
+
+function SectionHeading({
+  number,
+  title,
+}: {
+  number: string;
+  title: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+
+      <span className="text-[12px] font-semibold text-slate-400">
+        {number}.
+      </span>
+
+      <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
+        {title}
+      </h3>
+
+    </div>
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        {label}
+      </label>
+
+      {children}
+
+    </div>
+  );
+}
+
+function TradeTypeCard({
+  selected = false,
+  accent,
+  title,
+  description,
+  icon,
+}: {
+  selected?: boolean;
+  accent: "purple" | "green" | "red";
+  title: string;
+  description: string;
+  icon: string;
+}) {
+  const accentClasses = {
+    purple:
+      "bg-violet-500/15 text-violet-400",
+    green:
+      "bg-emerald-500/15 text-emerald-400",
+    red:
+      "bg-red-500/15 text-red-400",
+  };
+
+  return (
+    <button
+      type="button"
+      className={`relative flex min-h-[82px] items-center gap-3 rounded-[8px] border px-4 text-left transition ${
+        selected
+          ? "border-violet-500/70 bg-[#0b1220] shadow-[0_0_25px_rgba(124,58,237,0.08)]"
+          : "border-white/[0.06] bg-[#0b1220] hover:border-white/[0.12]"
+      }`}
+    >
+
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[20px] ${accentClasses[accent]}`}
+      >
+        {icon}
+      </div>
+
+      <div className="min-w-0">
+
+        <div className="text-[14px] font-semibold text-white">
+          {title}
+        </div>
+
+        <div className="mt-1 text-[12px] text-slate-500">
+          {description}
+        </div>
+
+      </div>
+
+      {selected && (
+        <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-[11px] text-white">
+          ✓
+        </div>
+      )}
+
+    </button>
+  );
+}
+
+function PreviewCard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] p-4">
+      {children}
+    </div>
+  );
+}
+
+function PreviewMetric({
+  label,
+  value,
+  positive = false,
+}: {
+  label: string;
+  value: string;
+  positive?: boolean;
+}) {
+  return (
+    <div className="px-3 text-center first:pl-0 last:pr-0">
+
+      <div className="text-[12px] text-slate-400">
+        {label}
+      </div>
+
+      <div
+        className={`mt-2 text-[16px] font-semibold ${
+          positive
+            ? "text-emerald-400"
+            : "text-white"
+        }`}
+      >
+        {value}
+      </div>
+
+    </div>
+  );
+}
+
+function PreviewRow({
+  label,
+  value,
+  positive = false,
+}: {
+  label: string;
+  value: string;
+  positive?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+
+      <span className="text-[13px] text-slate-400">
+        {label}
+      </span>
+
+      <span
+        className={`text-[13px] font-medium ${
+          positive
+            ? "text-emerald-400"
+            : "text-white"
+        }`}
+      >
+        {value}
       </span>
 
     </div>
-
-    <input
-      type="date"
-      value={tradeDate}
-      onChange={(e) =>
-        setTradeDate(
-          e.target.value
-        )
-      }
-      className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
-    />
-
-  </div>
-
-</div>
-
-{/* ENTRY TIME */}
-
-<div className="flex flex-col items-center">
-
-  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-    Entry Time
-  </p>
-
-  <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-    <input
-      type="time"
-      value={entryTime}
-      onChange={(e) =>
-        setEntryTime(
-          e.target.value
-        )
-      }
-      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-    />
-
-  </div>
-
-</div>
-
-{/* EXIT TIME */}
-
-<div className="flex flex-col items-center">
-
-  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-    Exit Time
-  </p>
-
-  <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-    <input
-      type="time"
-      value={exitTime}
-      onChange={(e) =>
-        setExitTime(
-          e.target.value
-        )
-      }
-      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-    />
-
-  </div>
-
-</div>
-
-
-{/* CURRENCY */}
-
-<div className="flex flex-col items-center">
-
-  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-    Currency
-  </p>
-
-  <div className="flex h-[50px] w-[120px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-    <select
-      value={currency}
-      onChange={(e) =>
-        setCurrency(
-          e.target.value
-        )
-      }
-      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-    >
-<option value="USD">USD</option>
-<option value="CAD">CAD</option>
-<option value="EUR">EUR</option>
-<option value="JPY">JPY</option>
-<option value="INR">INR</option>
-    </select>
-
-  </div>
-
-</div>
-
-{/* ================================================= */}
-{/* EXCHANGE */}
-{/* ================================================= */}
-
-<div className="flex flex-col items-center">
-
-  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-    Exchange
-  </p>
-
-  <div className="flex h-[50px] w-[140px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-    <select
-      value={exchange}
-      onChange={(e) =>
-        setExchange(
-          e.target.value
-        )
-      }
-      className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-    >
-
-      <option value="">
-        Select
-      </option>
-
-      <option value="NASDAQ">
-        NASDAQ
-      </option>
-
-      <option value="NYSE">
-        NYSE
-      </option>
-
-      <option value="ARCA">
-        ARCA
-      </option>
-
-      <option value="CBOE">
-        CBOE
-      </option>
-
-      <option value="CME">
-        CME
-      </option>
-
-      <option value="CBOT">
-        CBOT
-      </option>
-
-      <option value="NYMEX">
-        NYMEX
-      </option>
-
-      <option value="COMEX">
-        COMEX
-      </option>
-
-      <option value="TSX">
-        TSX
-      </option>
-
-      <option value="TSXV">
-        TSXV
-      </option>
-
-      <option value="ICE">
-        ICE
-      </option>
-
-      <option value="Other">
-        Other
-      </option>
-
-    </select>
-
-  </div>
-
-</div>
-
-                          {/* QUANTITY */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Quantity
-                            </p>
-
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-                              <input
-                                type="number"
-                                value={quantity}
-                                onChange={(e) =>
-                                  setQuantity(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Quantity"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* ================================================= */}
-                        {/* GAP */}
-                        {/* ================================================= */}
-
-                        <div className="h-10 opacity-0">
-                          spacing
-                        </div>
-
-                        {/* ================================================= */}
-                        {/* ROW 3 */}
-                        {/* ================================================= */}
-
-                        <div className="flex items-start justify-center gap-4">
-
-                          {/* ENTRY */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Entry Price
-                            </p>
-
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-                              <input
-                              type="number"
-                               step="0.01"
-                                value={entryPrice}
-                                onChange={(e) =>
-                                  setEntryPrice(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Entry"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-                            </div>
-                          </div>
-
-                          {/* EXIT */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Exit Price
-                            </p>
-
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-                              <input
-                              type="number"
-                               step="0.01"
-                                value={exitPrice}
-                                onChange={(e) =>
-                                  setExitPrice(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Exit"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-                            </div>
-                          </div>
-
-                          {/* PNL */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              PnL
-                            </p>
-
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
-
-                              <span className="text-[16px] text-slate-500">
-                                Auto
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* COMMISSION */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Commission
-                            </p>
-
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-                              <input
-                             type="number"
-                               step="0.01"
-                               value={commission}
-                                onChange={(e) =>
-                                  setCommission(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Commission"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="w-[18px] shrink-0 opacity-0">
-                      spacing
-                    </div>
-                  </div>
-
-                  <div className="h-6 opacity-0">
-                    spacing
-                  </div>
-                </div>
-              </div>
-
-              <div className="h-5 opacity-0">
-                spacing
-              </div>
-            </div>
-          </div>
-
-          <div className="w-[18px] opacity-0">
-            spacing
-          </div>
-        </div>
-
-        <div className="h-[18px] opacity-0">
-          spacing
-        </div>
+  );
+}
+
+function TimelineRow({
+  type,
+  label,
+  price,
+  date,
+  time,
+  color,
+}: {
+  type: "BUY" | "SELL";
+  label: string;
+  price: string;
+  date: string;
+  time: string;
+  color: "green" | "red";
+}) {
+  return (
+    <div className="flex gap-3">
+
+      <div
+        className={`mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+          color === "green"
+            ? "bg-emerald-500 text-black"
+            : "bg-red-500 text-white"
+        }`}
+      >
+        {type === "BUY" ? "B" : "S"}
       </div>
-    </>
+
+      <div className="min-w-0 flex-1">
+
+        <div className="flex items-center justify-between gap-3">
+
+          <span
+            className={`text-[13px] font-semibold ${
+              color === "green"
+                ? "text-emerald-400"
+                : "text-red-400"
+            }`}
+          >
+            {type} ({label})
+          </span>
+
+          <span className="text-[13px] font-medium text-white">
+            {price ? `$${price}` : "—"}
+          </span>
+
+        </div>
+
+        <div className="mt-1 text-[12px] text-slate-400">
+          {quantityLabel(price)} {date} {time}
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+function quantityLabel(price: string) {
+  return price ? "" : "";
+}
+
+function QuickMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="px-2 text-center first:pl-0 last:pr-0">
+
+      <div className="text-[10px] text-slate-500">
+        {label}
+      </div>
+
+      <div className="mt-1 text-[12px] font-medium text-white">
+        {value}
+      </div>
+
+    </div>
   );
 }

@@ -456,7 +456,7 @@ git commit -m "fix execution side persistence and trade reconstruction"
 git commit -m "fix execution side persistence and broker sync"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 git commit -m "Complete Manual Trade Entry and Editing"
-
+git commit -m "Adjust manual trade entry UI spacing" - UI strats here 
 
 
 
