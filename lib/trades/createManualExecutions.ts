@@ -44,11 +44,13 @@ interface CreateManualExecutionsInput {
 
   account: string;
 
-  tradeDate: string;
+entryDate: string;
 
-  entryTime?: string;
+exitDate: string;
 
-  exitTime?: string;
+entryTime?: string;
+
+exitTime?: string;
 
   currency: string;
 
@@ -72,10 +74,11 @@ function validateManualExecutionInput(
     side,
     assetType,
     account,
-    tradeDate,
-    entryTime,
-    exitTime,
-    currency,
+entryDate,
+exitDate,
+entryTime,
+exitTime,
+currency,
   } = input;
 
   // =================================================
@@ -96,12 +99,19 @@ function validateManualExecutionInput(
     );
   }
 
-  if (!tradeDate?.trim()) {
+if (!entryDate?.trim()) {
 
-    throw new Error(
-      "Manual trade date is required."
-    );
-  }
+  throw new Error(
+    "Manual trade entry date is required."
+  );
+}
+
+if (!exitDate?.trim()) {
+
+  throw new Error(
+    "Manual trade exit date is required."
+  );
+}
 
   if (!assetType?.trim()) {
 
@@ -255,21 +265,22 @@ export function createManualExecutions(
     input
   );
 
-  const {
-    ticker,
-    quantity,
-    entryPrice,
-    exitPrice,
-    commission,
-    side,
-    assetType,
-    account,
-    tradeDate,
-    entryTime,
-    exitTime,
-    currency,
-    exchange,
-  } = input;
+const {
+  ticker,
+  quantity,
+  entryPrice,
+  exitPrice,
+  commission,
+  side,
+  assetType,
+  account,
+  entryDate,
+  exitDate,
+  entryTime,
+  exitTime,
+  currency,
+  exchange,
+} = input;
 
   // =================================================
   // NORMALIZE BASIC VALUES
@@ -408,10 +419,10 @@ export function createManualExecutions(
 // =================================================
 
 const entryTimestamp: string =
-  `${tradeDate}T${entryTime}:00`;
+  `${entryDate}T${entryTime}:00`;
 
 const exitTimestamp: string =
-  `${tradeDate}T${exitTime}:00`;
+  `${exitDate}T${exitTime}:00`;
 
 // =================================================
 // ENTRY EXECUTION
@@ -424,7 +435,7 @@ const entryExecution:
     entryExecutionId,
 
   date:
-    tradeDate,
+  entryDate,
 
   ticker:
     normalizedTicker,
@@ -484,8 +495,8 @@ const exitExecution:
   id:
     exitExecutionId,
 
-  date:
-    tradeDate,
+ date:
+  exitDate,
 
   ticker:
     normalizedTicker,

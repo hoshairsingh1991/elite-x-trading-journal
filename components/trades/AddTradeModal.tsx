@@ -59,27 +59,31 @@ export default function AddTradeModal({
   const [account, setAccount] =
     useState("");
 
-const [tradeDate, setTradeDate] =
-  useState(() => {
+const getTodayDate = () => {
+  const today =
+    new Date();
 
-    const today =
-      new Date();
+  const year =
+    today.getFullYear();
 
-    const year =
-      today.getFullYear();
+  const month =
+    String(
+      today.getMonth() + 1
+    ).padStart(2, "0");
 
-    const month =
-      String(
-        today.getMonth() + 1
-      ).padStart(2, "0");
+  const day =
+    String(
+      today.getDate()
+    ).padStart(2, "0");
 
-    const day =
-      String(
-        today.getDate()
-      ).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
-    return `${year}-${month}-${day}`;
-  });
+const [entryDate, setEntryDate] =
+  useState(() => getTodayDate());
+
+const [exitDate, setExitDate] =
+  useState(() => getTodayDate());
 
 const [entryTime, setEntryTime] =
   useState("");
@@ -93,43 +97,235 @@ const [currency, setCurrency] =
   const [exchange, setExchange] =
     useState("");
 
+// =================================================
+// RESET FORM
+// =================================================
+
+const handleReset = () => {
+  setTicker("");
+  setQuantity("");
+  setEntryPrice("");
+  setExitPrice("");
+  setCommission("");
+
+  setSide("LONG");
+  setTradeType("COMPLETE");
+  setAssetType("STOCKS");
+
+  setAccount("");
+
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(
+    today.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    today.getDate()
+  ).padStart(2, "0");
+
+  const todayDate =
+    `${year}-${month}-${day}`;
+
+  setEntryDate(todayDate);
+  setExitDate(todayDate);
+
+  setEntryTime("");
+  setExitTime("");
+
+  setCurrency("USD");
+  setExchange("");
+};
+
   // =================================================
-  // RESET FORM
+  // LIVE TRADE PREVIEW CALCULATIONS
   // =================================================
 
-  const handleReset = () => {
-    setTicker("");
-    setQuantity("");
-    setEntryPrice("");
-    setExitPrice("");
-    setCommission("");
+  const parsedPreviewQuantity = Number(quantity);
+  const parsedPreviewEntryPrice = Number(entryPrice);
+  const parsedPreviewExitPrice = Number(exitPrice);
+  const parsedPreviewCommission = Number(commission || 0);
 
-    setSide("LONG");
-    setTradeType("COMPLETE");
-    setAssetType("STOCKS");
+  const previewQuantity =
+    Number.isFinite(parsedPreviewQuantity) &&
+    parsedPreviewQuantity > 0
+      ? parsedPreviewQuantity
+      : 0;
 
-    setAccount("");
+  const previewEntryPrice =
+    Number.isFinite(parsedPreviewEntryPrice) &&
+    parsedPreviewEntryPrice > 0
+      ? parsedPreviewEntryPrice
+      : 0;
 
-    const today = new Date();
+  const previewExitPrice =
+    Number.isFinite(parsedPreviewExitPrice) &&
+    parsedPreviewExitPrice > 0
+      ? parsedPreviewExitPrice
+      : 0;
 
-    const year = today.getFullYear();
-    const month = String(
-      today.getMonth() + 1
-    ).padStart(2, "0");
+  const previewCommission =
+    Number.isFinite(parsedPreviewCommission) &&
+    parsedPreviewCommission >= 0
+      ? parsedPreviewCommission
+      : 0;
 
-    const day = String(
-      today.getDate()
-    ).padStart(2, "0");
+  const previewMultiplier =
+    assetType === "OPTIONS"
+      ? 100
+      : 1;
 
-    setTradeDate(
-      `${year}-${month}-${day}`
-    );
+const previewQuantityUnitMap: Record<string, string> = {
+  STOCKS: "Share",
+  OPTIONS: "Contract",
+  FUTURES: "Contract",
+};
 
-    setEntryTime("");
-    setExitTime("");
+const previewQuantityUnit =
+  assetType === "CRYPTO" ||
+  assetType === "FOREX" ||
+  assetType === "CFD"
+    ? ticker.trim().toUpperCase() || "Unit"
+    : previewQuantityUnitMap[assetType] ?? "Unit";
 
-    setCurrency("USD");
-    setExchange("");
+  const previewEntryValue =
+    previewQuantity *
+    previewEntryPrice *
+    previewMultiplier;
+
+  const previewExitValue =
+    previewQuantity *
+    previewExitPrice *
+    previewMultiplier;
+
+  const previewGrossPnL =
+    side === "LONG"
+      ? previewExitValue - previewEntryValue
+      : previewEntryValue - previewExitValue;
+
+  const previewNetPnL =
+    previewGrossPnL -
+    previewCommission;
+
+  const previewReturn =
+    previewEntryValue > 0
+      ? (previewNetPnL / previewEntryValue) * 100
+      : 0;
+
+const previewHoldingTime = (() => {
+  if (!entryDate || !exitDate || !entryTime || !exitTime) {
+    return "—";
+  }
+
+  const entryDateTime = new Date(
+    `${entryDate}T${entryTime}`
+  );
+
+  const exitDateTime = new Date(
+    `${exitDate}T${exitTime}`
+  );
+
+    if (
+      !Number.isFinite(entryDateTime.getTime()) ||
+      !Number.isFinite(exitDateTime.getTime()) ||
+      exitDateTime.getTime() < entryDateTime.getTime()
+    ) {
+      return "—";
+    }
+
+    const durationMinutes =
+      Math.floor(
+        (exitDateTime.getTime() -
+          entryDateTime.getTime()) /
+          60000
+      );
+
+    const hours =
+      Math.floor(durationMinutes / 60);
+
+    const minutes =
+      durationMinutes % 60;
+
+    if (hours === 0) {
+      return `${minutes}m`;
+    }
+
+    if (minutes === 0) {
+      return `${hours}h`;
+    }
+
+    return `${hours}h ${minutes}m`;
+  })();
+
+const previewSharesAfterTrade =
+  tradeType === "COMPLETE"
+    ? 0
+    : previewQuantity;
+
+const previewPositionImpact =
+  tradeType === "COMPLETE"
+    ? "Flat"
+    : tradeType === "OPEN"
+      ? side === "LONG"
+        ? "Long"
+        : "Short"
+      : "Reduced";
+
+  const previewHasValues =
+    previewQuantity > 0 &&
+    previewEntryPrice > 0 &&
+    previewExitPrice > 0;
+
+  const formatPreviewCurrency = (
+    value: number
+  ) => {
+
+    return new Intl.NumberFormat(
+      "en-US",
+      {
+        style: "currency",
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    ).format(value);
+
+  };
+
+  const formatPreviewPnL = (
+    value: number
+  ) => {
+
+    const formatted =
+      formatPreviewCurrency(
+        Math.abs(value)
+      );
+
+    if (value > 0) {
+      return `+${formatted}`;
+    }
+
+    if (value < 0) {
+      return `-${formatted}`;
+    }
+
+    return formatted;
+  };
+
+  const formatPreviewReturn = (
+    value: number
+  ) => {
+
+    if (value > 0) {
+      return `+${value.toFixed(2)}%`;
+    }
+
+    if (value < 0) {
+      return `${value.toFixed(2)}%`;
+    }
+
+    return "0.00%";
   };
 
   // =================================================
@@ -137,7 +333,7 @@ const [currency, setCurrency] =
   // =================================================
 
   const handleSaveTrade =
-  async () => {
+    async () => {
 
 // =================================================
 // VALIDATE REQUIRED FIELDS
@@ -215,10 +411,19 @@ if (
   return;
 }
 
-if (!tradeDate) {
+if (!entryDate) {
 
   alert(
-    "Trade date is required."
+    "Entry date is required."
+  );
+
+  return;
+}
+
+if (!exitDate) {
+
+  alert(
+    "Exit date is required."
   );
 
   return;
@@ -274,15 +479,17 @@ const executions =
 
     assetType,
 
-    account,
+account,
 
-    tradeDate,
+entryDate,
 
-    entryTime,
+exitDate,
 
-    exitTime,
+entryTime,
 
-    currency,
+exitTime,
+
+currency,
 
     exchange,
   });
@@ -356,7 +563,7 @@ window.location.reload();
 
               </div>
 
-<div className="flex items-center gap-2 translate-x-[-16px] translate-y-[6px]">
+<div className="flex items-center gap-0 translate-x-[-30px] translate-y-[6px]">
 
 {/* MANUAL ENTRY */}
 
@@ -365,27 +572,6 @@ window.location.reload();
 </div>
 
 
-{/* RESET */}
-
-<button
-  type="button"
-  onClick={handleReset}
-  className="flex h-[32px] w-[60px] items-center justify-center rounded-[8px] border border-red-500/20 bg-red-500/[0.08] text-[11px] font-medium text-red-400 transition hover:border-red-500/30 hover:bg-red-500/[0.12] hover:text-red-300"
->
-  Reset
-</button>
-
-
-  {/* CLOSE */}
-
-  <button
-    type="button"
-    onClick={onClose}
-    aria-label="Close"
-    className="flex h-9 w-9 items-center justify-center rounded-[8px] text-[26px] leading-none text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
-  >
-    ×
-  </button>
 
 </div>
 
@@ -461,14 +647,14 @@ window.location.reload();
 
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-4 gap-3">
 
-    <Field label="Account">
+   <Field label="Account" required>
 <input
   type="text"
   value={account}
   onChange={(e) =>
     setAccount(e.target.value)
   }
-  placeholder="Manual Account"
+  placeholder="Account"
   className={inputClass}
   style={{ paddingLeft: "16px" }}
 />
@@ -602,7 +788,7 @@ window.location.reload();
 
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3">
 
-      <Field label="Quantity">
+      <Field label="Quantity" required>
 <input
   type="number"
   value={quantity}
@@ -615,7 +801,7 @@ window.location.reload();
 />
       </Field>
 
-      <Field label="Price">
+      <Field label="Price" required>
         <input
           type="number"
           step="0.01"
@@ -629,19 +815,19 @@ window.location.reload();
         />
       </Field>
 
-<Field label="Date">
+<Field label="Date" required>
 
   <div className="relative">
 
-    <input
-      type="date"
-      value={tradeDate}
-      onChange={(e) =>
-        setTradeDate(e.target.value)
-      }
-      className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
-      style={{ paddingLeft: "16px" }}
-    />
+<input
+  type="date"
+  value={entryDate}
+  onChange={(e) =>
+    setEntryDate(e.target.value)
+  }
+  className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
+  style={{ paddingLeft: "16px" }}
+/>
 
     <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
@@ -677,7 +863,7 @@ window.location.reload();
 
 </Field>
 
-<Field label="Time">
+<Field label="Time" required>
 
   <div className="relative">
 
@@ -746,7 +932,7 @@ window.location.reload();
 
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3">
 
-    <Field label="Quantity">
+    <Field label="Quantity" required>
       <input
         type="number"
         value={quantity}
@@ -759,7 +945,7 @@ window.location.reload();
       />
     </Field>
 
-    <Field label="Price">
+    <Field label="Price" required>
       <input
         type="number"
         step="0.01"
@@ -773,19 +959,19 @@ window.location.reload();
       />
     </Field>
 
-<Field label="Date">
+<Field label="Date" required>
 
   <div className="relative">
 
-    <input
-      type="date"
-      value={tradeDate}
-      onChange={(e) =>
-        setTradeDate(e.target.value)
-      }
-      className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
-      style={{ paddingLeft: "16px" }}
-    />
+<input
+  type="date"
+  value={exitDate}
+  onChange={(e) =>
+    setExitDate(e.target.value)
+  }
+  className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
+  style={{ paddingLeft: "16px" }}
+/>
 
     <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
@@ -821,7 +1007,7 @@ window.location.reload();
 
 </Field>
 
-<Field label="Time">
+<Field label="Time" required>
 
   <div className="relative">
 
@@ -894,7 +1080,7 @@ window.location.reload();
 
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3 xl:grid-cols-4">
 
-    <Field label="Currency">
+    <Field label="Currency" required>
 
       <select
         value={currency}
@@ -1060,15 +1246,32 @@ window.location.reload();
     </p>
   </div>
 
-<button
-  type="button"
-  aria-label="Refresh preview"
-  className="mt-0.5 flex h-8 w-8 translate-x-[-20px] items-center justify-center rounded-[8px] text-[22px] leading-none text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
->
-  <span>
-    ↻
-  </span>
-</button>
+  {/* RESET + CLOSE */}
+
+  <div className="flex items-center gap-1 translate-x-[-20px]">
+
+    {/* RESET */}
+
+    <button
+      type="button"
+      onClick={handleReset}
+      className="flex h-[32px] w-[60px] items-center justify-center rounded-[8px] border border-red-500/20 bg-red-500/[0.08] text-[11px] font-medium text-red-400 transition hover:border-red-500/30 hover:bg-red-500/[0.12] hover:text-red-300"
+    >
+      Reset
+    </button>
+
+    {/* CLOSE */}
+
+    <button
+      type="button"
+      onClick={onClose}
+      aria-label="Close"
+      className="flex h-9 w-9 items-center justify-center rounded-[8px] text-[26px] leading-none text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
+    >
+      ×
+    </button>
+
+  </div>
 
 </div>
 
@@ -1101,9 +1304,9 @@ window.location.reload();
 
       <div className="min-w-0 translate-x-[10px]">
 
-        <div className="text-[24px] font-semibold tracking-[-0.02em] text-white">
-          {ticker || "AAPL"}
-        </div>
+<div className="text-[24px] font-semibold tracking-[-0.02em] text-white">
+  {ticker || "—"}
+</div>
 
         <div className="mt-1 text-[14px] text-slate-400">
           {assetType === "STOCKS"
@@ -1145,19 +1348,19 @@ window.location.reload();
 
       <PreviewMetric
         label="Net P&L"
-        value="—"
-        positive
+        value={formatPreviewPnL(previewNetPnL)}
+        positive={previewNetPnL > 0}
       />
 
       <PreviewMetric
         label="Return"
-        value="—"
-        positive
+        value={formatPreviewReturn(previewReturn)}
+        positive={previewReturn > 0}
       />
 
       <PreviewMetric
         label="Holding Time"
-        value="—"
+        value={previewHoldingTime}
       />
 
     </div>
@@ -1182,52 +1385,52 @@ window.location.reload();
 
       <div className="pr-4">
 
-        <PreviewRow
-          label="Entry Value"
-          value="$20,000.00"
-          valueClassName="translate-x-[-10px]"
-        />
+<PreviewRow
+  label="Entry Value"
+  value={formatPreviewCurrency(previewEntryValue)}
+  valueClassName="translate-x-[-10px]"
+/>
 
         <div className="translate-y-[4px]">
-          <PreviewRow
-            label="Exit Value"
-            value="$21,500.00"
-            valueClassName="translate-x-[-10px]"
-          />
+<PreviewRow
+  label="Exit Value"
+  value={formatPreviewCurrency(previewExitValue)}
+  valueClassName="translate-x-[-10px]"
+/>
         </div>
 
         <div className="translate-y-[6px]">
-          <PreviewRow
-            label="Fees"
-            value="$5.00"
-            valueClassName="translate-x-[-10px]"
-          />
+<PreviewRow
+  label="Fees"
+  value={formatPreviewCurrency(previewCommission)}
+  valueClassName="translate-x-[-10px]"
+/>
         </div>
 
       </div>
 
 
-      {/* RIGHT — PERFORMANCE */}
+{/* RIGHT — PERFORMANCE */}
 
-      <div className="pl-4">
+<div className="pl-4">
 
-        <PreviewRow
-          label="Net P&L"
-          value="+$1,495.00"
-          positive
-          labelClassName="translate-x-[10px]"
-        />
+  <PreviewRow
+    label="Net P&L"
+    value={formatPreviewPnL(previewNetPnL)}
+    positive={previewNetPnL > 0}
+    labelClassName="translate-x-[10px]"
+  />
 
-        <div className="translate-y-[4px]">
-          <PreviewRow
-            label="Return"
-            value="+7.48%"
-            positive
-            labelClassName="translate-x-[10px]"
-          />
-        </div>
+  <div className="translate-y-[4px]">
+    <PreviewRow
+      label="Return"
+      value={formatPreviewReturn(previewReturn)}
+      positive={previewReturn > 0}
+      labelClassName="translate-x-[10px]"
+    />
+  </div>
 
-      </div>
+</div>
 
     </div>
 
@@ -1253,19 +1456,18 @@ window.location.reload();
     Position Impact
   </div>
 
-  <div className="translate-y-[2px] text-[13px] text-slate-400">
-    Shares After Trade
-  </div>
+<div className="translate-y-[2px] text-[13px] text-slate-400">
+  {previewQuantityUnit}s After Trade
+</div>
 
-  <div className="translate-y-[4px] text-[18px] font-medium text-white">
-    {quantity
-      ? `${quantity} Shares`
-      : "0 Shares"}
-  </div>
+<div className="translate-y-[4px] text-[18px] font-medium text-white">
+  {previewSharesAfterTrade} {previewQuantityUnit}
+  {previewSharesAfterTrade === 1 ? "" : "s"}
+</div>
 
-  <div className="translate-y-[6px] text-[12px] text-slate-500">
-    Flat
-  </div>
+<div className="translate-y-[6px] text-[12px] text-slate-500">
+  {previewPositionImpact}
+</div>
 
 </div>
 
@@ -1278,9 +1480,13 @@ window.location.reload();
   Status
 </div>
 
-  <span className="mt-3 inline-flex h-6 w-[70px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
-    PREVIEW
-  </span>
+<span className="mt-3 inline-flex h-6 w-[70px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
+  {tradeType === "COMPLETE"
+    ? "COMPLETE"
+    : tradeType === "OPEN"
+      ? "OPEN"
+      : "CLOSE"}
+</span>
 
 </div>
 
@@ -1334,20 +1540,20 @@ window.location.reload();
           </div>
 
           <div className="mt-2 text-[14px] font-medium text-white">
-            {quantity
-              ? `${quantity} Shares`
-              : "0 Shares"}
+{quantity
+  ? `${quantity} ${previewQuantityUnit}${Number(quantity) === 1 ? "" : "s"}`
+  : `0 ${previewQuantityUnit}s`}
             {entryPrice
               ? ` @ $${Number(entryPrice).toFixed(2)}`
               : ""}
           </div>
 
-          <div className="mt-1 text-[13px] text-slate-400">
-            {tradeDate || "—"}
-            {entryTime
-              ? ` • ${entryTime}`
-              : ""}
-          </div>
+<div className="mt-1 text-[13px] text-slate-400">
+  {entryDate || "—"}
+  {entryTime
+    ? ` • ${entryTime}`
+    : ""}
+</div>
 
         </div>
 
@@ -1356,13 +1562,13 @@ window.location.reload();
 
 <div className="shrink-0 pl-3 text-right">
 
-  <div className="text-[14px] font-medium text-white">
-    $20,000.00
-  </div>
+<div className="text-[14px] font-medium text-white">
+  {formatPreviewCurrency(previewEntryValue)}
+</div>
 
-  <div className="mt-2 text-[12px] text-slate-400">
-    Fee: $2.50
-  </div>
+<div className="mt-2 text-[12px] text-slate-400">
+  Fee: {formatPreviewCurrency(previewCommission / 2)}
+</div>
 
 </div>
 
@@ -1389,20 +1595,20 @@ window.location.reload();
           </div>
 
           <div className="mt-2 text-[14px] font-medium text-white">
-            {quantity
-              ? `${quantity} Shares`
-              : "0 Shares"}
+{quantity
+  ? `${quantity} ${previewQuantityUnit}${Number(quantity) === 1 ? "" : "s"}`
+  : `0 ${previewQuantityUnit}s`}
             {exitPrice
               ? ` @ $${Number(exitPrice).toFixed(2)}`
               : ""}
           </div>
 
-          <div className="mt-1 text-[13px] text-slate-400">
-            {tradeDate || "—"}
-            {exitTime
-              ? ` • ${exitTime}`
-              : ""}
-          </div>
+<div className="mt-1 text-[13px] text-slate-400">
+  {exitDate || "—"}
+  {exitTime
+    ? ` • ${exitTime}`
+    : ""}
+</div>
 
         </div>
 
@@ -1411,13 +1617,16 @@ window.location.reload();
 
 <div className="shrink-0 pl-3 text-right">
 
-  <div className="text-[14px] font-medium text-white">
-    $21,500.00
-  </div>
+<div className="text-[14px] font-medium text-white">
+  {formatPreviewCurrency(previewExitValue)}
+</div>
 
-  <div className="mt-2 text-[12px] text-slate-400">
-    Fee: $2.50
-  </div>
+<div className="mt-2 text-[12px] text-slate-400">
+  Fee: {formatPreviewCurrency(
+    previewCommission -
+      previewCommission / 2
+  )}
+</div>
 
 </div>
 
@@ -1555,9 +1764,11 @@ function SectionHeading({
 
 function Field({
   label,
+  required = false,
   children,
 }: {
   label: string;
+  required?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -1568,6 +1779,16 @@ function Field({
         style={{ marginBottom: "2px" }}
       >
         {label}
+{required && (
+  <span
+    className="ml-2 text-[10px] font-semibold text-red-400 inline-block"
+    style={{
+      transform: "translate(3px, 2px)",
+    }}
+  >
+    *
+  </span>
+)}
       </label>
 
       {children}

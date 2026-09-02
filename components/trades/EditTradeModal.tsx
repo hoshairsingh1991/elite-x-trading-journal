@@ -68,8 +68,11 @@ export default function EditTradeModal({
   const [account, setAccount] =
     useState("");
 
-  const [tradeDate, setTradeDate] =
-    useState("");
+const [entryDate, setEntryDate] =
+  useState("");
+
+const [exitDate, setExitDate] =
+  useState("");
 
   const [entryTime, setEntryTime] =
     useState("");
@@ -139,11 +142,18 @@ export default function EditTradeModal({
       ""
     );
 
-    setTradeDate(
-      trade.date?.includes("T")
-        ? trade.date.split("T")[0]
-        : trade.date || ""
-    );
+const normalizedTradeDate =
+  trade.date?.includes("T")
+    ? trade.date.split("T")[0]
+    : trade.date || "";
+
+setEntryDate(
+  normalizedTradeDate
+);
+
+setExitDate(
+  normalizedTradeDate
+);
 
     const entryExecution =
       trade.executions?.find(
@@ -329,14 +339,14 @@ export default function EditTradeModal({
       return;
     }
 
-    if (!tradeDate) {
+if (!entryDate) {
 
-      alert(
-        "Trade date is required."
-      );
+  alert(
+    "Trade date is required."
+  );
 
-      return;
-    }
+  return;
+}
 
     if (!entryTime) {
 
@@ -445,11 +455,11 @@ export default function EditTradeModal({
         account:
           normalizedAccount,
 
-        tradeDate,
+entryDate,
+exitDate,
 
-        entryTime,
-
-        exitTime,
+entryTime,
+exitTime,
 
         currency:
           normalizedCurrency,
@@ -920,40 +930,41 @@ window.location.reload();
 
                           </div>
 
-                          {/* TRADE DATE */}
+{/* TRADE DATE */}
 
-                          <div className="flex flex-col items-center">
+<div className="flex flex-col items-center">
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Trade Date
-                            </p>
+  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+    Trade Date
+  </p>
 
-                            <div className="relative flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
+  <div className="relative flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
 
-                              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
 
-                                <span className="text-[13px] font-medium text-white">
-                                  {tradeDate}
-                                </span>
+      <span className="text-[13px] font-medium text-white">
+        {entryDate}
+      </span>
 
-                              </div>
+    </div>
 
-                              <input
-                                type="date"
-                                value={tradeDate}
-                                onChange={(e) =>
-                                  setTradeDate(
-                                    e.target.value
-                                  )
-                                }
-                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
-                              />
+    <input
+      type="date"
+      value={entryDate}
+      onChange={(e) => {
+        const value = e.target.value;
 
-                            </div>
+        setEntryDate(value);
+        setExitDate(value);
+      }}
+      className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
+    />
 
-                          </div>
+  </div>
 
-                          {/* ENTRY TIME */}
+</div>
+
+{/* ENTRY TIME */}
 
                           <div className="flex flex-col items-center">
 
