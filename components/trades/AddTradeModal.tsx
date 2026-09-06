@@ -582,27 +582,32 @@ window.location.reload();
 
 <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-3 gap-3">
 
-    <TradeTypeCard
-      selected
-      accent="purple"
-      title="Complete Trade"
-      description="Entry and exit"
-      icon="↔"
-    />
+<TradeTypeCard
+  selected={tradeType === "COMPLETE"}
+  accent="purple"
+  title="Complete Trade"
+  description="Entry and exit"
+  icon="↔"
+  onClick={() => setTradeType("COMPLETE")}
+/>
 
-    <TradeTypeCard
-      accent="green"
-      title="Open Position (Entry)"
-      description="Entry only"
-      icon="↑"
-    />
+<TradeTypeCard
+  selected={tradeType === "OPEN"}
+  accent="green"
+  title="Open Position (Entry)"
+  description="Entry only"
+  icon="↑"
+  onClick={() => setTradeType("OPEN")}
+/>
 
-    <TradeTypeCard
-      accent="red"
-      title="Close / Reduce (Exit)"
-      description="Exit only"
-      icon="↓"
-    />
+<TradeTypeCard
+  selected={tradeType === "CLOSE"}
+  accent="red"
+  title="Close / Reduce (Exit)"
+  description="Exit only"
+  icon="↓"
+  onClick={() => setTradeType("CLOSE")}
+/>
 
 </div>
 
@@ -783,7 +788,13 @@ className={`${inputClass} ${
   {/* ENTRY */}
   {/* ================================================= */}
 
-<section className="py-5 lg:pr-5">
+<section
+  className={`py-5 lg:pr-5 transition-opacity ${
+    tradeType === "CLOSE"
+      ? "opacity-40"
+      : "opacity-100"
+  }`}
+>
 
   <div className="h-5 shrink-0" />
 
@@ -801,6 +812,7 @@ className={`${inputClass} ${
       <Field label="Quantity" required>
 <input
   type="number"
+  disabled={tradeType === "CLOSE"}
   value={quantity}
   onChange={(e) => {
     setQuantity(e.target.value);
@@ -825,6 +837,7 @@ className={`${inputClass} ${
       <Field label="Price" required>
 <input
   type="number"
+  disabled={tradeType === "CLOSE"}
   step="0.01"
   value={entryPrice}
   onChange={(e) => {
@@ -853,6 +866,7 @@ className={`${inputClass} ${
 
 <input
   type="date"
+  disabled={tradeType === "CLOSE"}
   value={entryDate}
   onChange={(e) => {
     setEntryDate(e.target.value);
@@ -864,7 +878,7 @@ className={`${inputClass} ${
       }));
     }
   }}
-className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 ${fieldErrors.entryDate ? "!border-red-700" : ""}`}
+  className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 ${fieldErrors.entryDate ? "!border-red-700" : ""}`}
   style={{ paddingLeft: "16px" }}
 />
 
@@ -908,6 +922,7 @@ className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-
 
 <input
   type="time"
+  disabled={tradeType === "CLOSE"}
   value={entryTime}
   onChange={(e) => {
     setEntryTime(e.target.value);
@@ -969,7 +984,13 @@ className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-
 {/* EXIT */}
 {/* ================================================= */}
 
-<section className="py-5 lg:pl-5">
+<section
+  className={`py-5 lg:pl-5 transition-opacity ${
+    tradeType === "OPEN"
+      ? "opacity-40"
+      : "opacity-100"
+  }`}
+>
 
   <div className="h-5 shrink-0" />
 
@@ -985,163 +1006,167 @@ className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3">
 
     <Field label="Quantity" required>
-<input
-  type="number"
-  value={quantity}
-  onChange={(e) => {
-    setQuantity(e.target.value);
+      <input
+        type="number"
+        disabled={tradeType === "OPEN"}
+        value={quantity}
+        onChange={(e) => {
+          setQuantity(e.target.value);
 
-    if (fieldErrors.quantity) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        quantity: false,
-      }));
-    }
-  }}
-  placeholder="100"
-  className={fieldErrors.quantity ? `${inputClass} !border-red-700/70` : inputClass}
-  style={{ paddingLeft: "16px" }}
-/>
+          if (fieldErrors.quantity) {
+            setFieldErrors((prev) => ({
+              ...prev,
+              quantity: false,
+            }));
+          }
+        }}
+        placeholder="100"
+        className={fieldErrors.quantity ? `${inputClass} !border-red-700/70` : inputClass}
+        style={{ paddingLeft: "16px" }}
+      />
     </Field>
 
     <Field label="Price" required>
-<input
-  type="number"
-  step="0.01"
-  value={exitPrice}
-  onChange={(e) => {
-    setExitPrice(e.target.value);
+      <input
+        type="number"
+        step="0.01"
+        disabled={tradeType === "OPEN"}
+        value={exitPrice}
+        onChange={(e) => {
+          setExitPrice(e.target.value);
 
-    if (fieldErrors.exitPrice) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        exitPrice: false,
-      }));
-    }
-  }}
-  placeholder="215.00"
-  className={fieldErrors.exitPrice ? `${inputClass} !border-red-700/70` : inputClass}
-  style={{ paddingLeft: "16px" }}
-/>
+          if (fieldErrors.exitPrice) {
+            setFieldErrors((prev) => ({
+              ...prev,
+              exitPrice: false,
+            }));
+          }
+        }}
+        placeholder="215.00"
+        className={fieldErrors.exitPrice ? `${inputClass} !border-red-700/70` : inputClass}
+        style={{ paddingLeft: "16px" }}
+      />
     </Field>
 
-<Field label="Date" required>
+    <Field label="Date" required>
 
-  <div className="relative">
+      <div className="relative">
 
-<input
-  type="date"
-  value={exitDate}
-  onChange={(e) => {
-    setExitDate(e.target.value);
+        <input
+          type="date"
+          disabled={tradeType === "OPEN"}
+          value={exitDate}
+          onChange={(e) => {
+            setExitDate(e.target.value);
 
-    if (fieldErrors.exitDate) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        exitDate: false,
-      }));
-    }
-  }}
-  className={
-    fieldErrors.exitDate
-      ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
-      : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
-  }
-  style={{ paddingLeft: "16px" }}
-/>
-
-    <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
-
-      <svg
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <rect
-          x="3"
-          y="5"
-          width="18"
-          height="16"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="2"
+            if (fieldErrors.exitDate) {
+              setFieldErrors((prev) => ({
+                ...prev,
+                exitDate: false,
+              }));
+            }
+          }}
+          className={
+            fieldErrors.exitDate
+              ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
+              : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
+          }
+          style={{ paddingLeft: "16px" }}
         />
 
-        <path
-          d="M16 3V7M8 3V7M3 10H21"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
+        <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
-    </span>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect
+              x="3"
+              y="5"
+              width="18"
+              height="16"
+              rx="2"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
 
-  </div>
+            <path
+              d="M16 3V7M8 3V7M3 10H21"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
 
-</Field>
+        </span>
 
-<Field label="Time" required>
+      </div>
 
-  <div className="relative">
+    </Field>
 
-<input
-  type="time"
-  value={exitTime}
-  onChange={(e) => {
-    setExitTime(e.target.value);
+    <Field label="Time" required>
 
-    if (fieldErrors.exitTime) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        exitTime: false,
-      }));
-    }
-  }}
-  className={
-    fieldErrors.exitTime
-      ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
-      : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
-  }
-  style={{ paddingLeft: "16px" }}
-/>
+      <div className="relative">
 
-    <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
+        <input
+          type="time"
+          disabled={tradeType === "OPEN"}
+          value={exitTime}
+          onChange={(e) => {
+            setExitTime(e.target.value);
 
-      <svg
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="8.5"
-          stroke="currentColor"
-          strokeWidth="2"
-        />
-
-        <path
-          d="M12 7V12L15.5 14"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+            if (fieldErrors.exitTime) {
+              setFieldErrors((prev) => ({
+                ...prev,
+                exitTime: false,
+              }));
+            }
+          }}
+          className={
+            fieldErrors.exitTime
+              ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
+              : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
+          }
+          style={{ paddingLeft: "16px" }}
         />
 
-      </svg>
+        <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
-    </span>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="8.5"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
 
-  </div>
+            <path
+              d="M12 7V12L15.5 14"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
 
-</Field>
+          </svg>
+
+        </span>
+
+      </div>
+
+    </Field>
 
   </div>
 
@@ -1909,12 +1934,14 @@ function TradeTypeCard({
   title,
   description,
   icon,
+  onClick,
 }: {
   selected?: boolean;
   accent: "purple" | "green" | "red";
   title: string;
   description: string;
   icon: string;
+  onClick: () => void;
 }) {
   const accentClasses = {
     purple:
@@ -1926,9 +1953,10 @@ function TradeTypeCard({
   };
 
   return (
-    <button
-      type="button"
-      className={`relative flex min-h-[82px] items-center justify-center gap-3 rounded-[8px] border px-4 text-left transition ${
+<button
+  type="button"
+  onClick={onClick}
+  className={`relative flex min-h-[82px] items-center justify-center gap-3 rounded-[8px] border px-4 text-left transition ${
         selected
           ? "border-violet-500/70 bg-[#0b1220] shadow-[0_0_25px_rgba(124,58,237,0.08)]"
           : "border-white/[0.06] bg-[#0b1220] hover:border-white/[0.12]"

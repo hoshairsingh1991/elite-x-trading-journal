@@ -460,7 +460,7 @@ git commit -m "Adjust manual trade entry UI spacing" - UI strats here
 git commit -m "Polish manual trade modal UI"
 git commit -m "Add required field indicators to trade modal"
 git commit -m "Polish manual trade modal UI"
-
+git commit -m "Enhance manual trade entry workflow"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
