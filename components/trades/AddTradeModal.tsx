@@ -92,10 +92,25 @@ const [exitTime, setExitTime] =
   useState("");
 
 const [currency, setCurrency] =
+
   useState("USD");
 
-  const [exchange, setExchange] =
-    useState("");
+const [exchange, setExchange] =
+
+  useState("");
+
+const [fieldErrors, setFieldErrors] = useState({
+  ticker: false,
+  account: false,
+  quantity: false,
+  entryPrice: false,
+  exitPrice: false,
+  entryDate: false,
+  exitDate: false,
+  entryTime: false,
+  exitTime: false,
+  currency: false,
+});
 
 // =================================================
 // RESET FORM
@@ -134,8 +149,21 @@ const handleReset = () => {
   setEntryTime("");
   setExitTime("");
 
-  setCurrency("USD");
-  setExchange("");
+setCurrency("USD");
+setExchange("");
+
+setFieldErrors({
+  ticker: false,
+  account: false,
+  quantity: false,
+  entryPrice: false,
+  exitPrice: false,
+  entryDate: false,
+  exitDate: false,
+  entryTime: false,
+  exitTime: false,
+  currency: false,
+});
 };
 
   // =================================================
@@ -188,6 +216,11 @@ const previewQuantityUnit =
   assetType === "CFD"
     ? ticker.trim().toUpperCase() || "Unit"
     : previewQuantityUnitMap[assetType] ?? "Unit";
+
+    const previewUsesTickerUnit =
+  assetType === "CRYPTO" ||
+  assetType === "FOREX" ||
+  assetType === "CFD";
 
   const previewEntryValue =
     previewQuantity *
@@ -354,103 +387,50 @@ const parsedEntryPrice =
 const parsedExitPrice =
   Number(exitPrice);
 
-if (!normalizedTicker) {
+setFieldErrors({
+  ticker: false,
+  account: false,
+  quantity: false,
+  entryPrice: false,
+  exitPrice: false,
+  entryDate: false,
+  exitDate: false,
+  entryTime: false,
+  exitTime: false,
+  currency: false,
+});
+
+const errors = {
+  ticker: !normalizedTicker,
+  account: !normalizedAccount,
+  quantity:
+    !quantity ||
+    !Number.isFinite(parsedQuantity) ||
+    parsedQuantity <= 0,
+  entryPrice:
+    !entryPrice ||
+    !Number.isFinite(parsedEntryPrice) ||
+    parsedEntryPrice <= 0,
+  exitPrice:
+    !exitPrice ||
+    !Number.isFinite(parsedExitPrice) ||
+    parsedExitPrice <= 0,
+  entryDate: !entryDate,
+  exitDate: !exitDate,
+  entryTime: !entryTime,
+  exitTime: !exitTime,
+  currency: !currency,
+};
+
+const hasErrors =
+  Object.values(errors).some(Boolean);
+
+if (hasErrors) {
+
+  setFieldErrors(errors);
 
   alert(
-    "Ticker is required."
-  );
-
-  return;
-}
-
-if (!normalizedAccount) {
-
-  alert(
-    "Account is required."
-  );
-
-  return;
-}
-
-if (
-  !quantity ||
-  !Number.isFinite(parsedQuantity) ||
-  parsedQuantity <= 0
-) {
-
-  alert(
-    "Quantity must be greater than 0."
-  );
-
-  return;
-}
-
-if (
-  !entryPrice ||
-  !Number.isFinite(parsedEntryPrice) ||
-  parsedEntryPrice <= 0
-) {
-
-  alert(
-    "Entry price must be greater than 0."
-  );
-
-  return;
-}
-
-if (
-  !exitPrice ||
-  !Number.isFinite(parsedExitPrice) ||
-  parsedExitPrice <= 0
-) {
-
-  alert(
-    "Exit price must be greater than 0."
-  );
-
-  return;
-}
-
-if (!entryDate) {
-
-  alert(
-    "Entry date is required."
-  );
-
-  return;
-}
-
-if (!exitDate) {
-
-  alert(
-    "Exit date is required."
-  );
-
-  return;
-}
-
-if (!entryTime) {
-
-  alert(
-    "Entry time is required."
-  );
-
-  return;
-}
-
-if (!exitTime) {
-
-  alert(
-    "Exit time is required."
-  );
-
-  return;
-}
-
-if (!currency) {
-
-  alert(
-    "Currency is required."
+    "Please fill in all required fields."
   );
 
   return;
@@ -624,9 +604,11 @@ window.location.reload();
       icon="↓"
     />
 
-  </div>
+</div>
 
 </section>
+
+<div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[10px]" />
 
 {/* ================================================= */}
 {/* 2. TRADE SETUP */}
@@ -647,20 +629,31 @@ window.location.reload();
 
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-4 gap-3">
 
-   <Field label="Account" required>
-<input
-  type="text"
-  value={account}
-  onChange={(e) =>
-    setAccount(e.target.value)
-  }
-  placeholder="Account"
-  className={inputClass}
-  style={{ paddingLeft: "16px" }}
-/>
-    </Field>
+<Field label="Account" required>
+  <input
+    type="text"
+    value={account}
+    onChange={(e) => {
+      setAccount(e.target.value);
 
-<Field label="Symbol">
+      if (fieldErrors.account) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          account: false,
+        }));
+      }
+    }}
+    placeholder="Account"
+className={`${inputClass} ${
+  fieldErrors.account
+    ? "!border-red-700/70"
+    : ""
+}`}
+    style={{ paddingLeft: "16px" }}
+  />
+</Field>
+
+<Field label="Symbol" required>
   <div className="relative">
 
 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
@@ -691,11 +684,26 @@ window.location.reload();
 <input
   type="text"
   value={ticker}
-  onChange={(e) =>
-    setTicker(e.target.value)
-  }
+  onChange={(e) => {
+
+    setTicker(e.target.value);
+
+    if (fieldErrors.ticker) {
+
+      setFieldErrors((prev) => ({
+        ...prev,
+        ticker: false,
+      }));
+
+    }
+
+  }}
   placeholder="AAPL"
-  className={inputClass}
+  className={`${inputClass} ${
+    fieldErrors.ticker
+      ? "!border-red-700/70"
+      : ""
+  }`}
   style={{ paddingLeft: "40px" }}
 />
 
@@ -763,11 +771,13 @@ window.location.reload();
 
 </section>
 
+<div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[10px]" />
+
 {/* ================================================= */}
 {/* 3 + 4. ENTRY / EXIT */}
 {/* ================================================= */}
 
-<div className="grid grid-cols-1 lg:grid-cols-2">
+<div className="relative grid grid-cols-1 lg:grid-cols-2">
 
   {/* ================================================= */}
   {/* ENTRY */}
@@ -792,27 +802,49 @@ window.location.reload();
 <input
   type="number"
   value={quantity}
-  onChange={(e) =>
-    setQuantity(e.target.value)
-  }
+  onChange={(e) => {
+    setQuantity(e.target.value);
+
+    if (fieldErrors.quantity) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        quantity: false,
+      }));
+    }
+  }}
   placeholder="100"
-  className={inputClass}
+  className={`${inputClass} ${
+    fieldErrors.quantity
+      ? "!border-red-700/70"
+      : ""
+  }`}
   style={{ paddingLeft: "16px" }}
 />
       </Field>
 
       <Field label="Price" required>
-        <input
-          type="number"
-          step="0.01"
-          value={entryPrice}
-          onChange={(e) =>
-            setEntryPrice(e.target.value)
-          }
-          placeholder="200.00"
-          className={inputClass}
-          style={{ paddingLeft: "16px" }}
-        />
+<input
+  type="number"
+  step="0.01"
+  value={entryPrice}
+  onChange={(e) => {
+    setEntryPrice(e.target.value);
+
+    if (fieldErrors.entryPrice) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        entryPrice: false,
+      }));
+    }
+  }}
+  placeholder="200.00"
+  className={`${inputClass} ${
+    fieldErrors.entryPrice
+      ? "!border-red-700/70"
+      : ""
+  }`}
+  style={{ paddingLeft: "16px" }}
+/>
       </Field>
 
 <Field label="Date" required>
@@ -822,10 +854,17 @@ window.location.reload();
 <input
   type="date"
   value={entryDate}
-  onChange={(e) =>
-    setEntryDate(e.target.value)
-  }
-  className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
+  onChange={(e) => {
+    setEntryDate(e.target.value);
+
+    if (fieldErrors.entryDate) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        entryDate: false,
+      }));
+    }
+  }}
+className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 ${fieldErrors.entryDate ? "!border-red-700" : ""}`}
   style={{ paddingLeft: "16px" }}
 />
 
@@ -867,15 +906,26 @@ window.location.reload();
 
   <div className="relative">
 
-    <input
-      type="time"
-      value={entryTime}
-      onChange={(e) =>
-        setEntryTime(e.target.value)
-      }
-      className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
-      style={{ paddingLeft: "16px" }}
-    />
+<input
+  type="time"
+  value={entryTime}
+  onChange={(e) => {
+    setEntryTime(e.target.value);
+
+    if (fieldErrors.entryTime) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        entryTime: false,
+      }));
+    }
+  }}
+  className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 ${
+    fieldErrors.entryTime
+      ? "!border-red-700/70"
+      : ""
+  }`}
+  style={{ paddingLeft: "16px" }}
+/>
 
     <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
@@ -913,6 +963,8 @@ window.location.reload();
 
   </section>
 
+<div className="pointer-events-none absolute bottom-0 left-1/2 top-5 hidden w-px -translate-x-1/2 bg-white/[0.08] lg:block" />
+
 {/* ================================================= */}
 {/* EXIT */}
 {/* ================================================= */}
@@ -933,30 +985,44 @@ window.location.reload();
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3">
 
     <Field label="Quantity" required>
-      <input
-        type="number"
-        value={quantity}
-        onChange={(e) =>
-          setQuantity(e.target.value)
-        }
-        placeholder="100"
-        className={inputClass}
-        style={{ paddingLeft: "16px" }}
-      />
+<input
+  type="number"
+  value={quantity}
+  onChange={(e) => {
+    setQuantity(e.target.value);
+
+    if (fieldErrors.quantity) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        quantity: false,
+      }));
+    }
+  }}
+  placeholder="100"
+  className={fieldErrors.quantity ? `${inputClass} !border-red-700/70` : inputClass}
+  style={{ paddingLeft: "16px" }}
+/>
     </Field>
 
     <Field label="Price" required>
-      <input
-        type="number"
-        step="0.01"
-        value={exitPrice}
-        onChange={(e) =>
-          setExitPrice(e.target.value)
-        }
-        placeholder="215.00"
-        className={inputClass}
-        style={{ paddingLeft: "16px" }}
-      />
+<input
+  type="number"
+  step="0.01"
+  value={exitPrice}
+  onChange={(e) => {
+    setExitPrice(e.target.value);
+
+    if (fieldErrors.exitPrice) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        exitPrice: false,
+      }));
+    }
+  }}
+  placeholder="215.00"
+  className={fieldErrors.exitPrice ? `${inputClass} !border-red-700/70` : inputClass}
+  style={{ paddingLeft: "16px" }}
+/>
     </Field>
 
 <Field label="Date" required>
@@ -966,10 +1032,21 @@ window.location.reload();
 <input
   type="date"
   value={exitDate}
-  onChange={(e) =>
-    setExitDate(e.target.value)
+  onChange={(e) => {
+    setExitDate(e.target.value);
+
+    if (fieldErrors.exitDate) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        exitDate: false,
+      }));
+    }
+  }}
+  className={
+    fieldErrors.exitDate
+      ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
+      : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
   }
-  className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
   style={{ paddingLeft: "16px" }}
 />
 
@@ -1011,15 +1088,26 @@ window.location.reload();
 
   <div className="relative">
 
-    <input
-      type="time"
-      value={exitTime}
-      onChange={(e) =>
-        setExitTime(e.target.value)
-      }
-      className={`${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`}
-      style={{ paddingLeft: "16px" }}
-    />
+<input
+  type="time"
+  value={exitTime}
+  onChange={(e) => {
+    setExitTime(e.target.value);
+
+    if (fieldErrors.exitTime) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        exitTime: false,
+      }));
+    }
+  }}
+  className={
+    fieldErrors.exitTime
+      ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
+      : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
+  }
+  style={{ paddingLeft: "16px" }}
+/>
 
     <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
@@ -1061,6 +1149,8 @@ window.location.reload();
 
 </div>
 
+<div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[10px]" />
+
 {/* ================================================= */}
 {/* 5. TRADE DETAILS */}
 {/* ================================================= */}
@@ -1082,20 +1172,31 @@ window.location.reload();
 
     <Field label="Currency" required>
 
-      <select
-        value={currency}
-        onChange={(e) =>
-          setCurrency(e.target.value)
-        }
-        className={selectClass}
-        style={{ paddingLeft: "16px" }}
-      >
-        <option value="USD">USD</option>
-        <option value="CAD">CAD</option>
-        <option value="EUR">EUR</option>
-        <option value="JPY">JPY</option>
-        <option value="INR">INR</option>
-      </select>
+<select
+  value={currency}
+  onChange={(e) => {
+    setCurrency(e.target.value);
+
+    if (fieldErrors.currency) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        currency: false,
+      }));
+    }
+  }}
+  className={
+    fieldErrors.currency
+      ? `${selectClass} !border-red-700/70`
+      : selectClass
+  }
+  style={{ paddingLeft: "16px" }}
+>
+  <option value="USD">USD</option>
+  <option value="CAD">CAD</option>
+  <option value="EUR">EUR</option>
+  <option value="JPY">JPY</option>
+  <option value="INR">INR</option>
+</select>
 
     </Field>
 
@@ -1457,12 +1558,17 @@ window.location.reload();
   </div>
 
 <div className="translate-y-[2px] text-[13px] text-slate-400">
-  {previewQuantityUnit}s After Trade
+  {previewQuantityUnit}
+  {previewUsesTickerUnit ? "" : "s"} After Trade
 </div>
 
 <div className="translate-y-[4px] text-[18px] font-medium text-white">
-  {previewSharesAfterTrade} {previewQuantityUnit}
-  {previewSharesAfterTrade === 1 ? "" : "s"}
+{previewSharesAfterTrade} {previewQuantityUnit}
+{previewUsesTickerUnit
+  ? ""
+  : previewSharesAfterTrade === 1
+    ? ""
+    : "s"}
 </div>
 
 <div className="translate-y-[6px] text-[12px] text-slate-500">
@@ -1541,8 +1647,8 @@ window.location.reload();
 
           <div className="mt-2 text-[14px] font-medium text-white">
 {quantity
-  ? `${quantity} ${previewQuantityUnit}${Number(quantity) === 1 ? "" : "s"}`
-  : `0 ${previewQuantityUnit}s`}
+  ? `${quantity} ${previewQuantityUnit}${previewUsesTickerUnit ? "" : Number(quantity) === 1 ? "" : "s"}`
+  : `0 ${previewQuantityUnit}${previewUsesTickerUnit ? "" : "s"}`}
             {entryPrice
               ? ` @ $${Number(entryPrice).toFixed(2)}`
               : ""}
@@ -1596,8 +1702,8 @@ window.location.reload();
 
           <div className="mt-2 text-[14px] font-medium text-white">
 {quantity
-  ? `${quantity} ${previewQuantityUnit}${Number(quantity) === 1 ? "" : "s"}`
-  : `0 ${previewQuantityUnit}s`}
+  ? `${quantity} ${previewQuantityUnit}${previewUsesTickerUnit ? "" : Number(quantity) === 1 ? "" : "s"}`
+  : `0 ${previewQuantityUnit}${previewUsesTickerUnit ? "" : "s"}`}
             {exitPrice
               ? ` @ $${Number(exitPrice).toFixed(2)}`
               : ""}
