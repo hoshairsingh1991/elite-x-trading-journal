@@ -574,751 +574,1714 @@ window.location.reload();
     window.location.reload();
   };
 
-  // =================================================
+    // =================================================
   // SAFETY
   // =================================================
 
   if (!open || !trade) {
-
     return null;
   }
 
-  return (
+  const previewQuantity = Number(quantity) || 0;
+  const previewEntryPrice = Number(entryPrice) || 0;
+  const previewExitPrice = Number(exitPrice) || 0;
+  const previewCommission = Number(commission) || 0;
 
+  const previewMultiplier = assetType === "OPTIONS" ? 100 : 1;
+
+  const previewEntryValue =
+    previewQuantity *
+    previewEntryPrice *
+    previewMultiplier;
+
+  const previewExitValue =
+    previewQuantity *
+    previewExitPrice *
+    previewMultiplier;
+
+  const previewGrossPnL =
+    side === "LONG"
+      ? previewExitValue - previewEntryValue
+      : previewEntryValue - previewExitValue;
+
+  const previewNetPnL =
+    previewGrossPnL - previewCommission;
+
+  const previewReturn =
+    previewEntryValue > 0
+      ? (previewNetPnL / previewEntryValue) * 100
+      : 0;
+
+  const previewHoldingTime = (() => {
+    if (!entryDate || !exitDate || !entryTime || !exitTime) {
+      return "—";
+    }
+
+    const entryDateTime = new Date(
+      `${entryDate}T${entryTime}`
+    );
+
+    const exitDateTime = new Date(
+      `${exitDate}T${exitTime}`
+    );
+
+    if (
+      !Number.isFinite(entryDateTime.getTime()) ||
+      !Number.isFinite(exitDateTime.getTime()) ||
+      exitDateTime.getTime() < entryDateTime.getTime()
+    ) {
+      return "—";
+    }
+
+    const durationMinutes = Math.floor(
+      (exitDateTime.getTime() -
+        entryDateTime.getTime()) /
+        60000
+    );
+
+    const hours = Math.floor(
+      durationMinutes / 60
+    );
+
+    const minutes = durationMinutes % 60;
+
+    if (hours === 0) {
+      return `${minutes}m`;
+    }
+
+    if (minutes === 0) {
+      return `${hours}h`;
+    }
+
+    return `${hours}h ${minutes}m`;
+  })();
+
+  const formatPreviewCurrency = (
+    value: number
+  ) => {
+    try {
+      return new Intl.NumberFormat(
+        "en-US",
+        {
+          style: "currency",
+          currency: currency || "USD",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
+      ).format(value);
+    } catch {
+      return `$${value.toFixed(2)}`;
+    }
+  };
+
+  const formatPreviewPnL = (
+    value: number
+  ) => {
+    const formatted =
+      formatPreviewCurrency(
+        Math.abs(value)
+      );
+
+    if (value > 0) {
+      return `+${formatted}`;
+    }
+
+    if (value < 0) {
+      return `-${formatted}`;
+    }
+
+    return formatted;
+  };
+
+  const formatPreviewReturn = (
+    value: number
+  ) => {
+    if (value > 0) {
+      return `+${value.toFixed(2)}%`;
+    }
+
+    if (value < 0) {
+      return `${value.toFixed(2)}%`;
+    }
+
+    return "0.00%";
+  };
+
+  const quantityUnit =
+    assetType === "OPTIONS" ||
+    assetType === "FUTURES"
+      ? "Contract"
+      : assetType === "CRYPTO" ||
+        assetType === "FOREX" ||
+        assetType === "CFD"
+        ? ticker.trim().toUpperCase() || "Unit"
+        : "Share";
+
+  const usesTickerUnit =
+    assetType === "CRYPTO" ||
+    assetType === "FOREX" ||
+    assetType === "CFD";
+
+  const entryAction =
+    side === "LONG" ? "BUY" : "SELL";
+
+  const exitAction =
+    side === "LONG" ? "SELL" : "BUY";
+
+  return (
     <>
 
-      {/* ================================================= */}
-      {/* REMOVE NUMBER INPUT ARROWS */}
-      {/* ================================================= */}
-
-      <style jsx>{`
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-
-        input[type="number"] {
-          -moz-appearance: textfield;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          cursor: pointer;
-          opacity: 0;
-        }
-      `}</style>
 
       {/* ================================================= */}
       {/* BACKDROP */}
       {/* ================================================= */}
 
-      <div className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-[4px]" />
+      <div className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-[5px]" />
 
       {/* ================================================= */}
-      {/* VIEWPORT */}
+      {/* MODAL VIEWPORT */}
       {/* ================================================= */}
 
-      <div className="fixed inset-0 z-[130] overflow-y-auto">
+      <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
 
-        <div className="h-[18px] opacity-0">
-          spacing
-        </div>
+        <div
+          className="
+            grid
+            h-[710px]
+            max-h-[calc(100vh-48px)]
+            w-full
+            max-w-[1280px]
+            grid-cols-1
+            gap-3
+            min-[1100px]:grid-cols-[minmax(0,1.8fr)_minmax(340px,0.8fr)]
+          "
+        >
 
-        <div className="flex min-h-[calc(100vh-36px)]">
+{/* ================================================= */}
+{/* LEFT — EDIT MANUAL TRADE */}
+{/* ================================================= */}
 
-          <div className="w-[18px] opacity-0">
-            spacing
-          </div>
+<section className="flex min-h-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]">
 
-          {/* ================================================= */}
-          {/* CENTER */}
-          {/* ================================================= */}
+  {/* ================================================= */}
+  {/* HEADER */}
+  {/* ================================================= */}
 
-          <div className="flex flex-1 items-center justify-center py-10">
+  <header className="flex shrink-0 items-start justify-between px-6 pb-5 pt-5 translate-x-[0px] translate-y-[-0px] min-[1100px]:translate-x-[14px] min-[1100px]:translate-y-[6px]">
 
-            <div className="relative w-full max-w-[1100px] rounded-[32px] border border-white/[0.06] bg-[#071427] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
+    <div>
 
-              <div className="h-6 opacity-0">
-                spacing
-              </div>
+      <div className="flex items-center gap-2">
 
-              {/* ================================================= */}
-              {/* HEADER */}
-              {/* ================================================= */}
+        <h2 className="text-[25px] font-semibold tracking-[-0.02em] text-white">
+          Edit Manual Trade
+        </h2>
 
-              <div className="flex items-start justify-between">
+      </div>
 
-                <div className="w-[18px] shrink-0 opacity-0">
-                  spacing
-                </div>
-
-                <div className="flex flex-1 items-start justify-between">
-
-                  <div>
-
-                    <p className="text-[10px] -translate-y-2 font-black uppercase tracking-[0.24em] text-blue-400">
-                      Trade Reconciliation
-                    </p>
-
-                    <h2 className="mt-3 text-[24px] font-black tracking-tight text-white">
-                      Edit Trade
-                    </h2>
-
-                    <p className="mt-3 text-[14px] text-slate-400">
-                      Correct and reconcile institutional execution data safely.
-                    </p>
-
-                  </div>
-
-                  {/* ================================================= */}
-                  {/* ACTIONS */}
-                  {/* ================================================= */}
-
-                  <div className="flex items-center gap-3">
-
-                    <button
-                      type="button"
-                      onClick={
-                        handleDeleteTrade
-                      }
-                      className="flex h-[30px] w-[72px] items-center justify-center rounded-[12px] border border-red-500/20 bg-red-500/10 text-[10px] font-black uppercase tracking-[0.14em] text-red-400 transition-all hover:bg-red-500/20"
-                    >
-                      Delete
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={
-                        handleSaveTrade
-                      }
-                      className="flex h-[30px] w-[72px] items-center justify-center rounded-[12px] border border-blue-400/20 bg-blue-500/90 text-[10px] font-black uppercase tracking-[0.14em] text-white transition-all hover:bg-blue-400"
-                    >
-                      Save
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="flex h-[34px] w-[34px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] text-[16px] font-bold text-slate-400 transition-all hover:border-white/[0.10] hover:text-white"
-                    >
-                      ×
-                    </button>
-
-                  </div>
-
-                </div>
-
-                <div className="w-[10px] shrink-0 opacity-0">
-                  spacing
-                </div>
-
-              </div>
-
-              {/* ================================================= */}
-              {/* GAP */}
-              {/* ================================================= */}
-
-              <div className="h-2 opacity-0">
-                spacing
-              </div>
-
-              {/* ================================================= */}
-              {/* BODY */}
-              {/* ================================================= */}
-
-              <div className="px-5">
-
-                <div className="rounded-[24px] border border-white/[0.05] bg-[linear-gradient(180deg,rgba(17,24,39,0.55)_0%,rgba(9,24,45,0.45)_100%)] px-6 py-8">
-
-                  <div className="flex">
-
-                    <div className="w-[18px] shrink-0 opacity-0">
-                      spacing
-                    </div>
-
-                    <div className="flex-1">
-
-                      {/* ================================================= */}
-                      {/* HEADER */}
-                      {/* ================================================= */}
-
-                      <div>
-
-                        <p className="text-[14px] translate-y-2 font-black uppercase tracking-[0.18em] text-slate-500">
-                          Trade Details
-                        </p>
-
-                        <p className="mt-2 text-[12px] translate-y-2 text-slate-400">
-                          Edit manual trade execution details and workflow metadata.
-                        </p>
-
-                        <p className="mt-2 text-[8px] opacity-0">
-                          Edit manual trade execution details and workflow metadata.
-                        </p>
-
-                      </div>
-
-                      <div className="mt-6 h-px bg-white/[0.05]" />
-
-                      {/* ================================================= */}
-                      {/* FORM */}
-                      {/* ================================================= */}
-
-                      <div className="mt-10 flex flex-col items-center">
-
-                        {/* ================================================= */}
-                        {/* ROW 1 */}
-                        {/* ================================================= */}
-
-                        <div className="flex items-start justify-center gap-5">
-
-                          {/* ACCOUNT */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-                              Account
-                            </p>
-
-                            <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-                              <input
-                                type="text"
-                                value={account}
-                                onChange={(e) =>
-                                  setAccount(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Account"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-
-                            </div>
-
-                          </div>
-
-                          {/* SIDE */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-                              Side
-                            </p>
-
-                            <div className="flex h-[50px] w-[180px] translate-y-4 items-center justify-center gap-2 rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-2">
-
-                              {(
-                                [
-                                  "LONG",
-                                  "SHORT",
-                                ] as const
-                              ).map(
-                                (item) => (
-
-                                  <button
-                                    key={item}
-                                    type="button"
-                                    onClick={() =>
-                                      setSide(
-                                        item
-                                      )
-                                    }
-                                    className={`flex h-[32px] flex-1 items-center justify-center rounded-[10px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                      side === item
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
-                                    }`}
-                                  >
-                                    {item}
-                                  </button>
-
-                                )
-                              )}
-
-                            </div>
-
-                          </div>
-
-                          {/* ASSET TYPE */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[12px] translate-y-2 font-black uppercase tracking-[0.16em] text-slate-500">
-                              Asset Type
-                            </p>
-
-                            <div className="flex h-[50px] w-[360px] translate-y-4 items-center justify-center gap-[6px] rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-[10px]">
-
-                              {[
-                                "STOCKS",
-                                "OPTIONS",
-                                "FUTURES",
-                                "CRYPTO",
-                                "CFD",
-                                "FOREX",
-                              ].map(
-                                (item) => (
-
-                                  <button
-                                    key={item}
-                                    type="button"
-                                    onClick={() =>
-                                      setAssetType(
-                                        item
-                                      )
-                                    }
-                                    className={`flex h-[30px] min-w-[54px] items-center justify-center rounded-[10px] px-[12px] text-[10px] font-black uppercase tracking-[0.08em] transition-all ${
-                                      assetType === item
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08]"
-                                    }`}
-                                  >
-                                    {item}
-                                  </button>
-
-                                )
-                              )}
-
-                            </div>
-
-                          </div>
-
-                        </div>
-
-                        {/* ================================================= */}
-                        {/* GAP */}
-                        {/* ================================================= */}
-
-                        <div className="h-8 opacity-0">
-                          spacing
-                        </div>
-
-                        {/* ================================================= */}
-                        {/* ROW 2 */}
-                        {/* ================================================= */}
-
-                        <div className="flex items-start justify-center gap-4">
-
-                          {/* TICKER */}
-
-                          <div className="flex flex-col items-center">
-
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Ticker
-                            </p>
-
-                            <div className="flex h-[50px] w-[120px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
-
-                              <input
-                                type="text"
-                                value={ticker}
-                                onChange={(e) =>
-                                  setTicker(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Ticker"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
-
-                            </div>
-
-                          </div>
-
-{/* TRADE DATE */}
-
-<div className="flex flex-col items-center">
-
-  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-    Trade Date
-  </p>
-
-  <div className="relative flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
-
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-
-      <span className="text-[13px] font-medium text-white">
-        {entryDate}
-      </span>
+      <p className="mt-1.5 text-[14px] text-slate-400">
+        Correct and update your manual trade.
+      </p>
 
     </div>
 
-    <input
-      type="date"
-      value={entryDate}
-      onChange={(e) => {
-        const value = e.target.value;
+    <div className="flex items-center gap-0 translate-x-[-30px] translate-y-[6px]">
 
-        setEntryDate(value);
-        setExitDate(value);
+      {/* MANUAL EDIT */}
+
+      <div className="flex h-[32px] w-[112px] items-center justify-center rounded-[8px] border border-violet-500/20 bg-violet-500/[0.08] text-[11px] font-semibold uppercase tracking-[0.08em] text-violet-400">
+        Manual Edit
+      </div>
+
+    </div>
+
+  </header>
+
+  {/* ================================================= */}
+  {/* LEFT CONTENT */}
+  {/* ================================================= */}
+
+  <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pb-5">
+
+    <div className="h-5 shrink-0" />
+
+{/* ================================================= */}
+{/* 1. TRADE TYPE */}
+{/* ================================================= */}
+
+<section className="pb-5">
+
+  <div className="translate-x-[14px]">
+    <div className="flex items-center gap-2">
+
+      <span className="text-[12px] font-semibold text-slate-400">
+        1.
+      </span>
+
+      <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
+        Trade Type
+      </h3>
+
+    </div>
+  </div>
+
+  <div className="h-2 shrink-0" />
+
+  <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-3 gap-3">
+
+    {/* COMPLETE TRADE */}
+
+    <button
+      type="button"
+      className="relative flex min-h-[82px] items-center justify-center gap-3 rounded-[8px] border border-violet-500/70 bg-[#0b1220] px-4 text-left shadow-[0_0_25px_rgba(124,58,237,0.08)]"
+    >
+
+      <div className="flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full bg-violet-500/15 text-[20px] text-violet-400">
+        ↔
+      </div>
+
+      <div className="min-w-0">
+
+        <div className="text-[14px] font-semibold text-white">
+          Complete Trade
+        </div>
+
+        <div className="mt-1 text-[12px] text-slate-500">
+          Entry and exit
+        </div>
+
+      </div>
+
+      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-[11px] text-white">
+        ✓
+      </div>
+
+    </button>
+
+    {/* OPEN POSITION */}
+
+    <button
+      type="button"
+      disabled
+      className="relative flex min-h-[82px] cursor-default items-center justify-center gap-3 rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 text-left opacity-60"
+    >
+
+      <div className="flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full bg-emerald-500/15 text-[20px] text-emerald-400">
+        ↑
+      </div>
+
+      <div className="min-w-0">
+
+        <div className="text-[14px] font-semibold text-white">
+          Open Position (Entry)
+        </div>
+
+        <div className="mt-1 text-[12px] text-slate-500">
+          Entry only
+        </div>
+
+      </div>
+
+    </button>
+
+    {/* CLOSE / REDUCE */}
+
+    <button
+      type="button"
+      disabled
+      className="relative flex min-h-[82px] cursor-default items-center justify-center gap-3 rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 text-left opacity-60"
+    >
+
+      <div className="flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full bg-red-500/15 text-[20px] text-red-400">
+        ↓
+      </div>
+
+      <div className="min-w-0">
+
+        <div className="text-[14px] font-semibold text-white">
+          Close / Reduce (Exit)
+        </div>
+
+        <div className="mt-1 text-[12px] text-slate-500">
+          Exit only
+        </div>
+
+      </div>
+
+    </button>
+
+  </div>
+
+</section>
+
+<div className="w-[calc(100%-30px)] translate-x-[14px] translate-y-[10px] border-t border-white/[0.08]" />
+
+{/* ================================================= */}
+{/* 2. TRADE SETUP */}
+{/* ================================================= */}
+
+<section className="py-5">
+
+  <div className="h-5 shrink-0" />
+
+  <div className="translate-x-[14px]">
+
+    <div className="flex items-center gap-2">
+
+      <span className="text-[12px] font-semibold text-slate-400">
+        2
+      </span>
+
+      <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
+        Trade Setup
+      </h3>
+
+    </div>
+
+  </div>
+
+  <div className="h-2 shrink-0" />
+
+  <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-4 gap-3">
+
+    {/* ================================================= */}
+    {/* ACCOUNT */}
+    {/* ================================================= */}
+
+    <div>
+
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        Account
+      </label>
+
+      <input
+        type="text"
+        value={account}
+        onChange={(e) =>
+          setAccount(e.target.value)
+        }
+        placeholder="Account"
+        className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+        style={{ paddingLeft: "16px" }}
+      />
+
+    </div>
+
+    {/* ================================================= */}
+    {/* SYMBOL */}
+    {/* ================================================= */}
+
+    <div>
+
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        Symbol
+      </label>
+
+      <div className="relative">
+
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+
+            <circle
+              cx="11"
+              cy="11"
+              r="6.5"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+
+            <path
+              d="M16 16L21 21"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+
+          </svg>
+
+        </span>
+
+        <input
+          type="text"
+          value={ticker}
+          onChange={(e) =>
+            setTicker(e.target.value)
+          }
+          placeholder="AAPL"
+          className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-10 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+          style={{ paddingLeft: "40px" }}
+        />
+
+      </div>
+
+    </div>
+
+    {/* ================================================= */}
+    {/* DIRECTION */}
+    {/* ================================================= */}
+
+    <div>
+
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        Direction
+      </label>
+
+      <div className="flex h-10 rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] p-1">
+
+        {(["LONG", "SHORT"] as const).map(
+          (item) => (
+
+            <button
+              key={item}
+              type="button"
+              onClick={() =>
+                setSide(item)
+              }
+              className={`flex flex-1 items-center justify-center rounded-[6px] text-[12px] font-semibold transition ${
+                side === item
+                  ? "bg-blue-500 text-white shadow-[0_0_18px_rgba(59,130,246,0.18)]"
+                  : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+              }`}
+            >
+              {item}
+            </button>
+
+          )
+        )}
+
+      </div>
+
+    </div>
+
+{/* ================================================= */}
+{/* ASSET TYPE */}
+{/* ================================================= */}
+
+<div>
+
+  <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+    Asset Type
+  </label>
+
+  <div className="relative">
+
+    <select
+      value={assetType}
+      onChange={(e) =>
+        setAssetType(e.target.value)
+      }
+      className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition focus:border-blue-500/40 [color-scheme:dark] appearance-none"
+      style={{
+        paddingLeft: "16px",
       }}
-      className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
-    />
+    >
+      <option value="STOCKS">Stocks</option>
+      <option value="OPTIONS">Options</option>
+      <option value="FUTURES">Futures</option>
+      <option value="CRYPTO">Crypto</option>
+      <option value="CFD">CFD</option>
+      <option value="FOREX">Forex</option>
+    </select>
+
+    <span className="pointer-events-none absolute right-[10px] top-4 -translate-y-1/2 text-slate-400">
+      ⌄
+    </span>
 
   </div>
 
 </div>
 
-{/* ENTRY TIME */}
+  </div>
 
-                          <div className="flex flex-col items-center">
+</section>
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Entry Time
-                            </p>
+<div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[10px]" />
 
-                            <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+{/* ================================================= */}
+{/* 3 + 4. ENTRY / EXIT */}
+{/* ================================================= */}
 
-                              <input
-                                type="time"
-                                value={entryTime}
-                                onChange={(e) =>
-                                  setEntryTime(
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-                              />
+<div className="relative grid grid-cols-1 lg:grid-cols-2">
 
-                            </div>
+  {/* ================================================= */}
+  {/* ENTRY */}
+  {/* ================================================= */}
 
-                          </div>
+  <section className="py-5 lg:pr-5">
 
-                          {/* EXIT TIME */}
+    <div className="h-5 shrink-0" />
 
-                          <div className="flex flex-col items-center">
+    <div className="translate-x-[14px]">
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Exit Time
-                            </p>
+      <div className="flex items-center gap-2">
 
-                            <div className="flex h-[50px] w-[130px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+        <span className="text-[12px] font-semibold text-slate-400">
+          3
+        </span>
 
-                              <input
-                                type="time"
-                                value={exitTime}
-                                onChange={(e) =>
-                                  setExitTime(
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-                              />
+        <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
+          Entry Details
+        </h3>
 
-                            </div>
+      </div>
 
-                          </div>
+    </div>
 
-                          {/* CURRENCY */}
+    <div className="h-2 shrink-0" />
 
-                          <div className="flex flex-col items-center">
+    <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3">
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Currency
-                            </p>
+      {/* ================================================= */}
+      {/* QUANTITY */}
+      {/* ================================================= */}
 
-                            <div className="flex h-[50px] w-[120px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+      <div>
 
-                              <select
-                                value={currency}
-                                onChange={(e) =>
-                                  setCurrency(
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-                              >
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Quantity
+        </label>
 
-                                <option value="USD">
-                                  USD
-                                </option>
+        <input
+          type="number"
+          value={quantity}
+          onChange={(e) =>
+            setQuantity(e.target.value)
+          }
+          placeholder="100"
+          className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+          style={{ paddingLeft: "16px" }}
+        />
 
-                                <option value="CAD">
-                                  CAD
-                                </option>
+      </div>
 
-                                <option value="EUR">
-                                  EUR
-                                </option>
+      {/* ================================================= */}
+      {/* PRICE */}
+      {/* ================================================= */}
 
-                                <option value="JPY">
-                                  JPY
-                                </option>
+      <div>
 
-                                <option value="INR">
-                                  INR
-                                </option>
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Price
+        </label>
 
-                                <option value="GBP">
-                                  GBP
-                                </option>
+        <input
+          type="number"
+          step="0.01"
+          value={entryPrice}
+          onChange={(e) =>
+            setEntryPrice(e.target.value)
+          }
+          placeholder="200.00"
+          className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+          style={{ paddingLeft: "16px" }}
+        />
 
-                              </select>
+      </div>
 
-                            </div>
+      {/* ================================================= */}
+      {/* DATE */}
+      {/* ================================================= */}
 
-                          </div>
+      <div>
 
-                          {/* EXCHANGE */}
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Date
+        </label>
 
-                          <div className="flex flex-col items-center">
+        <div className="relative">
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Exchange
-                            </p>
+          <input
+            type="date"
+            value={entryDate}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              setEntryDate(value);
+              setExitDate(value);
+            }}
+            className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-4 pr-10 text-[13px] font-medium text-white outline-none transition [color-scheme:dark] focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 [&::-webkit-calendar-picker-indicator]:opacity-0"
+            style={{ paddingLeft: "16px" }}
+          />
+
+          <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
+
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+
+              <rect
+                x="3"
+                y="5"
+                width="18"
+                height="16"
+                rx="2"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
 
-                            <div className="flex h-[50px] w-[140px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+              <path
+                d="M16 3V7M8 3V7M3 10H21"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
 
-                              <select
-                                value={exchange}
-                                onChange={(e) =>
-                                  setExchange(
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full bg-transparent text-center text-[13px] font-medium text-white outline-none [color-scheme:dark]"
-                              >
+            </svg>
 
-                                <option value="">
-                                  Select
-                                </option>
+          </span>
 
-                                <option value="NASDAQ">
-                                  NASDAQ
-                                </option>
+        </div>
 
-                                <option value="NYSE">
-                                  NYSE
-                                </option>
+      </div>
 
-                                <option value="ARCA">
-                                  ARCA
-                                </option>
+      {/* ================================================= */}
+      {/* TIME */}
+      {/* ================================================= */}
 
-                                <option value="CBOE">
-                                  CBOE
-                                </option>
+      <div>
 
-                                <option value="CME">
-                                  CME
-                                </option>
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Time
+        </label>
 
-                                <option value="CBOT">
-                                  CBOT
-                                </option>
+        <div className="relative">
 
-                                <option value="NYMEX">
-                                  NYMEX
-                                </option>
+          <input
+            type="time"
+            value={entryTime}
+            onChange={(e) =>
+              setEntryTime(e.target.value)
+            }
+            className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-4 pr-10 text-[13px] font-medium text-white outline-none transition [color-scheme:dark] focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 [&::-webkit-calendar-picker-indicator]:opacity-0"
+            style={{ paddingLeft: "16px" }}
+          />
 
-                                <option value="COMEX">
-                                  COMEX
-                                </option>
+          <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
-                                <option value="TSX">
-                                  TSX
-                                </option>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
 
-                                <option value="TSXV">
-                                  TSXV
-                                </option>
+              <circle
+                cx="12"
+                cy="12"
+                r="8.5"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
 
-                                <option value="ICE">
-                                  ICE
-                                </option>
+              <path
+                d="M12 7V12L15.5 14"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
 
-                                <option value="Other">
-                                  Other
-                                </option>
+            </svg>
 
-                              </select>
+          </span>
 
-                            </div>
+        </div>
 
-                          </div>
+      </div>
 
-                        </div>
+    </div>
 
-                        {/* ================================================= */}
-                        {/* GAP */}
-                        {/* ================================================= */}
+  </section>
 
-                        <div className="h-10 opacity-0">
-                          spacing
-                        </div>
+  {/* ================================================= */}
+  {/* CENTER DIVIDER */}
+  {/* ================================================= */}
 
-                        {/* ================================================= */}
-                        {/* ROW 3 */}
-                        {/* ================================================= */}
+  <div className="pointer-events-none absolute bottom-0 left-1/2 top-5 hidden w-px -translate-x-1/2 bg-white/[0.08] lg:block" />
 
-                        <div className="flex items-start justify-center gap-4">
+  {/* ================================================= */}
+  {/* EXIT */}
+  {/* ================================================= */}
+
+  <section className="py-5 lg:pl-5">
+
+    <div className="h-5 shrink-0" />
+
+    <div className="translate-x-[14px]">
+
+      <div className="flex items-center gap-2">
+
+        <span className="text-[12px] font-semibold text-slate-400">
+          4
+        </span>
+
+        <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
+          Exit Details
+        </h3>
+
+      </div>
+
+    </div>
+
+    <div className="h-2 shrink-0" />
+
+    <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3">
+
+      {/* ================================================= */}
+      {/* QUANTITY */}
+      {/* ================================================= */}
+
+      <div>
+
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Quantity
+        </label>
+
+        <input
+          type="number"
+          value={quantity}
+          onChange={(e) =>
+            setQuantity(e.target.value)
+          }
+          placeholder="100"
+          className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+          style={{ paddingLeft: "16px" }}
+        />
+
+      </div>
+
+      {/* ================================================= */}
+      {/* PRICE */}
+      {/* ================================================= */}
+
+      <div>
+
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Price
+        </label>
+
+        <input
+          type="number"
+          step="0.01"
+          value={exitPrice}
+          onChange={(e) =>
+            setExitPrice(e.target.value)
+          }
+          placeholder="215.00"
+          className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+          style={{ paddingLeft: "16px" }}
+        />
+
+      </div>
+
+      {/* ================================================= */}
+      {/* DATE */}
+      {/* ================================================= */}
+
+      <div>
+
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Date
+        </label>
+
+        <div className="relative">
+
+          <input
+            type="date"
+            value={exitDate}
+            onChange={(e) =>
+              setExitDate(e.target.value)
+            }
+            className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-4 pr-10 text-[13px] font-medium text-white outline-none transition [color-scheme:dark] focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 [&::-webkit-calendar-picker-indicator]:opacity-0"
+            style={{ paddingLeft: "16px" }}
+          />
+
+          <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
-                          {/* QUANTITY */}
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
 
-                          <div className="flex flex-col items-center">
+              <rect
+                x="3"
+                y="5"
+                width="18"
+                height="16"
+                rx="2"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Quantity
-                            </p>
+              <path
+                d="M16 3V7M8 3V7M3 10H21"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
 
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+            </svg>
 
-                              <input
-                                type="number"
-                                value={quantity}
-                                onChange={(e) =>
-                                  setQuantity(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Quantity"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
+          </span>
 
-                            </div>
+        </div>
 
-                          </div>
+      </div>
 
-                          {/* ENTRY PRICE */}
+      {/* ================================================= */}
+      {/* TIME */}
+      {/* ================================================= */}
 
-                          <div className="flex flex-col items-center">
+      <div>
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Entry Price
-                            </p>
+        <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+          Time
+        </label>
 
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+        <div className="relative">
 
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={entryPrice}
-                                onChange={(e) =>
-                                  setEntryPrice(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Entry"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
+          <input
+            type="time"
+            value={exitTime}
+            onChange={(e) =>
+              setExitTime(e.target.value)
+            }
+            className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-4 pr-10 text-[13px] font-medium text-white outline-none transition [color-scheme:dark] focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 [&::-webkit-calendar-picker-indicator]:opacity-0"
+            style={{ paddingLeft: "16px" }}
+          />
 
-                            </div>
+          <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
-                          </div>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
 
-                          {/* EXIT PRICE */}
+              <circle
+                cx="12"
+                cy="12"
+                r="8.5"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
 
-                          <div className="flex flex-col items-center">
+              <path
+                d="M12 7V12L15.5 14"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Exit Price
-                            </p>
+            </svg>
 
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+          </span>
 
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={exitPrice}
-                                onChange={(e) =>
-                                  setExitPrice(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Exit"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
+        </div>
 
-                            </div>
+      </div>
 
-                          </div>
+    </div>
 
-                          {/* PNL */}
+  </section>
 
-                          <div className="flex flex-col items-center">
+</div>
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              PnL
-                            </p>
+<div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[10px]" />
 
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220]">
+{/* ================================================= */}
+{/* 5. TRADE DETAILS */}
+{/* ================================================= */}
 
-                              <span className="text-[16px] text-slate-500">
-                                Auto
-                              </span>
+<section className="py-5">
 
-                            </div>
+  <div className="h-5 shrink-0" />
 
-                          </div>
+  <div className="translate-x-[14px]">
 
-                          {/* COMMISSION */}
+    <div className="flex items-center gap-2">
 
-                          <div className="flex flex-col items-center">
+      <span className="text-[12px] font-semibold text-slate-400">
+        5
+      </span>
 
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                              Commission
-                            </p>
+      <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
+        Trade Details
+      </h3>
 
-                            <div className="flex h-[50px] w-[150px] items-center justify-center rounded-[16px] border border-white/[0.06] bg-[#0b1220] px-4">
+    </div>
 
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={commission}
-                                onChange={(e) =>
-                                  setCommission(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Commission"
-                                className="w-full bg-transparent text-center text-[14px] font-medium text-white outline-none placeholder:text-slate-500"
-                              />
+  </div>
 
-                            </div>
+  <div className="h-2 shrink-0" />
 
-                          </div>
+  <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3 xl:grid-cols-4">
 
-                        </div>
+    {/* ================================================= */}
+    {/* CURRENCY */}
+    {/* ================================================= */}
 
-                      </div>
+    <div>
 
-                    </div>
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        Currency
+      </label>
 
-                    <div className="w-[18px] shrink-0 opacity-0">
-                      spacing
-                    </div>
+      <select
+        value={currency}
+        onChange={(e) =>
+          setCurrency(e.target.value)
+        }
+        className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-8 text-[13px] font-medium text-white outline-none transition focus:border-blue-500/40 [color-scheme:dark]"
+        style={{ paddingLeft: "16px" }}
+      >
 
-                  </div>
+        <option value="USD">USD</option>
+        <option value="CAD">CAD</option>
+        <option value="EUR">EUR</option>
+        <option value="JPY">JPY</option>
+        <option value="INR">INR</option>
+        <option value="GBP">GBP</option>
 
-                  <div className="h-6 opacity-0">
-                    spacing
-                  </div>
+      </select>
 
-                </div>
+    </div>
 
+    {/* ================================================= */}
+    {/* EXCHANGE */}
+    {/* ================================================= */}
+
+    <div>
+
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        Exchange
+      </label>
+
+      <select
+        value={exchange}
+        onChange={(e) =>
+          setExchange(e.target.value)
+        }
+        className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-8 text-[13px] font-medium text-white outline-none transition focus:border-blue-500/40 [color-scheme:dark]"
+        style={{ paddingLeft: "16px" }}
+      >
+
+        <option value="">Select</option>
+        <option value="NASDAQ">NASDAQ</option>
+        <option value="NYSE">NYSE</option>
+        <option value="ARCA">ARCA</option>
+        <option value="CBOE">CBOE</option>
+        <option value="CME">CME</option>
+        <option value="CBOT">CBOT</option>
+        <option value="NYMEX">NYMEX</option>
+        <option value="COMEX">COMEX</option>
+        <option value="TSX">TSX</option>
+        <option value="TSXV">TSXV</option>
+        <option value="ICE">ICE</option>
+        <option value="Other">Other</option>
+
+      </select>
+
+    </div>
+
+    {/* ================================================= */}
+    {/* COMMISSION / FEES */}
+    {/* ================================================= */}
+
+    <div>
+
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        Commission / Fees
+      </label>
+
+      <div className="relative">
+
+        <input
+          type="number"
+          step="0.01"
+          value={commission}
+          onChange={(e) =>
+            setCommission(e.target.value)
+          }
+          placeholder="5.00"
+          className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-4 pr-14 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+          style={{ paddingLeft: "16px" }}
+        />
+
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500">
+          {currency}
+        </span>
+
+      </div>
+
+    </div>
+
+    {/* ================================================= */}
+    {/* EDIT STATUS */}
+    {/* ================================================= */}
+
+    <div>
+
+      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+        Status
+      </label>
+
+      <div className="flex h-10 items-center rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-4">
+
+        <span className="text-[13px] font-semibold text-emerald-400">
+          Complete
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+{/* ================================================= */}
+{/* ADVANCED */}
+{/* ================================================= */}
+
+<div className="h-4 shrink-0" />
+
+<button
+  type="button"
+  className="flex h-10 w-[calc(100%-30px)] translate-x-[14px] items-center justify-between rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-4 text-left transition hover:border-white/[0.12]"
+  style={{ paddingLeft: "16px" }}
+>
+
+  <span className="text-[13px] font-medium text-slate-300">
+
+    Advanced
+
+    <span
+      className="text-slate-500"
+      style={{ marginLeft: "8px" }}
+    >
+      Multiplier, Tags, Strategy, etc.
+    </span>
+
+  </span>
+
+  <span className="translate-x-[-6px] translate-y-[-4px] text-slate-500">
+    ⌄
+  </span>
+
+</button>
+
+</div>
+
+{/* ================================================= */}
+{/* ACTIONS — FIXED BOTTOM */}
+{/* ================================================= */}
+
+<div className="shrink-0 px-5 pb-5 pt-4">
+
+  <div className="grid w-[calc(100%-30px)] translate-x-[14px] translate-y-[-10px] grid-cols-[180px_minmax(0,1fr)] gap-3">
+
+    <button
+      type="button"
+      onClick={onClose}
+      className="h-11 rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-[14px] font-medium text-white transition hover:border-white/[0.12] hover:bg-[#0b0c1e]"
+    >
+      Cancel
+    </button>
+
+    <button
+      type="button"
+      onClick={handleSaveTrade}
+      className="flex h-11 items-center justify-center gap-3 rounded-[8px] bg-gradient-to-r from-violet-700 to-violet-600 text-[14px] font-semibold text-white shadow-[0_8px_30px_rgba(109,40,217,0.22)] transition hover:from-violet-600 hover:to-violet-500"
+    >
+      Save Changes
+      <span className="text-lg">
+        →
+      </span>
+    </button>
+
+  </div>
+
+</div>
+
+</section>
+
+{/* ================================================= */}
+{/* RIGHT — TRADE PREVIEW */}
+{/* ================================================= */}
+
+<aside className="flex min-h-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#07111d]">
+
+  {/* PREVIEW HEADER */}
+
+  <div className="flex shrink-0 items-start justify-between px-5 pb-4 pt-5 translate-x-[0px] translate-y-[-0px] min-[1100px]:translate-x-[14px] min-[1100px]:translate-y-[6px]">
+
+    <div>
+      <h3 className="text-[19px] font-semibold tracking-[-0.01em] text-white">
+        Trade Preview
+      </h3>
+
+      <p className="mt-1 text-[13px] text-slate-400">
+        Live summary of your trade
+      </p>
+    </div>
+
+    {/* CLOSE */}
+
+    <button
+      type="button"
+      onClick={onClose}
+      aria-label="Close"
+      className="flex h-9 w-9 translate-x-[-20px] translate-y-[4px] items-center justify-center rounded-[8px] text-[26px] leading-none text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
+    >
+      ×
+    </button>
+
+  </div>
+
+  {/* PREVIEW CONTENT */}
+
+  <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-5">
+
+    <div className="h-4 shrink-0" />
+
+    <div className="w-[calc(100%-30px)] translate-x-[14px] space-y-3">
+
+      {/* ================================================= */}
+      {/* INSTRUMENT */}
+      {/* ================================================= */}
+
+      <div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+
+        <div className="flex h-[70px] items-center justify-between gap-4">
+
+          <div className="flex min-w-0 items-center gap-4">
+
+            <div className="flex h-[50px] w-[50px] shrink-0 translate-x-[6px] translate-y-[0px] items-center justify-center rounded-full border border-white/[0.08] bg-[#0b0c1e] text-[22px] font-semibold text-white">
+              {ticker
+                ? ticker.slice(0, 1).toUpperCase()
+                : "•"}
+            </div>
+
+            <div className="min-w-0 translate-x-[10px]">
+
+              <div className="text-[24px] font-semibold tracking-[-0.02em] text-white">
+                {ticker || "—"}
               </div>
 
-              <div className="h-5 opacity-0">
-                spacing
+              <div className="mt-1 text-[14px] text-slate-400">
+                {assetType === "STOCKS"
+                  ? "Stocks"
+                  : assetType}
               </div>
 
             </div>
 
           </div>
 
-          <div className="w-[18px] opacity-0">
-            spacing
+          <div className="flex shrink-0 translate-x-[-10px] translate-y-[0px] flex-col items-end gap-2">
+
+            <span className="flex h-6 w-[50px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
+              {side}
+            </span>
+
+            <span className="flex h-6 w-[100px] items-center justify-center rounded-[6px] bg-white/[0.04] text-[11px] text-slate-300">
+              Complete Trade
+            </span>
+
           </div>
 
         </div>
 
-        <div className="h-[18px] opacity-0">
-          spacing
+      </div>
+
+      <div className="h-3 shrink-0" />
+{/* ================================================= */}
+{/* FINANCIAL SUMMARY */}
+{/* ================================================= */}
+
+<div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+
+  <div className="flex h-[70px] items-center">
+
+    <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-3 divide-x divide-white/[0.06]">
+
+      {/* NET P&L */}
+
+      <div>
+        <div className="text-[12px] text-slate-400">
+          Net P&L
+        </div>
+
+        <div
+          className={`mt-1 text-[16px] font-semibold ${
+            previewNetPnL > 0
+              ? "text-emerald-400"
+              : previewNetPnL < 0
+                ? "text-red-400"
+                : "text-white"
+          }`}
+        >
+          {formatPreviewPnL(previewNetPnL)}
+        </div>
+      </div>
+
+      {/* RETURN */}
+
+      <div className="pl-4">
+
+        <div className="text-[12px] text-slate-400">
+          Return
+        </div>
+
+        <div
+          className={`mt-1 text-[16px] font-semibold ${
+            previewReturn > 0
+              ? "text-emerald-400"
+              : previewReturn < 0
+                ? "text-red-400"
+                : "text-white"
+          }`}
+        >
+          {formatPreviewReturn(previewReturn)}
+        </div>
+
+      </div>
+
+      {/* HOLDING TIME */}
+
+      <div className="pl-4">
+
+        <div className="text-[12px] text-slate-400">
+          Holding Time
+        </div>
+
+        <div className="mt-1 text-[16px] font-semibold text-white">
+          {previewHoldingTime}
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div className="h-3 shrink-0" />
+
+{/* ================================================= */}
+{/* VALUES */}
+{/* ================================================= */}
+
+<div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+
+  <div className="flex h-[80px] items-center">
+
+    <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 divide-x divide-white/[0.06]">
+
+      {/* LEFT — VALUES */}
+
+      <div className="pr-4">
+
+        <div className="flex items-center justify-between text-[13px]">
+
+          <span className="text-slate-400">
+            Entry Value
+          </span>
+
+          <span className="translate-x-[-10px] text-white">
+            {formatPreviewCurrency(previewEntryValue)}
+          </span>
+
+        </div>
+
+        <div className="translate-y-[4px] flex items-center justify-between text-[13px]">
+
+          <span className="text-slate-400">
+            Exit Value
+          </span>
+
+          <span className="translate-x-[-10px] text-white">
+            {formatPreviewCurrency(previewExitValue)}
+          </span>
+
+        </div>
+
+        <div className="translate-y-[6px] flex items-center justify-between text-[13px]">
+
+          <span className="text-slate-400">
+            Fees
+          </span>
+
+          <span className="translate-x-[-10px] text-white">
+            {formatPreviewCurrency(previewCommission)}
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* RIGHT — PERFORMANCE */}
+
+      <div className="pl-4">
+
+        <div className="flex items-center justify-between text-[13px]">
+
+          <span className="translate-x-[10px] text-slate-400">
+            Net P&L
+          </span>
+
+          <span
+            className={`${
+              previewNetPnL > 0
+                ? "text-emerald-400"
+                : previewNetPnL < 0
+                  ? "text-red-400"
+                  : "text-white"
+            }`}
+          >
+            {formatPreviewPnL(previewNetPnL)}
+          </span>
+
+        </div>
+
+        <div className="translate-y-[4px] flex items-center justify-between text-[13px]">
+
+          <span className="translate-x-[10px] text-slate-400">
+            Return
+          </span>
+
+          <span
+            className={`${
+              previewReturn > 0
+                ? "text-emerald-400"
+                : previewReturn < 0
+                  ? "text-red-400"
+                  : "text-white"
+            }`}
+          >
+            {formatPreviewReturn(previewReturn)}
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div className="h-3 shrink-0" />
+
+{/* ================================================= */}
+{/* POSITION IMPACT */}
+{/* ================================================= */}
+
+<div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+
+  <div className="relative h-[110px] w-[calc(100%-30px)] translate-x-[14px]">
+
+    {/* LEFT — POSITION */}
+
+    <div className="absolute left-0 top-0 translate-y-[10px]">
+
+      <div className="translate-x-[0px] text-[16px] font-semibold text-white">
+        Position Impact
+      </div>
+
+<div className="translate-y-[2px] text-[13px] text-slate-400">
+  Position Size
+</div>
+
+<div className="translate-y-[4px] text-[18px] font-medium text-white">
+  {quantity} {assetType === "OPTIONS" ? "Contracts" : "Shares"}
+</div>
+
+<div className="translate-y-[6px] text-[12px] text-slate-500">
+  Completed trade
+</div>
+
+    </div>
+
+    {/* RIGHT — STATUS */}
+
+    <div className="absolute right-0 top-1/2 translate-x-[-10px] translate-y-[-50%] text-right">
+
+      <div className="translate-y-[-4px] translate-x-[-18px] text-[13px] text-slate-400">
+        Status
+      </div>
+
+      <span className="mt-3 inline-flex h-6 w-[70px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
+        COMPLETE
+      </span>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div className="h-3 shrink-0" />
+
+{/* ================================================= */}
+{/* TIMELINE */}
+{/* ================================================= */}
+
+<div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+
+  <div className="w-[calc(100%-30px)] translate-x-[14px]">
+
+    {/* TITLE */}
+
+    <div className="translate-y-[8px] text-[16px] font-semibold text-white">
+      Timeline
+    </div>
+
+    {/* TIMELINE BODY */}
+
+    <div className="relative mt-4 translate-y-[18px]">
+
+      {/* VERTICAL LINE */}
+
+      <div className="absolute bottom-[50px] left-[13px] top-[14px] w-px bg-white/[0.10]" />
+
+      {/* ENTRY */}
+
+      <div className="relative mt-[15px] flex min-h-[100px]">
+
+        {/* MARKER */}
+
+        <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[12px] font-semibold text-[#07111d]">
+          E
+        </div>
+
+        {/* DETAILS */}
+
+        <div className="ml-3 min-w-0 flex-1 translate-x-[10px] translate-y-[-2px]">
+
+          <div className="text-[14px] font-semibold text-emerald-400">
+            {side === "LONG" ? "BUY (Entry)" : "SELL (Entry)"}
+          </div>
+
+          <div className="mt-2 text-[14px] font-medium text-white">
+            {quantity || "0"}{" "}
+            {assetType === "OPTIONS" ? "Contracts" : "Shares"}
+            {entryPrice
+              ? ` @ $${Number(entryPrice).toFixed(2)}`
+              : ""}
+          </div>
+
+          <div className="mt-1 text-[13px] text-slate-400">
+            {entryDate || "—"}
+            {entryTime
+              ? ` • ${entryTime}`
+              : ""}
+          </div>
+
+        </div>
+
+        {/* RIGHT — VALUE */}
+
+        <div className="shrink-0 pl-3 text-right">
+
+          <div className="text-[14px] font-medium text-white">
+            {formatPreviewCurrency(previewEntryValue)}
+          </div>
+
+          <div className="mt-2 text-[12px] text-slate-400">
+            Fee: {formatPreviewCurrency(previewCommission / 2)}
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* EXIT */}
+
+      <div className="relative mt-5 flex min-h-[68px] translate-y-[-10px]">
+
+        {/* MARKER */}
+
+        <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500 text-[12px] font-semibold text-white">
+          X
+        </div>
+
+        {/* DETAILS */}
+
+        <div className="ml-3 min-w-0 flex-1 translate-x-[10px] translate-y-[-6px]">
+
+          <div className="text-[14px] font-semibold text-red-400">
+            {side === "LONG" ? "SELL (Exit)" : "BUY (Exit)"}
+          </div>
+
+          <div className="mt-2 text-[14px] font-medium text-white">
+            {quantity || "0"}{" "}
+            {assetType === "OPTIONS" ? "Contracts" : "Shares"}
+            {exitPrice
+              ? ` @ $${Number(exitPrice).toFixed(2)}`
+              : ""}
+          </div>
+
+          <div className="mt-1 text-[13px] text-slate-400">
+            {exitDate || "—"}
+            {exitTime
+              ? ` • ${exitTime}`
+              : ""}
+          </div>
+
+        </div>
+
+        {/* RIGHT — VALUE */}
+
+        <div className="shrink-0 pl-3 text-right">
+
+          <div className="text-[14px] font-medium text-white">
+            {formatPreviewCurrency(previewExitValue)}
+          </div>
+
+          <div className="mt-2 text-[12px] text-slate-400">
+            Fee: {formatPreviewCurrency(
+              previewCommission -
+                previewCommission / 2
+            )}
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div className="h-3.5 shrink-0" />
+
+{/* ================================================= */}
+{/* QUICK SUMMARY */}
+{/* ================================================= */}
+
+{/*
+<div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+
+  <div className="w-[calc(100%-30px)] translate-x-[14px]">
+
+    <div className="text-[16px] font-semibold text-white">
+      Quick Summary
+    </div>
+
+    <div className="mt-4 grid grid-cols-4 divide-x divide-white/[0.06]">
+
+      <div className="px-2 text-center first:pl-0 last:pr-0">
+        <div className="text-[10px] text-slate-500">
+          Hold Duration
+        </div>
+
+        <div className="mt-1 text-[12px] font-medium text-white">
+          —
+        </div>
+      </div>
+
+      <div className="px-2 text-center">
+        <div className="text-[10px] text-slate-500">
+          Avg Entry Price
+        </div>
+
+        <div className="mt-1 text-[12px] font-medium text-white">
+          {entryPrice
+            ? `$${entryPrice}`
+            : "—"}
+        </div>
+      </div>
+
+      <div className="px-2 text-center">
+        <div className="text-[10px] text-slate-500">
+          Avg Exit Price
+        </div>
+
+        <div className="mt-1 text-[12px] font-medium text-white">
+          {exitPrice
+            ? `$${exitPrice}`
+            : "—"}
+        </div>
+      </div>
+
+      <div className="px-2 text-center first:pl-0 last:pr-0">
+        <div className="text-[10px] text-slate-500">
+          Shares Traded
+        </div>
+
+        <div className="mt-1 text-[12px] font-medium text-white">
+          {quantity || "—"}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div className="h-4 shrink-0" />
+*/}
+
+{/* ================================================= */}
+{/* DISCLAIMER */}
+{/* ================================================= */}
+
+<div className="flex h-[40px] w-[calc(100%-0px)] translate-x-[0px] items-center rounded-[8px] border border-violet-500/20 bg-violet-500/[0.06] px-4">
+
+  <div className="flex items-start gap-5">
+
+    {/* ICON */}
+
+    <div className="shrink-0 translate-x-[6px] translate-y-[10px] text-[15px] leading-none text-violet-400">
+      ⓘ
+    </div>
+
+    {/* MESSAGE */}
+
+    <p className="text-[11px] leading-[16px] text-violet-300/90">
+      This preview is an estimate.
+      <br />
+      Actual results may vary after saving and FIFO processing.
+    </p>
+
+  </div>
+
+</div>
+
+              </div>
+
+            </div>
+
+          </aside>
+
         </div>
 
       </div>
