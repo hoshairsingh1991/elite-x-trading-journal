@@ -1,6 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+import { createPortal } from "react-dom";
 
 import {
   createManualExecutions,
@@ -19,12 +25,20 @@ interface AddTradeModalProps {
   open: boolean;
 
   onClose: () => void;
+
+  accountOptions: {
+    value: string;
+    label: string;
+    source: "broker" | "manual";
+    accountId: string | null;
+  }[];
 }
 
 export default function AddTradeModal({
 
   open,
   onClose,
+  accountOptions,
 
 }: AddTradeModalProps) {
 
@@ -58,6 +72,92 @@ export default function AddTradeModal({
 
   const [account, setAccount] =
     useState("");
+
+    const [isAccountDropdownOpen, setIsAccountDropdownOpen] =
+  useState(false);
+
+  const accountFieldRef = useRef<HTMLDivElement | null>(null);
+
+  const [accountDropdownPosition, setAccountDropdownPosition] =
+  useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
+
+  const updateAccountDropdownPosition = () => {
+  if (!accountFieldRef.current) {
+    return;
+  }
+
+  const rect =
+    accountFieldRef.current.getBoundingClientRect();
+
+  setAccountDropdownPosition({
+    top: rect.bottom + 4,
+    left: rect.left,
+    width: rect.width,
+  });
+};
+
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      accountFieldRef.current &&
+      !accountFieldRef.current.contains(
+        event.target as Node
+      )
+    ) {
+      setIsAccountDropdownOpen(false);
+    }
+  };
+
+  document.addEventListener(
+    "mousedown",
+    handleClickOutside
+  );
+
+  return () => {
+    document.removeEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+  };
+}, []);
+
+useEffect(() => {
+  if (!isAccountDropdownOpen) {
+    return;
+  }
+
+  const updatePosition = () => {
+    updateAccountDropdownPosition();
+  };
+
+  window.addEventListener(
+    "resize",
+    updatePosition
+  );
+
+  window.addEventListener(
+    "scroll",
+    updatePosition,
+    true
+  );
+
+  return () => {
+    window.removeEventListener(
+      "resize",
+      updatePosition
+    );
+
+    window.removeEventListener(
+      "scroll",
+      updatePosition,
+      true
+    );
+  };
+}, [isAccountDropdownOpen]);
 
 const getTodayDate = () => {
   const today =
@@ -474,11 +574,8 @@ currency,
     exchange,
   });
 
-await saveExecutionsToSupabase(
-  executions
-);
+await saveExecutionsToSupabase(executions);
 
-window.location.reload();
 };
 
   if (!open) {
@@ -634,86 +731,120 @@ window.location.reload();
 
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-4 gap-3">
 
-<Field label="Account" required>
-  <input
-    type="text"
-    value={account}
-    onChange={(e) => {
-      setAccount(e.target.value);
+    {/* ================================================= */}
+    {/* ACCOUNT */}
+    {/* ================================================= */}
 
-      if (fieldErrors.account) {
-        setFieldErrors((prev) => ({
-          ...prev,
-          account: false,
-        }));
-      }
-    }}
-    placeholder="Account"
-className={`${inputClass} ${
-  fieldErrors.account
-    ? "!border-red-700/70"
-    : ""
-}`}
-    style={{ paddingLeft: "16px" }}
-  />
-</Field>
+    <div className="relative z-[100]">
+      <Field label="Account" required>
 
-<Field label="Symbol" required>
-  <div className="relative">
+        <div
+          ref={accountFieldRef}
+          className="relative"
+        >
 
-<span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <circle
-      cx="11"
-      cy="11"
-      r="6.5"
-      stroke="currentColor"
-      strokeWidth="2"
-    />
-    <path
-      d="M16 16L21 21"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-</span>
+          <input
+            type="text"
+            value={account}
+            onFocus={() => {
+              updateAccountDropdownPosition();
+              setIsAccountDropdownOpen(true);
+            }}
+            onChange={(e) => {
+              setAccount(e.target.value);
+              updateAccountDropdownPosition();
+              setIsAccountDropdownOpen(true);
 
-<input
-  type="text"
-  value={ticker}
-  onChange={(e) => {
+              if (fieldErrors.account) {
+                setFieldErrors((prev) => ({
+                  ...prev,
+                  account: false,
+                }));
+              }
+            }}
+            placeholder="Account"
+            className={`${inputClass} ${
+              fieldErrors.account
+                ? "!border-red-700/70"
+                : ""
+            }`}
+            style={{ paddingLeft: "16px" }}
+          />
 
-    setTicker(e.target.value);
+        </div>
 
-    if (fieldErrors.ticker) {
+      </Field>
+    </div>
 
-      setFieldErrors((prev) => ({
-        ...prev,
-        ticker: false,
-      }));
+    {/* ================================================= */}
+    {/* SYMBOL */}
+    {/* ================================================= */}
 
-    }
+    <Field label="Symbol" required>
 
-  }}
-  placeholder="AAPL"
-  className={`${inputClass} ${
-    fieldErrors.ticker
-      ? "!border-red-700/70"
-      : ""
-  }`}
-  style={{ paddingLeft: "40px" }}
-/>
+      <div className="relative">
 
-  </div>
-</Field>
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+
+            <circle
+              cx="11"
+              cy="11"
+              r="6.5"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+
+            <path
+              d="M16 16L21 21"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+
+          </svg>
+
+        </span>
+
+        <input
+          type="text"
+          value={ticker}
+          onChange={(e) => {
+
+            setTicker(e.target.value);
+
+            if (fieldErrors.ticker) {
+              setFieldErrors((prev) => ({
+                ...prev,
+                ticker: false,
+              }));
+            }
+
+          }}
+          placeholder="AAPL"
+          className={`${inputClass} ${
+            fieldErrors.ticker
+              ? "!border-red-700/70"
+              : ""
+          }`}
+          style={{ paddingLeft: "40px" }}
+        />
+
+      </div>
+
+    </Field>
+
+    {/* ================================================= */}
+    {/* DIRECTION */}
+    {/* ================================================= */}
 
     <Field label="Direction">
 
@@ -742,35 +873,39 @@ className={`${inputClass} ${
 
     </Field>
 
-<Field label="Asset Type">
+    {/* ================================================= */}
+    {/* ASSET TYPE */}
+    {/* ================================================= */}
 
-  <div className="relative">
+    <Field label="Asset Type">
 
-    <select
-      value={assetType}
-      onChange={(e) =>
-        setAssetType(e.target.value)
-      }
-      className={`${selectClass} appearance-none`}
-      style={{
-        paddingLeft: "16px",
-      }}
-    >
-      <option value="STOCKS">Stocks</option>
-      <option value="OPTIONS">Options</option>
-      <option value="FUTURES">Futures</option>
-      <option value="CRYPTO">Crypto</option>
-      <option value="CFD">CFD</option>
-      <option value="FOREX">Forex</option>
-    </select>
+      <div className="relative">
 
-    <span className="pointer-events-none absolute right-[10px] top-4 -translate-y-1/2 text-slate-400">
-      ⌄
-    </span>
+        <select
+          value={assetType}
+          onChange={(e) =>
+            setAssetType(e.target.value)
+          }
+          className={`${selectClass} appearance-none`}
+          style={{
+            paddingLeft: "16px",
+          }}
+        >
+          <option value="STOCKS">Stocks</option>
+          <option value="OPTIONS">Options</option>
+          <option value="FUTURES">Futures</option>
+          <option value="CRYPTO">Crypto</option>
+          <option value="CFD">CFD</option>
+          <option value="FOREX">Forex</option>
+        </select>
 
-  </div>
+        <span className="pointer-events-none absolute right-[10px] top-4 -translate-y-1/2 text-slate-400">
+          ⌄
+        </span>
 
-</Field>
+      </div>
+
+    </Field>
 
   </div>
 
@@ -1374,7 +1509,7 @@ className={`${inputClass} ${
 
   {/* RESET + CLOSE */}
 
-  <div className="flex items-center gap-1 translate-x-[-20px]">
+  <div className="flex items-center gap-1 translate-y-[4px] translate-x-[-20px]">
 
     {/* RESET */}
 
@@ -1858,6 +1993,72 @@ className={`${inputClass} ${
         </div>
 
       </div>
+
+{typeof document !== "undefined" &&
+  isAccountDropdownOpen &&
+  accountOptions.length > 0 &&
+  createPortal(
+        <div
+          className="fixed z-[9999] max-h-[220px] overflow-y-auto rounded-[8px] border border-white/[0.08] bg-[#0b0c1e] py-1 shadow-[0_12px_30px_rgba(0,0,0,0.55)]"
+          style={{
+            top: accountDropdownPosition.top,
+            left: accountDropdownPosition.left,
+            width: accountDropdownPosition.width,
+          }}
+        >
+{accountOptions
+  .filter((option) => {
+    const query =
+      account.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return (
+      option.label
+        .toLowerCase()
+        .includes(query) ||
+      option.value
+        .toLowerCase()
+        .includes(query)
+    );
+  })
+  .map((option) => (
+<button
+  key={option.value}
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+
+    setAccount(
+      option.value
+    );
+
+    setIsAccountDropdownOpen(false);
+  }}
+  className="flex w-full flex-col items-start gap-0.5 py-2 text-left transition hover:bg-white/[0.04]"
+  style={{
+    paddingLeft: "16px",
+    paddingRight: "16px",
+  }}
+>
+  <span className="w-full truncate text-[13px] font-medium text-white">
+    {option.label}
+  </span>
+
+  {option.source === "broker" &&
+    option.label !== option.value && (
+      <span className="w-full truncate text-[11px] text-slate-500">
+        {option.value}
+      </span>
+    )}
+</button>
+            ))}
+        </div>,
+        document.body
+      )}
+
     </>
   );
 }

@@ -320,6 +320,7 @@ quantity:
   // SAVE TO SUPABASE
   // ===================================================
 
+
   const {
     error,
   } = await supabase
@@ -330,6 +331,7 @@ quantity:
         onConflict: "id",
       }
     );
+
 
 if (error) {
 

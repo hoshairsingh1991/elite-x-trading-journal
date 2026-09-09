@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -145,6 +146,76 @@ const [endDate, setEndDate] =
   selectedAccount,
   setSelectedAccount,
 ] = useState("ALL");
+
+const [
+  manualAccountOptions,
+  setManualAccountOptions,
+] = useState<
+  {
+    value: string;
+    label: string;
+    source: "broker" | "manual";
+  }[]
+>([]);
+
+const [
+  brokerConnections,
+  setBrokerConnections,
+] = useState<
+  {
+    broker_account_id: string;
+    account_alias: string;
+  }[]
+>([]);
+
+const accountOptions = useMemo(() => {
+  const brokerOptions = brokerConnections.map(
+    (connection) => ({
+      value: connection.broker_account_id,
+      label:
+        connection.account_alias ||
+        connection.broker_account_id,
+      source: "broker" as const,
+      accountId:
+        connection.broker_account_id,
+    })
+  );
+
+  const manualOptions =
+    manualAccountOptions.map(
+      (account) => ({
+        value: account.value,
+        label: account.label,
+        source: "manual" as const,
+        accountId: null,
+      })
+    );
+
+  const combined = [
+    ...brokerOptions,
+    ...manualOptions,
+  ];
+
+  const unique =
+    new Map<
+      string,
+      (typeof combined)[number]
+    >();
+
+  for (const option of combined) {
+    const key =
+      option.value.trim().toLowerCase();
+
+    if (!unique.has(key)) {
+      unique.set(key, option);
+    }
+  }
+
+  return Array.from(unique.values());
+}, [
+  brokerConnections,
+  manualAccountOptions,
+]);
 
 const [
   reportingCurrency,
@@ -1666,12 +1737,13 @@ tradingCalendar={
         {/* ADD TRADE MODAL */}
         {/* ================================================= */}
 
-        <AddTradeModal
-          open={isAddTradeOpen}
-          onClose={() =>
-            setIsAddTradeOpen(false)
-          }
-        />
+<AddTradeModal
+  open={isAddTradeOpen}
+  onClose={() =>
+    setIsAddTradeOpen(false)
+  }
+  accountOptions={accountOptions}
+/>
 
       </section>
     </main>

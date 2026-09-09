@@ -24,9 +24,16 @@ from "@/components/layout/UserMenuV2";
 import {
   loadExecutionsFromSupabase,
 } from "@/lib/storage/supabaseExecutionStorage";
+
+
+
 import {
   loadTrades,
 } from "@/lib/storage/tradeStorage";
+
+import {
+  loadManualAccountOptions,
+} from "@/lib/storage/accountStorage";
 
 import { pairTrades }
 from "@/lib/parsers/pairTrades";
@@ -53,6 +60,67 @@ export default function TradesPage() {
         account_alias: string;
       }[]
     >([]);
+
+const [manualAccountOptions, setManualAccountOptions] =
+  useState<
+    {
+      value: string;
+      label: string;
+      source: "broker" | "manual";
+    }[]
+  >([]);
+
+  const accountOptions = useMemo(() => {
+  const brokerOptions = brokerConnections.map(
+    (connection) => ({
+      value:
+        connection.broker_account_id,
+      label:
+        connection.account_alias ||
+        connection.broker_account_id,
+      source: "broker" as const,
+      accountId:
+        connection.broker_account_id,
+    })
+  );
+
+  const manualOptions =
+    manualAccountOptions.map(
+      (account) => ({
+        value: account.value,
+        label: account.label,
+        source: "manual" as const,
+        accountId: null,
+      })
+    );
+
+  const combined = [
+    ...brokerOptions,
+    ...manualOptions,
+  ];
+
+  const unique =
+    new Map<
+      string,
+      (typeof combined)[number]
+    >();
+
+  for (const option of combined) {
+    const key =
+      option.value.trim().toLowerCase();
+
+    if (!unique.has(key)) {
+      unique.set(key, option);
+    }
+  }
+
+  return Array.from(
+    unique.values()
+  );
+}, [
+  brokerConnections,
+  manualAccountOptions,
+]);
 
   const [trades, setTrades] =
     useState<Trade[]>([]);
@@ -87,6 +155,19 @@ const [lastImportAt, setLastImportAt] =
     loadBrokerConnections();
   }, []);
 
+useEffect(() => {
+  const loadManualAccounts = async () => {
+    const accounts =
+      await loadManualAccountOptions();
+
+    setManualAccountOptions(
+      accounts
+    );
+  };
+
+  loadManualAccounts();
+}, []);
+
   // =================================================
   // MODAL STATE
   // =================================================
@@ -105,6 +186,23 @@ const [lastImportAt, setLastImportAt] =
     isAddTradeOpen,
     setIsAddTradeOpen,
   ] = useState(false);
+
+  useEffect(() => {
+  if (!isAddTradeOpen) {
+    return;
+  }
+
+  const loadManualAccounts = async () => {
+    const accounts =
+      await loadManualAccountOptions();
+
+    setManualAccountOptions(
+      accounts
+    );
+  };
+
+  loadManualAccounts();
+}, [isAddTradeOpen]);
 
 // =================================================
 // FILTER STATE
@@ -1211,6 +1309,7 @@ const formattedLastImport =
   onClose={() =>
     setIsAddTradeOpen(false)
   }
+  accountOptions={accountOptions}
 />
 
 </section>
