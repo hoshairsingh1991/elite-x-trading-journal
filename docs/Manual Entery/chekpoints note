@@ -1,0 +1,1759 @@
+============================================================
+ELITE X TRADING JOURNAL / TRADING OS
+MASTER CHECKPOINT NOTES
+============================================================
+
+CHECKPOINT:
+Manual Entry — Partial Exit Core Functionality Completed + Verified
+
+DATE:
+September 9–10, 2026
+
+PURPOSE OF THIS CHECKPOINT:
+This checkpoint records everything completed today so that development can
+resume tomorrow without having to reconstruct what was changed, why it was
+changed, where it was changed, and how the final behavior was verified.
+
+IMPORTANT:
+The core Partial Exit functionality is now considered SUCCESSFUL.
+
+The remaining items discussed are UX / presentation / refinement improvements.
+They are NOT currently considered failures in the underlying trading architecture.
+
+============================================================
+1. ARCHITECTURAL RULES WE CONTINUED TO FOLLOW
+============================================================
+
+Elite X remains execution-first.
+
+Canonical architecture:
+
+Broker / Manual Entry
+        ↓
+Normalized Executions
+        ↓
+Supabase Execution Ledger
+        ↓
+Deterministic FIFO Reconstruction
+        ↓
+Trades
+        ↓
+Analytics
+        ↓
+Dashboard / Trade History
+
+Important architectural principle:
+
+Executions are the canonical source of truth.
+
+Trades are derived state.
+
+Manual Entry is an EXECUTION PRODUCER.
+
+Manual Entry must NOT create a second FIFO engine, second trade engine,
+or separate accounting system.
+
+Manual Entry must feed normalized executions into the existing trading
+architecture.
+
+Protected infrastructure was NOT rewritten today:
+
+- Existing broker sync
+- Existing execution ledger architecture
+- Existing FIFO reconstruction
+- Existing reconstructed trades
+- Existing reconciliation
+- Existing P&L engine
+- Existing analytics
+- Dashboard V2
+- Broker/manual architectural separation
+
+The work today was intentionally incremental.
+
+============================================================
+2. MAIN FEATURE BEING IMPLEMENTED
+============================================================
+
+Manual Entry supports three modes:
+
+A. COMPLETE
+   Complete Trade
+   Entry + Exit
+
+B. PARTIAL_ENTRY
+   Partial Entry
+   Add to an existing/open manual position
+
+C. PARTIAL_EXIT
+   Partial Exit
+   Reduce an existing/open manual position
+
+Today's primary focus was:
+
+PARTIAL_EXIT
+
+Expected behavior:
+
+Existing manual position:
+
+BUY 20 AAPL @ $100
+
+Partial exit:
+
+SELL 8 AAPL @ $110
+
+Result:
+
+8 shares become realized/closed
+
+12 shares remain open
+
+The remaining 12 shares can later be exited independently.
+
+This must be represented as executions and reconstructed by the existing
+trade/FIFO infrastructure.
+
+============================================================
+3. FILE WE WORKED ON
+============================================================
+
+PRIMARY FILE:
+
+components/trades/AddTradeModal.tsx
+
+This is the Manual Entry UI and save flow.
+
+No separate FIFO engine was introduced.
+
+No new trade database was introduced.
+
+============================================================
+4. MANUAL OPEN POSITION SUPPORT
+============================================================
+
+Partial Exit needs to know which existing manual position is being reduced.
+
+The parent pages therefore provide:
+
+manualOpenPositions
+
+to AddTradeModal.
+
+Relevant architecture:
+
+The application rebuilds trades using the existing pair/reconstruction logic,
+then filters for open manual positions.
+
+Conceptually:
+
+open manual positions are reconstructed trades where:
+
+- trade.isOpen === true
+- contractKey exists
+- contractKey starts with "MANUAL-"
+
+The resulting array is passed into:
+
+<AddTradeModal
+  ...
+  manualOpenPositions={manualOpenPositions}
+/>
+
+This was already implemented before today's final Partial Exit test.
+
+============================================================
+5. TRADE HISTORY PAGE CHANGE
+============================================================
+
+Earlier, Trade History was passing:
+
+manualOpenPositions={[]}
+
+That meant Partial Exit had no existing positions to display.
+
+This was fixed in:
+
+app/trades/page.tsx
+
+A state variable was added:
+
+const [manualOpenPositions, setManualOpenPositions] =
+  useState<Trade[]>([]);
+
+After the existing reconstructed trades were produced, open manual positions
+were extracted:
+
+const openManualPositions =
+  rebuiltTrades.filter(
+    (trade) =>
+      trade.isOpen &&
+      typeof trade.contractKey === "string" &&
+      trade.contractKey.startsWith("MANUAL-")
+  );
+
+setManualOpenPositions(openManualPositions);
+
+The AddTradeModal now receives:
+
+<AddTradeModal
+  open={isAddTradeOpen}
+  onClose={() =>
+    setIsAddTradeOpen(false)
+  }
+  accountOptions={accountOptions}
+  manualOpenPositions={manualOpenPositions}
+/>
+
+This allowed Trade History's Add Manual Trade flow to see the open AAPL
+manual position.
+
+============================================================
+6. PARTIAL EXIT POSITION SELECTOR
+============================================================
+
+Inside:
+
+components/trades/AddTradeModal.tsx
+
+When Trade Type is:
+
+PARTIAL_EXIT
+
+a new selector appears:
+
+Position to Reduce
+
+The selector uses:
+
+manualOpenPositions
+
+Each option displays:
+
+- ticker
+- LONG / SHORT
+- current quantity
+- shares/contracts
+- currency
+- entry price
+
+Example shown during testing:
+
+AAPL PARTIAL · LONG · 20 shares @ USD 100
+
+The selected position is identified through:
+
+selectedPositionContractKey
+
+State:
+
+const [
+  selectedPositionContractKey,
+  setSelectedPositionContractKey,
+] = useState("");
+
+When the user selects a position, the UI automatically pulls in the
+identity details from the existing reconstructed manual position.
+
+============================================================
+7. PARTIAL EXIT IDENTITY LOCKING
+============================================================
+
+Once a manual position is selected for Partial Exit, the following fields
+are automatically populated and locked:
+
+- Account
+- Symbol
+- Direction
+- Asset Type
+- Currency
+- Exchange
+
+This was intentionally done to prevent the user from accidentally exiting
+a different instrument/account/direction than the selected position.
+
+The user verified this behavior successfully using the AAPL manual position.
+
+The selector populated:
+
+Account:
+Test
+
+Symbol:
+AAPL PARTIAL
+
+Direction:
+LONG
+
+Asset Type:
+STOCKS
+
+Currency:
+USD
+
+Exchange:
+NASDAQ
+
+These fields become disabled during Partial Exit.
+
+============================================================
+8. PARTIAL EXIT ENTRY DETAILS UX FIX
+============================================================
+
+Initially, the Entry Details section showed disabled/blank-looking values
+when Partial Exit was selected.
+
+We changed this so the original entry context is visible in read-only form.
+
+In:
+
+components/trades/AddTradeModal.tsx
+
+These variables were introduced:
+
+const selectedEntryDate =
+  isPartialExit
+    ? selectedPreviewPosition?.date ??
+      ""
+    : entryDate;
+
+const selectedEntryTime =
+  isPartialExit
+    ? selectedPreviewPosition?.openedAt
+        ?.split("T")[1]
+        ?.slice(0, 5) ??
+      ""
+    : entryTime;
+
+const selectedEntryQuantity =
+  isPartialExit
+    ? selectedPreviewPosition?.quantity ??
+      ""
+    : quantity;
+
+const selectedEntryPrice =
+  isPartialExit
+    ? selectedPreviewPosition?.entryPrice ??
+      ""
+    : entryPrice;
+
+The Entry Details inputs now display these values.
+
+The inputs remain disabled during Partial Exit.
+
+This was tested and verified.
+
+The user confirmed the original entry values were visible correctly after
+selecting the AAPL position.
+
+============================================================
+9. PARTIAL EXIT OVER-CLOSE PROTECTION
+============================================================
+
+The save validation includes a client-side protection against closing more
+than the currently available quantity.
+
+Current logic:
+
+if (isPartialExit) {
+  const selectedPosition =
+    manualOpenPositions.find(
+      (position) =>
+        position.contractKey ===
+        selectedPositionContractKey
+    );
+
+  if (
+    selectedPosition &&
+    parsedQuantity >
+      selectedPosition.quantity
+  ) {
+    setFieldErrors((prev) => ({
+      ...prev,
+      quantity: true,
+    }));
+
+    alert(
+      `You only have ${selectedPosition.quantity} ${
+        selectedPosition.assetType === "OPTIONS"
+          ? "contracts"
+          : "shares"
+      } available to reduce in this manual position.`
+    );
+
+    return;
+  }
+}
+
+Example intended behavior:
+
+Available:
+50 AAPL shares
+
+User attempts:
+SELL 100
+
+Result:
+Reject
+
+Message:
+
+You only have 50 shares available to reduce in this manual position.
+
+IMPORTANT:
+
+This is currently client-side validation.
+
+Final server/FIFO boundary enforcement is still a future hardening item.
+
+Do NOT assume the UI validation alone is sufficient for production-scale
+concurrency/security.
+
+============================================================
+10. PARTIAL EXIT BUILDER BEHAVIOR
+============================================================
+
+The existing builder:
+
+createManualExecutions
+
+already supports:
+
+tradeType?: ManualEntryType
+
+and:
+
+contractKey?: string
+
+For:
+
+PARTIAL_ENTRY
+
+it generates one execution.
+
+For:
+
+PARTIAL_EXIT
+
+it generates one execution.
+
+For:
+
+COMPLETE
+
+it generates two executions:
+
+Entry + Exit.
+
+We did NOT rewrite this builder today.
+
+============================================================
+11. PARTIAL EXIT SAVE CONTRACT
+============================================================
+
+Current save call remains:
+
+const executions =
+  createManualExecutions({
+    ticker,
+    quantity: Number(quantity),
+    entryPrice: Number(entryPrice),
+    exitPrice: Number(exitPrice),
+    commission: Number(
+      commission || 0
+    ),
+    side,
+    assetType,
+    account,
+    entryDate,
+    exitDate,
+    entryTime,
+    exitTime,
+    currency,
+    exchange,
+    tradeType,
+    contractKey:
+      isPartialExit
+        ? selectedPositionContractKey
+        : undefined,
+  });
+
+Then:
+
+await saveExecutionsToSupabase(
+  executions
+);
+
+After save:
+
+onClose();
+
+window.location.reload();
+
+The page reload ensures reconstructed state is refreshed.
+
+============================================================
+12. PARTIAL EXIT PREVIEW BUG WE FIXED
+============================================================
+
+Initial preview logic treated Partial Exit as if the entered quantity were
+the entry quantity.
+
+Original calculation was effectively:
+
+const previewEntryValue =
+  previewQuantity *
+  previewEntryPrice *
+  previewMultiplier;
+
+const previewExitValue =
+  previewQuantity *
+  previewExitPrice *
+  previewMultiplier;
+
+const previewGrossPnL =
+  tradeType === "COMPLETE"
+    ? ...
+    : 0;
+
+That was incorrect for Partial Exit.
+
+Example:
+
+Existing position:
+
+20 shares @ $100
+
+Partial Exit:
+
+8 shares @ $110
+
+The preview must NOT calculate entry value as:
+
+8 × $100 = $800
+
+because the historical position was originally entered as:
+
+20 × $100 = $2,000
+
+The realized P&L, however, must be calculated only for the quantity being
+closed:
+
+8 shares.
+
+Therefore we changed the preview calculations to use the selected
+existing position's entry price and quantity for Entry Value, while using
+the Partial Exit quantity for realized P&L.
+
+The current working block is:
+
+const previewEntryPriceForExit =
+  Number(selectedPreviewPosition?.entryPrice ?? 0);
+
+const previewEntryQuantityForExit =
+  Number(selectedPreviewPosition?.quantity ?? 0);
+
+const previewEntryValue =
+  isPartialExit
+    ? previewEntryPriceForExit *
+      previewEntryQuantityForExit *
+      previewMultiplier
+    : previewQuantity *
+      previewEntryPrice *
+      previewMultiplier;
+
+const previewExitValue =
+  previewQuantity *
+  previewExitPrice *
+  previewMultiplier;
+
+const previewGrossPnL =
+  tradeType === "COMPLETE"
+    ? side === "LONG"
+      ? previewExitValue - previewEntryValue
+      : previewEntryValue - previewExitValue
+    : isPartialExit
+      ? side === "LONG"
+        ? (previewExitPrice -
+            previewEntryPriceForExit) *
+          previewQuantity *
+          previewMultiplier
+        : (previewEntryPriceForExit -
+            previewExitPrice) *
+          previewQuantity *
+          previewMultiplier
+      : 0;
+
+============================================================
+13. IMPORTANT DECLARATION-ORDER BUG WE ENCOUNTERED
+============================================================
+
+During the preview change, we initially referenced:
+
+selectedPreviewPosition
+
+before its declaration.
+
+This produced:
+
+Runtime ReferenceError
+
+Cannot access 'selectedPreviewPosition' before initialization
+
+The problem was not the formula itself.
+
+The problem was JavaScript const declaration order.
+
+The variable had originally been declared later in the component around the
+Entry Details calculation area.
+
+We moved:
+
+const selectedPreviewPosition =
+  isPartialExit
+    ? manualOpenPositions.find(
+        (position) =>
+          position.contractKey ===
+          selectedPositionContractKey
+      )
+    : undefined;
+
+to ABOVE the first place where it is referenced.
+
+Correct structure is now:
+
+const selectedPreviewPosition =
+  isPartialExit
+    ? manualOpenPositions.find(
+        (position) =>
+          position.contractKey ===
+          selectedPositionContractKey
+      )
+    : undefined;
+
+const previewEntryPriceForExit =
+  Number(selectedPreviewPosition?.entryPrice ?? 0);
+
+const previewEntryQuantityForExit =
+  Number(selectedPreviewPosition?.quantity ?? 0);
+
+...
+
+Then later:
+
+const selectedEntryDate = ...
+
+const selectedEntryTime = ...
+
+const selectedEntryQuantity = ...
+
+const selectedEntryPrice = ...
+
+This fixed the runtime error.
+
+IMPORTANT:
+There must be only ONE declaration of:
+
+const selectedPreviewPosition
+
+Do not reintroduce a second declaration later.
+
+============================================================
+14. PARTIAL EXIT PREVIEW TEST
+============================================================
+
+The test position was:
+
+Ticker:
+AAPL PARTIAL
+
+Account:
+Test
+
+Asset Type:
+STOCKS
+
+Direction:
+LONG
+
+Currency:
+USD
+
+Exchange:
+NASDAQ
+
+Original entry:
+
+20 shares @ $100
+
+Entry date:
+September 9, 2026
+
+Entry time:
+9:35 AM
+
+Partial exit:
+
+8 shares @ $110
+
+Exit date:
+September 9, 2026
+
+Exit time:
+10:00 AM
+
+Expected calculation:
+
+Entry Value:
+
+20 × $100
+= $2,000
+
+Exit Value:
+
+8 × $110
+= $880
+
+Realized Gross P&L:
+
+($110 - $100) × 8
+= +$80
+
+Remaining:
+
+20 - 8
+= 12 shares
+
+The Preview displayed:
+
+Entry Value:
+$2,000.00
+
+Exit Value:
+$880.00
+
+Net P&L:
++$80.00
+
+Position:
+12 Shares remaining
+
+This matched the intended math.
+
+============================================================
+15. COMMISSION / FEES NOTE
+============================================================
+
+During the preview test, the Commission / Fees input visually contained an
+example value of:
+
+$5.00
+
+However, that fee was not actually being used for the tested transaction.
+
+The user clarified that the $5 was merely the example text/value in the
+form and was not relevant to the test.
+
+Therefore:
+
+Fees:
+$0.00
+
+Net realized P&L:
++$80.00
+
+was correct for that test.
+
+Do NOT interpret that screenshot as a fee calculation bug.
+
+Future refinement may still improve Partial Exit fee preview behavior, but
+that was NOT required to validate today's core Partial Exit implementation.
+
+============================================================
+16. FIRST PARTIAL EXIT SAVE TEST
+============================================================
+
+The first Partial Exit was saved successfully.
+
+Input:
+
+BUY 20 @ $100
+
+then:
+
+SELL 8 @ $110
+
+Trade History reconstructed:
+
+CLOSED portion:
+
+AAPL PARTIAL
+Sep 9, 2026 09:35 AM
+→
+Sep 9, 2026 10:00 AM
+
+Holding Time:
+25m
+
+Account:
+Test
+
+Asset Type:
+STOCKS
+
+Direction:
+LONG
+
+Entry:
+$100.00
+
+Exit:
+$110.00
+
+Quantity:
+8
+
+P&L:
++$80.00
+
+Fees:
+$0.00
+
+Status:
+CLOSED
+
+Remaining position:
+
+AAPL PARTIAL
+Sep 9, 2026 09:35 AM
+→
+--
+
+Holding time initially displayed:
+1d
+
+Account:
+Test
+
+Asset Type:
+STOCKS
+
+Direction:
+LONG
+
+Entry:
+$100.00
+
+Exit:
+--
+
+Quantity:
+12
+
+P&L:
++$0.00
+
+Fees:
+$0.00
+
+Status:
+OPEN
+
+This proved the first Partial Exit correctly reduced the original 20-share
+position to 12 shares.
+
+============================================================
+17. SECOND PARTIAL EXIT TEST
+============================================================
+
+The remaining 12 shares were then exited.
+
+Second exit:
+
+SELL 12 @ $105
+
+Exit time:
+10:08 AM
+
+The result was:
+
+First closed portion:
+
+8 shares
++$80.00
+
+Second closed portion:
+
+12 shares
++$60.00
+
+Total:
+
+20 shares closed
+0 shares remaining
+
+P&L:
+
++$80 + $60
+= +$140
+
+Trade History eventually showed BOTH reconstructed rows as CLOSED.
+
+The second row showed:
+
+AAPL PARTIAL
+Sep 9, 2026 09:35 AM
+→
+--
+
+Holding time shown:
+1d
+
+LONG
+
+Entry:
+$100.00
+
+Quantity:
+12
+
+P&L:
++$60.00
+
+Status:
+CLOSED
+
+This is expected after the final 12 shares were exited.
+
+============================================================
+18. SQL EXECUTION LEDGER VERIFICATION
+============================================================
+
+We then verified the canonical execution ledger directly in Supabase.
+
+SQL used:
+
+SELECT
+  id,
+  ticker,
+  side,
+  quantity,
+  execution_price,
+  execution_value,
+  fees,
+  account,
+  asset_type,
+  currency,
+  exchange,
+  contract_key,
+  action,
+  execution_timestamp,
+  date,
+  created_at,
+  user_id
+FROM executions
+WHERE ticker = 'AAPL PARTIAL'
+ORDER BY execution_timestamp ASC, created_at ASC;
+
+Result:
+
+1.
+
+id:
+manual-0874475b-5e85-4d18-87bd-a1101c3fb8fe-entry
+
+ticker:
+AAPL PARTIAL
+
+side:
+BUY
+
+quantity:
+20
+
+execution_price:
+100
+
+execution_value:
+2000
+
+fees:
+0
+
+account:
+Test
+
+asset_type:
+STOCKS
+
+currency:
+USD
+
+exchange:
+NASDAQ
+
+contract_key:
+MANUAL-AAPL PARTIAL-0874475b-5e85-4d18-87bd-a1101c3fb8fe
+
+action:
+BUY
+
+execution_timestamp:
+2026-09-09T09:35:00
+
+date:
+2026-09-09
+
+
+2.
+
+id:
+manual-5e7665ff-a546-4cf2-bde9-ee1f242fa944-exit
+
+ticker:
+AAPL PARTIAL
+
+side:
+SELL
+
+quantity:
+8
+
+execution_price:
+110
+
+execution_value:
+880
+
+fees:
+0
+
+account:
+Test
+
+asset_type:
+STOCKS
+
+currency:
+USD
+
+exchange:
+NASDAQ
+
+contract_key:
+MANUAL-AAPL PARTIAL-0874475b-5e85-4d18-87bd-a1101c3fb8fe
+
+action:
+SELL
+
+execution_timestamp:
+2026-09-09T10:00:00
+
+date:
+2026-09-09
+
+
+3.
+
+id:
+manual-abf77e72-b590-4034-966e-d592d86cee0c-exit
+
+ticker:
+AAPL PARTIAL
+
+side:
+SELL
+
+quantity:
+12
+
+execution_price:
+105
+
+execution_value:
+1260
+
+fees:
+0
+
+account:
+Test
+
+asset_type:
+STOCKS
+
+currency:
+USD
+
+exchange:
+NASDAQ
+
+contract_key:
+MANUAL-AAPL PARTIAL-0874475b-5e85-4d18-87bd-a1101c3fb8fe
+
+action:
+SELL
+
+execution_timestamp:
+2026-09-09T10:08:00
+
+date:
+2026-09-09
+
+============================================================
+19. EXECUTION LEDGER VERIFICATION RESULT
+============================================================
+
+The ledger proved the correct three-execution chain:
+
+BUY  20 @ $100
+SELL  8 @ $110
+SELL 12 @ $105
+
+All three executions share the same contract_key:
+
+MANUAL-AAPL PARTIAL-0874475b-5e85-4d18-87bd-a1101c3fb8fe
+
+This is important.
+
+Each execution has its own unique execution ID.
+
+The lifecycle/position shares the same contract_key.
+
+Therefore:
+
+execution ID
+=
+unique individual execution
+
+contract_key
+=
+same manual position/lifecycle identity
+
+This is exactly the kind of execution-first structure we wanted for this
+test.
+
+============================================================
+20. QUANTITY RECONCILIATION
+============================================================
+
+The execution chain reconciles exactly:
+
+20 BUY
+- 8 SELL
+-12 SELL
+────────
+ 0 remaining
+
+Therefore the final position is correctly flat.
+
+============================================================
+21. P&L RECONCILIATION
+============================================================
+
+First exit:
+
+($110 - $100) × 8
+=
++$80
+
+Second exit:
+
+($105 - $100) × 12
+=
++$60
+
+Total:
+
++$80 + $60
+=
++$140 realized P&L
+
+Execution cash values:
+
+Original BUY:
+
+20 × $100
+=
+$2,000
+
+First SELL:
+
+8 × $110
+=
+$880
+
+Second SELL:
+
+12 × $105
+=
+$1,260
+
+Total proceeds:
+
+$880 + $1,260
+=
+$2,140
+
+Original cost:
+
+$2,000
+
+Difference:
+
+$2,140 - $2,000
+=
++$140
+
+This independently reconciles to the FIFO realized P&L.
+
+============================================================
+22. WHAT THIS TEST PROVED
+============================================================
+
+The test successfully validated:
+
+1. Manual Partial Entry can create an open manual position.
+
+2. Trade History can discover that open manual position.
+
+3. Partial Exit can select the correct manual position.
+
+4. Position identity fields are automatically inherited from the selected
+   manual position.
+
+5. The user cannot edit the core identity of the selected position during
+   Partial Exit.
+
+6. Original entry details are visible in read-only form.
+
+7. Partial Exit preview correctly uses:
+   - original entry quantity for Entry Value
+   - exit quantity for realized P&L
+
+8. Over-close validation exists on the client.
+
+9. Partial Exit creates an individual normalized execution.
+
+10. Multiple Partial Exits can target the same manual lifecycle.
+
+11. The existing FIFO/reconstruction system correctly processes:
+    BUY 20
+    SELL 8
+    SELL 12
+
+12. The first partial exit creates:
+    8 closed
+    12 open
+
+13. The second partial exit creates:
+    12 closed
+    0 open
+
+14. Realized P&L is correctly allocated to the quantity actually closed.
+
+15. The execution ledger is the canonical truth.
+
+16. Trade History is displaying reconstructed state rather than being the
+    source of truth.
+
+17. No second FIFO engine was required.
+
+18. No broker sync rewrite was required.
+
+19. No Dashboard V2 rewrite was required.
+
+============================================================
+23. CORE PARTIAL EXIT STATUS
+============================================================
+
+STATUS:
+
+SUCCESSFUL
+
+The core behavior of Partial Exit is considered complete for the current
+development phase.
+
+The current implementation has passed an actual end-to-end test using:
+
+20-share original manual position
++
+8-share first partial exit
++
+12-share second partial exit
+
+with correct execution records, quantity reconciliation, FIFO reconstruction,
+Trade History results, and realized P&L.
+
+============================================================
+24. WHAT WE ARE NOT CHANGING RIGHT NOW
+============================================================
+
+Do NOT start rewriting the FIFO engine.
+
+Do NOT create a second trade model.
+
+Do NOT create a separate Partial Exit database.
+
+Do NOT merge broker and manual executions.
+
+Do NOT alter broker sync just because Manual Entry now supports Partial Exit.
+
+Do NOT rewrite Dashboard V2.
+
+Do NOT redesign Trade History's entire architecture.
+
+Do NOT rewrite the execution ledger.
+
+Do NOT replace the current working contract_key architecture without a
+controlled migration.
+
+Do NOT attempt to "fix" a result that is already verified as correct.
+
+============================================================
+25. KNOWN FUTURE IMPROVEMENTS
+============================================================
+
+These are improvements/refinements, not blockers for today's success.
+
+A. Partial Exit Preview UX
+
+Current Preview works mathematically.
+
+Possible future refinement:
+
+Show something more explicit such as:
+
+Original Position:
+20 Shares
+
+Closing:
+8 Shares
+
+Remaining:
+12 Shares
+
+Realized P&L:
++$80
+
+This would be clearer than relying on the current combination of Entry Value,
+Exit Value, and Position Impact.
+
+B. Partial Exit Fees
+
+The current tested scenario used $0 actual fees.
+
+Future preview work can ensure execution-level commission entered for a Partial
+Exit is reflected immediately in:
+
+Fees
+
+Net P&L
+
+without changing the underlying execution model.
+
+C. Position Impact wording
+
+Current display uses wording similar to:
+
+After Reducing 12 Shares
+
+or:
+
+12 Shares
+
+Future UI could make the state more explicit:
+
+8 Shares Closed
+12 Shares Remaining
+
+D. Multiple Partial Exits
+
+We successfully tested multiple exits already.
+
+More extensive testing should eventually cover:
+
+- several partial entries
+- several partial exits
+- mixed entry sizes
+- mixed exit sizes
+- short positions
+- options
+- different currencies
+- different asset types
+
+E. Server-side over-close enforcement
+
+Current client-side validation is useful UX.
+
+Production architecture still needs final server/FIFO boundary protection so
+a malicious/stale/concurrent client cannot bypass position constraints.
+
+F. Atomic save behavior
+
+Current save path ultimately calls:
+
+saveExecutionsToSupabase(executions)
+
+The broader roadmap still requires server-side atomic behavior for operations
+that create multiple executions, so a failure cannot leave half a trade saved.
+
+This is a future hardening phase.
+
+G. Deterministic canonical execution IDs
+
+Current manual execution IDs work for current two-execution Complete Trade and
+individual Partial Exit executions.
+
+Long-term architecture should move toward fully deterministic/uniquely
+defined canonical execution identity appropriate for large-scale SaaS.
+
+Do not redesign this casually.
+
+H. Manual/Broker source field
+
+The current database does not yet have a formal source column.
+
+Manual execution isolation currently relies on the existing implementation
+architecture/identifiers.
+
+A future additive schema phase may introduce an explicit source field after a
+full code/query audit.
+
+I. Instrument identity
+
+Long-term identity should be stronger than ticker/contractKey alone.
+
+Future business identity should account for:
+
+user
++
+source
++
+account
++
+instrument
++
+contract
++
+contractKey
++
+asset type
++
+exchange
++
+currency
++
+multiplier
++
+instrument-specific metadata
+
+Again:
+
+Future architecture only.
+Do not alter current verified behavior casually.
+
+============================================================
+26. IMPORTANT CURRENT DATABASE DETAILS
+============================================================
+
+executions.id:
+
+TEXT PRIMARY KEY
+
+execution_timestamp:
+
+TEXT
+
+Example:
+
+2026-09-09T10:00:00
+
+Do not casually migrate execution_timestamp to timestamptz.
+
+Existing application logic currently uses the text form.
+
+Current executions table includes:
+
+id
+date
+ticker
+contract
+contract_key
+side
+quantity
+execution_price
+execution_value
+fees
+account
+asset_type
+multiplier
+created_at
+user_id
+currency
+fee_currency
+broker_execution_id
+action
+execution_timestamp
+exchange
+
+RLS remains user-based.
+
+============================================================
+27. OPTIONS / MULTIPLIER RULE
+============================================================
+
+Current central rule:
+
+OPTIONS
+multiplier = 100
+
+Other currently supported asset types:
+multiplier = 1
+
+Today's test used:
+
+STOCKS
+multiplier = 1
+
+Therefore:
+
+20 × $100 × 1
+=
+$2,000
+
+8 × $110 × 1
+=
+$880
+
+12 × $105 × 1
+=
+$1,260
+
+============================================================
+28. IMPORTANT DATE / TIME NOTE
+============================================================
+
+The actual test used:
+
+Entry:
+2026-09-09 09:35
+
+First Exit:
+2026-09-09 10:00
+
+Second Exit:
+2026-09-09 10:08
+
+The first closed trade correctly showed:
+
+25m
+
+The current preview holding-time code still uses:
+
+new Date(`${entryDate}T${entryTime}`)
+
+and:
+
+new Date(`${exitDate}T${exitTime}`)
+
+This is not part of today's successful Partial Exit core test and should not
+be casually changed during this checkpoint.
+
+Long-term roadmap still calls for explicit local date/time handling without
+implicit timezone shifts.
+
+============================================================
+29. TEMPORARY DEBUG NOTE
+============================================================
+
+Earlier during development, a temporary console.log was added in:
+
+app/dashboard/page.tsx
+
+Example:
+
+console.log(
+  "REBUILT MANUAL POSITIONS:",
+  openManualPositions
+);
+
+This was used to inspect reconstructed manual positions.
+
+It is temporary debug code.
+
+Before production cleanup, review whether it is still present and remove it
+if no longer needed.
+
+Do not remove unrelated Dashboard logic.
+
+============================================================
+30. GIT CHECKPOINT
+============================================================
+
+After the successful Partial Exit test, the intended Git checkpoint command
+was:
+
+git status
+
+git add .
+
+git commit -m "Checkpoint: Partial Exit manual trade complete"
+
+git push origin main
+
+Purpose:
+
+Create a clean recoverable checkpoint containing the successfully tested
+Partial Exit implementation before moving on to additional refinements.
+
+IMPORTANT:
+
+The exact terminal output of the final push was not captured in this
+conversation, so tomorrow confirm:
+
+git status
+
+and verify the branch is clean and synchronized with origin/main before
+making substantial new changes.
+
+============================================================
+31. TOMORROW'S STARTING POINT
+============================================================
+
+Resume from this state.
+
+DO NOT restart Partial Exit implementation.
+
+DO NOT modify the proven FIFO behavior.
+
+The core Partial Exit feature is done.
+
+Tomorrow's work should be treated as:
+
+REFINEMENT / UX / HARDENING
+
+rather than:
+
+CORE FEATURE REBUILD
+
+The next changes should be taken one at a time.
+
+Preferred development process:
+
+BUILD
+↓
+TEST
+↓
+VERIFY
+↓
+CHECKPOINT
+↓
+NEXT CHANGE
+
+No large uncontrolled batch of changes.
+
+============================================================
+32. CURRENT VERIFIED EXAMPLE
+============================================================
+
+This exact execution lifecycle is now a confirmed working example:
+
+Lifecycle:
+
+MANUAL-AAPL PARTIAL-0874475b-5e85-4d18-87bd-a1101c3fb8fe
+
+Execution 1:
+
+BUY
+20
+@ 100
+09:35
+
+Execution 2:
+
+SELL
+8
+@ 110
+10:00
+
+Execution 3:
+
+SELL
+12
+@ 105
+10:08
+
+Final:
+
+0 shares remaining
+
+Realized P&L:
+
++$140
+
+Breakdown:
+
++$80
++
++$60
+=
++$140
+
+This is the reference test case for today's successful Partial Exit
+implementation.
+
+============================================================
+33. FINAL CHECKPOINT STATUS
+============================================================
+
+MANUAL ENTRY — COMPLETE TRADE:
+Previously tested successfully.
+
+MANUAL ENTRY — PARTIAL ENTRY:
+Previously tested successfully.
+
+MANUAL ENTRY — PARTIAL EXIT:
+SUCCESSFULLY IMPLEMENTED AND END-TO-END VERIFIED.
+
+CORE RESULT:
+
+20 BUY
+→
+8 SELL
+→
+12 SELL
+→
+0 REMAINING
+
+P&L:
+
++$80
++
++$60
+=
++$140
+
+EXECUTION LEDGER:
+VERIFIED
+
+FIFO / RECONSTRUCTION:
+VERIFIED
+
+TRADE HISTORY:
+VERIFIED
+
+POSITION REDUCTION:
+VERIFIED
+
+MULTIPLE PARTIAL EXITS:
+VERIFIED
+
+ARCHITECTURAL INTEGRITY:
+PRESERVED
+
+NEXT PHASE:
+UX / REFINEMENT / HARDENING ONLY
+
+============================================================
+END OF MASTER CHECKPOINT NOTES
+============================================================

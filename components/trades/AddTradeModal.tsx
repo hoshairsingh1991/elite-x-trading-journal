@@ -399,15 +399,40 @@ const previewNetPnL =
 const previewReturn =
   tradeType === "COMPLETE" && previewEntryValue > 0
     ? (previewNetPnL / previewEntryValue) * 100
-    : 0;
+    : isPartialExit &&
+        previewEntryPriceForExit > 0 &&
+        previewQuantity > 0
+      ? (previewNetPnL /
+          (previewEntryPriceForExit *
+            previewQuantity *
+            previewMultiplier)) *
+        100
+      : 0;
 
 const previewHoldingTime = (() => {
-  if (!entryDate || !exitDate || !entryTime || !exitTime) {
+  const effectiveEntryDate =
+    isPartialExit
+      ? selectedPreviewPosition?.date ?? ""
+      : entryDate;
+
+  const effectiveEntryTime =
+    isPartialExit
+      ? selectedPreviewPosition?.openedAt
+          ?.split("T")[1]
+          ?.slice(0, 5) ?? ""
+      : entryTime;
+
+  if (
+    !effectiveEntryDate ||
+    !exitDate ||
+    !effectiveEntryTime ||
+    !exitTime
+  ) {
     return "—";
   }
 
   const entryDateTime = new Date(
-    `${entryDate}T${entryTime}`
+    `${effectiveEntryDate}T${effectiveEntryTime}`
   );
 
   const exitDateTime = new Date(
@@ -1108,8 +1133,8 @@ try {
 
   </div>
 
-  {isPartialExit && (
-    <div className="mt-3 w-[calc(100%-30px)] translate-x-[14px]">
+{isPartialExit && (
+  <div className="mt-3 w-[calc(100%-30px)] translate-x-[14px] translate-y-[6px]">
       <Field label="Position to Reduce" required>
 
 <select
@@ -1170,15 +1195,38 @@ setExchange(
                 key={position.contractKey}
                 value={position.contractKey}
               >
-                {position.ticker} ·{" "}
-                {position.side} ·{" "}
-                {position.quantity}{" "}
-                {position.assetType === "OPTIONS"
-                  ? "contracts"
-                  : "shares"}{" "}
-                @{" "}
-                {position.currency}{" "}
-                {position.entryPrice}
+{position.ticker} ·{" "}
+{position.side} ·{" "}
+{position.quantity}{" "}
+{position.assetType === "OPTIONS"
+  ? "contracts"
+  : "shares"}{" "}
+@{" "}
+{position.currency}{" "}
+{position.entryPrice} ·{" "}
+{position.account ?? "—"} ·{" "}
+{position.date
+  ? new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(
+      new Date(`${position.date}T00:00:00`)
+    )
+  : "—"}{" "}
+{position.openedAt
+  ? new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(
+      new Date(
+        `1970-01-01T${position.openedAt
+          .split("T")[1]
+          ?.slice(0, 5)}`
+      )
+    )
+  : "—"}
               </option>
             )
           )}
@@ -1190,7 +1238,7 @@ setExchange(
 
 </section>
 
-<div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[10px]" />
+<div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[14px]" />
 
 {/* ================================================= */}
 {/* 3 + 4. ENTRY / EXIT */}
@@ -1752,10 +1800,14 @@ setExchange(
     </span>
   </span>
 
-<span className="translate-x-[-6px] translate-y-[-4px] text-slate-500">
-  ⌄
-</span>
+  <span className="translate-x-[-6px] translate-y-[-4px] text-slate-500">
+    ⌄
+  </span>
 </button>
+
+{isPartialExit && (
+  <div className="h-5 shrink-0" />
+)}
 
 </div>
 
@@ -2060,11 +2112,24 @@ setExchange(
   Status
 </div>
 
-<span className="mt-3 inline-flex h-6 w-[90px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
+<span
+  className={`mt-3 inline-flex h-6 w-[90px] items-center justify-center rounded-[6px] text-[12px] font-semibold text-emerald-400 ${
+    tradeType === "PARTIAL_ENTRY"
+      ? ""
+      : "bg-emerald-500/15"
+  }`}
+>
   {tradeType === "COMPLETE"
     ? "COMPLETE"
     : tradeType === "PARTIAL_ENTRY"
-      ? "PARTIAL ENTRY"
+      ? (
+        <span className="flex translate-x-[6px] flex-col items-center gap-[3px]">
+            <span>PARTIAL</span>
+<span className="translate-x-[-0px]">
+  ENTRY
+</span>
+          </span>
+        )
       : "PARTIAL EXIT"}
 </span>
 
@@ -2086,144 +2151,180 @@ setExchange(
 
     {/* TITLE */}
 
-<div className="translate-y-[8px] text-[16px] font-semibold text-white">
-  Timeline
-</div>
-
-
-{/* TIMELINE BODY */}
-
-<div className="relative mt-4 translate-y-[18px]">
-
-  {/* VERTICAL LINE */}
-
-  <div className="absolute left-[13px] top-[14px] bottom-[50px] w-px bg-white/[0.10]" />
-
-
-  {/* ENTRY */}
-
-  {!isPartialExit && (
-  <div className="relative mt-[15px] flex min-h-[100px]">
-
-    {/* MARKER */}
-
-    <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[12px] font-semibold text-[#07111d]">
-      E
+    <div className="translate-y-[8px] text-[16px] font-semibold text-white">
+      Timeline
     </div>
 
+    {/* TIMELINE BODY */}
 
-        {/* DETAILS */}
+    <div className="relative mt-4 translate-y-[18px]">
 
-        <div className="ml-3 min-w-0 flex-1 translate-y-[-2px] translate-x-[10px]">
+      {/* VERTICAL LINE */}
 
-<div className="text-[14px] font-semibold text-emerald-400">
-  {side === "LONG"
-    ? "BUY (Entry)"
-    : "SELL (Entry)"}
-</div>
+      <div className="absolute left-[13px] top-[14px] bottom-[50px] w-px bg-white/[0.10]" />
 
-<div className="mt-2 text-[14px] font-medium text-white">
-  {quantity
-    ? `${quantity} ${previewQuantityUnit}${previewUsesTickerUnit ? "" : Number(quantity) === 1 ? "" : "s"}`
-    : `0 ${previewQuantityUnit}${previewUsesTickerUnit ? "" : "s"}`}
-  {!isPartialExit && entryPrice
-    ? ` @ $${Number(entryPrice).toFixed(2)}`
-    : ""}
-</div>
+      {/* ENTRY */}
 
-<div className="mt-1 text-[13px] text-slate-400">
-  {entryDate || "—"}
-  {entryTime
-    ? ` • ${entryTime}`
-    : ""}
-</div>
+     {(tradeType === "COMPLETE" || isPartialEntry || isPartialExit) && (
+        <div className="relative mt-[15px] flex min-h-[100px]">
+
+          {/* MARKER */}
+
+          <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[12px] font-semibold text-[#07111d]">
+            E
+          </div>
+
+          {/* DETAILS */}
+
+          <div className="ml-3 min-w-0 flex-1 translate-y-[-2px] translate-x-[10px]">
+
+            <div className="text-[14px] font-semibold text-emerald-400">
+              {side === "LONG"
+                ? "BUY (Entry)"
+                : "SELL (Entry)"}
+            </div>
+
+            <div className="mt-2 text-[14px] font-medium text-white">
+              {isPartialExit
+                ? selectedEntryQuantity
+                  ? `${selectedEntryQuantity} ${previewQuantityUnit}${
+                      previewUsesTickerUnit
+                        ? ""
+                        : Number(selectedEntryQuantity) === 1
+                          ? ""
+                          : "s"
+                    }`
+                  : `0 ${previewQuantityUnit}${
+                      previewUsesTickerUnit ? "" : "s"
+                    }`
+                : quantity
+                  ? `${quantity} ${previewQuantityUnit}${
+                      previewUsesTickerUnit
+                        ? ""
+                        : Number(quantity) === 1
+                          ? ""
+                          : "s"
+                    }`
+                  : `0 ${previewQuantityUnit}${
+                      previewUsesTickerUnit ? "" : "s"
+                    }`}
+              {isPartialExit
+                ? selectedEntryPrice
+                  ? ` @ $${Number(selectedEntryPrice).toFixed(2)}`
+                  : ""
+                : entryPrice
+                  ? ` @ $${Number(entryPrice).toFixed(2)}`
+                  : ""}
+            </div>
+
+            <div className="mt-1 text-[13px] text-slate-400">
+              {isPartialExit
+                ? selectedEntryDate || "—"
+                : entryDate || "—"}
+              {(isPartialExit
+                ? selectedEntryTime
+                : entryTime)
+                ? ` • ${
+                    isPartialExit
+                      ? selectedEntryTime
+                      : entryTime
+                  }`
+                : ""}
+            </div>
+
+          </div>
+
+          {/* RIGHT — VALUE */}
+
+          <div className="shrink-0 pl-3 text-right">
+
+            <div className="text-[14px] font-medium text-white">
+              {formatPreviewCurrency(previewEntryValue)}
+            </div>
+
+            <div className="mt-2 text-[12px] text-slate-400">
+              Fee: {formatPreviewCurrency(
+                tradeType === "COMPLETE"
+                  ? previewCommission / 2
+                  : isPartialExit
+                    ? 0
+                    : previewCommission
+              )}
+            </div>
+
+          </div>
 
         </div>
-
-
-{/* RIGHT — VALUE */}
-
-<div className="shrink-0 pl-3 text-right">
-
-<div className="text-[14px] font-medium text-white">
-  {formatPreviewCurrency(previewEntryValue)}
-</div>
-
-<div className="mt-2 text-[12px] text-slate-400">
-  Fee: {formatPreviewCurrency(
-    tradeType === "COMPLETE"
-      ? previewCommission / 2
-      : previewCommission
-  )}
-</div>
-
-</div>
-
-</div>
-)}
-
+      )}
 
       {/* EXIT */}
 
-     {!isPartialEntry && (
-  <div className="relative mt-5 flex min-h-[68px] translate-y-[-10px]">
+      {!isPartialEntry && (
+        <div className="relative mt-5 flex min-h-[68px] translate-y-[-10px]">
 
-        {/* MARKER */}
+          {/* MARKER */}
 
-        <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500 text-[12px] font-semibold text-white">
-          X
-        </div>
-
-
-        {/* DETAILS */}
-
-         <div className="ml-3 min-w-0 flex-1 translate-y-[-6px] translate-x-[10px]">
-
-<div className="text-[14px] font-semibold text-red-400">
-  {side === "LONG"
-    ? "SELL (Exit)"
-    : "BUY (Exit)"}
-</div>
-
-          <div className="mt-2 text-[14px] font-medium text-white">
-{quantity
-  ? `${quantity} ${previewQuantityUnit}${previewUsesTickerUnit ? "" : Number(quantity) === 1 ? "" : "s"}`
-  : `0 ${previewQuantityUnit}${previewUsesTickerUnit ? "" : "s"}`}
-            {exitPrice
-              ? ` @ $${Number(exitPrice).toFixed(2)}`
-              : ""}
+          <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500 text-[12px] font-semibold text-white">
+            X
           </div>
 
-<div className="mt-1 text-[13px] text-slate-400">
-  {exitDate || "—"}
-  {exitTime
-    ? ` • ${exitTime}`
-    : ""}
-</div>
+          {/* DETAILS */}
+
+          <div className="ml-3 min-w-0 flex-1 translate-y-[-6px] translate-x-[10px]">
+
+            <div className="text-[14px] font-semibold text-red-400">
+              {side === "LONG"
+                ? "SELL (Exit)"
+                : "BUY (Exit)"}
+            </div>
+
+            <div className="mt-2 text-[14px] font-medium text-white">
+              {quantity
+                ? `${quantity} ${previewQuantityUnit}${
+                    previewUsesTickerUnit
+                      ? ""
+                      : Number(quantity) === 1
+                        ? ""
+                        : "s"
+                  }`
+                : `0 ${previewQuantityUnit}${
+                    previewUsesTickerUnit ? "" : "s"
+                  }`}
+              {exitPrice
+                ? ` @ $${Number(exitPrice).toFixed(2)}`
+                : ""}
+            </div>
+
+            <div className="mt-1 text-[13px] text-slate-400">
+              {exitDate || "—"}
+              {exitTime
+                ? ` • ${exitTime}`
+                : ""}
+            </div>
+
+          </div>
+
+          {/* RIGHT — VALUE */}
+
+          <div className="shrink-0 pl-3 text-right">
+
+            <div className="text-[14px] font-medium text-white">
+              {formatPreviewCurrency(previewExitValue)}
+            </div>
+
+            <div className="mt-2 text-[12px] text-slate-400">
+              Fee: {formatPreviewCurrency(
+                tradeType === "COMPLETE"
+                  ? previewCommission / 2
+                  : previewCommission
+              )}
+            </div>
+
+          </div>
 
         </div>
+      )}
 
-
-{/* RIGHT — VALUE */}
-
-<div className="shrink-0 pl-3 text-right">
-
-<div className="text-[14px] font-medium text-white">
-  {formatPreviewCurrency(previewExitValue)}
-</div>
-
-<div className="mt-2 text-[12px] text-slate-400">
-  Fee: {formatPreviewCurrency(
-    tradeType === "COMPLETE"
-      ? previewCommission / 2
-      : previewCommission
-  )}
-</div>
-
-</div>
-
-      </div>
-)}
     </div>
 
   </div>

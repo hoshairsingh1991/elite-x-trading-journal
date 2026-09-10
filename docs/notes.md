@@ -464,7 +464,7 @@ git commit -m "Enhance manual trade entry workflow"
 git commit -m "Account autocomplete checkpoint"
 git commit -m "Checkpoint: Match Edit Trade UI with Add Trade"
 git commit -m "Checkpoint: Partial Exit manual trade complete"
-
+git commit -m "Checkpoint: Add Trade modal refinements complete"
 
 
 
