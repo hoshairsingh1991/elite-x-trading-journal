@@ -369,7 +369,7 @@ if (error) {
     uniqueExecutions[0]
   );
 
-  return;
+ throw error;
 }
 }
 

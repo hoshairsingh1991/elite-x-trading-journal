@@ -10,9 +10,11 @@ import { createPortal } from "react-dom";
 
 import {
   createManualExecutions,
+  ManualEntryType,
 } from "@/lib/trades/createManualExecutions";
 
 import {
+  Trade,
   TradeSide,
 } from "@/types/trade";
 
@@ -32,6 +34,8 @@ interface AddTradeModalProps {
     source: "broker" | "manual";
     accountId: string | null;
   }[];
+
+  manualOpenPositions: Trade[];
 }
 
 export default function AddTradeModal({
@@ -39,6 +43,7 @@ export default function AddTradeModal({
   open,
   onClose,
   accountOptions,
+  manualOpenPositions,
 
 }: AddTradeModalProps) {
 
@@ -64,8 +69,22 @@ export default function AddTradeModal({
     const [side, setSide] =
   useState<TradeSide>("LONG");
 
-  const [tradeType, setTradeType] =
-  useState<"COMPLETE" | "OPEN" | "CLOSE">("COMPLETE");
+const [tradeType, setTradeType] =
+  useState<ManualEntryType>("COMPLETE");
+
+  const isComplete =
+  tradeType === "COMPLETE";
+
+const isPartialEntry =
+  tradeType === "PARTIAL_ENTRY";
+
+const isPartialExit =
+  tradeType === "PARTIAL_EXIT";
+
+  const [
+  selectedPositionContractKey,
+  setSelectedPositionContractKey,
+] = useState("");
 
  const [assetType, setAssetType] =
   useState("STOCKS");
@@ -210,6 +229,7 @@ const [fieldErrors, setFieldErrors] = useState({
   entryTime: false,
   exitTime: false,
   currency: false,
+  selectedPositionContractKey: false,
 });
 
 // =================================================
@@ -225,6 +245,7 @@ const handleReset = () => {
 
   setSide("LONG");
   setTradeType("COMPLETE");
+  setSelectedPositionContractKey("");
   setAssetType("STOCKS");
 
   setAccount("");
@@ -263,6 +284,7 @@ setFieldErrors({
   entryTime: false,
   exitTime: false,
   currency: false,
+  selectedPositionContractKey: false,
 });
 };
 
@@ -322,29 +344,62 @@ const previewQuantityUnit =
   assetType === "FOREX" ||
   assetType === "CFD";
 
-  const previewEntryValue =
-    previewQuantity *
-    previewEntryPrice *
-    previewMultiplier;
+const selectedPreviewPosition =
+  isPartialExit
+    ? manualOpenPositions.find(
+        (position) =>
+          position.contractKey ===
+          selectedPositionContractKey
+      )
+    : undefined;
 
-  const previewExitValue =
-    previewQuantity *
-    previewExitPrice *
-    previewMultiplier;
+const previewEntryPriceForExit =
+  Number(selectedPreviewPosition?.entryPrice ?? 0);
 
-  const previewGrossPnL =
-    side === "LONG"
+const previewEntryQuantityForExit =
+  Number(selectedPreviewPosition?.quantity ?? 0);
+
+const previewEntryValue =
+  isPartialExit
+    ? previewEntryPriceForExit *
+      previewEntryQuantityForExit *
+      previewMultiplier
+    : previewQuantity *
+      previewEntryPrice *
+      previewMultiplier;
+
+const previewExitValue =
+  previewQuantity *
+  previewExitPrice *
+  previewMultiplier;
+
+const previewGrossPnL =
+  tradeType === "COMPLETE"
+    ? side === "LONG"
       ? previewExitValue - previewEntryValue
-      : previewEntryValue - previewExitValue;
-
-  const previewNetPnL =
-    previewGrossPnL -
-    previewCommission;
-
-  const previewReturn =
-    previewEntryValue > 0
-      ? (previewNetPnL / previewEntryValue) * 100
+      : previewEntryValue - previewExitValue
+    : isPartialExit
+      ? side === "LONG"
+        ? (previewExitPrice -
+            previewEntryPriceForExit) *
+          previewQuantity *
+          previewMultiplier
+        : (previewEntryPriceForExit -
+            previewExitPrice) *
+          previewQuantity *
+          previewMultiplier
       : 0;
+
+const previewNetPnL =
+  previewGrossPnL -
+  (tradeType === "COMPLETE"
+    ? previewCommission
+    : 0);
+
+const previewReturn =
+  tradeType === "COMPLETE" && previewEntryValue > 0
+    ? (previewNetPnL / previewEntryValue) * 100
+    : 0;
 
 const previewHoldingTime = (() => {
   if (!entryDate || !exitDate || !entryTime || !exitTime) {
@@ -391,15 +446,50 @@ const previewHoldingTime = (() => {
     return `${hours}h ${minutes}m`;
   })();
 
+
+
+    const selectedEntryDate =
+  isPartialExit
+    ? selectedPreviewPosition?.date ??
+      ""
+    : entryDate;
+
+const selectedEntryTime =
+  isPartialExit
+    ? selectedPreviewPosition?.openedAt
+        ?.split("T")[1]
+        ?.slice(0, 5) ??
+      ""
+    : entryTime;
+
+const selectedEntryQuantity =
+  isPartialExit
+    ? selectedPreviewPosition?.quantity ??
+      ""
+    : quantity;
+
+const selectedEntryPrice =
+  isPartialExit
+    ? selectedPreviewPosition?.entryPrice ??
+      ""
+    : entryPrice;
+
+
 const previewSharesAfterTrade =
   tradeType === "COMPLETE"
     ? 0
-    : previewQuantity;
+    : isPartialExit
+      ? Math.max(
+          0,
+          (selectedPreviewPosition?.quantity ?? 0) -
+            previewQuantity
+        )
+      : previewQuantity;
 
 const previewPositionImpact =
   tradeType === "COMPLETE"
     ? "Flat"
-    : tradeType === "OPEN"
+    : tradeType === "PARTIAL_ENTRY"
       ? side === "LONG"
         ? "Long"
         : "Short"
@@ -488,16 +578,29 @@ const parsedExitPrice =
   Number(exitPrice);
 
 setFieldErrors({
+
   ticker: false,
+
   account: false,
+
   quantity: false,
+
   entryPrice: false,
+
   exitPrice: false,
+
   entryDate: false,
+
   exitDate: false,
+
   entryTime: false,
+
   exitTime: false,
+
   currency: false,
+
+  selectedPositionContractKey: false,
+
 });
 
 const errors = {
@@ -507,23 +610,74 @@ const errors = {
     !quantity ||
     !Number.isFinite(parsedQuantity) ||
     parsedQuantity <= 0,
+
   entryPrice:
-    !entryPrice ||
-    !Number.isFinite(parsedEntryPrice) ||
-    parsedEntryPrice <= 0,
+    !isPartialExit &&
+    (!entryPrice ||
+      !Number.isFinite(parsedEntryPrice) ||
+      parsedEntryPrice <= 0),
+
   exitPrice:
-    !exitPrice ||
-    !Number.isFinite(parsedExitPrice) ||
-    parsedExitPrice <= 0,
-  entryDate: !entryDate,
-  exitDate: !exitDate,
-  entryTime: !entryTime,
-  exitTime: !exitTime,
+    !isPartialEntry &&
+    (!exitPrice ||
+      !Number.isFinite(parsedExitPrice) ||
+      parsedExitPrice <= 0),
+
+  entryDate:
+    !isPartialExit &&
+    !entryDate,
+
+  exitDate:
+    !isPartialEntry &&
+    !exitDate,
+
+  entryTime:
+    !isPartialExit &&
+    !entryTime,
+
+  exitTime:
+    !isPartialEntry &&
+    !exitTime,
+
   currency: !currency,
+
+  selectedPositionContractKey:
+    isPartialExit &&
+    !selectedPositionContractKey,
 };
 
 const hasErrors =
   Object.values(errors).some(Boolean);
+
+  if (isPartialExit) {
+  const selectedPosition =
+    manualOpenPositions.find(
+      (position) =>
+        position.contractKey ===
+        selectedPositionContractKey
+    );
+
+  if (
+    selectedPosition &&
+    parsedQuantity >
+      selectedPosition.quantity
+  ) {
+    setFieldErrors((prev) => ({
+      ...prev,
+      quantity: true,
+    }));
+
+    alert(
+      `You only have ${selectedPosition.quantity} ${
+        selectedPosition.assetType === "OPTIONS"
+          ? "contracts"
+          : "shares"
+      } available to reduce in this manual position.`
+    );
+
+    return;
+  }
+}
 
 if (hasErrors) {
 
@@ -559,22 +713,45 @@ const executions =
 
     assetType,
 
-account,
+    account,
 
-entryDate,
+    entryDate,
 
-exitDate,
+    exitDate,
 
-entryTime,
+    entryTime,
 
-exitTime,
+    exitTime,
 
-currency,
+    currency,
 
     exchange,
+
+    tradeType,
+
+    contractKey:
+      isPartialExit
+        ? selectedPositionContractKey
+        : undefined,
   });
 
-await saveExecutionsToSupabase(executions);
+try {
+  await saveExecutionsToSupabase(
+    executions
+  );
+
+  onClose();
+  window.location.reload();
+} catch (error) {
+  console.error(
+    "FAILED TO SAVE MANUAL TRADE:",
+    error
+  );
+
+  alert(
+    "Unable to save this trade. Please try again."
+  );
+}
 
 };
 
@@ -679,32 +856,32 @@ await saveExecutionsToSupabase(executions);
 
 <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-3 gap-3">
 
-<TradeTypeCard
-  selected={tradeType === "COMPLETE"}
-  accent="purple"
-  title="Complete Trade"
-  description="Entry and exit"
-  icon="↔"
-  onClick={() => setTradeType("COMPLETE")}
-/>
+  <TradeTypeCard
+    selected={tradeType === "COMPLETE"}
+    accent="purple"
+    title="Complete Trade"
+    description="Entry + exit"
+    icon="↔"
+    onClick={() => setTradeType("COMPLETE")}
+  />
 
-<TradeTypeCard
-  selected={tradeType === "OPEN"}
-  accent="green"
-  title="Open Position (Entry)"
-  description="Entry only"
-  icon="↑"
-  onClick={() => setTradeType("OPEN")}
-/>
+  <TradeTypeCard
+    selected={tradeType === "PARTIAL_ENTRY"}
+    accent="green"
+    title="Partial Entry"
+    description="Add to a position"
+    icon="↑"
+    onClick={() => setTradeType("PARTIAL_ENTRY")}
+  />
 
-<TradeTypeCard
-  selected={tradeType === "CLOSE"}
-  accent="red"
-  title="Close / Reduce (Exit)"
-  description="Exit only"
-  icon="↓"
-  onClick={() => setTradeType("CLOSE")}
-/>
+  <TradeTypeCard
+    selected={tradeType === "PARTIAL_EXIT"}
+    accent="red"
+    title="Partial Exit"
+    description="Reduce a position"
+    icon="↓"
+    onClick={() => setTradeType("PARTIAL_EXIT")}
+  />
 
 </div>
 
@@ -743,33 +920,42 @@ await saveExecutionsToSupabase(executions);
           className="relative"
         >
 
-          <input
-            type="text"
-            value={account}
-            onFocus={() => {
-              updateAccountDropdownPosition();
-              setIsAccountDropdownOpen(true);
-            }}
-            onChange={(e) => {
-              setAccount(e.target.value);
-              updateAccountDropdownPosition();
-              setIsAccountDropdownOpen(true);
+<input
+  type="text"
+  disabled={isPartialExit}
+  value={account}
+  onFocus={() => {
+    if (isPartialExit) {
+      return;
+    }
 
-              if (fieldErrors.account) {
-                setFieldErrors((prev) => ({
-                  ...prev,
-                  account: false,
-                }));
-              }
-            }}
-            placeholder="Account"
-            className={`${inputClass} ${
-              fieldErrors.account
-                ? "!border-red-700/70"
-                : ""
-            }`}
-            style={{ paddingLeft: "16px" }}
-          />
+    updateAccountDropdownPosition();
+    setIsAccountDropdownOpen(true);
+  }}
+  onChange={(e) => {
+    if (isPartialExit) {
+      return;
+    }
+
+    setAccount(e.target.value);
+    updateAccountDropdownPosition();
+    setIsAccountDropdownOpen(true);
+
+    if (fieldErrors.account) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        account: false,
+      }));
+    }
+  }}
+  placeholder="Account"
+  className={`${inputClass} ${
+    fieldErrors.account
+      ? "!border-red-700/70"
+      : ""
+  }`}
+  style={{ paddingLeft: "16px" }}
+/>
 
         </div>
 
@@ -814,29 +1000,30 @@ await saveExecutionsToSupabase(executions);
 
         </span>
 
-        <input
-          type="text"
-          value={ticker}
-          onChange={(e) => {
+<input
+  type="text"
+  disabled={isPartialExit}
+  value={ticker}
+  onChange={(e) => {
 
-            setTicker(e.target.value);
+    setTicker(e.target.value);
 
-            if (fieldErrors.ticker) {
-              setFieldErrors((prev) => ({
-                ...prev,
-                ticker: false,
-              }));
-            }
+    if (fieldErrors.ticker) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        ticker: false,
+      }));
+    }
 
-          }}
-          placeholder="AAPL"
-          className={`${inputClass} ${
-            fieldErrors.ticker
-              ? "!border-red-700/70"
-              : ""
-          }`}
-          style={{ paddingLeft: "40px" }}
-        />
+  }}
+  placeholder="AAPL"
+  className={`${inputClass} ${
+    fieldErrors.ticker
+      ? "!border-red-700/70"
+      : ""
+  }`}
+  style={{ paddingLeft: "40px" }}
+/>
 
       </div>
 
@@ -854,18 +1041,25 @@ await saveExecutionsToSupabase(executions);
           ["LONG", "SHORT"] as TradeSide[]
         ).map((item) => (
 
-          <button
-            key={item}
-            type="button"
-            onClick={() => setSide(item)}
-            className={`flex flex-1 items-center justify-center rounded-[6px] text-[12px] font-semibold transition ${
-              side === item
-                ? "bg-blue-500 text-white shadow-[0_0_18px_rgba(59,130,246,0.18)]"
-                : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
-            }`}
-          >
-            {item}
-          </button>
+<button
+  key={item}
+  type="button"
+  disabled={isPartialExit}
+  onClick={() => {
+    if (isPartialExit) {
+      return;
+    }
+
+    setSide(item);
+  }}
+  className={`flex flex-1 items-center justify-center rounded-[6px] text-[12px] font-semibold transition ${
+    side === item
+      ? "bg-blue-500 text-white shadow-[0_0_18px_rgba(59,130,246,0.18)]"
+      : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+  } ${isPartialExit ? "cursor-not-allowed opacity-60" : ""}`}
+>
+  {item}
+</button>
 
         ))}
 
@@ -881,16 +1075,21 @@ await saveExecutionsToSupabase(executions);
 
       <div className="relative">
 
-        <select
-          value={assetType}
-          onChange={(e) =>
-            setAssetType(e.target.value)
-          }
-          className={`${selectClass} appearance-none`}
-          style={{
-            paddingLeft: "16px",
-          }}
-        >
+<select
+  value={assetType}
+  disabled={isPartialExit}
+  onChange={(e) =>
+    setAssetType(e.target.value)
+  }
+  className={`${selectClass} appearance-none ${
+    isPartialExit
+      ? "cursor-not-allowed opacity-60"
+      : ""
+  }`}
+  style={{
+    paddingLeft: "16px",
+  }}
+>
           <option value="STOCKS">Stocks</option>
           <option value="OPTIONS">Options</option>
           <option value="FUTURES">Futures</option>
@@ -909,6 +1108,86 @@ await saveExecutionsToSupabase(executions);
 
   </div>
 
+  {isPartialExit && (
+    <div className="mt-3 w-[calc(100%-30px)] translate-x-[14px]">
+      <Field label="Position to Reduce" required>
+
+<select
+  value={selectedPositionContractKey}
+  onChange={(e) => {
+    const contractKey =
+      e.target.value;
+
+    setSelectedPositionContractKey(
+      contractKey
+    );
+
+    const selectedPosition =
+      manualOpenPositions.find(
+        (position) =>
+          position.contractKey === contractKey
+      );
+
+    if (!selectedPosition) {
+      return;
+    }
+
+setTicker(
+  selectedPosition.ticker
+);
+
+setAccount(
+  selectedPosition.account ?? ""
+);
+
+setSide(
+  selectedPosition.side
+);
+
+setAssetType(
+  selectedPosition.assetType ?? "STOCKS"
+);
+
+setCurrency(
+  selectedPosition.currency
+);
+
+setExchange(
+  selectedPosition.executions?.[0]?.exchange ?? ""
+);
+
+  }}
+  className={selectClass}
+  style={{ paddingLeft: "16px" }}
+>
+          <option value="">
+            Select existing manual position
+          </option>
+
+          {manualOpenPositions.map(
+            (position) => (
+              <option
+                key={position.contractKey}
+                value={position.contractKey}
+              >
+                {position.ticker} ·{" "}
+                {position.side} ·{" "}
+                {position.quantity}{" "}
+                {position.assetType === "OPTIONS"
+                  ? "contracts"
+                  : "shares"}{" "}
+                @{" "}
+                {position.currency}{" "}
+                {position.entryPrice}
+              </option>
+            )
+          )}
+        </select>
+
+      </Field>
+    </div>
+  )}
+
 </section>
 
 <div className="w-[calc(100%-30px)] translate-x-[14px] border-t border-white/[0.08] translate-y-[10px]" />
@@ -925,7 +1204,7 @@ await saveExecutionsToSupabase(executions);
 
 <section
   className={`py-5 lg:pr-5 transition-opacity ${
-    tradeType === "CLOSE"
+    isPartialExit
       ? "opacity-40"
       : "opacity-100"
   }`}
@@ -947,8 +1226,8 @@ await saveExecutionsToSupabase(executions);
       <Field label="Quantity" required>
 <input
   type="number"
-  disabled={tradeType === "CLOSE"}
-  value={quantity}
+  disabled={isPartialExit}
+ value={selectedEntryQuantity}
   onChange={(e) => {
     setQuantity(e.target.value);
 
@@ -972,9 +1251,9 @@ await saveExecutionsToSupabase(executions);
       <Field label="Price" required>
 <input
   type="number"
-  disabled={tradeType === "CLOSE"}
+  disabled={isPartialExit}
   step="0.01"
-  value={entryPrice}
+  value={selectedEntryPrice}
   onChange={(e) => {
     setEntryPrice(e.target.value);
 
@@ -1001,8 +1280,8 @@ await saveExecutionsToSupabase(executions);
 
 <input
   type="date"
-  disabled={tradeType === "CLOSE"}
-  value={entryDate}
+  disabled={isPartialExit}
+  value={selectedEntryDate}
   onChange={(e) => {
     setEntryDate(e.target.value);
 
@@ -1057,8 +1336,8 @@ await saveExecutionsToSupabase(executions);
 
 <input
   type="time"
-  disabled={tradeType === "CLOSE"}
-  value={entryTime}
+  disabled={isPartialExit}
+  value={selectedEntryTime}
   onChange={(e) => {
     setEntryTime(e.target.value);
 
@@ -1121,7 +1400,7 @@ await saveExecutionsToSupabase(executions);
 
 <section
   className={`py-5 lg:pl-5 transition-opacity ${
-    tradeType === "OPEN"
+    isPartialEntry
       ? "opacity-40"
       : "opacity-100"
   }`}
@@ -1140,74 +1419,78 @@ await saveExecutionsToSupabase(executions);
 
   <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 gap-3">
 
-    <Field label="Quantity" required>
-      <input
-        type="number"
-        disabled={tradeType === "OPEN"}
-        value={quantity}
-        onChange={(e) => {
-          setQuantity(e.target.value);
+<Field label="Quantity" required>
+  <input
+    type="number"
+    disabled={isPartialEntry}
+    value={quantity}
+    onChange={(e) => {
+      setQuantity(e.target.value);
 
-          if (fieldErrors.quantity) {
-            setFieldErrors((prev) => ({
-              ...prev,
-              quantity: false,
-            }));
-          }
-        }}
-        placeholder="100"
-        className={fieldErrors.quantity ? `${inputClass} !border-red-700/70` : inputClass}
-        style={{ paddingLeft: "16px" }}
-      />
-    </Field>
+      if (fieldErrors.quantity) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          quantity: false,
+        }));
+      }
+    }}
+    placeholder={
+      isPartialExit
+        ? "Quantity to reduce"
+        : "100"
+    }
+    className={fieldErrors.quantity ? `${inputClass} !border-red-700/70` : inputClass}
+    style={{ paddingLeft: "16px" }}
+  />
+</Field>
 
-    <Field label="Price" required>
-      <input
-        type="number"
-        step="0.01"
-        disabled={tradeType === "OPEN"}
-        value={exitPrice}
-        onChange={(e) => {
-          setExitPrice(e.target.value);
+<Field label="Price" required>
+  <input
+    type="number"
+    step="0.01"
+    disabled={isPartialEntry}
+    value={exitPrice}
+    onChange={(e) => {
+      setExitPrice(e.target.value);
 
-          if (fieldErrors.exitPrice) {
-            setFieldErrors((prev) => ({
-              ...prev,
-              exitPrice: false,
-            }));
-          }
-        }}
-        placeholder="215.00"
-        className={fieldErrors.exitPrice ? `${inputClass} !border-red-700/70` : inputClass}
-        style={{ paddingLeft: "16px" }}
-      />
-    </Field>
+      if (fieldErrors.exitPrice) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          exitPrice: false,
+        }));
+      }
+    }}
+    placeholder="215.00"
+    className={fieldErrors.exitPrice ? `${inputClass} !border-red-700/70` : inputClass}
+    style={{ paddingLeft: "16px" }}
+  />
+</Field>
 
     <Field label="Date" required>
 
       <div className="relative">
 
-        <input
-          type="date"
-          disabled={tradeType === "OPEN"}
-          value={exitDate}
-          onChange={(e) => {
-            setExitDate(e.target.value);
+<input
+  type="date"
+  disabled={isPartialEntry}
+  value={exitDate}
+  onChange={(e) => {
+    setExitDate(e.target.value);
 
-            if (fieldErrors.exitDate) {
-              setFieldErrors((prev) => ({
-                ...prev,
-                exitDate: false,
-              }));
-            }
-          }}
-          className={
-            fieldErrors.exitDate
-              ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
-              : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
-          }
-          style={{ paddingLeft: "16px" }}
-        />
+    if (fieldErrors.exitDate) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        exitDate: false,
+      }));
+    }
+  }}
+  className={
+    fieldErrors.exitDate
+      ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
+      : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
+  }
+  style={{ paddingLeft: "16px" }}
+/>
 
         <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
@@ -1247,27 +1530,27 @@ await saveExecutionsToSupabase(executions);
 
       <div className="relative">
 
-        <input
-          type="time"
-          disabled={tradeType === "OPEN"}
-          value={exitTime}
-          onChange={(e) => {
-            setExitTime(e.target.value);
+<input
+  type="time"
+  disabled={isPartialEntry}
+  value={exitTime}
+  onChange={(e) => {
+    setExitTime(e.target.value);
 
-            if (fieldErrors.exitTime) {
-              setFieldErrors((prev) => ({
-                ...prev,
-                exitTime: false,
-              }));
-            }
-          }}
-          className={
-            fieldErrors.exitTime
-              ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
-              : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
-          }
-          style={{ paddingLeft: "16px" }}
-        />
+    if (fieldErrors.exitTime) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        exitTime: false,
+      }));
+    }
+  }}
+  className={
+    fieldErrors.exitTime
+      ? `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 !border-red-700/70`
+      : `${inputClass} [color-scheme:dark] pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0`
+  }
+  style={{ paddingLeft: "16px" }}
+/>
 
         <span className="pointer-events-none absolute right-[10px] top-1/2 -translate-y-1/2 text-slate-400">
 
@@ -1334,7 +1617,12 @@ await saveExecutionsToSupabase(executions);
 
 <select
   value={currency}
+  disabled={isPartialExit}
   onChange={(e) => {
+    if (isPartialExit) {
+      return;
+    }
+
     setCurrency(e.target.value);
 
     if (fieldErrors.currency) {
@@ -1346,8 +1634,16 @@ await saveExecutionsToSupabase(executions);
   }}
   className={
     fieldErrors.currency
-      ? `${selectClass} !border-red-700/70`
-      : selectClass
+      ? `${selectClass} !border-red-700/70 ${
+          isPartialExit
+            ? "cursor-not-allowed opacity-60"
+            : ""
+        }`
+      : `${selectClass} ${
+          isPartialExit
+            ? "cursor-not-allowed opacity-60"
+            : ""
+        }`
   }
   style={{ paddingLeft: "16px" }}
 >
@@ -1362,14 +1658,23 @@ await saveExecutionsToSupabase(executions);
 
     <Field label="Exchange">
 
-      <select
-        value={exchange}
-        onChange={(e) =>
-          setExchange(e.target.value)
-        }
-        className={selectClass}
-        style={{ paddingLeft: "16px" }}
-      >
+<select
+  value={exchange}
+  disabled={isPartialExit}
+  onChange={(e) => {
+    if (isPartialExit) {
+      return;
+    }
+
+    setExchange(e.target.value);
+  }}
+  className={`${selectClass} ${
+    isPartialExit
+      ? "cursor-not-allowed opacity-60"
+      : ""
+  }`}
+  style={{ paddingLeft: "16px" }}
+>
         <option value="">Select</option>
         <option value="NASDAQ">NASDAQ</option>
         <option value="NYSE">NYSE</option>
@@ -1585,9 +1890,13 @@ await saveExecutionsToSupabase(executions);
         {side}
       </span>
 
-      <span className="flex h-6 w-[100px] items-center justify-center rounded-[6px] bg-white/[0.04] text-[11px] text-slate-300">
-        Complete Trade
-      </span>
+<span className="flex h-6 w-[110px] items-center justify-center rounded-[6px] bg-white/[0.04] text-[11px] text-slate-300">
+  {tradeType === "COMPLETE"
+    ? "Complete Trade"
+    : tradeType === "PARTIAL_ENTRY"
+      ? "Partial Entry"
+      : "Partial Exit"}
+</span>
 
     </div>
 
@@ -1718,8 +2027,13 @@ await saveExecutionsToSupabase(executions);
   </div>
 
 <div className="translate-y-[2px] text-[13px] text-slate-400">
-  {previewQuantityUnit}
-  {previewUsesTickerUnit ? "" : "s"} After Trade
+  {isPartialExit
+    ? `After Reducing ${previewQuantityUnit}${
+        previewUsesTickerUnit ? "" : "s"
+      }`
+    : `${previewQuantityUnit}${
+        previewUsesTickerUnit ? "" : "s"
+      } After Trade`}
 </div>
 
 <div className="translate-y-[4px] text-[18px] font-medium text-white">
@@ -1746,12 +2060,12 @@ await saveExecutionsToSupabase(executions);
   Status
 </div>
 
-<span className="mt-3 inline-flex h-6 w-[70px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
+<span className="mt-3 inline-flex h-6 w-[90px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
   {tradeType === "COMPLETE"
     ? "COMPLETE"
-    : tradeType === "OPEN"
-      ? "OPEN"
-      : "CLOSE"}
+    : tradeType === "PARTIAL_ENTRY"
+      ? "PARTIAL ENTRY"
+      : "PARTIAL EXIT"}
 </span>
 
 </div>
@@ -1788,6 +2102,7 @@ await saveExecutionsToSupabase(executions);
 
   {/* ENTRY */}
 
+  {!isPartialExit && (
   <div className="relative mt-[15px] flex min-h-[100px]">
 
     {/* MARKER */}
@@ -1801,18 +2116,20 @@ await saveExecutionsToSupabase(executions);
 
         <div className="ml-3 min-w-0 flex-1 translate-y-[-2px] translate-x-[10px]">
 
-          <div className="text-[14px] font-semibold text-emerald-400">
-            BUY (Entry)
-          </div>
+<div className="text-[14px] font-semibold text-emerald-400">
+  {side === "LONG"
+    ? "BUY (Entry)"
+    : "SELL (Entry)"}
+</div>
 
-          <div className="mt-2 text-[14px] font-medium text-white">
-{quantity
-  ? `${quantity} ${previewQuantityUnit}${previewUsesTickerUnit ? "" : Number(quantity) === 1 ? "" : "s"}`
-  : `0 ${previewQuantityUnit}${previewUsesTickerUnit ? "" : "s"}`}
-            {entryPrice
-              ? ` @ $${Number(entryPrice).toFixed(2)}`
-              : ""}
-          </div>
+<div className="mt-2 text-[14px] font-medium text-white">
+  {quantity
+    ? `${quantity} ${previewQuantityUnit}${previewUsesTickerUnit ? "" : Number(quantity) === 1 ? "" : "s"}`
+    : `0 ${previewQuantityUnit}${previewUsesTickerUnit ? "" : "s"}`}
+  {!isPartialExit && entryPrice
+    ? ` @ $${Number(entryPrice).toFixed(2)}`
+    : ""}
+</div>
 
 <div className="mt-1 text-[13px] text-slate-400">
   {entryDate || "—"}
@@ -1833,17 +2150,23 @@ await saveExecutionsToSupabase(executions);
 </div>
 
 <div className="mt-2 text-[12px] text-slate-400">
-  Fee: {formatPreviewCurrency(previewCommission / 2)}
+  Fee: {formatPreviewCurrency(
+    tradeType === "COMPLETE"
+      ? previewCommission / 2
+      : previewCommission
+  )}
 </div>
 
 </div>
 
 </div>
+)}
 
 
       {/* EXIT */}
 
-     <div className="relative mt-5 flex min-h-[68px] translate-y-[-10px]">
+     {!isPartialEntry && (
+  <div className="relative mt-5 flex min-h-[68px] translate-y-[-10px]">
 
         {/* MARKER */}
 
@@ -1856,9 +2179,11 @@ await saveExecutionsToSupabase(executions);
 
          <div className="ml-3 min-w-0 flex-1 translate-y-[-6px] translate-x-[10px]">
 
-          <div className="text-[14px] font-semibold text-red-400">
-            SELL (Exit)
-          </div>
+<div className="text-[14px] font-semibold text-red-400">
+  {side === "LONG"
+    ? "SELL (Exit)"
+    : "BUY (Exit)"}
+</div>
 
           <div className="mt-2 text-[14px] font-medium text-white">
 {quantity
@@ -1889,15 +2214,16 @@ await saveExecutionsToSupabase(executions);
 
 <div className="mt-2 text-[12px] text-slate-400">
   Fee: {formatPreviewCurrency(
-    previewCommission -
-      previewCommission / 2
+    tradeType === "COMPLETE"
+      ? previewCommission / 2
+      : previewCommission
   )}
 </div>
 
 </div>
 
       </div>
-
+)}
     </div>
 
   </div>

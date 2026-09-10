@@ -125,6 +125,9 @@ const [manualAccountOptions, setManualAccountOptions] =
   const [trades, setTrades] =
     useState<Trade[]>([]);
 
+    const [manualOpenPositions, setManualOpenPositions] =
+  useState<Trade[]>([]);
+
 const [lastImportAt, setLastImportAt] =
   useState<string | null>(null);
 
@@ -686,6 +689,20 @@ useEffect(() => {
         pairTrades(
           storedExecutions
         );
+
+const openManualPositions =
+  rebuiltTrades.filter(
+    (trade) =>
+      trade.isOpen &&
+      typeof trade.contractKey === "string" &&
+      trade.contractKey.startsWith(
+        "MANUAL-"
+      )
+  );
+
+setManualOpenPositions(
+  openManualPositions
+);
 
       // =========================================
       // MANUAL TRADES
@@ -1310,6 +1327,7 @@ const formattedLastImport =
     setIsAddTradeOpen(false)
   }
   accountOptions={accountOptions}
+  manualOpenPositions={manualOpenPositions}
 />
 
 </section>

@@ -1,40 +1,54 @@
-
 import {
   NormalizedExecution,
   TradeSide,
 } from "@/types/trade";
 
 // =================================================
-// CREATE MANUAL EXECUTIONS
+// MANUAL ENTRY TYPE
 // =================================================
+//
+// COMPLETE
+//   Entry + Exit
+//
+// PARTIAL_ENTRY
+//   One opening/additional execution
+//
+// PARTIAL_EXIT
+//   One reducing/closing execution
+//
+// =================================================
+
+export type ManualEntryType =
+  | "COMPLETE"
+  | "PARTIAL_ENTRY"
+  | "PARTIAL_EXIT";
+
+// =================================================
+// CREATE MANUAL EXECUTIONS INPUT
+// =================================================
+//
+// IMPORTANT:
 //
 // Manual Entry is an execution producer.
 //
-// IMPORTANT:
-// - Executions remain the canonical trading data.
-// - Manual Entry does NOT create trades directly.
-// - pairTrades() remains responsible for reconstructing
-//   trades from executions.
+// This builder creates normalized executions only.
+// It does NOT create trades directly.
 //
-// LONG:
-//   BUY  = entry
-//   SELL = exit
-//
-// SHORT:
-//   SELL = entry
-//   BUY  = exit
+// pairTrades() remains responsible for reconstructing
+// positions/trades from executions.
 //
 // =================================================
 
 interface CreateManualExecutionsInput {
-
   ticker: string;
 
   quantity: number;
 
-  entryPrice: number;
+  // Complete Trade / Partial Entry
+  entryPrice?: number;
 
-  exitPrice: number;
+  // Complete Trade / Partial Exit
+  exitPrice?: number;
 
   commission: number;
 
@@ -44,17 +58,34 @@ interface CreateManualExecutionsInput {
 
   account: string;
 
-entryDate: string;
+  // Complete Trade / Partial Entry
+  entryDate?: string;
 
-exitDate: string;
+  // Complete Trade / Partial Exit
+  exitDate?: string;
 
-entryTime?: string;
+  // Complete Trade / Partial Entry
+  entryTime?: string;
 
-exitTime?: string;
+  // Complete Trade / Partial Exit
+  exitTime?: string;
 
   currency: string;
 
   exchange?: string;
+
+  // Defaults to COMPLETE for backwards compatibility
+  // with the existing working Add Trade flow.
+  tradeType?: ManualEntryType;
+
+  // Required for PARTIAL_EXIT because the exit must
+  // reduce an existing lifecycle/position.
+  //
+  // This is intentionally optional at the type level
+  // so existing COMPLETE callers continue working.
+  //
+  // The validator requires it for PARTIAL_EXIT.
+  contractKey?: string;
 }
 
 // =================================================
@@ -64,7 +95,6 @@ exitTime?: string;
 function validateManualExecutionInput(
   input: CreateManualExecutionsInput
 ): void {
-
   const {
     ticker,
     quantity,
@@ -74,11 +104,13 @@ function validateManualExecutionInput(
     side,
     assetType,
     account,
-entryDate,
-exitDate,
-entryTime,
-exitTime,
-currency,
+    entryDate,
+    exitDate,
+    entryTime,
+    exitTime,
+    currency,
+    tradeType = "COMPLETE",
+    contractKey,
   } = input;
 
   // =================================================
@@ -86,37 +118,34 @@ currency,
   // =================================================
 
   if (!ticker?.trim()) {
-
     throw new Error(
       "Manual trade ticker is required."
     );
   }
 
   if (!account?.trim()) {
-
     throw new Error(
       "Manual trade account is required."
     );
   }
 
-if (!entryDate?.trim()) {
-
-  throw new Error(
-    "Manual trade entry date is required."
-  );
-}
-
-if (!exitDate?.trim()) {
-
-  throw new Error(
-    "Manual trade exit date is required."
-  );
-}
-
   if (!assetType?.trim()) {
-
     throw new Error(
       "Manual trade asset type is required."
+    );
+  }
+
+  // =================================================
+  // TRADE TYPE
+  // =================================================
+
+  if (
+    tradeType !== "COMPLETE" &&
+    tradeType !== "PARTIAL_ENTRY" &&
+    tradeType !== "PARTIAL_EXIT"
+  ) {
+    throw new Error(
+      "Invalid manual entry type."
     );
   }
 
@@ -128,10 +157,51 @@ if (!exitDate?.trim()) {
     !Number.isFinite(quantity) ||
     quantity <= 0
   ) {
-
     throw new Error(
       "Manual trade quantity must be greater than zero."
     );
+  }
+
+  // =================================================
+  // COMPLETE / PARTIAL ENTRY DATE + TIME
+  // =================================================
+
+  if (
+    tradeType === "COMPLETE" ||
+    tradeType === "PARTIAL_ENTRY"
+  ) {
+    if (!entryDate?.trim()) {
+      throw new Error(
+        "Manual trade entry date is required."
+      );
+    }
+
+    if (!entryTime?.trim()) {
+      throw new Error(
+        "Manual trade entry time is required."
+      );
+    }
+  }
+
+  // =================================================
+  // COMPLETE / PARTIAL EXIT DATE + TIME
+  // =================================================
+
+  if (
+    tradeType === "COMPLETE" ||
+    tradeType === "PARTIAL_EXIT"
+  ) {
+    if (!exitDate?.trim()) {
+      throw new Error(
+        "Manual trade exit date is required."
+      );
+    }
+
+    if (!exitTime?.trim()) {
+      throw new Error(
+        "Manual trade exit time is required."
+      );
+    }
   }
 
   // =================================================
@@ -139,13 +209,17 @@ if (!exitDate?.trim()) {
   // =================================================
 
   if (
-    !Number.isFinite(entryPrice) ||
-    entryPrice <= 0
+    tradeType === "COMPLETE" ||
+    tradeType === "PARTIAL_ENTRY"
   ) {
-
-    throw new Error(
-      "Manual trade entry price must be greater than zero."
-    );
+    if (
+      !Number.isFinite(entryPrice) ||
+      (entryPrice ?? 0) <= 0
+    ) {
+      throw new Error(
+        "Manual trade entry price must be greater than zero."
+      );
+    }
   }
 
   // =================================================
@@ -153,13 +227,17 @@ if (!exitDate?.trim()) {
   // =================================================
 
   if (
-    !Number.isFinite(exitPrice) ||
-    exitPrice <= 0
+    tradeType === "COMPLETE" ||
+    tradeType === "PARTIAL_EXIT"
   ) {
-
-    throw new Error(
-      "Manual trade exit price must be greater than zero."
-    );
+    if (
+      !Number.isFinite(exitPrice) ||
+      (exitPrice ?? 0) <= 0
+    ) {
+      throw new Error(
+        "Manual trade exit price must be greater than zero."
+      );
+    }
   }
 
   // =================================================
@@ -168,13 +246,18 @@ if (!exitDate?.trim()) {
   //
   // Zero commission is valid.
   //
+  // COMPLETE:
+  //   split between entry + exit
+  //
+  // PARTIAL ENTRY / PARTIAL EXIT:
+  //   entire commission belongs to that execution
+  //
   // =================================================
 
   if (
     !Number.isFinite(commission) ||
     commission < 0
   ) {
-
     throw new Error(
       "Manual trade commission cannot be negative."
     );
@@ -188,7 +271,6 @@ if (!exitDate?.trim()) {
     side !== "LONG" &&
     side !== "SHORT"
   ) {
-
     throw new Error(
       "Manual trade side must be LONG or SHORT."
     );
@@ -201,28 +283,27 @@ if (!exitDate?.trim()) {
   const normalizedCurrency =
     currency?.trim().toUpperCase();
 
-const supportedCurrencies = [
-  "USD",
-  "CAD",
-  "EUR",
-  "GBP",
-  "JPY",
-  "INR",
-];
+  const supportedCurrencies = [
+    "USD",
+    "CAD",
+    "EUR",
+    "GBP",
+    "JPY",
+    "INR",
+  ];
 
   if (
     !supportedCurrencies.includes(
       normalizedCurrency
     )
   ) {
-
     throw new Error(
       "Unsupported manual trade currency."
     );
   }
 
   // =================================================
-  // OPTIONAL TIME VALIDATION
+  // TIME VALIDATION
   // =================================================
 
   const timePattern =
@@ -232,7 +313,6 @@ const supportedCurrencies = [
     entryTime &&
     !timePattern.test(entryTime)
   ) {
-
     throw new Error(
       "Invalid manual trade entry time."
     );
@@ -242,9 +322,31 @@ const supportedCurrencies = [
     exitTime &&
     !timePattern.test(exitTime)
   ) {
-
     throw new Error(
       "Invalid manual trade exit time."
+    );
+  }
+
+  // =================================================
+  // PARTIAL EXIT POSITION TARGET
+  // =================================================
+  //
+  // A Partial Exit is fundamentally different from
+  // creating a new lifecycle.
+  //
+  // It must reduce an existing position.
+  //
+  // Therefore it must eventually carry the existing
+  // lifecycle/contract identity into the execution.
+  //
+  // =================================================
+
+  if (
+    tradeType === "PARTIAL_EXIT" &&
+    !contractKey?.trim()
+  ) {
+    throw new Error(
+      "Manual partial exit requires an existing position."
     );
   }
 }
@@ -256,31 +358,46 @@ const supportedCurrencies = [
 export function createManualExecutions(
   input: CreateManualExecutionsInput
 ): NormalizedExecution[] {
+  // =================================================
+  // DEFAULT TRADE TYPE
+  // =================================================
+  //
+  // COMPLETE is the default intentionally.
+  //
+  // This preserves backwards compatibility with the
+  // current working Complete Trade implementation.
+  //
+  // =================================================
+
+  const tradeType =
+    input.tradeType ?? "COMPLETE";
 
   // =================================================
   // VALIDATE BEFORE CREATING ANY EXECUTIONS
   // =================================================
 
-  validateManualExecutionInput(
-    input
-  );
+  validateManualExecutionInput({
+    ...input,
+    tradeType,
+  });
 
-const {
-  ticker,
-  quantity,
-  entryPrice,
-  exitPrice,
-  commission,
-  side,
-  assetType,
-  account,
-  entryDate,
-  exitDate,
-  entryTime,
-  exitTime,
-  currency,
-  exchange,
-} = input;
+  const {
+    ticker,
+    quantity,
+    entryPrice,
+    exitPrice,
+    commission,
+    side,
+    assetType,
+    account,
+    entryDate,
+    exitDate,
+    entryTime,
+    exitTime,
+    currency,
+    exchange,
+    contractKey: suppliedContractKey,
+  } = input;
 
   // =================================================
   // NORMALIZE BASIC VALUES
@@ -304,6 +421,14 @@ const {
   // =================================================
   // UNIQUE MANUAL LIFECYCLE ID
   // =================================================
+  //
+  // COMPLETE and PARTIAL ENTRY create a new manual
+  // lifecycle at this stage.
+  //
+  // PARTIAL EXIT must target an existing lifecycle,
+  // so its supplied contractKey is preserved.
+  //
+  // =================================================
 
   const lifecycleId =
     crypto.randomUUID();
@@ -311,30 +436,14 @@ const {
   // =================================================
   // CANONICAL CONTRACT KEY
   // =================================================
-  //
-  // Every manual trade gets its own lifecycle.
-  //
-  // This prevents unrelated manual trades from being
-  // accidentally paired together by the FIFO engine.
-  //
-  // Broker executions continue using their own
-  // broker-derived contract keys.
-  //
-  // =================================================
 
   const contractKey =
-    `MANUAL-${normalizedTicker}-${lifecycleId}`;
+    tradeType === "PARTIAL_EXIT"
+      ? suppliedContractKey!.trim()
+      : `MANUAL-${normalizedTicker}-${lifecycleId}`;
 
   // =================================================
   // ASSET MULTIPLIER
-  // =================================================
-  //
-  // Options:
-  //   100
-  //
-  // Everything else:
-  //   1
-  //
   // =================================================
 
   const multiplier =
@@ -343,7 +452,42 @@ const {
       : 1;
 
   // =================================================
-  // EXECUTION IDS
+  // EXECUTION ACTIONS
+  // =================================================
+  //
+  // LONG:
+  //   Entry = BUY
+  //   Exit  = SELL
+  //
+  // SHORT:
+  //   Entry = SELL
+  //   Exit  = BUY
+  //
+  // =================================================
+
+  const entryAction =
+    side === "LONG"
+      ? "BUY"
+      : "SELL";
+
+  const exitAction =
+    side === "LONG"
+      ? "SELL"
+      : "BUY";
+
+  // =================================================
+  // EXECUTION IDs
+  // =================================================
+  //
+  // Keep the current Complete Trade ID structure
+  // unchanged for regression safety.
+  //
+  // Partial Entry / Partial Exit receive their own
+  // unique execution identity.
+  //
+  // Deterministic identity hardening is intentionally
+  // deferred to a separate controlled phase.
+  //
   // =================================================
 
   const entryExecutionId =
@@ -363,35 +507,147 @@ const {
     `MANUAL-${lifecycleId}-EXIT`;
 
   // =================================================
-  // EXECUTION ACTIONS
-  // =================================================
-  //
-  // LONG:
-  //   BUY -> SELL
-  //
-  // SHORT:
-  //   SELL -> BUY
-  //
+  // PARTIAL ENTRY
   // =================================================
 
-  const entryAction =
-    side === "LONG"
-      ? "BUY"
-      : "SELL";
+  if (
+    tradeType === "PARTIAL_ENTRY"
+  ) {
+    const executionTimestamp =
+      `${entryDate}T${entryTime}:00`;
 
-  const exitAction =
-    side === "LONG"
-      ? "SELL"
-      : "BUY";
+    const execution:
+      NormalizedExecution = {
+        id:
+          entryExecutionId,
+
+        date:
+          entryDate!,
+
+        ticker:
+          normalizedTicker,
+
+        contract:
+          normalizedTicker,
+
+        contractKey,
+
+        exchange:
+          normalizedExchange,
+
+        action:
+          entryAction,
+
+        quantity,
+
+        executionPrice:
+          entryPrice!,
+
+        executionValue:
+          entryPrice! *
+          quantity *
+          multiplier,
+
+        fees:
+          commission,
+
+        account:
+          normalizedAccount,
+
+        assetType:
+          normalizedAssetType,
+
+        multiplier,
+
+        currency:
+          normalizedCurrency,
+
+        feeCurrency:
+          normalizedCurrency,
+
+        brokerExecutionId:
+          entryBrokerExecutionId,
+
+        executionTimestamp,
+      };
+
+    return [execution];
+  }
 
   // =================================================
-  // COMMISSION ALLOCATION
+  // PARTIAL EXIT
+  // =================================================
+
+  if (
+    tradeType === "PARTIAL_EXIT"
+  ) {
+    const executionTimestamp =
+      `${exitDate}T${exitTime}:00`;
+
+    const execution:
+      NormalizedExecution = {
+        id:
+          exitExecutionId,
+
+        date:
+          exitDate!,
+
+        ticker:
+          normalizedTicker,
+
+        contract:
+          normalizedTicker,
+
+        contractKey,
+
+        exchange:
+          normalizedExchange,
+
+        action:
+          exitAction,
+
+        quantity,
+
+        executionPrice:
+          exitPrice!,
+
+        executionValue:
+          exitPrice! *
+          quantity *
+          multiplier,
+
+        fees:
+          commission,
+
+        account:
+          normalizedAccount,
+
+        assetType:
+          normalizedAssetType,
+
+        multiplier,
+
+        currency:
+          normalizedCurrency,
+
+        feeCurrency:
+          normalizedCurrency,
+
+        brokerExecutionId:
+          exitBrokerExecutionId,
+
+        executionTimestamp,
+      };
+
+    return [execution];
+  }
+
+  // =================================================
+  // COMPLETE TRADE
   // =================================================
   //
-  // Total commission supplied by the user is split
-  // across the two executions.
-  //
-  // The sum always equals the original commission.
+  // This section intentionally preserves the current
+  // working two-execution behavior.
   //
   // =================================================
 
@@ -401,153 +657,136 @@ const {
   const exitFees =
     commission - entryFees;
 
-// =================================================
-// EXECUTION TIMESTAMPS
-// =================================================
-//
-// Manual Entry always produces a canonical timestamp.
-//
-// Entry:
-//   tradeDate + entryTime
-//
-// Exit:
-//   tradeDate + exitTime
-//
-// executionTimestamp remains REQUIRED in
-// NormalizedExecution.
-//
-// =================================================
+  const entryTimestamp:
+    string =
+    `${entryDate}T${entryTime}:00`;
 
-const entryTimestamp: string =
-  `${entryDate}T${entryTime}:00`;
-
-const exitTimestamp: string =
-  `${exitDate}T${exitTime}:00`;
-
-// =================================================
-// ENTRY EXECUTION
-// =================================================
-
-const entryExecution:
-  NormalizedExecution = {
-
-  id:
-    entryExecutionId,
-
-  date:
-  entryDate,
-
-  ticker:
-    normalizedTicker,
-
-  contract:
-    normalizedTicker,
-
-  contractKey,
-
-  exchange:
-    normalizedExchange,
-
-  action:
-    entryAction,
-
-  quantity,
-
-  executionPrice:
-    entryPrice,
-
-  executionValue:
-    entryPrice *
-    quantity *
-    multiplier,
-
-  fees:
-    entryFees,
-
-  account:
-    normalizedAccount,
-
-  assetType:
-    normalizedAssetType,
-
-  multiplier,
-
-  currency:
-    normalizedCurrency,
-
-  feeCurrency:
-    normalizedCurrency,
-
-  brokerExecutionId:
-    entryBrokerExecutionId,
-
-  executionTimestamp:
-    entryTimestamp,
-};
-
-// =================================================
-// EXIT EXECUTION
-// =================================================
-
-const exitExecution:
-  NormalizedExecution = {
-
-  id:
-    exitExecutionId,
-
- date:
-  exitDate,
-
-  ticker:
-    normalizedTicker,
-
-  contract:
-    normalizedTicker,
-
-  contractKey,
-
-  exchange:
-    normalizedExchange,
-
-  action:
-    exitAction,
-
-  quantity,
-
-  executionPrice:
-    exitPrice,
-
-  executionValue:
-    exitPrice *
-    quantity *
-    multiplier,
-
-  fees:
-    exitFees,
-
-  account:
-    normalizedAccount,
-
-  assetType:
-    normalizedAssetType,
-
-  multiplier,
-
-  currency:
-    normalizedCurrency,
-
-  feeCurrency:
-    normalizedCurrency,
-
-  brokerExecutionId:
-    exitBrokerExecutionId,
-
-  executionTimestamp:
-    exitTimestamp,
-};
+  const exitTimestamp:
+    string =
+    `${exitDate}T${exitTime}:00`;
 
   // =================================================
-  // RETURN NORMALIZED EXECUTIONS
+  // ENTRY EXECUTION
+  // =================================================
+
+  const entryExecution:
+    NormalizedExecution = {
+    id:
+      entryExecutionId,
+
+    date:
+      entryDate!,
+
+    ticker:
+      normalizedTicker,
+
+    contract:
+      normalizedTicker,
+
+    contractKey,
+
+    exchange:
+      normalizedExchange,
+
+    action:
+      entryAction,
+
+    quantity,
+
+    executionPrice:
+      entryPrice!,
+
+    executionValue:
+      entryPrice! *
+      quantity *
+      multiplier,
+
+    fees:
+      entryFees,
+
+    account:
+      normalizedAccount,
+
+    assetType:
+      normalizedAssetType,
+
+    multiplier,
+
+    currency:
+      normalizedCurrency,
+
+    feeCurrency:
+      normalizedCurrency,
+
+    brokerExecutionId:
+      entryBrokerExecutionId,
+
+    executionTimestamp:
+      entryTimestamp,
+  };
+
+  // =================================================
+  // EXIT EXECUTION
+  // =================================================
+
+  const exitExecution:
+    NormalizedExecution = {
+    id:
+      exitExecutionId,
+
+    date:
+      exitDate!,
+
+    ticker:
+      normalizedTicker,
+
+    contract:
+      normalizedTicker,
+
+    contractKey,
+
+    exchange:
+      normalizedExchange,
+
+    action:
+      exitAction,
+
+    quantity,
+
+    executionPrice:
+      exitPrice!,
+
+    executionValue:
+      exitPrice! *
+      quantity *
+      multiplier,
+
+    fees:
+      exitFees,
+
+    account:
+      normalizedAccount,
+
+    assetType:
+      normalizedAssetType,
+
+    multiplier,
+
+    currency:
+      normalizedCurrency,
+
+    feeCurrency:
+      normalizedCurrency,
+
+    brokerExecutionId:
+      exitBrokerExecutionId,
+
+    executionTimestamp:
+      exitTimestamp,
+  };
+
+  // =================================================
+  // RETURN COMPLETE TRADE EXECUTIONS
   // =================================================
 
   return [
@@ -555,4 +794,3 @@ const exitExecution:
     exitExecution,
   ];
 }
-

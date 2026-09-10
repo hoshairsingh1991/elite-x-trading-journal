@@ -539,6 +539,11 @@ const [isModalOpen, setIsModalOpen] =
     setIsAddTradeOpen,
   ] = useState(false);
 
+  const [
+  manualOpenPositions,
+  setManualOpenPositions,
+] = useState<Trade[]>([]);
+
   // =================================================
   // IBKR CONNECTION MODAL
   // =================================================
@@ -596,6 +601,25 @@ const rebuiltTrades =
   pairTrades(
     storedExecutions
   );
+
+const openManualPositions =
+  rebuiltTrades.filter(
+    (trade) =>
+      trade.isOpen &&
+      typeof trade.contractKey === "string" &&
+      trade.contractKey.startsWith(
+        "MANUAL-"
+      )
+  );
+
+  console.log(
+  "REBUILT MANUAL POSITIONS:",
+  openManualPositions
+);
+
+setManualOpenPositions(
+  openManualPositions
+);
 
 // =========================================
 // MANUAL TRADES
@@ -1743,6 +1767,7 @@ tradingCalendar={
     setIsAddTradeOpen(false)
   }
   accountOptions={accountOptions}
+  manualOpenPositions={manualOpenPositions}
 />
 
       </section>

@@ -463,6 +463,11 @@ git commit -m "Polish manual trade modal UI"
 git commit -m "Enhance manual trade entry workflow"
 git commit -m "Account autocomplete checkpoint"
 git commit -m "Checkpoint: Match Edit Trade UI with Add Trade"
+git commit -m "Checkpoint: Partial Exit manual trade complete"
+
+
+
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
