@@ -785,15 +785,25 @@ window.location.reload();
 
     </div>
 
-    <div className="flex items-center gap-0 translate-x-[-30px] translate-y-[6px]">
+<div className="flex items-center gap-2 translate-x-[-30px] translate-y-[6px]">
 
-      {/* MANUAL EDIT */}
+  {/* MANUAL EDIT */}
 
-      <div className="flex h-[32px] w-[112px] items-center justify-center rounded-[8px] border border-violet-500/20 bg-violet-500/[0.08] text-[11px] font-semibold uppercase tracking-[0.08em] text-violet-400">
-        Manual Edit
-      </div>
+  <div className="flex h-[32px] w-[112px] items-center justify-center rounded-[8px] border border-violet-500/20 bg-violet-500/[0.08] text-[11px] font-semibold uppercase tracking-[0.08em] text-violet-400">
+    Manual Edit
+  </div>
 
-    </div>
+  {/* DELETE */}
+
+  <button
+    type="button"
+    onClick={handleDeleteTrade}
+    className="flex h-[32px] w-[80px] items-center justify-center rounded-[8px] border border-red-500/20 bg-red-500/10 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-400 transition hover:bg-red-500/20"
+  >
+    Delete
+  </button>
+
+</div>
 
   </header>
 
@@ -1829,13 +1839,14 @@ window.location.reload();
 
       {/* NET P&L */}
 
-      <div>
+      <div className="px-3 text-center first:pl-0 last:pr-0">
+
         <div className="text-[12px] text-slate-400">
           Net P&L
         </div>
 
         <div
-          className={`mt-1 text-[16px] font-semibold ${
+          className={`mt-2 text-[16px] font-semibold ${
             previewNetPnL > 0
               ? "text-emerald-400"
               : previewNetPnL < 0
@@ -1845,18 +1856,19 @@ window.location.reload();
         >
           {formatPreviewPnL(previewNetPnL)}
         </div>
+
       </div>
 
       {/* RETURN */}
 
-      <div className="pl-4">
+      <div className="px-3 text-center first:pl-0 last:pr-0">
 
         <div className="text-[12px] text-slate-400">
           Return
         </div>
 
         <div
-          className={`mt-1 text-[16px] font-semibold ${
+          className={`mt-2 text-[16px] font-semibold ${
             previewReturn > 0
               ? "text-emerald-400"
               : previewReturn < 0
@@ -1871,13 +1883,13 @@ window.location.reload();
 
       {/* HOLDING TIME */}
 
-      <div className="pl-4">
+      <div className="px-3 text-center first:pl-0 last:pr-0">
 
         <div className="text-[12px] text-slate-400">
           Holding Time
         </div>
 
-        <div className="mt-1 text-[16px] font-semibold text-white">
+        <div className="mt-2 text-[16px] font-semibold text-white">
           {previewHoldingTime}
         </div>
 
