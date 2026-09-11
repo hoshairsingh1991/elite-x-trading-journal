@@ -842,13 +842,13 @@ const handleDeleteTrade =
       {/* BACKDROP */}
       {/* ================================================= */}
 
-      <div className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-[5px]" />
+     <div className="fixed inset-0 z-[11000] bg-black/75 backdrop-blur-[5px]" />
 
       {/* ================================================= */}
       {/* MODAL VIEWPORT */}
       {/* ================================================= */}
 
-      <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
+      <div className="fixed inset-0 z-[11100] flex items-center justify-center p-6">
 
         <div
           className="

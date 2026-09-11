@@ -44,6 +44,7 @@ const days = [
 
 interface TradingCalendarProps {
   trades: Trade[];
+  allTrades?: Trade[];
   reportingCurrency: string;
 }
 // =====================================================
@@ -83,6 +84,7 @@ function parseLocalDate(
 
 export default function TradingCalendar({
   trades,
+  allTrades = trades,
   reportingCurrency,
 }: TradingCalendarProps) {
 
@@ -1430,22 +1432,31 @@ bg-[#0b1220]
   </span>
 
 </td>
-  <td className="py-6">
+<td className="py-6">
 
   {trade.contractKey?.startsWith(
     "MANUAL-"
-  ) && (
+  ) &&
+    !(
+      trade.status === "OPEN" &&
+      allTrades.some(
+        (otherTrade) =>
+          otherTrade.id !== trade.id &&
+          otherTrade.contractKey === trade.contractKey &&
+          otherTrade.status !== "OPEN"
+      )
+    ) && (
 
-    <button
-      onClick={() =>
-        setEditingTrade(
-          trade
-        )
-      }
-      className="relative top-[-10px] flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-blue-500/20 bg-blue-500/10 text-blue-400 transition-all hover:bg-blue-500/20"
-    >
-      <Pencil size={14} />
-    </button>
+<button
+  onClick={() =>
+    setEditingTrade(
+      trade
+    )
+  }
+  className="relative top-[-10px] flex h-[34px] w-[34px] items-center justify-center text-[15px] text-red-400 transition-all duration-150 hover:scale-110 hover:text-red-300 hover:drop-shadow-[0_0_6px_rgba(248,113,113,0.55)]"
+>
+  <Pencil size={14} />
+</button>
 
   )}
 
@@ -1488,19 +1499,22 @@ bg-[#0b1220]
           </div>
         </div>
       )}
-          <EditTradeModal
-        open={
-          !!editingTrade
-        }
-        trade={
-          editingTrade
-        }
-        onClose={() =>
-          setEditingTrade(
-            null
-          )
-        }
-      />
+<EditTradeModal
+  open={
+    !!editingTrade
+  }
+  trade={
+    editingTrade
+  }
+  allTrades={
+    allTrades
+  }
+  onClose={() =>
+    setEditingTrade(
+      null
+    )
+  }
+/>
 
     </>
   );

@@ -1565,10 +1565,11 @@ onDateRangeChange={(
     />
   }
 tradingCalendar={
-  <TradingCalendar
-    trades={reportingTrades}
-    reportingCurrency={reportingCurrency}
-  />
+<TradingCalendar
+  trades={reportingTrades}
+  allTrades={filteredTrades}
+  reportingCurrency={reportingCurrency}
+/>
 }
 />
 </div>
