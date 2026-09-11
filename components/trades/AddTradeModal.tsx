@@ -1740,7 +1740,15 @@ setExchange(
 
     </Field>
 
-    <Field label="Commission / Fees">
+    <Field
+  label={
+    tradeType === "COMPLETE"
+      ? "Total Commission / Fees"
+      : tradeType === "PARTIAL_ENTRY"
+        ? "Entry Commission / Fees"
+        : "Exit Commission / Fees"
+  }
+>
 
       <div className="relative">
 

@@ -1621,9 +1621,9 @@ window.location.reload();
 
     <div>
 
-      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
-        Commission / Fees
-      </label>
+<label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+  Total Commission / Fees
+</label>
 
       <div className="relative">
 

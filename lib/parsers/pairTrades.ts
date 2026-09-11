@@ -18,6 +18,16 @@ interface PositionExecution
 
   remainingQuantity?: number;
 
+  /**
+   * Remaining portion of this entry execution's fees
+   * that has not yet been allocated to realized trades.
+   *
+   * This is used for MANUAL lifecycles only.
+   *
+   * Broker behavior remains unchanged.
+   */
+  remainingFees?: number;
+
   fromStorage?: boolean;
 }
 
@@ -32,6 +42,27 @@ function getExecutionDateTime(
   return (
     execution.executionTimestamp ||
     execution.date
+  );
+}
+
+// =================================================
+// MANUAL LIFECYCLE DETECTION
+// =================================================
+//
+// Current Manual Entry executions are identified by
+// their MANUAL-* contract key.
+//
+// This allows fee allocation to be isolated to
+// Manual Entry without changing broker behavior.
+// =================================================
+
+function isManualExecution(
+  execution: PositionExecution
+): boolean {
+
+  return (
+    typeof execution.contractKey === "string" &&
+    execution.contractKey.startsWith("MANUAL-")
   );
 }
 
@@ -179,16 +210,59 @@ function createClosedTrade(
           exitExecution.executionPrice
         );
 
-  const realizedPnL =
-    (
-      priceDifference *
-      consumeQuantity *
-      exitExecution.multiplier
-    ) -
-    (
-      entryExecution.fees +
-      exitExecution.fees
-    );
+const manualEntry =
+  isManualExecution(
+    entryExecution
+  );
+
+const availableEntryFees =
+  entryExecution.remainingFees ??
+  entryExecution.fees;
+
+/**
+ * Manual Entry:
+ *
+ * The entry execution fee belongs to the entire
+ * original entry quantity, so FIFO must allocate
+ * only the portion consumed by this match.
+ *
+ * Broker:
+ *
+ * Preserve the current behavior exactly.
+ */
+const allocatedEntryFees =
+  manualEntry
+    ? Math.abs(
+        entryExecution.remainingQuantity ??
+        entryExecution.quantity
+      ) < EPSILON ||
+      consumeQuantity >=
+        (
+          entryExecution.remainingQuantity ??
+          entryExecution.quantity
+        ) - EPSILON
+      ? availableEntryFees
+      : availableEntryFees *
+        (
+          consumeQuantity /
+          (
+            entryExecution.remainingQuantity ??
+            entryExecution.quantity
+          )
+        )
+    : entryExecution.fees;
+
+const realizedFees =
+  allocatedEntryFees +
+  exitExecution.fees;
+
+const realizedPnL =
+  (
+    priceDifference *
+    consumeQuantity *
+    exitExecution.multiplier
+  ) -
+  realizedFees;
 
   let status:
     | "WIN"
@@ -214,6 +288,7 @@ function createClosedTrade(
 
   const now =
     new Date().toISOString();
+
 
   return {
 
@@ -283,13 +358,10 @@ function createClosedTrade(
         realizedPnL.toFixed(2)
       ),
 
-    fees:
-      Number(
-        (
-          entryExecution.fees +
-          exitExecution.fees
-        ).toFixed(2)
-      ),
+fees:
+  Number(
+    realizedFees.toFixed(2)
+  ),
 
     currency:
       exitExecution.currency,
@@ -364,6 +436,10 @@ function createOpenTrade(
   const now =
     new Date().toISOString();
 
+  const remainingPositionFees =
+    position.remainingFees ??
+    position.fees;
+
   return {
 
     id:
@@ -423,11 +499,11 @@ function createOpenTrade(
     // PERFORMANCE
     // =================================================
 
-    pnl:
-      -position.fees,
+pnl:
+  -remainingPositionFees,
 
-    fees:
-      position.fees,
+fees:
+  remainingPositionFees,
 
     currency:
       position.currency,
@@ -780,6 +856,37 @@ if (
           availableQuantity -
           consumeQuantity;
 
+// =============================================
+// REDUCE REMAINING MANUAL ENTRY FEES
+// =============================================
+
+if (
+  isManualExecution(entryExecution)
+) {
+
+  const availableEntryFees =
+    entryExecution.remainingFees ??
+    entryExecution.fees;
+
+  const allocatedEntryFees =
+    consumeQuantity >=
+      availableQuantity - EPSILON
+      ? availableEntryFees
+      : availableEntryFees *
+        (
+          consumeQuantity /
+          availableQuantity
+        );
+
+  entryExecution.remainingFees =
+    Math.max(
+      0,
+      availableEntryFees -
+      allocatedEntryFees
+    );
+}
+
+
         // =============================================
         // FLOATING POINT CLEANUP
         // =============================================
@@ -827,14 +934,23 @@ if (
         EPSILON
       ) {
 
-        const openingPosition:
-          PositionExecution = {
+const openingPosition:
+  PositionExecution = {
 
-          ...execution,
+  ...execution,
 
-          remainingQuantity:
-            remainingQuantity,
-        };
+  remainingQuantity:
+    remainingQuantity,
+
+  remainingFees:
+    isManualExecution(execution) &&
+    Math.abs(
+      remainingQuantity -
+      execution.quantity
+    ) < EPSILON
+      ? execution.fees
+      : undefined,
+};
 
         buckets[
           openingSide
