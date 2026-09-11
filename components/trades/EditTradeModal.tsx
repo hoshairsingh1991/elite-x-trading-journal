@@ -27,6 +27,8 @@ interface EditTradeModalProps {
 
   trade: Trade | null;
 
+  allTrades?: Trade[];
+
   onClose: () => void;
 }
 
@@ -34,6 +36,7 @@ export default function EditTradeModal({
 
   open,
   trade,
+  allTrades = [],
   onClose,
 
 }: EditTradeModalProps) {
@@ -522,23 +525,149 @@ onClose();
 window.location.reload();
   };
 
-  // =================================================
-  // DELETE TRADE
-  // =================================================
+// =================================================
+// DELETE TRADE
+// =================================================
 
-  const handleDeleteTrade =
-    async () => {
+const handleDeleteTrade =
+  async () => {
 
     if (
       !trade?.contractKey
     ) {
+      return;
+    }
+
+    const isManualTrade =
+      trade.contractKey.startsWith(
+        "MANUAL-"
+      );
+
+    // =================================================
+    // DETERMINE WHETHER THIS IS A PARTIAL-EXIT TRADE
+    // =================================================
+
+    const hasOpenLifecycleRemainder =
+      allTrades.some(
+        (otherTrade) =>
+          otherTrade.id !== trade.id &&
+          otherTrade.contractKey ===
+            trade.contractKey &&
+          otherTrade.status === "OPEN"
+      );
+
+    const isPartialExitTrade =
+      isManualTrade &&
+      trade.status !== "OPEN" &&
+      hasOpenLifecycleRemainder;
+
+    // =================================================
+    // PARTIAL EXIT
+    // DELETE ONLY THE EXACT EXIT EXECUTION
+    // =================================================
+
+    if (isPartialExitTrade) {
+
+      const exitAction =
+        trade.side === "SHORT"
+          ? "BUY"
+          : "SELL";
+
+      const exitExecution =
+        trade.executions?.find(
+          (execution) =>
+            execution.action ===
+            exitAction
+        );
+
+      if (
+        !exitExecution?.id
+      ) {
+
+        console.error(
+          "FAILED TO IDENTIFY PARTIAL EXIT EXECUTION:",
+          trade
+        );
+
+        alert(
+          "Unable to identify the exact exit execution."
+        );
+
+        return;
+      }
+
+      const confirmed =
+        window.confirm(
+          "Delete this partial exit?"
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      const {
+        error,
+      } = await supabase
+        .from("executions")
+        .delete()
+        .eq(
+          "id",
+          exitExecution.id
+        );
+
+      if (error) {
+
+        console.error(
+          "FAILED TO DELETE PARTIAL EXIT EXECUTION:",
+          error
+        );
+
+        alert(
+          "Failed to delete partial exit."
+        );
+
+        return;
+      }
+
+      onClose();
+
+      window.location.reload();
 
       return;
     }
 
+    // =================================================
+    // SAFETY
+    // DO NOT ALLOW UNSAFE MANUAL CLOSED DELETE
+    // =================================================
+
+    if (
+      isManualTrade &&
+      trade.status !== "OPEN"
+    ) {
+
+      alert(
+        "This manual closed trade could not be safely classified for deletion."
+      );
+
+      console.error(
+        "BLOCKED UNSAFE MANUAL CLOSED TRADE DELETE:",
+        {
+          trade,
+          allTrades,
+        }
+      );
+
+      return;
+    }
+
+    // =================================================
+    // NORMAL COMPLETE TRADE / LIFECYCLE DELETE
+    // =================================================
+
     const confirmed =
       window.confirm(
-        "Delete this manual trade?"
+        "Delete this trade lifecycle?"
       );
 
     if (!confirmed) {

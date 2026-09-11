@@ -155,10 +155,10 @@ export default function DemoTradesPage() {
               setToDate={setToDate}
             />
 
-            <TradesTable
-              trades={filteredTrades}
-              tradeCount={filteredTrades.length}
-              onSelectTrade={(trade) => {
+<TradesTable
+  trades={filteredTrades}
+  tradeCount={filteredTrades.length}
+  onSelectTrade={(trade) => {
                 setSelectedTrade(trade);
                 setIsModalOpen(true);
               }}

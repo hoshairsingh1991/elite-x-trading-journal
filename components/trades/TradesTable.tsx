@@ -25,6 +25,7 @@ interface BrokerConnection {
 
 interface TradesTableProps {
   trades: Trade[];
+  allTrades?: Trade[];
   tradeCount: number;
   onSelectTrade: (trade: Trade) => void;
   brokerConnections: BrokerConnection[];
@@ -61,6 +62,7 @@ function parseLocalDate(
 
 export default function TradesTable({
   trades,
+  allTrades = trades,
   tradeCount,
   onSelectTrade,
   brokerConnections,
@@ -379,7 +381,26 @@ useEffect(() => {
                     trade.status ===
                     "OPEN";
 
+// =================================================
+// LIFECYCLE ACTION LOCK
+// =================================================
 
+const hasClosedSiblingInLifecycle =
+  isOpen &&
+  trade.contractKey?.startsWith(
+    "MANUAL-"
+  ) &&
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !==
+        trade.id &&
+      otherTrade.contractKey ===
+        trade.contractKey &&
+      otherTrade.status !== "OPEN"
+  );
+
+const isActionLocked =
+  hasClosedSiblingInLifecycle;
 
                   const formattedDate =
                     parseLocalDate(
@@ -954,7 +975,8 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 
 {trade.contractKey?.startsWith(
   "MANUAL-"
-) && (
+) &&
+  !isActionLocked && (
 
   <button
     onClick={(
@@ -967,7 +989,7 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
         trade
       );
     }}
-    className="absolute right-0 flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-blue-500/20 bg-blue-500/10 text-[13px] text-blue-400 transition-all hover:bg-blue-500/20"
+   className="absolute right-[8px] flex h-[30px] w-[30px] items-center justify-center text-[15px] text-red-400 transition-all duration-150 hover:scale-110 hover:text-red-300 hover:drop-shadow-[0_0_6px_rgba(248,113,113,0.55)]"
   >
     ✎
   </button>
@@ -1136,22 +1158,14 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
     </div>
         </div>
 
-  <EditTradeModal
-          
-        
-            
-        open={
-          !!editingTrade
-        }
-        trade={
-          editingTrade
-        }
-        onClose={() =>
-          setEditingTrade(
-            null
-          )
-        }
-      />
+<EditTradeModal
+  open={!!editingTrade}
+  trade={editingTrade}
+  allTrades={allTrades}
+  onClose={() =>
+    setEditingTrade(null)
+  }
+/>
 
     </>
   );

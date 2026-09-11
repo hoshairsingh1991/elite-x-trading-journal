@@ -959,29 +959,31 @@ const formattedLastImport =
     : "—";
 
 
-  // =================================================
-  // MODAL HANDLERS
-  // =================================================
+// =================================================
+// MODAL HANDLERS
+// =================================================
 
-  const handleSelectTrade = (
-    trade: Trade
-  ) => {
+const handleSelectTrade = (
+  trade: Trade
+) => {
 
-    setSelectedTrade(
-      trade
-    );
+  setSelectedTrade(
+    trade
+  );
 
-    setIsModalOpen(true);
-  };
+  setIsModalOpen(true);
+};
 
-  const handleCloseModal = () => {
+const handleCloseModal = () => {
 
-    setSelectedTrade(null);
+  setSelectedTrade(null);
 
-    setIsModalOpen(false);
-  };
+  setIsModalOpen(false);
+};
 
-  return (
+
+
+return (
 
     <main className="flex h-screen overflow-hidden bg-[#020617] text-slate-400">
 
@@ -1284,10 +1286,12 @@ const formattedLastImport =
 
 <TradesTable
   trades={filteredTrades}
+  allTrades={trades}
   tradeCount={filteredTrades.length}
   onSelectTrade={handleSelectTrade}
   brokerConnections={brokerConnections}
 />
+
   </div>
 </div>
 
@@ -1310,6 +1314,14 @@ const formattedLastImport =
     trades={[
       selectedTrade
     ]}
+
+    // =================================================
+    // FULL RECONSTRUCTED TRADE SET
+    // =================================================
+
+    allTrades={
+      trades
+    }
 
     onClose={
       handleCloseModal

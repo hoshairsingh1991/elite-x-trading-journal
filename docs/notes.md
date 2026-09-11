@@ -467,7 +467,7 @@ git commit -m "Checkpoint: Partial Exit manual trade complete"
 git commit -m "Checkpoint: Add Trade modal refinements complete"
 git commit -m "Checkpoint: Edit Trade complete trade working"
 git commit -m "Checkpoint: Commission allocation and fee labels complete"
-
+git commit -m "fix safe manual partial exit deletion"
 
 
 

@@ -1757,3 +1757,718 @@ UX / REFINEMENT / HARDENING ONLY
 ============================================================
 END OF MASTER CHECKPOINT NOTES
 ============================================================
+
+
+```text
+============================================================
+ELITE X TRADING JOURNAL
+MASTER CHECKPOINT — TRADE HISTORY DELETE + EDIT SAFETY
+============================================================
+
+DATE:
+2026-09-11
+
+STATUS:
+STABLE / VERIFIED
+
+PURPOSE OF THIS CHECKPOINT
+============================================================
+
+This checkpoint documents the Trade History / Manual Trade
+Edit + Delete safety work completed during this session.
+
+The primary objective was to fix two important issues:
+
+1. Deleting a partial exit from Trade History was unsafe
+   because deleting by contract_key could delete the entire
+   manual lifecycle.
+
+2. The OPEN remainder of a manually managed lifecycle could
+   still expose Edit/Delete actions after a partial exit,
+   which could allow unsafe lifecycle mutation.
+
+We corrected both issues while preserving the existing
+execution-ledger + FIFO architecture.
+
+A third UI-only improvement was also completed:
+
+3. The Trade History Edit pencil was redesigned to be a
+   minimal red icon with hover feedback instead of a boxed
+   blue button.
+
+============================================================
+CORE ARCHITECTURE RULE
+============================================================
+
+Executions remain the canonical source of truth.
+
+Trade rows shown in Trade History are derived state produced
+from the execution ledger and FIFO reconstruction.
+
+Therefore:
+
+    CORRECT
+
+    Trade History row
+        ↓
+    identify exact underlying execution
+        ↓
+    mutate only that execution
+        ↓
+    FIFO reconstruction
+        ↓
+    derived Trade History state
+
+
+    INCORRECT
+
+    Trade History row
+        ↓
+    delete entire contract_key lifecycle
+        ↓
+    destroy unrelated executions
+
+The partial-exit Delete implementation now follows the
+correct execution-level model.
+
+============================================================
+MANUAL LIFECYCLE MODEL
+============================================================
+
+Manual lifecycle identity continues to use:
+
+    contract_key = MANUAL-{ticker}-{uuid}
+
+The contract_key represents the lifecycle / position,
+not an individual execution.
+
+Individual executions retain their own unique execution IDs.
+
+For example:
+
+    manual-{lifecycleId}-entry
+    manual-{lifecycleId}-exit
+
+For partial exits, the exact exit execution ID is the
+canonical mutation target.
+
+============================================================
+ISSUE #1 — PARTIAL EXIT DELETE
+============================================================
+
+BEFORE:
+
+The Delete operation used:
+
+    .delete()
+    .eq(
+      "contract_key",
+      trade.contractKey
+    )
+
+This is safe for deleting an entire complete manual
+lifecycle, but NOT safe for a partial exit.
+
+Example:
+
+    BUY 100
+    SELL 10
+    OPEN remainder = 90
+
+The closed SELL 10 Trade row shares the same lifecycle
+contract_key as the original BUY 100.
+
+Therefore deleting by contract_key could remove the entire
+lifecycle instead of only the SELL 10 execution.
+
+============================================================
+CORRECT PARTIAL EXIT BEHAVIOR
+============================================================
+
+The system now determines whether the selected closed
+manual Trade has an OPEN remainder in the same lifecycle.
+
+Condition:
+
+    manual Trade
+        AND
+    Trade is not OPEN
+        AND
+    same lifecycle has another OPEN Trade
+
+This identifies the Trade as a partial-exit Trade.
+
+For a LONG:
+
+    entry/open action = BUY
+    exit/reducing action = SELL
+
+For a SHORT:
+
+    entry/open action = SELL
+    exit/reducing action = BUY
+
+The exact exit execution is then located from:
+
+    trade.executions
+
+using the appropriate exit action.
+
+The database mutation becomes:
+
+    DELETE FROM executions
+    WHERE id = exactExitExecution.id
+
+NOT:
+
+    DELETE FROM executions
+    WHERE contract_key = lifecycle
+
+============================================================
+WHY THIS IS CORRECT
+============================================================
+
+Example:
+
+    BUY 100
+    SELL 10
+
+FIFO derives:
+
+    90 OPEN
+    10 CLOSED
+
+Deleting only the SELL 10 execution produces:
+
+    BUY 100
+
+FIFO then reconstructs:
+
+    100 OPEN
+
+No compensating execution is required.
+
+The existing FIFO engine remains responsible for
+reconstruction.
+
+============================================================
+SUCCESSFULLY VERIFIED
+============================================================
+
+Tested lifecycle:
+
+    Original position:
+        100 OPEN
+
+    Partial exit:
+        10 CLOSED
+
+    Remaining position:
+        90 OPEN
+
+User opened the closed 10-quantity Trade and selected
+Delete.
+
+The confirmation displayed:
+
+    "Delete this partial exit?"
+
+After confirmation and reload:
+
+    100 OPEN
+
+The original commission state was restored.
+
+This proves the exact-execution deletion is correctly
+reconstructing the lifecycle through the existing FIFO
+engine.
+
+============================================================
+ISSUE #2 — OPEN REMAINDER EDIT/DELETE LOCK
+============================================================
+
+Problem:
+
+After a partial exit, the lifecycle contains both:
+
+    CLOSED partial Trade
+    OPEN remainder Trade
+
+Allowing Edit/Delete on the OPEN remainder at that point
+would create an unsafe state because the open position is
+still part of a lifecycle containing historical partial
+exits.
+
+============================================================
+NEW LIFECYCLE ACTION LOCK
+============================================================
+
+Trade History now checks:
+
+    isOpen
+    AND
+    contractKey starts with "MANUAL-"
+    AND
+    another Trade exists
+    with the same contractKey
+    AND
+    that sibling is not OPEN
+
+Conceptually:
+
+    OPEN remainder
+        +
+    CLOSED sibling
+        =
+    ACTION LOCKED
+
+Therefore the Edit button is hidden for the OPEN remainder
+when a closed sibling exists in the same manual lifecycle.
+
+============================================================
+CURRENT BEHAVIOR
+============================================================
+
+CASE 1 — COMPLETE CLOSED MANUAL TRADE
+
+    Complete manual trade
+    ↓
+    CLOSED
+
+Result:
+
+    Edit available
+    Delete available
+
+Delete removes the complete manual lifecycle.
+
+------------------------------------------------------------
+
+CASE 2 — OPEN MANUAL POSITION
+WITHOUT ANY CLOSED SIBLING
+
+    BUY 100
+    ↓
+    100 OPEN
+
+Result:
+
+    Edit available
+
+The user can still edit the open manual position because
+there is no closed partial sibling that would make the
+lifecycle ambiguous.
+
+------------------------------------------------------------
+
+CASE 3 — PARTIAL EXIT EXISTS
+
+    BUY 100
+    SELL 10
+    ↓
+    90 OPEN
+    10 CLOSED
+
+OPEN remainder:
+
+    Edit hidden
+    Delete hidden / locked
+
+Closed partial exit:
+
+    Edit available
+    Delete available
+
+Delete removes only the exact partial exit execution.
+
+------------------------------------------------------------
+
+CASE 4 — DELETE PARTIAL EXIT
+
+    100 OPEN
+    10 CLOSED
+
+Delete closed partial:
+
+    DELETE exact SELL execution
+
+Then FIFO rebuilds:
+
+    100 OPEN
+
+The OPEN remainder is automatically restored to its original
+quantity and commission state.
+
+============================================================
+EDIT MODAL DELETE SAFETY
+============================================================
+
+The Edit Manual Trade modal previously contained the same
+unsafe lifecycle-wide delete pattern:
+
+    .delete()
+    .eq(
+      "contract_key",
+      trade.contractKey
+    )
+
+That behavior has now been replaced with the same safety
+model used by Trade Detail.
+
+The Edit Modal now receives:
+
+    allTrades
+
+This gives it enough lifecycle context to distinguish:
+
+    COMPLETE CLOSED TRADE
+
+from:
+
+    CLOSED PARTIAL EXIT + OPEN REMAINDER
+
+The Edit Modal Delete behavior now follows:
+
+    PARTIAL EXIT
+        ↓
+    identify exact exit execution
+        ↓
+    delete execution by id
+        ↓
+    FIFO rebuild
+
+while a normal complete closed manual trade continues to
+use lifecycle deletion.
+
+============================================================
+EDIT MODAL DATA FLOW
+============================================================
+
+The data flow is now:
+
+    app/trades/page.tsx
+            │
+            │ allTrades = trades
+            ▼
+    TradesTable
+            │
+            │ allTrades
+            ▼
+    EditTradeModal
+            │
+            ▼
+    safe Delete classification
+
+The existing TradesTable already receives:
+
+    allTrades?: Trade[]
+
+and defaults to:
+
+    allTrades = trades
+
+The EditTradeModal now receives:
+
+    allTrades={allTrades}
+
+This allows the modal to perform the same lifecycle-aware
+classification as Trade Detail.
+
+============================================================
+FILES TO REMEMBER
+============================================================
+
+1.
+    components/trades/TradeDetailModal.tsx
+
+Contains the verified safe partial-exit deletion behavior.
+
+Important concept:
+
+    exact exit execution ID
+    instead of lifecycle-wide deletion
+
+------------------------------------------------------------
+
+2.
+    components/trades/EditTradeModal.tsx
+
+Updated to:
+
+    receive allTrades
+
+and:
+
+    safely delete exact partial-exit execution
+
+while preserving complete lifecycle deletion behavior.
+
+IMPORTANT:
+
+The broader Edit Save / Edit Trade replacement architecture
+was NOT redesigned in this checkpoint.
+
+There are still additional Edit Trade behavior items that
+will be addressed separately.
+
+Do NOT assume Edit Modal functionality is fully complete.
+
+------------------------------------------------------------
+
+3.
+    components/trades/TradesTable.tsx
+
+Already contains:
+
+    allTrades?: Trade[]
+
+and:
+
+    allTrades = trades
+
+It also contains the lifecycle action lock.
+
+The EditTradeModal call now includes:
+
+    allTrades={allTrades}
+
+------------------------------------------------------------
+
+4.
+    app/trades/page.tsx
+
+Already provides the full reconstructed trade collection:
+
+    allTrades={trades}
+
+This is the source of lifecycle context passed downward.
+
+------------------------------------------------------------
+
+5.
+    lib/trades/createManualExecutions.ts
+
+UNCHANGED BY THIS WORK.
+
+Still responsible for creating normalized manual executions.
+
+Manual semantics remain:
+
+    COMPLETE
+    PARTIAL_ENTRY
+    PARTIAL_EXIT
+
+Options multiplier remains:
+
+    100
+
+Other current asset types:
+
+    1
+
+Manual lifecycle identity remains:
+
+    MANUAL-{ticker}-{uuid}
+
+------------------------------------------------------------
+
+6.
+    lib/storage/supabaseExecutionStorage.ts
+
+UNCHANGED BY THIS WORK.
+
+Execution persistence remains canonical.
+
+------------------------------------------------------------
+
+7.
+    FIFO / pairTrades infrastructure
+
+UNCHANGED BY THIS WORK.
+
+The existing FIFO reconstruction remains the source of
+derived Trade state.
+
+============================================================
+IMPORTANT SAFETY RULES PRESERVED
+============================================================
+
+DO NOT:
+
+    create a second FIFO engine for Manual Entry
+
+DO NOT:
+
+    mutate reconstructed Trade rows directly
+
+DO NOT:
+
+    create compensating executions when deleting a partial
+    exit
+
+DO NOT:
+
+    delete an entire lifecycle when only one partial exit
+    execution needs to be removed
+
+DO NOT:
+
+    unlock the OPEN remainder while closed partial siblings
+    still exist
+
+DO NOT:
+
+    modify broker execution behavior to solve Manual Entry
+    problems
+
+DO NOT:
+
+    redesign the Edit Save functionality as part of this
+    Delete work
+
+============================================================
+TRADE HISTORY EDIT BUTTON UI UPDATE
+============================================================
+
+The Trade History Edit pencil originally appeared as a
+boxed blue button.
+
+It was changed to a minimal icon-only presentation.
+
+Current design intent:
+
+    no background box
+    no border
+    red pencil
+    slightly enlarged on hover
+    brighter red on hover
+    subtle red glow on hover
+    moved slightly left
+
+Current styling concept:
+
+    text-red-400
+    hover:text-red-300
+    hover:scale-110
+    hover:drop-shadow[...]
+
+The Edit button functionality itself was not changed by this
+visual update.
+
+Only the presentation was changed.
+
+============================================================
+WHY WE MADE THESE CHANGES
+============================================================
+
+The primary reason was data integrity.
+
+Elite X uses executions as the canonical source of truth.
+A partial exit is an individual execution inside a larger
+manual lifecycle.
+
+Therefore:
+
+    deleting one partial exit
+    must delete one execution
+
+It must NOT delete the entire lifecycle.
+
+The second reason was lifecycle safety.
+
+Once a lifecycle contains a historical partial exit, the
+remaining OPEN position must not be casually edited or
+deleted through Trade History because doing so could create
+inconsistent historical execution state.
+
+The third reason was consistency.
+
+The same safety behavior now exists through both:
+
+    Trade Detail Delete
+
+and:
+
+    Edit Trade Modal Delete
+
+This prevents two different deletion paths from performing
+different levels of data mutation.
+
+============================================================
+CURRENT VERIFIED STATE
+============================================================
+
+VERIFIED:
+
+    [x] Partial exit deletion from Trade Detail
+    [x] Exact execution deletion
+    [x] FIFO reconstruction after partial-exit deletion
+    [x] Quantity restoration
+    [x] Commission restoration
+    [x] OPEN remainder action lock
+    [x] Edit button hidden when closed lifecycle sibling exists
+    [x] Edit button still available for safe OPEN manual trades
+    [x] Edit Modal receives allTrades
+    [x] Edit Modal uses execution-level delete for partial exits
+    [x] Complete lifecycle delete behavior preserved
+    [x] Trade Detail diagnostics removed
+    [x] Temporary console debugging removed
+    [x] UI pencil converted to minimal red icon
+    [x] Pencil hover effect added
+
+============================================================
+CURRENT LIMITATION / NEXT WORK
+============================================================
+
+Edit Trade behavior is NOT considered fully finished.
+
+The current work intentionally focused on:
+
+    DELETE SAFETY
+
+and:
+
+    LIFECYCLE ACTION LOCKING
+
+There are still additional Edit Trade behavior items that
+need to be reviewed and fixed later.
+
+Do not expand scope automatically.
+
+The current checkpoint should be treated as a stable safety
+milestone before continuing with the remaining Edit Trade
+behavior.
+
+============================================================
+NEXT SESSION START POINT
+============================================================
+
+Start from:
+
+    Edit Trade Modal remaining behavior
+
+Do NOT redesign the execution architecture.
+
+Do NOT modify:
+
+    FIFO engine
+    broker sync
+    execution ledger
+    pairTrades
+    Dashboard V2
+    reconciliation
+    canonical P&L infrastructure
+
+unless a specific defect is proven.
+
+First inspect the remaining Edit Trade behavior and determine
+exactly what needs to be corrected.
+
+============================================================
+CHECKPOINT END
+============================================================
+```
+
+
+
+

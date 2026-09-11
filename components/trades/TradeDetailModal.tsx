@@ -8,14 +8,25 @@ import { supabase }
 from "@/lib/supabase";
 
 interface TradeDetailModalProps {
+
   selectedDate: string;
+
   trades?: Trade[];
+
+  allTrades?: Trade[];
+
   onClose: () => void;
+
 }
 
 export default function TradeDetailModal({
+
   trades = [],
+
+  allTrades = [],
+
   onClose,
+
 }: TradeDetailModalProps) {
 
   // =================================================
@@ -30,6 +41,31 @@ export default function TradeDetailModal({
     return null;
   }
 
+
+// =================================================
+// LIFECYCLE ACTION LOCK
+// =================================================
+
+const selectedTrade =
+  trades[0];
+
+const hasClosedSiblingInLifecycle =
+  selectedTrade.status ===
+    "OPEN" &&
+  selectedTrade.contractKey?.startsWith(
+    "MANUAL-"
+  ) &&
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !==
+        selectedTrade.id &&
+      otherTrade.contractKey ===
+        selectedTrade.contractKey &&
+      otherTrade.status !== "OPEN"
+  );
+
+const isActionLocked =
+  hasClosedSiblingInLifecycle;
 
   // =================================================
   // DAILY TOTALS
@@ -53,10 +89,11 @@ export default function TradeDetailModal({
       ? "text-emerald-400"
       : "text-red-400";
 
-      const handleDeleteTrade =
+const handleDeleteTrade =
   async (
     trade: Trade
   ) => {
+
 
     if (
       !trade.contractKey
@@ -65,37 +102,166 @@ export default function TradeDetailModal({
       return;
     }
 
-    const confirmed =
-      window.confirm(
-        "Delete this trade lifecycle?"
+    // =================================================
+    // DETERMINE WHETHER THIS IS A PARTIAL-EXIT TRADE
+    // =================================================
+
+    const isManualTrade =
+      trade.contractKey.startsWith(
+        "MANUAL-"
       );
 
-    if (!confirmed) {
+const hasOpenLifecycleRemainder =
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !==
+        trade.id &&
+      otherTrade.contractKey ===
+        trade.contractKey &&
+      otherTrade.status === "OPEN"
+  );
+
+
+const isPartialExitTrade =
+  isManualTrade &&
+  trade.status !== "OPEN" &&
+  hasOpenLifecycleRemainder;
+
+    // =================================================
+    // PARTIAL EXIT
+    // DELETE ONLY THE EXACT EXIT EXECUTION
+    // =================================================
+
+    if (isPartialExitTrade) {
+
+      const exitAction =
+        trade.side === "SHORT"
+          ? "BUY"
+          : "SELL";
+
+      const exitExecution =
+        trade.executions?.find(
+          (execution) =>
+            execution.action ===
+            exitAction
+        );
+
+      if (
+        !exitExecution?.id
+      ) {
+
+        console.error(
+          "FAILED TO IDENTIFY PARTIAL EXIT EXECUTION:",
+          trade
+        );
+
+        alert(
+          "Unable to identify the exact exit execution."
+        );
+
+        return;
+      }
+
+      const confirmed =
+        window.confirm(
+          "Delete this partial exit?"
+        );
+
+      if (!confirmed) {
+
+        return;
+      }
+
+      const {
+        error,
+      } = await supabase
+        .from("executions")
+        .delete()
+        .eq(
+          "id",
+          exitExecution.id
+        );
+
+      if (error) {
+
+        console.error(
+          "FAILED TO DELETE PARTIAL EXIT EXECUTION:",
+          error
+        );
+
+        alert(
+          "Failed to delete partial exit."
+        );
+
+        return;
+      }
+
+      window.location.reload();
 
       return;
     }
 
-    const {
-      error,
-    } = await supabase
-      .from("executions")
-      .delete()
-      .eq(
-        "contract_key",
-        trade.contractKey
-      );
+// =================================================
+// SAFETY — NEVER FALL THROUGH FROM A MANUAL CLOSED
+// TRADE TO LIFECYCLE-WIDE DELETE
+// =================================================
 
-    if (error) {
+if (
+  isManualTrade &&
+  trade.status !== "OPEN"
+) {
 
-      console.error(
-        "FAILED TO DELETE TRADE:",
-        error
-      );
+  alert(
+    "This manual closed trade could not be safely classified for deletion."
+  );
 
-      return;
+  console.error(
+    "BLOCKED UNSAFE MANUAL CLOSED TRADE DELETE:",
+    {
+      trade,
+      allTrades,
     }
+  );
 
-    window.location.reload();
+  return;
+}
+
+// =================================================
+// EXISTING LIFECYCLE DELETE
+// COMPLETE TRADE / ACTIONABLE OPEN POSITION
+// =================================================
+
+const confirmed =
+  window.confirm(
+    "Delete this trade lifecycle?"
+  );
+
+if (!confirmed) {
+
+  return;
+}
+
+const {
+  error,
+} = await supabase
+  .from("executions")
+  .delete()
+  .eq(
+    "contract_key",
+    trade.contractKey
+  );
+
+if (error) {
+
+  console.error(
+    "FAILED TO DELETE TRADE:",
+    error
+  );
+
+  return;
+}
+
+window.location.reload();
   };
 
   return (
@@ -414,16 +580,18 @@ export default function TradeDetailModal({
 
                         <div className="flex items-center justify-center">
 
-                          <button
-                            onClick={() =>
-  handleDeleteTrade(
-    trade
-  )
-}
-                            className="flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-red-500/20 bg-red-500/10 text-[14px] text-red-400 transition-all hover:bg-red-500/20"
-                          >
-                            ×
-                          </button>
+{!isActionLocked && (
+<button
+  onClick={() =>
+    handleDeleteTrade(
+      trade
+    )
+  }
+  className="flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-red-500/20 bg-red-500/10 text-[14px] text-red-400 transition-all hover:bg-red-500/20"
+>
+  ×
+</button>
+)}
                         </div>
                       </div>
                     );
