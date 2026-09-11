@@ -636,30 +636,7 @@ const handleDeleteTrade =
       return;
     }
 
-    // =================================================
-    // SAFETY
-    // DO NOT ALLOW UNSAFE MANUAL CLOSED DELETE
-    // =================================================
 
-    if (
-      isManualTrade &&
-      trade.status !== "OPEN"
-    ) {
-
-      alert(
-        "This manual closed trade could not be safely classified for deletion."
-      );
-
-      console.error(
-        "BLOCKED UNSAFE MANUAL CLOSED TRADE DELETE:",
-        {
-          trade,
-          allTrades,
-        }
-      );
-
-      return;
-    }
 
     // =================================================
     // NORMAL COMPLETE TRADE / LIFECYCLE DELETE

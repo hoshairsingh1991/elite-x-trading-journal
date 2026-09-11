@@ -2416,6 +2416,158 @@ VERIFIED:
     [x] UI pencil converted to minimal red icon
     [x] Pencil hover effect added
 
+    ============================================================
+POST-CHECKPOINT CORRECTION — COMPLETE MANUAL TRADE DELETE
+============================================================
+
+After the initial checkpoint was written, testing revealed
+that the Delete handler was incorrectly blocking ALL closed
+manual Trades with:
+
+    "BLOCKED UNSAFE MANUAL CLOSED TRADE DELETE"
+
+This was too restrictive.
+
+A fully completed manual trade is a valid standalone lifecycle
+and must remain fully editable and deletable.
+
+The incorrect safety block was therefore removed from:
+
+    components/trades/TradeDetailModal.tsx
+
+and:
+
+    components/trades/EditTradeModal.tsx
+
+The existing lifecycle-wide deletion remains valid for a
+fully completed manual trade because there is no OPEN lifecycle
+remainder or partial-exit sibling.
+
+============================================================
+FINAL DELETE CLASSIFICATION
+============================================================
+
+CASE 1 — COMPLETE MANUAL TRADE
+
+    Complete manual trade
+    → CLOSED
+    → no OPEN lifecycle remainder
+
+Behavior:
+
+    Edit = ALLOWED
+    Delete = ALLOWED
+
+Delete operation:
+
+    DELETE executions
+    WHERE contract_key = lifecycle contractKey
+
+This removes the complete manual lifecycle.
+
+------------------------------------------------------------
+
+CASE 2 — CLOSED PARTIAL EXIT
+
+    Manual lifecycle
+    → CLOSED partial exit
+    → OPEN remainder exists
+
+Behavior:
+
+    Edit = ALLOWED
+    Delete = ALLOWED
+
+Delete operation:
+
+    identify exact exit execution
+    → DELETE executions WHERE id = exactExecutionId
+
+No other lifecycle execution is deleted.
+
+------------------------------------------------------------
+
+CASE 3 — OPEN REMAINDER WITH CLOSED SIBLING
+
+    Manual lifecycle
+    → OPEN remainder
+    → CLOSED sibling exists
+
+Behavior:
+
+    Edit = BLOCKED / hidden
+    Delete = BLOCKED / hidden
+
+Reason:
+
+    Prevent unsafe modification of the remaining OPEN
+    lifecycle while historical partial exits still exist.
+
+------------------------------------------------------------
+
+CASE 4 — NORMAL OPEN MANUAL TRADE
+
+    Manual lifecycle
+    → OPEN
+    → no closed sibling
+
+Behavior:
+
+    Edit = ALLOWED
+
+Existing lifecycle behavior remains protected.
+
+============================================================
+IMPORTANT DISTINCTION
+============================================================
+
+The safety rule is NOT:
+
+    "Never delete a closed manual trade."
+
+The correct rule is:
+
+    "Only partial exits require execution-level deletion."
+
+Therefore:
+
+    COMPLETE CLOSED MANUAL TRADE
+        → lifecycle deletion is valid
+
+    CLOSED PARTIAL EXIT
+        → exact execution deletion is required
+
+This distinction is now explicitly enforced.
+
+============================================================
+POST-FIX VERIFICATION
+============================================================
+
+Verified after removing the overly broad safety block:
+
+    [x] Fully completed manual trade can be deleted
+    [x] Complete lifecycle deletion works normally
+    [x] Partial-exit deletion remains execution-level
+    [x] OPEN remainder locking remains intact
+    [x] No FIFO changes required
+    [x] No execution-ledger architecture changes required
+    [x] Existing Trade Detail behavior remains consistent
+    [x] Edit Modal behavior remains consistent
+
+============================================================
+CURRENT STABLE BASELINE
+============================================================
+
+At this point, Delete behavior is considered stable.
+
+Remaining work is specifically around:
+
+    Edit Trade behavior for partial trades
+
+Do not reopen or redesign Delete logic unless a new,
+reproducible defect is identified.
+============================================================
+
 ============================================================
 CURRENT LIMITATION / NEXT WORK
 ============================================================

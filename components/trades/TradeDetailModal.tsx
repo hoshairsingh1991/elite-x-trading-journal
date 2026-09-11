@@ -201,30 +201,7 @@ const isPartialExitTrade =
       return;
     }
 
-// =================================================
-// SAFETY — NEVER FALL THROUGH FROM A MANUAL CLOSED
-// TRADE TO LIFECYCLE-WIDE DELETE
-// =================================================
 
-if (
-  isManualTrade &&
-  trade.status !== "OPEN"
-) {
-
-  alert(
-    "This manual closed trade could not be safely classified for deletion."
-  );
-
-  console.error(
-    "BLOCKED UNSAFE MANUAL CLOSED TRADE DELETE:",
-    {
-      trade,
-      allTrades,
-    }
-  );
-
-  return;
-}
 
 // =================================================
 // EXISTING LIFECYCLE DELETE
