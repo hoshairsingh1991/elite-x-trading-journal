@@ -51,6 +51,9 @@ export default function EditTradeModal({
   const [quantity, setQuantity] =
     useState("");
 
+const [exitQuantity, setExitQuantity] =
+  useState("");
+
   const [entryPrice, setEntryPrice] =
     useState("");
 
@@ -89,133 +92,141 @@ const [exitDate, setExitDate] =
   const [exchange, setExchange] =
     useState("");
 
-  // =================================================
-  // LOAD TRADE INTO FORM
-  // =================================================
+// =================================================
+// LOAD TRADE INTO FORM
+// =================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-    if (!trade) {
-      return;
-    }
+  if (!trade) {
+    return;
+  }
 
-    setTicker(
-      trade.ticker || ""
+  setTicker(
+    trade.ticker || ""
+  );
+
+  setQuantity(
+    String(
+      trade.quantity ?? ""
+    )
+  );
+
+  setEntryPrice(
+    String(
+      trade.entryPrice ?? ""
+    )
+  );
+
+  setExitPrice(
+    trade.exitPrice != null
+      ? String(
+          trade.exitPrice
+        )
+      : ""
+  );
+
+  setCommission(
+    String(
+      trade.fees ?? 0
+    )
+  );
+
+  setSide(
+    trade.side === "SHORT"
+      ? "SHORT"
+      : "LONG"
+  );
+
+  setAssetType(
+    trade.assetType ||
+    "FUTURES"
+  );
+
+  setAccount(
+    trade.account ||
+    ""
+  );
+
+  const normalizedTradeDate =
+    trade.date?.includes("T")
+      ? trade.date.split("T")[0]
+      : trade.date || "";
+
+  setEntryDate(
+    normalizedTradeDate
+  );
+
+  setExitDate(
+    normalizedTradeDate
+  );
+
+  const entryExecution =
+    trade.executions?.find(
+      (execution) =>
+        execution.action ===
+        (
+          trade.side === "SHORT"
+            ? "SELL"
+            : "BUY"
+        )
     );
 
-    setQuantity(
-      String(
-        trade.quantity ?? ""
-      )
+  const exitExecution =
+    trade.executions?.find(
+      (execution) =>
+        execution.action ===
+        (
+          trade.side === "SHORT"
+            ? "BUY"
+            : "SELL"
+        )
     );
 
-    setEntryPrice(
-      String(
-        trade.entryPrice ?? ""
-      )
-    );
+  setExitQuantity(
+    exitExecution
+      ? String(
+          exitExecution.quantity ?? ""
+        )
+      : ""
+  );
 
-    setExitPrice(
-      trade.exitPrice != null
-        ? String(
-            trade.exitPrice
-          )
-        : ""
-    );
+  setEntryTime(
+    entryExecution?.executionTimestamp
+      ? entryExecution.executionTimestamp.slice(
+          11,
+          16
+        )
+      : ""
+  );
 
-    setCommission(
-      String(
-        trade.fees ?? 0
-      )
-    );
+  setExitTime(
+    exitExecution?.executionTimestamp
+      ? exitExecution.executionTimestamp.slice(
+          11,
+          16
+        )
+      : ""
+  );
 
-    setSide(
-      trade.side === "SHORT"
-        ? "SHORT"
-        : "LONG"
-    );
+  setCurrency(
+    entryExecution?.currency ||
+    trade.currency ||
+    "USD"
+  );
 
-    setAssetType(
-      trade.assetType ||
-      "FUTURES"
-    );
+  setExchange(
+    entryExecution?.exchange ||
+    ""
+  );
 
-    setAccount(
-      trade.account ||
-      ""
-    );
+}, [
+  trade,
+]);
 
-const normalizedTradeDate =
-  trade.date?.includes("T")
-    ? trade.date.split("T")[0]
-    : trade.date || "";
-
-setEntryDate(
-  normalizedTradeDate
-);
-
-setExitDate(
-  normalizedTradeDate
-);
-
-    const entryExecution =
-      trade.executions?.find(
-        (execution) =>
-          execution.action ===
-          (
-            trade.side === "SHORT"
-              ? "SELL"
-              : "BUY"
-          )
-      );
-
-    const exitExecution =
-      trade.executions?.find(
-        (execution) =>
-          execution.action ===
-          (
-            trade.side === "SHORT"
-              ? "BUY"
-              : "SELL"
-          )
-      );
-
-    setEntryTime(
-      entryExecution?.executionTimestamp
-        ? entryExecution.executionTimestamp.slice(
-            11,
-            16
-          )
-        : ""
-    );
-
-    setExitTime(
-      exitExecution?.executionTimestamp
-        ? exitExecution.executionTimestamp.slice(
-            11,
-            16
-          )
-        : ""
-    );
-
-    setCurrency(
-      entryExecution?.currency ||
-      trade.currency ||
-      "USD"
-    );
-
-    setExchange(
-      entryExecution?.exchange ||
-      ""
-    );
-
-  }, [
-    trade,
-  ]);
-
-  // =================================================
-  // SAVE EDITS
-  // =================================================
+// =================================================
+// SAVE EDITS
+// =================================================
 
   const handleSaveTrade =
     async () => {
@@ -261,14 +272,35 @@ setExitDate(
     // PARSE NUMERIC VALUES
     // =================================================
 
-    const parsedQuantity =
-      Number(quantity);
+const parsedQuantity =
+  Number(quantity);
 
-    const parsedEntryPrice =
-      Number(entryPrice);
+const parsedExitQuantity =
+  Number(exitQuantity);
 
-    const parsedExitPrice =
-      Number(exitPrice);
+  if (
+  isPartialExitTrade &&
+  partialExitMaxQuantity != null &&
+  parsedExitQuantity >
+    partialExitMaxQuantity
+) {
+  alert(
+    `This partial exit cannot exceed ${partialExitMaxQuantity} ${
+      assetType === "OPTIONS"
+        ? "contracts"
+        : "shares"
+    }.`
+  );
+
+  return;
+}
+
+const parsedEntryPrice =
+  Number(entryPrice);
+
+const parsedExitPrice =
+  Number(exitPrice);
+
 
     const parsedCommission =
       Number(
@@ -297,50 +329,69 @@ setExitDate(
       return;
     }
 
-    if (
-      !quantity ||
-      !Number.isFinite(
-        parsedQuantity
-      ) ||
-      parsedQuantity <= 0
-    ) {
+if (
+  isPartialExitTrade
+    ? (
+        !exitQuantity ||
+        !Number.isFinite(
+          parsedExitQuantity
+        ) ||
+        parsedExitQuantity <= 0
+      )
+    : (
+        !quantity ||
+        !Number.isFinite(
+          parsedQuantity
+        ) ||
+        parsedQuantity <= 0
+      )
+) {
 
-      alert(
-        "Quantity must be greater than 0."
-      );
+  alert(
+    isPartialExitTrade
+      ? "Exit quantity must be greater than 0."
+      : "Quantity must be greater than 0."
+  );
 
-      return;
-    }
+  return;
+}
 
-    if (
-      !entryPrice ||
-      !Number.isFinite(
-        parsedEntryPrice
-      ) ||
-      parsedEntryPrice <= 0
-    ) {
+if (
+  !isPartialExitTrade &&
+  (
+    !entryPrice ||
+    !Number.isFinite(
+      parsedEntryPrice
+    ) ||
+    parsedEntryPrice <= 0
+  )
+) {
 
-      alert(
-        "Entry price must be greater than 0."
-      );
+  alert(
+    "Entry price must be greater than 0."
+  );
 
-      return;
-    }
+  return;
+}
 
-    if (
-      !exitPrice ||
-      !Number.isFinite(
-        parsedExitPrice
-      ) ||
-      parsedExitPrice <= 0
-    ) {
+if (
+  !isOpenPositionEntry &&
+  !isPartialExitTrade &&
+  (
+    !exitPrice ||
+    !Number.isFinite(
+      parsedExitPrice
+    ) ||
+    parsedExitPrice <= 0
+  )
+) {
 
-      alert(
-        "Exit price must be greater than 0."
-      );
+  alert(
+    "Exit price must be greater than 0."
+  );
 
-      return;
-    }
+  return;
+}
 
 if (!entryDate) {
 
@@ -351,23 +402,29 @@ if (!entryDate) {
   return;
 }
 
-    if (!entryTime) {
+if (
+  !isPartialExitTrade &&
+  !entryTime
+) {
 
-      alert(
-        "Entry time is required."
-      );
+  alert(
+    "Entry time is required."
+  );
 
-      return;
-    }
+  return;
+}
 
-    if (!exitTime) {
+if (
+  !isOpenPositionEntry &&
+  !exitTime
+) {
 
-      alert(
-        "Exit time is required."
-      );
+  alert(
+    "Exit time is required."
+  );
 
-      return;
-    }
+  return;
+}
 
     if (!normalizedCurrency) {
 
@@ -401,96 +458,201 @@ if (!entryDate) {
       return;
     }
 
-    // =================================================
-    // DELETE OLD LIFECYCLE
-    // =================================================
+// =================================================
+// DELETE / REPLACE EXISTING EXECUTION(S)
+// =================================================
 
-    const {
-      error: deleteError,
-    } = await supabase
-      .from("executions")
-      .delete()
-      .eq(
-        "contract_key",
-        trade.contractKey
-      );
+let correctedExecutions;
 
-    if (deleteError) {
+if (isPartialExitTrade) {
 
-      console.error(
-        "FAILED TO DELETE OLD MANUAL LIFECYCLE:",
-        deleteError
-      );
+  // =================================================
+  // PARTIAL EXIT
+  // DELETE ONLY THE EXACT EXIT EXECUTION
+  // =================================================
 
-      alert(
-        "Failed to replace manual trade lifecycle."
-      );
+  const existingExitExecution =
+    trade.executions?.find(
+      (execution) =>
+        execution.action ===
+        (
+          side === "SHORT"
+            ? "BUY"
+            : "SELL"
+        )
+    );
 
-      return;
-    }
+  if (!existingExitExecution) {
 
-    // =================================================
-    // CREATE CORRECTED EXECUTIONS
-    // =================================================
+    alert(
+      "Unable to find the existing exit execution."
+    );
 
-    const correctedExecutions =
-      createManualExecutions({
+    return;
+  }
 
-        ticker:
-          normalizedTicker,
+  const {
+    error: deleteExitError,
+  } = await supabase
+    .from("executions")
+    .delete()
+    .eq(
+      "id",
+      existingExitExecution.id
+    );
 
-        quantity:
-          parsedQuantity,
+  if (deleteExitError) {
 
-        entryPrice:
-          parsedEntryPrice,
+    console.error(
+      "FAILED TO DELETE EXISTING PARTIAL EXIT EXECUTION:",
+      deleteExitError
+    );
 
-        exitPrice:
-          parsedExitPrice,
+    alert(
+      "Failed to update partial exit."
+    );
 
-        commission:
-          parsedCommission,
+    return;
+  }
 
-        side,
+  // =================================================
+  // CREATE REPLACEMENT PARTIAL EXIT
+  // =================================================
 
-        assetType,
+  correctedExecutions =
+    createManualExecutions({
 
-        account:
-          normalizedAccount,
+      ticker:
+        normalizedTicker,
 
-entryDate,
-exitDate,
+      quantity:
+        parsedExitQuantity,
 
-entryTime,
-exitTime,
+      exitPrice:
+        parsedExitPrice,
 
-        currency:
-          normalizedCurrency,
+      commission:
+        parsedCommission,
 
-        exchange:
-          normalizedExchange,
-      });
+      side,
 
-    // =================================================
-    // PRESERVE EXISTING MANUAL LIFECYCLE
-    // =================================================
-    //
-    // Editing a trade must not create a new lifecycle.
-    //
-    // createManualExecutions() generates a new
-    // contractKey internally, so restore the original
-    // lifecycle identity before saving.
-    //
-    // =================================================
+      assetType,
 
-    const correctedExecutionsWithLifecycle =
-      correctedExecutions.map(
-        (execution) => ({
-          ...execution,
-          contractKey:
-            trade.contractKey,
-        })
-      );
+      account:
+        normalizedAccount,
+
+      exitDate,
+
+      exitTime,
+
+      currency:
+        normalizedCurrency,
+
+      exchange:
+        normalizedExchange,
+
+      tradeType:
+        "PARTIAL_EXIT",
+
+      contractKey:
+        trade.contractKey,
+    });
+
+} else {
+
+  // =================================================
+  // COMPLETE / OPEN POSITION ENTRY
+  // EXISTING BEHAVIOR
+  // =================================================
+
+  const {
+    error: deleteError,
+  } = await supabase
+    .from("executions")
+    .delete()
+    .eq(
+      "contract_key",
+      trade.contractKey
+    );
+
+  if (deleteError) {
+
+    console.error(
+      "FAILED TO DELETE OLD MANUAL LIFECYCLE:",
+      deleteError
+    );
+
+    alert(
+      "Failed to replace manual trade lifecycle."
+    );
+
+    return;
+  }
+
+correctedExecutions =
+  createManualExecutions({
+
+    ticker:
+      normalizedTicker,
+
+    quantity:
+      parsedQuantity,
+
+    entryPrice:
+      parsedEntryPrice,
+
+    exitPrice:
+      parsedExitPrice,
+
+    commission:
+      parsedCommission,
+
+    side,
+
+    assetType,
+
+    account:
+      normalizedAccount,
+
+    entryDate,
+    exitDate,
+
+    entryTime,
+    exitTime,
+
+    currency:
+      normalizedCurrency,
+
+    exchange:
+      normalizedExchange,
+
+    tradeType:
+      isOpenPositionEntry
+        ? "PARTIAL_ENTRY"
+        : "COMPLETE",
+  });
+
+  // =================================================
+  // PRESERVE EXISTING MANUAL LIFECYCLE
+  // =================================================
+  //
+  // Editing a trade must not create a new lifecycle.
+  //
+  // createManualExecutions() generates a new
+  // contractKey internally, so restore the original
+  // lifecycle identity before saving.
+  //
+  // =================================================
+
+  correctedExecutions =
+    correctedExecutions.map(
+      (execution) => ({
+        ...execution,
+        contractKey:
+          trade.contractKey,
+      })
+    );
+}
 
 // =================================================
 // SAVE CORRECTED EXECUTIONS
@@ -499,7 +661,7 @@ exitTime,
 try {
 
   await saveExecutionsToSupabase(
-    correctedExecutionsWithLifecycle
+    correctedExecutions
   );
 
 } catch (error) {
@@ -547,19 +709,18 @@ const handleDeleteTrade =
     // DETERMINE WHETHER THIS IS A PARTIAL-EXIT TRADE
     // =================================================
 
-    const hasOpenLifecycleRemainder =
-      allTrades.some(
-        (otherTrade) =>
-          otherTrade.id !== trade.id &&
-          otherTrade.contractKey ===
-            trade.contractKey &&
-          otherTrade.status === "OPEN"
-      );
+const hasLifecycleSibling =
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !== trade.id &&
+      otherTrade.contractKey ===
+        trade.contractKey
+  );
 
-    const isPartialExitTrade =
-      isManualTrade &&
-      trade.status !== "OPEN" &&
-      hasOpenLifecycleRemainder;
+const isPartialExitTrade =
+  isManualTrade &&
+  trade.status !== "OPEN" &&
+  hasLifecycleSibling;
 
     // =================================================
     // PARTIAL EXIT
@@ -679,6 +840,76 @@ const handleDeleteTrade =
 
     window.location.reload();
   };
+
+// =================================================
+// MANUAL EDIT MODE DETECTION
+// =================================================
+
+const isOpenPositionEntry =
+  trade?.status === "OPEN" &&
+  trade.contractKey?.startsWith("MANUAL-") &&
+  (trade.executions?.length ?? 0) === 1;
+
+const isPartialExitTrade =
+  !!trade?.contractKey?.startsWith("MANUAL-") &&
+  trade.status !== "OPEN" &&
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !== trade.id &&
+      otherTrade.contractKey === trade.contractKey
+  );
+
+const partialExitMaxQuantity = (() => {
+  if (
+    !isPartialExitTrade ||
+    !trade?.contractKey
+  ) {
+    return undefined;
+  }
+
+  const lifecycleTrades =
+    allTrades.filter(
+      (otherTrade) =>
+        otherTrade.contractKey ===
+        trade.contractKey
+    );
+
+  // The sum of all reconstructed quantities
+  // in this lifecycle represents the original
+  // quantity introduced into the lifecycle.
+  const lifecycleTotalQuantity =
+    lifecycleTrades.reduce(
+      (total, lifecycleTrade) =>
+        total +
+        Number(
+          lifecycleTrade.quantity || 0
+        ),
+      0
+    );
+
+  // Everything except the exit we are editing
+  // must remain unchanged.
+  const otherTradesQuantity =
+    lifecycleTrades
+      .filter(
+        (otherTrade) =>
+          otherTrade.id !== trade.id
+      )
+      .reduce(
+        (total, lifecycleTrade) =>
+          total +
+          Number(
+            lifecycleTrade.quantity || 0
+          ),
+        0
+      );
+
+  return Math.max(
+    0,
+    lifecycleTotalQuantity -
+      otherTradesQuantity
+  );
+})();
 
     // =================================================
   // SAFETY
@@ -943,90 +1174,140 @@ const handleDeleteTrade =
 
   <div className="h-2 shrink-0" />
 
-  <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-3 gap-3">
+<div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-3 gap-3">
 
-    {/* COMPLETE TRADE */}
+  {/* COMPLETE TRADE */}
 
-    <button
-      type="button"
-      className="relative flex min-h-[82px] items-center justify-center gap-3 rounded-[8px] border border-violet-500/70 bg-[#0b1220] px-4 text-left shadow-[0_0_25px_rgba(124,58,237,0.08)]"
+  <button
+    type="button"
+    disabled
+    className={`relative flex min-h-[82px] cursor-default items-center justify-center gap-3 rounded-[8px] px-4 text-left transition ${
+      !isOpenPositionEntry &&
+      !isPartialExitTrade
+        ? "border border-violet-500/70 bg-[#0b1220] shadow-[0_0_25px_rgba(124,58,237,0.08)]"
+        : "border border-white/[0.06] bg-[#0b1220] opacity-60"
+    }`}
+  >
+
+    <div
+      className={`flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full text-[20px] ${
+        !isOpenPositionEntry &&
+        !isPartialExitTrade
+          ? "bg-violet-500/15 text-violet-400"
+          : "bg-white/[0.04] text-slate-500"
+      }`}
     >
+      ↔
+    </div>
 
-      <div className="flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full bg-violet-500/15 text-[20px] text-violet-400">
-        ↔
+    <div className="min-w-0">
+
+      <div className="text-[14px] font-semibold text-white">
+        Complete Trade
       </div>
 
-      <div className="min-w-0">
-
-        <div className="text-[14px] font-semibold text-white">
-          Complete Trade
-        </div>
-
-        <div className="mt-1 text-[12px] text-slate-500">
-          Entry and exit
-        </div>
-
+      <div className="mt-1 text-[12px] text-slate-500">
+        Entry and exit
       </div>
 
-      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-[11px] text-white">
+    </div>
+
+    {!isOpenPositionEntry &&
+      !isPartialExitTrade && (
+        <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-[11px] text-white">
+          ✓
+        </div>
+      )}
+
+  </button>
+
+
+  {/* OPEN POSITION */}
+
+  <button
+    type="button"
+    disabled
+    className={`relative flex min-h-[82px] cursor-default items-center justify-center gap-3 rounded-[8px] px-4 text-left transition ${
+      isOpenPositionEntry
+        ? "border border-emerald-500/60 bg-[#0b1220] shadow-[0_0_25px_rgba(16,185,129,0.08)]"
+        : "border border-white/[0.06] bg-[#0b1220] opacity-60"
+    }`}
+  >
+
+    <div
+      className={`flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full text-[20px] ${
+        isOpenPositionEntry
+          ? "bg-emerald-500/15 text-emerald-400"
+          : "bg-white/[0.04] text-slate-500"
+      }`}
+    >
+      ↑
+    </div>
+
+    <div className="min-w-0">
+
+      <div className="text-[14px] font-semibold text-white">
+        Open Position (Entry)
+      </div>
+
+      <div className="mt-1 text-[12px] text-slate-500">
+        Entry only
+      </div>
+
+    </div>
+
+    {isOpenPositionEntry && (
+      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[11px] text-white">
         ✓
       </div>
+    )}
 
-    </button>
+  </button>
 
-    {/* OPEN POSITION */}
 
-    <button
-      type="button"
-      disabled
-      className="relative flex min-h-[82px] cursor-default items-center justify-center gap-3 rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 text-left opacity-60"
+  {/* CLOSE / REDUCE */}
+
+  <button
+    type="button"
+    disabled
+    className={`relative flex min-h-[82px] cursor-default items-center justify-center gap-3 rounded-[8px] px-4 text-left transition ${
+      isPartialExitTrade
+        ? "border border-red-500/60 bg-[#0b1220] shadow-[0_0_25px_rgba(239,68,68,0.08)]"
+        : "border border-white/[0.06] bg-[#0b1220] opacity-60"
+    }`}
+  >
+
+    <div
+      className={`flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full text-[20px] ${
+        isPartialExitTrade
+          ? "bg-red-500/15 text-red-400"
+          : "bg-white/[0.04] text-slate-500"
+      }`}
     >
+      ↓
+    </div>
 
-      <div className="flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full bg-emerald-500/15 text-[20px] text-emerald-400">
-        ↑
+    <div className="min-w-0">
+
+      <div className="text-[14px] font-semibold text-white">
+        Close / Reduce (Exit)
       </div>
 
-      <div className="min-w-0">
-
-        <div className="text-[14px] font-semibold text-white">
-          Open Position (Entry)
-        </div>
-
-        <div className="mt-1 text-[12px] text-slate-500">
-          Entry only
-        </div>
-
+      <div className="mt-1 text-[12px] text-slate-500">
+        Exit only
       </div>
 
-    </button>
+    </div>
 
-    {/* CLOSE / REDUCE */}
-
-    <button
-      type="button"
-      disabled
-      className="relative flex min-h-[82px] cursor-default items-center justify-center gap-3 rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 text-left opacity-60"
-    >
-
-      <div className="flex h-10 w-10 shrink-0 -translate-x-[12px] items-center justify-center rounded-full bg-red-500/15 text-[20px] text-red-400">
-        ↓
+    {isPartialExitTrade && (
+      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[11px] text-white">
+        ✓
       </div>
+    )}
 
-      <div className="min-w-0">
+  </button>
 
-        <div className="text-[14px] font-semibold text-white">
-          Close / Reduce (Exit)
-        </div>
-
-        <div className="mt-1 text-[12px] text-slate-500">
-          Exit only
-        </div>
-
-      </div>
-
-    </button>
-
-  </div>
+</div>
 
 </section>
 
@@ -1231,7 +1512,13 @@ const handleDeleteTrade =
   {/* ENTRY */}
   {/* ================================================= */}
 
-  <section className="py-5 lg:pr-5">
+  <section
+  className={`py-5 lg:pr-5 transition-opacity ${
+    isPartialExitTrade
+      ? "opacity-50"
+      : "opacity-100"
+  }`}
+>
 
     <div className="h-5 shrink-0" />
 
@@ -1265,12 +1552,13 @@ const handleDeleteTrade =
           Quantity
         </label>
 
-        <input
-          type="number"
-          value={quantity}
-          onChange={(e) =>
-            setQuantity(e.target.value)
-          }
+<input
+  type="number"
+  disabled={isPartialExitTrade}
+  value={quantity}
+  onChange={(e) =>
+    setQuantity(e.target.value)
+  }
           placeholder="100"
           className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
           style={{ paddingLeft: "16px" }}
@@ -1290,7 +1578,8 @@ const handleDeleteTrade =
 
         <input
           type="number"
-          step="0.01"
+disabled={isPartialExitTrade}
+step="0.01"
           value={entryPrice}
           onChange={(e) =>
             setEntryPrice(e.target.value)
@@ -1314,15 +1603,16 @@ const handleDeleteTrade =
 
         <div className="relative">
 
-          <input
-            type="date"
-            value={entryDate}
-            onChange={(e) => {
-              const value = e.target.value;
+<input
+  type="date"
+  disabled={isPartialExitTrade}
+  value={entryDate}
+  onChange={(e) => {
+    const value = e.target.value;
 
-              setEntryDate(value);
-              setExitDate(value);
-            }}
+    setEntryDate(value);
+    setExitDate(value);
+  }}
             className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-4 pr-10 text-[13px] font-medium text-white outline-none transition [color-scheme:dark] focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 [&::-webkit-calendar-picker-indicator]:opacity-0"
             style={{ paddingLeft: "16px" }}
           />
@@ -1377,6 +1667,7 @@ const handleDeleteTrade =
 
           <input
             type="time"
+            disabled={isPartialExitTrade}
             value={entryTime}
             onChange={(e) =>
               setEntryTime(e.target.value)
@@ -1433,7 +1724,13 @@ const handleDeleteTrade =
   {/* EXIT */}
   {/* ================================================= */}
 
-  <section className="py-5 lg:pl-5">
+ <section
+  className={`py-5 lg:pl-5 transition-opacity ${
+    isOpenPositionEntry
+      ? "opacity-50"
+      : "opacity-100"
+  }`}
+>
 
     <div className="h-5 shrink-0" />
 
@@ -1467,16 +1764,46 @@ const handleDeleteTrade =
           Quantity
         </label>
 
-        <input
-          type="number"
-          value={quantity}
-          onChange={(e) =>
-            setQuantity(e.target.value)
-          }
-          placeholder="100"
-          className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
-          style={{ paddingLeft: "16px" }}
-        />
+<input
+  type="number"
+  disabled={isOpenPositionEntry}
+  max={partialExitMaxQuantity}
+  value={
+    isPartialExitTrade
+      ? exitQuantity
+      : quantity
+  }
+  onChange={(e) => {
+    const value = e.target.value;
+
+    if (
+      isPartialExitTrade &&
+      value !== ""
+    ) {
+      const parsedValue =
+        Number(value);
+
+      if (
+        Number.isFinite(parsedValue) &&
+        partialExitMaxQuantity != null &&
+        parsedValue >
+          partialExitMaxQuantity
+      ) {
+        setExitQuantity(
+          String(
+            partialExitMaxQuantity
+          )
+        );
+        return;
+      }
+    }
+
+    setExitQuantity(value);
+  }}
+  placeholder="Quantity"
+  className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
+  style={{ paddingLeft: "16px" }}
+/>
 
       </div>
 
@@ -1490,10 +1817,11 @@ const handleDeleteTrade =
           Price
         </label>
 
-        <input
-          type="number"
-          step="0.01"
-          value={exitPrice}
+<input
+  type="number"
+  disabled={isOpenPositionEntry}
+  step="0.01"
+  value={exitPrice}
           onChange={(e) =>
             setExitPrice(e.target.value)
           }
@@ -1516,9 +1844,10 @@ const handleDeleteTrade =
 
         <div className="relative">
 
-          <input
-            type="date"
-            value={exitDate}
+<input
+  type="date"
+  disabled={isOpenPositionEntry}
+  value={exitDate}
             onChange={(e) =>
               setExitDate(e.target.value)
             }
@@ -1574,9 +1903,10 @@ const handleDeleteTrade =
 
         <div className="relative">
 
-          <input
-            type="time"
-            value={exitTime}
+<input
+  type="time"
+  disabled={isOpenPositionEntry}
+  value={exitTime}
             onChange={(e) =>
               setExitTime(e.target.value)
             }

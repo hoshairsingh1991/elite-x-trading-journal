@@ -1472,8 +1472,34 @@ setExchange(
     type="number"
     disabled={isPartialEntry}
     value={quantity}
+    max={
+      isPartialExit &&
+      selectedPreviewPosition
+        ? selectedPreviewPosition.quantity
+        : undefined
+    }
     onChange={(e) => {
-      setQuantity(e.target.value);
+      const value = e.target.value;
+
+      if (isPartialExit) {
+        const parsedValue = Number(value);
+        const maxQuantity =
+          selectedPreviewPosition?.quantity ?? 0;
+
+        if (
+          value !== "" &&
+          Number.isFinite(parsedValue) &&
+          parsedValue > maxQuantity
+        ) {
+          setQuantity(
+            String(maxQuantity)
+          );
+        } else {
+          setQuantity(value);
+        }
+      } else {
+        setQuantity(value);
+      }
 
       if (fieldErrors.quantity) {
         setFieldErrors((prev) => ({
@@ -1487,7 +1513,11 @@ setExchange(
         ? "Quantity to reduce"
         : "100"
     }
-    className={fieldErrors.quantity ? `${inputClass} !border-red-700/70` : inputClass}
+    className={
+      fieldErrors.quantity
+        ? `${inputClass} !border-red-700/70`
+        : inputClass
+    }
     style={{ paddingLeft: "16px" }}
   />
 </Field>

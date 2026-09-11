@@ -2623,4 +2623,1139 @@ CHECKPOINT END
 
 
 
+============================================================
+ELITE X TRADING JOURNAL — MANUAL TRADE LIFECYCLE CHECKPOINT
+============================================================
 
+DATE:
+September 11, 2026
+
+PROJECT:
+Elite X Trading Journal / Elite X Trading OS
+
+CURRENT STATUS:
+Manual Trade lifecycle architecture is now very close to complete.
+
+The major COMPLETE / OPEN POSITION / PARTIAL ENTRY /
+PARTIAL EXIT lifecycle behavior has been implemented and
+tested.
+
+The system now correctly handles multiple partial exits,
+editing individual partial exits, deleting individual partial
+exits, fully closing a lifecycle through multiple exits, and
+re-opening the correct quantity when an exit is removed.
+
+The next phase should be systematic edge-case testing rather
+than architectural rewriting.
+
+============================================================
+1. CORE ARCHITECTURE — PROTECTED
+============================================================
+
+Elite X remains execution-first:
+
+Broker / Manual Entry
+        ↓
+Normalized Executions
+        ↓
+Supabase Executions Ledger
+        ↓
+Deterministic FIFO Reconstruction
+        ↓
+Derived Trades
+        ↓
+Analytics / Dashboard / Trade History
+
+IMPORTANT:
+
+Executions are the canonical source of truth.
+
+Trades are derived state.
+
+Manual Entry MUST NOT create a second independent trade/FIFO
+engine.
+
+Manual Entry produces normalized executions compatible with
+the existing execution architecture.
+
+The existing broker sync, execution ledger, FIFO engine,
+reconciliation, P&L, analytics, Dashboard V2, and existing
+canonical infrastructure remain protected.
+
+============================================================
+2. MANUAL TRADE TYPES
+============================================================
+
+Supported manual lifecycle types:
+
+1. COMPLETE
+2. PARTIAL_ENTRY
+3. PARTIAL_EXIT
+
+Definitions:
+
+COMPLETE:
+Entry + Exit executions are created.
+
+OPEN POSITION / PARTIAL_ENTRY:
+Only the opening execution is created.
+
+PARTIAL_EXIT:
+A reducing/closing execution is created against an existing
+manual lifecycle.
+
+============================================================
+3. LONG / SHORT SEMANTICS
+============================================================
+
+LONG:
+
+BUY  = open / add
+SELL = reduce / close
+
+SHORT:
+
+SELL = open / add
+BUY  = reduce / close
+
+============================================================
+4. MANUAL LIFECYCLE IDENTITY
+============================================================
+
+Manual lifecycle identity:
+
+contract_key = MANUAL-{ticker}-{uuid}
+
+There is currently no explicit `source` column.
+
+Manual trades are identified by:
+
+contractKey.startsWith("MANUAL-")
+
+Partial entries and partial exits belonging to the same
+manual lifecycle preserve the same contractKey.
+
+============================================================
+5. OPTIONS MULTIPLIER
+============================================================
+
+Options multiplier:
+
+100
+
+Other current supported assets:
+
+1
+
+Quantity remains contracts/shares as appropriate.
+
+P&L continues to use the existing canonical multiplier logic.
+
+============================================================
+6. MANUAL EXECUTION BUILDER
+============================================================
+
+FILE:
+
+lib/trades/createManualExecutions.ts
+
+Current architecture:
+
+ManualEntryType:
+
+COMPLETE
+PARTIAL_ENTRY
+PARTIAL_EXIT
+
+The builder:
+
+- Defaults tradeType to COMPLETE for backward compatibility.
+- COMPLETE requires entry and exit data.
+- PARTIAL_ENTRY requires entry date/time and entry price.
+- PARTIAL_EXIT requires exit date/time and exit price.
+- PARTIAL_EXIT requires an existing contractKey.
+- PARTIAL_ENTRY creates one opening execution.
+- PARTIAL_EXIT creates one reducing/closing execution.
+- COMPLETE creates entry + exit executions.
+
+Execution identifiers:
+
+manual-{lifecycleId}-entry
+manual-{lifecycleId}-exit
+
+Broker execution IDs:
+
+MANUAL-{lifecycleId}-ENTRY
+MANUAL-{lifecycleId}-EXIT
+
+Do NOT rewrite this builder without a concrete reason.
+
+============================================================
+7. COMMISSION / FEE HANDLING
+============================================================
+
+UI now uses lifecycle-specific commission labels.
+
+FILE:
+
+components/trades/AddTradeModal.tsx
+
+Current labels:
+
+COMPLETE:
+"Total Commission / Fees"
+
+PARTIAL_ENTRY:
+"Entry Commission / Fees"
+
+PARTIAL_EXIT:
+"Exit Commission / Fees"
+
+Fee semantics:
+
+COMPLETE:
+Commission is split between entry and exit.
+
+PARTIAL_ENTRY:
+Entire commission belongs to the opening execution.
+
+PARTIAL_EXIT:
+Entire commission belongs to the exit execution.
+
+============================================================
+8. ADD TRADE MODAL
+============================================================
+
+FILE:
+
+components/trades/AddTradeModal.tsx
+
+The Add Trade flow supports:
+
+COMPLETE
+PARTIAL_ENTRY
+PARTIAL_EXIT
+
+Partial Exit:
+
+- Selects an existing manual open lifecycle.
+- Locks lifecycle identity to selected contractKey.
+- Displays entry context.
+- Exit quantity is user-entered.
+- Exit quantity is capped to remaining open quantity.
+- Over-close is rejected by validation.
+
+Current Partial Exit quantity behavior:
+
+If remaining quantity is 80, the user cannot enter 81.
+
+If the field is manually changed beyond the remaining quantity,
+the input is automatically capped.
+
+The save path also validates the boundary independently.
+
+This means UI validation and save validation both protect
+against over-closing.
+
+============================================================
+9. PARTIAL EXIT QUANTITY CAP — COMPLETED
+============================================================
+
+In AddTradeModal, Partial Exit quantity is capped using the
+selected open position quantity.
+
+Example:
+
+100 OPEN
+
+20 EXIT
+remaining = 80
+
+User can exit:
+
+1–80
+
+User cannot exit:
+
+81+
+
+This behavior was tested and confirmed correct.
+
+============================================================
+10. EDIT TRADE MODAL
+============================================================
+
+FILE:
+
+components/trades/EditTradeModal.tsx
+
+This is where most of the recent lifecycle work occurred.
+
+Current state includes separate values for:
+
+quantity
+exitQuantity
+entryPrice
+exitPrice
+commission
+entryDate
+exitDate
+entryTime
+exitTime
+
+============================================================
+11. OPEN POSITION DETECTION
+============================================================
+
+Current logic:
+
+const isOpenPositionEntry =
+  trade?.status === "OPEN" &&
+  trade.contractKey?.startsWith("MANUAL-") &&
+  (trade.executions?.length ?? 0) === 1;
+
+This identifies a manual opening-only lifecycle.
+
+Open Position behavior:
+
+Entry fields enabled.
+
+Exit fields disabled.
+
+Exit quantity is not independently edited.
+
+When saved, the lifecycle is rebuilt as:
+
+PARTIAL_ENTRY
+
+============================================================
+12. PARTIAL EXIT DETECTION — IMPORTANT FIX
+============================================================
+
+Original classification relied on there being another OPEN
+sibling.
+
+That was incorrect for a lifecycle that became fully closed.
+
+Example:
+
+100 BUY
+20 SELL
+20 SELL
+20 SELL
+20 SELL
+20 SELL
+
+Once the lifecycle is fully closed, there is no OPEN sibling.
+
+Therefore the old detection incorrectly classified a closed
+partial exit as a Complete Trade.
+
+FIXED LOGIC:
+
+const isPartialExitTrade =
+  !!trade?.contractKey?.startsWith("MANUAL-") &&
+  trade.status !== "OPEN" &&
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !== trade.id &&
+      otherTrade.contractKey === trade.contractKey
+  );
+
+Important principle:
+
+A closed manual trade is a Partial Exit when another trade
+exists with the same manual lifecycle contractKey.
+
+It does NOT require an OPEN sibling.
+
+This fixed the classification bug.
+
+============================================================
+13. EDIT MODAL — ENTRY / EXIT FIELD BEHAVIOR
+============================================================
+
+Partial Exit:
+
+Entry section is disabled / visually faded.
+
+Exit section remains editable.
+
+Open Position:
+
+Exit section is disabled / visually faded.
+
+Complete Trade:
+
+Both entry and exit are editable as appropriate.
+
+Complete Trade exit quantity mirrors entry quantity and is
+locked.
+
+This prevents accidental divergence between the two sides of
+a normal Complete Trade.
+
+============================================================
+14. SEPARATE EXIT QUANTITY
+============================================================
+
+EditTradeModal now maintains:
+
+quantity
+exitQuantity
+
+For Partial Exit:
+
+exitQuantity is independently editable.
+
+For Complete:
+
+exitQuantity mirrors quantity.
+
+For Open Position:
+
+the exit side is disabled.
+
+This resolved the earlier issue where Complete Trade behavior
+could unintentionally inherit Partial Exit quantity handling.
+
+============================================================
+15. PARTIAL EXIT EDIT SAVE BEHAVIOR
+============================================================
+
+For Partial Exit edits:
+
+The existing exact exit execution is located.
+
+Long close action:
+SELL
+
+Short close action:
+BUY
+
+Only that exact exit execution is deleted.
+
+A replacement PARTIAL_EXIT execution is then created using:
+
+- edited quantity
+- edited exit price
+- edited commission
+- edited date/time
+- original manual contractKey
+
+The rest of the lifecycle remains untouched.
+
+This behavior has been tested and confirmed working.
+
+============================================================
+16. PARTIAL EXIT MAX QUANTITY FOR FULLY CLOSED LIFECYCLES
+============================================================
+
+A second important edge case was discovered.
+
+Example:
+
+100 OPEN
+
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+
+Lifecycle is fully closed.
+
+Suppose one 20 EXIT is being edited.
+
+Without an additional guard, the user could potentially change
+that exit to 40 even though the other exits already consume the
+rest of the original lifecycle.
+
+Therefore EditTradeModal now calculates:
+
+partialExitMaxQuantity
+
+based on the lifecycle quantity represented by all reconstructed
+trades, excluding the selected trade.
+
+Conceptually:
+
+available quantity for this exit
+=
+lifecycle total
+-
+quantities represented by all other lifecycle trades
+
+The Exit Quantity field is capped at this value.
+
+Save logic also validates the same boundary.
+
+============================================================
+17. FULLY CLOSED LIFECYCLE EDIT TEST
+============================================================
+
+Tested:
+
+100 OPEN
+
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+
+Edit one 20 EXIT.
+
+Maximum allowed remains 20.
+
+Attempting to increase it above 20 is prevented.
+
+Changing:
+
+20 → 10
+
+works.
+
+FIFO then correctly produces:
+
+10 EXIT removed/reduced
++
+10 OPEN remainder
+
+Result is correct.
+
+This test is confirmed working.
+
+============================================================
+18. DELETE LOGIC — MAJOR BUG FIX
+============================================================
+
+A major bug existed when deleting a partial exit from a
+completely closed lifecycle.
+
+Example:
+
+100 OPEN
+
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+
+User deletes one 20 EXIT.
+
+EXPECTED:
+
+Four exits remain.
+
+20 becomes OPEN again.
+
+ACTUAL BEFORE FIX:
+
+All executions sharing the contractKey could be deleted.
+
+WHY:
+
+Delete classification was using:
+
+hasOpenLifecycleRemainder
+
+and therefore only recognized a Partial Exit when an OPEN
+sibling existed.
+
+A fully closed lifecycle had no OPEN sibling.
+
+The code therefore fell through to:
+
+delete all executions for contract_key
+
+which incorrectly removed the entire lifecycle.
+
+============================================================
+19. DELETE CLASSIFICATION FIX
+============================================================
+
+FILE:
+
+components/trades/EditTradeModal.tsx
+
+Inside handleDeleteTrade.
+
+OLD LOGIC:
+
+const hasOpenLifecycleRemainder =
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !== trade.id &&
+      otherTrade.contractKey ===
+        trade.contractKey &&
+      otherTrade.status === "OPEN"
+  );
+
+const isPartialExitTrade =
+  isManualTrade &&
+  trade.status !== "OPEN" &&
+  hasOpenLifecycleRemainder;
+
+NEW LOGIC:
+
+const hasLifecycleSibling =
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !== trade.id &&
+      otherTrade.contractKey ===
+        trade.contractKey
+  );
+
+const isPartialExitTrade =
+  isManualTrade &&
+  trade.status !== "OPEN" &&
+  hasLifecycleSibling;
+
+IMPORTANT:
+
+Delete classification now checks whether another lifecycle trade
+shares the same contractKey.
+
+It no longer requires an OPEN sibling.
+
+============================================================
+20. DELETE BEHAVIOR AFTER FIX
+============================================================
+
+For a Partial Exit:
+
+Only the exact exit execution is deleted.
+
+For Long:
+
+closing execution = SELL
+
+For Short:
+
+closing execution = BUY
+
+The rest of the lifecycle remains intact.
+
+For Complete Trade / single lifecycle trade:
+
+Existing lifecycle-wide deletion behavior remains in place.
+
+============================================================
+21. DELETE TESTS COMPLETED
+============================================================
+
+Scenario:
+
+100 OPEN
+
+20 EXIT
+
+Delete 20.
+
+Result:
+
+100 OPEN
+
+This works.
+
+Scenario:
+
+100 OPEN
+
+20 EXIT
+20 EXIT
+
+Delete one 20.
+
+Result:
+
+80 OPEN
+20 EXIT
+
+This works.
+
+Scenario:
+
+100 OPEN
+
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+
+Delete one 20 after lifecycle is fully closed.
+
+Result:
+
+20 OPEN
+20 EXIT
+20 EXIT
+20 EXIT
+20 EXIT
+
+This was the bug that was just fixed.
+
+The user confirmed:
+
+"now it works"
+
+============================================================
+22. TRADE TABLE / CALENDAR LIFECYCLE LOCK
+============================================================
+
+Files involved:
+
+components/trades/TradesTable.tsx
+components/dashboard/TradingCalendar.tsx
+
+Lifecycle lock logic:
+
+If a manual OPEN remainder has a closed sibling sharing the
+same contractKey:
+
+- edit action is hidden/locked
+- lifecycle cannot be incorrectly edited as an independent
+complete trade
+
+This has been tested and confirmed.
+
+Calendar has the same lifecycle-aware behavior.
+
+Current UI behavior prevents editing an OPEN remainder while
+the lifecycle already contains closed partial exits.
+
+============================================================
+23. TRADE DETAIL MODAL
+============================================================
+
+FILE:
+
+components/trades/TradeDetailModal.tsx
+
+There is lifecycle action-lock logic for manual OPEN
+remainders that have closed siblings.
+
+Important:
+
+Delete logic must remain lifecycle-aware.
+
+Current focus has been EditTradeModal deletion, but
+TradeDetailModal delete behavior should be reviewed separately
+before declaring the complete manual lifecycle system finished.
+
+Do not assume every deletion path is already identical.
+
+============================================================
+24. FIFO / pairTrades
+============================================================
+
+The FIFO engine remains protected.
+
+It reconstructs trades from executions.
+
+It supports:
+
+- Opening execution
+- Closing execution
+- Open remainder
+- Multiple partial exits
+- Deterministic FIFO consumption
+
+Example:
+
+BUY 100
+
+SELL 25
+SELL 25
+SELL 50
+
+results in lifecycle realization through separate consumption
+events with final closed state.
+
+No FIFO rewrite was performed.
+
+============================================================
+25. IMPORTANT DESIGN PRINCIPLE
+============================================================
+
+Manual lifecycle operations must manipulate executions, not
+directly manipulate derived trades.
+
+Therefore:
+
+EDIT PARTIAL EXIT
+→ replace exact exit execution
+→ pairTrades reconstructs trades
+
+DELETE PARTIAL EXIT
+→ delete exact exit execution
+→ pairTrades reconstructs trades
+
+PARTIAL ENTRY
+→ add opening execution
+→ pairTrades reconstructs lifecycle
+
+OPEN POSITION
+→ one opening execution
+→ pairTrades emits OPEN trade
+
+COMPLETE
+→ entry + exit executions
+→ pairTrades reconstructs closed trade
+
+This architecture remains canonical.
+
+============================================================
+26. CURRENTLY VERIFIED SCENARIOS
+============================================================
+
+CONFIRMED WORKING:
+
+[YES] COMPLETE TRADE
+
+[YES] OPEN POSITION
+
+[YES] PARTIAL ENTRY
+
+[YES] PARTIAL EXIT
+
+[YES] MULTIPLE PARTIAL EXITS
+
+[YES] PARTIAL EXIT QUANTITY CAP
+
+[YES] PARTIAL EXIT EDIT
+
+[YES] COMPLETE TRADE EXIT QUANTITY MIRRORING
+
+[YES] OPEN POSITION EDITING
+
+[YES] PARTIAL EXIT CLASSIFICATION WHEN LIFECYCLE IS FULLY CLOSED
+
+[YES] DELETE PARTIAL EXIT WHILE OPEN REMAINDER EXISTS
+
+[YES] DELETE PARTIAL EXIT AFTER LIFECYCLE IS FULLY CLOSED
+
+[YES] REOPEN CORRECT QUANTITY AFTER EXIT DELETE
+
+[YES] FULLY CLOSED EXIT EDIT CANNOT OVER-ALLOCATE QUANTITY
+
+[YES] TRADE TABLE LIFECYCLE LOCK
+
+[YES] CALENDAR LIFECYCLE LOCK
+
+============================================================
+27. REMAINING TESTING BEFORE "COMPLETE"
+============================================================
+
+The architecture is close, but we should NOT declare Manual
+Trade lifecycle handling completely finished until the following
+edge cases are tested.
+
+TEST 1 — MULTIPLE PARTIAL ENTRIES
+
+Example:
+
+60 BUY
+40 BUY
+
+Expected:
+
+100 OPEN
+
+Same MANUAL lifecycle.
+
+------------------------------------------------------------
+
+TEST 2 — MULTIPLE ENTRIES + MULTIPLE EXITS
+
+Example:
+
+60 BUY
+40 BUY
+20 SELL
+30 SELL
+
+Expected:
+
+50 OPEN
+
+FIFO must remain deterministic.
+
+------------------------------------------------------------
+
+TEST 3 — DELETE PARTIAL EXIT IN MULTI-ENTRY LIFECYCLE
+
+Verify deleting an exit removes only that exit and FIFO
+reconstructs the correct remaining quantities.
+
+------------------------------------------------------------
+
+TEST 4 — EDIT PARTIAL EXIT IN MULTI-ENTRY LIFECYCLE
+
+Verify editing one exit cannot corrupt another entry lot or
+lifecycle quantity.
+
+------------------------------------------------------------
+
+TEST 5 — SHORT EQUIVALENTS
+
+Example:
+
+100 SELL
+20 BUY
+30 BUY
+50 BUY
+
+Verify:
+
+- BUY is recognized as reducing execution.
+- Partial Exit detection remains correct.
+- Delete targets BUY.
+- Edit targets BUY.
+- Lifecycle reopens correctly.
+
+------------------------------------------------------------
+
+TEST 6 — DELETE FINAL EXIT
+
+Example:
+
+100 BUY
+20 SELL
+
+Delete the final exit.
+
+Expected:
+
+100 OPEN
+
+------------------------------------------------------------
+
+TEST 7 — EDIT EXIT TO ZERO / INVALID VALUES
+
+Need to decide exact desired behavior.
+
+Potentially reject:
+
+0
+negative
+NaN
+empty
+
+Must not create invalid executions.
+
+------------------------------------------------------------
+
+TEST 8 — QUANTITY PRECISION
+
+Verify decimal quantities behave correctly for assets that
+permit fractional quantities.
+
+Options should continue to represent contracts appropriately.
+
+------------------------------------------------------------
+
+TEST 9 — MULTIPLE LIFECYCLES
+
+Example:
+
+Lifecycle A:
+100 BUY
+20 SELL
+
+Lifecycle B:
+50 BUY
+10 SELL
+
+Make sure operations never cross lifecycle boundaries.
+
+contractKey must isolate them.
+
+------------------------------------------------------------
+
+TEST 10 — OPTIONS
+
+Verify:
+
+100 multiplier
+
+Contract quantity remains contracts.
+
+Editing/deleting exits does not accidentally treat 1 option
+contract as 100 contracts.
+
+------------------------------------------------------------
+
+TEST 11 — SHORT OPTIONS / SHORT STOCK
+
+Verify multiplier and side semantics together.
+
+------------------------------------------------------------
+
+TEST 12 — DATE / TIME PRESERVATION
+
+Edit and delete operations must preserve the correct
+execution dates/times and ordering for FIFO.
+
+------------------------------------------------------------
+
+TEST 13 — ACCOUNT / CURRENCY / EXCHANGE
+
+Verify edited replacement executions preserve:
+
+account
+currency
+exchange
+asset type
+contract
+contractKey
+
+------------------------------------------------------------
+
+TEST 14 — RAPID CONSECUTIVE EDIT / DELETE
+
+Verify no stale UI state results in an operation being applied
+to an old execution.
+
+------------------------------------------------------------
+
+TEST 15 — RELOAD AFTER EVERY OPERATION
+
+After:
+
+add
+edit
+delete
+partial exit
+partial entry
+
+reload the page and confirm the state remains identical.
+
+This is critical because executions are persisted state and
+trades are derived state.
+
+============================================================
+28. IMPORTANT QUANTITY INVARIANT
+============================================================
+
+For every manual lifecycle:
+
+Opening quantity
+=
+Open remainder
++
+All realized exit quantities
+
+Example:
+
+100 opening
+
+20 exit
+20 exit
+20 exit
+20 exit
+20 exit
+
+Then:
+
+100
+=
+20 + 20 + 20 + 20 + 20
+
+After deleting one exit:
+
+100
+=
+20 OPEN + 20 + 20 + 20 + 20
+
+After editing one exit:
+
+100
+=
+new OPEN remainder
++
+all realized quantities
+
+This invariant should remain true regardless of edit/delete
+operations.
+
+============================================================
+29. IMPORTANT LIFECYCLE ISOLATION RULE
+============================================================
+
+Every lifecycle is isolated by:
+
+contractKey
+
+Never delete or modify executions belonging to another
+MANUAL lifecycle.
+
+Partial Exit operations must target an exact execution ID.
+
+Lifecycle-wide operations should only be used where the selected
+trade represents the entire lifecycle.
+
+============================================================
+30. CURRENT DEVELOPMENT PHILOSOPHY
+============================================================
+
+DO NOT redesign the system now.
+
+The implementation is very close.
+
+The next phase should be:
+
+1. Test edge cases.
+2. Find actual failures.
+3. Make one targeted fix at a time.
+4. Retest.
+5. Only after all critical scenarios pass, perform a final
+   architecture review.
+
+Do not change FIFO merely because a UI scenario looks unusual.
+
+Do not add redundant trade state.
+
+Do not introduce another source-of-truth field unless a proven
+architectural requirement exists.
+
+============================================================
+31. NEXT CHAT STARTING POINT
+============================================================
+
+Start by reviewing the remaining edge-case matrix.
+
+First priority:
+
+MULTIPLE PARTIAL ENTRIES + MULTIPLE PARTIAL EXITS
+
+Example:
+
+60 BUY
+40 BUY
+20 SELL
+30 SELL
+
+Expected:
+
+50 OPEN
+
+Then test:
+
+DELETE ONE EXIT
+
+EDIT ONE EXIT
+
+DELETE FINAL EXIT
+
+Then repeat using SHORT direction.
+
+Only make code changes after a concrete failing scenario is
+identified.
+
+============================================================
+END OF CHECKPOINT
+============================================================
