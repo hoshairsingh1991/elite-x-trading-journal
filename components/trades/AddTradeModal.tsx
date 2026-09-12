@@ -366,6 +366,26 @@ const previewEntryPriceForExit =
 const previewEntryQuantityForExit =
   Number(selectedPreviewPosition?.quantity ?? 0);
 
+const previewEntryCommissionForExit =
+  isPartialExit &&
+  previewEntryQuantityForExit > 0 &&
+  previewQuantity > 0
+    ? (Number(selectedPreviewPosition?.fees ?? 0) /
+        previewEntryQuantityForExit) *
+      previewQuantity
+    : 0;
+
+const previewExitCommissionForExit =
+  isPartialExit
+    ? previewCommission
+    : 0;
+
+const previewTotalCommission =
+  isPartialExit
+    ? previewEntryCommissionForExit +
+      previewExitCommissionForExit
+    : previewCommission;
+
 const previewEntryValue =
   isPartialExit
     ? previewEntryPriceForExit *
@@ -1180,9 +1200,9 @@ tooltip={
   type="text"
   disabled={isPartialExit}
   value={ticker}
+  maxLength={10}
   onChange={(e) => {
-
-    setTicker(e.target.value);
+    setTicker(e.target.value.toUpperCase());
 
     if (fieldErrors.ticker) {
       setFieldErrors((prev) => ({
@@ -1190,7 +1210,6 @@ tooltip={
         ticker: false,
       }));
     }
-
   }}
   placeholder="AAPL"
   className={`${inputClass} ${
@@ -2350,7 +2369,9 @@ setExchange(
 
       {/* VERTICAL LINE */}
 
-      <div className="absolute left-[13px] top-[14px] bottom-[50px] w-px bg-white/[0.10]" />
+    {!isPartialEntry && (
+  <div className="absolute left-[13px] top-[14px] bottom-[50px] w-px bg-white/[0.10]" />
+)}
 
       {/* ENTRY */}
 
@@ -2432,13 +2453,13 @@ setExchange(
             </div>
 
             <div className="mt-2 text-[12px] text-slate-400">
-              Fee: {formatPreviewCurrency(
-                tradeType === "COMPLETE"
-                  ? previewCommission / 2
-                  : isPartialExit
-                    ? 0
-                    : previewCommission
-              )}
+Fee: {formatPreviewCurrency(
+  tradeType === "COMPLETE"
+    ? previewCommission / 2
+    : isPartialExit
+      ? previewEntryCommissionForExit
+      : previewCommission
+)}
             </div>
 
           </div>
@@ -2502,11 +2523,13 @@ setExchange(
             </div>
 
             <div className="mt-2 text-[12px] text-slate-400">
-              Fee: {formatPreviewCurrency(
-                tradeType === "COMPLETE"
-                  ? previewCommission / 2
-                  : previewCommission
-              )}
+Fee: {formatPreviewCurrency(
+  tradeType === "COMPLETE"
+    ? previewCommission / 2
+    : isPartialExit
+      ? previewExitCommissionForExit
+      : previewCommission
+)}
             </div>
 
           </div>

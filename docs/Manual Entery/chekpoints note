@@ -3759,3 +3759,941 @@ identified.
 ============================================================
 END OF CHECKPOINT
 ============================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================================
+ELITE X TRADING JOURNAL
+CHECKPOINT — MANUAL TRADE EDIT / PARTIAL EXIT UI
+DATE: 2026-09-12
+============================================================
+
+PROJECT:
+Elite X Trading Journal / Trading OS
+
+CURRENT FOCUS:
+Manual Trade Edit Modal
+Partial Entry / Partial Exit behavior
+Commission / Fees UI correctness
+Ticker length protection
+
+============================================================
+1. CORE ARCHITECTURE — PROTECTED
+============================================================
+
+Canonical architecture remains:
+
+Broker / Manual Entry
+        ↓
+Normalized Executions
+        ↓
+Supabase Execution Ledger
+        ↓
+pairTrades()
+        ↓
+Reconstructed Trades
+        ↓
+Trade History / Analytics / Dashboard
+
+IMPORTANT:
+
+- Executions remain the canonical source of truth.
+- Trades are derived state.
+- pairTrades() remains the ONLY FIFO reconstruction engine.
+- Manual Entry creates executions.
+- Manual Entry does NOT create a second FIFO/trade calculation engine.
+- Existing broker sync, execution ledger, FIFO, reconciliation,
+  P&L, analytics, Dashboard V2 remain protected.
+
+DO NOT modify pairTrades() unless a separate proven defect is found.
+
+============================================================
+2. MANUAL LIFECYCLE MODEL
+============================================================
+
+Manual trades are identified through:
+
+contractKey.startsWith("MANUAL-")
+
+Manual lifecycle types:
+
+1. COMPLETE
+   - Entry + Exit execution.
+
+2. PARTIAL_ENTRY
+   - Creates an opening/additional position execution.
+   - LONG → BUY
+   - SHORT → SELL
+
+3. PARTIAL_EXIT
+   - Creates a reducing/closing execution.
+   - LONG → SELL
+   - SHORT → BUY
+   - Uses the existing lifecycle contractKey.
+
+Workflow established:
+
+Open Position
+    ↓
+Partial Exit
+    ↓
+Remaining position stays open
+
+Users do NOT edit an old open position to retroactively add more quantity
+after a Partial Exit.
+
+To add more quantity:
+
+- Delete the existing Partial Exit first, OR
+- Create a new Partial Entry with new execution data.
+
+This is intentional lifecycle behavior.
+
+============================================================
+3. CANONICAL FILES
+============================================================
+
+------------------------------------------------------------
+FILE:
+lib/trades/createManualExecutions.ts
+------------------------------------------------------------
+
+Protected canonical Manual Execution Builder.
+
+Responsibilities:
+
+- COMPLETE
+- PARTIAL_ENTRY
+- PARTIAL_EXIT
+- Creates normalized executions.
+- Options multiplier = 100.
+- Non-options multiplier = 1.
+- Manual lifecycle identity:
+  MANUAL-{ticker}-{uuid}
+- Partial Exit preserves supplied contractKey.
+- Does not perform FIFO.
+- pairTrades() remains responsible for reconstructing trades.
+
+DO NOT add FIFO logic here.
+
+------------------------------------------------------------
+FILE:
+lib/parsers/pairTrades.ts
+------------------------------------------------------------
+
+Canonical FIFO engine.
+
+Important confirmed behavior:
+
+- Sorts executions deterministically.
+- Maintains independent LONG and SHORT position buckets.
+- BUY:
+    closes SHORT first,
+    remaining quantity opens LONG.
+- SELL:
+    closes LONG first,
+    remaining quantity opens SHORT.
+- FIFO is based on the oldest available entry execution.
+- One exit execution can create multiple reconstructed Trade objects
+  when it consumes multiple FIFO entry lots.
+
+Example:
+
+BUY 60 @ 100
+BUY 40 @ 110
+SELL 50 @ 120
+
+Canonical reconstruction:
+
+40 @ 100 → 120
+10 @ 110 → 120
+
+Each reconstructed Trade contains:
+
+executions: [
+  entryExecution,
+  exitExecution
+]
+
+Therefore multiple Trade rows can reference the SAME underlying
+exit execution.
+
+This is correct and intentional.
+
+Manual entry fee allocation is also handled by pairTrades():
+
+- Entry fee belongs to the original entry quantity.
+- FIFO consumes entry quantity.
+- Entry fee is proportionally allocated.
+- Exit execution fee belongs fully to the exit execution.
+- Trade.fees represents the realized total fee attributable to that
+  reconstructed trade.
+
+DO NOT replace this logic inside EditTradeModal.
+
+============================================================
+4. TRADE TYPE DEFINITIONS
+============================================================
+
+FILE:
+types/trade.ts
+
+Confirmed:
+
+NormalizedExecution:
+
+- id
+- date
+- executionTimestamp
+- brokerExecutionId
+- ticker
+- contract
+- contractKey
+- exchange
+- action
+- quantity
+- executionPrice
+- executionValue
+- fees
+- currency
+- feeCurrency
+- account
+- assetType
+- multiplier
+
+Trade:
+
+- id
+- ticker
+- contract
+- contractKey
+- lifecycleId
+- parentTradeId
+- remainingQuantity
+- holdingDays
+- executions[]
+- side
+- status
+- date
+- assetType
+- account
+- entryPrice
+- exitPrice
+- quantity
+- pnl
+- fees
+- currency
+- feeCurrency
+- isOpen
+- openedAt
+- closedAt
+- metadata/journaling fields
+
+Important:
+
+Trade.executions[] gives us access to the underlying execution identity.
+
+============================================================
+5. EDIT TRADE MODAL
+============================================================
+
+FILE:
+components/trades/EditTradeModal.tsx
+
+This is the primary file worked on today.
+
+Current responsibilities:
+
+- Edit Manual Trade
+- COMPLETE editing
+- PARTIAL_ENTRY editing
+- PARTIAL_EXIT editing
+- Delete lifecycle
+- Delete exact Partial Exit execution
+- Live Trade Preview
+
+Manual mode detection currently includes:
+
+isOpenPositionEntry:
+
+trade.status === "OPEN"
+&& MANUAL contractKey
+&& one execution
+
+Partial Exit detection:
+
+MANUAL contractKey
+&& closed trade
+&& lifecycle sibling exists
+
+Partial Exit save behavior:
+
+- Finds the exact existing exit execution.
+- Deletes only that execution.
+- Creates replacement PARTIAL_EXIT execution.
+- Preserves the lifecycle contractKey.
+- Saves corrected execution.
+- Reloads the page.
+
+This is correct.
+
+============================================================
+6. COMMISSION / FEE ISSUE FOUND TODAY
+============================================================
+
+Original issue:
+
+Suppose:
+
+Entry execution fee = $2
+Exit execution fee  = $5
+
+Total realized trade fees = $7
+
+Trade History correctly showed:
+
+$7
+
+BUT Edit Trade loaded:
+
+$7
+
+into the commission field.
+
+That caused the Preview timeline to incorrectly show:
+
+BUY / Entry Fee = $2
+SELL / Exit Fee  = $7
+
+instead of:
+
+BUY / Entry Fee = $2
+SELL / Exit Fee  = $5
+
+This also caused incorrect live Preview behavior.
+
+============================================================
+7. COMMISSION FIX IMPLEMENTED
+============================================================
+
+In:
+
+components/trades/EditTradeModal.tsx
+
+The trade-loading logic now identifies Partial Exit and loads:
+
+exitExecution.fees
+
+instead of:
+
+trade.fees
+
+for the editable commission field.
+
+Current intended logic:
+
+isLoadedPartialExit =
+  !!exitExecution &&
+  trade.status !== "OPEN" &&
+  !!trade.contractKey?.startsWith("MANUAL-") &&
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !== trade.id &&
+      otherTrade.contractKey === trade.contractKey
+  );
+
+Then:
+
+setCommission(
+  String(
+    isLoadedPartialExit
+      ? exitExecution.fees ?? 0
+      : trade.fees ?? 0
+  )
+);
+
+IMPORTANT:
+
+We initially considered checking:
+
+trade.executions.length === 1
+
+That was WRONG because a reconstructed closed Trade can contain both
+entry and exit executions.
+
+That condition was corrected.
+
+============================================================
+8. COMMISSION LABELS
+============================================================
+
+The editable commission label is now mode-specific.
+
+Required behavior:
+
+COMPLETE TRADE:
+"Total Commission / Fees"
+
+PARTIAL ENTRY:
+"Entry Commission / Fees"
+
+PARTIAL EXIT:
+"Exit Commission / Fees"
+
+Current intended UI logic:
+
+{isOpenPositionEntry
+  ? "Entry Commission / Fees"
+  : isPartialExitTrade
+    ? "Exit Commission / Fees"
+    : "Total Commission / Fees"}
+
+This matches the execution semantics.
+
+============================================================
+9. LIVE PREVIEW FEE FIX
+============================================================
+
+Second issue found:
+
+After changing Partial Exit commission from:
+
+$5 → $7
+
+with Entry fee = $2
+
+Trade History correctly became:
+
+Total fees = $9
+
+Net P&L = $11
+(for the example discussed)
+
+But the Preview "Fees" row was showing:
+
+$7
+
+because it was displaying previewCommission, which represents the
+editable EXIT fee only.
+
+Correct behavior:
+
+Timeline:
+
+BUY (Entry)
+Fee: $2
+
+SELL (Exit)
+Fee: $7
+
+Financial summary:
+
+Fees: $9
+
+Net P&L:
+Gross P&L
+- entry fee
+- exit fee
+
+Current intended helper:
+
+const previewTotalFees =
+  previewIsOpenPositionEntry
+    ? previewCommission
+    : previewIsPartialExit
+      ? partialExitEntryCommissionAllocation +
+        previewCommission
+      : previewCommission;
+
+Then:
+
+const previewNetPnL =
+  previewGrossPnL -
+  previewTotalFees;
+
+And the financial summary Fees field should display:
+
+previewTotalFees
+
+NOT:
+
+previewCommission
+
+This was tested by the user and confirmed:
+
+"yes now its correct"
+
+============================================================
+10. PARTIAL EXIT FEE SEMANTICS
+============================================================
+
+This distinction is now established:
+
+INDIVIDUAL EXECUTION FEES:
+
+Entry Timeline:
+entry fee only
+
+Exit Timeline:
+exit fee only
+
+FINANCIAL SUMMARY:
+
+Fees:
+total fees attributable to the trade
+
+Example:
+
+Entry = $2
+Exit = $7
+
+Timeline:
+
+BUY fee = $2
+SELL fee = $7
+
+Summary:
+
+Fees = $9
+
+Net P&L uses $9 total fees.
+
+============================================================
+11. FIFO PREVIEW DISCUSSION
+============================================================
+
+We investigated whether EditTradeModal should call pairTrades()
+against hypothetical edited executions.
+
+Conclusion for current workflow:
+
+DO NOT implement that architecture right now.
+
+Reason:
+
+- Canonical save behavior is already correct.
+- pairTrades() is authoritative.
+- The user cannot edit the historical open entry after a Partial Exit
+  has been created.
+- Additional position quantity comes from a new Partial Entry.
+- Deleting Partial Exit restores the prior lifecycle state.
+- The current Preview is informational.
+- Introducing raw execution state and hypothetical pairTrades() calls
+  would add complexity for limited benefit.
+
+Therefore:
+
+DO NOT add raw execution plumbing merely to make the Preview simulate
+future FIFO.
+
+DO NOT duplicate FIFO logic inside EditTradeModal.
+
+Keep:
+
+Save execution
+    ↓
+pairTrades()
+    ↓
+canonical result
+
+============================================================
+12. PARTIAL EXIT PREVIEW CAVEAT
+============================================================
+
+There is still a conceptual limitation in the Partial Exit preview:
+
+The modal is not a full hypothetical FIFO simulator when the user
+changes quantity.
+
+However, this is NOT currently considered a canonical-data problem.
+
+The real saved result remains deterministic because:
+
+replacement execution
+    ↓
+pairTrades()
+    ↓
+canonical FIFO reconstruction
+
+Therefore this is intentionally left alone for now.
+
+============================================================
+13. ALLTRADES DATA FLOW CONFIRMED
+============================================================
+
+Correct current TradesTable checkpoint was confirmed.
+
+FILE:
+components/trades/TradesTable.tsx
+
+Current props include:
+
+trades: Trade[];
+allTrades?: Trade[];
+tradeCount: number;
+onSelectTrade: (trade: Trade) => void;
+brokerConnections: BrokerConnection[];
+
+Current component:
+
+export default function TradesTable({
+  trades,
+  allTrades = trades,
+  tradeCount,
+  onSelectTrade,
+  brokerConnections,
+}: TradesTableProps)
+
+EditTradeModal receives:
+
+<EditTradeModal
+  open={!!editingTrade}
+  trade={editingTrade}
+  allTrades={allTrades}
+  onClose={() =>
+    setEditingTrade(null)
+  }
+/>
+
+Therefore:
+
+TradesPage
+    ↓
+allTrades={trades}
+    ↓
+TradesTable
+    ↓
+EditTradeModal
+
+The allTrades plumbing is already correct.
+
+IMPORTANT:
+
+An earlier pasted TradesTable was from the wrong/older checkpoint.
+That version should NOT be used.
+
+The later file is the authoritative current version.
+
+============================================================
+14. TRADES PAGE / CANONICAL LOAD CONFIRMED
+============================================================
+
+Trade History page currently loads:
+
+const storedExecutions =
+  await loadExecutionsFromSupabase();
+
+const rebuiltTrades =
+  pairTrades(
+    storedExecutions
+  );
+
+Then:
+
+setTrades([
+  ...rebuiltTrades,
+  ...filteredManualTrades,
+]);
+
+Therefore Trade History is using canonical execution reconstruction.
+
+Dashboard uses the same general architecture.
+
+============================================================
+15. TICKER / SYMBOL LENGTH UI CHANGE
+============================================================
+
+New UI requirement found today:
+
+Long ticker symbols could extend outside Trade History table cells
+and could visually break the layout.
+
+Decision:
+
+Maximum manual ticker/symbol length = 10 characters.
+
+This should be enforced at input level.
+
+Do NOT merely truncate the Preview because the user also wants Trade
+History protected.
+
+============================================================
+16. EDIT TRADE TICKER LIMIT
+============================================================
+
+FILE:
+
+components/trades/EditTradeModal.tsx
+
+Symbol input should have:
+
+maxLength={10}
+
+and:
+
+onChange={(e) =>
+  setTicker(e.target.value.toUpperCase())
+}
+
+Example:
+
+<input
+  type="text"
+  value={ticker}
+  maxLength={10}
+  onChange={(e) =>
+    setTicker(e.target.value.toUpperCase())
+  }
+  placeholder="AAPL"
+  ...
+/>
+
+This prevents a user from entering 12+ characters during Edit.
+
+============================================================
+17. ADD TRADE TICKER LIMIT
+============================================================
+
+FILE:
+
+components/trades/AddTradeModal.tsx
+
+Current Symbol input was provided:
+
+<input
+  type="text"
+  disabled={isPartialExit}
+  value={ticker}
+  onChange={(e) => {
+
+    setTicker(e.target.value);
+
+    if (fieldErrors.ticker) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        ticker: false,
+      }));
+    }
+
+  }}
+  placeholder="AAPL"
+  ...
+/>
+
+Updated intended version:
+
+<input
+  type="text"
+  disabled={isPartialExit}
+  value={ticker}
+  maxLength={10}
+  onChange={(e) => {
+    setTicker(e.target.value.toUpperCase());
+
+    if (fieldErrors.ticker) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        ticker: false,
+      }));
+    }
+  }}
+  placeholder="AAPL"
+  ...
+/>
+
+Therefore Add Trade and Edit Trade should use the same:
+
+MAX = 10 characters
+CASE = uppercase
+
+This protects both creation and editing.
+
+============================================================
+18. IMPORTANT UI DESIGN PRINCIPLE
+============================================================
+
+The ticker length constraint applies to the USER INPUT.
+
+It is intentionally not only a CSS truncation.
+
+Reason:
+
+If only Preview were truncated, the database/trade object could still
+contain excessively long values, which could continue causing layout
+issues elsewhere such as Trade History.
+
+Therefore input-level maxLength is preferred.
+
+============================================================
+19. CURRENT PREVIEW FEE EXAMPLE
+============================================================
+
+Example currently verified:
+
+Entry:
+
+quantity: 1
+entry fee: $2
+
+Exit:
+
+quantity: 1
+exit fee: $7
+
+Gross P&L:
+
+$20
+
+Total fees:
+
+$9
+
+Net P&L:
+
++$11
+
+Preview now correctly shows:
+
+Entry Value  $20.00
+Exit Value   $40.00
+Fees          $9.00
+Net P&L      +$11.00
+
+Timeline:
+
+BUY (Entry)
+Fee: $2.00
+
+SELL (Exit)
+Fee: $7.00
+
+This is the desired behavior.
+
+============================================================
+20. WHAT WE SHOULD NOT TOUCH TOMORROW
+============================================================
+
+Do NOT change:
+
+- pairTrades.ts
+- FIFO algorithm
+- execution ledger model
+- createManualExecutions.ts
+- broker sync
+- Dashboard V2
+- reconciliation
+- canonical P&L engine
+- execution identity
+- lifecycle contractKey strategy
+
+unless a separate proven defect is identified.
+
+============================================================
+21. LIKELY NEXT WORK
+============================================================
+
+Next session should begin by verifying the current changes with:
+
+1. TypeScript/build
+2. Add Trade ticker max 10
+3. Edit Trade ticker max 10
+4. Partial Entry fee label
+5. Partial Exit fee label
+6. Partial Exit commission loading
+7. Live Preview total fee
+8. Timeline entry/exit fee separation
+9. Save Partial Exit and confirm Trade History
+10. Delete Partial Exit and confirm lifecycle is restored
+
+Test scenario:
+
+Start:
+
+Open position = 50 shares
+
+Then:
+
+Partial Exit = 20 shares
+Entry fee = $2
+Exit fee = $5
+
+Expected Edit:
+
+Entry Commission / Fees = $2
+Exit Commission / Fees = $5
+
+Timeline:
+
+BUY Fee = $2
+SELL Fee = $5
+
+Financial summary:
+
+Fees = $7
+
+Change Exit fee:
+
+$5 → $7
+
+Expected:
+
+BUY Fee = $2
+SELL Fee = $7
+Fees = $9
+Net P&L updates live.
+
+Save.
+
+Then Trade History should show the canonical reconstructed result
+with total fees = $9.
+
+============================================================
+22. CURRENT PROJECT STATUS
+============================================================
+
+Manual Entry / Edit architecture is currently in a good state.
+
+The major work completed around this area:
+
+- Complete Trade editing
+- Partial Entry editing
+- Partial Exit editing
+- Exact Partial Exit execution replacement
+- Lifecycle identity preservation
+- Delete Partial Exit execution behavior
+- Correct execution-level commission semantics
+- Correct live fee preview
+- Correct timeline fee separation
+- Mode-specific commission labels
+- 10-character ticker protection
+- Canonical FIFO remains untouched
+
+No backend/FIFO redesign is required based on today's findings.
+
+============================================================
+END CHECKPOINT
+============================================================
+Tomorrow resume from:
+components/trades/EditTradeModal.tsx
+and
+components/trades/AddTradeModal.tsx
+
+First task:
+VERIFY BUILD + TEST THE ABOVE PARTIAL ENTRY / PARTIAL EXIT COMMISSION
+AND TICKER-LENGTH CHANGES BEFORE MAKING ANY NEW ARCHITECTURAL CHANGES.
+============================================================

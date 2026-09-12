@@ -133,17 +133,11 @@ useEffect(() => {
       : ""
   );
 
-  setCommission(
-    String(
-      trade.fees ?? 0
-    )
-  );
-
-  setSide(
-    trade.side === "SHORT"
-      ? "SHORT"
-      : "LONG"
-  );
+setSide(
+  trade.side === "SHORT"
+    ? "SHORT"
+    : "LONG"
+);
 
   setAssetType(
     trade.assetType ||
@@ -189,6 +183,24 @@ useEffect(() => {
             : "SELL"
         )
     );
+
+const isLoadedPartialExit =
+  !!exitExecution &&
+  trade.status !== "OPEN" &&
+  !!trade.contractKey?.startsWith("MANUAL-") &&
+  allTrades.some(
+    (otherTrade) =>
+      otherTrade.id !== trade.id &&
+      otherTrade.contractKey === trade.contractKey
+  );
+
+setCommission(
+  String(
+    isLoadedPartialExit
+      ? exitExecution.fees ?? 0
+      : trade.fees ?? 0
+  )
+);
 
   setExitQuantity(
     exitExecution
@@ -383,7 +395,6 @@ if (
 
 if (
   !isOpenPositionEntry &&
-  !isPartialExitTrade &&
   (
     !exitPrice ||
     !Number.isFinite(
@@ -926,33 +937,151 @@ const partialExitMaxQuantity = (() => {
     return null;
   }
 
-  const previewQuantity = Number(quantity) || 0;
-  const previewEntryPrice = Number(entryPrice) || 0;
-  const previewExitPrice = Number(exitPrice) || 0;
-  const previewCommission = Number(commission) || 0;
+const previewQuantity = Number(quantity) || 0;
+const previewEntryPrice = Number(entryPrice) || 0;
+const previewExitPrice = Number(exitPrice) || 0;
+const previewCommission = Number(commission) || 0;
 
-  const previewMultiplier = assetType === "OPTIONS" ? 100 : 1;
+const previewMultiplier =
+  assetType === "OPTIONS" ? 100 : 1;
 
-  const previewEntryValue =
-    previewQuantity *
-    previewEntryPrice *
-    previewMultiplier;
+const previewIsOpenPositionEntry =
+  isOpenPositionEntry;
 
-  const previewExitValue =
-    previewQuantity *
-    previewExitPrice *
-    previewMultiplier;
+const previewIsPartialExit =
+  isPartialExitTrade;
 
-  const previewGrossPnL =
-    side === "LONG"
+const previewIsCompleteTrade =
+  !previewIsOpenPositionEntry &&
+  !previewIsPartialExit;
+
+  const previewEffectiveQuantity =
+  previewIsPartialExit
+    ? Number(exitQuantity) || 0
+    : previewQuantity;
+
+const partialExitLifecycleTrades =
+  previewIsPartialExit
+    ? allTrades.filter(
+        (lifecycleTrade) =>
+          lifecycleTrade.contractKey ===
+          trade.contractKey
+      )
+    : [];
+
+const partialExitEntryExecutions =
+  previewIsPartialExit
+    ? partialExitLifecycleTrades.flatMap(
+        (lifecycleTrade) =>
+          lifecycleTrade.executions ?? []
+      )
+    : [];
+
+const partialExitOriginalEntryQuantity =
+  previewIsPartialExit
+    ? partialExitEntryExecutions
+        .filter(
+          (execution) =>
+            execution.action ===
+            (side === "LONG" ? "BUY" : "SELL")
+        )
+        .reduce(
+          (sum, execution) =>
+            sum +
+            Number(execution.quantity ?? 0),
+          0
+        )
+    : 0;
+
+const partialExitOriginalEntryCommission =
+  previewIsPartialExit
+    ? partialExitEntryExecutions
+        .filter(
+          (execution) =>
+            execution.action ===
+            (side === "LONG" ? "BUY" : "SELL")
+        )
+        .reduce(
+          (sum, execution) =>
+            sum +
+            Number(execution.fees ?? 0),
+          0
+        )
+    : 0;
+
+    const partialExitOriginalEntryPrice =
+  previewIsPartialExit
+    ? (
+        partialExitEntryExecutions.find(
+          (execution) =>
+            execution.action ===
+            (side === "LONG" ? "BUY" : "SELL")
+        )?.executionPrice ?? 0
+      )
+    : 0;
+
+const partialExitEntryCommissionAllocation =
+  previewIsPartialExit &&
+  partialExitOriginalEntryQuantity > 0 &&
+  previewEffectiveQuantity > 0
+    ? (
+        partialExitOriginalEntryCommission /
+        partialExitOriginalEntryQuantity
+      ) *
+      previewEffectiveQuantity
+    : 0;
+
+
+
+const previewEntryValue =
+  (
+    previewIsPartialExit
+      ? previewEffectiveQuantity *
+        partialExitOriginalEntryPrice
+      : previewQuantity *
+        previewEntryPrice
+  ) *
+  previewMultiplier;
+
+const previewExitValue =
+  previewIsOpenPositionEntry
+    ? 0
+    : (
+        previewEffectiveQuantity *
+        previewExitPrice
+      ) *
+      previewMultiplier;
+
+const previewGrossPnL =
+  previewIsOpenPositionEntry
+    ? 0
+    : side === "LONG"
       ? previewExitValue - previewEntryValue
       : previewEntryValue - previewExitValue;
 
-  const previewNetPnL =
-    previewGrossPnL - previewCommission;
+const previewTotalFees =
+  previewIsOpenPositionEntry
+    ? previewCommission
+    : previewIsPartialExit
+      ? partialExitEntryCommissionAllocation +
+        previewCommission
+      : previewCommission;
 
-  const previewReturn =
-    previewEntryValue > 0
+const previewNetPnL =
+  previewGrossPnL -
+  (
+    previewIsOpenPositionEntry
+      ? 0
+      : previewIsPartialExit
+        ? partialExitEntryCommissionAllocation +
+          previewCommission
+        : previewCommission
+  );
+
+const previewReturn =
+  previewIsOpenPositionEntry
+    ? 0
+    : previewEntryValue > 0
       ? (previewNetPnL / previewEntryValue) * 100
       : 0;
 
@@ -1582,13 +1711,14 @@ return (
 
         </span>
 
-        <input
-          type="text"
-          value={ticker}
-          onChange={(e) =>
-            setTicker(e.target.value)
-          }
-          placeholder="AAPL"
+<input
+  type="text"
+  value={ticker}
+  maxLength={10}
+  onChange={(e) =>
+    setTicker(e.target.value.toUpperCase())
+  }
+  placeholder="AAPL"
           className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-10 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
           style={{ paddingLeft: "40px" }}
         />
@@ -2234,7 +2364,11 @@ step="0.01"
     <div>
 
 <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
-  Total Commission / Fees
+  {isOpenPositionEntry
+    ? "Entry Commission / Fees"
+    : isPartialExitTrade
+      ? "Exit Commission / Fees"
+      : "Total Commission / Fees"}
 </label>
 
       <div className="relative">
@@ -2408,9 +2542,12 @@ step="0.01"
 
             <div className="min-w-0 translate-x-[10px]">
 
-              <div className="text-[24px] font-semibold tracking-[-0.02em] text-white">
-                {ticker || "—"}
-              </div>
+<div
+  className="max-w-[8ch] truncate text-[24px] font-semibold tracking-[-0.02em] text-white"
+  title={ticker || undefined}
+>
+  {ticker || "—"}
+</div>
 
               <div className="mt-1 text-[14px] text-slate-400">
                 {assetType === "STOCKS"
@@ -2428,9 +2565,13 @@ step="0.01"
               {side}
             </span>
 
-            <span className="flex h-6 w-[100px] items-center justify-center rounded-[6px] bg-white/[0.04] text-[11px] text-slate-300">
-              Complete Trade
-            </span>
+<span className="flex h-6 w-[110px] items-center justify-center rounded-[6px] bg-white/[0.04] text-[11px] text-slate-300">
+  {isOpenPositionEntry
+    ? "Partial Entry"
+    : isPartialExitTrade
+      ? "Partial Exit"
+      : "Complete Trade"}
+</span>
 
           </div>
 
@@ -2559,9 +2700,9 @@ step="0.01"
             Fees
           </span>
 
-          <span className="translate-x-[-10px] text-white">
-            {formatPreviewCurrency(previewCommission)}
-          </span>
+<span className="translate-x-[-10px] text-white">
+  {formatPreviewCurrency(previewTotalFees)}
+</span>
 
         </div>
 
@@ -2675,7 +2816,11 @@ step="0.01"
 {/* TIMELINE */}
 {/* ================================================= */}
 
-<div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+<div
+  className={`rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4 ${
+    isOpenPositionEntry ? "pb-3" : ""
+  }`}
+>
 
   <div className="w-[calc(100%-30px)] translate-x-[14px]">
 
@@ -2691,11 +2836,19 @@ step="0.01"
 
       {/* VERTICAL LINE */}
 
-      <div className="absolute bottom-[50px] left-[13px] top-[14px] w-px bg-white/[0.10]" />
+{!isOpenPositionEntry && (
+  <div className="absolute bottom-[50px] left-[13px] top-[14px] w-px bg-white/[0.10]" />
+)}
 
       {/* ENTRY */}
 
-      <div className="relative mt-[15px] flex min-h-[100px]">
+    <div
+  className={`relative mt-[15px] flex ${
+    isOpenPositionEntry
+      ? "min-h-[68px]"
+      : "min-h-[100px]"
+  }`}
+>
 
         {/* MARKER */}
 
@@ -2712,8 +2865,10 @@ step="0.01"
           </div>
 
           <div className="mt-2 text-[14px] font-medium text-white">
-            {quantity || "0"}{" "}
-            {assetType === "OPTIONS" ? "Contracts" : "Shares"}
+          {previewIsPartialExit
+  ? previewEffectiveQuantity
+  : quantity || "0"}{" "}
+{assetType === "OPTIONS" ? "Contracts" : "Shares"}
             {entryPrice
               ? ` @ $${Number(entryPrice).toFixed(2)}`
               : ""}
@@ -2736,17 +2891,24 @@ step="0.01"
             {formatPreviewCurrency(previewEntryValue)}
           </div>
 
-          <div className="mt-2 text-[12px] text-slate-400">
-            Fee: {formatPreviewCurrency(previewCommission / 2)}
-          </div>
+<div className="mt-2 text-[12px] text-slate-400">
+  Fee: {formatPreviewCurrency(
+isOpenPositionEntry
+  ? previewCommission
+  : previewIsPartialExit
+    ? partialExitEntryCommissionAllocation
+    : previewCommission / 2
+  )}
+</div>
 
         </div>
 
       </div>
 
-      {/* EXIT */}
+{/* EXIT */}
 
-      <div className="relative mt-5 flex min-h-[68px] translate-y-[-10px]">
+{!isOpenPositionEntry && (
+  <div className="relative mt-5 flex min-h-[68px] translate-y-[-10px]">
 
         {/* MARKER */}
 
@@ -2763,8 +2925,10 @@ step="0.01"
           </div>
 
           <div className="mt-2 text-[14px] font-medium text-white">
-            {quantity || "0"}{" "}
-            {assetType === "OPTIONS" ? "Contracts" : "Shares"}
+{previewIsPartialExit
+  ? previewEffectiveQuantity
+  : quantity || "0"}{" "}
+{assetType === "OPTIONS" ? "Contracts" : "Shares"}
             {exitPrice
               ? ` @ $${Number(exitPrice).toFixed(2)}`
               : ""}
@@ -2787,18 +2951,19 @@ step="0.01"
             {formatPreviewCurrency(previewExitValue)}
           </div>
 
-          <div className="mt-2 text-[12px] text-slate-400">
-            Fee: {formatPreviewCurrency(
-              previewCommission -
-                previewCommission / 2
-            )}
-          </div>
+<div className="mt-2 text-[12px] text-slate-400">
+  Fee: {formatPreviewCurrency(
+    previewIsPartialExit
+      ? previewCommission
+      : previewCommission -
+        previewCommission / 2
+  )}
+</div>
 
         </div>
 
       </div>
-
-    </div>
+    )}
 
   </div>
 
@@ -2878,7 +3043,13 @@ step="0.01"
 {/* DISCLAIMER */}
 {/* ================================================= */}
 
-<div className="flex h-[40px] w-[calc(100%-0px)] translate-x-[0px] items-center rounded-[8px] border border-violet-500/20 bg-violet-500/[0.06] px-4">
+<div
+  className={`flex h-[40px] w-[calc(100%-0px)] items-center rounded-[8px] border border-violet-500/20 bg-violet-500/[0.06] px-4 ${
+    isOpenPositionEntry
+      ? "translate-y-[60px]"
+      : ""
+  }`}
+>
 
   <div className="flex items-start gap-5">
 
@@ -2903,6 +3074,8 @@ step="0.01"
               </div>
 
             </div>
+
+          </div>
 
           </aside>
 
