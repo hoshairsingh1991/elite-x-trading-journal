@@ -19,6 +19,13 @@ import {
 } from "@/types/trade";
 
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import {
   saveExecutionsToSupabase,
 } from "@/lib/storage/supabaseExecutionStorage";
 
@@ -785,7 +792,8 @@ try {
     return null;
   }
 
-    return (
+ return (
+  <TooltipProvider>
     <>
 
 
@@ -871,10 +879,153 @@ try {
 <section className="pb-5">
 
   <div className="translate-x-[14px]">
-    <SectionHeading
-      number="1"
-      title="Trade Type"
-    />
+<SectionHeading
+  number="1"
+  title="Trade Type"
+tooltip={
+  <div className="flex w-full flex-col gap-3 text-[12px] leading-[1.5]">
+    {/* Header */}
+    <div>
+      <div className="text-[13px] font-semibold text-white">
+        Trade Types
+      </div>
+
+      <div className="mt-1 text-slate-400">
+        Choose how this manual entry should affect your position.
+        Each option creates the appropriate execution record behind
+        the scenes.
+      </div>
+    </div>
+
+    {/* Complete Trade */}
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1">
+        <span className="font-semibold text-slate-100">
+          Complete Trade
+        </span>
+        <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+          ENTRY + EXIT
+        </span>
+      </div>
+
+      <div className="text-slate-400">
+        Use this when the trade already has both an entry and an
+        exit.
+      </div>
+
+<div
+  className="rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+  style={{
+    padding: "6px",
+    margin: "0px",
+  }}
+>
+  <span className="font-medium text-slate-300">Example:</span>{" "}
+  Bought 100 shares at $50 and sold 100 shares at $55.
+</div>
+    </div>
+
+    {/* Partial Entry */}
+   <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <span className="font-semibold text-slate-100">
+          Partial Entry
+        </span>
+        <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+          OPEN / ADD
+        </span>
+      </div>
+
+      <div className="text-slate-400">
+        Use this when you are opening a new position or adding
+        quantity to an existing position. There is no exit yet, so
+        the position remains open.
+      </div>
+
+<div
+  className="rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+  style={{
+    padding: "6px",
+    margin: "0px",
+  }}
+>
+  <span className="font-medium text-slate-300">Example:</span>{" "}
+  Buy 60 shares now, then buy another 40 shares later.
+  Your open position becomes 100 shares.
+</div>
+    </div>
+
+    {/* Partial Exit */}
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <span className="font-semibold text-slate-100">
+          Partial Exit
+        </span>
+        <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+          REDUCE / CLOSE
+        </span>
+      </div>
+
+      <div className="text-slate-400">
+        Use this when you want to reduce an existing open position
+        without closing the entire position. You can make multiple
+        partial exits until the position is fully closed.
+      </div>
+
+<div
+  className="rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+  style={{
+    padding: "6px",
+    margin: "0px",
+  }}
+>
+  <span className="font-medium text-slate-300">
+    Example:
+  </span>{" "}
+  You have 100 shares open and sell 25. Your remaining open
+  position is 75 shares.
+</div>
+    </div>
+
+{/* How they work together */}
+<div className="relative flex flex-col gap-1 pt-4">
+  <div
+    className="absolute left-0 right-0 h-px bg-white/[0.08]"
+    style={{
+      top: "-7px",
+    }}
+  />
+
+  <div className="font-semibold text-slate-200">
+    How they work together
+  </div>
+
+  <div className="text-slate-400">
+    A position can use multiple Partial Entry and Partial Exit
+    actions over time. For example:
+  </div>
+
+<div
+  className="flex flex-col gap-1 rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+  style={{
+    padding: "6px",
+  }}
+>
+  <div>60 BUY → open 60</div>
+  <div>40 BUY → open 100</div>
+  <div>20 SELL → open 80</div>
+  <div>30 SELL → open 50</div>
+</div>
+
+  <div className="text-slate-500">
+    The system keeps these executions linked to the same manual
+    position lifecycle so your remaining position and realized
+    P&amp;L can be reconstructed correctly.
+  </div>
+</div>
+  </div>
+}
+/>
   </div>
 
  <div className="h-2 shrink-0" />
@@ -2525,6 +2676,7 @@ setExchange(
       )}
 
     </>
+  </TooltipProvider>
   );
 }
 
@@ -2540,21 +2692,46 @@ const selectClass =
 function SectionHeading({
   number,
   title,
+  tooltip,
 }: {
   number: string;
   title: string;
+  tooltip?: React.ReactNode;
 }) {
   return (
     <div className="flex items-center gap-2">
-
       <span className="text-[12px] font-semibold text-slate-400">
         {number}.
       </span>
 
-      <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
-        {title}
-      </h3>
+      <div className="flex items-center gap-1.5">
+        <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
+          {title}
+        </h3>
 
+        {tooltip && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="flex h-3 w-3 items-center justify-center text-slate-500 transition hover:text-slate-300"
+                aria-label={`${title} information`}
+              >
+                ⓘ
+              </button>
+            </TooltipTrigger>
+
+<TooltipContent
+  side="bottom"
+  align="start"
+  sideOffset={0}
+  className="!z-[10000] w-[520px] max-w-[520px] !px-6 !py-5 border border-white/[0.08] bg-[#07111d] text-[12px] leading-[1.55] text-slate-300 shadow-2xl"
+>
+              {tooltip}
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
     </div>
   );
 }

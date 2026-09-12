@@ -471,6 +471,11 @@ git commit -m "fix safe manual partial exit deletion"
 git commit -m "fix complete manual trade deletion"
 git commit -m "fix calendar manual trade edit controls"
 git commit -m "checkpoint: complete manual trade lifecycle fixes"
+git commit -m "Add manual trade type tooltips"
+
+
+
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

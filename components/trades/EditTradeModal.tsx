@@ -21,6 +21,13 @@ import {
   saveExecutionsToSupabase,
 } from "@/lib/storage/supabaseExecutionStorage";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 interface EditTradeModalProps {
 
   open: boolean;
@@ -1065,7 +1072,8 @@ const partialExitMaxQuantity = (() => {
   const exitAction =
     side === "LONG" ? "SELL" : "BUY";
 
-  return (
+return (
+  <TooltipProvider>
     <>
 
 
@@ -1158,19 +1166,187 @@ const partialExitMaxQuantity = (() => {
 
 <section className="pb-5">
 
-  <div className="translate-x-[14px]">
-    <div className="flex items-center gap-2">
+<div className="translate-x-[14px]">
+  <div className="flex items-center gap-2">
+    <span className="text-[12px] font-semibold text-slate-400">
+      1
+    </span>
 
-      <span className="text-[12px] font-semibold text-slate-400">
-        1.
-      </span>
-
+    <div className="flex items-center gap-1.5">
       <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-200">
         Trade Type
       </h3>
 
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="flex h-4 w-4 items-center justify-center text-slate-500 transition hover:text-slate-300"
+            aria-label="Trade Type information"
+          >
+            ⓘ
+          </button>
+        </TooltipTrigger>
+
+        <TooltipContent
+          side="bottom"
+          align="start"
+          sideOffset={8}
+          className="!z-[12000] w-[520px] max-w-[520px] !px-6 !py-5 border border-white/[0.08] bg-[#07111d] text-[12px] leading-[1.5] text-slate-300 shadow-2xl"
+        >
+          <div className="flex w-full flex-col gap-3 text-[12px] leading-[1.5]">
+
+            {/* Header */}
+            <div>
+              <div className="text-[13px] font-semibold text-white">
+                Trade Types
+              </div>
+
+              <div className="mt-1 text-slate-400">
+                This shows how the existing manual trade is classified.
+                Edit does not change the trade type; it shows you which
+                type of manual lifecycle you are currently editing.
+              </div>
+            </div>
+
+            {/* Complete Trade */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1">
+                <span className="font-semibold text-slate-100">
+                  Complete Trade
+                </span>
+
+                <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                  ENTRY + EXIT
+                </span>
+              </div>
+
+              <div className="text-slate-400">
+                A trade that contains both an entry and an exit.
+              </div>
+
+              <div
+                className="rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+                style={{
+                  padding: "6px",
+                  margin: "0px",
+                }}
+              >
+                <span className="font-medium text-slate-300">
+                  Example:
+                </span>{" "}
+                Bought 100 shares at $50 and sold 100 shares at $55.
+              </div>
+            </div>
+
+            {/* Open Position */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-100">
+                  Open Position (Entry)
+                </span>
+
+                <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                  OPEN / ADD
+                </span>
+              </div>
+
+              <div className="text-slate-400">
+                This represents a Partial Entry. It creates or adds to
+                an open position and does not contain an exit yet.
+              </div>
+
+              <div
+                className="rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+                style={{
+                  padding: "6px",
+                  margin: "0px",
+                }}
+              >
+                <span className="font-medium text-slate-300">
+                  Example:
+                </span>{" "}
+                Buy 60 shares now, then buy another 40 shares later.
+                The open position becomes 100 shares.
+              </div>
+            </div>
+
+            {/* Close / Reduce */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-100">
+                  Close / Reduce (Exit)
+                </span>
+
+                <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                  REDUCE / CLOSE
+                </span>
+              </div>
+
+              <div className="text-slate-400">
+                This represents a Partial Exit. It reduces an existing
+                open position and can be repeated until the position is
+                fully closed.
+              </div>
+
+              <div
+                className="rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+                style={{
+                  padding: "6px",
+                  margin: "0px",
+                }}
+              >
+                <span className="font-medium text-slate-300">
+                  Example:
+                </span>{" "}
+                You have 100 shares open and sell 25. Your remaining
+                open position is 75 shares.
+              </div>
+            </div>
+
+            {/* How they work together */}
+            <div className="relative flex flex-col gap-1 pt-4">
+              <div
+                className="absolute left-0 right-0 h-px bg-white/[0.08]"
+                style={{
+                  top: "-7px",
+                }}
+              />
+
+              <div className="font-semibold text-slate-200">
+                How they work together
+              </div>
+
+              <div className="text-slate-400">
+                A manual position can use multiple Partial Entries and
+                Partial Exits over time. For example:
+              </div>
+
+              <div
+                className="flex flex-col gap-1 rounded-md border border-white/[0.06] bg-white/[0.025] text-slate-400"
+                style={{
+                  padding: "6px",
+                }}
+              >
+                <div>60 BUY → open 60</div>
+                <div>40 BUY → open 100</div>
+                <div>20 SELL → open 80</div>
+                <div>30 SELL → open 50</div>
+              </div>
+
+              <div className="text-slate-500">
+                Edit preserves the existing manual lifecycle identity.
+                Changes are applied to the appropriate execution so
+                the position and realized P&amp;L remain consistent.
+              </div>
+            </div>
+
+          </div>
+        </TooltipContent>
+      </Tooltip>
     </div>
   </div>
+</div>
 
   <div className="h-2 shrink-0" />
 
@@ -2735,5 +2911,6 @@ step="0.01"
       </div>
 
     </>
+  </TooltipProvider>
   );
 }
