@@ -149,18 +149,6 @@ setSide(
     ""
   );
 
-  const normalizedTradeDate =
-    trade.date?.includes("T")
-      ? trade.date.split("T")[0]
-      : trade.date || "";
-
-  setEntryDate(
-    normalizedTradeDate
-  );
-
-  setExitDate(
-    normalizedTradeDate
-  );
 
   const entryExecution =
     trade.executions?.find(
@@ -183,6 +171,23 @@ setSide(
             : "SELL"
         )
     );
+
+const entryExecutionDate =
+  entryExecution?.executionTimestamp
+    ? entryExecution.executionTimestamp.slice(0, 10)
+    : trade.date?.includes("T")
+      ? trade.date.split("T")[0]
+      : trade.date || "";
+
+const exitExecutionDate =
+  exitExecution?.executionTimestamp
+    ? exitExecution.executionTimestamp.slice(0, 10)
+    : trade.date?.includes("T")
+      ? trade.date.split("T")[0]
+      : trade.date || "";
+
+setEntryDate(entryExecutionDate);
+setExitDate(exitExecutionDate);
 
 const isLoadedPartialExit =
   !!exitExecution &&
@@ -436,7 +441,6 @@ if (
   !isOpenPositionEntry &&
   !exitTime
 ) {
-
   alert(
     "Exit time is required."
   );
@@ -444,7 +448,40 @@ if (
   return;
 }
 
-    if (!normalizedCurrency) {
+// =================================================
+// CHRONOLOGICAL VALIDATION
+// =================================================
+
+if (!isOpenPositionEntry) {
+  const entryDateTimeForValidation =
+    new Date(
+      `${entryDate}T${entryTime}`
+    );
+
+  const exitDateTimeForValidation =
+    new Date(
+      `${exitDate}T${exitTime}`
+    );
+
+  if (
+    Number.isFinite(
+      entryDateTimeForValidation.getTime()
+    ) &&
+    Number.isFinite(
+      exitDateTimeForValidation.getTime()
+    ) &&
+    exitDateTimeForValidation.getTime() <
+      entryDateTimeForValidation.getTime()
+  ) {
+    alert(
+      "Exit date and time cannot be earlier than the entry date and time."
+    );
+
+    return;
+  }
+}
+
+if (!normalizedCurrency) {
 
       alert(
         "Currency is required."
@@ -469,9 +506,7 @@ if (
       parsedCommission < 0
     ) {
 
-      alert(
-        "Commission must be 0 or greater."
-      );
+alert("Commission / fees cannot be negative.");
 
       return;
     }
@@ -968,6 +1003,7 @@ const partialExitLifecycleTrades =
           trade.contractKey
       )
     : [];
+
 
 const partialExitEntryExecutions =
   previewIsPartialExit
@@ -2375,6 +2411,7 @@ step="0.01"
 
         <input
           type="number"
+          min="0"
           step="0.01"
           value={commission}
           onChange={(e) =>
@@ -2393,25 +2430,28 @@ step="0.01"
 
     </div>
 
-    {/* ================================================= */}
-    {/* EDIT STATUS */}
-    {/* ================================================= */}
+{/* ================================================= */}
+{/* EDIT STATUS */}
+{/* ================================================= */}
 
-    <div>
+<div>
+  <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
+    Status
+  </label>
 
-      <label className="mb-1.5 block text-[11px] font-medium text-slate-400">
-        Status
-      </label>
-
-      <div className="flex h-10 items-center rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-4">
-
-        <span className="text-[13px] font-semibold text-emerald-400">
-          Complete
-        </span>
-
-      </div>
-
-    </div>
+  <div className="flex h-10 items-center rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-4">
+<span
+  className={`text-[13px] font-semibold ${
+    isOpenPositionEntry
+      ? "text-emerald-400"
+      : "text-slate-300"
+  }`}
+  style={{ paddingLeft: "16px" }}
+>
+  {isOpenPositionEntry ? "Open" : "Closed"}
+</span>
+  </div>
+</div>
 
   </div>
 
@@ -2543,10 +2583,10 @@ step="0.01"
             <div className="min-w-0 translate-x-[10px]">
 
 <div
-  className="max-w-[8ch] truncate text-[24px] font-semibold tracking-[-0.02em] text-white"
+  className="max-w-[10ch] overflow-hidden whitespace-nowrap text-[24px] font-semibold tracking-[-0.02em] text-white"
   title={ticker || undefined}
 >
-  {ticker || "—"}
+  {ticker ? ticker.slice(0, 10) : "—"}
 </div>
 
               <div className="mt-1 text-[14px] text-slate-400">
@@ -2770,39 +2810,129 @@ step="0.01"
 
   <div className="relative h-[110px] w-[calc(100%-30px)] translate-x-[14px]">
 
-    {/* LEFT — POSITION */}
+    {/* SHARED CONTENT */}
 
-    <div className="absolute left-0 top-0 translate-y-[10px]">
+    <div className="absolute inset-0 flex w-full flex-col justify-center">
 
-      <div className="translate-x-[0px] text-[16px] font-semibold text-white">
+      <div
+        className={`text-[16px] font-semibold text-white ${
+          isPartialExitTrade
+            ? "translate-y-[-16px]"
+            : "translate-y-[-4px]"
+        }`}
+      >
         Position Impact
       </div>
 
-<div className="translate-y-[2px] text-[13px] text-slate-400">
-  Position Size
-</div>
+      {/* PARTIAL EXIT */}
 
-<div className="translate-y-[4px] text-[18px] font-medium text-white">
-  {quantity} {assetType === "OPTIONS" ? "Contracts" : "Shares"}
-</div>
+      {isPartialExitTrade ? (
+        <div className="mt-2 grid grid-cols-3 gap-3">
 
-<div className="translate-y-[6px] text-[12px] text-slate-500">
-  Completed trade
-</div>
+          <div>
+            <div className="text-[11px] text-slate-500">
+              Current Position
+            </div>
 
-    </div>
+            <div className="mt-1 text-[15px] font-medium text-white">
+              {partialExitMaxQuantity ?? 0} {quantityUnit}
+              {usesTickerUnit ||
+              (partialExitMaxQuantity ?? 0) === 1
+                ? ""
+                : "s"}
+            </div>
+          </div>
 
-    {/* RIGHT — STATUS */}
+          <div>
+            <div className="text-[11px] text-slate-500">
+              Closing
+            </div>
 
-    <div className="absolute right-0 top-1/2 translate-x-[-10px] translate-y-[-50%] text-right">
+            <div className="mt-1 text-[15px] font-medium text-white">
+              {previewEffectiveQuantity} {quantityUnit}
+              {usesTickerUnit ||
+              previewEffectiveQuantity === 1
+                ? ""
+                : "s"}
+            </div>
+          </div>
 
-      <div className="translate-y-[-4px] translate-x-[-18px] text-[13px] text-slate-400">
-        Status
-      </div>
+          <div>
+            <div className="text-[11px] text-slate-500">
+              Remaining
+            </div>
 
-      <span className="mt-3 inline-flex h-6 w-[70px] items-center justify-center rounded-[6px] bg-emerald-500/15 text-[12px] font-semibold text-emerald-400">
-        COMPLETE
-      </span>
+            <div className="mt-1 text-[15px] font-medium text-white">
+              {Math.max(
+                0,
+                (partialExitMaxQuantity ?? 0) -
+                  previewEffectiveQuantity
+              )}{" "}
+              {quantityUnit}
+              {usesTickerUnit ||
+              Math.max(
+                0,
+                (partialExitMaxQuantity ?? 0) -
+                  previewEffectiveQuantity
+              ) === 1
+                ? ""
+                : "s"}
+            </div>
+          </div>
+
+        </div>
+
+      ) : previewIsCompleteTrade ? (
+
+        /* COMPLETE TRADE */
+
+        <div className="translate-y-[2px]">
+
+          <div className="text-[18px] font-medium text-white">
+            {previewQuantity} {quantityUnit}
+            {usesTickerUnit || previewQuantity === 1
+              ? ""
+              : "s"}{" "}
+            Closed
+          </div>
+
+          <div className="mt-2 text-[13px] text-slate-400">
+            ${previewEntryPrice.toFixed(2)} → $
+            {previewExitPrice.toFixed(2)}
+          </div>
+
+          <div className="mt-2 text-[12px] text-slate-500">
+            Fully Closed
+          </div>
+
+        </div>
+
+      ) : (
+
+        /* PARTIAL ENTRY */
+
+        <>
+
+          <div className="translate-y-[2px] text-[13px] text-slate-400">
+            {`${quantityUnit}${
+              usesTickerUnit ? "" : "s"
+            } After Trade`}
+          </div>
+
+          <div className="translate-y-[4px] text-[18px] font-medium text-white">
+            {previewQuantity} {quantityUnit}
+            {usesTickerUnit || previewQuantity === 1
+              ? ""
+              : "s"}
+          </div>
+
+          <div className="translate-y-[6px] text-[12px] text-slate-500">
+            {side === "LONG" ? "Long" : "Short"}
+          </div>
+
+        </>
+
+      )}
 
     </div>
 
@@ -2861,7 +2991,13 @@ step="0.01"
         <div className="ml-3 min-w-0 flex-1 translate-x-[10px] translate-y-[-2px]">
 
           <div className="text-[14px] font-semibold text-emerald-400">
-            {side === "LONG" ? "BUY (Entry)" : "SELL (Entry)"}
+           {previewIsPartialExit
+  ? side === "LONG"
+    ? "BUY (Original Entry)"
+    : "SELL (Original Entry)"
+  : side === "LONG"
+    ? "BUY (Entry)"
+    : "SELL (Entry)"}
           </div>
 
           <div className="mt-2 text-[14px] font-medium text-white">
@@ -2921,7 +3057,13 @@ isOpenPositionEntry
         <div className="ml-3 min-w-0 flex-1 translate-x-[10px] translate-y-[-6px]">
 
           <div className="text-[14px] font-semibold text-red-400">
-            {side === "LONG" ? "SELL (Exit)" : "BUY (Exit)"}
+           {previewIsPartialExit
+  ? side === "LONG"
+    ? "SELL (Partial Exit)"
+    : "BUY (Partial Exit)"
+  : side === "LONG"
+    ? "SELL (Exit)"
+    : "BUY (Exit)"}
           </div>
 
           <div className="mt-2 text-[14px] font-medium text-white">

@@ -4697,3 +4697,857 @@ First task:
 VERIFY BUILD + TEST THE ABOVE PARTIAL ENTRY / PARTIAL EXIT COMMISSION
 AND TICKER-LENGTH CHANGES BEFORE MAKING ANY NEW ARCHITECTURAL CHANGES.
 ============================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================================
+ELITE X TRADING JOURNAL
+MANUAL TRADE UI REFINEMENT CHECKPOINT
+DATE: SEPTEMBER 12, 2026
+============================================================
+
+PROJECT
+Elite X Trading Journal / Elite X Trading OS
+
+STACK
+- Next.js 16.2.6
+- TypeScript
+- Supabase
+- React
+- React Day Picker
+- Turbopack
+
+============================================================
+1. ARCHITECTURAL BASELINE — PROTECTED
+============================================================
+
+Core architecture remains unchanged:
+
+Broker / Manual Entry
+        ↓
+Normalized Executions
+        ↓
+Supabase Execution Ledger
+        ↓
+Deterministic FIFO Reconstruction
+        ↓
+Reconstructed Trades
+        ↓
+Analytics / Dashboard / Trade History
+
+Canonical rule:
+
+Executions are the source of truth.
+Trades are derived state.
+
+Manual Entry and Edit Trade must continue to produce/update
+execution data compatible with the existing execution ledger.
+
+DO NOT create a separate FIFO engine or separate trade-generation
+architecture inside Manual Entry / Edit Trade.
+
+Protected infrastructure:
+- Broker sync
+- Execution ledger
+- FIFO reconstruction
+- pairTrades
+- Reconciliation
+- P&L
+- Analytics
+- Dashboard V2
+- Existing canonical trade lifecycle behavior
+
+No changes were made to those systems during this refinement pass.
+
+============================================================
+2. MANUAL TRADE MODES
+============================================================
+
+Supported manual lifecycle types:
+
+1. COMPLETE
+   - Entry + Exit
+   - Creates two executions
+
+2. PARTIAL_ENTRY
+   - Opening/additional execution
+   - Creates one execution
+   - Leaves position open
+
+3. PARTIAL_EXIT
+   - Reduces/closes existing manual position
+   - Creates one reducing execution
+   - Preserves existing contractKey
+
+Direction semantics:
+
+LONG:
+- BUY = open/add
+- SELL = reduce/close
+
+SHORT:
+- SELL = open/add
+- BUY = reduce/close
+
+Multiplier:
+- OPTIONS = 100
+- Everything currently supported outside options = 1
+
+Manual lifecycle identity:
+contractKey = MANUAL-{ticker}-{uuid}
+
+Manual trade detection:
+contractKey.startsWith("MANUAL-")
+
+============================================================
+3. ADD TRADE — REFINEMENT PASS COMPLETED
+============================================================
+
+File:
+components/trades/AddTradeModal.tsx
+
+Add Trade was refined before beginning Edit Trade.
+
+Completed refinements:
+
+------------------------------------------------------------
+3.1 PARTIAL EXIT FEE / NET P&L FIX
+------------------------------------------------------------
+
+Fixed Partial Exit preview so total fees include:
+
+- Proportional allocation of original entry commission
+- Full new exit commission
+
+Net P&L now uses total preview fees.
+
+Correct behavior:
+
+Example:
+Original position:
+100 shares @ $1.00
+Original entry commission = $10
+
+Partial Exit:
+40 shares @ $1.50
+Exit commission = $4
+
+Allocated original entry fee:
+$10 × 40 / 100 = $4
+
+Total fees:
+$4 + $4 = $8
+
+Gross P&L:
+$20
+
+Net P&L:
+$20 - $8 = $12
+
+Return:
+$12 / $40 = 30%
+
+This calculation was validated.
+
+------------------------------------------------------------
+3.2 PREVIEW LABEL
+------------------------------------------------------------
+
+Duplicate Net P&L row was changed to:
+
+Gross P&L
+
+Top summary continues to display:
+
+Net P&L
+
+------------------------------------------------------------
+3.3 CHRONOLOGICAL VALIDATION
+------------------------------------------------------------
+
+Added entry/exit date-time validation.
+
+Exit cannot occur earlier than entry.
+
+Equality is allowed.
+
+Invalid example:
+Entry  = Sept 12 15:00
+Exit   = Sept 12 14:00
+
+Blocked.
+
+Valid example:
+Entry  = Sept 12 15:00
+Exit   = Sept 12 15:00
+
+Allowed.
+
+Validated in testing.
+
+------------------------------------------------------------
+3.4 SAVE BUTTON
+------------------------------------------------------------
+
+Changed wording to:
+
+Save Trade
+
+------------------------------------------------------------
+3.5 PARTIAL EXIT POSITION IMPACT
+------------------------------------------------------------
+
+Redesigned Position Impact to provide full position context.
+
+Partial Exit example:
+
+Current Position
+100 Shares
+
+Closing
+40 Shares
+
+Remaining
+60 Shares
+
+Complete Trade example:
+
+100 Shares Closed
+$1.00 → $2.00
+Fully Closed
+
+Partial Entry example:
+
+Shares After Trade
+100 Shares
+Long
+
+No redundant status badge was retained.
+
+------------------------------------------------------------
+3.6 PARTIAL EXIT VALUE LABELS
+------------------------------------------------------------
+
+Changed:
+
+Entry Value
+Exit Value
+
+to:
+
+Original Position
+Closing Value
+
+for Partial Exit.
+
+Complete Trade continues using:
+
+Entry Value
+Exit Value
+
+------------------------------------------------------------
+3.7 PARTIAL EXIT TIMELINE TERMINOLOGY
+------------------------------------------------------------
+
+Partial Exit Timeline uses:
+
+BUY (Original Entry)
+SELL (Partial Exit)
+
+for LONG.
+
+For SHORT:
+
+SELL (Original Entry)
+BUY (Partial Exit)
+
+Complete and Partial Entry retain normal Entry / Exit wording.
+
+------------------------------------------------------------
+3.8 SELECTED POSITION LOOKUP CLEANUP
+------------------------------------------------------------
+
+Simplified selected manual position lookup.
+
+No behavior change.
+
+------------------------------------------------------------
+3.9 PARTIAL EXIT OVER-CLOSE WORDING
+------------------------------------------------------------
+
+Improved validation wording so available quantity displays
+using an appropriate unit.
+
+Examples:
+
+Stocks → shares
+Options → contracts
+Futures → contracts
+
+Validation behavior itself was preserved.
+
+------------------------------------------------------------
+3.10 COMMISSION VALIDATION
+------------------------------------------------------------
+
+Commission must be:
+
+- finite
+- >= 0
+
+Negative commission values are rejected.
+
+Input uses:
+
+min="0"
+
+Error wording:
+
+Commission / fees cannot be negative.
+
+------------------------------------------------------------
+3.11 FEE PREVIEW AUDIT
+------------------------------------------------------------
+
+Verified:
+
+COMPLETE:
+- Commission treated as total commission
+- Timeline splits commission between entry and exit
+
+PARTIAL_ENTRY:
+- Commission belongs entirely to entry
+
+PARTIAL_EXIT:
+- Original entry commission is allocated proportionally
+- New exit commission belongs entirely to exit
+
+------------------------------------------------------------
+3.12 OTHER ADD TRADE AREAS AUDITED
+------------------------------------------------------------
+
+Asset Type / Exchange:
+- Native select retained
+- No unnecessary taxonomy change
+
+Quantity:
+- Positive finite number validation retained
+- No artificial integer-only restriction
+- Fractional quantities remain possible for supported instruments
+
+Holding Time:
+- Complete = entry to exit
+- Partial Entry = —
+- Partial Exit = original position entry to exit
+
+Notes:
+- Intentionally untouched
+
+Advanced:
+- Intentionally untouched
+
+============================================================
+4. EDIT TRADE — REFINEMENT PASS COMPLETED
+============================================================
+
+File:
+components/trades/EditTradeModal.tsx
+
+Current file reviewed:
+3226 lines
+
+Edit Trade refinement was done one change at a time.
+
+============================================================
+5. EDIT TRADE CHANGES COMPLETED
+============================================================
+
+------------------------------------------------------------
+5.1 CHRONOLOGICAL VALIDATION
+------------------------------------------------------------
+
+Added validation preventing exit date/time from being earlier
+than entry date/time.
+
+Condition:
+
+Exit < Entry → blocked
+
+Exit == Entry → allowed
+
+Error:
+
+Exit date and time cannot be earlier than the entry date and time.
+
+Validated successfully.
+
+------------------------------------------------------------
+5.2 POSITION IMPACT REDESIGN
+------------------------------------------------------------
+
+Edit Trade Position Impact now matches the refined Add Trade design.
+
+Partial Exit:
+
+Current Position
+Closing
+Remaining
+
+Example:
+
+100 Shares
+40 Shares
+60 Shares
+
+Complete:
+
+100 Shares Closed
+$1.00 → $2.00
+Fully Closed
+
+Partial Entry:
+
+Shares After Trade
+100 Shares
+Long
+
+This was visually reviewed and approved.
+
+------------------------------------------------------------
+5.3 STATUS FIELD
+------------------------------------------------------------
+
+Previous hardcoded status was removed.
+
+Now dynamically displays:
+
+OPEN position:
+Open
+
+Closed trade:
+Closed
+
+Open uses emerald styling.
+
+Closed uses neutral styling.
+
+Alignment was adjusted to match the Account field.
+
+------------------------------------------------------------
+5.4 PARTIAL EXIT TIMELINE
+------------------------------------------------------------
+
+The Timeline was deliberately kept focused on the quantity being
+processed, rather than displaying the entire original position.
+
+Example:
+
+Position Impact:
+100 Current
+40 Closing
+60 Remaining
+
+Timeline:
+40 BUY (Original Entry)
+40 SELL (Partial Exit)
+
+This separation is intentional.
+
+The Timeline represents the portion being processed.
+
+Position Impact represents the full position context.
+
+------------------------------------------------------------
+5.5 PARTIAL EXIT TIMELINE LABELS
+------------------------------------------------------------
+
+LONG:
+
+BUY (Original Entry)
+SELL (Partial Exit)
+
+SHORT:
+
+SELL (Original Entry)
+BUY (Partial Exit)
+
+Complete Trade remains:
+
+BUY (Entry)
+SELL (Exit)
+
+Partial Entry remains entry-only.
+
+------------------------------------------------------------
+5.6 UNUSED VARIABLE REMOVED
+------------------------------------------------------------
+
+Removed the temporary unused:
+
+partialExitOriginalPositionQuantity
+
+No functional replacement was required.
+
+The still-used:
+
+partialExitOriginalEntryQuantity
+
+was retained because it is required for proportional entry-fee
+allocation.
+
+------------------------------------------------------------
+5.7 COMMISSION INPUT CONSISTENCY
+------------------------------------------------------------
+
+Edit Trade commission input now includes:
+
+min="0"
+
+This matches Add Trade.
+
+------------------------------------------------------------
+5.8 COMMISSION ERROR MESSAGE CONSISTENCY
+------------------------------------------------------------
+
+Edit Trade now uses:
+
+Commission / fees cannot be negative.
+
+Validation condition remains unchanged.
+
+------------------------------------------------------------
+5.9 ACTUAL ENTRY / EXIT DATE LOADING
+------------------------------------------------------------
+
+Important data/UI improvement completed.
+
+Previously Edit Trade loaded both Entry Date and Exit Date from
+trade.date.
+
+That could cause a multi-day trade to display:
+
+Entry Date = actual entry date
+Exit Date  = entry date
+
+even when the exit occurred later.
+
+Updated behavior:
+
+Entry Date is loaded from the actual entry execution timestamp.
+
+Exit Date is loaded from the actual exit execution timestamp.
+
+Fallback remains trade.date if execution timestamp is unavailable.
+
+This also makes Holding Time use the correct lifecycle dates.
+
+------------------------------------------------------------
+5.10 TRADE PREVIEW TICKER DISPLAY
+------------------------------------------------------------
+
+Previous preview ticker used Tailwind truncate behavior, which
+caused ellipsis after the available display width.
+
+Previous behavior could produce:
+
+ABCDE...
+
+Updated behavior:
+
+Maximum 10 characters displayed.
+
+Anything after character 10 is simply ignored.
+
+No ellipsis.
+No dots.
+No dash characters.
+
+Example:
+
+ABCDEFGHIJ
+→ displayed completely
+
+ABCDEFGHIJK
+→ displays:
+
+ABCDEFGHIJ
+
+============================================================
+6. CURRENT EDIT TRADE PREVIEW
+============================================================
+
+Preview now contains:
+
+Instrument
+- Ticker
+- Asset Type
+- Direction
+- Trade Type
+
+Financial Summary
+- Net P&L
+- Return
+- Holding Time
+
+Values
+- Entry Value
+- Exit Value
+- Fees
+- Net P&L
+- Return
+
+Position Impact
+- Mode-aware position effect
+
+Timeline
+- Entry execution
+- Exit execution
+- Quantities
+- Prices
+- Dates/times
+- Fee allocation
+
+Disclaimer:
+"This preview is an estimate.
+Actual results may vary after saving and FIFO processing."
+
+============================================================
+7. VALIDATION CURRENTLY PRESENT
+============================================================
+
+Ticker:
+- Required
+
+Account:
+- Required
+
+Quantity:
+- Required where applicable
+- Must be > 0
+- Must be finite
+
+Partial Exit quantity:
+- Required
+- Must be > 0
+- Must not exceed available position quantity
+
+Entry Price:
+- Required where applicable
+- Must be > 0
+- Must be finite
+
+Exit Price:
+- Required for closed trades
+- Must be > 0
+- Must be finite
+
+Entry Date:
+- Required
+
+Entry Time:
+- Required except Partial Exit
+
+Exit Time:
+- Required except Open Position Entry
+
+Chronology:
+- Exit cannot be earlier than entry
+
+Currency:
+- Required
+
+Exchange:
+- Required
+
+Commission:
+- Must be finite
+- Cannot be negative
+
+============================================================
+8. CURRENT DELETE BEHAVIOR
+============================================================
+
+Partial Exit delete:
+
+- Identifies the exact exit execution
+- Deletes only that execution
+- Does NOT delete the entire lifecycle
+
+Complete / normal manual lifecycle delete:
+
+- Deletes executions using the lifecycle contractKey
+
+Existing behavior was preserved during the UI refinement pass.
+
+No new delete architecture was introduced.
+
+============================================================
+9. CURRENT SAVE / EDIT BEHAVIOR
+============================================================
+
+Partial Exit edit:
+
+1. Identify exact existing exit execution
+2. Delete exact exit execution
+3. Build replacement PARTIAL_EXIT execution
+4. Preserve existing contractKey
+5. Save corrected execution
+
+Complete / Open Position Entry edit:
+
+1. Delete existing manual lifecycle executions
+2. Rebuild using createManualExecutions()
+3. Restore original contractKey
+4. Save corrected executions
+
+Manual lifecycle identity is intentionally preserved.
+
+No new lifecycle should be created merely because a manual trade
+was edited.
+
+============================================================
+10. ADVANCED / NOTES
+============================================================
+
+NOTES:
+No changes made.
+
+ADVANCED:
+No changes made.
+
+Advanced remains a collapsed placeholder:
+
+Multiplier, Tags, Strategy, etc.
+
+These areas are intentionally deferred.
+
+============================================================
+11. CURRENT ARCHITECTURAL CONCERNS — NOT PART OF UI REFINEMENT
+============================================================
+
+The following were identified but intentionally NOT changed during
+this refinement pass:
+
+A. Save persistence is still delete-then-save rather than a true
+   atomic database transaction.
+
+B. Edit Trade performs Supabase execution mutations directly from
+   the client component.
+
+C. The loading useEffect references allTrades while its dependency
+   array currently only contains trade.
+
+These are deeper persistence / hardening concerns.
+
+They should be handled separately from the UI refinement work so
+the current manual trade behavior remains stable.
+
+DO NOT casually mix those changes into this checkpoint.
+
+============================================================
+12. FILES TO CONSIDER PROTECTED
+============================================================
+
+DO NOT change without a concrete reason:
+
+lib/trades/createManualExecutions.ts
+
+lib/parsers/pairTrades.ts
+
+types/trade.ts
+
+broker sync infrastructure
+
+execution storage architecture
+
+Dashboard V2
+
+FIFO / reconciliation / P&L architecture
+
+============================================================
+13. FINAL STATUS OF TODAY'S WORK
+============================================================
+
+ADD TRADE:
+Refined and approved.
+
+EDIT TRADE:
+Refined and reviewed.
+
+Current Edit Trade UI is considered complete for the current
+refinement scope.
+
+Main accomplishments:
+
+- Correct mode-aware UI
+- Correct Partial Exit position context
+- Correct Timeline terminology
+- Correct commission validation
+- Correct chronological validation
+- Correct execution-date loading
+- Correct preview ticker presentation
+- No unnecessary changes to Notes / Advanced
+- No changes to protected trading infrastructure
+
+============================================================
+14. NEXT SESSION
+============================================================
+
+Before moving into new feature work:
+
+1. Run final manual test matrix:
+   - COMPLETE
+   - PARTIAL_ENTRY
+   - PARTIAL_EXIT
+   - LONG
+   - SHORT
+   - OPTIONS
+
+2. Verify:
+   - Save Edit
+   - Delete Complete
+   - Delete Partial Exit
+   - Partial Exit over-close protection
+   - P&L preview
+   - Commission allocation
+   - Entry/exit dates
+   - Holding time
+   - Position Impact
+   - Timeline
+
+3. Run:
+   npm run build
+
+   and/or the project's current TypeScript / lint checks.
+
+4. Create Git checkpoint.
+
+Suggested checkpoint commit name:
+
+checkpoint: refine manual trade edit modal
+
+IMPORTANT:
+Git push was not independently verified from this environment.
+Confirm the local terminal shows the commit and push successfully
+before treating the Git checkpoint as complete.
+
+============================================================
+END OF CHECKPOINT
+============================================================

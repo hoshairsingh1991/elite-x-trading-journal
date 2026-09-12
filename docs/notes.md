@@ -474,7 +474,7 @@ git commit -m "checkpoint: complete manual trade lifecycle fixes"
 git commit -m "Add manual trade type tooltips"
 git commit -m "checkpoint: manual trade edit and fee UI fixes"
 git commit -m "checkpoint: refine manual add trade modal"
-
+git commit -m "checkpoint: refine manual trade edit modal"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
