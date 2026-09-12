@@ -236,6 +236,7 @@ const [fieldErrors, setFieldErrors] = useState({
   entryTime: false,
   exitTime: false,
   currency: false,
+  commission: false,
   selectedPositionContractKey: false,
 });
 
@@ -291,6 +292,7 @@ setFieldErrors({
   entryTime: false,
   exitTime: false,
   currency: false,
+  commission: false,
   selectedPositionContractKey: false,
 });
 };
@@ -419,9 +421,7 @@ const previewGrossPnL =
 
 const previewNetPnL =
   previewGrossPnL -
-  (tradeType === "COMPLETE"
-    ? previewCommission
-    : 0);
+  previewTotalCommission;
 
 const previewReturn =
   tradeType === "COMPLETE" && previewEntryValue > 0
@@ -629,8 +629,18 @@ const parsedEntryPrice =
 const parsedExitPrice =
   Number(exitPrice);
 
-setFieldErrors({
+const parsedCommission =
+  Number(commission || 0);
 
+  const selectedPosition = isPartialExit
+  ? manualOpenPositions.find(
+      (position) =>
+        position.contractKey ===
+        selectedPositionContractKey
+    )
+  : undefined;
+
+setFieldErrors({
   ticker: false,
 
   account: false,
@@ -651,8 +661,9 @@ setFieldErrors({
 
   currency: false,
 
-  selectedPositionContractKey: false,
+  commission: false,
 
+  selectedPositionContractKey: false,
 });
 
 const errors = {
@@ -693,6 +704,10 @@ const errors = {
 
   currency: !currency,
 
+   commission:
+    !Number.isFinite(parsedCommission) ||
+    parsedCommission < 0,
+
   selectedPositionContractKey:
     isPartialExit &&
     !selectedPositionContractKey,
@@ -702,38 +717,42 @@ const hasErrors =
   Object.values(errors).some(Boolean);
 
   if (isPartialExit) {
-  const selectedPosition =
-    manualOpenPositions.find(
-      (position) =>
-        position.contractKey ===
-        selectedPositionContractKey
-    );
-
-  if (
-    selectedPosition &&
-    parsedQuantity >
-      selectedPosition.quantity
-  ) {
+if (
+  selectedPosition &&
+  parsedQuantity >
+    selectedPosition.quantity
+) {
     setFieldErrors((prev) => ({
       ...prev,
       quantity: true,
     }));
 
-    alert(
-      `You only have ${selectedPosition.quantity} ${
-        selectedPosition.assetType === "OPTIONS"
-          ? "contracts"
-          : "shares"
-      } available to reduce in this manual position.`
-    );
+const availableQuantityUnit =
+  selectedPosition.assetType === "STOCKS"
+    ? "shares"
+    : selectedPosition.assetType === "OPTIONS" ||
+      selectedPosition.assetType === "FUTURES"
+      ? "contracts"
+      : selectedPosition.ticker;
+
+alert(
+  `You only have ${selectedPosition.quantity} ${availableQuantityUnit} available to reduce in this manual position.`
+);
 
     return;
   }
 }
 
 if (hasErrors) {
-
   setFieldErrors(errors);
+
+  if (errors.commission) {
+    alert(
+      "Commission / fees cannot be negative."
+    );
+
+    return;
+  }
 
   alert(
     "Please fill in all required fields."
@@ -741,6 +760,58 @@ if (hasErrors) {
 
   return;
 }
+
+// =================================================
+// VALIDATE CHRONOLOGICAL ORDER
+// =================================================
+
+const exitDateTime = new Date(
+  `${exitDate}T${exitTime}`
+);
+
+const entryDateTimeForValidation = new Date(
+  isPartialExit
+    ? `${
+        selectedPosition?.date ?? ""
+      }T${
+        selectedPosition?.openedAt
+          ?.split("T")[1]
+          ?.slice(0, 5) ?? ""
+      }`
+    : `${entryDate}T${entryTime}`
+);
+
+if (
+  !isPartialEntry &&
+  Number.isFinite(
+    entryDateTimeForValidation.getTime()
+  ) &&
+  Number.isFinite(exitDateTime.getTime()) &&
+  exitDateTime.getTime() <
+    entryDateTimeForValidation.getTime()
+) {
+  setFieldErrors((prev) => ({
+    ...prev,
+    ...(isPartialExit
+      ? {
+          exitDate: true,
+          exitTime: true,
+        }
+      : {
+          entryDate: true,
+          exitDate: true,
+          entryTime: true,
+          exitTime: true,
+        }),
+  }));
+
+  alert(
+    "Exit date and time cannot be earlier than the entry date and time."
+  );
+
+  return;
+}
+
 
 const executions =
   createManualExecutions({
@@ -756,10 +827,7 @@ const executions =
     exitPrice:
       Number(exitPrice),
 
-    commission:
-      Number(
-        commission || 0
-      ),
+commission: parsedCommission,
 
     side,
 
@@ -1952,17 +2020,29 @@ setExchange(
 
       <div className="relative">
 
-        <input
-          type="number"
-          step="0.01"
-          value={commission}
-          onChange={(e) =>
-            setCommission(e.target.value)
-          }
-          placeholder="5.00"
-          className={`${inputClass} pr-14`}
-          style={{ paddingLeft: "16px" }}
-        />
+<input
+  type="number"
+  step="0.01"
+  min="0"
+  value={commission}
+  onChange={(e) => {
+    setCommission(e.target.value);
+
+    if (fieldErrors.commission) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        commission: false,
+      }));
+    }
+  }}
+  placeholder="5.00"
+  className={`${inputClass} pr-14 ${
+    fieldErrors.commission
+      ? "!border-red-700/70"
+      : ""
+  }`}
+  style={{ paddingLeft: "16px" }}
+/>
 
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500">
           {currency}
@@ -2040,7 +2120,7 @@ setExchange(
       onClick={handleSaveTrade}
       className="flex h-11 items-center justify-center gap-3 rounded-[8px] bg-gradient-to-r from-violet-700 to-violet-600 text-[14px] font-semibold text-white shadow-[0_8px_30px_rgba(109,40,217,0.22)] transition hover:from-violet-600 hover:to-violet-500"
     >
-      Review & Save Trade
+      Save Trade
       <span className="text-lg">
         →
       </span>
@@ -2216,14 +2296,22 @@ setExchange(
       <div className="pr-4">
 
 <PreviewRow
-  label="Entry Value"
+  label={
+    isPartialExit
+      ? "Original Position"
+      : "Entry Value"
+  }
   value={formatPreviewCurrency(previewEntryValue)}
   valueClassName="translate-x-[-10px]"
 />
 
         <div className="translate-y-[4px]">
 <PreviewRow
-  label="Exit Value"
+  label={
+    isPartialExit
+      ? "Closing Value"
+      : "Exit Value"
+  }
   value={formatPreviewCurrency(previewExitValue)}
   valueClassName="translate-x-[-10px]"
 />
@@ -2232,7 +2320,7 @@ setExchange(
         <div className="translate-y-[6px]">
 <PreviewRow
   label="Fees"
-  value={formatPreviewCurrency(previewCommission)}
+  value={formatPreviewCurrency(previewTotalCommission)}
   valueClassName="translate-x-[-10px]"
 />
         </div>
@@ -2244,12 +2332,12 @@ setExchange(
 
 <div className="pl-4">
 
-  <PreviewRow
-    label="Net P&L"
-    value={formatPreviewPnL(previewNetPnL)}
-    positive={previewNetPnL > 0}
-    labelClassName="translate-x-[10px]"
-  />
+<PreviewRow
+  label="Gross P&L"
+  value={formatPreviewPnL(previewGrossPnL)}
+  positive={previewGrossPnL > 0}
+  labelClassName="translate-x-[10px]"
+/>
 
   <div className="translate-y-[4px]">
     <PreviewRow
@@ -2278,70 +2366,115 @@ setExchange(
 
   <div className="relative h-[110px] w-[calc(100%-30px)] translate-x-[14px]">
 
-{/* LEFT — POSITION */}
+    {/* POSITION */}
 
-<div className="absolute left-0 top-0 translate-y-[10px]">
+    <div className="absolute inset-0 flex w-full flex-col justify-center">
 
-  <div className="translate-x-[0px] text-[16px] font-semibold text-white">
-    Position Impact
-  </div>
+      <div
+        className={`text-[16px] font-semibold text-white ${
+          isPartialExit
+            ? "translate-y-[-16px]"
+            : "translate-y-[-4px]"
+        }`}
+      >
+        Position Impact
+      </div>
 
-<div className="translate-y-[2px] text-[13px] text-slate-400">
-  {isPartialExit
-    ? `After Reducing ${previewQuantityUnit}${
-        previewUsesTickerUnit ? "" : "s"
-      }`
-    : `${previewQuantityUnit}${
-        previewUsesTickerUnit ? "" : "s"
-      } After Trade`}
-</div>
+      {isPartialExit ? (
+        <div className="mt-3 grid grid-cols-3 gap-6">
 
-<div className="translate-y-[4px] text-[18px] font-medium text-white">
-{previewSharesAfterTrade} {previewQuantityUnit}
-{previewUsesTickerUnit
-  ? ""
-  : previewSharesAfterTrade === 1
-    ? ""
-    : "s"}
-</div>
+          {/* CURRENT POSITION */}
+          <div>
+            <div className="text-[11px] text-slate-500">
+              Current Position
+            </div>
 
-<div className="translate-y-[6px] text-[12px] text-slate-500">
-  {previewPositionImpact}
-</div>
+            <div className="mt-1 text-[15px] font-medium text-white">
+              {previewEntryQuantityForExit} {previewQuantityUnit}
+              {previewUsesTickerUnit ||
+              previewEntryQuantityForExit === 1
+                ? ""
+                : "s"}
+            </div>
+          </div>
 
-</div>
+          {/* CLOSING */}
+          <div>
+            <div className="text-[11px] text-slate-500">
+              Closing
+            </div>
 
+            <div className="mt-1 text-[15px] font-medium text-red-400">
+              {previewQuantity} {previewQuantityUnit}
+              {previewUsesTickerUnit ||
+              previewQuantity === 1
+                ? ""
+                : "s"}
+            </div>
+          </div>
 
-{/* RIGHT — STATUS */}
+          {/* REMAINING */}
+          <div>
+            <div className="text-[11px] text-slate-500">
+              Remaining
+            </div>
 
-<div className="absolute right-0 top-1/2 translate-x-[-10px] translate-y-[-50%] text-right">
+            <div className="mt-1 text-[15px] font-medium text-white">
+              {previewSharesAfterTrade} {previewQuantityUnit}
+              {previewUsesTickerUnit ||
+              previewSharesAfterTrade === 1
+                ? ""
+                : "s"}
+            </div>
+          </div>
 
-<div className="translate-y-[-4px] translate-x-[-18px] text-[13px] text-slate-400">
-  Status
-</div>
+        </div>
+      ) : tradeType === "COMPLETE" ? (
+        <div className="translate-y-[2px]">
 
-<span
-  className={`mt-3 inline-flex h-6 w-[90px] items-center justify-center rounded-[6px] text-[12px] font-semibold text-emerald-400 ${
-    tradeType === "PARTIAL_ENTRY"
-      ? ""
-      : "bg-emerald-500/15"
-  }`}
->
-  {tradeType === "COMPLETE"
-    ? "COMPLETE"
-    : tradeType === "PARTIAL_ENTRY"
-      ? (
-        <span className="flex translate-x-[6px] flex-col items-center gap-[3px]">
-            <span>PARTIAL</span>
-<span className="translate-x-[-0px]">
-  ENTRY
-</span>
-          </span>
-        )
-      : "PARTIAL EXIT"}
-</span>
+          <div className="text-[18px] font-medium text-white">
+            {previewQuantity} {previewQuantityUnit}
+            {previewUsesTickerUnit ||
+            previewQuantity === 1
+              ? ""
+              : "s"}{" "}
+            Closed
+          </div>
 
-</div>
+          <div className="mt-2 text-[13px] text-slate-400">
+            ${previewEntryPrice.toFixed(2)}{" "}
+            →{" "}
+            ${previewExitPrice.toFixed(2)}
+          </div>
+
+          <div className="mt-2 text-[12px] text-slate-500">
+            Fully Closed
+          </div>
+
+        </div>
+      ) : (
+        <>
+          <div className="translate-y-[2px] text-[13px] text-slate-400">
+            {`${previewQuantityUnit}${
+              previewUsesTickerUnit ? "" : "s"
+            } After Trade`}
+          </div>
+
+          <div className="translate-y-[4px] text-[18px] font-medium text-white">
+            {previewSharesAfterTrade} {previewQuantityUnit}
+            {previewUsesTickerUnit ||
+            previewSharesAfterTrade === 1
+              ? ""
+              : "s"}
+          </div>
+
+          <div className="translate-y-[6px] text-[12px] text-slate-500">
+            {previewPositionImpact}
+          </div>
+        </>
+      )}
+
+    </div>
 
   </div>
 
@@ -2388,11 +2521,15 @@ setExchange(
 
           <div className="ml-3 min-w-0 flex-1 translate-y-[-2px] translate-x-[10px]">
 
-            <div className="text-[14px] font-semibold text-emerald-400">
-              {side === "LONG"
-                ? "BUY (Entry)"
-                : "SELL (Entry)"}
-            </div>
+<div className="text-[14px] font-semibold text-emerald-400">
+  {isPartialExit
+    ? side === "LONG"
+      ? "BUY (Original Entry)"
+      : "SELL (Original Entry)"
+    : side === "LONG"
+      ? "BUY (Entry)"
+      : "SELL (Entry)"}
+</div>
 
             <div className="mt-2 text-[14px] font-medium text-white">
               {isPartialExit
@@ -2482,11 +2619,15 @@ Fee: {formatPreviewCurrency(
 
           <div className="ml-3 min-w-0 flex-1 translate-y-[-6px] translate-x-[10px]">
 
-            <div className="text-[14px] font-semibold text-red-400">
-              {side === "LONG"
-                ? "SELL (Exit)"
-                : "BUY (Exit)"}
-            </div>
+<div className="text-[14px] font-semibold text-red-400">
+  {isPartialExit
+    ? side === "LONG"
+      ? "SELL (Partial Exit)"
+      : "BUY (Partial Exit)"
+    : side === "LONG"
+      ? "SELL (Exit)"
+      : "BUY (Exit)"}
+</div>
 
             <div className="mt-2 text-[14px] font-medium text-white">
               {quantity
