@@ -1,0 +1,1052 @@
+# ELITE X TRADING JOURNAL
+
+# SERVER-SIDE SUITE
+
+# FEATURE — ATOMIC DELETE PERSISTENCE
+
+**Document Type:** Master Architecture / Development / Handover Notes
+
+**System:** Elite X Trading Journal / Trading OS
+
+**Scope:** Manual Trade Delete Persistence
+
+**Status:** COMPLETE
+
+**Checkpoint:** Atomic delete persistence
+
+**Date:** September 13, 2026
+
+================================================================================================================================
+
+# 1. PURPOSE
+
+================================================================================================================================
+
+This document is the authoritative master reference for:
+
+**Atomic Delete Persistence**
+
+within the Elite X Manual Trade system.
+
+The purpose of this feature was to move Manual Trade deletion from an uncontrolled client-side destructive operation into a controlled server-side persistence boundary.
+
+The architecture must guarantee:
+
+```text
+Authenticated User
+        ↓
+Server-side Delete Request
+        ↓
+Validated Delete Target
+        ↓
+Atomic Database Delete
+```
+
+The operation must modify canonical executions only.
+
+================================================================================================================================
+
+# 2. CORE ARCHITECTURAL PRINCIPLE
+
+================================================================================================================================
+
+Elite X is execution-first.
+
+```text
+Executions
+    ↓
+pairTrades()
+    ↓
+Derived Trades
+```
+
+Therefore Manual Delete does not directly delete reconstructed trades.
+
+It deletes the underlying execution state.
+
+After deletion:
+
+```text
+Remaining Executions
+        ↓
+pairTrades()
+        ↓
+New Derived State
+```
+
+This keeps the execution ledger as the source of truth.
+
+================================================================================================================================
+
+# 3. ORIGINAL DELETE PROBLEM
+
+================================================================================================================================
+
+Manual Trade deletion previously relied on direct client-side database deletion.
+
+That approach created several concerns:
+
+```text
+Client-controlled destructive operation
+        ↓
+Ownership boundary
+        ↓
+Target validation
+        ↓
+Lifecycle targeting
+        ↓
+Partial Exit targeting
+```
+
+The delete operation therefore needed a dedicated server-side boundary.
+
+================================================================================================================================
+
+# 4. NEW ATOMIC DELETE ARCHITECTURE
+
+================================================================================================================================
+
+The current architecture is:
+
+```text
+Manual Trade UI
+        ↓
+POST /api/trades/delete
+        ↓
+Authenticate User
+        ↓
+deleteManualExecutionsAtomically()
+        ↓
+Supabase RPC
+        ↓
+Delete canonical execution(s)
+        ↓
+pairTrades()
+        ↓
+Derived state
+```
+
+The client no longer performs the destructive database operation directly.
+
+================================================================================================================================
+
+# 5. MANUAL DELETE API
+
+================================================================================================================================
+
+Current file:
+
+```text
+app/api/trades/delete/route.ts
+```
+
+The API:
+
+1. reads the Authorization header;
+2. extracts the Bearer token;
+3. authenticates the user through Supabase;
+4. obtains the authenticated `user.id`;
+5. validates the requested delete mode;
+6. calls the server-side atomic delete helper;
+7. returns success only when deletion succeeds;
+8. returns an error when authentication or deletion fails.
+
+The client does not provide the authoritative ownership identity.
+
+================================================================================================================================
+
+# 6. SERVER-SIDE DELETE HELPER
+
+================================================================================================================================
+
+Current file:
+
+```text
+lib/server/trades/deleteManualExecutionsAtomically.ts
+```
+
+The helper supports:
+
+```ts
+type ManualDeleteMode =
+  | "execution_id"
+  | "contract_key";
+```
+
+The helper validates the required information for the selected mode and calls:
+
+```text
+delete_manual_executions_atomically
+```
+
+through the server-side Supabase admin client.
+
+================================================================================================================================
+
+# 7. DELETE MODES
+
+================================================================================================================================
+
+There are two distinct deletion scopes.
+
+### MODE 1 — EXECUTION ID
+
+```text
+deleteMode = "execution_id"
+```
+
+Used for:
+
+```text
+Partial Exit deletion
+```
+
+This targets the exact execution selected by the user.
+
+### MODE 2 — CONTRACT KEY
+
+```text
+deleteMode = "contract_key"
+```
+
+Used when the selected Manual Trade represents the complete lifecycle.
+
+This removes the Manual lifecycle represented by that contract key.
+
+================================================================================================================================
+
+# 8. PARTIAL EXIT DELETE RULE
+
+================================================================================================================================
+
+This is one of the most important rules in the system.
+
+For Partial Exit deletion:
+
+```text
+DELETE EXACT EXECUTION ID
+```
+
+Never delete the entire lifecycle.
+
+Example:
+
+```text
+BUY 100
+
+SELL 20
+SELL 20
+SELL 20
+SELL 20  ← selected exit
+SELL 20
+```
+
+The selected exit is removed.
+
+The remaining executions become:
+
+```text
+BUY 100
+
+SELL 20
+SELL 20
+SELL 20
+SELL 20
+```
+
+The system then reconstructs:
+
+```text
+20 OPEN
+```
+
+No manual restoration is performed.
+
+================================================================================================================================
+
+# 9. COMPLETE LIFECYCLE DELETE RULE
+
+================================================================================================================================
+
+When the selected Manual Trade represents the complete lifecycle:
+
+```text
+deleteMode = "contract_key"
+```
+
+The database deletes all Manual executions matching that lifecycle key for the authenticated user.
+
+Example:
+
+```text
+BUY 100
+SELL 100
+```
+
+Both executions belong to:
+
+```text
+MANUAL-...
+```
+
+The lifecycle is removed from the canonical execution ledger.
+
+The derived trade then disappears naturally after reconstruction.
+
+================================================================================================================================
+
+# 10. MANUAL-ONLY PROTECTION
+
+================================================================================================================================
+
+Manual executions are identified through:
+
+```text
+contractKey starts with:
+
+MANUAL-
+```
+
+The database RPC enforces this requirement.
+
+For execution-level deletion:
+
+```text
+contract_key LIKE 'MANUAL-%'
+```
+
+must match.
+
+For lifecycle deletion:
+
+```text
+p_contract_key LIKE 'MANUAL-%'
+```
+
+must be true.
+
+This prevents the supported Manual Delete path from intentionally targeting broker executions.
+
+================================================================================================================================
+
+# 11. USER OWNERSHIP PROTECTION
+
+================================================================================================================================
+
+The API authenticates the user.
+
+The server obtains:
+
+```text
+user.id
+```
+
+The helper passes that ID to the database RPC.
+
+The RPC scopes the deletion by:
+
+```text
+user_id = authenticated user
+```
+
+Therefore the supported delete path does not trust a client-provided arbitrary user ID.
+
+================================================================================================================================
+
+# 12. DATABASE RPC
+
+================================================================================================================================
+
+Current database function:
+
+```text
+public.delete_manual_executions_atomically(
+    uuid,
+    text,
+    text,
+    text
+)
+returns integer
+```
+
+The function is configured as:
+
+```text
+SECURITY DEFINER
+set search_path = public
+```
+
+It validates the delete mode and target before performing the deletion.
+
+================================================================================================================================
+
+# 13. EXECUTION-LEVEL DELETE
+
+================================================================================================================================
+
+For:
+
+```text
+p_delete_mode = 'execution_id'
+```
+
+the RPC deletes only an execution satisfying:
+
+```text
+id = requested execution ID
+
+AND
+
+user_id = requested user
+
+AND
+
+contract_key LIKE 'MANUAL-%'
+```
+
+This provides three important boundaries:
+
+```text
+Exact execution
++
+Correct user
++
+Manual lifecycle
+```
+
+================================================================================================================================
+
+# 14. CONTRACT-KEY DELETE
+
+================================================================================================================================
+
+For:
+
+```text
+p_delete_mode = 'contract_key'
+```
+
+the RPC first requires the contract key to identify a Manual lifecycle.
+
+It then deletes:
+
+```text
+contract_key = requested contract key
+
+AND
+
+user_id = requested user
+```
+
+This makes lifecycle deletion explicit rather than allowing arbitrary execution deletion.
+
+================================================================================================================================
+
+# 15. ZERO-ROW PROTECTION
+
+================================================================================================================================
+
+A delete request that matches no Manual execution is not silently treated as successful.
+
+The RPC obtains the PostgreSQL deleted-row count.
+
+If:
+
+```text
+deleted_count = 0
+```
+
+it raises:
+
+```text
+No matching manual execution was found.
+```
+
+This is important because:
+
+```text
+No rows deleted
+```
+
+is not equivalent to:
+
+```text
+Delete successful
+```
+
+================================================================================================================================
+
+# 16. TRANSACTIONAL BEHAVIOR
+
+================================================================================================================================
+
+The delete function runs within PostgreSQL's transactional execution context.
+
+The intended sequence is:
+
+```text
+Validate
+    ↓
+DELETE
+    ↓
+Check deleted count
+    ↓
+Return success
+```
+
+If an exception occurs:
+
+```text
+DELETE
+    ↓
+ERROR
+    ↓
+ROLLBACK
+```
+
+The database does not intentionally leave a partially completed delete operation.
+
+================================================================================================================================
+
+# 17. WHY THERE IS NO DELETE + INSERT HERE
+
+================================================================================================================================
+
+Atomic Edit requires:
+
+```text
+DELETE + INSERT
+```
+
+because an edit replaces old executions with corrected executions.
+
+Delete is different.
+
+Delete only requires:
+
+```text
+DELETE
+```
+
+Therefore there is no unnecessary delete/reinsert sequence for Manual Delete.
+
+The atomic safety requirement here is focused on:
+
+```text
+Server-side authorization
++
+target validation
++
+manual-only protection
++
+transactional execution
++
+zero-row failure
+```
+
+================================================================================================================================
+
+# 18. FIFO / RECONSTRUCTION AFTER DELETE
+
+================================================================================================================================
+
+Authoritative reconstruction:
+
+```text
+lib/parsers/pairTrades.ts
+```
+
+Manual Delete does not modify this file.
+
+After execution deletion:
+
+```text
+Remaining executions
+        ↓
+pairTrades()
+        ↓
+Reconstructed positions/trades
+```
+
+The resulting state is therefore derived automatically.
+
+================================================================================================================================
+
+# 19. PARTIAL EXIT DELETION DOES NOT RESTORE QUANTITY
+
+================================================================================================================================
+
+Never add special logic such as:
+
+```text
+if exit deleted:
+    restore quantity
+```
+
+That would create a second source of truth.
+
+Correct behavior:
+
+```text
+Delete execution
+        ↓
+Remaining executions
+        ↓
+pairTrades()
+        ↓
+Open quantity naturally derived
+```
+
+Example:
+
+Before:
+
+```text
+BUY 100
+SELL 20
+SELL 20
+SELL 20
+SELL 20
+SELL 20
+```
+
+Result:
+
+```text
+0 OPEN
+```
+
+After deleting one exit:
+
+```text
+BUY 100
+SELL 20
+SELL 20
+SELL 20
+SELL 20
+```
+
+Result:
+
+```text
+20 OPEN
+```
+
+No explicit restoration code is required.
+
+================================================================================================================================
+
+# 20. DELETE OF COMPLETE LIFECYCLE
+
+================================================================================================================================
+
+Example:
+
+```text
+BUY 100
+SELL 100
+```
+
+Delete lifecycle:
+
+```text
+contractKey = MANUAL-...
+```
+
+The canonical executions disappear.
+
+The derived trade disappears because its source executions no longer exist.
+
+There is no separate:
+
+```text
+DELETE reconstructed trade
+```
+
+operation.
+
+================================================================================================================================
+
+# 21. CLIENT SUCCESS BEHAVIOR
+
+================================================================================================================================
+
+The client waits for the API response.
+
+Conceptually:
+
+```text
+POST /api/trades/delete
+        ↓
+SUCCESS
+        ↓
+close/reload
+```
+
+If the server rejects the request:
+
+```text
+API ERROR
+        ↓
+Delete is not considered successful
+```
+
+The UI must not falsely represent a failed delete as completed.
+
+================================================================================================================================
+
+# 22. DATABASE SECURITY
+
+================================================================================================================================
+
+The RPC is configured with:
+
+```text
+SECURITY DEFINER
+set search_path = public
+```
+
+Execution privileges are restricted.
+
+The intended permission model is:
+
+```text
+public
+    → EXECUTE revoked
+
+service_role
+    → EXECUTE granted
+```
+
+The client therefore does not directly invoke the privileged database operation.
+
+================================================================================================================================
+
+# 23. TESTING — INVALID DELETE
+
+================================================================================================================================
+
+A database test was performed using a nonexistent execution/user combination.
+
+Expected behavior:
+
+```text
+No matching manual execution was found.
+```
+
+The database returned the expected PostgreSQL exception.
+
+This confirmed the zero-row safety check.
+
+================================================================================================================================
+
+# 24. REAL UI DELETE TEST
+
+================================================================================================================================
+
+A real Manual Trade lifecycle was created and deleted through the application UI.
+
+The application behavior was observed as working according to the intended delete architecture.
+
+================================================================================================================================
+
+# 25. BUILD VERIFICATION
+
+================================================================================================================================
+
+Production build was executed after Atomic Delete implementation.
+
+Command:
+
+```bash
+npm run build
+```
+
+Result:
+
+```text
+PASS
+```
+
+================================================================================================================================
+
+# 26. PROTECTED INFRASTRUCTURE
+
+================================================================================================================================
+
+Atomic Delete must not modify:
+
+```text
+lib/parsers/pairTrades.ts
+```
+
+merely to implement deletion.
+
+It must also not directly modify:
+
+```text
+reconstructed trades
+positions
+P&L
+analytics
+Dashboard V2
+```
+
+The canonical executions remain the only persistence target.
+
+================================================================================================================================
+
+# 27. SECURITY BOUNDARY
+
+================================================================================================================================
+
+Current supported flow:
+
+```text
+Manual Trade UI
+        ↓
+Authenticated API
+        ↓
+authenticated user.id
+        ↓
+server delete helper
+        ↓
+privileged RPC
+        ↓
+user-scoped Manual execution delete
+```
+
+This establishes a clear server-side trust boundary.
+
+================================================================================================================================
+
+# 28. DELETE SAFETY RULES
+
+================================================================================================================================
+
+The following rules are mandatory:
+
+```text
+1. Never delete broker executions through Manual Delete.
+
+2. Partial Exit deletion uses exact execution_id.
+
+3. Complete lifecycle deletion uses contract_key.
+
+4. Every deletion is scoped to the authenticated user.
+
+5. User identity comes from server-side authentication.
+
+6. MANUAL- lifecycle protection remains enforced.
+
+7. Zero matching rows is an error.
+
+8. Do not manually restore quantities after deleting exits.
+
+9. Let pairTrades() reconstruct the resulting state.
+
+10. Never delete reconstructed trades as the canonical operation.
+
+11. Do not create a second FIFO engine.
+```
+
+================================================================================================================================
+
+# 29. RELATIONSHIP TO ATOMIC EDIT
+
+================================================================================================================================
+
+Atomic Edit and Atomic Delete are separate persistence operations.
+
+### Atomic Edit
+
+```text
+DELETE old
++
+INSERT corrected
+=
+ONE ATOMIC REPLACEMENT
+```
+
+### Atomic Delete
+
+```text
+DELETE targeted execution/lifecycle
+=
+ONE SERVER-SIDE DESTRUCTIVE OPERATION
+```
+
+Both share the same architectural principles:
+
+```text
+Authenticated user
+        ↓
+Server API
+        ↓
+Server helper
+        ↓
+Privileged RPC
+        ↓
+Canonical executions
+```
+
+Neither operation directly modifies derived trades.
+
+================================================================================================================================
+
+# 30. RELATIONSHIP TO SERVER-SIDE VALIDATION
+
+================================================================================================================================
+
+Feature #27 established:
+
+```text
+lib/server/trades/validateManualExecutions.ts
+```
+
+for Manual execution replacement.
+
+Atomic Delete has its own targeted validation because it receives a delete target rather than a new execution set.
+
+The two validation boundaries are therefore intentionally different.
+
+Do not force execution-set validation into a delete operation where it provides no value.
+
+================================================================================================================================
+
+# 31. DEVELOPMENT RULES
+
+================================================================================================================================
+
+Future changes must follow:
+
+```text
+1. Review CURRENT implementation first.
+2. Never assume old code is current.
+3. Identify exact files.
+4. Make the smallest safe change.
+5. Preserve execution-first architecture.
+6. Do not modify FIFO without proof.
+7. Test destructive behavior.
+8. Run npm run build.
+9. Review git diff.
+10. Review git status.
+11. Create checkpoint.
+12. Push origin/main.
+```
+
+================================================================================================================================
+
+# 32. CURRENT STATUS
+
+================================================================================================================================
+
+```text
+Atomic Delete Persistence
+
+STATUS: COMPLETE
+```
+
+Completed:
+
+```text
+✓ Server-side Delete API
+✓ Server-side authentication
+✓ Authenticated user identification
+✓ Delete server helper
+✓ Exact execution deletion mode
+✓ Contract-key lifecycle deletion mode
+✓ Manual-only protection
+✓ User ownership scoping
+✓ Zero-row protection
+✓ Database transactional behavior
+✓ Real UI delete testing
+✓ Production build verification
+✓ Git checkpoint
+```
+
+================================================================================================================================
+
+# 33. CHECKPOINT
+
+================================================================================================================================
+
+Checkpoint name:
+
+```text
+Checkpoint: Atomic delete persistence
+```
+
+This checkpoint represents the completed Atomic Delete persistence work.
+
+The current repository remains authoritative for future implementation details.
+
+================================================================================================================================
+
+# 34. FINAL ARCHITECTURE
+
+================================================================================================================================
+
+```text
+                   MANUAL TRADE
+
+                        ↓
+
+                DELETE REQUEST
+                        ↓
+              /api/trades/delete
+                        ↓
+                Authenticate User
+                        ↓
+        deleteManualExecutionsAtomically()
+                        ↓
+        ┌────────────────────────────┐
+        │                            │
+ execution_id                   contract_key
+        │                            │
+        ↓                            ↓
+ exact execution              full Manual lifecycle
+        │                            │
+        └──────────────┬─────────────┘
+                       ↓
+                Supabase RPC
+                       ↓
+              User + MANUAL scope
+                       ↓
+                  DELETE
+                       ↓
+                 SUCCESS / ERROR
+                       ↓
+                 Remaining
+                 Executions
+                       ↓
+                  pairTrades()
+                       ↓
+             Derived Trade State
+```
+
+================================================================================================================================
+
+# 35. MASTER RULE
+
+================================================================================================================================
+
+```text
+MANUAL DELETE MUST DELETE CANONICAL EXECUTIONS,
+
+NOT DERIVED TRADES.
+
+PARTIAL EXIT:
+
+    DELETE EXACT EXECUTION.
+
+COMPLETE LIFECYCLE:
+
+    DELETE MANUAL CONTRACT KEY.
+
+THEN LET THE EXISTING FIFO / RECONSTRUCTION
+
+ENGINE DERIVE THE RESULTING STATE.
+```
+
+# END OF ATOMIC DELETE PERSISTENCE MASTER NOTES

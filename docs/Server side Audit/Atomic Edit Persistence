@@ -1,0 +1,838 @@
+# ELITE X TRADING JOURNAL
+
+# SERVER-SIDE SUITE
+
+# FEATURE — ATOMIC EDIT PERSISTENCE
+
+**Document Type:** Master Architecture / Development / Handover Notes
+
+**System:** Elite X Trading Journal / Trading OS
+
+**Scope:** Manual Trade Edit Persistence
+
+**Status:** COMPLETE
+
+**Checkpoint:** Atomic execution persistence
+
+**Date:** September 13, 2026
+
+================================================================================================================================
+
+# 1. PURPOSE
+
+================================================================================================================================
+
+This document is the authoritative master reference for the:
+
+**Atomic Edit Persistence**
+
+feature.
+
+The purpose of this feature was to eliminate the unsafe client-side:
+
+DELETE → INSERT
+
+pattern previously used by Manual Trade editing.
+
+The new architecture ensures that replacing Manual Trade executions is performed as one atomic database operation.
+
+The core safety requirement is:
+
+```text
+DELETE OLD EXECUTIONS
+        +
+INSERT CORRECTED EXECUTIONS
+
+MUST SUCCEED TOGETHER.
+```
+
+If the replacement fails:
+
+```text
+ROLLBACK
+```
+
+The original execution state must remain intact.
+
+================================================================================================================================
+
+# 2. CORE ARCHITECTURAL PRINCIPLE
+
+================================================================================================================================
+
+Elite X is execution-first.
+
+```text
+Executions
+    ↓
+FIFO Reconstruction
+    ↓
+Derived Trades
+```
+
+Manual Edit therefore does NOT directly modify reconstructed trades.
+
+It modifies the canonical executions.
+
+After the execution change:
+
+```text
+Executions
+    ↓
+pairTrades()
+    ↓
+Derived Trade State
+```
+
+The FIFO engine remains the authoritative reconstruction engine.
+
+================================================================================================================================
+
+# 3. ORIGINAL EDIT PROBLEM
+
+================================================================================================================================
+
+The original Manual Edit persistence behavior was conceptually:
+
+```text
+EditTradeModal
+      ↓
+DELETE old execution(s)
+      ↓
+INSERT corrected execution(s)
+```
+
+These operations were separate persistence operations.
+
+This created a dangerous failure case:
+
+```text
+DELETE succeeds
+      ↓
+INSERT fails
+      ↓
+Original data is already gone
+      ↓
+Corrected data does not exist
+```
+
+For a financial/trading journal, this is unacceptable.
+
+The persistence operation therefore needed transaction-level atomicity.
+
+================================================================================================================================
+
+# 4. NEW ATOMIC EDIT ARCHITECTURE
+
+================================================================================================================================
+
+The new architecture is:
+
+```text
+EditTradeModal
+      ↓
+POST /api/trades/edit
+      ↓
+Authenticate user
+      ↓
+replaceManualExecutionsAtomically()
+      ↓
+validate input
+      ↓
+Supabase RPC
+      ↓
+DELETE + INSERT
+      ↓
+COMMIT or ROLLBACK
+```
+
+The client no longer performs the destructive delete/insert sequence itself.
+
+================================================================================================================================
+
+# 5. CLIENT RESPONSIBILITY
+
+================================================================================================================================
+
+Current file:
+
+```text
+components/trades/EditTradeModal.tsx
+```
+
+The client is responsible for:
+
+* collecting edited values;
+* performing user-facing validation;
+* determining the appropriate edit mode;
+* constructing corrected executions;
+* obtaining the current authentication session;
+* sending the authenticated request to the server;
+* waiting for the server response;
+* closing/reloading only after successful persistence.
+
+The client is NOT the authority for database ownership or atomic persistence.
+
+================================================================================================================================
+
+# 6. MANUAL EDIT API
+
+================================================================================================================================
+
+Current file:
+
+```text
+app/api/trades/edit/route.ts
+```
+
+The API performs:
+
+```text
+Authorization header
+        ↓
+Bearer token
+        ↓
+Supabase authentication
+        ↓
+authenticated user
+        ↓
+user.id
+```
+
+The authenticated user ID is derived server-side.
+
+The API does not trust a client-provided user ID for ownership.
+
+The API validates that the request contains the expected executions array.
+
+It then calls:
+
+```text
+replaceManualExecutionsAtomically()
+```
+
+The API returns success only after the server persistence operation succeeds.
+
+================================================================================================================================
+
+# 7. ATOMIC SERVER HELPER
+
+================================================================================================================================
+
+Current file:
+
+```text
+lib/server/trades/replaceManualExecutionsAtomically.ts
+```
+
+Responsibilities:
+
+* validate replacement input;
+* invoke server-side Manual Execution validation;
+* serialize normalized executions into database format;
+* deduplicate executions by ID;
+* call the Supabase atomic RPC;
+* throw if the database operation fails.
+
+The helper does NOT:
+
+* reconstruct trades;
+* calculate P&L;
+* implement FIFO;
+* modify reconstructed trade records directly.
+
+It is a persistence-layer component.
+
+================================================================================================================================
+
+# 8. SERVER-SIDE VALIDATION
+
+================================================================================================================================
+
+The atomic replacement helper now invokes:
+
+```text
+lib/server/trades/validateManualExecutions.ts
+```
+
+before the database replacement operation.
+
+Therefore the current sequence is:
+
+```text
+Incoming executions
+        ↓
+Server-side validation
+        ↓
+Serialization
+        ↓
+Deduplication
+        ↓
+Atomic database replacement
+```
+
+This validation layer was introduced as Feature #27.
+
+The validator is documented separately under:
+
+```text
+Server-Side Suite/
+└── Server-Side Validation Mirror
+```
+
+================================================================================================================================
+
+# 9. DATABASE RPC
+
+================================================================================================================================
+
+The Atomic Edit persistence operation uses:
+
+```text
+public.replace_manual_executions_atomically(...)
+```
+
+The function is configured as:
+
+```text
+SECURITY DEFINER
+set search_path = public
+```
+
+The RPC performs the replacement inside PostgreSQL's transactional execution context.
+
+Conceptually:
+
+```text
+Validate
+    ↓
+DELETE old execution set
+    ↓
+INSERT corrected execution set
+    ↓
+Success → COMMIT
+    ↓
+Failure → ROLLBACK
+```
+
+================================================================================================================================
+
+# 10. ATOMIC GUARANTEE
+
+================================================================================================================================
+
+The fundamental guarantee is:
+
+```text
+OLD STATE
+   ↓
+ATOMIC REPLACEMENT
+   ↓
+┌───────────────┐
+│               │
+SUCCESS       FAILURE
+│               │
+↓               ↓
+COMMIT        ROLLBACK
+│               │
+↓               ↓
+NEW STATE     OLD STATE
+```
+
+There must never be an intended intermediate state where:
+
+```text
+OLD EXECUTIONS = deleted
+NEW EXECUTIONS = not inserted
+```
+
+after an unsuccessful edit.
+
+================================================================================================================================
+
+# 11. EDIT MODES
+
+================================================================================================================================
+
+Manual Edit supports two different replacement scopes.
+
+### PARTIAL EXIT
+
+```text
+deleteMode = "execution_id"
+```
+
+The exact selected exit execution is replaced.
+
+This is critical for partial-exit lifecycles because deleting/replacing the entire contract lifecycle would affect unrelated exits.
+
+### COMPLETE / OPEN POSITION LIFECYCLE
+
+```text
+deleteMode = "contract_key"
+```
+
+The lifecycle represented by the Manual contract key is replaced as a unit.
+
+This allows the complete Manual lifecycle to be edited consistently.
+
+================================================================================================================================
+
+# 12. PARTIAL EXIT EDIT
+
+================================================================================================================================
+
+Example:
+
+```text
+BUY 100
+SELL 20
+SELL 20
+SELL 20  ← selected exit
+SELL 20
+SELL 20
+```
+
+Editing the selected exit must affect only that execution.
+
+Conceptually:
+
+```text
+Exact Exit Execution ID
+        ↓
+Delete exact execution
+        ↓
+Insert corrected exit
+```
+
+The other exits remain untouched.
+
+The lifecycle's `contractKey` is preserved.
+
+================================================================================================================================
+
+# 13. COMPLETE LIFECYCLE EDIT
+
+================================================================================================================================
+
+Example:
+
+```text
+BUY 100
+SELL 100
+```
+
+A Complete Trade edit replaces the lifecycle's executions.
+
+The lifecycle is identified through:
+
+```text
+contractKey
+```
+
+The replacement therefore operates on the entire Manual lifecycle represented by that key.
+
+================================================================================================================================
+
+# 14. CONTRACT KEY
+
+================================================================================================================================
+
+Manual executions are identified through:
+
+```text
+MANUAL-
+```
+
+contract keys.
+
+Example:
+
+```text
+MANUAL-AAPL-<lifecycle-id>
+```
+
+The Manual Edit persistence path uses the contract key when the edit represents the entire lifecycle.
+
+This prevents Manual Edit from accidentally targeting unrelated broker executions.
+
+================================================================================================================================
+
+# 15. EXECUTION SOURCE OF TRUTH
+
+================================================================================================================================
+
+The edited executions remain the canonical state.
+
+After a successful edit:
+
+```text
+Updated Executions
+        ↓
+pairTrades()
+        ↓
+Updated Derived Trade
+```
+
+There is no separate:
+
+```text
+Manual Trade Update Engine
+```
+
+and no direct reconstructed-trade mutation is required.
+
+================================================================================================================================
+
+# 16. FIFO PROTECTION
+
+================================================================================================================================
+
+Authoritative FIFO implementation:
+
+```text
+lib/parsers/pairTrades.ts
+```
+
+This file remains protected.
+
+Atomic Edit does not implement FIFO.
+
+Atomic Edit does not calculate derived P&L.
+
+Atomic Edit does not manually rebuild positions.
+
+The existing reconstruction engine remains responsible for deriving the resulting state.
+
+================================================================================================================================
+
+# 17. ERROR HANDLING
+
+================================================================================================================================
+
+If authentication fails:
+
+```text
+401 Unauthorized
+```
+
+If the request is invalid:
+
+```text
+400 Invalid request
+```
+
+If the server/database operation fails:
+
+```text
+500
+```
+
+The client only treats the edit as successful after the API returns success.
+
+================================================================================================================================
+
+# 18. UI SUCCESS BEHAVIOR
+
+================================================================================================================================
+
+The current EditTradeModal waits for the server response.
+
+Conceptually:
+
+```text
+POST /api/trades/edit
+        ↓
+SUCCESS
+        ↓
+close modal
+        ↓
+reload
+```
+
+If persistence fails:
+
+```text
+API error
+        ↓
+do not treat edit as successful
+```
+
+This prevents the UI from claiming an edit succeeded when the database did not.
+
+================================================================================================================================
+
+# 19. ROLLBACK TESTING
+
+================================================================================================================================
+
+Atomic rollback was tested directly against the database using intentionally invalid execution data.
+
+The test caused the insert portion to fail.
+
+The expected behavior was:
+
+```text
+DELETE
+    ↓
+INSERT FAILURE
+    ↓
+ROLLBACK
+```
+
+The database returned the expected failure rather than leaving the old execution state partially deleted.
+
+This established that the transaction boundary is functioning as intended.
+
+================================================================================================================================
+
+# 20. REAL APPLICATION TESTING
+
+================================================================================================================================
+
+Manual Edit was tested through the application.
+
+Testing included:
+
+```text
+Complete Trade edit
+Partial Exit edit
+```
+
+The resulting behavior was observed as working according to the intended architecture.
+
+================================================================================================================================
+
+# 21. BUILD VERIFICATION
+
+================================================================================================================================
+
+Production build was verified using:
+
+```bash
+npm run build
+```
+
+Result:
+
+```text
+PASS
+```
+
+================================================================================================================================
+
+# 22. PROTECTED INFRASTRUCTURE
+
+================================================================================================================================
+
+Atomic Edit must not modify:
+
+```text
+lib/parsers/pairTrades.ts
+```
+
+unless a separate, independently verified FIFO defect is discovered.
+
+It must also not modify:
+
+```text
+reconstructed trades
+P&L engine
+analytics
+Dashboard V2
+broker sync
+broker execution replacement
+```
+
+The edit operation belongs strictly to the Manual Execution persistence layer.
+
+================================================================================================================================
+
+# 23. SECURITY BOUNDARY
+
+================================================================================================================================
+
+The current architecture establishes:
+
+```text
+Client
+  ↓
+Authenticated API
+  ↓
+Server user.id
+  ↓
+Server persistence helper
+  ↓
+Privileged database RPC
+```
+
+The client does not receive direct control over the database transaction.
+
+The server derives the authenticated user's identity.
+
+The database operation is scoped according to the authenticated user.
+
+================================================================================================================================
+
+# 24. IMPORTANT ARCHITECTURAL RULE
+
+================================================================================================================================
+
+Never implement Manual Edit as:
+
+```text
+DELETE reconstructed trade
+INSERT reconstructed trade
+```
+
+The correct implementation is:
+
+```text
+Replace canonical executions
+        ↓
+Reconstruct
+```
+
+This preserves deterministic behavior.
+
+================================================================================================================================
+
+# 25. FAILURE-SAFETY RULE
+
+================================================================================================================================
+
+The most important Atomic Edit rule is:
+
+```text
+IF THE NEW EXECUTION SET CANNOT BE COMPLETELY PERSISTED,
+
+THE OLD EXECUTION SET MUST REMAIN.
+```
+
+This is the reason the database transaction exists.
+
+================================================================================================================================
+
+# 26. DEVELOPMENT RULES
+
+================================================================================================================================
+
+Future changes to Atomic Edit must follow:
+
+```text
+1. Review CURRENT code first.
+2. Do not rely on old checkpoint code.
+3. Identify exact files.
+4. Make the smallest safe change.
+5. Do not modify FIFO without proof.
+6. Test the affected behavior.
+7. Run npm run build.
+8. Review git diff.
+9. Review git status.
+10. Create a checkpoint.
+11. Push origin/main.
+```
+
+================================================================================================================================
+
+# 27. CURRENT STATUS
+
+================================================================================================================================
+
+```text
+Atomic Edit Persistence
+
+STATUS: COMPLETE
+```
+
+Completed:
+
+```text
+✓ Server-side edit API
+✓ Server-side authentication
+✓ Authenticated user identification
+✓ Atomic replacement helper
+✓ Server-side validation integration
+✓ Database transaction
+✓ Delete + insert atomicity
+✓ Partial Exit execution-level edit
+✓ Complete lifecycle edit
+✓ Rollback protection
+✓ Real Manual Edit testing
+✓ Production build verification
+✓ Git checkpoint
+```
+
+================================================================================================================================
+
+# 28. CHECKPOINT
+
+================================================================================================================================
+
+Checkpoint name:
+
+```text
+Checkpoint: Atomic execution persistence
+```
+
+The Atomic Edit work was included in the Atomic Execution Persistence checkpoint.
+
+The repository checkpoint should be treated as historical evidence of the completed implementation, while the current repository remains authoritative for future work.
+
+================================================================================================================================
+
+# 29. FINAL ARCHITECTURE
+
+================================================================================================================================
+
+```text
+EditTradeModal
+      ↓
+POST /api/trades/edit
+      ↓
+Authenticate User
+      ↓
+replaceManualExecutionsAtomically()
+      ↓
+validateManualExecutions()
+      ↓
+Serialize / Deduplicate
+      ↓
+replace_manual_executions_atomically()
+      ↓
+┌─────────────────────────┐
+│                         │
+DELETE + INSERT        FAILURE
+│                         │
+↓                         ↓
+COMMIT                  ROLLBACK
+│                         │
+↓                         ↓
+New Executions         Old Executions
+          │
+          ↓
+     pairTrades()
+          │
+          ↓
+ Derived Trade State
+```
+
+================================================================================================================================
+
+# 30. MASTER RULE
+
+================================================================================================================================
+
+```text
+MANUAL EDIT MUST MODIFY CANONICAL EXECUTIONS,
+
+NOT DERIVED TRADES.
+
+DELETE + INSERT MUST BE ATOMIC.
+
+IF THE REPLACEMENT FAILS,
+
+THE ORIGINAL EXECUTIONS MUST REMAIN.
+```
+
+# END OF ATOMIC EDIT PERSISTENCE MASTER NOTES

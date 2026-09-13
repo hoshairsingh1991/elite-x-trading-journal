@@ -1,0 +1,750 @@
+# ELITE X TRADING JOURNAL
+
+# MASTER DEVELOPMENT NOTES
+
+# FEATURE #27 — SERVER-SIDE VALIDATION MIRROR
+
+# STATUS: COMPLETE
+
+# CHECKPOINT: 95f5d4a
+
+# CHECKPOINT NAME: Server-side manual execution validation
+
+# DATE: September 13, 2026
+
+================================================================================================================================
+OVERVIEW
+========
+
+Feature #27 — Server-Side Validation Mirror is COMPLETE.
+
+The purpose of this feature was to establish a server-side validation layer for manual execution data before it reaches the atomic manual execution persistence layer.
+
+The key architectural goal was:
+
+CLIENT VALIDATION
+↓
+SERVER-SIDE VALIDATION
+↓
+ATOMIC PERSISTENCE
+↓
+SUPABASE EXECUTIONS
+
+Client-side validation remains useful for UX, but it is NOT treated as a security or data-integrity boundary.
+
+The server must independently validate manual execution data because a client can be bypassed or manipulated.
+
+This feature was implemented as an addition to the existing atomic manual trade persistence architecture.
+
+No changes were made to:
+
+* FIFO reconstruction behavior
+* pairTrades.ts
+* reconstructed trades
+* P&L calculations
+* analytics
+* Dashboard V2
+* broker sync behavior
+* broker execution replacement logic
+* manual trade UI behavior
+* canonical execution architecture
+
+The canonical architecture remains:
+
+Broker / Manual Entry
+↓
+Normalized Executions
+↓
+Supabase Executions Ledger
+↓
+Deterministic FIFO Reconstruction
+↓
+Trades / Analytics / Dashboard
+
+================================================================================================================================
+WHY FEATURE #27 WAS REQUIRED
+============================
+
+Before this feature, the atomic manual execution replacement layer protected persistence through a database transaction, but the server did not have a dedicated validation mirror for the normalized manual execution objects.
+
+The client-side Manual Entry / Edit UI already performed validation.
+
+However:
+
+CLIENT VALIDATION ≠ SERVER VALIDATION
+
+A malicious or malformed request could bypass the UI and call the server endpoint directly.
+
+Therefore the server needed to independently verify that incoming manual executions satisfy the basic invariants expected by the canonical execution model.
+
+The purpose of #27 was NOT to redesign the entire execution schema.
+
+The purpose was to create a focused server-side validation boundary for manual executions.
+
+================================================================================================================================
+FILES CHANGED
+=============
+
+1. lib/server/trades/validateManualExecutions.ts
+
+NEW FILE
+
+Purpose:
+
+Provides centralized server-side validation for manual NormalizedExecution objects.
+
+This is now the validation boundary used by the manual atomic replacement layer.
+
+2. lib/server/trades/replaceManualExecutionsAtomically.ts
+
+MODIFIED
+
+Purpose:
+
+The existing atomic manual replacement helper now invokes:
+
+validateManualExecutions(executions)
+
+before serializing and sending the executions to the atomic Supabase RPC.
+
+The persistence sequence is therefore:
+
+Receive executions
+↓
+Basic replacement input checks
+↓
+Server-side manual execution validation
+↓
+Normalize / serialize
+↓
+Deduplicate by execution ID
+↓
+Atomic Supabase RPC
+↓
+Delete + Insert in one DB transaction
+
+3. docs/notes.md
+
+MODIFIED
+
+Added the Atomic Safety feature/checkpoint references to the development notes.
+
+================================================================================================================================
+SERVER-SIDE VALIDATOR
+=====================
+
+FILE:
+
+lib/server/trades/validateManualExecutions.ts
+
+The validator imports:
+
+NormalizedExecution
+
+from:
+
+@/types/trade
+
+The validator defines the supported currency set:
+
+USD
+CAD
+EUR
+GBP
+JPY
+INR
+
+The validator defines valid execution actions:
+
+BUY
+SELL
+
+================================================================================================================================
+VALIDATION RULES IMPLEMENTED
+============================
+
+The validator first confirms that the incoming value is an array.
+
+If it is not an array:
+
+"Executions must be an array."
+
+The validator then requires at least one execution.
+
+If the array is empty:
+
+"No executions provided."
+
+Each execution is then individually validated.
+
+---
+
+## OBJECT VALIDATION
+
+Each execution must be a non-null object.
+
+Invalid entries are rejected with an execution-specific error.
+
+Example:
+
+Execution 1 is invalid.
+
+---
+
+## REQUIRED STRING FIELDS
+
+The following fields must be strings and must not be empty after trimming:
+
+id
+date
+executionTimestamp
+ticker
+contract
+account
+assetType
+currency
+contractKey
+
+Whitespace-only values are rejected.
+
+---
+
+## ACTION VALIDATION
+
+The execution action must be:
+
+BUY
+
+or:
+
+SELL
+
+Any other action is rejected.
+
+Example:
+
+HOLD
+
+is invalid.
+
+---
+
+## QUANTITY VALIDATION
+
+quantity must:
+
+* be a JavaScript number
+* be finite
+* be greater than zero
+
+Therefore:
+
+NaN
+Infinity
+-Infinity
+0
+negative values
+
+are rejected.
+
+---
+
+## EXECUTION PRICE VALIDATION
+
+executionPrice must:
+
+* be a finite number
+* be greater than zero
+
+Zero and negative execution prices are rejected.
+
+---
+
+## EXECUTION VALUE VALIDATION
+
+executionValue must:
+
+* be a finite number
+* not be negative
+
+The validator also independently verifies that executionValue corresponds to:
+
+executionPrice × quantity × multiplier
+
+A tolerance is used to account for normal floating-point precision differences.
+
+The tolerance is:
+
+max(
+0.00000001,
+abs(expectedValue) × 0.00000001
+)
+
+If the supplied execution value falls outside that tolerance, the execution is rejected.
+
+---
+
+## FEES VALIDATION
+
+fees must:
+
+* be a finite number
+* be greater than or equal to zero
+
+Negative fees are rejected.
+
+---
+
+## MULTIPLIER VALIDATION
+
+multiplier must:
+
+* be a finite number
+* be greater than zero
+
+---
+
+## CURRENCY VALIDATION
+
+currency is normalized to uppercase for validation.
+
+Supported currencies currently accepted by the server validator:
+
+USD
+CAD
+EUR
+GBP
+JPY
+INR
+
+If currency is not supported, the execution is rejected.
+
+---
+
+## FEE CURRENCY VALIDATION
+
+feeCurrency is optional.
+
+If feeCurrency exists, it must be:
+
+* non-empty
+* supported by the same currency set
+
+Supported:
+
+USD
+CAD
+EUR
+GBP
+JPY
+INR
+
+---
+
+# MANUAL LIFECYCLE VALIDATION
+
+contractKey is required.
+
+The validator requires:
+
+contractKey.startsWith("MANUAL-")
+
+This is intentional.
+
+Feature #27 is validating the manual execution persistence path.
+
+A broker execution must not be accepted through this manual execution validation boundary.
+
+Therefore an execution such as:
+
+AAPL-12345
+
+is rejected.
+
+A manual lifecycle such as:
+
+MANUAL-AAPL-xxxxxxxx
+
+is accepted.
+
+================================================================================================================================
+INTEGRATION WITH ATOMIC MANUAL PERSISTENCE
+==========================================
+
+FILE:
+
+lib/server/trades/replaceManualExecutionsAtomically.ts
+
+The validator was inserted into the existing atomic persistence flow.
+
+The important sequence is:
+
+if (executions.length === 0) {
+throw new Error("No executions provided for replacement.");
+}
+
+validateManualExecutions(executions);
+
+Then the existing serialization, deduplication, and atomic database RPC continue.
+
+This means validation happens BEFORE the database replacement operation.
+
+The existing atomic behavior remains intact.
+
+If validation fails:
+
+* no delete occurs
+* no insert occurs
+* the atomic RPC is not called
+
+If validation succeeds:
+
+* the existing atomic replacement process continues unchanged.
+
+================================================================================================================================
+WHAT WAS NOT CHANGED
+====================
+
+The following were intentionally NOT modified as part of #27:
+
+* lib/parsers/pairTrades.ts
+* FIFO matching logic
+* LONG/SHORT bucket behavior
+* open position reconstruction
+* closed trade P&L
+* fee allocation logic
+* broker sync
+* IBKR Flex handling
+* broker atomic replacement
+* broker execution data model
+* Dashboard V2
+* analytics
+* reconciliation
+* manual trade UI
+* EditTradeModal persistence architecture
+* DeleteTradeModal / delete behavior
+* Supabase execution table schema
+* database constraints
+
+This was deliberately kept as a narrow validation-layer improvement.
+
+================================================================================================================================
+RELATIONSHIP TO MANUAL ENTRY
+============================
+
+The Manual Entry UI still performs client-side validation before creating executions.
+
+The existing flow is:
+
+AddTradeModal
+↓
+createManualExecutions()
+↓
+saveExecutionsToSupabase()
+↓
+Supabase executions table
+
+Feature #27 created the server-side validation layer for the atomic manual replacement path.
+
+IMPORTANT:
+
+The existing direct Manual Entry storage path:
+
+lib/storage/supabaseExecutionStorage.ts
+
+still performs a direct Supabase upsert protected by Supabase RLS.
+
+It does NOT yet route through the new server-side validator.
+
+Therefore #27 should be understood as:
+
+SERVER-SIDE VALIDATION FOR THE ATOMIC MANUAL REPLACEMENT PATH
+
+rather than:
+
+ALL MANUAL ENTRY PERSISTENCE NOW PASSES THROUGH THE SERVER VALIDATOR
+
+================================================================================================================================
+INTENTIONALLY DEFERRED VALIDATION
+=================================
+
+The following rules were deliberately NOT added during #27 because they require stronger evidence that they are universally correct for the existing execution architecture.
+
+1. Exact date-format validation
+
+The validator currently requires a non-empty date string but does not enforce one specific date format.
+
+2. Exact executionTimestamp format
+
+The validator currently requires a non-empty timestamp string but does not impose a strict timestamp parser.
+
+3. side validation
+
+NormalizedExecution does not contain a side field.
+
+The database storage layer currently derives:
+
+side = execution.action
+
+Therefore no independent side validation was added.
+
+4. Asset-type-specific multiplier validation
+
+The current manual execution builder uses:
+
+OPTIONS → multiplier 100
+non-options → multiplier 1
+
+However, the validator currently only requires multiplier > 0.
+
+No new universal multiplier rule was introduced without further architectural review.
+
+5. Execution ID uniqueness
+
+The existing atomic helper already deduplicates executions by ID before persistence.
+
+A stronger server-side uniqueness rule may be considered separately if required.
+
+6. Lifecycle consistency validation
+
+The validator does not currently require all executions in one replacement request to share identical ticker/account/asset type/currency/contract key.
+
+That is intentionally deferred until the expected edit/replacement semantics are reviewed more deeply.
+
+These are NOT considered missing implementation bugs for the completed #27 scope.
+
+================================================================================================================================
+TESTING PERFORMED
+=================
+
+The project does not currently contain:
+
+* Vitest
+* Jest
+* Playwright
+* tsx
+* ts-node
+
+No new testing framework was introduced solely for this feature.
+
+A temporary standalone validation test file was created during development to establish the intended validation cases.
+
+Temporary file:
+
+validate-manual-executions-test.ts
+
+It was subsequently deleted.
+
+The temporary file was verified with TypeScript compilation:
+
+npx tsc --noEmit
+
+Result:
+
+PASS
+
+No TypeScript errors were produced.
+
+The temporary test file was then removed from the repository.
+
+================================================================================================================================
+BUILD VERIFICATION
+==================
+
+Production build was executed after integrating the validator.
+
+Command:
+
+npm run build
+
+Result:
+
+PASS
+
+The project built successfully.
+
+================================================================================================================================
+GIT VERIFICATION
+================
+
+Before committing, git status showed only the intended changes:
+
+docs/notes.md
+lib/server/trades/replaceManualExecutionsAtomically.ts
+lib/server/trades/validateManualExecutions.ts
+
+The temporary test file had already been removed.
+
+================================================================================================================================
+CHECKPOINT
+==========
+
+Commit:
+
+95f5d4a
+
+Commit message:
+
+Checkpoint: Server-side manual execution validation
+
+The commit contained:
+
+3 files changed
+317 insertions
+2 deletions
+
+New file:
+
+lib/server/trades/validateManualExecutions.ts
+
+================================================================================================================================
+CURRENT STATUS
+==============
+
+FEATURE #27 — SERVER-SIDE VALIDATION MIRROR
+
+STATUS:
+
+COMPLETE
+
+Build:
+
+PASS
+
+TypeScript:
+
+PASS
+
+Checkpoint:
+
+95f5d4a
+
+Checkpoint name:
+
+Server-side manual execution validation
+
+================================================================================================================================
+ARCHITECTURAL STATE AFTER #27
+=============================
+
+The Manual Trade safety architecture now contains:
+
+CLIENT VALIDATION
+↓
+SERVER AUTHENTICATION
+↓
+SERVER-SIDE MANUAL EXECUTION VALIDATION
+↓
+ATOMIC EXECUTION REPLACEMENT
+↓
+SUPABASE TRANSACTION
+↓
+EXECUTIONS LEDGER
+↓
+FIFO RECONSTRUCTION
+↓
+DERIVED TRADES
+↓
+ANALYTICS / DASHBOARD
+
+For edit operations, the flow is:
+
+EditTradeModal
+↓
+POST /api/trades/edit
+↓
+authenticated user.id
+↓
+replaceManualExecutionsAtomically()
+↓
+validateManualExecutions()
+↓
+atomic DB replacement
+↓
+FIFO reconstruction
+
+For delete operations, the previously completed architecture remains:
+
+EditTradeModal / Delete action
+↓
+POST /api/trades/delete
+↓
+authenticated user.id
+↓
+deleteManualExecutionsAtomically()
+↓
+atomic DB delete
+↓
+FIFO reconstruction
+
+================================================================================================================================
+PROTECTED CANONICAL ARCHITECTURE
+================================
+
+The most important architectural rule remains unchanged:
+
+EXECUTIONS ARE THE CANONICAL SOURCE OF TRUTH.
+
+Trades are derived state.
+
+Manual Entry, Manual Edit, Manual Delete, and Broker Sync must ultimately operate on the execution ledger.
+
+The FIFO engine remains the single source of truth for reconstructing trades.
+
+No second manual-trade FIFO engine was introduced.
+
+No manual-specific P&L engine was introduced.
+
+No manual-specific trade persistence model was introduced.
+
+================================================================================================================================
+NEXT DEVELOPMENT RULE
+=====================
+
+Do NOT start the next roadmap item by assuming the current implementation.
+
+Before any future code change:
+
+1. Identify the exact relevant file(s).
+2. Ask for the CURRENT contents of those files.
+3. Review the current implementation.
+4. Identify the smallest safe change.
+5. Explicitly state what will not be touched.
+6. Implement one logical improvement at a time.
+7. Run TypeScript/build verification.
+8. Test the affected behavior.
+9. Review git diff/status.
+10. Create a checkpoint.
+11. Push to origin/main.
+
+Never rely on older pasted code or previous checkpoint code as the current implementation.
+
+The repository state at the time of the next task is authoritative.
+
+================================================================================================================================
+FEATURE #27 FINAL CONCLUSION
+============================
+
+#27 — Server-Side Validation Mirror is COMPLETE.
+
+The atomic manual execution replacement path now has an explicit server-side validation boundary.
+
+The implementation is intentionally narrow and preserves the existing canonical execution/FIFO architecture.
+
+No changes were made to the trading engine.
+
+No changes were made to broker sync.
+
+No changes were made to Dashboard V2.
+
+No changes were made to the database execution schema.
+
+Production build passes.
+
+Checkpoint created:
+
+95f5d4a
+
+Checkpoint:
+
+# Checkpoint: Server-side manual execution validation
