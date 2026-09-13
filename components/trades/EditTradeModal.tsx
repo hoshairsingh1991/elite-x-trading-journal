@@ -17,9 +17,7 @@ import {
   createManualExecutions,
 } from "@/lib/trades/createManualExecutions";
 
-import {
-  saveExecutionsToSupabase,
-} from "@/lib/storage/supabaseExecutionStorage";
+
 
 import {
   Tooltip,
@@ -512,10 +510,20 @@ alert("Commission / fees cannot be negative.");
     }
 
 // =================================================
-// DELETE / REPLACE EXISTING EXECUTION(S)
+// BUILD CORRECTED EXECUTIONS
 // =================================================
 
 let correctedExecutions;
+
+let deleteMode:
+  | "execution_id"
+  | "contract_key";
+
+let deleteExecutionId:
+  string | undefined;
+
+let deleteContractKey:
+  string | undefined;
 
 if (isPartialExitTrade) {
 
@@ -544,29 +552,11 @@ if (isPartialExitTrade) {
     return;
   }
 
-  const {
-    error: deleteExitError,
-  } = await supabase
-    .from("executions")
-    .delete()
-    .eq(
-      "id",
-      existingExitExecution.id
-    );
+  deleteMode =
+    "execution_id";
 
-  if (deleteExitError) {
-
-    console.error(
-      "FAILED TO DELETE EXISTING PARTIAL EXIT EXECUTION:",
-      deleteExitError
-    );
-
-    alert(
-      "Failed to update partial exit."
-    );
-
-    return;
-  }
+  deleteExecutionId =
+    existingExitExecution.id;
 
   // =================================================
   // CREATE REPLACEMENT PARTIAL EXIT
@@ -574,7 +564,6 @@ if (isPartialExitTrade) {
 
   correctedExecutions =
     createManualExecutions({
-
       ticker:
         normalizedTicker,
 
@@ -615,86 +604,59 @@ if (isPartialExitTrade) {
 
   // =================================================
   // COMPLETE / OPEN POSITION ENTRY
-  // EXISTING BEHAVIOR
+  // PRESERVE EXISTING LIFECYCLE REPLACEMENT
   // =================================================
 
-  const {
-    error: deleteError,
-  } = await supabase
-    .from("executions")
-    .delete()
-    .eq(
-      "contract_key",
-      trade.contractKey
-    );
+  deleteMode =
+    "contract_key";
 
-  if (deleteError) {
+  deleteContractKey =
+    trade.contractKey;
 
-    console.error(
-      "FAILED TO DELETE OLD MANUAL LIFECYCLE:",
-      deleteError
-    );
+  correctedExecutions =
+    createManualExecutions({
+      ticker:
+        normalizedTicker,
 
-    alert(
-      "Failed to replace manual trade lifecycle."
-    );
+      quantity:
+        parsedQuantity,
 
-    return;
-  }
+      entryPrice:
+        parsedEntryPrice,
 
-correctedExecutions =
-  createManualExecutions({
+      exitPrice:
+        parsedExitPrice,
 
-    ticker:
-      normalizedTicker,
+      commission:
+        parsedCommission,
 
-    quantity:
-      parsedQuantity,
+      side,
 
-    entryPrice:
-      parsedEntryPrice,
+      assetType,
 
-    exitPrice:
-      parsedExitPrice,
+      account:
+        normalizedAccount,
 
-    commission:
-      parsedCommission,
+      entryDate,
+      exitDate,
 
-    side,
+      entryTime,
+      exitTime,
 
-    assetType,
+      currency:
+        normalizedCurrency,
 
-    account:
-      normalizedAccount,
+      exchange:
+        normalizedExchange,
 
-    entryDate,
-    exitDate,
-
-    entryTime,
-    exitTime,
-
-    currency:
-      normalizedCurrency,
-
-    exchange:
-      normalizedExchange,
-
-    tradeType:
-      isOpenPositionEntry
-        ? "PARTIAL_ENTRY"
-        : "COMPLETE",
-  });
+      tradeType:
+        isOpenPositionEntry
+          ? "PARTIAL_ENTRY"
+          : "COMPLETE",
+    });
 
   // =================================================
   // PRESERVE EXISTING MANUAL LIFECYCLE
-  // =================================================
-  //
-  // Editing a trade must not create a new lifecycle.
-  //
-  // createManualExecutions() generates a new
-  // contractKey internally, so restore the original
-  // lifecycle identity before saving.
-  //
   // =================================================
 
   correctedExecutions =
@@ -708,19 +670,82 @@ correctedExecutions =
 }
 
 // =================================================
-// SAVE CORRECTED EXECUTIONS
+// ATOMIC SAVE
 // =================================================
 
 try {
 
-  await saveExecutionsToSupabase(
-    correctedExecutions
-  );
+  const {
+    data: {
+      session,
+    },
+  } =
+    await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+
+    alert(
+      "Your session has expired. Please sign in again."
+    );
+
+    return;
+  }
+
+  const response =
+    await fetch(
+      "/api/trades/edit",
+      {
+        method:
+          "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          Authorization:
+            `Bearer ${session.access_token}`,
+        },
+
+        body:
+          JSON.stringify({
+            deleteMode,
+
+            deleteExecutionId,
+
+            contractKey:
+              deleteContractKey,
+
+            executions:
+              correctedExecutions,
+          }),
+      }
+    );
+
+  const result =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !result.success
+  ) {
+
+    console.error(
+      "FAILED TO ATOMICALLY SAVE EDITED TRADE:",
+      result
+    );
+
+    alert(
+      result.error ||
+      "Failed to save edited trade."
+    );
+
+    return;
+  }
 
 } catch (error) {
 
   console.error(
-    "FAILED TO SAVE CORRECTED MANUAL LIFECYCLE:",
+    "FAILED TO ATOMICALLY SAVE EDITED TRADE:",
     error
   );
 

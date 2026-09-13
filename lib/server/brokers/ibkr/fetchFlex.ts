@@ -7,12 +7,8 @@ import {
 } from "@/lib/parsers/ibkrParser";
 
 import {
-  saveExecutions,
-} from "@/lib/server/sync/saveExecutions";
-
-import {
-  deleteExecutionWindow,
-} from "@/lib/server/sync/deleteExecutionWindow";
+  replaceBrokerExecutionsAtomically,
+} from "@/lib/server/sync/replaceBrokerExecutionsAtomically";
 
 export async function
 fetchFlex(
@@ -79,15 +75,11 @@ console.log(
   executions.length
 );
 
-await deleteExecutionWindow(
-  executionDates,
-  broker.user_id,
-  broker.broker_account_id
-);
-
-await saveExecutions(
+await replaceBrokerExecutionsAtomically(
   executions,
-  broker.user_id
+  broker.user_id,
+  broker.broker_account_id,
+  executionDates
 );
 
 return {
