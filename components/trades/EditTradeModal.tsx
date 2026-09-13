@@ -97,6 +97,8 @@ const [exitDate, setExitDate] =
   const [exchange, setExchange] =
     useState("");
 
+const [isSaving, setIsSaving] = useState(false);
+
 // =================================================
 // LOAD TRADE INTO FORM
 // =================================================
@@ -252,6 +254,14 @@ setCommission(
 
   const handleSaveTrade =
     async () => {
+
+    // =================================================
+    // DUPLICATE-SAVE PROTECTION
+    // =================================================
+
+    if (isSaving) {
+      return;
+    }
 
     // =================================================
     // SAFETY
@@ -673,8 +683,9 @@ if (isPartialExitTrade) {
 // ATOMIC SAVE
 // =================================================
 
-try {
+setIsSaving(true);
 
+try {
   const {
     data: {
       session,
@@ -754,6 +765,11 @@ try {
   );
 
   return;
+
+} finally {
+
+  setIsSaving(false);
+
 }
 
 // =================================================
@@ -1020,47 +1036,234 @@ const partialExitMaxQuantity = (() => {
     return undefined;
   }
 
-  const lifecycleTrades =
-    allTrades.filter(
-      (otherTrade) =>
-        otherTrade.contractKey ===
-        trade.contractKey
-    );
+  const exitAction =
+    side === "SHORT"
+      ? "BUY"
+      : "SELL";
 
-  // The sum of all reconstructed quantities
-  // in this lifecycle represents the original
-  // quantity introduced into the lifecycle.
-  const lifecycleTotalQuantity =
-    lifecycleTrades.reduce(
-      (total, lifecycleTrade) =>
-        total +
-        Number(
-          lifecycleTrade.quantity || 0
-        ),
-      0
-    );
+  const entryAction =
+    side === "SHORT"
+      ? "SELL"
+      : "BUY";
 
-  // Everything except the exit we are editing
-  // must remain unchanged.
-  const otherTradesQuantity =
-    lifecycleTrades
+  // =================================================
+  // COLLECT ALL LIFECYCLE EXECUTIONS
+  // =================================================
+
+  const lifecycleExecutions =
+    allTrades
       .filter(
-        (otherTrade) =>
-          otherTrade.id !== trade.id
+        (lifecycleTrade) =>
+          lifecycleTrade.contractKey ===
+          trade.contractKey
       )
-      .reduce(
-        (total, lifecycleTrade) =>
-          total +
-          Number(
-            lifecycleTrade.quantity || 0
-          ),
-        0
+      .flatMap(
+        (lifecycleTrade) =>
+          lifecycleTrade.executions ?? []
       );
+
+  // =================================================
+  // DEDUPLICATE EXECUTIONS
+  // =================================================
+
+  const uniqueExecutions = Array.from(
+    new Map(
+      lifecycleExecutions.map(
+        (execution) => [
+          execution.id,
+          execution,
+        ]
+      )
+    ).values()
+  );
+
+  // =================================================
+  // FIND THE EXACT EXIT BEING EDITED
+  // =================================================
+
+  const selectedExitExecution =
+    trade.executions?.find(
+      (execution) =>
+        execution.action ===
+          exitAction
+    );
+
+  if (!selectedExitExecution?.id) {
+    return undefined;
+  }
+
+  // =================================================
+  // DETERMINISTIC EXECUTION ORDER
+  //
+  // Keep this aligned with the canonical
+  // execution ordering used by the FIFO engine.
+  // =================================================
+
+  const sortedExecutions =
+    uniqueExecutions.sort(
+      (a, b) => {
+        const timestampA =
+          new Date(
+            a.executionTimestamp ||
+              a.date
+          ).getTime();
+
+        const timestampB =
+          new Date(
+            b.executionTimestamp ||
+              b.date
+          ).getTime();
+
+        if (
+          Number.isFinite(timestampA) &&
+          Number.isFinite(timestampB) &&
+          timestampA !== timestampB
+        ) {
+          return (
+            timestampA -
+            timestampB
+          );
+        }
+
+        const brokerIdA =
+          a.brokerExecutionId || "";
+
+        const brokerIdB =
+          b.brokerExecutionId || "";
+
+        if (
+          brokerIdA !== brokerIdB
+        ) {
+          return brokerIdA.localeCompare(
+            brokerIdB
+          );
+        }
+
+        return a.id.localeCompare(
+          b.id
+        );
+      }
+    );
+
+  const selectedExitIndex =
+    sortedExecutions.findIndex(
+      (execution) =>
+        execution.id ===
+        selectedExitExecution.id
+    );
+
+  if (selectedExitIndex < 0) {
+    return undefined;
+  }
+
+  // =================================================
+  // CALCULATE POSITION BEFORE THE SELECTED EXIT
+  // =================================================
+
+  let positionBeforeExit = 0;
+
+  for (
+    let index = 0;
+    index < selectedExitIndex;
+    index += 1
+  ) {
+    const execution =
+      sortedExecutions[index];
+
+    const executionQuantity =
+      Number(
+        execution.quantity
+      );
+
+    if (
+      !Number.isFinite(
+        executionQuantity
+      ) ||
+      executionQuantity <= 0
+    ) {
+      continue;
+    }
+
+    if (
+      execution.action ===
+      entryAction
+    ) {
+      positionBeforeExit +=
+        executionQuantity;
+    } else if (
+      execution.action ===
+      exitAction
+    ) {
+      positionBeforeExit -=
+        executionQuantity;
+    }
+  }
+
+  if (positionBeforeExit <= 0) {
+    return 0;
+  }
+
+  // =================================================
+  // FIND THE MAXIMUM REPLACEMENT EXIT QUANTITY
+  //
+  // The edited exit must not cause the position to
+  // become negative at any point in the remainder
+  // of the lifecycle.
+  // =================================================
+
+  let maximumQuantity =
+    positionBeforeExit;
+
+  let positionAfterSelectedExit =
+    positionBeforeExit;
+
+  for (
+    let index =
+      selectedExitIndex + 1;
+    index < sortedExecutions.length;
+    index += 1
+  ) {
+    const execution =
+      sortedExecutions[index];
+
+    const executionQuantity =
+      Number(
+        execution.quantity
+      );
+
+    if (
+      !Number.isFinite(
+        executionQuantity
+      ) ||
+      executionQuantity <= 0
+    ) {
+      continue;
+    }
+
+    if (
+      execution.action ===
+      entryAction
+    ) {
+      positionAfterSelectedExit +=
+        executionQuantity;
+    } else if (
+      execution.action ===
+      exitAction
+    ) {
+      positionAfterSelectedExit -=
+        executionQuantity;
+    }
+
+    maximumQuantity =
+      Math.min(
+        maximumQuantity,
+        positionAfterSelectedExit
+      );
+  }
 
   return Math.max(
     0,
-    lifecycleTotalQuantity -
-      otherTradesQuantity
+    maximumQuantity
   );
 })();
 
@@ -2606,16 +2809,19 @@ step="0.01"
       Cancel
     </button>
 
-    <button
-      type="button"
-      onClick={handleSaveTrade}
-      className="flex h-11 items-center justify-center gap-3 rounded-[8px] bg-gradient-to-r from-violet-700 to-violet-600 text-[14px] font-semibold text-white shadow-[0_8px_30px_rgba(109,40,217,0.22)] transition hover:from-violet-600 hover:to-violet-500"
-    >
-      Save Changes
-      <span className="text-lg">
-        →
-      </span>
-    </button>
+<button
+  type="button"
+  onClick={handleSaveTrade}
+  disabled={isSaving}
+  className="flex h-11 items-center justify-center gap-3 rounded-[8px] bg-gradient-to-r from-violet-700 to-violet-600 text-[14px] font-semibold text-white shadow-[0_8px_30px_rgba(109,40,217,0.22)] transition hover:from-violet-600 hover:to-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {isSaving ? "Saving..." : "Save Changes"}
+  {!isSaving && (
+    <span className="text-lg">
+      →
+    </span>
+  )}
+</button>
 
   </div>
 
