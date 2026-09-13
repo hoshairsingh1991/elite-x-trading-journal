@@ -765,45 +765,27 @@ onClose();
 window.location.reload();
   };
 
-// =================================================
-// DELETE TRADE
-// =================================================
-
 const handleDeleteTrade =
   async () => {
 
-    if (
-      !trade?.contractKey
-    ) {
+    if (!trade?.contractKey) {
       return;
     }
 
     const isManualTrade =
-      trade.contractKey.startsWith(
-        "MANUAL-"
+      trade.contractKey.startsWith("MANUAL-");
+
+    const hasLifecycleSibling =
+      allTrades.some(
+        (otherTrade) =>
+          otherTrade.id !== trade.id &&
+          otherTrade.contractKey === trade.contractKey
       );
 
-    // =================================================
-    // DETERMINE WHETHER THIS IS A PARTIAL-EXIT TRADE
-    // =================================================
-
-const hasLifecycleSibling =
-  allTrades.some(
-    (otherTrade) =>
-      otherTrade.id !== trade.id &&
-      otherTrade.contractKey ===
-        trade.contractKey
-  );
-
-const isPartialExitTrade =
-  isManualTrade &&
-  trade.status !== "OPEN" &&
-  hasLifecycleSibling;
-
-    // =================================================
-    // PARTIAL EXIT
-    // DELETE ONLY THE EXACT EXIT EXECUTION
-    // =================================================
+    const isPartialExitTrade =
+      isManualTrade &&
+      trade.status !== "OPEN" &&
+      hasLifecycleSibling;
 
     if (isPartialExitTrade) {
 
@@ -819,13 +801,10 @@ const isPartialExitTrade =
             exitAction
         );
 
-      if (
-        !exitExecution?.id
-      ) {
+      if (!exitExecution?.id) {
 
         console.error(
-          "FAILED TO IDENTIFY PARTIAL EXIT EXECUTION:",
-          trade
+          "Unable to identify the exact exit execution."
         );
 
         alert(
@@ -845,19 +824,77 @@ const isPartialExitTrade =
       }
 
       const {
-        error,
-      } = await supabase
-        .from("executions")
-        .delete()
-        .eq(
-          "id",
-          exitExecution.id
+        data: {
+          session,
+        },
+      } =
+        await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+
+        alert(
+          "Your session has expired. Please sign in again."
         );
 
-      if (error) {
+        return;
+      }
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/trades/delete",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Authorization:
+                  `Bearer ${session.access_token}`,
+              },
+
+              body: JSON.stringify({
+                deleteMode:
+                  "execution_id",
+
+                deleteExecutionId:
+                  exitExecution.id,
+              }),
+            }
+          );
+
+        const result =
+          await response.json();
+
+        if (
+          !response.ok ||
+          !result.success
+        ) {
+
+          console.error(
+            "Failed to delete partial exit:",
+            result
+          );
+
+          alert(
+            result.error ||
+              "Failed to delete partial exit."
+          );
+
+          return;
+        }
+
+        onClose();
+        window.location.reload();
+
+        return;
+
+      } catch (error) {
 
         console.error(
-          "FAILED TO DELETE PARTIAL EXIT EXECUTION:",
+          "Failed to delete partial exit:",
           error
         );
 
@@ -867,19 +904,7 @@ const isPartialExitTrade =
 
         return;
       }
-
-      onClose();
-
-      window.location.reload();
-
-      return;
     }
-
-
-
-    // =================================================
-    // NORMAL COMPLETE TRADE / LIFECYCLE DELETE
-    // =================================================
 
     const confirmed =
       window.confirm(
@@ -891,32 +916,82 @@ const isPartialExitTrade =
     }
 
     const {
-      error,
-    } = await supabase
-      .from("executions")
-      .delete()
-      .eq(
-        "contract_key",
-        trade.contractKey
+      data: {
+        session,
+      },
+    } =
+      await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+
+      alert(
+        "Your session has expired. Please sign in again."
       );
 
-    if (error) {
+      return;
+    }
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/trades/delete",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${session.access_token}`,
+            },
+
+            body: JSON.stringify({
+              deleteMode:
+                "contract_key",
+
+              contractKey:
+                trade.contractKey,
+            }),
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+
+        console.error(
+          "Failed to delete trade lifecycle:",
+          result
+        );
+
+        alert(
+          result.error ||
+            "Failed to delete trade."
+        );
+
+        return;
+      }
+
+      onClose();
+      window.location.reload();
+
+    } catch (error) {
 
       console.error(
-        "FAILED TO DELETE TRADE:",
+        "Failed to delete trade lifecycle:",
         error
       );
 
       alert(
         "Failed to delete trade."
       );
-
-      return;
     }
-
-    onClose();
-
-    window.location.reload();
   };
 
 // =================================================

@@ -1,0 +1,1196 @@
+============================================================
+ELITE X TRADING JOURNAL
+MASTER MANUAL TRADE IMPROVEMENT ROADMAP
+DATE: SEPTEMBER 12, 2026
+============================================================
+
+PROJECT
+Elite X Trading Journal / Elite X Trading OS
+
+CURRENT STACK
+- Next.js 16.2.6
+- TypeScript
+- Supabase
+- React
+- React Day Picker
+- Turbopack
+
+============================================================
+1. CURRENT ARCHITECTURAL FOUNDATION
+============================================================
+
+Canonical architecture:
+
+Broker / Manual Entry
+        ↓
+Normalized Executions
+        ↓
+Supabase Execution Ledger
+        ↓
+Deterministic FIFO Reconstruction
+        ↓
+Reconstructed Trades
+        ↓
+Analytics / Dashboard / Trade History
+
+Canonical rule:
+
+Executions are the source of truth.
+Trades are derived state.
+
+Manual Entry and Edit Trade are execution producers/editors.
+
+They must NOT become a second trade engine.
+
+Protected systems:
+
+- Broker sync
+- Execution ledger
+- FIFO reconstruction
+- pairTrades
+- Reconciliation
+- P&L
+- Analytics
+- Dashboard V2
+- Existing canonical lifecycle behavior
+
+Any future improvement must preserve these boundaries.
+
+============================================================
+2. CURRENT MANUAL TRADE MODES
+============================================================
+
+COMPLETE
+- Entry + Exit
+- Creates entry and exit executions
+
+PARTIAL_ENTRY
+- Opening/additional execution
+- One opening execution
+- Position remains open
+
+PARTIAL_EXIT
+- Reduces/closes an existing manual position
+- One reducing execution
+- Existing contractKey is preserved
+
+Direction semantics:
+
+LONG
+- BUY = open/add
+- SELL = reduce/close
+
+SHORT
+- SELL = open/add
+- BUY = reduce/close
+
+Multiplier:
+
+OPTIONS = 100
+Other current supported asset types = 1
+
+Manual lifecycle identity:
+
+contractKey = MANUAL-{ticker}-{uuid}
+
+Manual identification:
+
+contractKey.startsWith("MANUAL-")
+
+============================================================
+3. COMPLETED UI REFINEMENT WORK
+============================================================
+
+ADD TRADE
+Status:
+COMPLETE
+
+EDIT TRADE
+Status:
+COMPLETE
+
+The current refinement pass is considered complete.
+
+Completed improvements include:
+
+- Partial Exit fee allocation correction
+- Gross P&L preview
+- Chronological validation
+- Mode-aware Position Impact
+- Correct Open / Closed status
+- Partial Exit Timeline terminology
+- Commission validation
+- Commission input min="0"
+- Partial Exit over-close protection
+- Actual execution date loading
+- Cleaner ticker preview
+- Unused variable cleanup
+- Preview wording refinement
+
+Notes and Advanced were intentionally left untouched.
+
+============================================================
+4. FUTURE IMPROVEMENT ROADMAP
+============================================================
+
+The following improvements are planned.
+
+They are NOT all immediate tasks.
+
+We will work through them one at a time and checkpoint after
+major architectural changes.
+
+============================================================
+PHASE 1 — DATA INTEGRITY / PERSISTENCE
+============================================================
+
+------------------------------------------------------------
+1. ATOMIC EDIT TRADE PERSISTENCE
+------------------------------------------------------------
+
+Current conceptual flow:
+
+Validate
+    ↓
+Delete existing execution(s)
+    ↓
+Create replacement execution(s)
+    ↓
+Save
+
+Risk:
+
+DELETE succeeds
+    ↓
+INSERT fails
+    ↓
+Trade can be left incomplete
+
+Target architecture:
+
+Validate
+    ↓
+BEGIN TRANSACTION
+    ↓
+Delete / replace execution(s)
+    ↓
+Insert replacement execution(s)
+    ↓
+COMMIT
+
+Any failure:
+
+ROLLBACK
+    ↓
+Original execution state remains intact
+
+Implementation goals:
+
+- Move transaction boundary to server side
+- Preserve existing lifecycle semantics
+- Preserve existing contractKey
+- Do not modify FIFO behavior
+- Do not create a parallel trade system
+- Do not modify canonical execution schema unnecessarily
+
+Priority:
+CRITICAL
+
+Estimated effort:
+~1.5–2 hours initial implementation + testing
+
+Planned substeps:
+
+1A. Inspect current execution storage path
+1B. Determine transaction boundary
+1C. Implement atomic manual lifecycle replacement
+1D. Connect EditTradeModal
+1E. Test Complete
+1F. Test Partial Entry
+1G. Test Partial Exit
+1H. Test rollback/failure behavior
+
+============================================================
+2. ATOMIC DELETE BEHAVIOR
+============================================================
+
+Review deletion so destructive actions are transaction-safe.
+
+Complete Trade:
+- Delete lifecycle safely
+
+Partial Exit:
+- Delete exact exit execution safely
+
+Requirements:
+
+- No orphaned execution
+- No accidental full lifecycle deletion
+- Rollback on failure
+
+Priority:
+CRITICAL
+
+Estimated effort:
+~45–90 minutes
+
+============================================================
+3. SERVER-SIDE OWNERSHIP / AUTHORIZATION
+============================================================
+
+Every Edit/Delete operation must verify that the target data
+belongs to the authenticated user.
+
+Goal:
+
+User A must never be able to edit/delete User B's execution
+or manual lifecycle.
+
+Requirements:
+
+- Authentication verification
+- user_id ownership verification
+- Server-side enforcement
+- No trust in client-provided IDs alone
+
+Priority:
+CRITICAL
+
+Estimated effort:
+~1–2 hours
+
+============================================================
+PHASE 2 — EDIT TRADE USER EXPERIENCE
+============================================================
+
+------------------------------------------------------------
+4. UNSAVED CHANGES PROTECTION
+------------------------------------------------------------
+
+Detect whether the user changed any editable value.
+
+No changes:
+
+Close normally.
+
+Changes exist:
+
+Show confirmation:
+
+"You have unsaved changes.
+Discard changes?"
+
+Actions:
+
+Cancel
+Discard
+
+Implementation should compare initial loaded state against current
+form state.
+
+Priority:
+HIGH
+
+Estimated effort:
+~30–45 minutes
+
+============================================================
+5. SAVE-STATE FEEDBACK
+============================================================
+
+Improve current Save Changes behavior.
+
+Target:
+
+User clicks Save Changes
+        ↓
+Saving...
+        ↓
+Saved successfully
+        ↓
+Close/reload
+
+Failure:
+
+Save failed
+        ↓
+Existing state remains safe
+
+Requirements:
+
+- Disable duplicate save clicks
+- Clear loading state
+- Clear success/failure state
+- Never imply success before persistence succeeds
+
+Priority:
+HIGH
+
+Estimated effort:
+~30–60 minutes
+
+============================================================
+6. REPLACE BROWSER ALERT / CONFIRM WITH APP UI
+============================================================
+
+Current implementation relies heavily on:
+
+alert()
+window.confirm()
+
+Future improvement:
+
+Use the application's standard dialog/toast system.
+
+Use proper UI for:
+
+- Validation errors
+- Save failure
+- Delete confirmation
+- Unsaved changes
+- Authorization failure
+- Unexpected errors
+
+Priority:
+MEDIUM
+
+Estimated effort:
+~1–2 hours
+
+IMPORTANT:
+Do not start this before persistence behavior is stable.
+
+============================================================
+7. EDIT-DIFFERENCE PREVIEW
+============================================================
+
+Future Edit Preview enhancement.
+
+Instead of only showing the new state, optionally show:
+
+CURRENT
+
+100 shares @ $200
+Exit $215
+Fee $5
+
+        ↓
+
+AFTER EDIT
+
+100 shares @ $200
+Exit $218
+Fee $6
+
+Potential change summary:
+
+Exit Price:
++$3
+
+Commission:
++$1
+
+Estimated P&L:
+new value
+
+Purpose:
+
+Make Edit Trade more transparent before saving.
+
+Priority:
+MEDIUM
+
+Estimated effort:
+~1–2 hours
+
+============================================================
+PHASE 3 — MANUAL LIFECYCLE ROBUSTNESS
+============================================================
+
+------------------------------------------------------------
+8. COMPLEX PARTIAL ENTRY / PARTIAL EXIT TEST MATRIX
+------------------------------------------------------------
+
+Test multi-step lifecycle patterns.
+
+Example:
+
+60 BUY
+40 BUY
+20 SELL
+30 SELL
+10 SELL
+
+Verify:
+
+- Position quantity
+- FIFO reconstruction
+- Remaining quantity
+- Realized P&L
+- Fees
+- Lifecycle identity
+- Trade reconstruction
+
+Priority:
+HIGH
+
+Estimated effort:
+~1–2 hours for comprehensive tests
+
+============================================================
+9. MULTI-LOT PARTIAL EXIT VALIDATION
+============================================================
+
+Test exits that consume multiple FIFO entry lots.
+
+Example:
+
+60 BUY @ $100
+40 BUY @ $105
+
+        ↓
+
+80 SELL @ $120
+
+Verify:
+
+- FIFO lot allocation
+- Correct realized P&L
+- Correct fee allocation
+- Correct remaining position
+- Multiple reconstructed Trade records where appropriate
+
+Priority:
+HIGH
+
+============================================================
+10. EDIT PARTIAL EXIT AFTER MULTIPLE EXITS
+============================================================
+
+Example:
+
+100 BUY
+20 SELL
+30 SELL
+
+Then edit:
+
+- First exit
+- Second exit
+
+Verify:
+
+- Correct exact execution replacement
+- Remaining position remains correct
+- FIFO remains correct
+- Other exits remain untouched
+- Lifecycle identity remains unchanged
+
+Priority:
+HIGH
+
+============================================================
+11. PARTIAL EXIT QUANTITY EDGE-CASE TESTING
+============================================================
+
+Test:
+
+- Quantity = 1
+- Fractional quantity
+- Exact remaining quantity
+- Very small quantities where supported
+- Quantity greater than available position
+- Zero
+- Negative
+- Empty
+- Invalid numeric input
+
+Verify:
+
+- UI validation
+- Server validation
+- Execution integrity
+
+Priority:
+MEDIUM
+
+============================================================
+PHASE 4 — PREVIEW / CALCULATION CONFIDENCE
+============================================================
+
+------------------------------------------------------------
+12. PREVIEW CALCULATION TEST MATRIX
+------------------------------------------------------------
+
+COMPLETE:
+
+- Long profit
+- Long loss
+- Short profit
+- Short loss
+
+PARTIAL ENTRY:
+
+- Stocks
+- Options
+- Other supported asset types
+
+PARTIAL EXIT:
+
+- Long
+- Short
+- Multiple entry lots
+- Multiple exits
+- Different fee combinations
+
+Verify:
+
+- Entry Value
+- Exit Value
+- Fees
+- Gross P&L
+- Net P&L
+- Return
+- Holding Time
+
+Priority:
+HIGH
+
+============================================================
+13. PREVIEW VS RECONSTRUCTED TRADE RECONCILIATION
+============================================================
+
+After saving an edited trade:
+
+Compare:
+
+Preview estimate
+        ↓
+Actual FIFO reconstructed result
+
+Goal:
+
+Preview and actual result should agree except for explicitly
+documented estimate differences.
+
+Current preview already tells the user:
+
+"This preview is an estimate.
+Actual results may vary after saving and FIFO processing."
+
+Future goal is to make the estimate as close to the canonical
+FIFO result as practical without duplicating FIFO logic.
+
+Priority:
+HIGH
+
+IMPORTANT:
+Do NOT create a second FIFO engine merely to make Preview match.
+
+============================================================
+14. INSTRUMENT / UNIT HANDLING REVIEW
+============================================================
+
+Review quantity-unit consistency across:
+
+- Stocks
+- Options
+- Futures
+- Crypto
+- Forex
+- CFD
+
+Examples:
+
+Stocks:
+Shares
+
+Options:
+Contracts
+
+Futures:
+Contracts
+
+Crypto / Forex / CFD:
+Ticker-based unit where appropriate
+
+Goal:
+
+Consistent terminology across:
+
+- Form
+- Position Impact
+- Timeline
+- Preview
+- Validation messages
+
+Priority:
+MEDIUM
+
+============================================================
+PHASE 5 — AUDITABILITY
+============================================================
+
+------------------------------------------------------------
+15. TRADE EDIT HISTORY
+------------------------------------------------------------
+
+Eventually record:
+
+- Edited at
+- Edited by
+- Field changed
+- Old value
+- New value
+
+Example:
+
+September 12, 2026
+
+Exit Price:
+$215 → $218
+
+Commission:
+$5 → $6
+
+Quantity:
+100 → 80
+
+Priority:
+HIGH for SaaS
+
+Estimated effort:
+~2–4+ hours
+
+============================================================
+16. LIFECYCLE ACTIVITY HISTORY
+============================================================
+
+Longer-term lifecycle timeline:
+
+Created
+    ↓
+Partial Entry
+    ↓
+Partial Exit
+    ↓
+Partial Exit
+    ↓
+Edited
+    ↓
+Deleted
+
+Useful for:
+
+- User review
+- Support
+- Debugging
+- Compliance/auditability
+- Future subscription SaaS operations
+
+Priority:
+MEDIUM
+
+============================================================
+17. DESTRUCTIVE ACTION AUDIT LOGGING
+============================================================
+
+Record events such as:
+
+- Trade edited
+- Trade deleted
+- Partial Exit deleted
+- Lifecycle changed
+
+Priority:
+HIGH
+
+============================================================
+PHASE 6 — SaaS RELIABILITY
+============================================================
+
+------------------------------------------------------------
+18. DUPLICATE-SAVE PROTECTION
+------------------------------------------------------------
+
+Prevent double-click / repeated submission.
+
+Target:
+
+Save Changes
+    ↓
+Saving...
+    ↓
+Button disabled
+    ↓
+One request only
+
+Priority:
+HIGH
+
+============================================================
+19. IDEMPOTENCY PROTECTION
+============================================================
+
+Repeated/retried requests must not create duplicate executions.
+
+Examples:
+
+- Network retry
+- Double request
+- Browser retry
+- Server retry
+
+Goal:
+
+Same logical save request
+        ↓
+Same resulting lifecycle
+        ↓
+No duplicate executions
+
+Priority:
+HIGH
+
+============================================================
+20. CONCURRENCY / STALE-EDIT PROTECTION
+============================================================
+
+Scenario:
+
+User A opens trade
+        ↓
+User B edits trade
+        ↓
+User A edits old version
+        ↓
+User A saves
+
+Need a strategy to avoid silently overwriting newer data.
+
+Possible future concepts:
+
+- Version number
+- updated_at comparison
+- Optimistic concurrency
+- "Trade was changed elsewhere" warning
+
+Priority:
+HIGH for multi-user SaaS
+
+============================================================
+PHASE 7 — RESPONSIVE / ACCESSIBILITY
+============================================================
+
+------------------------------------------------------------
+21. RESPONSIVE MODAL AUDIT
+------------------------------------------------------------
+
+Test:
+
+- 1440px
+- 1280px
+- 1100px
+- 1024px
+- 768px
+- Short-height laptop
+- Browser zoom scenarios
+
+Verify:
+
+- No clipped fields
+- No hidden actions
+- Correct scrolling
+- Preview remains usable
+- Buttons remain accessible
+
+Priority:
+MEDIUM
+
+============================================================
+22. KEYBOARD NAVIGATION
+============================================================
+
+Future support:
+
+Escape:
+Close modal
+
+Tab:
+Logical field order
+
+Enter:
+Appropriate submit behavior where safe
+
+Focus:
+Return focus to triggering control
+
+Priority:
+MEDIUM
+
+============================================================
+23. ACCESSIBILITY SEMANTICS
+============================================================
+
+Review:
+
+- Labels
+- aria-label
+- aria-describedby
+- Disabled states
+- Modal semantics
+- Keyboard navigation
+- Focus management
+- Error announcements
+
+Priority:
+MEDIUM
+
+============================================================
+PHASE 8 — CODE QUALITY / MAINTAINABILITY
+============================================================
+
+------------------------------------------------------------
+24. EDITTRADEMODAL COMPONENT EXTRACTION
+------------------------------------------------------------
+
+Current component is very large.
+
+Future structure could become:
+
+components/trades/
+    EditTradeModal.tsx
+    EditTradeForm.tsx
+    EditTradePreview.tsx
+    TradeTimeline.tsx
+    PositionImpact.tsx
+    TradeTypeDisplay.tsx
+
+Goal:
+
+- Easier maintenance
+- Smaller files
+- Clear responsibility
+- Safer future changes
+
+IMPORTANT:
+Do this only after behavior is stable.
+
+Priority:
+MEDIUM
+
+============================================================
+25. SHARED MANUAL TRADE CALCULATION UTILITIES
+============================================================
+
+Add Trade and Edit Trade currently share concepts such as:
+
+- Fees
+- P&L
+- Returns
+- Units
+- Multipliers
+- Partial Exit allocation
+
+Future goal:
+
+Create shared utilities where appropriate.
+
+Potential areas:
+
+manualTradePreview
+manualTradeValidation
+manualTradeUnits
+manualTradeFees
+
+Goal:
+
+Avoid calculation drift between Add Trade and Edit Trade.
+
+IMPORTANT:
+Do not duplicate FIFO logic.
+
+Priority:
+MEDIUM
+
+============================================================
+26. REACT / STATE DEPENDENCY CLEANUP
+============================================================
+
+Review EditTradeModal effects and derived state.
+
+Known item:
+
+The trade-loading effect uses allTrades for Partial Exit
+classification but the dependency array currently depends only
+on trade.
+
+Future review:
+
+- Effect dependencies
+- Derived state
+- Re-render behavior
+- Stale data risks
+
+Priority:
+MEDIUM
+
+Do not change casually without testing.
+
+============================================================
+PHASE 9 — PRODUCTION HARDENING
+============================================================
+
+------------------------------------------------------------
+27. SERVER-SIDE VALIDATION MIRROR
+------------------------------------------------------------
+
+Client validation improves UX.
+
+Server validation must remain authoritative.
+
+Validate server-side:
+
+- Ownership
+- Mode
+- Quantity
+- Price
+- Fees
+- ContractKey
+- Lifecycle identity
+- Partial Exit constraints
+- Valid execution relationships
+
+Priority:
+CRITICAL
+
+============================================================
+28. ERROR CLASSIFICATION
+============================================================
+
+Separate failures into categories:
+
+VALIDATION_ERROR
+AUTHORIZATION_ERROR
+NOT_FOUND
+CONFLICT
+DATABASE_ERROR
+UNEXPECTED_ERROR
+
+Goal:
+
+More precise user messages and easier debugging.
+
+Priority:
+MEDIUM/HIGH
+
+============================================================
+29. OBSERVABILITY / LOGGING
+============================================================
+
+Production logging for:
+
+- Edit attempts
+- Delete attempts
+- Save success
+- Save failure
+- Transaction rollback
+- Authorization failures
+- Unexpected execution states
+
+Avoid sensitive information in client logs.
+
+Priority:
+HIGH
+
+============================================================
+30. RECOVERY / FAILURE TESTING
+============================================================
+
+Intentionally test:
+
+- Database insert failure
+- Delete failure
+- Network failure
+- Duplicate request
+- Stale version
+- Missing execution
+- Missing contractKey
+- Invalid ownership
+- Partial Exit over-close
+
+Expected result:
+
+Canonical execution state remains safe.
+
+Priority:
+HIGH
+
+============================================================
+10. CURRENTLY DEFERRED / DO NOT TOUCH
+============================================================
+
+Do not unnecessarily modify:
+
+- pairTrades
+- FIFO engine
+- Broker sync
+- Execution ledger schema
+- Dashboard V2
+- Analytics
+- Reconciliation
+- Notes
+- Advanced
+- Existing canonical Complete Trade behavior
+
+Only change these if a proven architectural defect requires it.
+
+============================================================
+11. RECOMMENDED IMPLEMENTATION ORDER
+============================================================
+
+Recommended sequence:
+
+1. Atomic Edit Trade persistence
+        ↓
+2. Atomic Delete behavior
+        ↓
+3. Server-side ownership / authorization
+        ↓
+4. Server-side validation mirror
+        ↓
+5. Duplicate-save protection
+        ↓
+6. Idempotency protection
+        ↓
+7. Unsaved changes protection
+        ↓
+8. Save-state feedback
+        ↓
+9. Error classification / application UI
+        ↓
+10. Complex lifecycle testing
+        ↓
+11. Multi-lot Partial Exit testing
+        ↓
+12. Preview vs FIFO reconciliation
+        ↓
+13. Concurrency protection
+        ↓
+14. Trade edit history
+        ↓
+15. Lifecycle activity history
+        ↓
+16. Responsive audit
+        ↓
+17. Accessibility
+        ↓
+18. Shared calculation utilities
+        ↓
+19. EditTradeModal component extraction
+        ↓
+20. Production observability / recovery testing
+
+============================================================
+12. PRIORITY CLASSIFICATION
+============================================================
+
+CRITICAL
+
+- Atomic Edit Trade persistence
+- Atomic Delete
+- Ownership / authorization
+- Server-side validation
+
+HIGH
+
+- Duplicate-save protection
+- Idempotency
+- Concurrency
+- Complex lifecycle testing
+- Multi-lot FIFO testing
+- Preview reconciliation
+- Trade edit history
+- Destructive action logging
+- Production observability
+- Failure/recovery testing
+
+MEDIUM
+
+- Unsaved changes
+- Save-state UI
+- Application-level error UI
+- Edit-difference preview
+- Instrument/unit polish
+- Responsive audit
+- Keyboard navigation
+- Accessibility
+- Shared utilities
+- Component extraction
+- React dependency cleanup
+- Lifecycle activity history
+
+============================================================
+13. IMPORTANT DEVELOPMENT RULE
+============================================================
+
+Work on exactly ONE logical improvement at a time.
+
+For each improvement:
+
+1. Review current implementation
+2. Identify exact file(s)
+3. Explain why the change is needed
+4. Make the smallest safe change
+5. Test
+6. Verify no canonical behavior changed
+7. Check TypeScript/build where appropriate
+8. Commit checkpoint after major completed work
+
+Do not combine unrelated changes.
+
+============================================================
+14. NEXT PLANNED TASK
+============================================================
+
+NEXT:
+
+PHASE 1 — ITEM 1
+
+Atomic Edit Trade Persistence
+
+First substep:
+
+1A — Inspect the current execution storage path and determine
+the correct server-side transaction boundary.
+
+Do NOT immediately rewrite EditTradeModal.
+
+Do NOT modify pairTrades.
+
+Do NOT modify the execution schema unless proven necessary.
+
+First understand the existing persistence architecture.
+
+============================================================
+15. CURRENT PROJECT STATUS
+============================================================
+
+Manual Entry UI:
+REFINED
+
+Edit Trade UI:
+REFINED
+
+Git checkpoint:
+COMPLETED
+
+Current priority:
+DATA INTEGRITY / PERSISTENCE HARDENING
+
+Current next task:
+ATOMIC EDIT TRADE PERSISTENCE
+
+============================================================
+END OF MASTER IMPROVEMENT ROADMAP
+============================================================
