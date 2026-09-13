@@ -476,11 +476,11 @@ git commit -m "checkpoint: manual trade edit and fee UI fixes"
 git commit -m "checkpoint: refine manual add trade modal"
 git commit -m "checkpoint: refine manual trade edit modal"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+Atomic Safety feature
 git commit -m "Checkpoint: Atomic execution persistence"
 git commit -m "Checkpoint: Atomic delete persistence"
 git commit -m "Checkpoint: Execution architecture master notes"
-
+git commit -m "Checkpoint: Server-side ownership audit"
 
 
 

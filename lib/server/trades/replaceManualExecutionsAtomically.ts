@@ -6,6 +6,10 @@ import {
   NormalizedExecution,
 } from "@/types/trade";
 
+import {
+  validateManualExecutions,
+} from "@/lib/server/trades/validateManualExecutions";
+
 type ManualDeleteMode =
   | "execution_id"
   | "contract_key";
@@ -23,6 +27,10 @@ replaceManualExecutionsAtomically(
       "No executions provided for replacement."
     );
   }
+
+  validateManualExecutions(
+  executions
+);
 
   if (deleteMode === "execution_id") {
 
