@@ -1,1206 +1,2183 @@
-============================================================
-ELITE X TRADING JOURNAL
-MASTER CHECKPOINT NOTES
-ATOMIC EXECUTION PERSISTENCE / ROLLBACK SAFETY
-============================================================
+# ELITE X TRADING JOURNAL
+
+# COMBINED EXECUTION ARCHITECTURE — MASTER NOTES
 
-CHECKPOINT DATE:
-September 13, 2026
+**Document Type:** Master Architecture / Development / Handover Notes
+**System:** Elite X Trading Journal / Trading OS
+**Scope:** Manual Entry + Broker Sync + Canonical Execution Architecture
+**Primary Broker:** Interactive Brokers (IBKR)
+**Current Integration:** IBKR Activity Flex Query
+**Status:** Active Development
+**Last Major Work:** Atomic Execution Persistence
+**Date:** September 13, 2026
 
-GIT COMMIT:
-0a6b6de
+---
 
-GIT COMMIT MESSAGE:
-Checkpoint: Atomic execution persistence
+# 1. PURPOSE OF THIS DOCUMENT
 
+This is the **combined master architecture document** for the execution and trade lifecycle system in Elite X Trading Journal.
 
-============================================================
-1. PURPOSE OF THIS CHECKPOINT
-============================================================
+It connects the two major execution-ingestion paths:
 
-We identified an important data-integrity risk in two areas of
-Elite X:
+```text id="9x2m7c"
+                    ELITE X
+                       │
+             ┌─────────┴─────────┐
+             │                   │
+       MANUAL ENTRY          BROKER SYNC
+             │                   │
+             ▼                   ▼
+     Normalized Executions  Normalized Executions
+             │                   │
+             └─────────┬─────────┘
+                       ▼
+              CANONICAL EXECUTION
+                    LEDGER
+                       │
+                       ▼
+                 pairTrades()
+                       │
+                       ▼
+              DERIVED TRADES /
+                 POSITIONS
+                       │
+                       ▼
+             P&L / ANALYTICS /
+                  DASHBOARD
+```
+
+This document explains how the entire architecture fits together.
+
+---
+
+# 2. MOST IMPORTANT ARCHITECTURAL PRINCIPLE
+
+Elite X is an:
+
+```text id="7q4m9x"
+EXECUTION-FIRST SYSTEM
+```
+
+The canonical data flow is:
+
+```text id="c8n3vy"
+Input Source
+    ↓
+Normalized Executions
+    ↓
+Supabase Executions Ledger
+    ↓
+Deterministic FIFO Reconstruction
+    ↓
+Derived Trades / Positions
+    ↓
+P&L / Analytics / Dashboard
+```
+
+The fundamental rule is:
+
+```text id="k5m8qx"
+EXECUTIONS ARE THE SOURCE OF TRUTH.
+
+TRADES AND POSITIONS ARE DERIVED STATE.
+```
+
+This rule governs both Manual Entry and Broker Sync.
+
+---
+
+# 3. TWO EXECUTION SOURCES
+
+Elite X currently has two primary execution ingestion paths.
+
+```text id="v7x3qm"
+1. Manual Entry
+2. Broker Sync
+```
+
+### Manual Entry
+
+User manually enters a trade.
+
+### Broker Sync
+
+Broker data is imported from IBKR.
+
+Both paths ultimately produce normalized executions.
+
+Both paths write into the same canonical execution ledger.
+
+Both paths eventually feed the same FIFO/reconstruction engine.
+
+---
+
+# 4. COMBINED DATA FLOW
+
+The complete system is:
+
+```text id="m4q8vz"
+                    ┌────────────────────┐
+                    │    MANUAL ENTRY    │
+                    └─────────┬──────────┘
+                              │
+                              ▼
+                    Normalized Executions
+                              │
+                              │
+                              │
+                    ┌─────────┴──────────┐
+                    │                    │
+                    │                    │
+                    ▼                    ▼
+             ┌──────────────┐     ┌──────────────┐
+             │  BROKER SYNC │     │ MANUAL EDIT  │
+             │     IBKR     │     │ / DELETE     │
+             └──────┬───────┘     └──────┬───────┘
+                    │                    │
+                    ▼                    ▼
+             Normalized Data       Atomic Persistence
+                    │                    │
+                    └──────────┬─────────┘
+                               ▼
+                    CANONICAL EXECUTIONS
+                         SUPABASE LEDGER
+                               │
+                               ▼
+                         pairTrades()
+                               │
+                               ▼
+                      DERIVED TRADES /
+                         POSITIONS
+                               │
+                               ▼
+                      ANALYTICS / P&L /
+                         DASHBOARD
+```
 
-1. Manual Trade Editing
-2. IBKR Broker Sync
+The important point is that Manual Entry and Broker Sync converge at the execution ledger.
 
-Both workflows were using a delete-then-insert replacement
-pattern.
+---
 
-The problem was:
+# 5. CANONICAL EXECUTION LEDGER
 
-    DELETE old executions
-          ↓
-    INSERT corrected/new executions
-          ↓
-    INSERT fails
-          ↓
-    OLD DATA IS ALREADY DELETED
+The `executions` table is the canonical ledger.
 
-This could leave the canonical executions ledger empty or
-partially replaced.
+Important fields include:
 
-Because Elite X treats the executions table as the canonical
-source of truth, this was considered a serious data-integrity
-risk.
+```text id="n8q4xc"
+id
+date
+ticker
+contract
+contract_key
+side
+quantity
+execution_price
+execution_value
+fees
+account
+asset_type
+multiplier
+created_at
+user_id
+currency
+fee_currency
+broker_execution_id
+action
+execution_timestamp
+```
 
-The objective was therefore:
+The exact current database schema remains authoritative in Supabase.
 
-    Preserve the existing application behavior
-    +
-    Make replacement operations atomic
-    +
-    Roll back automatically if anything fails
+---
 
-IMPORTANT:
+# 6. EXECUTION IDENTITY
 
-We did NOT redesign the trading engine.
+Every execution requires a stable identity.
 
-We did NOT change FIFO behavior.
+Broker executions retain their broker execution identity through:
 
-We did NOT change P&L calculations.
+```text id="r5m8qx"
+brokerExecutionId
+```
 
-We did NOT change reconciliation.
+Manual executions use their generated execution identity and Manual contract-key convention.
 
-We did NOT change Dashboard V2.
+The execution ID is particularly important for exact Partial Exit operations.
 
-We did NOT change the established IBKR replacement strategy.
+---
 
-We only added transactional safety around the existing
-delete-and-replace operations.
+# 7. MANUAL EXECUTION IDENTIFICATION
 
+Manual execution lifecycles use a contract key beginning with:
 
-============================================================
-2. CORE ARCHITECTURAL RULE
-============================================================
+```text id="k7x2mc"
+MANUAL-
+```
 
-Elite X architecture remains:
+The existing FIFO code identifies Manual executions using this convention.
 
-    Broker
-       ↓
-    Normalized Executions
-       ↓
-    Supabase Executions Ledger
-       ↓
-    Deterministic FIFO Reconstruction
-       ↓
-    Trades
-       ↓
-    Analytics
-       ↓
-    Dashboard
+This convention is also used by Manual Delete to ensure the destructive operation is restricted to Manual Trade data.
 
-Executions remain the canonical source of truth.
+---
 
-Trades remain derived state.
+# 8. BROKER EXECUTION IDENTIFICATION
 
-Manual Entry and Broker Sync both ultimately write normalized
-execution records.
-
-There must NOT be a second independent trade/FIFO engine for
-manual trades.
-
-
-============================================================
-3. SAFETY MODEL IMPLEMENTED
-============================================================
-
-The new behavior is transactional atomicity.
-
-It is NOT a backup table.
-
-It is NOT a copy of the old data.
-
-It is NOT a manual restore mechanism.
-
-Instead:
-
-    Either the entire replacement succeeds,
-    OR the entire database operation is rolled back.
-
-Conceptually:
-
-    OLD STATE
-        ↓
-    BEGIN TRANSACTION
-        ↓
-    DELETE OLD EXECUTIONS
-        ↓
-    INSERT NEW EXECUTIONS
-        ↓
-    EVERYTHING SUCCEEDS?
-        ├── YES → COMMIT → NEW STATE
-        │
-        └── NO  → ROLLBACK → OLD STATE REMAINS
-
-This prevents partial replacement.
-
-
-============================================================
-4. MANUAL TRADE EDIT — PROBLEM
-============================================================
-
-Before this change, EditTradeModal performed the replacement
-through the client flow.
-
-The general behavior was:
-
-    Delete existing execution(s)
-          ↓
-    Insert corrected execution(s)
-
-If the insert failed after the delete, the original execution
-could be lost.
-
-This was especially important for:
-
-    Complete Trades
-    Partial Exit Trades
-    Partial Entry / Open Position lifecycle records
-
-
-============================================================
-5. MANUAL TRADE EDIT — NEW ARCHITECTURE
-============================================================
-
-Manual Trade Edit now sends the replacement request to:
-
-    POST /api/trades/edit
-
-The API authenticates the user's Supabase access token.
-
-The server obtains the authenticated user's ID.
-
-The server then calls:
-
-    replaceManualExecutionsAtomically()
-
-The actual delete + insert operation happens inside a PostgreSQL
-transaction through an RPC function.
-
-This means the browser does NOT directly perform the dangerous
-delete-then-insert replacement.
-
-
-============================================================
-6. FILE:
-components/trades/EditTradeModal.tsx
-============================================================
-
-The existing manual trade editing behavior was preserved.
-
-The important change is the persistence layer.
-
-The file now:
-
-1. Builds the corrected normalized executions.
-
-2. Determines the correct deletion mode.
-
-3. Gets the current Supabase session.
-
-4. Sends the access token through:
-
-       Authorization:
-       Bearer <session access token>
-
-5. Calls:
-
-       POST /api/trades/edit
-
-6. Sends:
-
-       deleteMode
-       deleteExecutionId
-       contractKey
-       executions
-
-7. Handles server failure without closing/reloading the trade.
-
-8. Only closes and reloads after successful atomic persistence.
-
-
-============================================================
-7. MANUAL EDIT DELETE MODES
-============================================================
-
-Two deletion modes were introduced.
-
-MODE 1:
-
-    execution_id
-
-Used for Partial Exit editing.
-
-Only the exact existing exit execution is deleted.
-
-The existing exit execution is located from the trade's
-executions using the opposite action:
-
-    SHORT trade → BUY exit
-    LONG trade  → SELL exit
-
-The exact execution ID is then sent to the server.
-
-
-MODE 2:
-
-    contract_key
-
-Used for Complete Trade / Open Position Entry lifecycle
-replacement.
-
-The existing lifecycle is replaced using:
-
-    trade.contractKey
-
-This preserves the existing manual lifecycle behavior.
-
-
-============================================================
-8. PARTIAL EXIT BEHAVIOR
-============================================================
-
-For a Partial Exit edit:
-
-    Existing entry remains untouched.
-
-    Existing exit execution:
-        ↓
-    Delete exact execution ID
-
-    Corrected replacement exit:
-        ↓
-    Insert new execution
-
-Both operations occur inside one database transaction.
-
-If the insert fails:
-
-    DELETE rolls back
-
-Therefore:
-
-    Original exit remains.
-
-
-============================================================
-9. COMPLETE TRADE / OPEN POSITION BEHAVIOR
-============================================================
-
-For Complete Trade or Open Position Entry editing:
-
-    Existing lifecycle identified by contract_key
-        ↓
-    Existing lifecycle deleted
-        ↓
-    Corrected executions inserted
-
-The existing contract key is preserved.
-
-For open-position entries, the existing manual lifecycle behavior
-was intentionally preserved.
-
-No FIFO or trade-engine behavior was changed.
-
-
-============================================================
-10. NEW FILE:
-app/api/trades/edit/route.ts
-============================================================
-
-This API route was created to provide a server-side boundary for
-atomic manual execution replacement.
-
-Responsibilities:
-
-    1. Read Authorization header.
-
-    2. Reject missing authorization.
-
-    3. Extract Bearer token.
-
-    4. Create Supabase client using:
-
-           NEXT_PUBLIC_SUPABASE_URL
-           NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    5. Authenticate the token using:
-
-           supabase.auth.getUser(token)
-
-    6. Obtain the authenticated user's ID.
-
-    7. Validate the edit request.
-
-    8. Call:
-
-           replaceManualExecutionsAtomically()
-
-    9. Return success and inserted count.
-
-   10. Return HTTP 500 on failure.
-
-Important security property:
-
-The browser does NOT get to choose the trusted user ID.
-
-The server derives:
-
-    user.id
-
-from the authenticated Supabase token.
-
-That user ID is then passed into the atomic database operation.
-
-
-============================================================
-11. NEW FILE:
-lib/server/trades/replaceManualExecutionsAtomically.ts
-============================================================
-
-This server helper is responsible for translating normalized
-executions into the database RPC format.
-
-Function:
-
-    replaceManualExecutionsAtomically(
-        executions,
-        userId,
-        deleteMode,
-        deleteExecutionId?,
-        contractKey?
-    )
-
-Validation includes:
-
-    - executions must not be empty
-    - execution_id mode requires an execution ID
-    - contract_key mode requires a contract key
-    - invalid delete mode is rejected
-
-Normalized execution fields are mapped to the Supabase
-executions table fields.
-
-The helper also deduplicates executions by:
-
-    execution.id
-
-before sending them to PostgreSQL.
-
-The database operation is then performed through:
-
-    supabaseAdmin.rpc(
-        "replace_manual_executions_atomically",
-        ...
-    )
-
-Any RPC error is thrown back to the API route.
-
-
-============================================================
-12. MANUAL ATOMIC DATABASE FUNCTION
-============================================================
-
-PostgreSQL function:
-
-    public.replace_manual_executions_atomically(
-        uuid,
-        text,
-        text,
-        text,
-        jsonb
-    )
-
-Parameters:
-
-    p_user_id
-    p_delete_mode
-    p_delete_execution_id
-    p_contract_key
-    p_executions
-
-
-Behavior:
-
-    Validate user ID.
-
-    Validate executions JSON array.
-
-    IF delete_mode = execution_id:
-
-        Validate execution ID.
-
-        Delete only the execution belonging to that user.
-
-        If no execution was found:
-            raise exception.
-
-    ELSE IF delete_mode = contract_key:
-
-        Validate contract key.
-
-        Delete executions matching that contract key
-        and user ID.
-
-        If nothing was found:
-            raise exception.
-
-    ELSE:
-
-        raise exception for invalid delete mode.
-
-
-Then:
-
-    INSERT replacement executions.
-
-If no replacement rows were inserted:
-
-    raise exception.
-
-
-Because the delete and insert are inside the same PostgreSQL
-function/transaction context, any exception causes the complete
-operation to roll back.
-
-
-============================================================
-13. MANUAL DATABASE INSERT MAPPING
-============================================================
-
-The RPC inserts:
-
-    id
-    broker_execution_id
-    date
-    execution_timestamp
-    ticker
-    contract
-    contract_key
-    exchange
-    action
-    side
-    quantity
-    execution_price
-    execution_value
-    fees
-    currency
-    fee_currency
-    account
-    asset_type
-    multiplier
-    user_id
-
-The authenticated server-side user ID is explicitly inserted as:
-
-    p_user_id
-
-
-============================================================
-14. BROKER SYNC — ORIGINAL RISK
-============================================================
-
-IBKR sync intentionally uses a replacement strategy.
-
-The established rule is:
-
-    Broker is source of truth for today's returned data.
-
-    Fetch first.
-
-    Parse first.
-
-    Then replace the affected execution window.
-
-The existing strategy was:
-
-    Fetch IBKR Flex
-        ↓
-    Parse executions
-        ↓
-    Determine execution dates
-        ↓
-    DELETE existing executions
-        ↓
-    INSERT new broker executions
-
-The problem was that a failure during INSERT could leave the
-old broker executions deleted.
-
-
-============================================================
-15. IMPORTANT — IBKR REPLACEMENT STRATEGY WAS NOT CHANGED
-============================================================
-
-We intentionally did NOT switch to merging.
-
-The established Elite X rule remains:
-
-    REPLACE TODAY'S BROKER DATA COMPLETELY.
-
-Reason:
-
-IBKR Flex can return incomplete data when synced too early.
-
-Merging can leave stale executions from an earlier sync.
-
-Therefore:
-
-    Fetch broker data
-        ↓
-    Parse broker data
-        ↓
-    Determine returned dates
-        ↓
-    Replace those dates completely
-
-remains the intended architecture.
-
-The only change is that delete + insert are now atomic.
-
-
-============================================================
-16. NEW FILE:
-lib/server/sync/replaceBrokerExecutionsAtomically.ts
-============================================================
-
-Function:
-
-    replaceBrokerExecutionsAtomically(
-        executions,
-        userId,
-        account,
-        executionDates
-    )
-
-Validation:
-
-    - executions must not be empty
-    - executionDates must not be empty
-
-The normalized executions are serialized into database format.
-
-Executions are deduplicated by:
-
-    execution.id
-
-
-Then the helper calls:
-
-    supabaseAdmin.rpc(
-        "replace_broker_executions_atomically",
-        ...
-    )
-
-
-Parameters passed:
-
-    p_user_id
-    p_account
-    p_execution_dates
-    p_executions
-
-
-Any RPC failure is thrown.
-
-
-============================================================
-17. FILE:
-lib/server/brokers/ibkr/fetchFlex.ts
-============================================================
-
-This file was changed narrowly.
-
-Removed the direct persistence imports:
-
-    saveExecutions
-    deleteExecutionWindow
-
-Added:
-
-    replaceBrokerExecutionsAtomically
-
-
-The old sequence:
-
-    await deleteExecutionWindow(...)
-
-    await saveExecutions(...)
-
-was replaced with:
-
-    await replaceBrokerExecutionsAtomically(
-        executions,
-        broker.user_id,
-        broker.broker_account_id,
-        executionDates
-    );
-
-
-Everything else in fetchFlex remains the same.
-
-The flow is still:
-
-    IBKR Flex request
-        ↓
-    XML received
-        ↓
-    Parse CSV
-        ↓
-    If no executions:
-        skip sync
-        ↓
-    Determine execution dates
-        ↓
-    Atomic broker replacement
-        ↓
-    Return sync result
-
-
-============================================================
-18. BROKER ATOMIC DATABASE FUNCTION
-============================================================
-
-PostgreSQL function:
-
-    public.replace_broker_executions_atomically(
-        uuid,
-        text,
-        text[],
-        jsonb
-    )
-
-Parameters:
-
-    p_user_id
-    p_account
-    p_execution_dates
-    p_executions
-
-
-Validation includes:
-
-    User ID required.
-
-    Account required.
-
-    Execution dates required.
-
-    Executions must be a JSON array.
-
-
-Then:
-
-    DELETE from public.executions
-
-    WHERE:
-
-        user_id = p_user_id
-        AND account = p_account
-        AND date = ANY(p_execution_dates)
-
-
-Then:
-
-    INSERT the new broker executions.
-
-
-If the insert succeeds:
-
-    COMMIT
-
-If any error occurs:
-
-    ROLLBACK
-
-
-Therefore the old broker execution state cannot be left deleted
-because of a failed replacement.
-
-
-============================================================
-19. BROKER ACCOUNT IS PART OF REPLACEMENT SCOPE
-============================================================
+Broker executions are associated with the corresponding broker account and broker execution identity.
 
 Broker replacement is scoped by:
 
-    user_id
-    account
-    execution dates
+```text id="p4m8vz"
+user_id
+broker account
+execution dates
+```
 
-This is important for the multi-account IBKR architecture.
+This ensures that Broker Sync does not replace unrelated execution data.
 
-A sync for one IBKR account does not intentionally delete
-executions belonging to another account.
+---
 
+# 9. MANUAL ENTRY
 
-============================================================
-20. SECURITY MODEL
-============================================================
+Manual Entry is the user-facing path for manually recorded trades.
 
-Both atomic PostgreSQL functions were created as:
+The conceptual flow is:
 
-    SECURITY DEFINER
+```text id="q6x3mv"
+User Input
+    ↓
+Manual Execution Creation
+    ↓
+Normalized Execution
+    ↓
+executions table
+    ↓
+pairTrades()
+    ↓
+Derived Trade
+```
 
-with:
+Manual Entry does not create an independent FIFO system.
 
-    SET search_path = public
+---
 
+# 10. MANUAL TRADE LIFECYCLE
 
-Direct public execution was revoked.
+Manual trades can contain:
 
-The following were revoked from:
+```text id="w8m3qy"
+Entry
++
+Partial Exits
+```
 
-    public
+Example:
 
+```text id="c7x4nm"
+BUY 100
+SELL 20
+SELL 20
+SELL 20
+SELL 20
+SELL 20
+```
 
-Execute permission was granted only to:
+The five exits represent one underlying Manual Trade lifecycle.
 
-    service_role
+The execution ledger remains canonical.
 
+---
 
-Functions:
+# 11. COMPLETE MANUAL TRADE
 
-    replace_broker_executions_atomically
+A Complete Trade lifecycle may look like:
 
-    replace_manual_executions_atomically
+```text id="q5n8xm"
+BUY 100
+SELL 100
+```
 
+Manual Edit or Delete of the complete lifecycle operates at the lifecycle level using:
 
-The browser therefore does not directly call these privileged
-database functions.
+```text id="m4x7qc"
+contract_key
+```
 
-Manual edit:
+---
 
-    Browser
+# 12. PARTIAL MANUAL EXIT
+
+Partial exits operate at the individual execution level.
+
+Example:
+
+```text id="v8q2mx"
+BUY 100
+SELL 20  ← Exit 1
+SELL 20  ← Exit 2
+SELL 20  ← Exit 3
+SELL 20  ← Exit 4
+SELL 20  ← Exit 5
+```
+
+If Exit 4 is deleted, only that execution is removed.
+
+The other exits remain.
+
+---
+
+# 13. CORRECT PARTIAL EXIT DELETE BEHAVIOR
+
+Starting:
+
+```text id="x4m7vz"
+100 entered
+100 exited
+0 open
+```
+
+Delete one 20-share exit:
+
+```text id="c9q3mx"
+100 entered
+80 exited
+20 open
+```
+
+The system does not manually create the 20-share position.
+
+Instead:
+
+```text id="n5x8qm"
+Delete canonical execution
         ↓
-    Authenticated API route
+pairTrades()
         ↓
-    Server helper
+20 shares naturally remain OPEN
+```
+
+This is the correct behavior.
+
+---
+
+# 14. NO MANUAL POSITION RESTORATION
+
+Never implement:
+
+```text id="q8m4xc"
+Delete exit
+→ manually restore quantity
+```
+
+The execution ledger already contains the correct information.
+
+The correct architecture is:
+
+```text id="y3v7mq"
+Executions
+    ↓
+FIFO
+    ↓
+Derived Position
+```
+
+This avoids duplicate state management.
+
+---
+
+# 15. FIFO / RECONSTRUCTION
+
+The authoritative FIFO implementation is:
+
+```text id="x7m4qz"
+lib/parsers/pairTrades.ts
+```
+
+`pairTrades()` is responsible for:
+
+* deterministic execution sorting;
+* position buckets;
+* LONG/SHORT separation;
+* FIFO matching;
+* closed trade creation;
+* open trade creation;
+* fee handling;
+* remaining quantity;
+* trade reconstruction.
+
+Manual and broker operations must feed this system rather than duplicate it.
+
+---
+
+# 16. PROTECTED FIFO ENGINE
+
+`pairTrades.ts` is protected infrastructure.
+
+Do not modify it merely to support:
+
+```text id="m8q3vx"
+Manual Entry
+Manual Edit
+Manual Delete
+Broker Sync
+```
+
+If the execution ledger is correct, reconstruction should derive the correct state.
+
+Only modify FIFO code when a concrete FIFO defect is independently identified and verified.
+
+---
+
+# 17. MANUAL EDIT
+
+Manual Edit originally had a client-side destructive sequence.
+
+The old conceptual model was:
+
+```text id="q4x7mn"
+DELETE old executions
+      ↓
+INSERT corrected executions
+```
+
+This was unsafe because the delete could succeed while the insert failed.
+
+---
+
+# 18. ATOMIC MANUAL EDIT
+
+Manual Edit now uses:
+
+```text id="m8q2vx"
+EditTradeModal
+      ↓
+POST /api/trades/edit
+      ↓
+Authenticated User
+      ↓
+replaceManualExecutionsAtomically()
+      ↓
+Supabase RPC
+      ↓
+Atomic DELETE + INSERT
+```
+
+---
+
+# 19. MANUAL EDIT FILES
+
+Current implementation:
+
+```text id="p7x3mq"
+components/trades/EditTradeModal.tsx
+
+app/api/trades/edit/route.ts
+
+lib/server/trades/replaceManualExecutionsAtomically.ts
+```
+
+Database:
+
+```text id="x4m8vc"
+public.replace_manual_executions_atomically(...)
+```
+
+---
+
+# 20. MANUAL EDIT ROLLBACK SAFETY
+
+The persistence guarantee is:
+
+```text id="q7m4xz"
+OLD EXECUTIONS
+      ↓
+ATOMIC OPERATION
+      ↓
+DELETE + INSERT
+      ↓
+SUCCESS → COMMIT
+ERROR   → ROLLBACK
+```
+
+If the replacement fails:
+
+```text id="v8x3mq"
+OLD DATA REMAINS
+```
+
+The system must never leave the lifecycle half-deleted.
+
+---
+
+# 21. MANUAL EDIT MODES
+
+Manual Edit supports two important modes.
+
+### Partial Exit
+
+```text id="n4q7xm"
+deleteMode = "execution_id"
+```
+
+Only the exact selected exit is replaced.
+
+### Complete/Open Lifecycle
+
+```text id="c8m3vq"
+deleteMode = "contract_key"
+```
+
+The lifecycle is replaced together.
+
+This distinction is mandatory.
+
+---
+
+# 22. MANUAL DELETE
+
+Manual Delete now follows:
+
+```text id="x7q4mc"
+EditTradeModal
+      ↓
+POST /api/trades/delete
+      ↓
+Authenticated User
+      ↓
+deleteManualExecutionsAtomically()
+      ↓
+Supabase RPC
+      ↓
+Executions deleted
+      ↓
+Reload
+      ↓
+pairTrades()
+```
+
+---
+
+# 23. MANUAL DELETE FILES
+
+Current implementation:
+
+```text id="m5x8vq"
+components/trades/EditTradeModal.tsx
+
+app/api/trades/delete/route.ts
+
+lib/server/trades/deleteManualExecutionsAtomically.ts
+```
+
+Database:
+
+```text id="q4n7mc"
+public.delete_manual_executions_atomically(...)
+```
+
+---
+
+# 24. EXACT PARTIAL EXIT DELETE
+
+For:
+
+```text id="v8m2qx"
+deleteMode = "execution_id"
+```
+
+the database requires:
+
+```text id="c7x4mn"
+execution ID
++
+user ID
++
+MANUAL-* contract key
+```
+
+Only that execution is deleted.
+
+---
+
+# 25. COMPLETE LIFECYCLE DELETE
+
+For:
+
+```text id="q3m8vx"
+deleteMode = "contract_key"
+```
+
+the database requires a Manual contract key:
+
+```text id="x7n4mc"
+MANUAL-*
+```
+
+The deletion is scoped to:
+
+```text id="m5q8vz"
+contract_key
++
+user_id
+```
+
+The entire Manual lifecycle is deleted.
+
+---
+
+# 26. MANUAL DELETE SAFETY
+
+Manual Delete must preserve these rules:
+
+```text id="p8x3mq"
+1. Partial Exit → exact execution ID.
+
+2. Complete lifecycle → contract key.
+
+3. User ownership → authenticated user ID.
+
+4. Manual-only lifecycle protection.
+
+5. Zero-row deletion → error.
+
+6. No direct reconstructed-trade deletion.
+
+7. No manual position restoration.
+
+8. FIFO reconstruction remains authoritative.
+```
+
+---
+
+# 27. MANUAL DELETE ROLLBACK / TRANSACTION SAFETY
+
+The delete RPC is a database-level destructive operation.
+
+The RPC validates the request, performs the delete, checks the affected row count, and raises an exception if no matching Manual execution exists.
+
+If an exception occurs:
+
+```text id="c4m7vx"
+DATABASE OPERATION
+      ↓
+ERROR
+      ↓
+ROLLBACK
+```
+
+The operation therefore fails safely rather than silently reporting success.
+
+---
+
+# 28. MANUAL DELETE ZERO-ROW SAFETY TEST
+
+A nonexistent execution was intentionally tested.
+
+The RPC returned:
+
+```text id="n8x4mq"
+ERROR: No matching manual execution was found.
+```
+
+This confirms the zero-row safety guard is functioning.
+
+---
+
+# 29. REAL MANUAL DELETE TEST
+
+Real Manual Entries were created and then deleted through the application UI.
+
+Observed result:
+
+```text id="q7m3vx"
+Create Manual Entries
+      ↓
+Delete through UI
+      ↓
+Reload
+      ↓
+Normal behavior
+```
+
+The real application deletion path therefore behaved as designed.
+
+---
+
+# 30. BROKER SYNC
+
+Broker Sync is the broker-side execution ingestion path.
+
+Current broker:
+
+```text id="x8m4qz"
+Interactive Brokers (IBKR)
+```
+
+Current import mechanism:
+
+```text id="m7q3vx"
+IBKR Activity Flex Query
+```
+
+---
+
+# 31. BROKER SYNC DATA FLOW
+
+The Broker Sync path is:
+
+```text id="c5x8mq"
+IBKR
+ ↓
+Activity Flex Query
+ ↓
+Broker Response
+ ↓
+Normalize Executions
+ ↓
+Atomic Broker Replacement
+ ↓
+Canonical Executions
+ ↓
+pairTrades()
+ ↓
+Derived Trades
+```
+
+---
+
+# 32. FETCH BEFORE DELETE
+
+The most important Broker Sync safety rule:
+
+```text id="q8m3vx"
+FETCH FIRST
+    ↓
+VALIDATE / NORMALIZE
+    ↓
+ONLY THEN REPLACE
+```
+
+Never:
+
+```text id="v4x7mc"
+DELETE LOCAL DATA
+    ↓
+FETCH BROKER DATA
+```
+
+A failed broker fetch must not destroy valid local executions.
+
+---
+
+# 33. BROKER REPLACEMENT VS MERGE
+
+Broker Sync intentionally uses replacement rather than merge.
+
+The logic is:
+
+```text id="m8q4xz"
+Broker response for affected window
+      ↓
+Replace local broker executions
+```
+
+This prevents stale executions from surviving when they are absent from the latest broker response.
+
+---
+
+# 34. WHY MERGE IS DANGEROUS
+
+Example:
+
+```text id="c7m3vx"
+LOCAL:
+A
+B
+C
+
+LATEST BROKER RESPONSE:
+A
+B
+```
+
+Merge produces:
+
+```text id="x8q4mn"
+A
+B
+C  ← stale
+```
+
+Replacement produces:
+
+```text id="q5m7vz"
+A
+B
+```
+
+Therefore replacement is the intended behavior for the synchronized window.
+
+---
+
+# 35. BROKER RESPONSE COMPLETENESS
+
+The broker response should be checked for obvious incompleteness or invalidity before local replacement.
+
+The principle is:
+
+```text id="m4x8qc"
+BROKER RESPONSE
+      ↓
+SANITY / COMPLETENESS CHECK
+      ↓
+SAFE REPLACEMENT
+```
+
+A clearly invalid broker response must not blindly destroy local data.
+
+---
+
+# 36. ATOMIC BROKER REPLACEMENT
+
+Current helper:
+
+```text id="x7m3qv"
+lib/server/sync/replaceBrokerExecutionsAtomically.ts
+```
+
+Primary IBKR file:
+
+```text id="c4x8mz"
+lib/server/brokers/ibkr/fetchFlex.ts
+```
+
+Database RPC:
+
+```text id="q7m4vc"
+public.replace_broker_executions_atomically(...)
+```
+
+---
+
+# 37. BROKER ATOMIC REPLACEMENT INPUTS
+
+The atomic helper receives:
+
+```text id="m8x3qv"
+user_id
+broker account
+execution dates
+normalized executions
+```
+
+Execution IDs are deduplicated before database persistence.
+
+---
+
+# 38. BROKER ATOMIC REPLACEMENT
+
+The database operation is conceptually:
+
+```text id="c7q4mx"
+Validate
+    ↓
+Delete matching broker executions
+    ↓
+Insert new normalized broker executions
+    ↓
+Return inserted count
+```
+
+The delete and insert are performed transactionally.
+
+---
+
+# 39. BROKER ROLLBACK SAFETY
+
+Correct behavior:
+
+```text id="x8m3qv"
+Existing Broker Executions
         ↓
-    service_role RPC
+Atomic Replacement
         ↓
-    PostgreSQL
-
-
-Broker sync:
-
-    Server-side IBKR sync
+DELETE
         ↓
-    Server helper
+INSERT
         ↓
-    service_role RPC
+SUCCESS
         ↓
-    PostgreSQL
+COMMIT
+```
 
+Failure:
 
-============================================================
-21. EXECUTIONS TABLE STRUCTURE USED
-============================================================
+```text id="q4x7mz"
+DELETE
+   ↓
+INSERT ERROR
+   ↓
+ROLLBACK
+   ↓
+Existing Data Remains
+```
 
-public.executions includes:
+---
 
-    id text PRIMARY KEY
-    date text NOT NULL
-    ticker text NOT NULL
-    contract text NOT NULL
-    contract_key text NULL
-    side text NOT NULL
-    quantity numeric NOT NULL
-    execution_price numeric NOT NULL
-    execution_value numeric NOT NULL
-    fees numeric NOT NULL
-    account text NOT NULL
-    asset_type text NOT NULL
-    multiplier numeric NOT NULL
-    created_at timestamptz NULL
-    user_id uuid NULL
-    currency text NULL
-    fee_currency text NULL
-    broker_execution_id text NULL
-    action text NULL
-    execution_timestamp text NULL
-    exchange text NULL
+# 40. BROKER ROLLBACK TEST
 
-There is currently no foreign-key constraint on user_id.
+An intentionally invalid execution payload was used to force the database insertion to fail.
 
+Example invalid condition:
 
-============================================================
-22. DATABASE ROLLBACK TEST — MANUAL
-============================================================
+```text id="m7x4qc"
+quantity = null
+```
 
-A dedicated SQL rollback test was performed.
+The insert failed.
 
-The test used:
+The atomic replacement rolled back.
 
-    Fake UUID
-    Fake account/date context
-    Invalid execution data
+The rollback behavior was successfully verified.
 
-The invalid insert intentionally used:
+---
 
-    quantity = null
+# 41. LIVE BROKER TEST LIMITATION
 
-The result returned:
+During real IBKR testing, the tested accounts returned:
 
-    Success. No rows returned
+```text id="c8m4vx"
+0 executions
+```
 
-No failure exception escaped the test block.
+Therefore the populated live replacement branch was not exercised during that specific test.
 
-This means the test confirmed that the intentional failure caused
-the transaction to roll back and cleanup completed.
+The database-level rollback test independently verified the atomic replacement behavior.
 
-The purpose was to prove:
+This distinction must remain documented.
 
-    DELETE
+---
+
+# 42. MULTI-ACCOUNT IBKR ARCHITECTURE
+
+Elite X supports multiple IBKR accounts.
+
+Conceptually:
+
+```text id="q7m3xc"
+User
+ ├── IBKR Account A
+ ├── IBKR Account B
+ └── IBKR Account C
+```
+
+Each account must remain isolated.
+
+---
+
+# 43. BROKER ACCOUNT SCOPING
+
+Broker replacement is scoped by:
+
+```text id="m4x8qv"
+user_id
++
+broker account
++
+execution dates
+```
+
+This prevents one broker account from replacing another account's execution window.
+
+---
+
+# 44. MANUAL SYNC
+
+Manual Sync is user initiated.
+
+The correct behavior is:
+
+```text id="x7q3mc"
+User A
+ ↓
+Manual Sync
+ ↓
+User A's active broker accounts
+```
+
+It must not synchronize another user's accounts.
+
+A previous issue caused Manual Sync to affect both users; this was corrected.
+
+---
+
+# 45. MANUAL SYNC AUTHENTICATION
+
+A previous Manual Sync failure returned:
+
+```text id="c5m8vx"
+401 Unauthorized
+```
+
+The issue was related to the missing Authorization header.
+
+The Manual Sync request was corrected to provide the user's session access token.
+
+The server can then authenticate the requesting user.
+
+---
+
+# 46. AUTOMATIC CRON SYNC
+
+Broker Sync also has scheduled synchronization.
+
+Current intended architecture:
+
+```text id="q8m4xz"
+Automatic Cron
+    ↓
+Evening schedule
+    ↓
+Multiple scheduled runs
+    ↓
+Synchronize eligible users/accounts
+```
+
+This is distinct from Manual Sync.
+
+---
+
+# 47. MANUAL VS AUTOMATIC SYNC
+
+```text id="m7x3qc"
+MANUAL SYNC
+→ user initiated
+→ authenticated user
+→ trading hours
+
+AUTOMATIC SYNC
+→ scheduled
+→ system initiated
+→ evening
+```
+
+Both use the same underlying broker execution synchronization architecture.
+
+---
+
+# 48. MULTI-ACCOUNT ERROR ISOLATION
+
+If one account is invalid:
+
+```text id="c8q4mx"
+Account A → SUCCESS
+Account B → ERROR
+Account C → SUCCESS
+```
+
+The architecture should not unnecessarily stop valid accounts because one account has:
+
+```text id="x7m3vq"
+invalid token
+invalid Flex Query
+reference-code failure
+```
+
+---
+
+# 49. IBKR ERROR EXAMPLE
+
+A previously observed error was:
+
+```text id="q4m8xc"
+Failed to retrieve reference code
+```
+
+This is an account/broker integration failure.
+
+It should be treated as an account-level synchronization problem wherever possible.
+
+---
+
+# 50. RATE LIMIT HANDLING
+
+The current broker synchronization implementation uses:
+
+```text id="m8x3qv"
+3-second delay between brokers
+```
+
+This is intended to reduce excessive request frequency when multiple broker accounts are synchronized.
+
+---
+
+# 51. ZERO-EXECUTION BROKER RESPONSE
+
+A valid broker response can contain zero executions.
+
+Example:
+
+```text id="c7m4xz"
+Account A → 0 executions
+```
+
+This is not automatically an error.
+
+The system must distinguish:
+
+```text id="x8q3mv"
+Valid empty response
+```
+
+from:
+
+```text id="m5c7qx"
+Failed / invalid / obviously incomplete response
+```
+
+---
+
+# 52. BROKER IDEMPOTENCY
+
+Broker Sync must be idempotent.
+
+Repeated synchronization of the same broker state should result in equivalent canonical execution state.
+
+The replacement model supports this naturally.
+
+The system must not create duplicate executions simply because synchronization runs more than once.
+
+---
+
+# 53. MANUAL AND BROKER DATA COEXISTENCE
+
+Manual and broker executions share the canonical execution ledger.
+
+Conceptually:
+
+```text id="q7m4vx"
+executions
+├── Manual executions
+└── Broker executions
+```
+
+The ingestion paths remain separate.
+
+The execution ledger is shared.
+
+---
+
+# 54. MANUAL DATA MUST BE PROTECTED FROM BROKER SYNC
+
+Broker Sync must never delete Manual Trade executions.
+
+Broker replacement is scoped to the broker account and execution window.
+
+Manual execution identity is separate.
+
+Therefore:
+
+```text id="x4m8qc"
+Broker Sync
+→ Broker executions
+
+Manual Trade
+→ Manual executions
+```
+
+---
+
+# 55. BROKER DATA MUST BE PROTECTED FROM MANUAL DELETE
+
+Manual Delete must not delete broker executions.
+
+The Manual Delete RPC requires Manual execution/lifecycle identification.
+
+For lifecycle deletion:
+
+```text id="q8m3vx"
+contract_key LIKE 'MANUAL-%'
+```
+
+is required.
+
+For exact execution deletion:
+
+```text id="m7x4qc"
+execution ID
++
+user ID
++
+MANUAL-* contract key
+```
+
+are required.
+
+---
+
+# 56. COMMON CANONICAL PIPELINE
+
+Despite different ingestion paths, both systems converge here:
+
+```text id="c5m8qx"
+                MANUAL ENTRY
+                     │
+                     ▼
+             Manual Executions
+                     │
+                     │
+                     ├─────────────┐
+                     │             │
+                     │             │
+                     ▼             ▼
+                CANONICAL EXECUTIONS
+                     ▲             ▲
+                     │             │
+                     │             │
+             Broker Executions      │
+                     ▲             │
+                     │             │
+                  IBKR SYNC         │
+                                   │
+                     └─────────────┘
+                             │
+                             ▼
+                        pairTrades()
+                             │
+                             ▼
+                     Derived Trades
+                             │
+                             ▼
+                      Analytics / P&L
+                             │
+                             ▼
+                       Dashboard V2
+```
+
+---
+
+# 57. SECURITY BOUNDARY
+
+The architecture increasingly separates:
+
+```text id="x7m4qc"
+CLIENT
+   ↓
+SERVER API
+   ↓
+AUTHENTICATED USER
+   ↓
+SERVER-SIDE DATABASE OPERATION
+```
+
+This is the required direction for destructive persistence operations.
+
+---
+
+# 58. AUTHENTICATED USER OWNERSHIP
+
+Manual Edit and Manual Delete derive the user from the authenticated Supabase session.
+
+The client should not be treated as authoritative for ownership.
+
+The database operations also use user scoping.
+
+A broader application-wide authorization audit remains future work.
+
+---
+
+# 59. SUPABASE RPC SECURITY
+
+Atomic persistence RPCs use:
+
+```text id="q8m3vx"
+SECURITY DEFINER
+set search_path = public
+```
+
+Public execution permissions were revoked.
+
+The trusted server-side service role is granted execution permission.
+
+This creates a server-side persistence boundary.
+
+---
+
+# 60. ATOMIC PERSISTENCE PATTERN
+
+The combined system now uses a consistent pattern:
+
+### Manual Edit
+
+```text id="m7x4qc"
+Server API
+ ↓
+Atomic RPC
+ ↓
+Delete + Insert
+```
+
+### Manual Delete
+
+```text id="c8q3vx"
+Server API
+ ↓
+Atomic RPC
+ ↓
+Delete
+```
+
+### Broker Sync
+
+```text id="x5m7qz"
+Server-side Sync
+ ↓
+Atomic RPC
+ ↓
+Delete + Insert
+```
+
+---
+
+# 61. FAILURE SAFETY MODEL
+
+The combined architecture has two major persistence safety patterns.
+
+### Atomic replacement
+
+Used for:
+
+```text id="q4m8xc"
+Manual Edit
+Broker Sync
+```
+
+Behavior:
+
+```text id="m7x3vq"
+DELETE + INSERT
+      ↓
+SUCCESS → COMMIT
+FAILURE → ROLLBACK
+```
+
+### Atomic destructive delete
+
+Used for:
+
+```text id="c8m4xz"
+Manual Delete
+```
+
+Behavior:
+
+```text id="x7q3mc"
+VALIDATE
+   ↓
+DELETE
+   ↓
+SUCCESS → COMMIT
+ERROR   → ROLLBACK
+```
+
+---
+
+# 62. FETCH SAFETY + DATABASE SAFETY
+
+Broker Sync has an additional safety layer.
+
+```text id="m5x8qv"
+BROKER FETCH SAFETY
         +
-    FAILED INSERT
+DATABASE ATOMICITY
+```
 
-does NOT leave the database in the deleted state.
+Therefore:
 
+```text id="q7c4mx"
+Fetch fails
+→ no replacement
 
-============================================================
-23. DATABASE ROLLBACK TEST — BROKER
-============================================================
+Fetch succeeds but DB replacement fails
+→ rollback
 
-A separate broker rollback SQL test was performed.
+Fetch succeeds and DB replacement succeeds
+→ commit
+```
 
-Again:
+---
 
-    Fake UUID
-    Fake account
-    Fake execution date
-    Invalid execution data
+# 63. IDEMPOTENCY REQUIREMENT
 
-The insert intentionally contained:
+All execution persistence paths must remain deterministic.
 
-    quantity = null
+For the same canonical input:
 
-The result:
+```text id="x8m3qc"
+same executions
+```
 
-    Success. No rows returned
+the resulting reconstructed state must remain equivalent.
 
-This confirmed the broker replacement transaction also rolls back
-when insertion fails.
+This is essential for:
 
+```text id="q4v7mx"
+manual operations
+broker sync
+repeated synchronization
+reconstruction
+analytics
+```
 
-============================================================
-24. REAL MANUAL EDIT TESTING
-============================================================
+---
 
-After implementation:
+# 64. FEES
 
-    npm run build
+Manual executions have fee handling in the FIFO engine.
 
-passed successfully.
+`pairTrades()` tracks:
 
+```text id="m8q3vx"
+remainingQuantity
+remainingFees
+```
 
-Then real application testing was performed.
+Manual entry fees can be proportionally allocated as the position is consumed.
 
-Tests included:
+Broker fee behavior remains governed by the existing broker execution data and FIFO implementation.
 
-    Complete Manual Trade Edit
+Fee logic must not be duplicated inside Delete or Sync persistence layers.
 
-and:
+---
 
-    Partial Exit Edit
+# 65. OPTIONS MULTIPLIER
 
+Manual Entry uses:
 
-The results were reported as working as designed.
+```text id="c7m4qx"
+Options → multiplier = 100
+Non-options → multiplier = 1
+```
 
-This confirms the new API/RPC persistence path works for real
-manual trade editing.
+This ensures normalized Manual executions remain compatible with the canonical execution and P&L architecture.
 
+---
 
-============================================================
-25. IBKR REAL SYNC TESTING
-============================================================
+# 66. ERROR HANDLING PRINCIPLE
 
-A real IBKR sync was also attempted.
+Persistence operations must fail safely.
 
-It was Sunday, so all three IBKR accounts returned:
+Preferred behavior:
 
-    0 executions
+```text id="x8q3mc"
+Validation failure
+→ no destructive change
+```
 
-Therefore the normal broker replacement branch was not exercised
-during that particular real sync.
+or:
 
-However, the isolated database rollback test for the broker
-replacement function passed.
+```text id="m4v7qx"
+Database failure
+→ rollback
+→ previous state remains
+```
 
-Important:
+Never allow:
 
-    Real zero-execution sync behavior remains unchanged.
+```text id="q7m3cx"
+partial destructive mutation
++
+false success
+```
 
-If Flex returns zero executions, fetchFlex still skips the
-replacement operation and returns success with executionCount = 0.
+---
 
+# 67. TESTING PHILOSOPHY
 
-============================================================
-26. DELETE TRADE WAS NOT REDESIGNED
-============================================================
+Execution persistence changes require more than a successful build.
 
-The existing Delete Trade behavior was intentionally left alone.
+Testing should include:
 
-The current Delete Trade handler still performs its established
-logic.
+```text id="x4m8vq"
+1. Build verification
+2. Database-level safety test
+3. Real application-level test
+4. Reconstruction verification
+5. Ownership/authorization verification
+6. Failure-path verification
+```
 
-For Partial Exit:
+---
 
-    Delete exact exit execution ID.
+# 68. MANUAL TRADE TEST CHECKLIST
 
-For Complete lifecycle:
+```text id="m7q3xc"
+✓ Create Manual Entry
+✓ Create Complete Trade
+✓ Create Partial Exits
+✓ Edit Partial Exit
+✓ Edit Complete lifecycle
+✓ Delete Partial Exit
+✓ Delete Complete lifecycle
+✓ Verify open-position reconstruction
+✓ Verify exact execution deletion
+✓ Verify user scoping
+✓ Verify zero-row failure
+✓ Verify atomic Edit rollback
+✓ Verify Delete safety
+✓ Build
+```
 
-    Delete by contract_key.
+---
 
-For open remainder:
+# 69. BROKER SYNC TEST CHECKLIST
 
-    Existing lifecycle locking behavior remains.
+```text id="q8m4vx"
+✓ IBKR Flex fetch
+✓ Valid response
+✓ Empty response
+✓ Invalid token
+✓ Invalid Flex configuration
+✓ Multiple IBKR accounts
+✓ Account-level failure isolation
+✓ Fetch-before-delete
+✓ Replace-not-merge
+✓ Atomic replacement
+✓ Rollback
+✓ Execution deduplication
+✓ User/account/date scope
+✓ Manual Sync
+✓ Automatic Sync
+✓ Rate-limit pacing
+✓ Sync logging
+✓ FIFO reconstruction
+```
 
-We did NOT convert Delete Trade into the new replacement RPC because
-the goal of this checkpoint was specifically atomic replacement for:
+---
 
-    Manual Trade Edit
-    IBKR Broker Sync
+# 70. BUILD VERIFICATION
 
-Delete Trade is a separate operation and remains unchanged unless
-a separate defect is identified.
+After the Atomic Delete work:
 
+```text id="c7m4qx"
+npm run build
+```
 
-============================================================
-27. WHAT WAS NOT CHANGED
-============================================================
+Result:
 
-The following were deliberately NOT changed:
+```text id="x8q3mv"
+PASS
+```
+
+The application build was successfully verified after the latest Manual Trade persistence changes.
+
+---
 
-    FIFO engine
-    pairTrades / reconstructed trades
-    Trade reconstruction behavior
-    Reconciliation
-    P&L calculations
-    Analytics
-    Dashboard V2
-    Dashboard legacy architecture
-    Manual Entry execution generation
-    IBKR Flex parsing logic
-    IBKR account architecture
-    Multi-account sync architecture
-    Manual sync authentication behavior
-    Automatic cron sync behavior
-    Delete Trade behavior
-    Execution schema
-    Broker source-of-truth rules
-    Date replacement strategy
-    Contract lifecycle semantics
+# 71. GIT CHECKPOINT — ATOMIC EXECUTION PERSISTENCE
 
+Checkpoint:
 
-============================================================
-28. FILES CHANGED / CREATED
-============================================================
+```text id="m5q8xc"
+Commit:
+0a6b6de
 
-MODIFIED:
+Message:
+Checkpoint: Atomic execution persistence
+```
+
+This checkpoint included the completed Atomic Manual Edit persistence and Atomic Broker Sync persistence work.
+
+---
+
+# 72. GIT CHECKPOINT — ATOMIC DELETE
+
+The subsequent Manual Delete work was committed as:
+
+```text id="q7x3mv"
+Checkpoint: Atomic delete persistence
+```
+
+and pushed to:
+
+```text id="c4m8qx"
+origin/main
+```
+
+---
+
+# 73. PROTECTED INFRASTRUCTURE
+
+The following areas must remain protected:
+
+```text id="x8m3qv"
+executions table
+pairTrades()
+FIFO logic
+reconstructed trades
+reconciliation
+P&L calculations
+analytics
+Dashboard V2
+```
+
+Manual Entry and Broker Sync should feed these systems rather than replace them.
+
+---
+
+# 74. LEGACY DASHBOARD
+
+The legacy dashboard architecture must not be used as a target for new execution-system work.
+
+Dashboard V2 is authoritative.
+
+Execution persistence should remain independent of Dashboard UI implementation.
+
+---
+
+# 75. CURRENT MASTER ARCHITECTURE
+
+The current intended architecture is:
+
+```text id="m7q4xc"
+                         INPUTS
+                           │
+             ┌─────────────┴─────────────┐
+             │                           │
+             ▼                           ▼
+      MANUAL ENTRY                    IBKR SYNC
+             │                           │
+             ▼                           ▼
+    Normalized Manual          Normalized Broker
+       Executions                 Executions
+             │                           │
+             └─────────────┬─────────────┘
+                           ▼
+                 CANONICAL EXECUTIONS
+                      SUPABASE LEDGER
+                           │
+                           ▼
+                      pairTrades()
+                           │
+                           ▼
+                 DERIVED TRADES /
+                    POSITIONS
+                           │
+                           ▼
+                  P&L / ANALYTICS
+                           │
+                           ▼
+                    DASHBOARD V2
+```
+
+---
+
+# 76. MANUAL EDIT / DELETE BOUNDARY
+
+Manual Trade mutation flows are:
+
+```text id="q8m3vx"
+                    MANUAL TRADE
+                         │
+                 ┌───────┴────────┐
+                 │                │
+                 ▼                ▼
+               EDIT             DELETE
+                 │                │
+                 ▼                ▼
+             Server API       Server API
+                 │                │
+                 ▼                ▼
+             Atomic RPC       Atomic RPC
+                 │                │
+                 └───────┬────────┘
+                         ▼
+                     EXECUTIONS
+                         │
+                         ▼
+                     pairTrades()
+```
+
+---
+
+# 77. BROKER SYNC BOUNDARY
+
+Broker Sync flows:
+
+```text id="m5x8qv"
+                     IBKR
+                      │
+                      ▼
+                 Flex Query
+                      │
+                      ▼
+              Fetch / Validate
+                      │
+                      ▼
+        replaceBrokerExecutionsAtomically()
+                      │
+                      ▼
+                 Executions
+                      │
+                      ▼
+                  pairTrades()
+```
+
+---
+
+# 78. WHAT MUST NEVER HAPPEN
+
+Never implement:
+
+```text id="q7m4xc"
+❌ Separate Manual Trade FIFO engine
+❌ Separate Broker Trade FIFO engine
+❌ Direct reconstructed-trade persistence as source of truth
+❌ Client-side privileged database mutation
+❌ Broker Sync deleting Manual executions
+❌ Manual Delete deleting broker executions
+❌ Partial Exit delete using full contract lifecycle
+❌ Manual quantity restoration after deleting an exit
+❌ Broker Sync deleting before successful fetch
+❌ Uncontrolled broker-data merge
+❌ Cross-user execution mutation
+❌ Cross-account broker replacement
+❌ Failed atomic operation reported as success
+```
+
+---
+
+# 79. DEVELOPMENT RULE — CURRENT CODE FIRST
+
+Before any future implementation:
+
+```text id="x4m8vq"
+REQUEST CURRENT CODE
+      ↓
+REVIEW CURRENT IMPLEMENTATION
+      ↓
+IDENTIFY EXACT FILES
+      ↓
+PLAN SMALLEST SAFE CHANGE
+      ↓
+IMPLEMENT
+      ↓
+TEST
+      ↓
+BUILD
+      ↓
+CHECKPOINT
+```
+
+Never assume old checkpoint code is still identical to the repository.
+
+---
+
+# 80. EXACT FILE PATH RULE
+
+Every future code change must identify the exact file path.
+
+Example:
+
+```text id="m8q3xc"
+File:
+lib/server/sync/replaceBrokerExecutionsAtomically.ts
+```
+
+Then explain:
+
+```text id="q7x4mv"
+What changes
+Why it changes
+What does not change
+```
+
+Only then provide the code modification.
+
+---
+
+# 81. ONE LOGICAL IMPROVEMENT AT A TIME
+
+Do not combine unrelated architecture changes.
+
+Each improvement should follow:
+
+```text id="c5m8qx"
+ONE CHANGE
+    ↓
+TEST
+    ↓
+VERIFY
+    ↓
+CHECKPOINT
+```
+
+This keeps the execution architecture auditable.
+
+---
+
+# 82. CURRENT COMPLETED WORK
+
+The combined execution architecture currently has:
+
+```text id="x7q4mc"
+✓ Execution-first architecture
+✓ Canonical executions ledger
+✓ Manual Entry execution creation
+✓ Manual Trade lifecycle support
+✓ Partial Exit support
+✓ Manual Edit server API
+✓ Atomic Manual Edit
+✓ Manual Edit rollback safety
+✓ Exact Partial Exit edit targeting
+✓ Complete lifecycle edit targeting
+✓ Manual Delete server API
+✓ Atomic Manual Delete
+✓ Exact Partial Exit deletion
+✓ Complete lifecycle deletion
+✓ Manual-only deletion protection
+✓ Manual Delete user scoping
+✓ Zero-row delete protection
+✓ IBKR Flex Query integration
+✓ Multi-account IBKR architecture
+✓ Manual Sync
+✓ Automatic Cron Sync
+✓ Fetch-before-delete
+✓ Replace-not-merge strategy
+✓ Atomic Broker Replacement
+✓ Broker rollback safety
+✓ Broker account scoping
+✓ User scoping
+✓ Execution deduplication
+✓ Three-second broker pacing
+✓ Account-level failure isolation design
+✓ Sync logging requirement
+✓ FIFO reconstruction
+✓ Build verification
+✓ Database rollback testing
+✓ Real Manual Delete testing
+✓ Git checkpoints
+```
+
+---
+
+# 83. CURRENT STATUS
+
+## Canonical Execution Architecture
+
+```text id="m4x8qv"
+STATUS: ACTIVE / PROTECTED
+```
+
+## Manual Entry
+
+```text id="q7m3xc"
+STATUS: ACTIVE
+```
+
+## Manual Edit Atomic Persistence
+
+```text id="x8m4vq"
+STATUS: COMPLETE
+```
+
+## Manual Delete Atomic Persistence
+
+```text id="c5q7mx"
+STATUS: COMPLETE
+```
+
+## IBKR Broker Sync
+
+```text id="m8x3qv"
+STATUS: ACTIVE
+```
+
+## Atomic Broker Replacement
+
+```text id="q4m7xc"
+STATUS: COMPLETE
+```
+
+## Rollback Safety
+
+```text id="x7q3mv"
+STATUS: VERIFIED
+```
+
+---
+
+# 84. FUTURE HARDENING
+
+Important future work includes:
+
+```text id="m5q8vx"
+Manual Trade:
+#3  Server-side Ownership / Authorization
+#27 Server-side Validation Mirror
+
+Broker Sync:
+Expanded sync observability
+Improved incomplete-response detection
+Account-level reporting
+Retry strategy
+Production monitoring
+Expanded synchronization windows
+Additional broker integrations
+```
+
+Each item should be implemented as an independent logical improvement.
+
+---
+
+# 85. SERVER-SIDE AUTHORIZATION — FUTURE
+
+Manual Edit/Delete now use authenticated server-side identity.
+
+However, the broader application should still receive a complete authorization audit.
+
+Future review should cover:
+
+```text id="q7m4xc"
+authentication
+authorization
+resource ownership
+user isolation
+client-supplied identifiers
+server-side validation
+cross-user access
+```
+
+Do not assume that the completed Manual Delete protection represents a complete application-wide authorization audit.
+
+---
+
+# 86. SERVER-SIDE VALIDATION — FUTURE
+
+Critical business rules should eventually be mirrored server-side.
+
+Potential areas:
+
+```text id="x8m3qv"
+quantity
+price
+fees
+side
+action
+asset type
+multiplier
+dates
+contract identifiers
+partial exit quantity
+lifecycle consistency
+```
+
+The current source files must be reviewed when this work begins.
+
+---
+
+# 87. MASTER SECURITY PRINCIPLE
+
+The client is never the ultimate authority for destructive data operations.
+
+The trusted path is:
+
+```text id="m7q4xc"
+CLIENT
+  ↓
+AUTHENTICATED SERVER REQUEST
+  ↓
+SERVER VALIDATION
+  ↓
+DATABASE TRANSACTION
+  ↓
+CANONICAL EXECUTIONS
+```
+
+This is the architecture to continue building toward.
+
+---
+
+# 88. MASTER DATA-INTEGRITY PRINCIPLE
+
+All downstream state should be derivable from canonical executions.
+
+```text id="q8m3vx"
+Executions
+   ↓
+FIFO
+   ↓
+Trades
+   ↓
+P&L
+   ↓
+Analytics
+   ↓
+Dashboard
+```
+
+If downstream state is wrong, investigate the execution ledger and reconstruction logic before introducing another source of truth.
+
+---
+
+# 89. MASTER ROLLBACK PRINCIPLE
 
-    components/trades/EditTradeModal.tsx
+Any persistence operation that can modify multiple pieces of canonical state must be transaction-safe.
 
-    lib/server/brokers/ibkr/fetchFlex.ts
+For replacement:
 
+```text id="x4m7qc"
+DELETE + INSERT
+→ ATOMIC
+```
 
-CREATED:
+For destructive delete:
 
-    app/api/trades/edit/route.ts
+```text id="m8q3vx"
+VALIDATE + DELETE
+→ DATABASE TRANSACTION
+```
 
-    lib/server/sync/replaceBrokerExecutionsAtomically.ts
+For broker synchronization:
 
-    lib/server/trades/replaceManualExecutionsAtomically.ts
+```text id="q7x4mc"
+FETCH + VALIDATE
+→ ATOMIC REPLACEMENT
+```
 
+---
 
-DATABASE FUNCTIONS CREATED:
+# 90. MASTER BROKER SAFETY PRINCIPLE
 
-    public.replace_manual_executions_atomically
+Broker Sync must always follow:
 
-    public.replace_broker_executions_atomically
+```text id="x8m4qv"
+FETCH
+  ↓
+VALIDATE
+  ↓
+REPLACE ATOMICALLY
+  ↓
+RECONSTRUCT
+```
 
+Never:
 
-UNRELATED FILE:
+```text id="m5q3xc"
+DELETE
+  ↓
+FETCH
+```
 
-    docs/Manual Entery/Future Improvements
+---
 
-This file was intentionally NOT included in the checkpoint.
+# 91. MASTER MANUAL TRADE PRINCIPLE
 
+Manual Trade operations must always follow:
 
-============================================================
-29. BUILD VERIFICATION
-============================================================
+```text id="q7m8vx"
+CREATE / EDIT / DELETE
+          ↓
+CANONICAL EXECUTIONS
+          ↓
+pairTrades()
+          ↓
+DERIVED STATE
+```
 
-After all code changes:
+Never directly manipulate downstream trade state as the canonical operation.
 
-    npm run build
+---
 
-PASSED.
+# 92. FINAL COMBINED ARCHITECTURAL RULE
 
+The single most important rule for the entire Elite X execution architecture is:
 
-============================================================
-30. GIT CHECKPOINT
-============================================================
+```text id="x4m7qc"
+                    DO NOT TREAT
+               DERIVED TRADES/POSITIONS
+                    AS SOURCE OF TRUTH.
 
-The intended five code files were staged.
+                         ALWAYS
+                           ↓
 
-The unrelated documentation file was left unstaged.
+               MAINTAIN CANONICAL
+                    EXECUTIONS
 
-Commit created:
+                         ↓
 
-    0a6b6de
+                  RECONSTRUCT
+                  DETERMINISTICALLY
 
+                         ↓
 
-Commit message:
+                  DERIVE TRADES,
+                   POSITIONS,
+                    P&L AND
+                   ANALYTICS.
+```
 
-    Checkpoint: Atomic execution persistence
+---
 
+# 93. FINAL HANDOVER SUMMARY
 
-Commit output:
+Elite X uses an execution-first architecture.
 
-    5 files changed
-    593 insertions
-    107 deletions
+Manual Entry creates normalized Manual executions.
 
-Created files:
+IBKR Broker Sync imports and normalizes broker executions.
 
-    app/api/trades/edit/route.ts
+Both sources write into the same canonical execution ledger.
 
-    lib/server/sync/replaceBrokerExecutionsAtomically.ts
+Manual Edit uses a server-side atomic replacement mechanism.
 
-    lib/server/trades/replaceManualExecutionsAtomically.ts
+Manual Delete uses a server-side authenticated deletion mechanism.
 
+Partial Exit deletion targets the exact execution.
 
-The commit was then pushed successfully to:
+Complete Manual lifecycle deletion targets the Manual contract key.
 
-    origin/main
+Manual deletion is scoped to the authenticated user and protected against broker execution deletion.
 
+IBKR synchronization fetches broker data before modifying local state.
 
-============================================================
-31. FINAL RESULT
-============================================================
+Broker synchronization replaces the affected broker execution window rather than blindly merging.
 
-Elite X now has transactional safety around the two major
-execution replacement workflows.
+Broker replacement is atomic.
 
-MANUAL EDIT:
+If atomic replacement fails, the database rolls back.
 
-    Existing state
+Multiple IBKR accounts remain isolated.
+
+Manual Sync is user-scoped.
+
+Automatic Sync is scheduled independently.
+
+Broker request pacing includes the current three-second delay between brokers.
+
+The FIFO engine remains centralized in `lib/parsers/pairTrades.ts`.
+
+No separate Manual FIFO engine or Broker FIFO engine exists.
+
+No downstream reconstructed Trade state should become the canonical source of truth.
+
+The architecture is designed so that:
+
+```text id="m7x4qv"
+BROKER / MANUAL INPUT
         ↓
-    Atomic replacement
+EXECUTIONS
         ↓
-    Success → new state
-    Failure → previous state preserved
-
-
-IBKR SYNC:
-
-    Existing broker state
+FIFO
         ↓
-    Atomic replacement
+TRADES / POSITIONS
         ↓
-    Success → fresh broker state
-    Failure → previous broker state preserved
-
-
-The important guarantee is:
-
-    NO PARTIAL DELETE + INSERT STATE
-
-
-If a replacement fails halfway through, PostgreSQL rolls back the
-entire transaction.
-
-Therefore Elite X's canonical execution ledger is protected from
-the specific failure scenario we identified:
-
-    Old executions deleted
-        +
-    New executions fail to insert
-        =
-    DATA LOSS
-
-
-That scenario is now prevented for:
-
-    Manual Trade Edit
-
-and:
-
-    IBKR Broker Sync
-
-
-============================================================
-32. ARCHITECTURAL PRINCIPLE GOING FORWARD
-============================================================
-
-Any future feature that performs:
-
-    DELETE existing canonical executions
-        +
-    INSERT replacement executions
-
-must follow the same atomic transaction principle.
-
-Do NOT introduce a client-side:
-
-    delete()
-    then
-    insert()
-
-replacement flow for canonical execution data.
-
-Preferred pattern:
-
-    Validate
+P&L / ANALYTICS
         ↓
-    Authenticate / authorize
-        ↓
-    Prepare replacement data
-        ↓
-    Server-side atomic database operation
-        ↓
-    DELETE + INSERT in ONE transaction
-        ↓
-    Commit only if everything succeeds
-        ↓
-    Rollback automatically on failure
+DASHBOARD
+```
 
+This is the foundational architecture that future Manual Trade, Broker Sync, analytics, and dashboard work must preserve.
 
-============================================================
-33. CURRENT STATUS
-============================================================
+---
 
-ATOMIC MANUAL TRADE EDIT:
-    IMPLEMENTED
-    TESTED
-    WORKING
-
-ATOMIC IBKR BROKER REPLACEMENT:
-    IMPLEMENTED
-    DATABASE ROLLBACK TEST PASSED
-    REAL ZERO-EXECUTION SYNC TESTED
-
-DATABASE FUNCTIONS:
-    CREATED
-    SECURITY RESTRICTED
-    ROLLBACK TESTED
-
-BUILD:
-    PASSED
-
-GIT:
-    COMMITTED
-    PUSHED TO origin/main
-
-CHECKPOINT:
-    0a6b6de
-
-STATUS:
-    COMPLETE
-
-
-============================================================
-END OF CHECKPOINT
-============================================================
+# END OF COMBINED EXECUTION ARCHITECTURE MASTER NOTES

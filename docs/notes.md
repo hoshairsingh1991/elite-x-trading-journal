@@ -475,12 +475,10 @@ git commit -m "Add manual trade type tooltips"
 git commit -m "checkpoint: manual trade edit and fee UI fixes"
 git commit -m "checkpoint: refine manual add trade modal"
 git commit -m "checkpoint: refine manual trade edit modal"
-
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
+git commit -m "Checkpoint: Atomic execution persistence"
+git commit -m "Checkpoint: Atomic delete persistence"
 
 
 
