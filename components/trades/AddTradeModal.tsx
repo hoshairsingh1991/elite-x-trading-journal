@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/tooltip";
 
 import {
-  saveExecutionsToSupabase,
-} from "@/lib/storage/supabaseExecutionStorage";
+  supabase,
+} from "@/lib/supabase";
 
 interface AddTradeModalProps {
 
@@ -856,13 +856,60 @@ commission: parsedCommission,
   });
 
 try {
-  await saveExecutionsToSupabase(
-    executions
-  );
+  const {
+    data: {
+      session,
+    },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (
+    sessionError ||
+    !session?.access_token
+  ) {
+    throw new Error(
+      "Unable to authenticate the manual trade save."
+    );
+  }
+
+  const response =
+    await fetch(
+      "/api/trades/create",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          Authorization:
+            `Bearer ${session.access_token}`,
+        },
+
+        body: JSON.stringify({
+          executions,
+        }),
+      }
+    );
+
+  const result =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !result.success
+  ) {
+    throw new Error(
+      result.error ||
+        "Failed to save manual trade."
+    );
+  }
 
   onClose();
   window.location.reload();
+
 } catch (error) {
+
   console.error(
     "FAILED TO SAVE MANUAL TRADE:",
     error
