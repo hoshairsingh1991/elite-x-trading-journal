@@ -1,9 +1,6 @@
 import { Expense } from "@/lib/types/expense";
 import { supabase } from "@/lib/supabase";
-import {
-  getNextOccurrenceDate,
-} from "@/lib/expenses/recurrenceUtils";
-
+import { getNextOccurrenceDate } from "@/lib/expenses/recurrenceUtils";
 
 export async function generateRecurringOccurrences(
   recurringExpense: Expense
@@ -12,13 +9,21 @@ export async function generateRecurringOccurrences(
   // RECURRING EXPENSE VALIDATION
   // ==========================================
 
-if (
-  !recurringExpense.is_recurring ||
-  !recurringExpense.is_active ||
-  recurringExpense.is_generated
-) {
-  return;
-}
+  if (
+    !recurringExpense.is_recurring ||
+    !recurringExpense.is_active ||
+    recurringExpense.is_generated
+  ) {
+    return;
+  }
+
+  if (!recurringExpense.recurring_group_id) {
+    console.error(
+      "RECURRING EXPENSE MISSING RECURRING GROUP ID:",
+      recurringExpense.id
+    );
+    return;
+  }
 
   // ==========================================
   // GENERATE OCCURRENCE DATES
@@ -34,132 +39,158 @@ if (
 
   while (currentDate <= today) {
     occurrenceDates.push(
-      currentDate
-        .toISOString()
-        .split("T")[0]
+      currentDate.toISOString().split("T")[0]
     );
 
-currentDate.setTime(
-  getNextOccurrenceDate(
-    currentDate,
-    recurringExpense.frequency ?? ""
-  ).getTime()
-);
+    currentDate.setTime(
+      getNextOccurrenceDate(
+        currentDate,
+        recurringExpense.frequency ?? ""
+      ).getTime()
+    );
   }
 
   // ==========================================
-  // FIND MISSING OCCURRENCES
+  // FIND EXISTING OCCURRENCES
   // ==========================================
 
-  const missingDates: string[] = [];
-
-  for (const date of occurrenceDates) {
-    const { data: existing } =
-      await supabase
-        .from("expenses")
-        .select("id")
-        .eq(
-          "recurring_group_id",
-          recurringExpense.recurring_group_id
-        )
-        .eq(
-          "expense_date",
-          date
-        )
-        .limit(1);
-
-    if (existing && existing.length > 0) {
-      
-    } else {
-      
-
-      missingDates.push(date);
-    }
-  }
-
-
-
-for (const date of missingDates) {
-
-  const { error } =
+  const { data: existingOccurrences, error: existingError } =
     await supabase
       .from("expenses")
-      .insert({
-        user_id:
-          recurringExpense.user_id,
+      .select("expense_date")
+      .eq(
+        "user_id",
+        recurringExpense.user_id
+      )
+      .eq(
+        "recurring_group_id",
+        recurringExpense.recurring_group_id
+      )
+      .in(
+        "expense_date",
+        occurrenceDates
+      );
 
-        expense_name:
-          recurringExpense.expense_name,
-
-        expense_date:
-          date,
-
-        category:
-          recurringExpense.category,
-
-        description:
-          recurringExpense.description,
-
-        original_amount:
-          recurringExpense.original_amount,
-
-        billed_currency:
-         recurringExpense.billed_currency,
-
-        vendor:
-          recurringExpense.vendor,
-
-        account:
-          recurringExpense.account,
-
-        payment_method:
-          recurringExpense.payment_method,
-
-        is_recurring:
-          true,
-
-        frequency:
-          recurringExpense.frequency,
-
-        start_date:
-          recurringExpense.expense_date,
-
-        recurring_group_id:
-          recurringExpense.recurring_group_id,
-
-        is_template:
-          false,
-
-        is_generated:
-          true,
-
-        is_active:
-          true,
-
-        is_tax_deductible:
-          recurringExpense.is_tax_deductible,
-
-        deductible_percent:
-          recurringExpense.deductible_percent,
-
-        notes:
-          recurringExpense.notes,
-
-        receipt_url:
-          recurringExpense.receipt_url,
-      });
-
-  if (error) {
-
+  if (existingError) {
     console.error(
-      "FAILED TO CREATE OCCURRENCE:",
-      error.message
+      "FAILED TO CHECK EXISTING RECURRING OCCURRENCES:",
+      existingError.message
     );
-
-  } else {
-
-    
+    return;
   }
-}
 
+  const existingDates = new Set(
+    (existingOccurrences ?? []).map(
+      (occurrence) => occurrence.expense_date
+    )
+  );
+
+  const missingDates = occurrenceDates.filter(
+    (date) => !existingDates.has(date)
+  );
+
+  if (missingDates.length === 0) {
+    return;
+  }
+
+  // ==========================================
+  // CREATE MISSING OCCURRENCES
+  // ==========================================
+  //
+  // The database unique index on:
+  //
+  // user_id + recurring_group_id + expense_date
+  //
+  // is the final concurrency protection.
+  //
+  // ignoreDuplicates ensures that if another
+  // generator creates the same occurrence
+  // between our SELECT and INSERT, we simply
+  // keep the existing row instead of treating
+  // the race as a failure.
+  //
+  // ==========================================
+
+  const occurrenceRows = missingDates.map((date) => ({
+    user_id: recurringExpense.user_id,
+
+    expense_name:
+      recurringExpense.expense_name,
+
+    expense_date:
+      date,
+
+    category:
+      recurringExpense.category,
+
+    description:
+      recurringExpense.description,
+
+    original_amount:
+      recurringExpense.original_amount,
+
+    billed_currency:
+      recurringExpense.billed_currency,
+
+    vendor:
+      recurringExpense.vendor,
+
+    account:
+      recurringExpense.account,
+
+    payment_method:
+      recurringExpense.payment_method,
+
+    is_recurring:
+      true,
+
+    frequency:
+      recurringExpense.frequency,
+
+    start_date:
+      recurringExpense.expense_date,
+
+    recurring_group_id:
+      recurringExpense.recurring_group_id,
+
+    is_template:
+      false,
+
+    is_generated:
+      true,
+
+    is_active:
+      true,
+
+    is_tax_deductible:
+      recurringExpense.is_tax_deductible,
+
+    deductible_percent:
+      recurringExpense.deductible_percent,
+
+    notes:
+      recurringExpense.notes,
+
+    receipt_url:
+      recurringExpense.receipt_url,
+  }));
+
+  const { error: insertError } =
+    await supabase
+      .from("expenses")
+      .upsert(
+        occurrenceRows,
+        {
+          onConflict:
+            "user_id,recurring_group_id,expense_date",
+          ignoreDuplicates: true,
+        }
+      );
+
+  if (insertError) {
+    console.error(
+      "FAILED TO CREATE RECURRING OCCURRENCES:",
+      insertError.message
+    );
+  }
 }

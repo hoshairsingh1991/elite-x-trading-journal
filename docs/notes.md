@@ -486,11 +486,8 @@ git commit -m "Checkpoint: Server-side suite master notes"
 git commit -m "Checkpoint: Fix partial exit maximum quantity"
 git commit -m "checkpoint: harden manual entry persistence"
 git commit -m "chore: close manual trade UI cleanup"
-
-
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+git commit -m "fix: prevent recurring expense duplicates"
 
 
 
