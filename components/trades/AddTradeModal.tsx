@@ -2099,16 +2099,7 @@ setExchange(
 
     </Field>
 
-    <Field label="Notes">
 
-      <input
-        type="text"
-        placeholder="Optional"
-        className={inputClass}
-        style={{ paddingLeft: "16px" }}
-      />
-
-    </Field>
 
   </div>
 
@@ -2125,15 +2116,15 @@ setExchange(
   className="flex h-10 w-[calc(100%-30px)] translate-x-[14px] items-center justify-between rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] px-4 text-left transition hover:border-white/[0.12]"
   style={{ paddingLeft: "16px" }}
 >
-  <span className="text-[13px] font-medium text-slate-300">
-    Advanced
-    <span
-      className="text-slate-500"
-      style={{ marginLeft: "8px" }}
-    >
-      Multiplier, Tags, Strategy, etc.
-    </span>
+<span className="text-[13px] font-medium text-slate-300">
+  Advanced
+  <span
+    className="text-slate-500"
+    style={{ marginLeft: "8px" }}
+  >
+    Multiplier, Tags, Strategy, etc. (Coming Soon)
   </span>
+</span>
 
   <span className="translate-x-[-6px] translate-y-[-4px] text-slate-500">
     ⌄

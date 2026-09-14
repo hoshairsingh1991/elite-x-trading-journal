@@ -2772,18 +2772,15 @@ step="0.01"
   style={{ paddingLeft: "16px" }}
 >
 
-  <span className="text-[13px] font-medium text-slate-300">
-
-    Advanced
-
-    <span
-      className="text-slate-500"
-      style={{ marginLeft: "8px" }}
-    >
-      Multiplier, Tags, Strategy, etc.
-    </span>
-
+<span className="text-[13px] font-medium text-slate-300">
+  Advanced
+  <span
+    className="text-slate-500"
+    style={{ marginLeft: "8px" }}
+  >
+    Multiplier, Tags, Strategy, etc. (Coming Soon)
   </span>
+</span>
 
   <span className="translate-x-[-6px] translate-y-[-4px] text-slate-500">
     ⌄

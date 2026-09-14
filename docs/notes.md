@@ -483,6 +483,11 @@ git commit -m "Checkpoint: Execution architecture master notes"
 git commit -m "Checkpoint: Server-side ownership audit"
 git commit -m "Checkpoint: Server-side manual execution validation".      (95f5d4a)  Checkpoint: Server-side manual execution validation
 git commit -m "Checkpoint: Server-side suite master notes"
+git commit -m "Checkpoint: Fix partial exit maximum quantity"
+git commit -m "checkpoint: harden manual entry persistence"
+git commit -m "chore: close manual trade UI cleanup"
+
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
