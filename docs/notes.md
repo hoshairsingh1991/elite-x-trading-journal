@@ -491,7 +491,7 @@ git commit -m "fix: prevent recurring expense duplicates"
 Daily Review UI starts here 
 git commit -m "checkpoint: daily review component architecture"
 git commit -m "checkpoint: daily review analytics workspace"
-
+git commit -m "checkpoint: daily review trade table"
 
 
 

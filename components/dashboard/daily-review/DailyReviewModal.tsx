@@ -24,6 +24,9 @@ import DailyReviewTradeActivity
 import DailyReviewInsights
   from "@/components/dashboard/daily-review/DailyReviewInsights";
 
+import DailyReviewSecondaryMetrics
+  from "@/components/dashboard/daily-review/DailyReviewSecondaryMetrics";
+
 interface DailyReviewModalProps {
   selectedDay: number;
   currentMonth: number;
@@ -211,6 +214,27 @@ export default function DailyReviewModal({
                   </div>
 
                   {/* ================================================= */}
+                  {/* SECONDARY METRICS */}
+                  {/* ================================================= */}
+
+<div
+  className="
+    h-[10px]
+    shrink-0
+    opacity-0
+    pointer-events-none
+    select-none
+  "
+>
+  spacer
+</div>
+
+<DailyReviewSecondaryMetrics
+  selectedTrades={selectedTrades}
+  reportingCurrency={reportingCurrency}
+/>
+
+                  {/* ================================================= */}
                   {/* SPACER */}
                   {/* ================================================= */}
 
@@ -236,6 +260,18 @@ export default function DailyReviewModal({
                     reportingCurrency={reportingCurrency}
                     onEditTrade={setEditingTrade}
                   />
+
+<div
+  className="
+    h-[10px]
+    shrink-0
+    opacity-0
+    pointer-events-none
+    select-none
+  "
+>
+  spacer
+</div>
 
                 </div>
 

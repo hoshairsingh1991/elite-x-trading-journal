@@ -1,14 +1,8 @@
 "use client";
 
 import {
-  Fragment,
-} from "react";
-
-import {
-  Pencil,
-} from "lucide-react";
-
-import { Trade } from "@/types/trade";
+  Trade,
+} from "@/types/trade";
 
 import {
   getCurrencySymbol,
@@ -21,510 +15,805 @@ interface DailyReviewTradeTableProps {
   onEditTrade: (trade: Trade) => void;
 }
 
+function formatTime(
+  value?: string | null
+) {
+  if (!value) {
+    return "—";
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+  return date.toLocaleTimeString(
+    undefined,
+    {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+    }
+  );
+}
+
+function formatDuration(
+  openedAt?: string,
+  closedAt?: string | null
+) {
+  if (
+    !openedAt ||
+    !closedAt
+  ) {
+    return "—";
+  }
+
+  const entryTime =
+    new Date(
+      openedAt
+    ).getTime();
+
+  const exitTime =
+    new Date(
+      closedAt
+    ).getTime();
+
+  if (
+    Number.isNaN(
+      entryTime
+    ) ||
+    Number.isNaN(
+      exitTime
+    )
+  ) {
+    return "—";
+  }
+
+  const totalSeconds =
+    Math.max(
+      0,
+      Math.round(
+        (
+          exitTime -
+          entryTime
+        ) / 1000
+      )
+    );
+
+  const hours =
+    Math.floor(
+      totalSeconds /
+        3600
+    );
+
+  const minutes =
+    Math.floor(
+      (
+        totalSeconds %
+        3600
+      ) / 60
+    );
+
+  const seconds =
+    totalSeconds %
+    60;
+
+  if (
+    hours > 0
+  ) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  return `${minutes}m ${seconds}s`;
+}
+
+function formatQuantity(
+  quantity: number
+) {
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      maximumFractionDigits: 0,
+    }
+  ).format(
+    Math.abs(
+      Number(
+        quantity || 0
+      )
+    )
+  );
+}
+
+function formatPrice(
+  value?: number | null
+) {
+  if (
+    value == null ||
+    !Number.isFinite(
+      value
+    )
+  ) {
+    return "—";
+  }
+
+  return `$${value.toFixed(2)}`;
+}
+
+function getAssetTypeLabel(
+  assetType?: string
+) {
+  if (!assetType) {
+    return "—";
+  }
+
+  const normalized =
+    assetType
+      .toLowerCase()
+      .replace(
+        /_/g,
+        " "
+      );
+
+  return normalized.replace(
+    /\b\w/g,
+    (
+      character
+    ) =>
+      character.toUpperCase()
+  );
+}
+
 export default function DailyReviewTradeTable({
   selectedTrades,
   allTrades,
   reportingCurrency,
   onEditTrade,
 }: DailyReviewTradeTableProps) {
-  const totalTradesDay =
-    selectedTrades.length;
 
   return (
-    <div
-      className="
-        mt-6
-        rounded-[8px]
-        border
-        border-white/[0.05]
-        bg-white/[0.02]
-        p-7
-      "
-    >
-      {/* TABLE HEADER */}
+<div
+className="
+  mt-3
+  mb-4
+  mx-auto
+  w-[98%]
+  translate-x-[1%]
+  min-w-0
+  overflow-hidden
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#0b1220]
+"
+>
 
-      <div className="flex items-center justify-between">
-
-        <p
-          className="
-            text-[11px]
-            font-black
-            tracking-[0.18em]
-            text-slate-500
-          "
-        >
-          TRADES
-        </p>
-
-        <p
-          className="
-            text-sm
-            text-slate-500
-          "
-        >
-          {totalTradesDay} Trades
-        </p>
-
-      </div>
-
-      {/* TABLE SCROLL AREA */}
+      {/* ================================================= */}
+      {/* TABLE */}
+      {/* ================================================= */}
 
       <div
         className="
-          mt-7
-          max-h-[420px]
+          max-h-[360px]
+          w-full
+          min-w-0
           overflow-y-auto
           overflow-x-hidden
-          pr-[6px]
         "
       >
 
         <table
           className="
             w-full
+            min-w-0
             table-fixed
             border-collapse
           "
         >
 
-          <thead>
+          {/* ================================================= */}
+          {/* COLUMN WIDTHS */}
+          {/* ================================================= */}
+
+          <colgroup>
+            <col className="w-[3%]" />
+            <col className="w-[9%]" />
+            <col className="w-[9%]" />
+            <col className="w-[8%]" />
+            <col className="w-[7%]" />
+            <col className="w-[6%]" />
+            <col className="w-[5%]" />
+            <col className="w-[7%]" />
+            <col className="w-[7%]" />
+            <col className="w-[8%]" />
+            <col className="w-[8%]" />
+            <col className="w-[9%]" />
+            <col className="w-[7%]" />
+            <col className="w-[7%]" />
+          </colgroup>
+
+          {/* ================================================= */}
+          {/* TABLE HEADER */}
+          {/* ================================================= */}
+
+          <thead
+            className="
+              sticky
+              top-0
+              z-20
+              bg-[#0b1220]
+            "
+          >
 
             <tr
               className="
+                h-[34px]
                 border-b
-                border-white/[0.05]
+                border-white/[0.06]
               "
             >
 
-              {[
-                "Ticker",
-                "Account",
-                "Side",
-                "Entry",
-                "Exit",
-                "Net P&L",
-                "Commission",
-                "Status",
-                "",
-              ].map(
-                (header) => (
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-center
+                  text-[10px]
+                  font-medium
+                  text-slate-600
+                "
+              >
+                #
+              </th>
 
-                  <th
-                    key={header}
-                    className="
-                      pb-5
-                      text-left
-                      text-[11px]
-                      font-black
-                      tracking-[0.18em]
-                      text-slate-500
-                    "
-                  >
-                    {header}
-                  </th>
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-left
+                    translate-x-3
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Time In
+              </th>
 
-                )
-              )}
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-left
+                   translate-x-2
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Time Out
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-left
+                -translate-x-1
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                <span className="inline-flex items-center gap-1">
+                  Symbol
+                  <span className="text-[8px] text-slate-600">
+                    ▾
+                  </span>
+                </span>
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-left
+                  translate-x-1
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Type
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-left
+                  translate-x-3
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Side
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  -translate-x-3
+                  text-right
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Qty
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-right
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Entry
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-right
+                  text-[11px]
+                  -translate-x-1
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Exit
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-right
+                  -translate-x-2
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                P&L
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-right
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                R-Multiple
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-right
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                <span className="inline-flex items-center gap-1">
+                  Duration
+                  <span className="text-[8px] text-slate-600">
+                    ▾
+                  </span>
+                </span>
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-center
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Status
+              </th>
+
+              <th
+                className="
+                  truncate
+                  px-1
+                  text-center
+                  text-[11px]
+                  font-medium
+                  text-slate-500
+                "
+              >
+                Reviewed
+              </th>
 
             </tr>
 
           </thead>
 
+          {/* ================================================= */}
+          {/* TABLE BODY */}
+          {/* ================================================= */}
+
           <tbody>
-
-            {/* TOP SPACER */}
-
-            <tr
-              className="
-                opacity-0
-                pointer-events-none
-                select-none
-              "
-            >
-              <td
-                colSpan={9}
-                className="
-                  h-[10px]
-                  p-0
-                "
-              >
-                spacer
-              </td>
-            </tr>
 
             {selectedTrades.map(
               (
                 trade,
                 index
-              ) => (
+              ) => {
 
-                <Fragment
-                  key={
-                    trade.id ||
-                    index
-                  }
-                >
+                const pnl =
+                  Number(
+                    trade.pnl || 0
+                  );
 
+                const canEdit =
+                  trade.contractKey?.startsWith(
+                    "MANUAL-"
+                  ) &&
+                  !(
+                    trade.status ===
+                      "OPEN" &&
+                    allTrades.some(
+                      (
+                        otherTrade
+                      ) =>
+                        otherTrade.id !==
+                          trade.id &&
+                        otherTrade.contractKey ===
+                          trade.contractKey &&
+                        otherTrade.status !==
+                          "OPEN"
+                    )
+                  );
+
+                return (
                   <tr
+                    key={
+                      trade.id ||
+                      index
+                    }
+                    onDoubleClick={() => {
+                      if (
+                        canEdit
+                      ) {
+                        onEditTrade(
+                          trade
+                        );
+                      }
+                    }}
                     className="
+                      h-[42px]
+                      cursor-default
                       border-b
-                      border-white/[0.08]
+                      border-white/[0.045]
+                      transition-colors
+                      hover:bg-white/[0.018]
                     "
                   >
 
-                    {/* TICKER */}
+                    {/* INDEX */}
 
                     <td
                       className="
-                        h-[12px]
+                        truncate
+                        px-1
                         text-center
+                        text-[11px]
+                        font-medium
+                        text-slate-600
                       "
                     >
-
-                      <div
-                        className="
-                          flex
-                          h-full
-                          items-center
-                          gap-2
-                          text-sm
-                          font-semibold
-                          text-slate-400
-                        "
-                      >
-
-                        {trade.ticker}
-
-                        {/* OPEN */}
-
-                        {trade.status === "OPEN" && (
-
-                          <div
-                            className="
-                              group
-                              relative
-                              flex
-                              items-center
-                              justify-center
-                            "
-                          >
-
-                            <div
-                              className="
-                                h-[10px]
-                                w-[10px]
-                                rounded-full
-                                bg-emerald-400
-                              "
-                            />
-
-                            <div
-                              className="
-                                pointer-events-none
-                                absolute
-                                bottom-[140%]
-                                left-1/2
-                                hidden
-                                -translate-x-1/2
-                                whitespace-nowrap
-                                rounded-xl
-                                border
-                                border-white/[0.06]
-                                bg-[#07111d]
-                                px-4
-                                py-2
-                                text-[12px]
-                                font-semibold
-                                tracking-[0.03em]
-                                text-slate-300
-                                shadow-[0_0_30px_rgba(0,0,0,0.35)]
-                                group-hover:block
-                              "
-                            >
-                              Position still open
-                            </div>
-
-                          </div>
-
-                        )}
-
-                        {/* MULTI-DAY */}
-
-                        {trade.status !== "OPEN" &&
-                          trade.holdingDays != null && (
-
-                            <div
-                              className="
-                                group
-                                relative
-                                flex
-                                items-center
-                                justify-center
-                              "
-                            >
-
-                              <div
-                                className={`h-[10px] w-[10px] rounded-full ${
-                                  trade.holdingDays === 0
-                                    ? "bg-slate-500"
-                                    : "bg-cyan-400"
-                                }`}
-                              />
-
-                              <div
-                                className="
-                                  pointer-events-none
-                                  absolute
-                                  bottom-[140%]
-                                  left-1/2
-                                  hidden
-                                  -translate-x-1/2
-                                  whitespace-nowrap
-                                  rounded-xl
-                                  border
-                                  border-white/[0.06]
-                                  bg-[#07111d]
-                                  px-4
-                                  py-2
-                                  text-[12px]
-                                  font-semibold
-                                  tracking-[0.03em]
-                                  text-slate-300
-                                  shadow-[0_0_30px_rgba(0,0,0,0.35)]
-                                  group-hover:block
-                                "
-                              >
-                                Held for{" "}
-                                {trade.holdingDays}{" "}
-                                {trade.holdingDays === 1
-                                  ? "Day"
-                                  : "Days"}
-                              </div>
-
-                            </div>
-
-                          )}
-
-                      </div>
-
+                      {index + 1}
                     </td>
 
-                    {/* ACCOUNT */}
+                    {/* TIME IN */}
 
                     <td
                       className="
-                        py-6
-                        text-sm
+                        truncate
+                        whitespace-nowrap
+                        px-1
+                        text-left
+                        text-[11px]
                         font-medium
                         text-slate-300
                       "
                     >
-                      {trade.account || "--"}
+                      {formatTime(
+                        trade.openedAt
+                      )}
+                    </td>
+
+                    {/* TIME OUT */}
+
+                    <td
+                      className="
+                        truncate
+                        whitespace-nowrap
+                        px-1
+                        text-left
+                        text-[11px]
+                        font-medium
+                        text-slate-300
+                      "
+                    >
+                      {formatTime(
+                        trade.closedAt
+                      )}
+                    </td>
+
+                    {/* SYMBOL */}
+
+                    <td
+                      className="
+                        truncate
+                        px-1
+                        text-left
+                        text-[11px]
+                        font-semibold
+                        text-slate-100
+                      "
+                    >
+                      {trade.ticker}
+                    </td>
+
+                    {/* TYPE */}
+
+                    <td
+                      className="
+                        truncate
+                        px-1
+                        text-left
+                        text-[11px]
+                        font-medium
+                        text-slate-400
+                      "
+                    >
+                      {getAssetTypeLabel(
+                        trade.assetType
+                      )}
                     </td>
 
                     {/* SIDE */}
 
                     <td
-                      className={`h-[10px] align-middle text-sm font-bold ${
-                        trade.side === "LONG"
-                          ? "text-emerald-400"
-                          : "text-red-400"
-                      }`}
+                      className={`
+                        truncate
+                        px-1
+                        text-left
+                          translate-x-2
+                        text-[11px]
+                        font-bold
+                        ${
+                          trade.side ===
+                          "LONG"
+                            ? "text-emerald-400"
+                            : "text-red-400"
+                        }
+                      `}
                     >
                       {trade.side}
+                    </td>
+
+                    {/* QTY */}
+
+                    <td
+                      className="
+                        truncate
+                        px-1
+                        text-right
+                          -translate-x-4
+                        text-[11px]
+                        font-medium
+                        text-slate-300
+                      "
+                    >
+                      {formatQuantity(
+                        trade.quantity
+                      )}
                     </td>
 
                     {/* ENTRY */}
 
                     <td
                       className="
-                        py-6
-                        text-sm
-                        text-slate-400
+                        truncate
+                        px-1
+                        text-right
+                        text-[11px]
+                        text-slate-300
                       "
                     >
-                      {trade.entryPrice > 0
-                        ? `$${trade.entryPrice}`
-                        : "--"}
+                      {formatPrice(
+                        trade.entryPrice
+                      )}
                     </td>
 
                     {/* EXIT */}
 
                     <td
                       className="
-                        py-6
-                        text-sm
-                        text-slate-400
+                        truncate
+                        px-1
+                        text-right
+                        text-[11px]
+                        text-slate-300
                       "
                     >
-                      {trade.exitPrice != null ? (
-
-                        trade.exitPrice === 0 &&
-                        trade.status === "LOSS"
-                          ? (
-                            <span
-                              className="
-                                text-[12px]
-                                font-bold
-                                tracking-[0.04em]
-                                text-red-400
-                              "
-                            >
-                              Expired Worthless
-                            </span>
-                          )
-                          : (
-                            `$${trade.exitPrice}`
-                          )
-
-                      ) : "--"}
+                      {trade.exitPrice ===
+                        0 &&
+                      trade.status ===
+                        "LOSS" ? (
+                        <span
+                          className="
+                            text-[11px]
+                            font-semibold
+                            text-red-400
+                          "
+                        >
+                          Expired
+                        </span>
+                      ) : (
+                        formatPrice(
+                          trade.exitPrice
+                        )
+                      )}
                     </td>
 
-                    {/* NET P&L */}
+                    {/* P&L */}
 
                     <td
-                      className={`py-6 text-sm font-bold ${
-                        Number(
-                          trade.pnl
-                        ) >= 0
-                          ? "text-emerald-400"
-                          : "text-red-400"
-                      }`}
+                      className={`
+                        truncate
+                        px-1
+                        text-right
+                        text-[11px]
+                        font-bold
+                        ${
+                          pnl >= 0
+                            ? "text-emerald-400"
+                            : "text-red-400"
+                        }
+                      `}
                     >
-                      {Number(
-                        trade.pnl
-                      ) >= 0
+                      {pnl >= 0
                         ? "+"
-                        : ""}
+                        : "-"}
                       {getCurrencySymbol(
                         reportingCurrency
                       )}
-                      {Number(
-                        trade.pnl
-                      ).toFixed(2)}
+                      {Math.abs(
+                        pnl
+                      ).toFixed(
+                        2
+                      )}
                     </td>
 
-                    {/* COMMISSION */}
+                    {/* R-MULTIPLE */}
 
                     <td
                       className="
-                        py-6
-                        text-sm
+                        truncate
+                        px-1
+                        text-right
+                        -translate-x-5
+                        text-[11px]
+                        font-semibold
+                        text-slate-500
+                      "
+                    >
+                      —
+                    </td>
+
+                    {/* DURATION */}
+
+                    <td
+                      className="
+                        truncate
+                        whitespace-nowrap
+                        px-1
+                        text-right
+                         -translate-x-3
+                        text-[11px]
+                        font-medium
                         text-slate-400
                       "
                     >
-                      {trade.fees > 0
-                        ? `${getCurrencySymbol(
-                            reportingCurrency
-                          )}${trade.fees.toFixed(2)}`
-                        : "--"}
+                      {formatDuration(
+                        trade.openedAt,
+                        trade.closedAt
+                      )}
                     </td>
 
                     {/* STATUS */}
 
                     <td
                       className="
-                        py-6
+                        px-1
                         text-center
                       "
                     >
+<span
+  className={`
+    text-[11px]
+    font-bold
+    ${
+      trade.status ===
+      "OPEN"
+        ? "text-yellow-400"
+        : trade.status ===
+            "WIN"
+          ? "text-emerald-400"
+          : trade.status ===
+              "LOSS"
+            ? "text-red-400"
+            : "text-slate-400"
+    }
+  `}
+>
+  {trade.status}
+</span>
+                    </td>
 
+                    {/* REVIEWED */}
+
+                    <td
+                      className="
+                        px-1
+                        text-center
+                      "
+                    >
                       <span
-                        className={`text-[11px] font-bold tracking-[0.04em] ${
-                          trade.status === "OPEN"
-                            ? "text-yellow-400"
-                            : trade.status === "WIN"
-                            ? "text-emerald-400"
-                            : trade.status === "LOSS"
-                            ? "text-red-400"
-                            : "text-slate-400"
-                        }`}
-                      >
-                        {trade.status}
-                      </span>
-
-                    </td>
-
-                    {/* EDIT */}
-
-                    <td
-                      className="
-                        py-6
-                      "
-                    >
-
-                      {trade.contractKey?.startsWith(
-                        "MANUAL-"
-                      ) &&
-                        !(
-                          trade.status === "OPEN" &&
-                          allTrades.some(
-                            (
-                              otherTrade
-                            ) =>
-                              otherTrade.id !==
-                                trade.id &&
-                              otherTrade.contractKey ===
-                                trade.contractKey &&
-                              otherTrade.status !==
-                                "OPEN"
-                          )
-                        ) && (
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              onEditTrade(
-                                trade
-                              )
-                            }
-                            className="
-                              flex
-                              h-[34px]
-                              w-[34px]
-                              items-center
-                              justify-center
-                              text-[15px]
-                              text-red-400
-                              transition-all
-                              duration-150
-                              hover:scale-110
-                              hover:text-red-300
-                              hover:drop-shadow-[0_0_6px_rgba(248,113,113,0.55)]
-                            "
-                          >
-                            <Pencil size={14} />
-                          </button>
-
-                        )}
-
+                        className="
+                          inline-flex
+                          h-[13px]
+                          w-[13px]
+                          items-center
+                          justify-center
+                          rounded-[4px]
+                          border
+                          border-white/[0.14]
+                        "
+                        aria-label="Not reviewed"
+                      />
                     </td>
 
                   </tr>
-
-                  {/* ROW SPACER */}
-
-                  <tr
-                    className="
-                      opacity-0
-                      pointer-events-none
-                      select-none
-                    "
-                  >
-                    <td
-                      colSpan={9}
-                      className="
-                        h-[18px]
-                        p-0
-                      "
-                    >
-                      spacer
-                    </td>
-                  </tr>
-
-                </Fragment>
-
-              )
+                );
+              }
             )}
 
           </tbody>
