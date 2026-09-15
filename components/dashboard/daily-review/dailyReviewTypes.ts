@@ -11,8 +11,10 @@ export interface DailyReviewBaseProps {
 
 export interface DailyReviewHeaderProps {
   selectedDay: number;
+  currentMonth: number;
   monthName: string;
   currentYear: number;
+  selectedTrades: Trade[];
   onClose: () => void;
 }
 

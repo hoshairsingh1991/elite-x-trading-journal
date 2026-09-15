@@ -1011,6 +1011,7 @@ bg-[#0b1220]
 {selectedDay && (
   <DailyReviewModal
     selectedDay={selectedDay}
+    currentMonth={currentMonth}
     monthName={monthName}
     currentYear={currentYear}
     selectedTrades={selectedTrades}

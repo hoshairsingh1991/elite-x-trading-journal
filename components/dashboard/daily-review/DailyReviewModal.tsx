@@ -4,26 +4,29 @@ import {
   useState,
 } from "react";
 
-
 import { Trade } from "@/types/trade";
 
 import EditTradeModal
   from "@/components/trades/EditTradeModal";
 
-  import DailyReviewHeader
+import DailyReviewHeader
   from "@/components/dashboard/daily-review/DailyReviewHeader";
 
-  import DailyReviewKpis
+import DailyReviewKpis
   from "@/components/dashboard/daily-review/DailyReviewKpis";
-
-  import DailyReviewPerformance
-  from "@/components/dashboard/daily-review/DailyReviewPerformance";
 
 import DailyReviewTradeTable
   from "@/components/dashboard/daily-review/DailyReviewTradeTable";
 
+import DailyReviewTradeActivity
+  from "@/components/dashboard/daily-review/DailyReviewTradeActivity";
+
+import DailyReviewInsights
+  from "@/components/dashboard/daily-review/DailyReviewInsights";
+
 interface DailyReviewModalProps {
   selectedDay: number;
+  currentMonth: number;
   monthName: string;
   currentYear: number;
 
@@ -37,6 +40,7 @@ interface DailyReviewModalProps {
 
 export default function DailyReviewModal({
   selectedDay,
+  currentMonth,
   monthName,
   currentYear,
   selectedTrades,
@@ -49,8 +53,6 @@ export default function DailyReviewModal({
     editingTrade,
     setEditingTrade,
   ] = useState<Trade | null>(null);
-
-
 
   return (
     <>
@@ -126,16 +128,18 @@ export default function DailyReviewModal({
 
               <div className="flex-1">
 
-{/* ================================================= */}
-{/* HEADER */}
-{/* ================================================= */}
+                {/* ================================================= */}
+                {/* HEADER */}
+                {/* ================================================= */}
 
-<DailyReviewHeader
-  selectedDay={selectedDay}
-  monthName={monthName}
-  currentYear={currentYear}
-  onClose={onClose}
-/>
+                <DailyReviewHeader
+                  selectedDay={selectedDay}
+                  currentMonth={currentMonth}
+                  monthName={monthName}
+                  currentYear={currentYear}
+                  selectedTrades={selectedTrades}
+                  onClose={onClose}
+                />
 
                 {/* ================================================= */}
                 {/* SAFE ZONE */}
@@ -154,9 +158,9 @@ export default function DailyReviewModal({
 
                   <div className="h-[8px]" />
 
-{/* ================================================= */}
-{/* KPI ROW */}
-{/* ================================================= */}
+                  {/* ================================================= */}
+                  {/* KPI ROW */}
+                  {/* ================================================= */}
 
                   <DailyReviewKpis
                     selectedTrades={selectedTrades}
@@ -179,10 +183,32 @@ export default function DailyReviewModal({
                     spacer
                   </div>
 
-                  <DailyReviewPerformance
-                    selectedTrades={selectedTrades}
-                    reportingCurrency={reportingCurrency}
-                  />
+                  {/* ================================================= */}
+                  {/* TRADE ACTIVITY + DAY INSIGHTS */}
+                  {/* ================================================= */}
+
+                  <div
+                    className="
+                      mt-3
+                      w-[98%]
+                      translate-x-[1%]
+                      grid
+                      grid-cols-1
+                      gap-3
+                      xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.8fr)]
+                    "
+                  >
+
+                    <DailyReviewTradeActivity
+                      selectedTrades={selectedTrades}
+                    />
+
+                    <DailyReviewInsights
+                      selectedTrades={selectedTrades}
+                      reportingCurrency={reportingCurrency}
+                    />
+
+                  </div>
 
                   {/* ================================================= */}
                   {/* SPACER */}
@@ -199,6 +225,10 @@ export default function DailyReviewModal({
                   >
                     spacer
                   </div>
+
+                  {/* ================================================= */}
+                  {/* TRADE TABLE */}
+                  {/* ================================================= */}
 
                   <DailyReviewTradeTable
                     selectedTrades={selectedTrades}
