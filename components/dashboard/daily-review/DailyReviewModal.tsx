@@ -27,6 +27,8 @@ import DailyReviewInsights
 import DailyReviewSecondaryMetrics
   from "@/components/dashboard/daily-review/DailyReviewSecondaryMetrics";
 
+import DailyReviewBreakdown from "@/components/dashboard/daily-review/DailyReviewBreakdown";
+
 interface DailyReviewModalProps {
   selectedDay: number;
   currentMonth: number;
@@ -233,6 +235,55 @@ export default function DailyReviewModal({
   selectedTrades={selectedTrades}
   reportingCurrency={reportingCurrency}
 />
+
+                  {/* ================================================= */}
+                  {/* SPACER */}
+                  {/* ================================================= */}
+
+                  <div
+                    className="
+                      h-[10px]
+                      shrink-0
+                      opacity-0
+                      pointer-events-none
+                      select-none
+                    "
+                  >
+                    spacer
+                  </div>
+
+                  {/* ================================================= */}
+                  {/* TRADE FILTERS */}
+                  {/* ================================================= */}
+
+                  <div
+                    className="
+                      w-[98%]
+                      translate-x-[1%]
+                    "
+                  >
+<DailyReviewBreakdown
+  selectedTrades={selectedTrades}
+  reportingCurrency={reportingCurrency}
+/>
+                  </div>
+
+                  {/* ================================================= */}
+                  {/* SPACER */}
+                  {/* ================================================= */}
+
+                  <div
+                    className="
+                      h-[0px]
+                      shrink-0
+                      opacity-0
+                      pointer-events-none
+                      select-none
+                    "
+                  >
+                    spacer
+                  </div>
+
 
                   {/* ================================================= */}
                   {/* SPACER */}

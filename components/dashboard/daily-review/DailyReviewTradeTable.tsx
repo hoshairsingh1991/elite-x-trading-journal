@@ -8,6 +8,7 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+
 interface DailyReviewTradeTableProps {
   selectedTrades: Trade[];
   allTrades: Trade[];
@@ -192,6 +193,23 @@ className="
   bg-[#0b1220]
 "
 >
+
+
+
+{/* ================================================= */}
+{/* TABLE */}
+{/* ================================================= */}
+
+      <div
+        className="
+          max-h-[360px]
+          [@media(max-height:1079px)]:max-h-[244px]
+          w-full
+          min-w-0
+          overflow-y-auto
+          overflow-x-hidden
+        "
+      ></div>
 
       {/* ================================================= */}
       {/* TABLE */}
