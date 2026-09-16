@@ -239,22 +239,23 @@ className="
           {/* COLUMN WIDTHS */}
           {/* ================================================= */}
 
-          <colgroup>
-            <col className="w-[3%]" />
-            <col className="w-[9%]" />
-            <col className="w-[9%]" />
-            <col className="w-[8%]" />
-            <col className="w-[7%]" />
-            <col className="w-[6%]" />
-            <col className="w-[5%]" />
-            <col className="w-[7%]" />
-            <col className="w-[7%]" />
-            <col className="w-[8%]" />
-            <col className="w-[8%]" />
-            <col className="w-[9%]" />
-            <col className="w-[7%]" />
-            <col className="w-[7%]" />
-          </colgroup>
+<colgroup>
+  <col className="w-[3%]" />
+  <col className="w-[9%]" />
+  <col className="w-[9%]" />
+  <col className="w-[8%]" />
+  <col className="w-[7%]" />
+  <col className="w-[6%]" />
+  <col className="w-[5%]" />
+  <col className="w-[7%]" />
+  <col className="w-[7%]" />
+  <col className="w-[8%]" />
+  <col className="w-[8%]" />
+  <col className="w-[9%]" />
+  <col className="w-[7%]" />
+  <col className="w-[7%]" />
+  <col className="w-[7%]" />
+</colgroup>
 
           {/* ================================================= */}
           {/* TABLE HEADER */}
@@ -419,6 +420,22 @@ className="
               >
                 P&L
               </th>
+
+              {/* COMMISSION */}
+
+<th
+  className="
+    truncate
+    px-1
+    text-right
+translate-x-1
+    text-[11px]
+    font-medium
+    text-slate-500
+  "
+>
+  Commission
+</th>
 
               <th
                 className="
@@ -626,14 +643,13 @@ className="
                       )}
                     </td>
 
-                    {/* SIDE */}
+{/* SIDE */}
 
 <td
   className={`
-    truncate
     px-1
     text-left
-      translate-x-3
+    translate-x-3
     text-[11px]
     font-bold
     ${
@@ -649,16 +665,25 @@ className="
     }
   `}
 >
-  {trade.assetType === "Options"
-    ? trade.contractKey?.endsWith("_C")
-      ? "CALL"
-      : trade.contractKey?.endsWith("_P")
-        ? "PUT"
-        : "OPTION"
-    : trade.side}
+  <span
+    className={
+      trade.assetType === "Options" &&
+      trade.contractKey?.endsWith("_C")
+        ? "relative left-[-2px]"
+        : ""
+    }
+  >
+    {trade.assetType === "Options"
+      ? trade.contractKey?.endsWith("_C")
+        ? "CALL"
+        : trade.contractKey?.endsWith("_P")
+          ? "PUT"
+          : "OPTION"
+      : trade.side}
+  </span>
 </td>
 
-                    {/* QTY */}
+{/* QTY */}
 
                     <td
                       className="
@@ -751,6 +776,31 @@ className="
                         2
                       )}
                     </td>
+
+{/* COMMISSION */}
+
+<td
+className="
+  truncate
+  px-1
+  text-right
+  -translate-x-3
+  text-[11px]
+  font-medium
+  text-slate-400
+"
+>
+  {getCurrencySymbol(
+    reportingCurrency
+  )}
+  {Math.abs(
+    Number(
+      trade.fees || 0
+    )
+  ).toFixed(
+    2
+  )}
+</td>
 
                     {/* R-MULTIPLE */}
 
