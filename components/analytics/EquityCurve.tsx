@@ -58,12 +58,16 @@ export default function EquityCurve({
       {/* CHART */}
       {/* ================================================= */}
 
-      <div className="mt-10 h-[420px] w-full min-w-0">
+<div className="mt-10 h-[420px] w-full min-w-0">
 
-        <ResponsiveContainer
-          width="100%"
-          height={420}
-        >
+<ResponsiveContainer
+  width="100%"
+  height={420}
+  initialDimension={{
+    width: 1,
+    height: 1,
+  }}
+>
 
           <AreaChart
             data={equityData}

@@ -26,7 +26,14 @@ const data = [
 export default function PerformanceChart() {
   return (
     <div className="h-[480px] w-full rounded-[28px] border border-blue-500/10 bg-[#020817] p-6">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer
+  width="100%"
+  height="100%"
+  initialDimension={{
+    width: 1,
+    height: 1,
+  }}
+>
         <AreaChart data={data}>
           <defs>
             <linearGradient

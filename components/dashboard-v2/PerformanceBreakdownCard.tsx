@@ -151,10 +151,16 @@ hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
   `}
 >
 
-  <ResponsiveContainer
-    width="100%"
-    height="100%"
-  >
+<ResponsiveContainer
+  width="100%"
+  height="100%"
+  minWidth={1}
+  minHeight={1}
+  initialDimension={{
+    width: isCompact ? 135 : 165,
+    height: isCompact ? 135 : 165,
+  }}
+>
 
     <PieChart>
 

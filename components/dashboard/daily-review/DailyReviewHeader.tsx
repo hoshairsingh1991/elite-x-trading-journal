@@ -97,12 +97,12 @@ export default function DailyReviewHeader({
       null as Date | null
     );
 
-const date =
-  new Date(
-    currentYear,
-    currentMonth,
-    selectedDay
-  );
+  const date =
+    new Date(
+      currentYear,
+      currentMonth,
+      selectedDay
+    );
 
   const weekday =
     date.toLocaleDateString(
@@ -140,11 +140,13 @@ const date =
         flex
         min-h-[76px]
         w-full
+        min-w-0
         items-center
         justify-between
-        gap-6
+        gap-4
       "
     >
+
       {/* ================================================= */}
       {/* LEFT SIDE */}
       {/* ================================================= */}
@@ -153,6 +155,7 @@ const date =
         className="
           flex
           min-w-0
+          shrink
           items-center
           gap-3
         "
@@ -211,8 +214,7 @@ const date =
 
         {/* DATE */}
 
-        <div className="min-w-0">
-
+        <div className="min-w-0 shrink">
           <h1
             className="
               truncate
@@ -228,6 +230,7 @@ const date =
           <p
             className="
               mt-0.5
+              truncate
               text-[11px]
               font-medium
               text-slate-500
@@ -235,8 +238,8 @@ const date =
           >
             {weekday}
           </p>
-
         </div>
+
       </div>
 
       {/* ================================================= */}
@@ -246,8 +249,10 @@ const date =
       <div
         className="
           flex
-          shrink-0
+          min-w-0
+          shrink
           items-center
+          justify-end
           gap-2
         "
       >
@@ -259,6 +264,7 @@ const date =
             hidden
             h-[34px]
             w-[108px]
+            shrink-0
             items-center
             justify-center
             gap-2
@@ -296,6 +302,7 @@ const date =
             hidden
             h-[34px]
             w-[92px]
+            shrink-0
             items-center
             justify-center
             rounded-[8px]
@@ -323,6 +330,7 @@ const date =
             hidden
             h-[34px]
             w-[148px]
+            shrink-0
             items-center
             justify-center
             gap-1.5
@@ -340,6 +348,7 @@ const date =
 
           <span
             className="
+              truncate
               text-[12px]
               font-semibold
               text-slate-400
@@ -357,6 +366,7 @@ const date =
             hidden
             h-[34px]
             w-[100px]
+            shrink-0
             items-center
             justify-center
             gap-1
@@ -389,6 +399,7 @@ const date =
             hidden
             h-[34px]
             w-[90px]
+            shrink-0
             items-center
             justify-center
             rounded-[8px]
@@ -415,6 +426,7 @@ const date =
             flex
             h-[34px]
             w-[34px]
+            shrink-0
             items-center
             justify-center
             rounded-[8px]
@@ -440,6 +452,7 @@ const date =
             flex
             h-[34px]
             w-[34px]
+            shrink-0
             items-center
             justify-center
             rounded-[8px]
@@ -457,6 +470,7 @@ const date =
         </button>
 
       </div>
+
     </header>
   );
 }
