@@ -197,15 +197,16 @@ className="
       {/* TABLE */}
       {/* ================================================= */}
 
-      <div
-        className="
-          max-h-[360px]
-          w-full
-          min-w-0
-          overflow-y-auto
-          overflow-x-hidden
-        "
-      >
+<div
+  className="
+    max-h-[360px]
+    [@media(max-height:1079px)]:max-h-[244px]
+    w-full
+    min-w-0
+    overflow-y-auto
+    overflow-x-hidden
+  "
+>
 
         <table
           className="
