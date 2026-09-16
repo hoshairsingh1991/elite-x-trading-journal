@@ -628,24 +628,35 @@ className="
 
                     {/* SIDE */}
 
-                    <td
-                      className={`
-                        truncate
-                        px-1
-                        text-left
-                          translate-x-2
-                        text-[11px]
-                        font-bold
-                        ${
-                          trade.side ===
-                          "LONG"
-                            ? "text-emerald-400"
-                            : "text-red-400"
-                        }
-                      `}
-                    >
-                      {trade.side}
-                    </td>
+<td
+  className={`
+    truncate
+    px-1
+    text-left
+      translate-x-3
+    text-[11px]
+    font-bold
+    ${
+      trade.assetType === "Options"
+        ? trade.contractKey?.endsWith("_C")
+          ? "text-cyan-400"
+          : trade.contractKey?.endsWith("_P")
+            ? "text-amber-400"
+            : "text-slate-400"
+        : trade.side === "LONG"
+          ? "text-emerald-400"
+          : "text-red-400"
+    }
+  `}
+>
+  {trade.assetType === "Options"
+    ? trade.contractKey?.endsWith("_C")
+      ? "CALL"
+      : trade.contractKey?.endsWith("_P")
+        ? "PUT"
+        : "OPTION"
+    : trade.side}
+</td>
 
                     {/* QTY */}
 
@@ -654,7 +665,7 @@ className="
                         truncate
                         px-1
                         text-right
-                          -translate-x-4
+                          -translate-x-5
                         text-[11px]
                         font-medium
                         text-slate-300

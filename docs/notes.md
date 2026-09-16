@@ -496,7 +496,7 @@ git commit -m "fix: responsive daily review layout"
 git commit -m "fix: simplify responsive daily review header"
 git commit -m "checkpoint: daily review layout and responsive fixes"
 git commit -m "checkpoint: add daily review breakdown section"
-
+git commit -m "checkpoint: add call put labels"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

@@ -59,13 +59,27 @@ const buildRows = (
   >();
 
   selectedTrades.forEach((trade) => {
-    const rawValue = trade[key];
+let label: string;
 
-    if (!rawValue) {
-      return;
-    }
+if (
+  key === "side" &&
+  trade.assetType === "Options"
+) {
+  label =
+    trade.contractKey?.endsWith("_C")
+      ? "CALL"
+      : trade.contractKey?.endsWith("_P")
+        ? "PUT"
+        : "OPTION";
+} else {
+  const rawValue = trade[key];
 
-    const label = String(rawValue);
+  if (!rawValue) {
+    return;
+  }
+
+  label = String(rawValue);
+}
 
     const existing = groups.get(label);
 
