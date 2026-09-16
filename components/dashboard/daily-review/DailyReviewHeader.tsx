@@ -137,6 +137,7 @@ export default function DailyReviewHeader({
   return (
     <header
       className="
+        @container
         flex
         min-h-[76px]
         w-full
@@ -214,7 +215,12 @@ export default function DailyReviewHeader({
 
         {/* DATE */}
 
-        <div className="min-w-0 shrink">
+        <div
+          className="
+            min-w-0
+            shrink
+          "
+        >
           <h1
             className="
               truncate
@@ -272,7 +278,7 @@ export default function DailyReviewHeader({
             border
             border-white/[0.06]
             bg-[#0b1220]
-            min-[1500px]:flex
+            @[900px]:flex
           "
         >
           <span
@@ -309,7 +315,7 @@ export default function DailyReviewHeader({
             border
             border-white/[0.06]
             bg-[#0b1220]
-            min-[1500px]:flex
+            @[900px]:flex
           "
         >
           <span
@@ -338,7 +344,7 @@ export default function DailyReviewHeader({
             border
             border-white/[0.06]
             bg-[#0b1220]
-            min-[1400px]:flex
+            @[820px]:flex
           "
         >
           <Clock3
@@ -380,7 +386,7 @@ export default function DailyReviewHeader({
             transition-all
             hover:border-white/[0.12]
             hover:text-slate-200
-            min-[1300px]:flex
+            @[760px]:flex
           "
         >
           All Accounts
@@ -412,7 +418,7 @@ export default function DailyReviewHeader({
             transition-all
             hover:border-violet-500/20
             hover:bg-[#0d1426]
-            min-[1500px]:flex
+            @[900px]:flex
           "
         >
           Replay Day
