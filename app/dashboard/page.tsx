@@ -612,10 +612,6 @@ const openManualPositions =
       )
   );
 
-  console.log(
-  "REBUILT MANUAL POSITIONS:",
-  openManualPositions
-);
 
 setManualOpenPositions(
   openManualPositions

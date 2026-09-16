@@ -143,7 +143,7 @@ export default function DailyReviewHeader({
         min-w-0
         items-center
         justify-between
-        gap-4
+        gap-6
       "
     >
 
@@ -272,7 +272,7 @@ export default function DailyReviewHeader({
             border
             border-white/[0.06]
             bg-[#0b1220]
-            lg:flex
+            min-[1500px]:flex
           "
         >
           <span
@@ -309,7 +309,7 @@ export default function DailyReviewHeader({
             border
             border-white/[0.06]
             bg-[#0b1220]
-            lg:flex
+            min-[1500px]:flex
           "
         >
           <span
@@ -338,7 +338,7 @@ export default function DailyReviewHeader({
             border
             border-white/[0.06]
             bg-[#0b1220]
-            xl:flex
+            min-[1400px]:flex
           "
         >
           <Clock3
@@ -380,7 +380,7 @@ export default function DailyReviewHeader({
             transition-all
             hover:border-white/[0.12]
             hover:text-slate-200
-            xl:flex
+            min-[1300px]:flex
           "
         >
           All Accounts
@@ -412,7 +412,7 @@ export default function DailyReviewHeader({
             transition-all
             hover:border-violet-500/20
             hover:bg-[#0d1426]
-            xl:flex
+            min-[1500px]:flex
           "
         >
           Replay Day
