@@ -493,7 +493,7 @@ git commit -m "checkpoint: daily review component architecture"
 git commit -m "checkpoint: daily review analytics workspace"
 git commit -m "checkpoint: daily review trade table"
 git commit -m "fix: responsive daily review layout"
-
+git commit -m "fix: simplify responsive daily review header"
 
 
 

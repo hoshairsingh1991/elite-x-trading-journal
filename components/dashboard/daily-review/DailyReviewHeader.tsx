@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  MoreHorizontal,
   X,
 } from "lucide-react";
 
@@ -155,8 +154,7 @@ export default function DailyReviewHeader({
       <div
         className="
           flex
-          min-w-0
-          shrink
+          shrink-0
           items-center
           gap-3
         "
@@ -217,13 +215,13 @@ export default function DailyReviewHeader({
 
         <div
           className="
-            min-w-0
-            shrink
+            shrink-0
+            whitespace-nowrap
           "
         >
           <h1
             className="
-              truncate
+              whitespace-nowrap
               text-[20px]
               font-black
               tracking-tight
@@ -236,7 +234,7 @@ export default function DailyReviewHeader({
           <p
             className="
               mt-0.5
-              truncate
+              whitespace-nowrap
               text-[11px]
               font-medium
               text-slate-500
@@ -285,6 +283,7 @@ export default function DailyReviewHeader({
             className="
               h-[6px]
               w-[6px]
+              shrink-0
               rounded-full
               bg-emerald-400
             "
@@ -292,40 +291,13 @@ export default function DailyReviewHeader({
 
           <span
             className="
+              whitespace-nowrap
               text-[12px]
               font-semibold
               text-emerald-400
             "
           >
             Trading Day
-          </span>
-        </div>
-
-        {/* US MARKETS */}
-
-        <div
-          className="
-            hidden
-            h-[34px]
-            w-[92px]
-            shrink-0
-            items-center
-            justify-center
-            rounded-[8px]
-            border
-            border-white/[0.06]
-            bg-[#0b1220]
-            @[900px]:flex
-          "
-        >
-          <span
-            className="
-              text-[12px]
-              font-semibold
-              text-slate-400
-            "
-          >
-            US Markets
           </span>
         </div>
 
@@ -349,12 +321,15 @@ export default function DailyReviewHeader({
         >
           <Clock3
             size={12}
-            className="text-slate-500"
+            className="
+              shrink-0
+              text-slate-500
+            "
           />
 
           <span
             className="
-              truncate
+              whitespace-nowrap
               text-[12px]
               font-semibold
               text-slate-400
@@ -389,11 +364,20 @@ export default function DailyReviewHeader({
             @[760px]:flex
           "
         >
-          All Accounts
+          <span
+            className="
+              whitespace-nowrap
+            "
+          >
+            All Accounts
+          </span>
 
           <ChevronRight
             size={12}
-            className="rotate-90"
+            className="
+              shrink-0
+              rotate-90
+            "
           />
         </button>
 
@@ -418,35 +402,16 @@ export default function DailyReviewHeader({
             transition-all
             hover:border-violet-500/20
             hover:bg-[#0d1426]
-            @[900px]:flex
           "
+          aria-label="Replay day"
         >
-          Replay Day
-        </button>
-
-        {/* MORE */}
-
-        <button
-          type="button"
-          className="
-            flex
-            h-[34px]
-            w-[34px]
-            shrink-0
-            items-center
-            justify-center
-            rounded-[8px]
-            border
-            border-white/[0.06]
-            bg-[#0b1220]
-            text-slate-400
-            transition-all
-            hover:border-white/[0.12]
-            hover:text-slate-200
-          "
-          aria-label="More options"
-        >
-          <MoreHorizontal size={16} />
+          <span
+            className="
+              whitespace-nowrap
+            "
+          >
+            Replay Day
+          </span>
         </button>
 
         {/* CLOSE */}
