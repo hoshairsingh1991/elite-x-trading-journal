@@ -1136,3 +1136,498 @@ Before changing any Daily Review file:
 ============================================================
 END OF CHECKPOINT
 ============================================================
+
+
+
+
+
+
+/* ============================================================
+   ELITE X TRADING JOURNAL
+   CHECKPOINT NOTES
+   ============================================================
+
+   CHECKPOINT:
+   Daily Review V2 — Trade Drawer UI / Collapse / Layout Stability
+
+   DATE:
+   2026-09-18
+
+   ============================================================
+   1. DAILY REVIEW TRADE DRAWER — IMPLEMENTED
+   ============================================================
+
+   File:
+   components/dashboard/daily-review/DailyReviewTradeDrawer.tsx
+
+   Status:
+   COMPLETE / VISUAL BASELINE ESTABLISHED
+
+   Implemented the right-side Trade Review drawer attached to
+   the Daily Review modal.
+
+   Drawer geometry:
+   - Width: 340px
+   - Parent gap: 8px
+   - Drawer is visually attached to the right side of the
+     Daily Review card.
+   - Drawer remains independently scrollable.
+   - Drawer uses the same premium dark visual language as
+     the Daily Review and Add Trade Preview.
+
+   Drawer outer card:
+   - rounded-[8px]
+   - border border-white/[0.06]
+   - bg-[#07111d]
+   - flex column layout
+   - overflow handling preserved
+
+   Drawer header:
+   - Title: Trade Review
+   - Subtitle: Trade overview
+   - Collapse control included
+   - Header spacing/geometry modeled from Add Trade Preview
+
+   ============================================================
+   2. TRADE DRAWER CONTENT
+   ============================================================
+
+   Current drawer sections:
+
+   1. Instrument
+   2. Financial Summary
+   3. Values
+   4. Position Impact
+   5. Timeline
+
+   All drawer cards:
+   - bg-[#0b1220]
+   - border border-white/[0.06]
+   - rounded-[8px]
+   - 12px vertical spacing between cards
+   - consistent internal horizontal alignment
+
+   Instrument:
+   - Ticker presentation
+   - Asset type
+   - Status
+   - Side
+   - Existing P&L/status presentation preserved
+
+   Financial Summary:
+   - Net P&L
+   - Return
+   - Holding time
+   - Three-column layout
+   - Divider treatment matched to Preview styling
+
+   Values:
+   - Entry Value
+   - Exit Value
+   - Fees
+   - Gross P&L
+   - Return
+   - PreviewRow styling aligned with Add Trade Preview
+
+   Position Impact:
+   - Trade-derived position information
+   - Open/closed state handling
+   - OPTIONS comparison uses canonical "OPTIONS"
+
+   Timeline:
+   - Entry event
+   - Exit event
+   - Entry/exit prices
+   - Buy/sell fees
+   - Vertical timeline line
+   - Geometry modeled from Preview timeline structure
+
+   ============================================================
+   3. DRAWER TABS
+   ============================================================
+
+   Tabs added below drawer header:
+
+   - Overview
+   - Review
+   - Executions
+   - Notes
+
+   Tab state:
+
+   activeTab:
+   "OVERVIEW" | "REVIEW" | "EXECUTIONS" | "NOTES"
+
+   Default:
+   OVERVIEW
+
+   Tab strip:
+   - 4 equal columns
+   - rounded-[8px]
+   - border border-white/[0.06]
+   - bg-[#07111d]
+   - 30px height
+   - 12px spacing above tabs
+
+   Active-tab visual:
+   - violet border
+   - bg-[#151b2d]
+   - white text
+   - inset shadow
+   - violet glow
+
+   Important visual fix:
+   - Parent tab container uses overflow-visible.
+   - This allows the active Overview highlight to reach the
+     bottom edge correctly.
+   - No bottom clipping on the active tab.
+
+   ============================================================
+   4. DAILY REVIEW DRAWER COLLAPSE / EXPAND BEHAVIOR
+   ============================================================
+
+   File:
+   components/dashboard/daily-review/DailyReviewModal.tsx
+
+   Added state:
+
+   selectedTrade
+   tradeDrawerCollapsed
+
+   Added handlers:
+
+   handleSelectTrade(trade)
+   - selects trade
+   - automatically expands drawer
+
+   handleEditTrade(trade)
+   - clears selected trade
+   - collapses drawer state
+   - opens Edit Trade Modal
+   - keeps editing and review drawer mutually exclusive
+
+   ============================================================
+   5. DEFAULT TRADE SELECTION
+   ============================================================
+
+   Daily Review now initializes:
+
+   selectedTrade:
+   selectedTrades[0] ?? null
+
+   Drawer initial state:
+
+   tradeDrawerCollapsed:
+   selectedTrades.length > 0
+
+   Result:
+
+   Day with trades:
+   - First trade is automatically selected.
+   - Drawer starts collapsed.
+   - External expand arrow is immediately available.
+   - User does not need to click a trade first.
+
+   Day with zero trades:
+   - selectedTrade remains null.
+   - Drawer remains absent.
+   - External expand arrow remains hidden.
+
+   Clicking another trade:
+   - selected trade changes immediately
+   - drawer opens for the newly selected trade
+
+   ============================================================
+   6. COLLAPSED DRAWER ARROW
+   ============================================================
+
+   Parent wrapper:
+   - Daily Review shell wrapped in relative container
+
+   When drawer is collapsed:
+   - Arrow exists outside the Daily Review shell
+   - Arrow does not get clipped by overflow-hidden
+   - Arrow sits beside the Daily Review header controls
+
+   Final geometry:
+
+   - right: -right-6
+   - width: w-6
+   - height: h-10
+   - top: top-[38px]
+
+   This positioning was intentionally chosen so:
+   - arrow sits outside the card
+   - no overlap with the Daily Review X
+   - no visible overlap with the Daily Review border
+
+   Icon direction behavior:
+   - Drawer CLOSED → right-facing expand arrow
+   - Drawer OPEN → left-facing collapse arrow
+
+   Current collapsed button:
+   - PanelRightClose
+   - rounded-r-[8px]
+   - border-l-0
+   - bg-[#07111d]
+   - hover state preserved
+
+   ============================================================
+   7. DAILY REVIEW MODAL — FINAL VERTICAL LAYOUT FIX
+   ============================================================
+
+   Important regression identified:
+
+   The original stable Daily Review layout was natural-height.
+   The Trade Table itself already handled long trade lists.
+
+   The Trade Table stable viewport:
+
+   max-h-[360px]
+   [@media(max-height:1079px)]:max-h-[244px]
+   overflow-y-auto
+
+   Row height:
+
+   h-[42px]
+
+   Header height:
+
+   h-[34px]
+
+   Therefore at the current viewport:
+   approximately 5 trade rows are visible inside the table,
+   with additional trades scrolling inside the table itself.
+
+   This is the correct architecture.
+
+   Removed the experimental modal-level nested scroll
+   architecture that had introduced:
+
+   - multiple max-height constraints
+   - nested overflow-y-auto containers
+   - body-card scrolling
+   - compressed long-day layouts
+   - entire-card movement while scrolling
+
+   Final architecture:
+
+   DailyReviewModal
+       ↓
+   natural-height Daily Review shell
+       ↓
+   natural-height body card
+       ↓
+   DailyReviewTradeTable
+       ↓
+   table-specific scrolling
+
+   Important:
+   - Daily Review body card is NOT the table scroll container.
+   - Main Daily Review modal does NOT own table scrolling.
+   - Trade Table retains responsibility for long trade lists.
+
+   Existing bottom spacer preserved:
+
+   h-[10px]
+
+   The original 10px space below the Trade Table remains intact.
+
+   This restored the previous stable behavior for:
+   - short days
+   - medium days
+   - long days such as 20+ trades
+
+   ============================================================
+   8. DAILY REVIEW LEFT / RIGHT CARD GAP
+   ============================================================
+
+   Drawer parent gap:
+
+   gap-[8px]
+
+   This gap is preserved between:
+   - left Daily Review card
+   - right Trade Review drawer
+
+   Scrollbar issue:
+   - Left Daily Review panel no longer owns the scrollbar.
+   - This prevents a scrollbar from visually occupying the
+     intended 8px gap.
+
+   ============================================================
+   9. DAILY REVIEW RADIUS BEHAVIOR
+   ============================================================
+
+   Left inner Daily Review shell uses:
+
+   selectedTrade && !tradeDrawerCollapsed
+     ? "rounded-r-none border-r-0"
+     : "rounded-r-[8px]"
+
+   Result:
+
+   Drawer OPEN:
+   - right edge visually attaches to drawer
+
+   Drawer COLLAPSED:
+   - Daily Review card restores its rounded right edge
+
+   ============================================================
+   10. SECONDARY METRICS HOVER EFFECT
+   ============================================================
+
+   File:
+   components/dashboard/daily-review/DailyReviewSecondaryMetrics.tsx
+
+   The individual Secondary Metrics cards now use the same
+   hover treatment as the KPI cards.
+
+   Added:
+
+   relative
+   transition-all
+   duration-200
+   hover:-translate-y-[2px]
+   hover:z-10
+   hover:border-cyan-500/20
+   hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+
+   Existing Secondary Metrics geometry preserved:
+
+   h-[86px]
+   rounded-[8px]
+   border border-white/[0.06]
+   bg-[#0b1220]
+   px-3.5
+   py-2.5
+
+   Only hover behavior was added.
+   Card content/layout logic was not changed.
+
+   ============================================================
+   11. IMPORTANT STABILITY / ARCHITECTURAL DECISIONS
+   ============================================================
+
+   Do NOT reintroduce:
+
+   - modal-level overflow-y-auto for Daily Review content
+   - nested body-card scrolling
+   - multiple max-height wrappers around the body card
+   - h-full chains across the left Daily Review layout
+   - arbitrary padding added to compensate for missing bottom
+     spacing
+   - duplicate 10px bottom spacers
+
+   The existing Trade Table scroll viewport is the canonical
+   long-list behavior.
+
+   The existing 10px bottom spacer is canonical and must remain.
+
+   ============================================================
+   12. FILES TOUCHED IN THIS CHECKPOINT
+   ============================================================
+
+   components/dashboard/daily-review/DailyReviewModal.tsx
+
+   Changes:
+   - Trade selection state
+   - Default first-trade selection
+   - Drawer collapsed state
+   - Trade selection handler
+   - Edit handler coordination
+   - Drawer rendering
+   - Drawer collapse/expand behavior
+   - Relative shell wrapper
+   - External collapsed arrow
+   - Natural-height layout restored
+   - Modal-level nested scroll experiment removed
+   - Drawer gap/radius behavior preserved
+
+   components/dashboard/daily-review/DailyReviewTradeDrawer.tsx
+
+   Changes:
+   - Full Trade Review drawer UI
+   - Instrument section
+   - Financial Summary
+   - Values
+   - Position Impact
+   - Timeline
+   - Four-tab navigation
+   - Active tab visual treatment
+   - Collapse control
+   - Preview-style geometry/styling
+
+   components/dashboard/daily-review/DailyReviewSecondaryMetrics.tsx
+
+   Changes:
+   - Added KPI-matching hover interaction to individual
+     Secondary Metrics cards
+
+   components/dashboard/daily-review/DailyReviewTradeTable.tsx
+
+   Existing stable table behavior preserved:
+   - 244px viewport at current screen-height breakpoint
+   - ~5 visible rows
+   - internal scrolling for additional trades
+   - 42px trade row height
+   - sticky table header
+   - single-click trade selection
+   - double-click edit behavior
+   - manual-trade edit restrictions
+
+   ============================================================
+   13. FINAL BEHAVIOR AT CHECKPOINT
+   ============================================================
+
+   Daily Review opens.
+
+   If trades exist:
+   - First trade is automatically selected.
+   - Drawer starts collapsed.
+   - External expand arrow is visible immediately.
+
+   Click external arrow:
+   - Trade Review drawer opens for first selected trade.
+
+   Click another trade:
+   - That trade becomes selected.
+   - Drawer opens for that trade.
+
+   Collapse drawer:
+   - Drawer disappears visually.
+   - Selected trade remains.
+   - External arrow remains visible.
+
+   Expand drawer:
+   - Same selected trade drawer returns.
+
+   No trades:
+   - No selected trade.
+   - No drawer.
+   - No external arrow.
+
+   Long trade list:
+   - Daily Review card remains stable.
+   - Trade Table shows approximately five rows.
+   - Additional trades scroll inside Trade Table.
+   - No modal-level nested scrolling.
+
+   Secondary Metrics:
+   - Individual cards now have KPI-matching hover lift,
+     border highlight, and cyan glow.
+
+   ============================================================
+   14. NEXT ACTION
+   ============================================================
+
+   This checkpoint is ready to be committed and pushed to:
+
+   origin/main
+
+   Suggested checkpoint name:
+
+   daily-review-trade-drawer-v1-complete
+
+   ============================================================
+*/

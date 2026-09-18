@@ -183,19 +183,26 @@ const cards = [
                 : card.rows;
 
             return (
-              <div
-                key={card.title}
-                className="
-                  h-[86px]
-                  overflow-hidden
-                  rounded-[8px]
-                  border
-                  border-white/[0.06]
-                  bg-[#0b1220]
-                  px-3.5
-                  py-2.5
-                "
-              >
+<div
+  key={card.title}
+  className="
+    relative
+    h-[86px]
+    overflow-hidden
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-3.5
+    py-2.5
+    transition-all
+    duration-200
+    hover:-translate-y-[2px]
+    hover:z-10
+    hover:border-cyan-500/20
+    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+  "
+>
 
                 {/* ================================================= */}
                 {/* HEADER */}

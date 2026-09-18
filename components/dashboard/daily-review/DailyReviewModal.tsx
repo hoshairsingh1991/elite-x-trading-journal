@@ -4,6 +4,10 @@ import {
   useState,
 } from "react";
 
+import {
+  PanelRightClose,
+} from "lucide-react";
+
 import { Trade } from "@/types/trade";
 
 import EditTradeModal
@@ -27,7 +31,11 @@ import DailyReviewInsights
 import DailyReviewSecondaryMetrics
   from "@/components/dashboard/daily-review/DailyReviewSecondaryMetrics";
 
-import DailyReviewBreakdown from "@/components/dashboard/daily-review/DailyReviewBreakdown";
+import DailyReviewBreakdown
+  from "@/components/dashboard/daily-review/DailyReviewBreakdown";
+
+import DailyReviewTradeDrawer
+  from "@/components/dashboard/daily-review/DailyReviewTradeDrawer";
 
 interface DailyReviewModalProps {
   selectedDay: number;
@@ -59,6 +67,52 @@ export default function DailyReviewModal({
     setEditingTrade,
   ] = useState<Trade | null>(null);
 
+const [
+  selectedTrade,
+  setSelectedTrade,
+] = useState<Trade | null>(
+  selectedTrades[0] ?? null
+);
+
+const [
+  tradeDrawerCollapsed,
+  setTradeDrawerCollapsed,
+] = useState(
+  selectedTrades.length > 0
+);
+
+const handleSelectTrade = (
+  trade: Trade
+) => {
+
+  setSelectedTrade(
+    trade
+  );
+
+  setTradeDrawerCollapsed(
+    false
+  );
+};
+
+const handleEditTrade = (
+  trade: Trade
+) => {
+
+  /*
+   * Editing and the review drawer are mutually
+   * exclusive states.
+   */
+  setSelectedTrade(null);
+
+  setTradeDrawerCollapsed(
+    false
+  );
+
+  setEditingTrade(
+    trade
+  );
+};
+
   return (
     <>
       {/* ===================================================== */}
@@ -78,299 +132,436 @@ export default function DailyReviewModal({
           backdrop-blur-sm
         "
       >
+
         {/* ================================================= */}
-        {/* OUTER MODAL */}
+        {/* DAILY REVIEW SHELL */}
         {/* ================================================= */}
 
-        <div
-          className="
-            w-full
-            max-w-[980px]
-            rounded-[8px]
-            border
-            border-white/[0.06]
-            bg-[#0b1220]
-            p-10
-            shadow-[0_0_90px_rgba(0,0,0,0.60)]
-          "
-        >
+<div className="relative">
+<div
+  className={`
+    relative
+    flex
+    gap-[8px]
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    shadow-[0_0_90px_rgba(0,0,0,0.60)]
+    ${
+      selectedTrade && !tradeDrawerCollapsed
+        ? "w-[1328px]"
+        : "w-[980px]"
+    }
+    max-w-[calc(100vw-64px)]
+  `}
+>
+
           {/* ================================================= */}
-          {/* INNER MODAL SHELL */}
+          {/* LEFT DAILY REVIEW PANEL */}
           {/* ================================================= */}
 
-          <div
-            className="
-              rounded-[8px]
-              border
-              border-white/[0.06]
-              bg-[#0b0c1e]
-              px-[28px]
-              pt-[28px]
-              pb-[28px]
-            "
-          >
+<div
+  className="
+    w-[980px]
+    shrink-0
+  "
+>
             {/* ================================================= */}
-            {/* MAIN FLEX / SAFE ZONE */}
+            {/* INNER MODAL SHELL */}
             {/* ================================================= */}
 
-            <div className="flex">
+<div
+  className={`
+    min-w-0
+    rounded-l-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b0c1e]
+    px-[28px]
+    pt-[28px]
+    pb-[28px]
+${
+  selectedTrade && !tradeDrawerCollapsed
+    ? "rounded-r-none border-r-0"
+    : "rounded-r-[8px]"
+}}
+              `}
+            >
 
-              {/* LEFT SAFE ZONE */}
+              {/* ================================================= */}
+              {/* MAIN FLEX / SAFE ZONE */}
+              {/* ================================================= */}
 
-              <div
-                className="
-                  w-[18px]
-                  shrink-0
-                  opacity-0
-                  pointer-events-none
-                  select-none
-                "
-              >
-                spacer
-              </div>
+              <div className="flex">
 
-              {/* MAIN CONTENT */}
-
-              <div className="flex-1">
-
-                {/* ================================================= */}
-                {/* HEADER */}
-                {/* ================================================= */}
-
-                <DailyReviewHeader
-                  selectedDay={selectedDay}
-                  currentMonth={currentMonth}
-                  monthName={monthName}
-                  currentYear={currentYear}
-                  selectedTrades={selectedTrades}
-                  onClose={onClose}
-                />
-
-                {/* ================================================= */}
-                {/* SAFE ZONE */}
-                {/* ================================================= */}
+                {/* LEFT SAFE ZONE */}
 
                 <div
                   className="
-                    mt-10
-                    rounded-[8px]
-                    border
-                    border-white/[0.04]
-                    bg-[#081526]/70
-                    p-8
+                    w-[18px]
+                    shrink-0
+                    opacity-0
+                    pointer-events-none
+                    select-none
                   "
                 >
+                  spacer
+                </div>
 
-                  <div className="h-[8px]" />
+                {/* MAIN CONTENT */}
+
+               <div className="flex-1">
 
                   {/* ================================================= */}
-                  {/* KPI ROW */}
+                  {/* HEADER */}
                   {/* ================================================= */}
 
-                  <DailyReviewKpis
+                  <DailyReviewHeader
+                    selectedDay={selectedDay}
+                    currentMonth={currentMonth}
+                    monthName={monthName}
+                    currentYear={currentYear}
                     selectedTrades={selectedTrades}
-                    reportingCurrency={reportingCurrency}
+                    onClose={onClose}
                   />
 
-                  {/* ================================================= */}
-                  {/* SPACER */}
-                  {/* ================================================= */}
+{/* ================================================= */}
+{/* SAFE ZONE */}
+{/* ================================================= */}
 
-                  <div
-                    className="
-                      h-[10px]
-                      shrink-0
-                      opacity-0
-                      pointer-events-none
-                      select-none
-                    "
-                  >
-                    spacer
-                  </div>
+<div
+  className="
+    mt-10
+    rounded-[8px]
+    border
+    border-white/[0.04]
+    bg-[#081526]/70
+    p-8
+  "
+>
 
-                  {/* ================================================= */}
-                  {/* TRADE ACTIVITY + DAY INSIGHTS */}
-                  {/* ================================================= */}
+                    <div className="h-[8px]" />
 
-                  <div
-                    className="
-                      mt-3
-                      w-[98%]
-                      translate-x-[1%]
-                      grid
-                      grid-cols-1
-                      gap-3
-                      xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.8fr)]
-                    "
-                  >
+                    {/* ================================================= */}
+                    {/* KPI ROW */}
+                    {/* ================================================= */}
 
-<DailyReviewTradeActivity
-  selectedTrades={selectedTrades}
-  reportingCurrency={reportingCurrency}
-/>
-
-                    <DailyReviewInsights
+                    <DailyReviewKpis
                       selectedTrades={selectedTrades}
-                      reportingCurrency={reportingCurrency}
+                      reportingCurrency={
+                        reportingCurrency
+                      }
                     />
 
+                    {/* ================================================= */}
+                    {/* SPACER */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        h-[10px]
+                        shrink-0
+                        opacity-0
+                        pointer-events-none
+                        select-none
+                      "
+                    >
+                      spacer
+                    </div>
+
+                    {/* ================================================= */}
+                    {/* TRADE ACTIVITY + DAY INSIGHTS */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        mt-3
+                        w-[98%]
+                        translate-x-[1%]
+                        grid
+                        grid-cols-1
+                        gap-3
+                        xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.8fr)]
+                      "
+                    >
+
+                      <DailyReviewTradeActivity
+                        selectedTrades={
+                          selectedTrades
+                        }
+                        reportingCurrency={
+                          reportingCurrency
+                        }
+                      />
+
+                      <DailyReviewInsights
+                        selectedTrades={
+                          selectedTrades
+                        }
+                        reportingCurrency={
+                          reportingCurrency
+                        }
+                      />
+
+                    </div>
+
+                    {/* ================================================= */}
+                    {/* SECONDARY METRICS */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        h-[10px]
+                        shrink-0
+                        opacity-0
+                        pointer-events-none
+                        select-none
+                      "
+                    >
+                      spacer
+                    </div>
+
+                    <DailyReviewSecondaryMetrics
+                      selectedTrades={
+                        selectedTrades
+                      }
+                      reportingCurrency={
+                        reportingCurrency
+                      }
+                    />
+
+                    {/* ================================================= */}
+                    {/* SPACER */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        h-[10px]
+                        shrink-0
+                        opacity-0
+                        pointer-events-none
+                        select-none
+                      "
+                    >
+                      spacer
+                    </div>
+
+                    {/* ================================================= */}
+                    {/* BREAKDOWN */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        w-[98%]
+                        translate-x-[1%]
+                      "
+                    >
+
+                      <DailyReviewBreakdown
+                        selectedTrades={
+                          selectedTrades
+                        }
+                        reportingCurrency={
+                          reportingCurrency
+                        }
+                      />
+
+                    </div>
+
+                    {/* ================================================= */}
+                    {/* SPACER */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        h-[0px]
+                        shrink-0
+                        opacity-0
+                        pointer-events-none
+                        select-none
+                      "
+                    >
+                      spacer
+                    </div>
+
+                    {/* ================================================= */}
+                    {/* SPACER */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        h-[10px]
+                        shrink-0
+                        opacity-0
+                        pointer-events-none
+                        select-none
+                      "
+                    >
+                      spacer
+                    </div>
+
+                    {/* ================================================= */}
+                    {/* TRADE TABLE */}
+                    {/* ================================================= */}
+
+                    <DailyReviewTradeTable
+                      selectedTrades={
+                        selectedTrades
+                      }
+                      allTrades={
+                        allTrades
+                      }
+                      reportingCurrency={
+                        reportingCurrency
+                      }
+onSelectTrade={
+  handleSelectTrade
+}
+                      onEditTrade={
+                        handleEditTrade
+                      }
+                    />
+
+                    {/* ================================================= */}
+                    {/* BOTTOM SPACER */}
+                    {/* ================================================= */}
+
+                    <div
+                      className="
+                        h-[10px]
+                        shrink-0
+                        opacity-0
+                        pointer-events-none
+                        select-none
+                      "
+                    >
+                      spacer
+                    </div>
+
                   </div>
+    
+                </div>
 
-                  {/* ================================================= */}
-                  {/* SECONDARY METRICS */}
-                  {/* ================================================= */}
+                {/* RIGHT SAFE ZONE */}
 
-<div
-  className="
-    h-[10px]
-    shrink-0
-    opacity-0
-    pointer-events-none
-    select-none
-  "
->
-  spacer
-</div>
-
-<DailyReviewSecondaryMetrics
-  selectedTrades={selectedTrades}
-  reportingCurrency={reportingCurrency}
-/>
-
-                  {/* ================================================= */}
-                  {/* SPACER */}
-                  {/* ================================================= */}
-
-                  <div
-                    className="
-                      h-[10px]
-                      shrink-0
-                      opacity-0
-                      pointer-events-none
-                      select-none
-                    "
-                  >
-                    spacer
-                  </div>
-
-                  {/* ================================================= */}
-                  {/* TRADE FILTERS */}
-                  {/* ================================================= */}
-
-                  <div
-                    className="
-                      w-[98%]
-                      translate-x-[1%]
-                    "
-                  >
-<DailyReviewBreakdown
-  selectedTrades={selectedTrades}
-  reportingCurrency={reportingCurrency}
-/>
-                  </div>
-
-                  {/* ================================================= */}
-                  {/* SPACER */}
-                  {/* ================================================= */}
-
-                  <div
-                    className="
-                      h-[0px]
-                      shrink-0
-                      opacity-0
-                      pointer-events-none
-                      select-none
-                    "
-                  >
-                    spacer
-                  </div>
-
-
-                  {/* ================================================= */}
-                  {/* SPACER */}
-                  {/* ================================================= */}
-
-                  <div
-                    className="
-                      h-[10px]
-                      shrink-0
-                      opacity-0
-                      pointer-events-none
-                      select-none
-                    "
-                  >
-                    spacer
-                  </div>
-
-                  {/* ================================================= */}
-                  {/* TRADE TABLE */}
-                  {/* ================================================= */}
-
-                  <DailyReviewTradeTable
-                    selectedTrades={selectedTrades}
-                    allTrades={allTrades}
-                    reportingCurrency={reportingCurrency}
-                    onEditTrade={setEditingTrade}
-                  />
-
-<div
-  className="
-    h-[10px]
-    shrink-0
-    opacity-0
-    pointer-events-none
-    select-none
-  "
->
-  spacer
-</div>
-
+                <div
+                  className="
+                    w-[18px]
+                    shrink-0
+                    opacity-0
+                    pointer-events-none
+                    select-none
+                  "
+                >
+                  spacer
                 </div>
 
               </div>
 
-              {/* RIGHT SAFE ZONE */}
-
-              <div
+              <p
                 className="
-                  w-[18px]
-                  shrink-0
-                  opacity-0
-                  pointer-events-none
-                  select-none
+                  invisible
+                  text-[18px]
+                  leading-[18px]
                 "
               >
-                spacer
-              </div>
+                spacing
+              </p>
 
             </div>
 
-            <p
-              className="
-                invisible
-                text-[18px]
-                leading-[18px]
-              "
-            >
-              spacing
-            </p>
-
           </div>
+
+          {/* ================================================= */}
+          {/* ATTACHED TRADE REVIEW PANEL */}
+          {/* ================================================= */}
+
+          {selectedTrade &&
+            !tradeDrawerCollapsed && (
+              <DailyReviewTradeDrawer
+                trade={
+                  selectedTrade
+                }
+                reportingCurrency={
+                  reportingCurrency
+                }
+                onClose={() =>
+                  setTradeDrawerCollapsed(
+                    true
+                  )
+                }
+              />
+            )}
 
         </div>
 
+        {/* ================================================= */}
+        {/* COLLAPSED TRADE REVIEW TOGGLE */}
+        {/* ================================================= */}
+
+        {selectedTrade &&
+          tradeDrawerCollapsed && (
+            <button
+              type="button"
+              onClick={() =>
+                setTradeDrawerCollapsed(
+                  false
+                )
+              }
+              aria-label="Expand trade review"
+              title="Expand trade review"
+              className="
+                absolute
+                -right-6
+                top-[38px]
+                z-20
+                flex
+                h-10
+                w-6
+                -translate-y-1/2
+                items-center
+                justify-center
+                rounded-r-[8px]
+                border
+                border-white/[0.06]
+                border-l-0
+                bg-[#07111d]
+                text-slate-400
+                shadow-[0_0_20px_rgba(0,0,0,0.35)]
+                transition
+                hover:bg-[#0b1220]
+                hover:text-white
+              "
+            >
+              <PanelRightClose
+                className="h-4 w-4"
+              />
+            </button>
+          )}
+
       </div>
+
+    </div>
 
       {/* ===================================================== */}
       {/* EDIT TRADE MODAL */}
       {/* ===================================================== */}
 
       <EditTradeModal
-        open={!!editingTrade}
-        trade={editingTrade}
-        allTrades={allTrades}
+        open={
+          !!editingTrade
+        }
+        trade={
+          editingTrade
+        }
+        allTrades={
+          allTrades
+        }
         onClose={() =>
-          setEditingTrade(null)
+          setEditingTrade(
+            null
+          )
         }
       />
 

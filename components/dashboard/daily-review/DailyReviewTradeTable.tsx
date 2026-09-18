@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  useEffect,
+  useRef,
+} from "react";
+
+import {
   Trade,
 } from "@/types/trade";
 
@@ -13,7 +18,14 @@ interface DailyReviewTradeTableProps {
   selectedTrades: Trade[];
   allTrades: Trade[];
   reportingCurrency: string;
-  onEditTrade: (trade: Trade) => void;
+
+  onSelectTrade: (
+    trade: Trade
+  ) => void;
+
+  onEditTrade: (
+    trade: Trade
+  ) => void;
 }
 
 function formatTime(
@@ -87,27 +99,43 @@ function formatDuration(
       )
     );
 
-  const hours =
+  const days =
     Math.floor(
       totalSeconds /
+        86400
+    );
+
+  const remainingAfterDays =
+    totalSeconds %
+    86400;
+
+  const hours =
+    Math.floor(
+      remainingAfterDays /
         3600
     );
 
   const minutes =
     Math.floor(
       (
-        totalSeconds %
+        remainingAfterDays %
         3600
       ) / 60
     );
 
   const seconds =
-    totalSeconds %
+    remainingAfterDays %
     60;
 
-  if (
-    hours > 0
-  ) {
+  if (days > 0) {
+    if (hours > 0) {
+      return `${days}d ${hours}h`;
+    }
+
+    return `${days}d ${minutes}m`;
+  }
+
+  if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }
 
@@ -174,8 +202,88 @@ export default function DailyReviewTradeTable({
   selectedTrades,
   allTrades,
   reportingCurrency,
+  onSelectTrade,
   onEditTrade,
 }: DailyReviewTradeTableProps) {
+
+    const clickTimeoutRef =
+    useRef<
+      ReturnType<
+        typeof setTimeout
+      > | null
+    >(null);
+
+  useEffect(() => {
+
+    return () => {
+
+      if (
+        clickTimeoutRef.current
+      ) {
+        clearTimeout(
+          clickTimeoutRef.current
+        );
+      }
+    };
+
+  }, []);
+
+  const handleTradeClick = (
+    trade: Trade
+  ) => {
+
+    if (
+      clickTimeoutRef.current
+    ) {
+      clearTimeout(
+        clickTimeoutRef.current
+      );
+    }
+
+    clickTimeoutRef.current =
+      setTimeout(
+        () => {
+
+          onSelectTrade(
+            trade
+          );
+
+          clickTimeoutRef.current =
+            null;
+
+        },
+        220
+      );
+  };
+
+  const handleTradeDoubleClick = (
+    trade: Trade,
+    canEdit: boolean
+  ) => {
+
+    if (
+      clickTimeoutRef.current
+    ) {
+      clearTimeout(
+        clickTimeoutRef.current
+      );
+
+      clickTimeoutRef.current =
+        null;
+    }
+
+    if (canEdit) {
+      onEditTrade(
+        trade
+      );
+
+      return;
+    }
+
+    onSelectTrade(
+      trade
+    );
+  };
 
   return (
 <div
@@ -536,29 +644,33 @@ translate-x-1
                   );
 
                 return (
-                  <tr
-                    key={
-                      trade.id ||
-                      index
-                    }
-                    onDoubleClick={() => {
-                      if (
-                        canEdit
-                      ) {
-                        onEditTrade(
-                          trade
-                        );
-                      }
-                    }}
-                    className="
-                      h-[42px]
-                      cursor-default
-                      border-b
-                      border-white/[0.045]
-                      transition-colors
-                      hover:bg-white/[0.018]
-                    "
-                  >
+<tr
+  key={
+    trade.id ||
+    index
+  }
+  onClick={() =>
+    handleTradeClick(
+      trade
+    )
+  }
+  onDoubleClick={() =>
+    handleTradeDoubleClick(
+      trade,
+      Boolean(
+        canEdit
+      )
+    )
+  }
+  className="
+    h-[42px]
+    cursor-pointer
+    border-b
+    border-white/[0.045]
+    transition-colors
+    hover:bg-white/[0.018]
+  "
+>
 
                     {/* INDEX */}
 
@@ -665,22 +777,23 @@ translate-x-1
     }
   `}
 >
-  <span
-    className={
-      trade.assetType === "Options" &&
-      trade.contractKey?.endsWith("_C")
+<span
+  className={
+    trade.assetType === "Options"
+      ? trade.contractKey?.endsWith("_C")
         ? "relative left-[-2px]"
         : ""
-    }
-  >
-    {trade.assetType === "Options"
-      ? trade.contractKey?.endsWith("_C")
-        ? "CALL"
-        : trade.contractKey?.endsWith("_P")
-          ? "PUT"
-          : "OPTION"
-      : trade.side}
-  </span>
+      : "relative left-[-4px]"
+  }
+>
+  {trade.assetType === "Options"
+    ? trade.contractKey?.endsWith("_C")
+      ? "CALL"
+      : trade.contractKey?.endsWith("_P")
+        ? "PUT"
+        : "OPTION"
+    : trade.side}
+</span>
 </td>
 
 {/* QTY */}

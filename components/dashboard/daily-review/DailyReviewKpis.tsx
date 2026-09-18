@@ -95,7 +95,7 @@ function DailyReviewKpiCard({
     <div
       className="
         relative
-        h-[106px]
+        h-[100px]
         overflow-hidden
         rounded-[10px]
         border
