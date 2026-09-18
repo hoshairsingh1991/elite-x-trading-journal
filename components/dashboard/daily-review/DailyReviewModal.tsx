@@ -204,9 +204,10 @@ export default function DailyReviewModal({
                     "
                   >
 
-                    <DailyReviewTradeActivity
-                      selectedTrades={selectedTrades}
-                    />
+<DailyReviewTradeActivity
+  selectedTrades={selectedTrades}
+  reportingCurrency={reportingCurrency}
+/>
 
                     <DailyReviewInsights
                       selectedTrades={selectedTrades}

@@ -30,6 +30,7 @@ export interface DailyReviewPerformanceProps {
 
 export interface DailyReviewTradeActivityProps {
   selectedTrades: Trade[];
+  reportingCurrency: string;
 }
 
 export interface DailyReviewInsightsProps {

@@ -49,6 +49,7 @@ function formatTime(
 
 export default function DailyReviewTradeActivity({
   selectedTrades,
+  reportingCurrency,
 }: DailyReviewTradeActivityProps) {
 
   const activityRef =
@@ -317,11 +318,16 @@ setHoveredTrade({
   time:
     item.timestamp,
   side:
-    item.trade.side,
+    item.trade.assetType === "Options"
+      ? item.trade.contractKey?.endsWith("_C")
+        ? "CALL"
+        : item.trade.contractKey?.endsWith("_P")
+          ? "PUT"
+          : "OPTION"
+      : item.trade.side,
   pnl,
-  currency:
-    item.trade.currency ||
-    "USD",
+currency:
+  reportingCurrency,
 });
   };
 
