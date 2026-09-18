@@ -45,6 +45,7 @@ interface TradingCalendarProps {
   trades: Trade[];
   allTrades?: Trade[];
   reportingCurrency: string;
+  onTradesChanged: () => Promise<void>;
 }
 // =====================================================
 // LOCAL DATE PARSER
@@ -85,6 +86,7 @@ export default function TradingCalendar({
   trades,
   allTrades = trades,
   reportingCurrency,
+  onTradesChanged,
 }: TradingCalendarProps) {
 
   const [currentDate, setCurrentDate] =
@@ -274,40 +276,44 @@ const tradeDate =
     }
   );
 
-  // =====================================================
-  // SELECTED DAY TRADES
-  // =====================================================
+// =====================================================
+// SELECTED DAY TRADES
+// =====================================================
 
-  const selectedTrades =
-    currentMonthTrades.filter(
-      (trade) => {
+const selectedTrades =
+  currentMonthTrades.filter(
+    (trade) => {
 
-        if (!selectedDay) {
-          return false;
-        }
-
-        const effectiveDate =
-  trade.isOpen
-    ? (
-        trade.openedAt ||
-        trade.date
-      )
-    : (
-        trade.closedAt ||
-        trade.date
-      );
-
-const tradeDate =
-  parseLocalDate(
-    effectiveDate
-  );
-
-        return (
-          tradeDate.getDate() ===
-          selectedDay
-        );
+      if (!selectedDay) {
+        return false;
       }
-    );
+
+      const effectiveDate =
+        trade.isOpen
+          ? (
+              trade.openedAt ||
+              trade.date
+            )
+          : (
+              trade.closedAt ||
+              trade.date
+            );
+
+      const tradeDate =
+        parseLocalDate(
+          effectiveDate
+        );
+
+      return (
+        tradeDate.getFullYear() ===
+          currentYear &&
+        tradeDate.getMonth() ===
+          currentMonth &&
+        tradeDate.getDate() ===
+          selectedDay
+      );
+    }
+  );
 
   // =====================================================
   // STATS
@@ -572,17 +578,17 @@ const handleDeleteTrade =
         trade.contractKey
       );
 
-    if (error) {
+if (error) {
 
-      console.error(
-        "FAILED TO DELETE MANUAL TRADE:",
-        error
-      );
+  console.error(
+    "FAILED TO DELETE MANUAL TRADE:",
+    error
+  );
 
-      return;
-    }
+  return;
+}
 
-    window.location.reload();
+await onTradesChanged();
   };
 
 

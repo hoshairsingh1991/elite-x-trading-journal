@@ -46,10 +46,11 @@ function DemoCalendarWrapper({
   globalThis.Date = DemoDate as any;
   try {
     return (
-      <TradingCalendar
-        trades={trades}
-        reportingCurrency={reportingCurrency}
-      />
+<TradingCalendar
+  trades={trades}
+  reportingCurrency={reportingCurrency}
+  onTradesChanged={async () => {}}
+/>
     );
   } finally {
     globalThis.Date = OriginalDate;

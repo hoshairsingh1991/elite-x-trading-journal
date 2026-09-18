@@ -8,15 +8,24 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+/*
+ * ================================================================
+ * DATE / TIME HELPERS
+ * ================================================================
+ */
+
 function parseDateTime(
   value?: string | null
 ) {
+
   if (!value) {
     return null;
   }
 
   const date =
-    new Date(value);
+    new Date(
+      value
+    );
 
   if (
     Number.isNaN(
@@ -29,21 +38,10 @@ function parseDateTime(
   return date;
 }
 
-function formatCurrency(
-  value: number,
-  currency: string
-) {
-  const symbol =
-    getCurrencySymbol(
-      currency
-    );
-
-  return `${value >= 0 ? "+" : "-"}${symbol}${Math.abs(value).toFixed(2)}`;
-}
-
 function formatHour(
   date: Date
 ) {
+
   return date.toLocaleTimeString(
     undefined,
     {
@@ -56,6 +54,7 @@ function formatHour(
 function formatHourRange(
   date: Date
 ) {
+
   const start =
     new Date(
       date
@@ -73,6 +72,37 @@ function formatHourRange(
   return `${formatHour(start)} – ${formatHour(end)}`;
 }
 
+/*
+ * ================================================================
+ * CURRENCY
+ * ================================================================
+ */
+
+function formatCurrency(
+  value: number,
+  currency: string
+) {
+
+  const symbol =
+    getCurrencySymbol(
+      currency
+    );
+
+  if (
+    value === 0
+  ) {
+    return `${symbol}0.00`;
+  }
+
+  return `${value > 0 ? "+" : "-"}${symbol}${Math.abs(value).toFixed(2)}`;
+}
+
+/*
+ * ================================================================
+ * INSIGHT ICON
+ * ================================================================
+ */
+
 function InsightIcon({
   type,
 }: {
@@ -80,7 +110,8 @@ function InsightIcon({
     | "positive"
     | "warning"
     | "negative"
-    | "active";
+    | "active"
+    | "neutral";
 }) {
 
   const config = {
@@ -90,21 +121,31 @@ function InsightIcon({
       symbol:
         "✓",
     },
+
     warning: {
       wrapper:
         "bg-amber-400 text-[#07111d]",
       symbol:
         "!",
     },
+
     negative: {
       wrapper:
         "bg-red-500 text-white",
       symbol:
         "!",
     },
+
     active: {
       wrapper:
         "bg-violet-500 text-white",
+      symbol:
+        "•",
+    },
+
+    neutral: {
+      wrapper:
+        "bg-slate-500 text-[#07111d]",
       symbol:
         "•",
     },
@@ -130,13 +171,52 @@ function InsightIcon({
   );
 }
 
+/*
+ * ================================================================
+ * DAILY REVIEW INSIGHTS
+ *
+ * Important architectural rule:
+ *
+ * This component is an analytical/read-only presentation layer.
+ * It does not modify canonical trade data.
+ *
+ * Realized-performance calculations use CLOSED trades.
+ * Activity calculations may use OPEN trades because they describe
+ * when trading activity occurred rather than realized performance.
+ * ================================================================
+ */
+
 export default function DailyReviewInsights({
   selectedTrades,
   reportingCurrency,
 }: DailyReviewInsightsProps) {
 
+  /*
+   * ================================================================
+   * CLOSED TRADES
+   *
+   * OPEN trades are excluded from realized P&L, win rate, symbol
+   * performance, and loss analysis.
+   * ================================================================
+   */
+
+  const closedTrades =
+    selectedTrades.filter(
+      (
+        trade
+      ) =>
+        trade.status !==
+        "OPEN"
+    );
+
+  /*
+   * ================================================================
+   * CORE REALIZED PERFORMANCE
+   * ================================================================
+   */
+
   const totalPnL =
-    selectedTrades.reduce(
+    closedTrades.reduce(
       (
         sum,
         trade
@@ -149,20 +229,47 @@ export default function DailyReviewInsights({
     );
 
   const totalFees =
-    selectedTrades.reduce(
+    closedTrades.reduce(
       (
         sum,
         trade
       ) =>
         sum +
-        Number(
-          trade.fees || 0
+        Math.abs(
+          Number(
+            trade.fees || 0
+          )
         ),
       0
     );
 
+  /*
+   * pnl is treated as canonical NET P&L.
+   *
+   * Therefore:
+   *
+   * Gross P&L = Net P&L + Fees
+   *
+   * This assumes trade.fees represents positive fee magnitude.
+   */
+
+  const grossPnL =
+    totalPnL +
+    totalFees;
+
+  /*
+   * ================================================================
+   * WIN / LOSS CLASSIFICATION
+   *
+   * Only explicitly classified WIN and LOSS trades participate in
+   * win-rate calculations.
+   *
+   * This prevents unknown statuses from silently becoming losses.
+   * ================================================================
+   */
+
   const wins =
-    selectedTrades.filter(
+    closedTrades.filter(
       (
         trade
       ) =>
@@ -171,7 +278,7 @@ export default function DailyReviewInsights({
     ).length;
 
   const losses =
-    selectedTrades.filter(
+    closedTrades.filter(
       (
         trade
       ) =>
@@ -179,27 +286,25 @@ export default function DailyReviewInsights({
         "LOSS"
     ).length;
 
-  const closedTrades =
-    selectedTrades.filter(
-      (
-        trade
-      ) =>
-        trade.status !==
-        "OPEN"
-    );
+  const classifiedTrades =
+    wins +
+    losses;
 
   const winRate =
-    closedTrades.length > 0
+    classifiedTrades > 0
       ? (
           wins /
-          closedTrades.length
-        ) * 100
+          classifiedTrades
+        ) *
+        100
       : 0;
 
   /*
-   * -----------------------------------------------
+   * ================================================================
    * SYMBOL PERFORMANCE
-   * -----------------------------------------------
+   *
+   * Aggregate realized NET P&L by ticker.
+   * ================================================================
    */
 
   const symbolStats =
@@ -211,7 +316,7 @@ export default function DailyReviewInsights({
       }
     >();
 
-  selectedTrades.forEach(
+  closedTrades.forEach(
     (
       trade
     ) => {
@@ -233,7 +338,8 @@ export default function DailyReviewInsights({
           trade.pnl || 0
         );
 
-      current.trades += 1;
+      current.trades +=
+        1;
 
       symbolStats.set(
         symbol,
@@ -242,42 +348,131 @@ export default function DailyReviewInsights({
     }
   );
 
-  const sortedSymbols =
-    Array.from(
-      symbolStats.entries()
-    ).sort(
-      (
-        a,
-        b
-      ) =>
-        b[1].pnl -
-        a[1].pnl
-    );
+  /*
+   * ================================================================
+   * TOP PERFORMER
+   *
+   * Only a symbol with positive realized P&L qualifies.
+   *
+   * If every symbol lost money, we do NOT incorrectly call the
+   * least-negative symbol the "top performer."
+   * ================================================================
+   */
 
   const topSymbol =
-    sortedSymbols[0] ??
-    null;
-
-  const biggestDrag =
-    [...sortedSymbols]
+    Array.from(
+      symbolStats.entries()
+    )
+      .filter(
+        (
+          [
+            ,
+            stats,
+          ]
+        ) =>
+          stats.pnl > 0
+      )
       .sort(
         (
           a,
           b
-        ) =>
-          a[1].pnl -
-          b[1].pnl
+        ) => {
+
+          const pnlDifference =
+            b[1].pnl -
+            a[1].pnl;
+
+          if (
+            pnlDifference !==
+            0
+          ) {
+            return pnlDifference;
+          }
+
+          const tradeDifference =
+            b[1].trades -
+            a[1].trades;
+
+          if (
+            tradeDifference !==
+            0
+          ) {
+            return tradeDifference;
+          }
+
+          return a[0].localeCompare(
+            b[0]
+          );
+        }
       )[0] ??
     null;
 
   /*
-   * -----------------------------------------------
-   * LOSING TRADE ANALYSIS
-   * -----------------------------------------------
+   * ================================================================
+   * BIGGEST DRAG
+   *
+   * Only a symbol with negative realized P&L qualifies.
+   * ================================================================
+   */
+
+  const biggestDrag =
+    Array.from(
+      symbolStats.entries()
+    )
+      .filter(
+        (
+          [
+            ,
+            stats,
+          ]
+        ) =>
+          stats.pnl < 0
+      )
+      .sort(
+        (
+          a,
+          b
+        ) => {
+
+          const pnlDifference =
+            a[1].pnl -
+            b[1].pnl;
+
+          if (
+            pnlDifference !==
+            0
+          ) {
+            return pnlDifference;
+          }
+
+          const tradeDifference =
+            b[1].trades -
+            a[1].trades;
+
+          if (
+            tradeDifference !==
+            0
+          ) {
+            return tradeDifference;
+          }
+
+          return a[0].localeCompare(
+            b[0]
+          );
+        }
+      )[0] ??
+    null;
+
+  /*
+   * ================================================================
+   * LOSS ANALYSIS
+   *
+   * Average loss is calculated only from losing closed trades.
+   * ================================================================
    */
 
   const losingTradePnLs =
-    selectedTrades
+    closedTrades
       .map(
         (
           trade
@@ -309,26 +504,39 @@ export default function DailyReviewInsights({
         losingTradePnLs.length
       : 0;
 
-  const tradesExceedingAverageLoss =
-    averageLoss > 0
-      ? losingTradePnLs.filter(
-          (
-            pnl
-          ) =>
-            Math.abs(
+  const largestLoss =
+    losingTradePnLs.length > 0
+      ? Math.max(
+          ...losingTradePnLs.map(
+            (
               pnl
-            ) >
-            averageLoss
-        ).length
+            ) =>
+              Math.abs(
+                pnl
+              )
+          )
+        )
+      : 0;
+
+  const largestLossMultiple =
+    averageLoss > 0
+      ? largestLoss /
+        averageLoss
       : 0;
 
   /*
-   * -----------------------------------------------
+   * ================================================================
    * MOST ACTIVE PERIOD
    *
-   * Uses each trade's entry time and groups activity
-   * into one-hour buckets.
-   * -----------------------------------------------
+   * This is intentionally different from realized performance.
+   *
+   * Entry time is preferred because this answers:
+   *
+   * "When was I most active?"
+   *
+   * Open trades are allowed here because they still represent
+   * actual trading activity.
+   * ================================================================
    */
 
   const hourlyActivity =
@@ -354,21 +562,28 @@ export default function DailyReviewInsights({
         return;
       }
 
-      const hour =
+      const hourStart =
         new Date(
-          timestamp.getFullYear(),
-          timestamp.getMonth(),
-          timestamp.getDate(),
-          timestamp.getHours()
-        ).getTime();
+          timestamp
+        );
+
+      hourStart.setMinutes(
+        0,
+        0,
+        0
+      );
+
+      const hourKey =
+        hourStart.getTime();
 
       hourlyActivity.set(
-        hour,
+        hourKey,
         (
           hourlyActivity.get(
-            hour
+            hourKey
           ) ?? 0
-        ) + 1
+        ) +
+        1
       );
     }
   );
@@ -380,9 +595,27 @@ export default function DailyReviewInsights({
       (
         a,
         b
-      ) =>
-        b[1] -
-        a[1]
+      ) => {
+
+        const activityDifference =
+          b[1] -
+          a[1];
+
+        if (
+          activityDifference !==
+          0
+        ) {
+          return activityDifference;
+        }
+
+        /*
+         * Deterministic tie-break:
+         * earlier hour first.
+         */
+
+        return a[0] -
+          b[0];
+      }
     )[0] ??
     null;
 
@@ -394,31 +627,41 @@ export default function DailyReviewInsights({
       : null;
 
   /*
-   * -----------------------------------------------
+   * ================================================================
    * COST IMPACT
-   * -----------------------------------------------
+   *
+   * Fees are shown relative to GROSS P&L only when gross P&L is
+   * positive.
+   *
+   * Example:
+   *
+   * Gross P&L = $500
+   * Fees      = $50
+   * Fee ratio = 10%
+   *
+   * For a losing or flat day, a percentage can be misleading.
+   * In that case we display the absolute fee amount only.
+   * ================================================================
    */
 
-  const feeRatio =
-    Math.abs(
-      totalPnL
-    ) > 0
+  const feeToGrossProfitRatio =
+    grossPnL > 0
       ? (
           totalFees /
-          Math.abs(
-            totalPnL
-          )
-        ) * 100
-      : 0;
+          grossPnL
+        ) *
+        100
+      : null;
 
   /*
-   * -----------------------------------------------
+   * ================================================================
    * EMPTY DAY
-   * -----------------------------------------------
+   * ================================================================
    */
 
   if (
-    selectedTrades.length === 0
+    selectedTrades.length ===
+    0
   ) {
     return (
       <section
@@ -470,16 +713,79 @@ export default function DailyReviewInsights({
     );
   }
 
-  const positiveDay =
-    totalPnL >= 0;
+  /*
+   * ================================================================
+   * DAY STATE
+   * ================================================================
+   */
 
-  const topSymbolPositive =
-    topSymbol
-      ? topSymbol[1].pnl >= 0
-      : false;
+  const dayState =
+    totalPnL > 0
+      ? "positive"
+      : totalPnL < 0
+        ? "negative"
+        : "flat";
 
-  const highTradingCosts =
-    feeRatio >= 20;
+  const dayInsight =
+    dayState === "positive"
+      ? "Positive day (net profit)"
+      : dayState === "negative"
+        ? "Negative day (net loss)"
+        : "Flat day (no net P&L)";
+
+  const dayIcon =
+    dayState === "positive"
+      ? "positive"
+      : dayState === "negative"
+        ? "negative"
+        : "neutral";
+
+  /*
+   * ================================================================
+   * DISPLAY COPY
+   * ================================================================
+   */
+
+  const winRateText =
+    classifiedTrades > 0
+      ? `${winRate.toFixed(1)}% win rate`
+      : "Win rate unavailable";
+
+  const winLossText =
+    classifiedTrades > 0
+      ? `${wins}W / ${losses}L`
+      : "No classified trades";
+
+  const costText =
+    feeToGrossProfitRatio !==
+    null
+      ? `Fees ${formatCurrency(
+          totalFees,
+          reportingCurrency
+        )} (${feeToGrossProfitRatio.toFixed(
+          1
+        )}% of gross P&L)`
+      : `Fees ${formatCurrency(
+          totalFees,
+          reportingCurrency
+        )}`;
+
+  const lossInsight =
+    largestLoss > 0 &&
+    averageLoss > 0
+      ? `Largest loss ${formatCurrency(
+          -largestLoss,
+          reportingCurrency
+        )} (${largestLossMultiple.toFixed(
+          1
+        )}× avg loss)`
+      : "No losing trades";
+
+  /*
+   * ================================================================
+   * RENDER
+   * ================================================================
+   */
 
   return (
     <section
@@ -521,18 +827,20 @@ export default function DailyReviewInsights({
         {/* INSIGHTS */}
         {/* ================================================= */}
 
-<div
-  className="
-    mt-4
-    ml-2
-    grid
-    translate-x-[6px]
-    translate-y-[7px]
-    gap-[5px]
-  "
->
+        <div
+          className="
+            mt-4
+            ml-2
+            grid
+            translate-x-[6px]
+            translate-y-[7px]
+            gap-[5px]
+          "
+        >
 
-          {/* POSITIVE / NEGATIVE DAY */}
+          {/* ================================================= */}
+          {/* DAY RESULT */}
+          {/* ================================================= */}
 
           <div
             className="
@@ -545,43 +853,8 @@ export default function DailyReviewInsights({
 
             <InsightIcon
               type={
-                positiveDay
-                  ? "positive"
-                  : "negative"
+                dayIcon
               }
-            />
-
-            <span
-              className={`
-                text-[11px]
-                font-medium
-                ${
-                  positiveDay
-                    ? "text-slate-300"
-                    : "text-slate-300"
-                }
-              `}
-            >
-              {positiveDay
-                ? "Positive day (net profit)"
-                : "Negative day (net loss)"}
-            </span>
-
-          </div>
-
-          {/* WIN RATE */}
-
-          <div
-            className="
-              flex
-              min-h-[16px]
-              items-center
-              gap-2
-            "
-          >
-
-            <InsightIcon
-              type="positive"
             />
 
             <span
@@ -591,14 +864,30 @@ export default function DailyReviewInsights({
                 text-slate-300
               "
             >
-              {winRate.toFixed(
-                1
-              )}% win rate
+              {dayInsight}
             </span>
+
+            {closedTrades.length >
+              0 && (
+              <span
+                className="
+                  text-[10px]
+                  font-semibold
+                  text-slate-500
+                "
+              >
+                {formatCurrency(
+                  totalPnL,
+                  reportingCurrency
+                )}
+              </span>
+            )}
 
           </div>
 
-          {/* TRADING COSTS */}
+          {/* ================================================= */}
+          {/* WIN RATE */}
+          {/* ================================================= */}
 
           <div
             className="
@@ -611,8 +900,52 @@ export default function DailyReviewInsights({
 
             <InsightIcon
               type={
-                highTradingCosts
-                  ? "warning"
+                classifiedTrades >
+                0
+                  ? "positive"
+                  : "neutral"
+              }
+            />
+
+            <span
+              className="
+                text-[11px]
+                font-medium
+                text-slate-300
+              "
+            >
+              {winRateText}
+            </span>
+
+            <span
+              className="
+                text-[10px]
+                font-semibold
+                text-slate-500
+              "
+            >
+              · {winLossText}
+            </span>
+
+          </div>
+
+          {/* ================================================= */}
+          {/* TRADING COSTS */}
+          {/* ================================================= */}
+
+          <div
+            className="
+              flex
+              min-h-[16px]
+              items-center
+              gap-2
+            "
+          >
+
+            <InsightIcon
+              type={
+                totalFees > 0
+                  ? "neutral"
                   : "positive"
               }
             />
@@ -624,19 +957,14 @@ export default function DailyReviewInsights({
                 text-slate-300
               "
             >
-              {highTradingCosts
-                ? "High trading costs"
-                : "Trading costs"}
-              {" "}
-              (
-              {feeRatio.toFixed(
-                1
-              )}% of P&L)
+              {costText}
             </span>
 
           </div>
 
+          {/* ================================================= */}
           {/* TOP PERFORMER */}
+          {/* ================================================= */}
 
           <div
             className="
@@ -649,9 +977,9 @@ export default function DailyReviewInsights({
 
             <InsightIcon
               type={
-                topSymbolPositive
+                topSymbol
                   ? "positive"
-                  : "negative"
+                  : "neutral"
               }
             />
 
@@ -664,20 +992,16 @@ export default function DailyReviewInsights({
             >
               {topSymbol
                 ? `${topSymbol[0]} was the top performer`
-                : "No top performer available"}
+                : "No profitable symbol"}
             </span>
 
             {topSymbol && (
               <span
-                className={`
+                className="
                   text-[10px]
                   font-semibold
-                  ${
-                    topSymbolPositive
-                      ? "text-emerald-400"
-                      : "text-red-400"
-                  }
-                `}
+                  text-emerald-400
+                "
               >
                 {formatCurrency(
                   topSymbol[1].pnl,
@@ -688,7 +1012,9 @@ export default function DailyReviewInsights({
 
           </div>
 
+          {/* ================================================= */}
           {/* BIGGEST DRAG */}
+          {/* ================================================= */}
 
           <div
             className="
@@ -700,7 +1026,11 @@ export default function DailyReviewInsights({
           >
 
             <InsightIcon
-              type="negative"
+              type={
+                biggestDrag
+                  ? "negative"
+                  : "neutral"
+              }
             />
 
             <span
@@ -712,7 +1042,7 @@ export default function DailyReviewInsights({
             >
               {biggestDrag
                 ? `${biggestDrag[0]} was the biggest drag`
-                : "No biggest drag available"}
+                : "No losing symbol"}
             </span>
 
             {biggestDrag && (
@@ -732,7 +1062,9 @@ export default function DailyReviewInsights({
 
           </div>
 
-          {/* TRADES EXCEEDING AVERAGE LOSS */}
+          {/* ================================================= */}
+          {/* LOSS ANALYSIS */}
+          {/* ================================================= */}
 
           <div
             className="
@@ -745,8 +1077,7 @@ export default function DailyReviewInsights({
 
             <InsightIcon
               type={
-                tradesExceedingAverageLoss >
-                0
+                largestLoss > 0
                   ? "warning"
                   : "positive"
               }
@@ -759,19 +1090,14 @@ export default function DailyReviewInsights({
                 text-slate-300
               "
             >
-              {tradesExceedingAverageLoss > 0
-                ? `${tradesExceedingAverageLoss} ${
-                    tradesExceedingAverageLoss ===
-                    1
-                      ? "trade"
-                      : "trades"
-                  } exceeded avg loss`
-                : "No trades exceeded avg loss"}
+              {lossInsight}
             </span>
 
           </div>
 
+          {/* ================================================= */}
           {/* MOST ACTIVE PERIOD */}
+          {/* ================================================= */}
 
           <div
             className="

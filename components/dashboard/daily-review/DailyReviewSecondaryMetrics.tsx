@@ -215,8 +215,17 @@ export default function DailyReviewSecondaryMetrics({
    * -------------------------------------------------------
    */
 
+  const closedTrades =
+    selectedTrades.filter(
+      (
+        trade
+      ) =>
+        trade.status !==
+        "OPEN"
+    );
+
   const sortedTrades =
-    [...selectedTrades].sort(
+    [...closedTrades].sort(
       (
         a,
         b
@@ -246,7 +255,7 @@ export default function DailyReviewSecondaryMetrics({
    */
 
   const winningTrades =
-    selectedTrades.filter(
+    closedTrades.filter(
       (
         trade
       ) =>
@@ -256,7 +265,7 @@ export default function DailyReviewSecondaryMetrics({
     );
 
   const losingTrades =
-    selectedTrades.filter(
+    closedTrades.filter(
       (
         trade
       ) =>
@@ -264,7 +273,6 @@ export default function DailyReviewSecondaryMetrics({
           trade.pnl || 0
         ) < 0
     );
-
   const averageWinner =
     winningTrades.length > 0
       ? winningTrades.reduce(
@@ -324,19 +332,19 @@ export default function DailyReviewSecondaryMetrics({
    * -------------------------------------------------------
    */
 
-  const feeGrossRatio =
-    Math.abs(
-      grossPnL
-    ) > 0
-      ? (
-          Math.abs(
-            totalFees
-          ) /
-          Math.abs(
-            grossPnL
-          )
-        ) * 100
-      : 0;
+const feeGrossRatio =
+  Math.abs(
+    grossPnL
+  ) > 0
+    ? (
+        Math.abs(
+          totalFees
+        ) /
+        Math.abs(
+          grossPnL
+        )
+      ) * 100
+    : null;
 
   /*
    * -------------------------------------------------------
@@ -347,11 +355,11 @@ export default function DailyReviewSecondaryMetrics({
    * -------------------------------------------------------
    */
 
-  const expectancy =
-    totalTrades > 0
-      ? netPnL /
-        totalTrades
-      : null;
+const averagePnLPerTrade =
+  totalTrades > 0
+    ? netPnL /
+      totalTrades
+    : null;
 
   const cards: SecondaryMetricCardProps[] = [
     {
@@ -463,12 +471,17 @@ valueColor:
         "Fee / Gross P&L",
 
       value:
-        `${feeGrossRatio.toFixed(1)}%`,
+        feeGrossRatio != null
+          ? `${feeGrossRatio.toFixed(1)}%`
+          : "—",
 
       subtitle:
-        "trading cost ratio",
+        feeGrossRatio != null
+          ? "trading cost ratio"
+          : "not meaningful",
 
       valueColor:
+        feeGrossRatio != null &&
         feeGrossRatio >= 20
           ? "red"
           : "default",
@@ -476,25 +489,25 @@ valueColor:
 
     {
       title:
-        "Expectancy",
+        "Avg. P&L / Trade",
 
       value:
-        expectancy != null
-          ? formatCurrency(
-              expectancy,
-              reportingCurrency
-            )
-          : "—",
+averagePnLPerTrade != null
+  ? formatCurrency(
+      averagePnLPerTrade,
+      reportingCurrency
+    )
+  : "—",
 
-      subtitle:
-        "per trade",
+            subtitle:
+        "realized average",
 
-      valueColor:
-        expectancy == null
-          ? "default"
-          : expectancy >= 0
-            ? "green"
-            : "red",
+valueColor:
+  averagePnLPerTrade == null
+    ? "default"
+    : averagePnLPerTrade >= 0
+      ? "green"
+      : "red",
     },
   ];
 

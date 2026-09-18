@@ -499,7 +499,7 @@ git commit -m "checkpoint: add daily review breakdown section"
 git commit -m "checkpoint: add call put labels"
 git commit -m "checkpoint: add commission to daily review trade table"
 git commit -m "checkpoint: daily review v2 foundation"
-
+git commit -m "checkpoint: daily review v2 foundation complete"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

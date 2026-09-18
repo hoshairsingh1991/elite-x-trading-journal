@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -577,76 +578,81 @@ const [isModalOpen, setIsModalOpen] =
     setImportedTrades,
   ] = useState<Trade[]>([]);
 
- // =================================================
- // INITIAL LOAD
- // =================================================
+// =================================================
+// CANONICAL TRADE DATA REFRESH
+// =================================================
 
-useEffect(() => {
-
-  const loadAllTrades =
+const refreshTradeData =
+  useCallback(
     async () => {
 
-// =========================================
-// LOAD EXECUTIONS FROM SUPABASE
-// =========================================
+      // =========================================
+      // LOAD CANONICAL EXECUTIONS
+      // =========================================
 
-const storedExecutions =
-  await loadExecutionsFromSupabase();
+      const storedExecutions =
+        await loadExecutionsFromSupabase();
 
-// =========================================
-// REBUILD TRADES FROM CANONICAL EXECUTIONS
-// =========================================
+      // =========================================
+      // REBUILD TRADES FROM EXECUTIONS
+      // =========================================
 
-const rebuiltTrades =
-  pairTrades(
-    storedExecutions
-  );
+      const rebuiltTrades =
+        pairTrades(
+          storedExecutions
+        );
 
-const openManualPositions =
-  rebuiltTrades.filter(
-    (trade) =>
-      trade.isOpen &&
-      typeof trade.contractKey === "string" &&
-      trade.contractKey.startsWith(
-        "MANUAL-"
-      )
-  );
+      // =========================================
+      // UPDATE MANUAL OPEN POSITIONS
+      // =========================================
 
+      const openManualPositions =
+        rebuiltTrades.filter(
+          (trade) =>
+            trade.isOpen &&
+            typeof trade.contractKey === "string" &&
+            trade.contractKey.startsWith(
+              "MANUAL-"
+            )
+        );
 
-setManualOpenPositions(
-  openManualPositions
-);
+      setManualOpenPositions(
+        openManualPositions
+      );
 
-// =========================================
-// MANUAL TRADES
-// =========================================
+      // =========================================
+      // LOAD LEGACY / LOCAL MANUAL TRADES
+      // =========================================
 
       const manualTrades =
-        loadTrades();
-
-      // =========================================
-      // REMOVE IMPORTED DUPLICATES
-      // =========================================
-
-      const filteredManualTrades =
-        manualTrades.filter(
+        loadTrades().filter(
           (trade) =>
             !trade.contractKey
         );
 
       // =========================================
-      // COMBINED RENDER LAYER
+      // UPDATE RENDER LAYER
       // =========================================
 
       setImportedTrades([
         ...rebuiltTrades,
-        ...filteredManualTrades,
+        ...manualTrades,
       ]);
-    };
+    },
+    []
+  );
 
-  loadAllTrades();
+// =================================================
+// INITIAL TRADE DATA LOAD
+// =================================================
 
-}, []);
+useEffect(() => {
+
+  refreshTradeData();
+
+}, [
+  refreshTradeData,
+]);
 
   // =================================================
 // AVAILABLE ACCOUNTS
@@ -1565,6 +1571,7 @@ tradingCalendar={
   trades={reportingTrades}
   allTrades={filteredTrades}
   reportingCurrency={reportingCurrency}
+  onTradesChanged={refreshTradeData}
 />
 }
 />

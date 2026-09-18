@@ -184,8 +184,17 @@ export default function DailyReviewKpis({
   reportingCurrency,
 }: DailyReviewKpisProps) {
 
-  const totalTrades =
-    selectedTrades.length;
+const closedTrades =
+  selectedTrades.filter(
+    (
+      trade
+    ) =>
+      trade.status !==
+      "OPEN"
+  );
+
+const totalTrades =
+  closedTrades.length;
 
   const netPnL =
     selectedTrades.reduce(

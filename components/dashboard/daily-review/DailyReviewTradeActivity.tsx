@@ -331,24 +331,18 @@ currency:
 });
   };
 
-  const handleMouseLeave = () => {
-    setHoveredTrade(
-      null
-    );
-
-    setHoverPosition(
-      null
-    );
-  };
 
   /*
    * Tooltip dimensions.
+   *
+   * Keep these values synchronized with the actual
+   * tooltip element below.
    */
   const tooltipWidth =
-    132;
+    100;
 
   const tooltipHeight =
-    64;
+    60;
 
   let tooltipLeft =
     0;
@@ -458,7 +452,7 @@ currency:
               text-slate-600
             "
           >
-            Intraday execution activity
+                        Intraday trade activity
           </p>
 
         </div>
