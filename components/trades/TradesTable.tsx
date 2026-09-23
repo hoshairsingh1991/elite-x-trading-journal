@@ -850,7 +850,7 @@ return (
 
 {/* SIDE */}
 
-<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
+<div className="flex h-[var(--trade-row-height)] items-center   translate-x-[4px] justify-center border-b border-white/[0.04] px-5">
 
   <span
 className={`text-[12px] font-bold uppercase tracking-[0.10em] ${

@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   User,
   Settings,
@@ -12,7 +13,6 @@ import {
   HelpCircle,
   Crown,
   ShieldCheck,
-  Zap,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
@@ -22,20 +22,64 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+function loadMenuStats() {
+  const storedStats =
+    localStorage.getItem(
+      "elite-x-menu-stats"
+    );
 
+  if (!storedStats) {
+    return {
+      totalTrades: 0,
+      totalPnL: 0,
+      tradingDays: 0,
+    };
+  }
 
-type UserMenuV2Props = {
-  totalTrades: number;
-  totalPnL: number;
-  tradingDays: number;
-};
+  try {
+    const parsed =
+      JSON.parse(storedStats);
 
-export default function UserMenuV2({
-  totalTrades,
-  totalPnL,
-  tradingDays,
-}: UserMenuV2Props) {
+    return {
+      totalTrades:
+        typeof parsed.totalTrades === "number"
+          ? parsed.totalTrades
+          : 0,
 
+      totalPnL:
+        typeof parsed.totalPnL === "number"
+          ? parsed.totalPnL
+          : 0,
+
+      tradingDays:
+        typeof parsed.tradingDays === "number"
+          ? parsed.tradingDays
+          : 0,
+    };
+  } catch {
+    console.warn(
+      "Failed to parse Elite X menu stats."
+    );
+
+    return {
+      totalTrades: 0,
+      totalPnL: 0,
+      tradingDays: 0,
+    };
+  }
+}
+
+function loadReportingCurrency() {
+  return (
+    localStorage.getItem(
+      "reportingCurrency"
+    ) || "USD"
+  );
+}
+
+export default function UserMenuV2() {
+
+  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
   const [displayName, setDisplayName] = useState("Elite X User");
@@ -76,31 +120,14 @@ const [
         profile.display_name
       );
     }
+setMenuStats(
+  loadMenuStats()
+);
 
-    const storedStats =
-      localStorage.getItem(
-        "elite-x-menu-stats"
-      );
-
-    if (storedStats) {
-      setMenuStats(
-        JSON.parse(
-          storedStats
-        )
-      );
-    }
+setReportingCurrency(
+  loadReportingCurrency()
+);
   }
-
-const storedCurrency =
-  localStorage.getItem(
-    "reportingCurrency"
-  );
-
-if (storedCurrency) {
-  setReportingCurrency(
-    storedCurrency
-  );
-}
 
   loadUser();
 }, []);
@@ -152,29 +179,13 @@ const formattedPnL = `${
 >
       <button
   onClick={() => {
-  const storedStats =
-    localStorage.getItem(
-      "elite-x-menu-stats"
-    );
+setMenuStats(
+  loadMenuStats()
+);
 
-  if (storedStats) {
-    setMenuStats(
-      JSON.parse(
-        storedStats
-      )
-    );
-  }
-
-const storedCurrency =
-  localStorage.getItem(
-    "reportingCurrency"
-  );
-
-if (storedCurrency) {
-  setReportingCurrency(
-    storedCurrency
-  );
-}
+setReportingCurrency(
+  loadReportingCurrency()
+);
 
   setIsOpen(!isOpen);
 }}
@@ -329,9 +340,15 @@ if (storedCurrency) {
 
       <div className="flex h-[72px] flex-col items-center justify-center border-r border-white/[0.08] text-center">
 
-        <p className="text-[18px] font-bold text-emerald-400">
-          {formattedPnL}
-        </p>
+<p
+  className={`text-[18px] font-bold ${
+    menuStats.totalPnL >= 0
+      ? "text-emerald-400"
+      : "text-red-400"
+  }`}
+>
+  {formattedPnL}
+</p>
 
         <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-slate-500">
           P&L
@@ -380,7 +397,7 @@ if (storedCurrency) {
       icon={<User size={18} />}
       title="My Profile"
       subtitle="Manage profile information"
-      onClick={() => window.location.href="/profile"}
+      onClick={() => router.push("/profile")}
     />
 
      {/* ===================================== */}
@@ -393,7 +410,7 @@ if (storedCurrency) {
       icon={<Settings size={18} />}
       title="Account Settings"
       subtitle="Preferences and configuration"
-      onClick={() => window.location.href="/settings"}
+     onClick={() => router.push("/settings")}
     />
  {/* ===================================== */}
 {/* INVISIBLE SPACER */}
@@ -457,6 +474,13 @@ if (storedCurrency) {
 );
 }
 
+type RowProps = {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  onClick: () => void;
+  danger?: boolean;
+};
 
 function Row({
   icon,
@@ -464,7 +488,7 @@ function Row({
   subtitle,
   onClick,
   danger,
-}: any) {
+}: RowProps) {
   return (
     <button
       onClick={onClick}

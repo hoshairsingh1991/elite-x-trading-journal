@@ -23,11 +23,7 @@ export default function Topbar() {
       "
     >
 
-<UserMenuV2
-  totalTrades={0}
-  totalPnL={0}
-  tradingDays={0}
-/>
+<UserMenuV2 />
 
     </header>
   );

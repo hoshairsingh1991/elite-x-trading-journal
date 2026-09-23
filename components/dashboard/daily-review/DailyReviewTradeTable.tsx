@@ -432,7 +432,7 @@ className="
                   truncate
                   px-1
                   text-left
-                -translate-x-1
+                translate-x-1
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -451,7 +451,7 @@ className="
                   truncate
                   px-1
                   text-left
-                  translate-x-1
+                  translate-x-1.5
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -478,7 +478,7 @@ className="
                 className="
                   truncate
                   px-1
-                  -translate-x-3
+                  -translate-x-1
                   text-right
                   text-[11px]
                   font-medium
@@ -493,6 +493,7 @@ className="
                   truncate
                   px-1
                   text-right
+                  -translate-x-1
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -550,6 +551,7 @@ translate-x-1
                   truncate
                   px-1
                   text-right
+                  -translate-x-1
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -563,6 +565,7 @@ translate-x-1
                   truncate
                   px-1
                   text-right
+                  
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -730,6 +733,7 @@ translate-x-1
                         truncate
                         px-1
                         text-left
+                        translate-x-2
                         text-[11px]
                         font-semibold
                         text-slate-100
@@ -803,7 +807,7 @@ translate-x-1
                         truncate
                         px-1
                         text-right
-                          -translate-x-5
+                          -translate-x-3
                         text-[11px]
                         font-medium
                         text-slate-300
@@ -821,6 +825,7 @@ translate-x-1
                         truncate
                         px-1
                         text-right
+                         -translate-x-1
                         text-[11px]
                         text-slate-300
                       "
@@ -832,34 +837,36 @@ translate-x-1
 
                     {/* EXIT */}
 
-                    <td
-                      className="
-                        truncate
-                        px-1
-                        text-right
-                        text-[11px]
-                        text-slate-300
-                      "
-                    >
-                      {trade.exitPrice ===
-                        0 &&
-                      trade.status ===
-                        "LOSS" ? (
-                        <span
-                          className="
-                            text-[11px]
-                            font-semibold
-                            text-red-400
-                          "
-                        >
-                          Expired
-                        </span>
-                      ) : (
-                        formatPrice(
-                          trade.exitPrice
-                        )
-                      )}
-                    </td>
+<td
+  className="
+    overflow-visible
+    whitespace-nowrap
+    px-1
+    text-right
+    text-[11px]
+    text-slate-300
+  "
+>
+  {trade.exitPrice === 0 &&
+  trade.status === "LOSS" ? (
+<span
+  className="
+    relative
+    left-[16px]
+    inline-block
+    w-full
+    text-center
+    text-[11px]
+    font-semibold
+    text-red-400
+  "
+>
+  Expired
+</span>
+  ) : (
+    formatPrice(trade.exitPrice)
+  )}
+</td>
 
                     {/* P&L */}
 
@@ -922,7 +929,7 @@ className="
                         truncate
                         px-1
                         text-right
-                        -translate-x-5
+                        -translate-x-6
                         text-[11px]
                         font-semibold
                         text-slate-500

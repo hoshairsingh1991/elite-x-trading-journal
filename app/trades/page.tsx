@@ -1222,11 +1222,7 @@ return (
   {/* USER MENU */}
   {/* ================================================= */}
 
-  <UserMenuV2
-    totalTrades={trades.length}
-    totalPnL={0}
-    tradingDays={0}
-  />
+<UserMenuV2 />
 
 
 

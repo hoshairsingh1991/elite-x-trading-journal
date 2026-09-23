@@ -155,11 +155,7 @@ if (profile) {
             </div>
 
             <div className="relative right-[12px]">
-            <UserMenuV2
-  totalTrades={0}
-  totalPnL={0}
-  tradingDays={0}
-/>
+<UserMenuV2 />
             </div>
 
           </div>

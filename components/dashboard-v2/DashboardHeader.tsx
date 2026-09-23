@@ -253,11 +253,7 @@ bg-[#0b1220]
         </button>
 
         <div className="shrink-0">
-          <UserMenuV2
-            totalTrades={totalTrades}
-            totalPnL={totalPnL}
-            tradingDays={tradingDays}
-          />
+<UserMenuV2 />
         </div>
       </div>
     </div>

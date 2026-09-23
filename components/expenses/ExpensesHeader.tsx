@@ -308,11 +308,7 @@ onClick={onExport}
 {/* ============================================= */}
 
 <div className="relative z-[100] flex h-[50px] items-center justify-center">
-  <UserMenuV2
-    totalTrades={0}
-    totalPnL={0}
-    tradingDays={0}
-  />
+<UserMenuV2 />
 </div>
       </div>
     </header>

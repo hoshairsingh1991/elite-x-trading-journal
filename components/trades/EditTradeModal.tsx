@@ -2057,7 +2057,7 @@ return (
   onChange={(e) =>
     setTicker(e.target.value.toUpperCase())
   }
-  placeholder="AAPL"
+  placeholder="e.g. AAPL"
           className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-10 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
           style={{ paddingLeft: "40px" }}
         />
@@ -2204,7 +2204,7 @@ return (
   onChange={(e) =>
     setQuantity(e.target.value)
   }
-          placeholder="100"
+         placeholder="e.g. 100"
           className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
           style={{ paddingLeft: "16px" }}
         />
@@ -2229,7 +2229,7 @@ step="0.01"
           onChange={(e) =>
             setEntryPrice(e.target.value)
           }
-          placeholder="200.00"
+          placeholder="e.g. 200.00"
           className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
           style={{ paddingLeft: "16px" }}
         />
@@ -2470,7 +2470,7 @@ step="0.01"
           onChange={(e) =>
             setExitPrice(e.target.value)
           }
-          placeholder="215.00"
+         placeholder="e.g. 215.00"
           className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-5 pr-3 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
           style={{ paddingLeft: "16px" }}
         />
@@ -2720,7 +2720,7 @@ step="0.01"
           onChange={(e) =>
             setCommission(e.target.value)
           }
-          placeholder="5.00"
+          placeholder="e.g. 5.00"
           className="h-10 w-full rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] pl-4 pr-14 text-[13px] font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10"
           style={{ paddingLeft: "16px" }}
         />

@@ -126,7 +126,7 @@ export default function DemoTradesPage() {
 
           {/* User Menu */}
           <div className="relative flex items-center gap-4">
-            <UserMenuV2 totalTrades={DEMO_TRADES.length} totalPnL={0} tradingDays={20} />
+         <UserMenuV2 />
           </div>
         </div>
 

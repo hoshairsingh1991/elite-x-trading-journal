@@ -501,6 +501,10 @@ git commit -m "checkpoint: add commission to daily review trade table"
 git commit -m "checkpoint: daily review v2 foundation"
 git commit -m "checkpoint: daily review v2 foundation complete"
 git commit -m "daily-review-trade-drawer-v1-complete"
+git commit -m "Fix expired exit alignment"
+
+
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -1326,7 +1326,7 @@ tooltip={
       }));
     }
   }}
-  placeholder="AAPL"
+  placeholder="e.g. AAPL"
   className={`${inputClass} ${
     fieldErrors.ticker
       ? "!border-red-700/70"
@@ -1571,7 +1571,7 @@ setExchange(
       }));
     }
   }}
-  placeholder="100"
+  placeholder="e.g. 100"
   className={`${inputClass} ${
     fieldErrors.quantity
       ? "!border-red-700/70"
@@ -1597,7 +1597,7 @@ setExchange(
       }));
     }
   }}
-  placeholder="200.00"
+ placeholder="e.g. 200.00"
   className={`${inputClass} ${
     fieldErrors.entryPrice
       ? "!border-red-700/70"
@@ -1793,11 +1793,11 @@ setExchange(
         }));
       }
     }}
-    placeholder={
-      isPartialExit
-        ? "Quantity to reduce"
-        : "100"
-    }
+placeholder={
+  isPartialExit
+    ? "e.g. 25"
+    : "e.g. 100"
+}
     className={
       fieldErrors.quantity
         ? `${inputClass} !border-red-700/70`
@@ -1823,7 +1823,7 @@ setExchange(
         }));
       }
     }}
-    placeholder="215.00"
+    placeholder="e.g. 215.00"
     className={fieldErrors.exitPrice ? `${inputClass} !border-red-700/70` : inputClass}
     style={{ paddingLeft: "16px" }}
   />
@@ -2082,7 +2082,7 @@ setExchange(
       }));
     }
   }}
-  placeholder="5.00"
+  placeholder="e.g. 5.00"
   className={`${inputClass} pr-14 ${
     fieldErrors.commission
       ? "!border-red-700/70"
