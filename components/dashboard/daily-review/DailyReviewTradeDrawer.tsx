@@ -14,6 +14,9 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import TradeReviewTab
+  from "@/components/dashboard/daily-review/trade-review/TradeReviewTab";
+
 interface DailyReviewTradeDrawerProps {
   trade: Trade;
   reportingCurrency: string;
@@ -390,21 +393,21 @@ const pnlPercent =
     pnl < 0;
 
   return (
-    <aside
-      className="
-        flex
-        min-h-0
-        w-[340px]
-        shrink-0
-        flex-col
-        overflow-hidden
-        rounded-[8px]
-        border
-        border-white/[0.06]
-        bg-[#07111d]
-      "
-    >
-
+<aside
+  className="
+    flex
+    h-full
+    min-h-0
+    w-[340px]
+    shrink-0
+    flex-col
+    overflow-hidden
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#07111d]
+  "
+>
       {/* ================================================= */}
       {/* DRAWER HEADER */}
       {/* Same structural settings as Add Trade Preview */}
@@ -625,17 +628,29 @@ className={`
         "
       >
 
-        <div className="h-4 shrink-0" />
+<div className="h-4 shrink-0" />
 
-<div
-  className="
-    flex
-    w-[calc(100%-30px)]
-    translate-x-[14px]
-    flex-col
-    gap-3
-  "
->
+{activeTab === "REVIEW" ? (
+  <div
+    className="
+      w-[calc(100%-30px)]
+      translate-x-[14px]
+    "
+  >
+    <TradeReviewTab
+      trade={trade}
+    />
+  </div>
+) : (
+  <div
+    className="
+      flex
+      w-[calc(100%-30px)]
+      translate-x-[14px]
+      flex-col
+      gap-3
+    "
+  >
 
           {/* ================================================= */}
           {/* INSTRUMENT */}
@@ -1323,9 +1338,10 @@ null
           </div>
 
         </div>
+      )}
 
-      </div>
+    </div>
 
-    </aside>
+  </aside>
   );
 }

@@ -1631,3 +1631,1029 @@ END OF CHECKPOINT
 
    ============================================================
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===============================================================
+ELITE X TRADING JOURNAL — DAILY REVIEW V2 CHECKPOINT NOTES
+DATE: 2026-09-23
+STATUS: PAUSED FOR NEXT SESSION
+===============================================================
+
+PURPOSE
+===============================================================
+
+These checkpoint notes capture all Daily Review V2 work completed
+in this session.
+
+The current code in the active repository is the source of truth.
+
+DO NOT reconstruct components from older conversations.
+DO NOT revert previously accepted UI/layout fixes.
+Before making any future code change, request the CURRENT CODE
+of the relevant file and work from that exact version.
+
+Daily Review remains an analytics / review layer only.
+
+It must NOT modify:
+
+- Canonical executions
+- Execution ledger
+- FIFO matching
+- pairTrades()
+- Reconstructed trades
+- Canonical trading P&L
+- Broker reconciliation
+- Broker source-of-truth logic
+
+===============================================================
+1. GIT CHECKPOINTS
+===============================================================
+
+Earlier committed and pushed:
+
+Commit:
+567fe87
+
+Message:
+Update daily review trade quantity units
+
+This commit contained the Daily Review Trade Drawer quantity-unit
+consistency changes.
+
+A later broader Git checkpoint was also staged, committed, and
+pushed using:
+
+git add -A
+git commit
+git push origin main
+
+That checkpoint included the other local work that was intentionally
+saved at that point.
+
+IMPORTANT:
+
+The Review-tab work performed AFTER that broader checkpoint may still
+need its own Git commit/push before ending the next session.
+
+Always run:
+
+git status
+
+before creating the next checkpoint.
+
+===============================================================
+2. DAILY REVIEW ACCOUNT FILTER — COMPLETED
+===============================================================
+
+The Daily Review header Account control was converted from static UI
+into a functional account filter.
+
+Canonical source:
+
+Trade.account
+
+The execution model also contains:
+
+NormalizedExecution.account
+
+No changes were made to the canonical trading/accounting model.
+
+---------------------------------------------------------------
+CURRENT ACCOUNT FLOW
+---------------------------------------------------------------
+
+DailyReviewModal
+    ↓
+selectedAccount
+    ↓
+accountOptions
+    ↓
+filteredSelectedTrades
+    ↓
+Daily Review analytics/UI
+
+Account filtering now affects:
+
+- DailyReviewHeader
+- DailyReviewKpis
+- DailyReviewTradeActivity
+- DailyReviewInsights
+- DailyReviewSecondaryMetrics
+- DailyReviewBreakdown
+- DailyReviewTradeTable
+
+The Trade Table intentionally continues to receive:
+
+allTrades={allTrades}
+
+This is intentional so broader trade/edit context remains available.
+
+The account filter uses:
+
+"ALL"
+
+for the All Accounts state.
+
+Individual accounts are derived from allTrades:
+
+Array.from(
+  new Set(
+    allTrades
+      .map((trade) => trade.account?.trim())
+      .filter(...)
+  )
+).sort(...)
+
+---------------------------------------------------------------
+ACCOUNT UI
+---------------------------------------------------------------
+
+The Account control remains the existing compact header geometry.
+
+Current button:
+
+- height: 34px
+- width: 100px
+- gap: 1
+- rounded-[8px]
+- bg-[#0b1220]
+- border-white/[0.06]
+
+The dropdown was intentionally kept compact.
+
+Current dropdown width:
+
+w-[110px]
+
+The account text is centered.
+
+Both All Accounts and individual account buttons use:
+
+flex
+w-full
+items-center
+justify-center
+
+All Accounts uses white text.
+
+Account numbers / account identifiers use cyan text.
+
+Current visual hierarchy:
+
+All Accounts → white
+Account numbers → cyan
+
+The account dropdown closes when:
+
+- An account is selected
+- All Accounts is selected
+- User clicks anywhere outside the account control
+
+Outside-click behavior was implemented with:
+
+useRef
+useEffect
+pointerdown listener
+
+The account wrapper uses:
+
+ref={accountMenuRef}
+
+===============================================================
+3. DAILY REVIEW HEADER — TRADING DAY STATUS — COMPLETED
+===============================================================
+
+The Trading Day header indicator is now live.
+
+It is driven from:
+
+selectedTrades.length > 0
+
+Because selectedTrades is already account-filtered,
+Trading Day status automatically respects the selected account.
+
+---------------------------------------------------------------
+WHEN TRADES EXIST
+---------------------------------------------------------------
+
+Displays:
+
+green dot
+Trading Day
+
+Color:
+
+text-emerald-400
+bg-emerald-400
+
+---------------------------------------------------------------
+WHEN NO TRADES EXIST
+---------------------------------------------------------------
+
+Displays:
+
+CircleOff icon
+No Trading Day
+
+Using muted slate styling rather than red.
+
+This intentionally represents an inactive / no-activity state,
+not an error or loss state.
+
+---------------------------------------------------------------
+TRADING DAY CARD WIDTH
+---------------------------------------------------------------
+
+Normal:
+
+w-[108px]
+
+No Trading Day:
+
+w-[118px]
+
+The extra width only appears when the "No Trading Day" label
+requires additional space.
+
+The existing:
+
+- height
+- gap
+- positioning
+- responsive breakpoint
+
+remain unchanged.
+
+===============================================================
+4. NO-TRADING-DAY CONTENT MESSAGE
+===============================================================
+
+The existing message:
+
+"No trading activity is available for this day."
+
+was retained.
+
+Its positioning can be controlled independently with:
+
+translate-x-[...]
+translate-y-[...]
+
+Current implementation was adjusted visually using X/Y translation.
+
+Do not change this unless future UI review requires it.
+
+===============================================================
+5. DAILY REVIEW TRADE DRAWER — QUANTITY UNITS — COMPLETED
+===============================================================
+
+File:
+
+components/dashboard/daily-review/DailyReviewTradeDrawer.tsx
+
+A shared quantity-unit mapping was added.
+
+Current logic:
+
+const assetType =
+  trade.assetType?.toUpperCase() ?? "";
+
+const ticker =
+  trade.ticker ?? "";
+
+const previewQuantityUnitMap: Record<string, string> = {
+  STOCKS: "Share",
+  OPTIONS: "Contract",
+  FUTURES: "Contract",
+};
+
+const previewUsesTickerUnit =
+  assetType === "CRYPTO" ||
+  assetType === "FOREX" ||
+  assetType === "CFD";
+
+const previewQuantityUnit =
+  previewUsesTickerUnit
+    ? ticker.trim().toUpperCase() || "Unit"
+    : previewQuantityUnitMap[
+        assetType
+      ] ?? "Unit";
+
+---------------------------------------------------------------
+DISPLAY RULES
+---------------------------------------------------------------
+
+STOCKS:
+
+1 Share
+5 Shares
+
+OPTIONS:
+
+1 Contract
+5 Contracts
+
+FUTURES:
+
+1 Contract
+5 Contracts
+
+CRYPTO:
+
+1 BTC
+5 BTC
+
+FOREX:
+
+1 EURUSD
+5 EURUSD
+
+CFD:
+
+1 USOIL
+5 USOIL
+
+CRYPTO / FOREX / CFD are intentionally NOT pluralized.
+
+---------------------------------------------------------------
+USED IN
+---------------------------------------------------------------
+
+Position Impact → Open
+Position Impact → Closed
+Timeline → Entry
+Timeline → Exit
+
+The Position Impact section was updated to use the same unit
+logic as the Timeline.
+
+===============================================================
+6. DAILY REVIEW TRADE DRAWER — EXISTING P&L / RETURN LOGIC
+===============================================================
+
+The drawer currently contains:
+
+- Canonical net P&L display from trade.pnl
+- Buy commission derived from canonical executions
+- Sell commission derived from canonical executions
+- Total commission
+- Gross P&L
+- Return %
+- Holding Time
+- Entry / Exit values
+- Position Impact
+- Timeline
+
+Buy commission:
+
+execution.action === "BUY"
+
+Sell commission:
+
+execution.action === "SELL"
+
+Commissions are NOT duplicated into another canonical field.
+
+Gross P&L:
+
+grossPnL =
+  pnl +
+  totalCommission
+
+---------------------------------------------------------------
+RETURN %
+---------------------------------------------------------------
+
+The drawer prefers:
+
+trade.pnlPercent
+
+when it exists and is finite.
+
+If pnlPercent is absent, it calculates price return from:
+
+LONG:
+(exitPrice - entryPrice) / entryPrice * 100
+
+SHORT:
+(entryPrice - exitPrice) / entryPrice * 100
+
+This fixed the previous cases where return was displayed as:
+
+—
+or an obviously incorrect percentage such as +1139%.
+
+Known validation:
+
+Option:
+
+2.23 → 2.51
+
+≈ +12.56%
+
+SNAP example:
+
+5.90 → 5.50
+
+≈ -6.78%
+
+Important future consideration:
+
+If upstream trade.pnlPercent exists but is mathematically wrong,
+the drawer will still prefer it.
+
+Do not change canonical behavior unless explicitly planned.
+
+===============================================================
+7. DAILY REVIEW TRADE DRAWER — CURRENT ARCHITECTURE
+===============================================================
+
+File:
+
+components/dashboard/daily-review/DailyReviewTradeDrawer.tsx
+
+The drawer is a shell.
+
+Current width:
+
+w-[340px]
+
+Current shell styling:
+
+bg-[#07111d]
+border-white/[0.06]
+rounded-[8px]
+
+Header remains structurally aligned with Add Trade Preview.
+
+Tabs:
+
+Overview
+Review
+Executions (N)
+Notes
+
+Overview remains the existing working content.
+
+Review is now delegated to a separate component.
+
+===============================================================
+8. REVIEW TAB ARCHITECTURE — COMPLETED UI FIRST PASS
+===============================================================
+
+Existing placeholder structure was discovered:
+
+components/dashboard/daily-review/trade-review/
+
+    TradeExecutionsTabs.tsx
+    TradeNotesTabs.tsx
+    TradeOverviewTab.tsx
+    TradeReviewTab.tsx
+
+All four files existed already.
+
+They were empty placeholders.
+
+DO NOT create a new DailyReviewTradeReview.tsx.
+
+The chosen architecture is:
+
+DailyReviewTradeDrawer.tsx
+    ↓
+TradeReviewTab.tsx
+
+The Review-specific UI lives in:
+
+components/dashboard/daily-review/trade-review/TradeReviewTab.tsx
+
+---------------------------------------------------------------
+TRADE REVIEW TAB CURRENT CONTENT
+---------------------------------------------------------------
+
+The new TradeReviewTab UI currently contains:
+
+- Trade Quality Score
+- Quality score gauge
+- Plan Adherence
+- Setup Quality
+- Risk Management
+- Execution
+- Psychology
+- Trade Context
+- Setup
+- Entry Reason
+- Exit Reason
+- Psychology
+- Mistakes
+- Strengths
+- Previous
+- Next
+- Save Review
+- Mark as reviewed
+- AI Trade Summary
+- Generate button
+
+The previously added More / Ellipsis button was intentionally
+REMOVED because it is not needed for the current target design.
+
+Also remove / keep removed any unused Ellipsis import.
+
+---------------------------------------------------------------
+CURRENT REVIEW TAB LOCAL STATE
+---------------------------------------------------------------
+
+The current UI uses local component state for:
+
+tradeContext
+setup
+entryReason
+exitReason
+psychology
+selectedMistakes
+selectedStrengths
+mistakesOpen
+strengthsOpen
+markedReviewed
+
+This is currently UI-only.
+
+It is NOT persisted yet.
+
+Do not add these fields directly to the canonical Trade object
+just to make the UI persistent.
+
+Future persistence should remain in the review/journaling layer.
+
+===============================================================
+9. REVIEW TAB TARGET DESIGN
+===============================================================
+
+Target screenshot is the visual source of truth.
+
+The Review tab should follow this overall structure:
+
+Trade Review
+    ↓
+Trade Quality Score
+    ↓
+1. Trade Context
+    ↓
+2. Setup
+    ↓
+3. Entry Reason
+    ↓
+4. Exit Reason
+    ↓
+Psychology
+    ↓
+Mistakes
+    ↓
+Strengths
+    ↓
+Previous / Next
+Save Review
+Mark Reviewed
+    ↓
+AI Trade Summary
+
+The visual language should remain consistent with Elite X:
+
+Primary card:
+
+bg-[#0b1220]
+
+Drawer:
+
+bg-[#07111d]
+
+Border:
+
+border-white/[0.06]
+
+Radius:
+
+rounded-[8px]
+
+Positive:
+
+emerald
+
+Negative:
+
+red
+
+Selection/accent:
+
+violet
+
+===============================================================
+10. REVIEW TAB SCROLL / HEIGHT FIX — COMPLETED
+===============================================================
+
+This was the most recent UI issue solved.
+
+Problem:
+
+When Mistakes or Strengths were opened, the right drawer became
+taller than the left Daily Review panel.
+
+Required behavior:
+
+The right drawer must always have the same height as the left
+Daily Review card/panel.
+
+Opening dropdown sections must increase only the INTERNAL content
+height.
+
+The drawer itself must NOT grow vertically.
+
+---------------------------------------------------------------
+FINAL INTENDED ARCHITECTURE
+---------------------------------------------------------------
+
+Left Daily Review panel
+    determines overall shell height
+
+Right Trade Review drawer
+    fills same height
+
+Drawer internal content
+    overflow-y-auto
+
+Therefore:
+
+Closed sections:
+drawer stays same height
+
+Open Mistakes:
+drawer stays same height
+content becomes scrollable
+
+Open Strengths:
+drawer stays same height
+content becomes scrollable
+
+---------------------------------------------------------------
+IMPORTANT SCROLL RULE
+---------------------------------------------------------------
+
+The scrollbar belongs to the existing drawer content container:
+
+<div
+  className="
+    min-h-0
+    flex-1
+    overflow-y-auto
+    overflow-x-hidden
+    pb-5
+  "
+>
+
+DO NOT introduce:
+
+- another nested drawer scrollbar
+- modal-level scroll
+- fixed arbitrary height inside TradeReviewTab
+- multiple nested max-height wrappers
+- h-full chains that destabilize the layout
+
+The final user-tested behavior was confirmed as correct:
+
+"the drawer height is always the same as the left side card and
+the drawer itself scrolls."
+
+The existing 8px gap between left panel and drawer was intentionally
+retained.
+
+===============================================================
+11. DAILY REVIEW MODAL — DRAWER GEOMETRY
+===============================================================
+
+File:
+
+components/dashboard/daily-review/DailyReviewModal.tsx
+
+Existing shell geometry:
+
+Without open drawer:
+
+w-[980px]
+
+With open drawer:
+
+w-[1328px]
+
+Maximum width:
+
+max-w-[calc(100vw-64px)]
+
+The existing visual gap between left panel and drawer:
+
+gap-[8px]
+
+was intentionally retained after the drawer height fix.
+
+Do not reintroduce previous failed layout experiments.
+
+Do NOT use:
+
+- modal-level overflow scrolling
+- arbitrary h-[92vh]
+- h-full chains across multiple wrappers
+- nested body-card scrolling
+
+The earlier stable architecture was restored and approved.
+
+===============================================================
+12. STABLE DAILY REVIEW V2 LAYOUT RULES
+===============================================================
+
+The current stable layout is:
+
+fixed overlay
+    ↓
+natural-height outer modal
+    ↓
+Daily Review shell
+    ↓
+left content panel
+    ↓
+header
+    ↓
+safe-zone analytics card
+    ↓
+KPI row
+    ↓
+Trade Activity + Insights
+    ↓
+Secondary Metrics
+    ↓
+Breakdown
+    ↓
+Trade Table
+    ↓
+10px canonical bottom spacer
+
+Trade Table remains the canonical long-list scroll container.
+
+Trade Table scroll:
+
+max-h-[360px]
+
+and at shorter viewports:
+
+max-h-[244px]
+
+The Trade Table owns long-list scrolling.
+
+Do not move that scrolling responsibility elsewhere.
+
+===============================================================
+13. DAILY REVIEW HEADER CURRENT FUNCTIONALITY
+===============================================================
+
+File:
+
+components/dashboard/daily-review/DailyReviewHeader.tsx
+
+Current functional controls:
+
+- Back / Close
+- Calendar UI button (still not functional)
+- Trading Day / No Trading Day
+- Session time display
+- Account filter
+- Replay Day UI button (still not functional)
+- Close
+
+Account filter is live.
+
+Trading Day status is live.
+
+Session time uses the current account-filtered selectedTrades.
+
+===============================================================
+14. ACCOUNT FILTER DATA FLOW
+===============================================================
+
+DailyReviewModal receives:
+
+selectedTrades
+allTrades
+
+selectedAccount controls:
+
+filteredSelectedTrades
+
+All Daily Review analytics receive:
+
+filteredSelectedTrades
+
+The selected account also controls:
+
+- Header session range
+- Trading Day / No Trading Day status
+- KPI data
+- Trade Activity
+- Insights
+- Secondary Metrics
+- Breakdown
+- Trade Table
+- Selected Trade / Drawer starting trade
+
+Account switching resets:
+
+editingTrade
+selectedTrade
+tradeDrawerCollapsed
+
+to maintain stable interaction state.
+
+===============================================================
+15. CURRENT BUILD STATUS
+===============================================================
+
+Build passed after:
+
+- Account filter implementation
+- Trading Day state
+- Header dropdown improvements
+- Outside-click closing
+- Trade Review tab implementation
+- Review tab drawer wiring
+- Review drawer scroll/height architecture
+
+The Review UI component itself compiled successfully before being wired.
+
+The final user-tested drawer height/scroll behavior was also confirmed
+as correct.
+
+===============================================================
+16. CURRENT FILES MODIFIED / RELEVANT
+===============================================================
+
+Daily Review:
+
+components/dashboard/daily-review/DailyReviewModal.tsx
+
+components/dashboard/daily-review/DailyReviewHeader.tsx
+
+components/dashboard/daily-review/dailyReviewTypes.ts
+
+components/dashboard/daily-review/DailyReviewTradeDrawer.tsx
+
+components/dashboard/daily-review/trade-review/TradeReviewTab.tsx
+
+Existing placeholders:
+
+components/dashboard/daily-review/trade-review/TradeOverviewTab.tsx
+
+components/dashboard/daily-review/trade-review/TradeExecutionsTabs.tsx
+
+components/dashboard/daily-review/trade-review/TradeNotesTabs.tsx
+
+These three remain placeholders for now.
+
+===============================================================
+17. FILES THAT WERE ALSO PART OF EARLIER SAVED WORK
+===============================================================
+
+There was a broader Git checkpoint that also included:
+
+components/dashboard-v2/AccountCurrencyCard.tsx
+
+components/dashboard-v2/DashboardHeader.tsx
+
+components/dashboard/daily-review/DailyReviewInsights.tsx
+
+docs/notes.md
+
+docs/EliteSelect.md
+
+docs/DropDownmasternotes.md
+
+The deletion of:
+
+docs/DropDownmasternotes.md
+
+was intentionally staged/saved during that checkpoint.
+
+Do not restore it automatically.
+
+===============================================================
+18. NEXT SESSION — FIRST PRIORITY
+===============================================================
+
+Before doing additional UI work:
+
+1. Run:
+
+git status
+
+2. Confirm exactly which current Review-tab files are modified.
+
+3. If the Review tab work has not yet been checkpointed,
+create a dedicated Git commit.
+
+4. Run the build again if needed.
+
+---------------------------------------------------------------
+THEN CONTINUE REVIEW TAB
+---------------------------------------------------------------
+
+Next likely work:
+
+- Refine Review tab visual spacing against target screenshot
+- Verify all Review sections against screenshot
+- Refine quality-score presentation
+- Refine chip sizing / spacing
+- Refine Mistakes / Strengths expanded states
+- Refine action bar
+- Refine AI Trade Summary
+- Then determine the proper persistence model for Review data
+
+Do NOT start persistence by modifying Trade.ts.
+
+Do NOT mix Review journaling fields into canonical accounting fields.
+
+===============================================================
+19. REVIEW DATA ARCHITECTURE — FUTURE
+===============================================================
+
+The following should remain review-layer data:
+
+- Trade Context
+- Setup review
+- Entry Reason
+- Exit Reason
+- Psychology review
+- Mistakes
+- Strengths
+- Trade Quality Score
+- Plan Adherence score
+- Setup Quality score
+- Risk Management score
+- Execution score
+- Psychology score
+- Reviewed state
+- Review notes / narrative
+- AI-generated trade summary
+
+These should eventually be persisted separately from canonical
+Trade accounting data.
+
+The canonical Trade remains the source of truth for:
+
+- entry
+- exit
+- quantity
+- fees
+- P&L
+- timestamps
+- executions
+- account
+- lifecycle
+- position state
+
+===============================================================
+20. DO NOT DISTURB
+===============================================================
+
+Do not disturb the following accepted functionality:
+
+- Daily Review modal natural-height architecture
+- Existing 8px left/right panel gap
+- Trade Table long-list scrollbar
+- Existing 10px bottom spacer
+- Trade Drawer width 340px
+- Drawer collapse arrow
+- Drawer header geometry
+- Overview tab UI
+- Quantity unit mapping
+- Return % fallback
+- Canonical commission derivation
+- Account filter behavior
+- Trading Day / No Trading Day behavior
+- Outside-click account dropdown closing
+- Canonical Trade / execution architecture
+- FIFO / pairTrades
+- Broker synchronization
+- Existing dashboard accounting architecture
+
+===============================================================
+END OF CHECKPOINT
+===============================================================

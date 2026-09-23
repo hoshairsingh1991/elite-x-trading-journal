@@ -561,22 +561,32 @@ onSelectTrade={
           {/* ATTACHED TRADE REVIEW PANEL */}
           {/* ================================================= */}
 
-          {selectedTrade &&
-            !tradeDrawerCollapsed && (
-              <DailyReviewTradeDrawer
-                trade={
-                  selectedTrade
-                }
-                reportingCurrency={
-                  reportingCurrency
-                }
-                onClose={() =>
-                  setTradeDrawerCollapsed(
-                    true
-                  )
-                }
-              />
-            )}
+{selectedTrade &&
+  !tradeDrawerCollapsed && (
+    <div
+      className="
+        absolute
+        inset-y-0
+        right-0
+        w-[340px]
+        translate-x-[0px]
+      "
+    >
+      <DailyReviewTradeDrawer
+        trade={
+          selectedTrade
+        }
+        reportingCurrency={
+          reportingCurrency
+        }
+        onClose={() =>
+          setTradeDrawerCollapsed(
+            true
+          )
+        }
+      />
+    </div>
+  )}
 
         </div>
 
