@@ -62,24 +62,95 @@ export default function DailyReviewModal({
   onClose,
 }: DailyReviewModalProps) {
 
-  const [
-    editingTrade,
-    setEditingTrade,
-  ] = useState<Trade | null>(null);
+const [
+  editingTrade,
+  setEditingTrade,
+] = useState<Trade | null>(null);
+
+const [
+  selectedAccount,
+  setSelectedAccount,
+] = useState<string>("ALL");
+
+const accountOptions =
+  Array.from(
+    new Set(
+      allTrades
+        .map(
+          (trade) =>
+            trade.account?.trim()
+        )
+        .filter(
+          (
+            account
+          ): account is string =>
+            Boolean(account)
+        )
+    )
+  ).sort(
+    (
+      first,
+      second
+    ) =>
+      first.localeCompare(
+        second
+      )
+  );
+
+const filteredSelectedTrades =
+  selectedAccount === "ALL"
+    ? selectedTrades
+    : selectedTrades.filter(
+        (trade) =>
+          trade.account?.trim() ===
+          selectedAccount
+      );
 
 const [
   selectedTrade,
   setSelectedTrade,
 ] = useState<Trade | null>(
-  selectedTrades[0] ?? null
+  filteredSelectedTrades[0] ??
+    null
 );
 
 const [
   tradeDrawerCollapsed,
   setTradeDrawerCollapsed,
 ] = useState(
-  selectedTrades.length > 0
+  filteredSelectedTrades.length > 0
 );
+
+const handleAccountChange = (
+  account: string
+) => {
+
+  const nextSelectedTrades =
+    account === "ALL"
+      ? selectedTrades
+      : selectedTrades.filter(
+          (trade) =>
+            trade.account?.trim() ===
+            account
+        );
+
+  setSelectedAccount(
+    account
+  );
+
+  setEditingTrade(
+    null
+  );
+
+  setSelectedTrade(
+    nextSelectedTrades[0] ??
+      null
+  );
+
+  setTradeDrawerCollapsed(
+    nextSelectedTrades.length > 0
+  );
+};
 
 const handleSelectTrade = (
   trade: Trade
@@ -217,14 +288,25 @@ ${
                   {/* HEADER */}
                   {/* ================================================= */}
 
-                  <DailyReviewHeader
-                    selectedDay={selectedDay}
-                    currentMonth={currentMonth}
-                    monthName={monthName}
-                    currentYear={currentYear}
-                    selectedTrades={selectedTrades}
-                    onClose={onClose}
-                  />
+<DailyReviewHeader
+  selectedDay={selectedDay}
+  currentMonth={currentMonth}
+  monthName={monthName}
+  currentYear={currentYear}
+  selectedTrades={
+    filteredSelectedTrades
+  }
+  accountOptions={
+    accountOptions
+  }
+  selectedAccount={
+    selectedAccount
+  }
+  onAccountChange={
+    handleAccountChange
+  }
+  onClose={onClose}
+/>
 
 {/* ================================================= */}
 {/* SAFE ZONE */}
@@ -247,12 +329,14 @@ ${
                     {/* KPI ROW */}
                     {/* ================================================= */}
 
-                    <DailyReviewKpis
-                      selectedTrades={selectedTrades}
-                      reportingCurrency={
-                        reportingCurrency
-                      }
-                    />
+<DailyReviewKpis
+  selectedTrades={
+    filteredSelectedTrades
+  }
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
 
                     {/* ================================================= */}
                     {/* SPACER */}
@@ -286,23 +370,23 @@ ${
                       "
                     >
 
-                      <DailyReviewTradeActivity
-                        selectedTrades={
-                          selectedTrades
-                        }
-                        reportingCurrency={
-                          reportingCurrency
-                        }
-                      />
+<DailyReviewTradeActivity
+  selectedTrades={
+    filteredSelectedTrades
+  }
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
 
-                      <DailyReviewInsights
-                        selectedTrades={
-                          selectedTrades
-                        }
-                        reportingCurrency={
-                          reportingCurrency
-                        }
-                      />
+<DailyReviewInsights
+  selectedTrades={
+    filteredSelectedTrades
+  }
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
 
                     </div>
 
@@ -322,14 +406,14 @@ ${
                       spacer
                     </div>
 
-                    <DailyReviewSecondaryMetrics
-                      selectedTrades={
-                        selectedTrades
-                      }
-                      reportingCurrency={
-                        reportingCurrency
-                      }
-                    />
+<DailyReviewSecondaryMetrics
+  selectedTrades={
+    filteredSelectedTrades
+  }
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
 
                     {/* ================================================= */}
                     {/* SPACER */}
@@ -358,14 +442,14 @@ ${
                       "
                     >
 
-                      <DailyReviewBreakdown
-                        selectedTrades={
-                          selectedTrades
-                        }
-                        reportingCurrency={
-                          reportingCurrency
-                        }
-                      />
+<DailyReviewBreakdown
+  selectedTrades={
+    filteredSelectedTrades
+  }
+  reportingCurrency={
+    reportingCurrency
+  }
+/>
 
                     </div>
 
@@ -405,13 +489,13 @@ ${
                     {/* TRADE TABLE */}
                     {/* ================================================= */}
 
-                    <DailyReviewTradeTable
-                      selectedTrades={
-                        selectedTrades
-                      }
-                      allTrades={
-                        allTrades
-                      }
+<DailyReviewTradeTable
+  selectedTrades={
+    filteredSelectedTrades
+  }
+  allTrades={
+    allTrades
+  }
                       reportingCurrency={
                         reportingCurrency
                       }

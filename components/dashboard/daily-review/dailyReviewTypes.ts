@@ -30,6 +30,14 @@ export interface DailyReviewHeaderProps {
 
   selectedTrades: Trade[];
 
+  accountOptions: string[];
+
+  selectedAccount: string;
+
+  onAccountChange: (
+    account: string
+  ) => void;
+
   onClose: () => void;
 
 }
