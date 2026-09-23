@@ -251,6 +251,30 @@ export default function DailyReviewTradeDrawer({
       "OVERVIEW"
     );
 
+const assetType =
+  trade.assetType?.toUpperCase() ?? "";
+
+const ticker =
+  trade.ticker ?? "";
+
+const previewQuantityUnitMap: Record<string, string> = {
+  STOCKS: "Share",
+  OPTIONS: "Contract",
+  FUTURES: "Contract",
+};
+
+const previewUsesTickerUnit =
+  assetType === "CRYPTO" ||
+  assetType === "FOREX" ||
+  assetType === "CFD";
+
+const previewQuantityUnit =
+  previewUsesTickerUnit
+    ? ticker.trim().toUpperCase() || "Unit"
+    : previewQuantityUnitMap[
+        assetType
+      ] ?? "Unit";
+
 const pnl =
   Number(
     trade.pnl || 0
@@ -1012,22 +1036,20 @@ className={`
                     <div className="translate-y-[2px]">
 
                       <div className="text-[18px] font-medium text-white">
-                        {formatQuantity(
-                          trade.quantity
-                        )}{" "}
-                        {trade.assetType ===
-                        "OPTIONS"
-                          ? "Contract"
-                          : "Unit"}
-                        {Math.abs(
-                          Number(
-                            trade.quantity ||
-                            0
-                          )
-                        ) === 1
-                          ? ""
-                          : "s"}{" "}
-                        Open
+{formatQuantity(
+  trade.quantity
+)}{" "}
+{previewQuantityUnit}
+{!previewUsesTickerUnit &&
+Math.abs(
+  Number(
+    trade.quantity ||
+    0
+  )
+) !== 1
+  ? "s"
+  : ""}{" "}
+Open
                       </div>
 
                       <div className="mt-2 text-[13px] text-slate-400">
@@ -1045,25 +1067,23 @@ className={`
                   </>
                 ) : (
                   <>
-                    <div className="translate-y-[2px]">
+                    <div className="translate-y-[1px]">
 
                       <div className="text-[18px] font-medium text-white">
-                        {formatQuantity(
-                          trade.quantity
-                        )}{" "}
-                        {trade.assetType ===
-                        "OPTIONS"
-                          ? "Contract"
-                          : "Unit"}
-                        {Math.abs(
-                          Number(
-                            trade.quantity ||
-                            0
-                          )
-                        ) === 1
-                          ? ""
-                          : "s"}{" "}
-                        Closed
+{formatQuantity(
+  trade.quantity
+)}{" "}
+{previewQuantityUnit}
+{!previewUsesTickerUnit &&
+Math.abs(
+  Number(
+    trade.quantity ||
+    0
+  )
+) !== 1
+  ? "s"
+  : ""}{" "}
+Closed
                       </div>
 
                       <div className="mt-2 text-[13px] text-slate-400">
@@ -1141,22 +1161,20 @@ className={`
                     </div>
 
                     <div className="mt-2 text-[14px] font-medium text-white">
-                      {formatQuantity(
-                        trade.quantity
-                      )}{" "}
-                      {trade.assetType ===
-                      "OPTIONS"
-                        ? "Contract"
-                        : "Unit"}
-                      {Math.abs(
-                        Number(
-                          trade.quantity ||
-                          0
-                        )
-                      ) === 1
-                        ? ""
-                        : "s"}{" "}
-                      @ $
+{formatQuantity(
+  trade.quantity
+)}{" "}
+{previewQuantityUnit}
+{!previewUsesTickerUnit &&
+Math.abs(
+  Number(
+    trade.quantity ||
+    0
+  )
+) !== 1
+  ? "s"
+  : ""}{" "}
+@ $
                       {formatNumber(
                         trade.entryPrice
                       )}
@@ -1229,27 +1247,25 @@ className={`
                       </div>
 
                       <div className="mt-2 text-[14px] font-medium text-white">
-                        {formatQuantity(
-                          trade.quantity
-                        )}{" "}
-                        {trade.assetType ===
-                        "OPTIONS"
-                          ? "Contract"
-                          : "Unit"}
-                        {Math.abs(
-                          Number(
-                            trade.quantity ||
-                            0
-                          )
-                        ) === 1
-                          ? ""
-                          : "s"}{" "}
-                        {trade.exitPrice !=
-                        null
-                          ? ` @ $${formatNumber(
-                              trade.exitPrice
-                            )}`
-                          : ""}
+{formatQuantity(
+  trade.quantity
+)}{" "}
+{previewQuantityUnit}
+{!previewUsesTickerUnit &&
+Math.abs(
+  Number(
+    trade.quantity ||
+    0
+  )
+) !== 1
+  ? "s"
+  : ""}{" "}
+{trade.exitPrice !=
+null
+  ? ` @ $${formatNumber(
+      trade.exitPrice
+    )}`
+  : ""}
                       </div>
 
                       <div className="mt-1 text-[13px] text-slate-400">
