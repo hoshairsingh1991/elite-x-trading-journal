@@ -12,8 +12,6 @@ import {
   TrendingUp,
   Globe,
   Calendar,
-  Info,
-  ChevronDown,
 } from "lucide-react";
 
 import EliteSelect, {
@@ -24,17 +22,7 @@ import CurrencyFlag from "@/components/ui/CurrencyFlag";
 
 import { Trade } from "@/types/trade";
 
-import { BadgeInfo } from "lucide-react";
-
-import { CircleHelp } from "lucide-react";
-
-import { ShieldCheck } from "lucide-react";
-
 import { BookOpen } from "lucide-react";
-
-import { CircleAlert } from "lucide-react";
-
-import { Sparkles } from "lucide-react";
 
 import {
   getAccountCurrencyAnalytics,
@@ -548,10 +536,11 @@ backdrop-blur-xl
 
       {/* Commission */}
 
-      <div
+<div
   className="
     w-[100px]
-    shrink-0
+    min-w-0
+    shrink
     translate-x-6
     text-right
 
@@ -565,15 +554,16 @@ backdrop-blur-xl
 
       {/* % */}
 
-      <div
+<div
   className="
     ml-auto
     w-[140px]
-    shrink-0
+    min-w-0
+    shrink
     translate-x-2
     text-right
 
-    @max-[420px]:-translate-x-13
+    @max-[420px]:-translate-x-6
   "
 >
         <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500">
@@ -888,7 +878,7 @@ translate-x-4
 
           {/* Right */}
 
-          <div className="-translate-x-2 -translate-y-0.5 ">
+          <div className="-translate-x-0 -translate-y-0 ">
 
 <EliteSelect
   value={reportingCurrency}

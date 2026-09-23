@@ -111,47 +111,35 @@ export default function DashboardHeader({
     setSelectedAccount(event.target.value)
   }
   className="
-    h-[38px]
-    min-w-[132px]
-    appearance-none
+    h-[40px]
+    min-w-[130px]
     rounded-[8px]
     border
     border-white/[0.06]
-    bg-[#0b0c1e]
+    bg-[#0b1220]
+    px-4
     text-center
-    text-[14px]
+    text-[13px]
     font-semibold
     text-slate-300
     outline-none
     transition-all
-    duration-200
-    hover:border-white/20
-    hover:bg-white/[0.05]
+    focus:border-blue-500/40
   "
 >
-            {availableAccounts.map((account) => (
-              <option
-                key={account}
-                value={account}
-              >
-                {account === "ALL"
-                  ? "All Accounts"
-                  : account}
-              </option>
-            ))}
-          </select>
+  {availableAccounts.map((account) => (
+    <option
+      key={account}
+      value={account}
+    >
+      {account === "ALL"
+        ? "All Accounts"
+        : account}
+    </option>
+  ))}
+</select>
 
-          <ChevronDown
-            size={14}
-            className="
-              pointer-events-none
-              absolute
-              right-2
-              top-1/2
-              -translate-y-1/2
-              text-slate-500
-            "
-          />
+
         </div>
 
         {/* DATE RANGE */}

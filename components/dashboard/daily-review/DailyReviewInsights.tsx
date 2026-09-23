@@ -694,18 +694,20 @@ export default function DailyReviewInsights({
             Day Insights
           </h2>
 
-          <div
-            className="
-              mt-8
-              flex
-              items-center
-              gap-2
-              text-[11px]
-              text-slate-600
-            "
-          >
-            No trading activity is available for this day.
-          </div>
+<div
+  className="
+    mt-8
+    flex
+    translate-x-[10px]
+    translate-y-[4px]
+    items-center
+    gap-2
+    text-[11px]
+    text-slate-600
+  "
+>
+  No trading activity is available for this day.
+</div>
 
         </div>
 
