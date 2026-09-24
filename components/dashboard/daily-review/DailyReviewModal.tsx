@@ -566,6 +566,8 @@ onSelectTrade={
     <div
       className="
         absolute
+        top-0
+bottom-[18px]
         inset-y-0
         right-0
         w-[340px]

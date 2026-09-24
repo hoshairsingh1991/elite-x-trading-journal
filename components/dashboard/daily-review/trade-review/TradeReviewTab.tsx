@@ -136,35 +136,49 @@ function Chip({
   label,
   selected,
   onClick,
+  width = "w-full",
 }: {
   label: string;
   selected: boolean;
   onClick: () => void;
+  width?: string;
 }) {
+
+const isWideChip =
+  label === "Support / Resistance" ||
+  label === "Volume Confirmation";
+
+const isCompactLabel =
+  label === "Support / Resistance" ||
+  label === "Volume Confirmation";
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`
-        flex
-        min-h-[26px]
-        items-center
-        justify-center
-        rounded-[6px]
-        border
-        px-2
-        py-1
-        text-center
-        text-[10px]
-        font-medium
-        leading-tight
-        transition-all
-        ${
-          selected
-            ? "border-violet-400/80 bg-violet-500/15 text-violet-200 shadow-[inset_0_0_10px_rgba(139,92,246,0.10)]"
-            : "border-white/[0.06] bg-[#0b1220] text-slate-300 hover:border-white/[0.12] hover:bg-white/[0.025] hover:text-slate-200"
-        }
-      `}
+className={`
+  ${width}
+  ${isWideChip ? "w-[calc(100%+8px)]" : ""}
+  flex
+  min-h-[26px]
+  items-center
+  justify-center
+  rounded-[6px]
+  border
+  px-1
+  py-1
+  text-center
+  ${isCompactLabel ? "text-[9px]" : "text-[10px]"}
+  font-semibold
+  leading-[14px]
+  whitespace-nowrap
+  transition-all
+  ${
+    selected
+      ? "border-violet-400/40 bg-violet-500/[0.08] text-violet-200 shadow-[inset_0_0_8px_rgba(139,92,246,0.04)]"
+      : "border-white/[0.06] bg-[#0b1220] text-slate-300 hover:border-white/[0.12] hover:bg-white/[0.025] hover:text-slate-200"
+  }
+`}
     >
       {label}
     </button>
@@ -179,6 +193,9 @@ function ChoiceSection({
   selected,
   onSelect,
   columns = 3,
+  width = "w-full",
+  height = "h-auto",
+  chipWidth = "w-full",
 }: {
   number: string;
   title: string;
@@ -186,65 +203,79 @@ function ChoiceSection({
   options: ChipOption[];
   selected: string;
   onSelect: (value: string) => void;
+  chipWidth?: string;
   columns?: 2 | 3;
+  width?: string;
+  height?: string;
 }) {
+
+
   return (
-    <section
-      className="
-        rounded-[8px]
-        border
-        border-white/[0.06]
-        bg-[#0b1220]
-        p-2.5
-      "
-    >
-      <div
-        className="
-          text-[13px]
-          font-semibold
-          text-slate-200
-        "
-      >
-        {number}. {title}
-      </div>
 
-      <div
-        className="
-          mt-1
-          text-[10px]
-          text-slate-500
-        "
-      >
-        {question}
-      </div>
+<section
+  className={`
+    ${width}
+    ${height}
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-3.5
+    py-3
+  `}
+>
+<div
+  className="
+    translate-x-[8px]
+    translate-y-[4px]
+    text-[13px]
+    font-semibold
+    text-slate-200
+  "
+>
+  {number}. {title}
+</div>
 
-      <div
-        className={`
-          mt-2
-          grid
-          gap-1.5
-          ${
-            columns === 2
-              ? "grid-cols-2"
-              : "grid-cols-3"
-          }
-        `}
-      >
+<div
+  className="
+    mt-1
+    translate-x-[8px]
+    translate-y-[1px]
+    text-[11px]
+    text-slate-500
+  "
+>
+  {question}
+</div>
+
+<div
+  className={`
+    mt-2
+    w-[94%]
+    translate-x-[10px]
+    translate-y-[4px]
+    grid
+    gap-1.5
+    ${
+      columns === 2
+        ? "grid-cols-2"
+        : "grid-cols-3"
+    }
+  `}
+>
         {options.map(
           (option) => (
-            <Chip
-              key={option.label}
-              label={option.label}
-              selected={
-                selected ===
-                option.label
-              }
-              onClick={() =>
-                onSelect(
-                  option.label
-                )
-              }
-            />
+<Chip
+  key={option.label}
+  label={option.label}
+  selected={
+    selected === option.label
+  }
+  onClick={() =>
+    onSelect(option.label)
+  }
+  width={chipWidth}
+/>
           )
         )}
       </div>
@@ -260,6 +291,7 @@ function MultiSelectSection({
   open,
   onToggleOpen,
   onToggleOption,
+  height = "h-auto",
 }: {
   title: string;
   subtitle: string;
@@ -270,58 +302,62 @@ function MultiSelectSection({
   onToggleOption: (
     value: string
   ) => void;
+  height?: string;
 }) {
   return (
-    <section
-      className="
-        overflow-hidden
-        rounded-[8px]
-        border
-        border-white/[0.06]
-        bg-[#0b1220]
-      "
-    >
+<section
+  className={`
+    w-[100%]
+    ${open ? height : "h-[42px]"}
+    overflow-hidden
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-3.5
+    py-3
+  `}
+>
       <button
         type="button"
         onClick={onToggleOpen}
         className="
-          flex
+          relative
           w-full
-          items-center
-          justify-between
-          gap-2
-          px-2.5
-          py-2
           text-left
-          transition
-          hover:bg-white/[0.02]
+          outline-none
         "
       >
-        <span
+        <div
           className="
-            min-w-0
-            text-[11px]
-            font-medium
-            text-slate-300
+            translate-x-[8px]
+            translate-y-[4px]
+            text-[13px]
+            font-semibold
+            text-slate-200
           "
         >
           {title}
+        </div>
 
-          <span
-            className="
-              ml-2
-              text-[9px]
-              text-slate-500
-            "
-          >
-            ({subtitle})
-          </span>
-        </span>
+        <div
+          className="
+            mt-1
+            translate-x-[8px]
+            translate-y-[1px]
+            text-[11px]
+            text-slate-500
+          "
+        >
+          {subtitle}
+        </div>
 
         <ChevronDown
           size={13}
           className={`
-            shrink-0
+            absolute
+            right-[4px]
+            top-[6px]
             text-slate-500
             transition-transform
             ${
@@ -336,21 +372,21 @@ function MultiSelectSection({
       {open && (
         <div
           className="
+            mt-2
+            w-[94%]
+            translate-x-[10px]
+            translate-y-[6px]
             grid
             grid-cols-2
             gap-1.5
-            border-t
-            border-white/[0.06]
-            p-2.5
+            pb-2
           "
         >
           {options.map(
             (option) => (
               <Chip
                 key={option.label}
-                label={
-                  option.label
-                }
+                label={option.label}
                 selected={selected.includes(
                   option.label
                 )}
@@ -359,6 +395,7 @@ function MultiSelectSection({
                     option.label
                   )
                 }
+                width="w-[90%]"
               />
             )
           )}
@@ -376,46 +413,52 @@ function QualityScoreCard() {
   const score = 91;
 
   return (
-    <section
-      className="
-        rounded-[8px]
-        border
-        border-white/[0.06]
-        bg-[#0b1220]
-        p-3
-      "
-    >
-      <div
-        className="
-          text-[13px]
-          font-semibold
-          text-slate-200
-        "
-      >
-        Trade Quality Score
-      </div>
+<section
+  className="
+    h-[110px]
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-4
+    py-3.5
+  "
+>
+<div
+  className="
+    translate-x-[8px]
+    translate-y-[4px]
+    text-[13px]
+    font-semibold
+    text-slate-200
+  "
+>
+  Trade Quality Score
+</div>
 
-      <div
-        className="
-          mt-2
-          flex
-          items-center
-          gap-3
-        "
-      >
-        {/* GAUGE */}
+<div
+  className="
+    mt-3
+    flex
+    items-center
+    gap-4
+  "
+>
+{/* GAUGE */}
 
-        <div
-          className="
-            relative
-            flex
-            h-[94px]
-            w-[94px]
-            shrink-0
-            items-center
-            justify-center
-          "
-        >
+<div
+  className="
+    relative
+    flex
+    h-[72px]
+    w-[72px]
+    shrink-0
+    translate-x-[6px]
+    translate-y-[8px]
+    items-center
+    justify-center
+  "
+>
           <div
             className="
               absolute
@@ -442,7 +485,7 @@ function QualityScoreCard() {
           >
             <div
               className="
-                text-[30px]
+                text-[22px]
                 font-semibold
                 leading-none
                 text-emerald-400
@@ -454,7 +497,7 @@ function QualityScoreCard() {
             <div
               className="
                 mt-1
-                text-[10px]
+                text-[9px]
                 font-semibold
                 text-slate-100
               "
@@ -464,75 +507,80 @@ function QualityScoreCard() {
           </div>
         </div>
 
-        {/* SCORE BARS */}
+{/* SCORE BARS */}
 
+<div
+  className="
+    min-w-0
+    flex-1
+    translate-x-[0px]
+    translate-y-[10px]
+    pr-2
+  "
+>
+  <div className="flex flex-col gap-y-[2px]">
+    {scoreItems.map(
+      (item) => (
         <div
+          key={item.label}
           className="
-            min-w-0
-            flex-1
+            flex
+            items-center
+            gap-1
           "
         >
-          <div className="space-y-2">
-            {scoreItems.map(
-              (item) => (
-                <div
-                  key={item.label}
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                  "
-                >
-                  <span
-                    className="
-                      w-[72px]
-                      shrink-0
-                      text-[9px]
-                      text-slate-400
-                    "
-                  >
-                    {item.label}
-                  </span>
+<span
+  className="
+    w-[80px]
+    shrink-0
+    whitespace-nowrap
+    text-[9px]
+    font-semibold
+    text-slate-400
+  "
+>
+  {item.label}
+</span>
 
-                  <div
-                    className="
-                      h-[5px]
-                      min-w-0
-                      flex-1
-                      overflow-hidden
-                      rounded-full
-                      bg-white/[0.06]
-                    "
-                  >
-                    <div
-                      className="
-                        h-full
-                        rounded-full
-                        bg-emerald-400
-                      "
-                      style={{
-                        width: `${item.value}%`,
-                      }}
-                    />
-                  </div>
-
-                  <span
-                    className="
-                      w-[28px]
-                      shrink-0
-                      text-right
-                      text-[9px]
-                      font-medium
-                      text-slate-300
-                    "
-                  >
-                    {item.value}%
-                  </span>
-                </div>
-              )
-            )}
+<div
+  className="
+    h-[5px]
+    w-[clamp(90px,45%,105px)]
+    shrink-0
+    overflow-hidden
+    rounded-full
+    bg-white/[0.06]
+  "
+>
+            <div
+              className="
+                h-full
+                rounded-full
+                bg-emerald-400
+              "
+              style={{
+                width: `${item.value}%`,
+              }}
+            />
           </div>
+
+          <span
+            className="
+              w-[28px]
+              shrink-0
+              text-right
+              text-[9px]
+              font-semibold
+              text-slate-300
+            "
+          >
+            {item.value}%
+          </span>
         </div>
+      )
+    )}
+  </div>
+</div>
       </div>
     </section>
   );
@@ -630,14 +678,14 @@ export default function TradeReviewTab({
     );
   };
 
-  return (
-    <div
-      className="
-        flex
-        flex-col
-        gap-3
-      "
-    >
+return (
+  <div
+    className="
+      flex
+      flex-col
+      gap-3
+    "
+  >
       {/* ================================================= */}
       {/* QUALITY SCORE */}
       {/* ================================================= */}
@@ -648,194 +696,192 @@ export default function TradeReviewTab({
       {/* TRADE CONTEXT */}
       {/* ================================================= */}
 
-      <ChoiceSection
-        number="1"
-        title="Trade Context"
-        question="What was the overall market environment?"
-        options={
-          tradeContextOptions
-        }
-        selected={
-          tradeContext
-        }
-        onSelect={
-          setTradeContext
-        }
-        columns={3}
-      />
+<ChoiceSection
+  number="1"
+  title="Trade Context"
+  question="What was the overall market environment?"
+  options={tradeContextOptions}
+  selected={tradeContext}
+  onSelect={setTradeContext}
+  columns={3}
+  width="w-[100%]"
+  height="h-[105px]"
+  chipWidth="w-[90%]"
+/>
 
-      {/* ================================================= */}
-      {/* SETUP */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* SETUP */}
+{/* ================================================= */}
 
-      <ChoiceSection
-        number="2"
-        title="Setup"
-        question="What setup did you trade?"
-        options={
-          setupOptions
-        }
-        selected={setup}
-        onSelect={setSetup}
-        columns={3}
-      />
+<ChoiceSection
+  number="2"
+  title="Setup"
+  question="What setup did you trade?"
+  options={
+    setupOptions
+  }
+  selected={setup}
+  onSelect={setSetup}
+  columns={3}
+  width="w-[100%]"
+  height="h-[138px]"
+  
+/>
 
-      {/* ================================================= */}
-      {/* ENTRY REASON */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* ENTRY REASON */}
+{/* ================================================= */}
 
-      <ChoiceSection
-        number="3"
-        title="Entry Reason"
-        question="Why did you enter this trade?"
-        options={
-          entryReasonOptions
-        }
-        selected={
-          entryReason
-        }
-        onSelect={
-          setEntryReason
-        }
-        columns={3}
-      />
+<ChoiceSection
+  number="3"
+  title="Entry Reason"
+  question="Why did you enter this trade?"
+  options={
+    entryReasonOptions
+  }
+  selected={
+    entryReason
+  }
+  onSelect={
+    setEntryReason
+  }
+  columns={3}
+  width="w-[100%]"
+  height="h-[105px]"
+  
+/>
 
-      {/* ================================================= */}
-      {/* EXIT REASON */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* EXIT REASON */}
+{/* ================================================= */}
 
-      <ChoiceSection
-        number="4"
-        title="Exit Reason"
-        question="Why did you exit this trade?"
-        options={
-          exitReasonOptions
-        }
-        selected={
-          exitReason
-        }
-        onSelect={
-          setExitReason
-        }
-        columns={3}
-      />
+<ChoiceSection
+  number="4"
+  title="Exit Reason"
+  question="Why did you exit this trade?"
+  options={
+    exitReasonOptions
+  }
+  selected={
+    exitReason
+  }
+  onSelect={
+    setExitReason
+  }
+  columns={3}
+  width="w-[100%]"
+  height="h-[138px]"
+  
+/>
 
-      {/* ================================================= */}
-      {/* PSYCHOLOGY */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* PSYCHOLOGY */}
+{/* ================================================= */}
 
-      <section
-        className="
-          rounded-[8px]
-          border
-          border-white/[0.06]
-          bg-[#0b1220]
-          p-2.5
-        "
-      >
-        <div
-          className="
-            text-[13px]
-            font-semibold
-            text-slate-200
-          "
-        >
-          Psychology
-        </div>
+<section
+  className="
+    w-[100%]
+    h-[62px]
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-3.5
+    py-3
+  "
+>
+  <div
+    className="
+      translate-x-[8px]
+      translate-y-[4px]
+      text-[13px]
+      font-semibold
+      text-slate-200
+    "
+  >
+    Psychology
+  </div>
 
-        <div
-          className="
-            mt-2
-            grid
-            grid-cols-5
-            gap-1.5
-          "
-        >
-          {psychologyOptions.map(
-            (option) => (
-              <Chip
-                key={option.label}
-                label={
-                  option.label
-                }
-                selected={
-                  psychology ===
-                  option.label
-                }
-                onClick={() =>
-                  setPsychology(
-                    option.label
-                  )
-                }
-              />
+  <div
+    className="
+      mt-2
+      w-[96%]
+      translate-x-[8px]
+      translate-y-[8px]
+      grid
+      grid-cols-5
+      gap-1.5
+    "
+  >
+    {psychologyOptions.map(
+      (option) => (
+        <Chip
+          key={option.label}
+          label={option.label}
+          selected={
+            psychology ===
+            option.label
+          }
+          onClick={() =>
+            setPsychology(
+              option.label
             )
-          )}
-        </div>
-      </section>
+          }
+        />
+      )
+    )}
+  </div>
+</section>
 
       {/* ================================================= */}
       {/* MISTAKES */}
       {/* ================================================= */}
 
-      <MultiSelectSection
-        title="Mistakes"
-        subtitle="Select all that apply"
-        options={
-          mistakeOptions
-        }
-        selected={
-          selectedMistakes
-        }
-        open={
-          mistakesOpen
-        }
-        onToggleOpen={() =>
-          setMistakesOpen(
-            (open) => !open
-          )
-        }
-        onToggleOption={(
-          value
-        ) =>
-          toggleSelection(
-            selectedMistakes,
-            value,
-            setSelectedMistakes
-          )
-        }
-      />
+<MultiSelectSection
+  title="Mistakes"
+  subtitle="Select all that apply"
+  options={mistakeOptions}
+  selected={selectedMistakes}
+  open={mistakesOpen}
+  onToggleOpen={() =>
+    setMistakesOpen(
+      (open) => !open
+    )
+  }
+  onToggleOption={(value) =>
+    toggleSelection(
+      selectedMistakes,
+      value,
+      setSelectedMistakes
+    )
+  }
+  height="h-[176px]"
+/>
 
       {/* ================================================= */}
       {/* STRENGTHS */}
       {/* ================================================= */}
 
-      <MultiSelectSection
-        title="Strengths"
-        subtitle="Select all that apply"
-        options={
-          strengthOptions
-        }
-        selected={
-          selectedStrengths
-        }
-        open={
-          strengthsOpen
-        }
-        onToggleOpen={() =>
-          setStrengthsOpen(
-            (open) => !open
-          )
-        }
-        onToggleOption={(
-          value
-        ) =>
-          toggleSelection(
-            selectedStrengths,
-            value,
-            setSelectedStrengths
-          )
-        }
-      />
+<MultiSelectSection
+  title="Strengths"
+  subtitle="Select all that apply"
+  options={strengthOptions}
+  selected={selectedStrengths}
+  open={strengthsOpen}
+  onToggleOpen={() =>
+    setStrengthsOpen(
+      (open) => !open
+    )
+  }
+  onToggleOption={(value) =>
+    toggleSelection(
+      selectedStrengths,
+      value,
+      setSelectedStrengths
+    )
+  }
+  height="h-[144px]"
+/>
 
       {/* ================================================= */}
       {/* ACTION BAR */}
@@ -862,7 +908,7 @@ export default function TradeReviewTab({
             border-white/[0.06]
             bg-[#0b1220]
             text-[10px]
-            font-medium
+            font-semibold
             text-slate-300
             transition
             hover:border-white/[0.12]
@@ -876,32 +922,33 @@ export default function TradeReviewTab({
           Previous
         </button>
 
-        <button
-          type="button"
-          className="
-            flex
-            h-[32px]
-            flex-1
-            items-center
-            justify-center
-            gap-1
-            rounded-[7px]
-            border
-            border-white/[0.06]
-            bg-[#0b1220]
-            text-[10px]
-            font-medium
-            text-slate-300
-            transition
-            hover:border-white/[0.12]
-            hover:text-white
-          "
-        >
-          Next
-          <ChevronRight
-            size={12}
-          />
-        </button>
+<button
+  type="button"
+  className="
+    flex
+    h-[32px]
+    flex-1
+    items-center
+    justify-center
+    gap-1
+    rounded-[7px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+   text-[10px]
+font-semibold
+leading-tight
+text-slate-300
+    transition
+    hover:border-white/[0.12]
+    hover:text-white
+  "
+>
+  Next
+  <ChevronRight
+    size={12}
+  />
+</button>
 
         <button
           type="button"
@@ -915,9 +962,9 @@ export default function TradeReviewTab({
             rounded-[7px]
             bg-violet-500
             px-2
-            text-[10px]
-            font-semibold
-            text-white
+           text-[10px]
+font-semibold
+text-white
             shadow-[0_0_15px_rgba(139,92,246,0.18)]
             transition
             hover:bg-violet-400
@@ -973,16 +1020,20 @@ export default function TradeReviewTab({
 
       <section
         className="
+          w-[100%]
           rounded-[8px]
           border
           border-white/[0.06]
           bg-[#0b1220]
-          p-2.5
+          px-3.5
+          py-3
         "
       >
         <div
           className="
             flex
+            translate-x-[8px]
+            translate-y-[4px]
             items-center
             justify-between
             gap-2
@@ -1015,35 +1066,41 @@ export default function TradeReviewTab({
             </span>
           </div>
 
-          <button
-            type="button"
-            className="
-              flex
-              h-6
-              items-center
-              gap-1
-              rounded-[6px]
-              border
-              border-violet-500/20
-              bg-violet-500/10
-              px-2
-              text-[9px]
-              font-medium
-              text-violet-300
-              transition
-              hover:bg-violet-500/15
-            "
-          >
-            <Sparkles
-              size={10}
-            />
-            Generate
-          </button>
+<button
+  type="button"
+  className="
+    flex
+    h-6
+    w-[66px]
+    translate-x-[-14px]
+    translate-y-[4px]
+    items-center
+    justify-center
+    gap-1
+    rounded-[6px]
+    border
+    border-violet-500/20
+    bg-violet-500/10
+    px-2
+    text-[9px]
+    font-semibold
+    text-violet-300
+    transition
+    hover:bg-violet-500/15
+  "
+>
+  <Sparkles
+    size={10}
+  />
+  Generate
+</button>
         </div>
 
         <p
           className="
             mt-2
+            translate-x-[8px]
+            translate-y-[2px]
             text-[10px]
             leading-[15px]
             text-slate-500

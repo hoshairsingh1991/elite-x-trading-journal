@@ -488,7 +488,23 @@ const pnlPercent =
       {/* TRADE TABS */}
       {/* ================================================= */}
 
-      <div className="grid h-[30px] w-[calc(100%-30px)] shrink-0 translate-x-[14px] grid-cols-4 overflow-visible rounded-[8px] border border-white/[0.06] bg-[#07111d]">
+      <div
+  className="
+    relative
+    z-30
+    grid
+    h-[30px]
+    w-[calc(100%-30px)]
+    shrink-0
+    translate-x-[14px]
+    grid-cols-4
+    overflow-visible
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#07111d]
+  "
+>
 
         {/* OVERVIEW */}
 
@@ -618,28 +634,30 @@ className={`
       {/* Exact Add Trade Preview geometry */}
       {/* ================================================= */}
 
-      <div
-        className="
-          min-h-0
-          flex-1
-          overflow-y-auto
-          overflow-x-hidden
-          pb-5
-        "
-      >
+<div
+  className="
+    min-h-0
+    flex-1
+    overflow-y-auto
+    overflow-x-hidden
+  "
+>
 
 <div className="h-4 shrink-0" />
 
 {activeTab === "REVIEW" ? (
-  <div
-    className="
-      w-[calc(100%-30px)]
-      translate-x-[14px]
-    "
-  >
-    <TradeReviewTab
-      trade={trade}
-    />
+  <div className="flex justify-center">
+
+    <div
+      className="
+        w-[98%]
+      "
+    >
+      <TradeReviewTab
+        trade={trade}
+      />
+    </div>
+
   </div>
 ) : (
   <div
@@ -1337,11 +1355,23 @@ null
 
           </div>
 
-        </div>
-      )}
-
     </div>
+  )}
 
-  </aside>
+</div>
+
+{/* ================================================= */}
+{/* DRAWER BOTTOM FOOTER / FIXED GAP */}
+{/* Matches Daily Review bottom spacing */}
+{/* ================================================= */}
+
+<div
+  className="
+    h-[0px]
+    shrink-0
+  "
+/>
+
+</aside>
   );
 }

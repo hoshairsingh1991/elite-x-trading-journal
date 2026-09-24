@@ -505,6 +505,9 @@ git commit -m "Fix expired exit alignment"
 git commit -m "Update daily review trade quantity units"
 git commit -m "Make daily review account filter live"
 git commit -m "Update dashboard and daily review work"
+git commit -m "Checkpoint daily review trade review UI"
+git commit -m "Refine daily review trade review UI"
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
