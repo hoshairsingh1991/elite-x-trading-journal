@@ -56,10 +56,13 @@ const setupOptions: ChipOption[] = [
   { label: "Breakout" },
   { label: "Break & Retest" },
   { label: "Support / Resistance" },
+  { label: "Fib Retracement" },
   { label: "EMA Pullback" },
   { label: "VWAP Reclaim" },
   { label: "Opening Range" },
   { label: "Liquidity Sweep" },
+  { label: "Trend Continuation" },
+  { label: "Reversal" },
   { label: "Other" },
 ];
 
@@ -68,6 +71,11 @@ const entryReasonOptions: ChipOption[] = [
   { label: "Volume Confirmation" },
   { label: "Momentum" },
   { label: "Support / Resistance" },
+  { label: "Fib Confluence" },
+  { label: "EMA Confluence" },
+  { label: "VWAP Confirmation" },
+  { label: "Liquidity Confirmation" },
+  { label: "Market Structure" },
   { label: "Other" },
 ];
 
@@ -76,8 +84,10 @@ const exitReasonOptions: ChipOption[] = [
   { label: "Stop Loss" },
   { label: "Structure Break" },
   { label: "Trailing Stop" },
+  { label: "Momentum Loss" },
   { label: "Manual Exit" },
   { label: "End of Day" },
+  { label: "Risk Reduction" },
   { label: "Other" },
 ];
 
@@ -122,12 +132,16 @@ const psychologyOptions = [
 const mistakeOptions: ChipOption[] = [
   { label: "Overtrading" },
   { label: "FOMO Entry" },
+  { label: "Early Entry" },
   { label: "Early Exit" },
+  { label: "Late Entry" },
   { label: "Late Exit" },
   { label: "Oversized Position" },
   { label: "No Stop Loss" },
+  { label: "Moved Stop" },
   { label: "Plan Deviation" },
   { label: "Revenge Trading" },
+  { label: "Chased Price" },
 ];
 
 const strengthOptions: ChipOption[] = [
@@ -137,6 +151,8 @@ const strengthOptions: ChipOption[] = [
   { label: "Clean Execution" },
   { label: "Managed Trade Well" },
   { label: "Good Exit Discipline" },
+  { label: "Waited for Confirmation" },
+  { label: "Protected Profit" },
 ];
 
 const scoreItems: ScoreItem[] = [
@@ -185,7 +201,8 @@ function Chip({
 
 const isCompactLabel =
   label === "Support / Resistance" ||
-  label === "Volume Confirmation";
+  label === "Volume Confirmation" ||
+  label === "Liquidity Confirmation";
 
   const isOverconfident =
   label === "Overconfident";
@@ -758,7 +775,7 @@ return (
   onSelect={setTradeContext}
   columns={3}
   width="w-[100%]"
-  height="h-[105px]"
+  height="h-[108px]"
   chipWidth="w-[90%]"
 />
 
@@ -777,7 +794,7 @@ return (
   onSelect={setSetup}
   columns={3}
   width="w-[100%]"
-  height="h-[138px]"
+  height="h-[170px]"
   
 />
 
@@ -800,7 +817,7 @@ return (
   }
   columns={3}
   width="w-[100%]"
-  height="h-[105px]"
+  height="h-[170px]"
   
 />
 
@@ -910,7 +927,7 @@ return (
       setSelectedMistakes
     )
   }
-  height="h-[176px]"
+  height="h-[238px]"
 />
 
       {/* ================================================= */}
@@ -935,7 +952,7 @@ return (
       setSelectedStrengths
     )
   }
-  height="h-[144px]"
+  height="h-[174px]"
 />
 
       {/* ================================================= */}
