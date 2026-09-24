@@ -1,14 +1,15 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
+
 
 import {
   AlertTriangle,
   ChevronDown,
   ChevronRight,
-  CircleCheck,
   CircleHelp,
   Crown,
   Flame,
@@ -22,8 +23,19 @@ import {
 
 import { Trade } from "@/types/trade";
 
+import {
+  deleteTradeReview,
+  loadTradeReview,
+  saveTradeReview,
+} from "@/lib/storage/supabaseTradeReviewStorage";
+
 interface TradeReviewTabProps {
   trade: Trade;
+
+  onReviewStatusChange?: (
+    trade: Trade,
+    reviewed: boolean
+  ) => void;
 }
 
 // =====================================================
@@ -662,42 +674,33 @@ function QualityScoreCard() {
 
 export default function TradeReviewTab({
   trade,
+  onReviewStatusChange,
 }: TradeReviewTabProps) {
 
-  const [
-    tradeContext,
-    setTradeContext,
-  ] = useState(
-    "Trend Day"
-  );
+const [
+  tradeContext,
+  setTradeContext,
+] = useState("");
 
-  const [
-    setup,
-    setSetup,
-  ] = useState(
-    "Breakout"
-  );
+const [
+  setup,
+  setSetup,
+] = useState("");
 
-  const [
-    entryReason,
-    setEntryReason,
-  ] = useState(
-    "Break of Structure"
-  );
+const [
+  entryReason,
+  setEntryReason,
+] = useState("");
 
-  const [
-    exitReason,
-    setExitReason,
-  ] = useState(
-    "Target Hit"
-  );
+const [
+  exitReason,
+  setExitReason,
+] = useState("");
 
-  const [
-    psychology,
-    setPsychology,
-  ] = useState(
-    "Calm"
-  );
+const [
+  psychology,
+  setPsychology,
+] = useState("");
 
   const [
     selectedMistakes,
@@ -723,10 +726,41 @@ export default function TradeReviewTab({
     setStrengthsOpen,
   ] = useState(false);
 
+
+
   const [
-    markedReviewed,
-    setMarkedReviewed,
-  ] = useState(false);
+  reviewLoading,
+  setReviewLoading,
+] = useState(true);
+
+const [
+  reviewSaving,
+  setReviewSaving,
+] = useState(false);
+
+const [
+  reviewError,
+  setReviewError,
+] = useState<string | null>(
+  null
+);
+
+  const isClosedTrade =
+    !trade.isOpen &&
+    trade.status !== "OPEN";
+
+  const entryExecutionId =
+    trade.executions?.[0]?.id ?? null;
+
+  const exitExecutionId =
+    trade.executions?.[1]?.id ?? null;
+
+  const canReviewTrade =
+    isClosedTrade &&
+    Boolean(
+      entryExecutionId &&
+      exitExecutionId
+    );
 
   const toggleSelection = (
     current: string[],
@@ -748,7 +782,230 @@ export default function TradeReviewTab({
     );
   };
 
-return (
+  const toggleSingleSelection = (
+  current: string,
+  value: string,
+  setValue: (
+    next: string
+  ) => void
+) => {
+  setValue(
+    current === value
+      ? ""
+      : value
+  );
+};
+
+  useEffect(() => {
+
+    let cancelled = false;
+
+    async function hydrateReview() {
+
+      setReviewLoading(true);
+      setReviewError(null);
+
+      setTradeContext("");
+      setSetup("");
+      setEntryReason("");
+      setExitReason("");
+      setPsychology("");
+      setSelectedMistakes([]);
+setSelectedStrengths([]);
+
+      if (
+        !canReviewTrade ||
+        !entryExecutionId ||
+        !exitExecutionId
+      ) {
+
+        setReviewLoading(false);
+        return;
+      }
+
+      try {
+
+        const review =
+          await loadTradeReview(
+            entryExecutionId,
+            exitExecutionId
+          );
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!review) {
+          setReviewLoading(false);
+          return;
+        }
+
+        setTradeContext(
+          review.trade_context ?? ""
+        );
+
+        setSetup(
+          review.setup ?? ""
+        );
+
+        setEntryReason(
+          review.entry_reason ?? ""
+        );
+
+        setExitReason(
+          review.exit_reason ?? ""
+        );
+
+        setPsychology(
+          review.psychology ?? ""
+        );
+
+        setSelectedMistakes(
+          review.mistakes ?? []
+        );
+
+        setSelectedStrengths(
+          review.strengths ?? []
+        );
+
+
+      } catch (error) {
+
+        if (cancelled) {
+          return;
+        }
+
+        console.error(
+          "FAILED TO LOAD TRADE REVIEW:",
+          error
+        );
+
+        setReviewError(
+          "Failed to load trade review."
+        );
+
+      } finally {
+
+        if (!cancelled) {
+          setReviewLoading(false);
+        }
+
+      }
+
+    }
+
+    hydrateReview();
+
+    return () => {
+      cancelled = true;
+    };
+
+  }, [
+    trade.id,
+    entryExecutionId,
+    exitExecutionId,
+    canReviewTrade,
+  ]);
+
+async function handleSaveReview() {
+
+  if (
+    !canReviewTrade ||
+    !entryExecutionId ||
+    !exitExecutionId
+  ) {
+
+    setReviewError(
+      "Only closed trades with entry and exit executions can be reviewed."
+    );
+
+    return;
+  }
+
+  try {
+
+    setReviewSaving(true);
+    setReviewError(null);
+
+    const hasReviewContent =
+      Boolean(
+        tradeContext.trim() ||
+        setup.trim() ||
+        entryReason.trim() ||
+        exitReason.trim() ||
+        psychology.trim() ||
+        selectedMistakes.length > 0 ||
+        selectedStrengths.length > 0
+      );
+
+if (!hasReviewContent) {
+
+  await deleteTradeReview(
+    entryExecutionId,
+    exitExecutionId
+  );
+
+
+
+  onReviewStatusChange?.(
+    trade,
+    false
+  );
+
+  return;
+}
+
+await saveTradeReview({
+  entryExecutionId,
+  exitExecutionId,
+
+  tradeContext:
+    tradeContext || null,
+
+  setup:
+    setup || null,
+
+  entryReason:
+    entryReason || null,
+
+  exitReason:
+    exitReason || null,
+
+  psychology:
+    psychology || null,
+
+  mistakes:
+    selectedMistakes,
+
+  strengths:
+    selectedStrengths,
+});
+
+
+onReviewStatusChange?.(
+  trade,
+  true
+);
+
+  } catch (error) {
+
+    console.error(
+      "FAILED TO SAVE TRADE REVIEW:",
+      error
+    );
+
+    setReviewError(
+      "Failed to save trade review."
+    );
+
+  } finally {
+
+    setReviewSaving(false);
+  }
+}
+
+
+  return (
   <div
     className="
       flex
@@ -771,8 +1028,14 @@ return (
   title="Trade Context"
   question="What was the overall market environment?"
   options={tradeContextOptions}
-  selected={tradeContext}
-  onSelect={setTradeContext}
+selected={tradeContext}
+onSelect={(value) =>
+  toggleSingleSelection(
+    tradeContext,
+    value,
+    setTradeContext
+  )
+}
   columns={3}
   width="w-[100%]"
   height="h-[108px]"
@@ -790,8 +1053,14 @@ return (
   options={
     setupOptions
   }
-  selected={setup}
-  onSelect={setSetup}
+selected={setup}
+onSelect={(value) =>
+  toggleSingleSelection(
+    setup,
+    value,
+    setSetup
+  )
+}
   columns={3}
   width="w-[100%]"
   height="h-[170px]"
@@ -809,12 +1078,16 @@ return (
   options={
     entryReasonOptions
   }
-  selected={
-    entryReason
-  }
-  onSelect={
+selected={
+  entryReason
+}
+onSelect={(value) =>
+  toggleSingleSelection(
+    entryReason,
+    value,
     setEntryReason
-  }
+  )
+}
   columns={3}
   width="w-[100%]"
   height="h-[170px]"
@@ -832,12 +1105,16 @@ return (
   options={
     exitReasonOptions
   }
-  selected={
-    exitReason
-  }
-  onSelect={
+selected={
+  exitReason
+}
+onSelect={(value) =>
+  toggleSingleSelection(
+    exitReason,
+    value,
     setExitReason
-  }
+  )
+}
   columns={3}
   width="w-[100%]"
   height="h-[138px]"
@@ -888,15 +1165,17 @@ return (
     <Chip
       key={option.label}
       label={option.label}
-      selected={
-        psychology ===
-        option.label
-      }
-      onClick={() =>
-        setPsychology(
-          option.label
-        )
-      }
+selected={
+  psychology ===
+  option.label
+}
+onClick={() =>
+  toggleSingleSelection(
+    psychology,
+    option.label,
+    setPsychology
+  )
+}
       icon={option.icon}
       iconClassName={option.iconClassName}
     />
@@ -1022,66 +1301,44 @@ text-slate-300
   />
 </button>
 
-        <button
-          type="button"
-          className="
-            flex
-            h-[32px]
-            flex-1
-            items-center
-            justify-center
-            gap-1
-            rounded-[7px]
-            bg-violet-500
-            px-2
-           text-[10px]
-font-semibold
-text-white
-            shadow-[0_0_15px_rgba(139,92,246,0.18)]
-            transition
-            hover:bg-violet-400
-          "
-        >
-          <Save
-            size={12}
-          />
-          Save Review
-        </button>
+<button
+  type="button"
+  onClick={handleSaveReview}
+  disabled={
+    reviewLoading ||
+    reviewSaving ||
+    !canReviewTrade
+  }
+  className={`
+    flex
+    h-[32px]
+    flex-1
+    items-center
+    justify-center
+    gap-1
+    rounded-[7px]
+    px-2
+    text-[10px]
+    font-semibold
+    transition
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+    ${
+      reviewSaving
+        ? "bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.18)] hover:bg-violet-400"
+        : "border border-white/[0.06] bg-[#0b1220] text-slate-300 hover:border-white/[0.12] hover:text-white"
+    }
+  `}
+>
+  <Save
+    size={12}
+  />
+  {reviewSaving
+    ? "Saving..."
+    : "Save Review"}
+</button>
 
-        <button
-          type="button"
-          onClick={() =>
-            setMarkedReviewed(
-              (value) =>
-                !value
-            )
-          }
-          className="
-            flex
-            h-[32px]
-            w-[32px]
-            shrink-0
-            items-center
-            justify-center
-            rounded-[7px]
-            border
-            border-white/[0.06]
-            bg-[#0b1220]
-            transition
-            hover:border-white/[0.12]
-          "
-          aria-label="Mark as reviewed"
-          title="Mark as reviewed"
-        >
-          <CircleCheck
-            size={13}
-            className={
-              markedReviewed
-                ? "text-violet-400"
-                : "text-slate-500"
-            }
-          />
-        </button>
+
 
 
       </div>

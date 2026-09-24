@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -9,6 +10,11 @@ import {
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
+
+import {
+  getTradeReviewKey,
+  loadTradeReviewKeys,
+} from "@/lib/storage/supabaseTradeReviewStorage";
 
 import EditTradeModal
   from "@/components/trades/EditTradeModal";
@@ -121,6 +127,100 @@ const [
   filteredSelectedTrades.length > 0
 );
 
+const [
+  reviewedTradeKeys,
+  setReviewedTradeKeys,
+] = useState<Set<string>>(
+  new Set()
+);
+
+useEffect(() => {
+
+  let cancelled = false;
+
+  async function loadReviewedTradeKeys() {
+
+    setReviewedTradeKeys(
+      new Set()
+    );
+
+    const reviewPairs =
+      (
+        selectedAccount === "ALL"
+          ? selectedTrades
+          : selectedTrades.filter(
+              (trade) =>
+                trade.account?.trim() ===
+                selectedAccount
+            )
+      )
+        .filter(
+          (trade) =>
+            !trade.isOpen &&
+            trade.status !== "OPEN" &&
+            Boolean(
+              trade.executions?.[0]?.id &&
+              trade.executions?.[1]?.id
+            )
+        )
+        .map(
+          (trade) => ({
+            entryExecutionId:
+              trade.executions![0].id,
+
+            exitExecutionId:
+              trade.executions![1].id,
+          })
+        );
+
+    if (
+      reviewPairs.length === 0
+    ) {
+      return;
+    }
+
+    try {
+
+      const keys =
+        await loadTradeReviewKeys(
+          reviewPairs
+        );
+
+      if (!cancelled) {
+
+        setReviewedTradeKeys(
+          keys
+        );
+      }
+
+    } catch (error) {
+
+      console.error(
+        "FAILED TO LOAD DAILY REVIEW STATUS:",
+        error
+      );
+
+      if (!cancelled) {
+
+        setReviewedTradeKeys(
+          new Set()
+        );
+      }
+    }
+  }
+
+  loadReviewedTradeKeys();
+
+  return () => {
+
+    cancelled = true;
+  };
+
+}, [
+  selectedAccount,
+  selectedTrades,
+]);
+
 const handleAccountChange = (
   account: string
 ) => {
@@ -162,6 +262,53 @@ const handleSelectTrade = (
 
   setTradeDrawerCollapsed(
     false
+  );
+};
+
+const handleReviewStatusChange = (
+  trade: Trade,
+  reviewed: boolean
+) => {
+
+  const entryExecutionId =
+    trade.executions?.[0]?.id;
+
+  const exitExecutionId =
+    trade.executions?.[1]?.id;
+
+  if (
+    !entryExecutionId ||
+    !exitExecutionId
+  ) {
+    return;
+  }
+
+  const reviewKey =
+    getTradeReviewKey(
+      entryExecutionId,
+      exitExecutionId
+    );
+
+  setReviewedTradeKeys(
+    (currentKeys) => {
+
+      const nextKeys =
+        new Set(
+          currentKeys
+        );
+
+      if (reviewed) {
+        nextKeys.add(
+          reviewKey
+        );
+      } else {
+        nextKeys.delete(
+          reviewKey
+        );
+      }
+
+      return nextKeys;
+    }
   );
 };
 
@@ -496,16 +643,19 @@ ${
   allTrades={
     allTrades
   }
-                      reportingCurrency={
-                        reportingCurrency
-                      }
-onSelectTrade={
-  handleSelectTrade
-}
-                      onEditTrade={
-                        handleEditTrade
-                      }
-                    />
+  reportingCurrency={
+    reportingCurrency
+  }
+  reviewedTradeKeys={
+    reviewedTradeKeys
+  }
+  onSelectTrade={
+    handleSelectTrade
+  }
+  onEditTrade={
+    handleEditTrade
+  }
+/>
 
                     {/* ================================================= */}
                     {/* BOTTOM SPACER */}
@@ -574,19 +724,22 @@ bottom-[18px]
         translate-x-[0px]
       "
     >
-      <DailyReviewTradeDrawer
-        trade={
-          selectedTrade
-        }
-        reportingCurrency={
-          reportingCurrency
-        }
-        onClose={() =>
-          setTradeDrawerCollapsed(
-            true
-          )
-        }
-      />
+<DailyReviewTradeDrawer
+  trade={
+    selectedTrade
+  }
+  reportingCurrency={
+    reportingCurrency
+  }
+  onClose={() =>
+    setTradeDrawerCollapsed(
+      true
+    )
+  }
+  onReviewStatusChange={
+    handleReviewStatusChange
+  }
+/>
     </div>
   )}
 

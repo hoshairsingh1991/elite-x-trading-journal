@@ -13,11 +13,17 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import {
+  getTradeReviewKey,
+} from "@/lib/storage/supabaseTradeReviewStorage";
+
 
 interface DailyReviewTradeTableProps {
   selectedTrades: Trade[];
   allTrades: Trade[];
   reportingCurrency: string;
+
+  reviewedTradeKeys: Set<string>;
 
   onSelectTrade: (
     trade: Trade
@@ -202,6 +208,7 @@ export default function DailyReviewTradeTable({
   selectedTrades,
   allTrades,
   reportingCurrency,
+  reviewedTradeKeys,
   onSelectTrade,
   onEditTrade,
 }: DailyReviewTradeTableProps) {
@@ -646,6 +653,28 @@ translate-x-1
                     )
                   );
 
+const entryExecutionId =
+  trade.executions?.[0]?.id;
+
+const exitExecutionId =
+  trade.executions?.[1]?.id;
+
+const reviewKey =
+  entryExecutionId &&
+  exitExecutionId
+    ? getTradeReviewKey(
+        entryExecutionId,
+        exitExecutionId
+      )
+    : null;
+
+const isReviewed =
+  reviewKey
+    ? reviewedTradeKeys.has(
+        reviewKey
+      )
+    : false;
+
                 return (
 <tr
   key={
@@ -988,28 +1017,51 @@ className="
 </span>
                     </td>
 
-                    {/* REVIEWED */}
+{/* REVIEWED */}
 
-                    <td
-                      className="
-                        px-1
-                        text-center
-                      "
-                    >
-                      <span
-                        className="
-                          inline-flex
-                          h-[13px]
-                          w-[13px]
-                          items-center
-                          justify-center
-                          rounded-[4px]
-                          border
-                          border-white/[0.14]
-                        "
-                        aria-label="Not reviewed"
-                      />
-                    </td>
+<td
+  className="
+    px-1
+    text-center
+  "
+>
+  {isReviewed ? (
+    <span
+      className="
+        inline-flex
+        h-[13px]
+        w-[13px]
+        items-center
+        justify-center
+        rounded-[4px]
+        border
+        border-violet-400/30
+        bg-violet-500/[0.10]
+        text-[9px]
+        font-bold
+        leading-none
+        text-violet-300
+      "
+      aria-label="Reviewed"
+    >
+      ✓
+    </span>
+  ) : (
+    <span
+      className="
+        inline-flex
+        h-[13px]
+        w-[13px]
+        items-center
+        justify-center
+        rounded-[4px]
+        border
+        border-white/[0.14]
+      "
+      aria-label="Not reviewed"
+    />
+  )}
+</td>
 
                   </tr>
                 );

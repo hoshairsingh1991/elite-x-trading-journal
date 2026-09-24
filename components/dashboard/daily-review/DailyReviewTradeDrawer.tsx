@@ -21,6 +21,11 @@ interface DailyReviewTradeDrawerProps {
   trade: Trade;
   reportingCurrency: string;
   onClose: () => void;
+
+  onReviewStatusChange?: (
+    trade: Trade,
+    reviewed: boolean
+  ) => void;
 }
 
 // =====================================================
@@ -237,6 +242,7 @@ export default function DailyReviewTradeDrawer({
   trade,
   reportingCurrency,
   onClose,
+  onReviewStatusChange,
 }: DailyReviewTradeDrawerProps) {
 
   const currencySymbol =
@@ -653,9 +659,12 @@ className={`
         w-[98%]
       "
     >
-      <TradeReviewTab
-        trade={trade}
-      />
+<TradeReviewTab
+  trade={trade}
+  onReviewStatusChange={
+    onReviewStatusChange
+  }
+/>
     </div>
 
   </div>
