@@ -5,15 +5,19 @@ import {
 } from "react";
 
 import {
+  AlertTriangle,
   ChevronDown,
   ChevronRight,
   CircleCheck,
+  CircleHelp,
+  Crown,
   Flame,
   HeartPulse,
   Save,
   Sparkles,
   Target,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
@@ -77,12 +81,42 @@ const exitReasonOptions: ChipOption[] = [
   { label: "Other" },
 ];
 
-const psychologyOptions: ChipOption[] = [
-  { label: "Calm" },
-  { label: "Confident" },
-  { label: "Hesitant" },
-  { label: "FOMO" },
-  { label: "Revenge" },
+const psychologyOptions = [
+  {
+    label: "Calm",
+    icon: HeartPulse,
+    iconClassName: "text-emerald-400",
+  },
+  {
+    label: "Confident",
+    icon: Target,
+    iconClassName: "text-amber-400",
+  },
+  {
+    label: "Hesitant",
+    icon: CircleHelp,
+    iconClassName: "text-sky-400",
+  },
+  {
+    label: "Anxious",
+    icon: AlertTriangle,
+    iconClassName: "text-yellow-400",
+  },
+  {
+    label: "FOMO",
+    icon: Flame,
+    iconClassName: "text-red-400",
+  },
+  {
+    label: "Revenge",
+    icon: Zap,
+    iconClassName: "text-orange-300",
+  },
+  {
+    label: "Overconfident",
+    icon: Crown,
+    iconClassName: "text-violet-400",
+  },
 ];
 
 const mistakeOptions: ChipOption[] = [
@@ -137,28 +171,35 @@ function Chip({
   selected,
   onClick,
   width = "w-full",
+  icon: Icon,
+  iconClassName,
 }: {
   label: string;
   selected: boolean;
   onClick: () => void;
   width?: string;
+  icon?: LucideIcon;
+  iconClassName?: string;
 }) {
 
-const isWideChip =
-  label === "Support / Resistance" ||
-  label === "Volume Confirmation";
 
 const isCompactLabel =
   label === "Support / Resistance" ||
   label === "Volume Confirmation";
+
+  const isOverconfident =
+  label === "Overconfident";
 
   return (
     <button
       type="button"
       onClick={onClick}
 className={`
-  ${width}
-  ${isWideChip ? "w-[calc(100%+8px)]" : ""}
+  ${
+    isOverconfident
+      ? "w-[calc(100%+20px)]"
+      : width
+  }
   flex
   min-h-[26px]
   items-center
@@ -169,6 +210,7 @@ className={`
   py-1
   text-center
   ${isCompactLabel ? "text-[9px]" : "text-[10px]"}
+  ${Icon ? "gap-1" : ""}
   font-semibold
   leading-[14px]
   whitespace-nowrap
@@ -180,7 +222,17 @@ className={`
   }
 `}
     >
-      {label}
+{Icon && (
+  <Icon
+    size={11}
+    strokeWidth={1.8}
+    className={`shrink-0 ${iconClassName ?? ""}`}
+  />
+)}
+
+<span>
+  {label}
+</span>
     </button>
   );
 }
@@ -242,6 +294,7 @@ function ChoiceSection({
     translate-x-[8px]
     translate-y-[1px]
     text-[11px]
+    font-semibold
     text-slate-500
   "
 >
@@ -781,7 +834,7 @@ return (
 <section
   className="
     w-[100%]
-    h-[62px]
+    h-[94px]
     rounded-[8px]
     border
     border-white/[0.06]
@@ -809,27 +862,29 @@ return (
       translate-x-[8px]
       translate-y-[8px]
       grid
-      grid-cols-5
+      grid-cols-4
       gap-1.5
     "
   >
-    {psychologyOptions.map(
-      (option) => (
-        <Chip
-          key={option.label}
-          label={option.label}
-          selected={
-            psychology ===
-            option.label
-          }
-          onClick={() =>
-            setPsychology(
-              option.label
-            )
-          }
-        />
-      )
-    )}
+{psychologyOptions.map(
+  (option) => (
+    <Chip
+      key={option.label}
+      label={option.label}
+      selected={
+        psychology ===
+        option.label
+      }
+      onClick={() =>
+        setPsychology(
+          option.label
+        )
+      }
+      icon={option.icon}
+      iconClassName={option.iconClassName}
+    />
+  )
+)}
   </div>
 </section>
 

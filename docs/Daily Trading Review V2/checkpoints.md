@@ -2657,3 +2657,817 @@ Do not disturb the following accepted functionality:
 ===============================================================
 END OF CHECKPOINT
 ===============================================================
+
+
+
+
+
+
+
+
+
+
+# ============================================================
+# ELITE X — DAILY TRADING REVIEW V2
+# CHECKPOINT NOTES
+# ============================================================
+# Date: 2026-09-24
+# Area: Trade Review Drawer / Review Tab UI
+# ============================================================
+
+
+# ============================================================
+# 1. CURRENT STATUS
+# ============================================================
+
+Daily Review Trade Review tab UI refinement is complete for the
+current visual pass.
+
+The work in this checkpoint is UI-only.
+
+No canonical Trade, execution, FIFO, pairTrades(), reconciliation,
+or canonical P&L logic was changed.
+
+The Review tab remains a behavioral journaling / review layer.
+
+
+# ============================================================
+# 2. PRIMARY FILES UPDATED
+# ============================================================
+
+components/dashboard/daily-review/DailyReviewTradeDrawer.tsx
+
+components/dashboard/daily-review/trade-review/TradeReviewTab.tsx
+
+
+# ============================================================
+# 3. TRADE REVIEW DRAWER — TAB BAR / SCROLLING
+# ============================================================
+
+Problem fixed:
+
+The Review tab bar was visually disappearing when the Trade Review
+drawer content was scrolled.
+
+Root cause:
+
+The tab bar was outside the scroll container, but the scrolling
+content could visually paint over it.
+
+Fix:
+
+The Trade Tabs container was given relative positioning and z-index.
+
+Current Trade Tabs wrapper includes:
+
+relative
+z-30
+
+The overall structure remains:
+
+Drawer Header
+    ↓
+Trade Tabs
+    ↓
+Scrollable Drawer Content
+
+The scroll container itself was not restructured.
+
+No nested-scroll architecture was introduced.
+
+
+# ============================================================
+# 4. TRADE REVIEW TAB — QUALITY SCORE CARD
+# ============================================================
+
+Quality Score card was resized and visually tuned.
+
+Current outer card:
+
+h-[110px]
+
+Card styling:
+
+rounded-[8px]
+border border-white/[0.06]
+bg-[#0b1220]
+px-4
+py-3.5
+
+Title positioning:
+
+translate-x-[8px]
+translate-y-[4px]
+
+Title:
+
+Trade Quality Score
+
+Gauge:
+
+h-[72px]
+w-[72px]
+
+Gauge positioning:
+
+translate-x-[6px]
+translate-y-[8px]
+
+Grade:
+
+A
+
+Grade font:
+
+text-[22px]
+font-semibold
+
+Score:
+
+91 / 100
+
+Score font:
+
+text-[9px]
+font-semibold
+
+
+# ============================================================
+# 5. QUALITY SCORE — SCORE BARS
+# ============================================================
+
+Score bar labels were compacted.
+
+Current label width:
+
+w-[80px]
+
+Label typography:
+
+text-[9px]
+font-semibold
+whitespace-nowrap
+
+Bar:
+
+h-[5px]
+
+Bar width:
+
+w-[clamp(90px,45%,105px)]
+
+Percentage:
+
+w-[28px]
+
+Percentage typography:
+
+text-[9px]
+font-semibold
+
+
+# ============================================================
+# 6. CHOICE SECTION — COMMON CARD SYSTEM
+# ============================================================
+
+Trade Context, Setup, Entry Reason, and Exit Reason use the shared
+ChoiceSection component.
+
+ChoiceSection supports:
+
+width
+height
+chipWidth
+
+Current outer card structure:
+
+${width}
+${height}
+
+rounded-[8px]
+border border-white/[0.06]
+bg-[#0b1220]
+px-3.5
+py-3
+
+
+# ============================================================
+# 7. CHOICE SECTION — HEADING / QUESTION / OPTIONS POSITIONING
+# ============================================================
+
+Heading position:
+
+translate-x-[8px]
+translate-y-[4px]
+
+Question position:
+
+translate-x-[8px]
+translate-y-[1px]
+
+Options grid:
+
+w-[94%]
+translate-x-[10px]
+translate-y-[4px]
+
+Grid gap:
+
+gap-1.5
+
+
+# ============================================================
+# 8. CHOICE SECTION — CURRENT CARD HEIGHTS
+# ============================================================
+
+Trade Context:
+
+width="w-[100%]"
+height="h-[105px]"
+
+Setup:
+
+width="w-[100%]"
+height="h-[138px]"
+
+Entry Reason:
+
+width="w-[100%]"
+height="h-[105px]"
+
+Exit Reason:
+
+width="w-[100%]"
+height="h-[138px]"
+
+
+Reason:
+
+Cards with two chip rows use 105px.
+
+Cards with three chip rows use 138px.
+
+
+# ============================================================
+# 9. TRADE CONTEXT — CHIP WIDTH
+# ============================================================
+
+Trade Context currently uses:
+
+chipWidth="w-[90%]"
+
+This controls the individual option background rectangles
+inside the Trade Context card.
+
+
+# ============================================================
+# 10. CHIP COMPONENT — CURRENT DESIGN
+# ============================================================
+
+Chip is now a reusable component supporting:
+
+label
+selected
+onClick
+width
+icon
+iconClassName
+
+Current general chip height:
+
+min-h-[26px]
+
+Current chip padding:
+
+px-1
+py-1
+
+Current typography:
+
+text-[10px]
+font-semibold
+leading-[14px]
+whitespace-nowrap
+
+Selected state:
+
+border-violet-400/40
+bg-violet-500/[0.08]
+text-violet-200
+shadow-[inset_0_0_8px_rgba(139,92,246,0.04)]
+
+Unselected state:
+
+border-white/[0.06]
+bg-[#0b1220]
+text-slate-300
+
+Hover:
+
+border-white/[0.12]
+bg-white/[0.025]
+text-slate-200
+
+
+# ============================================================
+# 11. SPECIAL COMPACT LABELS
+# ============================================================
+
+Two longer labels use smaller typography:
+
+Support / Resistance
+Volume Confirmation
+
+Current compact-label rule:
+
+const isCompactLabel =
+  label === "Support / Resistance" ||
+  label === "Volume Confirmation";
+
+Compact labels use:
+
+text-[9px]
+
+All other chip labels use:
+
+text-[10px]
+
+
+# ============================================================
+# 12. OVERCONFIDENT CHIP WIDTH
+# ============================================================
+
+Overconfident needed additional horizontal space.
+
+Current special rule:
+
+const isOverconfident =
+  label === "Overconfident";
+
+Width logic:
+
+isOverconfident
+  ? "w-[calc(100%+20px)]"
+  : width
+
+This is currently used only for Overconfident.
+
+Important cleanup:
+
+The previous isWideChip logic is now obsolete because
+Support / Resistance and Volume Confirmation are handled by
+smaller typography instead of wider cards.
+
+The dead isWideChip declaration should be removed before the next
+checkpoint / cleanup pass.
+
+
+# ============================================================
+# 13. PSYCHOLOGY SECTION
+# ============================================================
+
+Psychology was upgraded from plain text-only chips to icon-supported
+chips.
+
+Current psychology options:
+
+Calm
+Confident
+Hesitant
+Anxious
+FOMO
+Revenge
+Overconfident
+
+
+# ============================================================
+# 14. PSYCHOLOGY — ICONS
+# ============================================================
+
+Current icon mapping:
+
+Calm
+  HeartPulse
+  text-emerald-400
+
+Confident
+  Target
+  text-amber-400
+
+Hesitant
+  CircleHelp
+  text-sky-400
+
+Anxious
+  AlertTriangle
+  text-yellow-400
+
+FOMO
+  Flame
+  text-red-400
+
+Revenge
+  Zap
+  text-orange-300
+
+Overconfident
+  Crown
+  text-violet-400
+
+
+# ============================================================
+# 15. PSYCHOLOGY — GRID
+# ============================================================
+
+Psychology changed from five columns to four columns.
+
+Current:
+
+grid-cols-4
+
+This intentionally produces:
+
+Row 1:
+Calm
+Confident
+Hesitant
+Anxious
+
+Row 2:
+FOMO
+Revenge
+Overconfident
+
+This reduced congestion compared with five columns.
+
+
+# ============================================================
+# 16. PSYCHOLOGY — CARD HEIGHT
+# ============================================================
+
+Current Psychology card:
+
+w-[100%]
+h-[94px]
+
+Card styling:
+
+rounded-[8px]
+border border-white/[0.06]
+bg-[#0b1220]
+px-3.5
+py-3
+
+
+# ============================================================
+# 17. PSYCHOLOGY — INTERNAL POSITIONING
+# ============================================================
+
+Psychology heading:
+
+translate-x-[8px]
+translate-y-[4px]
+
+Psychology chip grid:
+
+w-[96%]
+translate-x-[8px]
+translate-y-[8px]
+
+Grid:
+
+grid-cols-4
+gap-1.5
+
+
+# ============================================================
+# 18. CHIP ICON SUPPORT
+# ============================================================
+
+Chip now accepts:
+
+icon?: LucideIcon
+iconClassName?: string
+
+Lucide icons are rendered conditionally.
+
+Current icon rendering:
+
+{Icon && (
+  <Icon
+    size={11}
+    strokeWidth={1.8}
+    className={`shrink-0 ${iconClassName ?? ""}`}
+  />
+)}
+
+Icons use:
+
+size={11}
+strokeWidth={1.8}
+
+Chip uses conditional icon spacing:
+
+${Icon ? "gap-1" : ""}
+
+
+# ============================================================
+# 19. MISTAKES / STRENGTHS
+# ============================================================
+
+Mistakes and Strengths remain collapsible / accordion-style cards.
+
+This was intentionally preserved instead of converting them into
+permanently expanded cards.
+
+Reason:
+
+Both are multi-select sections with many options.
+
+Keeping them collapsed prevents excessive drawer height.
+
+They visually follow the same card system as the other Review
+sections while retaining collapse/expand behavior.
+
+
+# ============================================================
+# 20. MULTI-SELECT CARD HEIGHTS
+# ============================================================
+
+MultiSelectSection supports a custom height prop.
+
+Collapsed height:
+
+h-[42px]
+
+Open height is controlled by:
+
+${open ? height : "h-[42px]"}
+
+
+Mistakes:
+
+height="h-[176px]"
+
+Strengths:
+
+height="h-[144px]"
+
+
+This allows each multi-select card to have its own expanded height.
+
+
+# ============================================================
+# 21. MULTI-SELECT INTERNAL ALIGNMENT
+# ============================================================
+
+Heading:
+
+translate-x-[8px]
+translate-y-[4px]
+
+Subtitle:
+
+translate-x-[8px]
+translate-y-[1px]
+
+Dropdown icon:
+
+right-[4px]
+top-[6px]
+
+Expanded options:
+
+w-[94%]
+translate-x-[10px]
+translate-y-[6px]
+
+
+# ============================================================
+# 22. ACTION BAR
+# ============================================================
+
+Action buttons remain intentionally compact.
+
+Current button height:
+
+h-[32px]
+
+Buttons:
+
+Previous
+Next
+Save Review
+
+Review status control:
+
+32px × 32px
+
+The earlier idea of using h-9 / 36px was rejected because it made
+the action bar too large.
+
+Current action-bar typography was aligned toward:
+
+text-[10px]
+font-semibold
+
+Next also contains:
+
+leading-tight
+
+
+# ============================================================
+# 23. AI TRADE SUMMARY
+# ============================================================
+
+AI Trade Summary card was aligned to the same visual system as the
+other cards.
+
+Current card:
+
+w-[100%]
+rounded-[8px]
+border border-white/[0.06]
+bg-[#0b1220]
+px-3.5
+py-3
+
+Header positioning:
+
+translate-x-[8px]
+translate-y-[4px]
+
+Description positioning:
+
+translate-x-[8px]
+translate-y-[2px]
+
+
+# ============================================================
+# 24. AI GENERATE BUTTON
+# ============================================================
+
+Generate button currently uses:
+
+h-6
+w-[66px]
+
+Position:
+
+translate-x-[-14px]
+translate-y-[4px]
+
+Typography:
+
+text-[9px]
+font-semibold
+
+Button remains compact with subtle violet styling.
+
+
+# ============================================================
+# 25. CURRENT OVERALL UI PRINCIPLES
+# ============================================================
+
+The current Review UI now follows a consistent system:
+
+Card background:
+#0b1220
+
+Drawer background:
+#07111d
+
+Border:
+border-white/[0.06]
+
+Radius:
+rounded-[8px]
+
+Primary heading:
+text-[13px]
+font-semibold
+text-slate-200
+
+Secondary question/subtitle:
+text-[11px]
+text-slate-500
+
+Selectable chip:
+text-[10px]
+font-semibold
+
+Selected chip:
+subtle violet
+
+Selected state is intentionally restrained and premium rather than
+high-saturation purple.
+
+
+# ============================================================
+# 26. IMPORTANT IMPLEMENTATION NOTES
+# ============================================================
+
+Do not modify canonical Trade accounting.
+
+Do not modify:
+
+executions
+pairTrades()
+FIFO logic
+reconciliation
+canonical P&L
+broker synchronization
+
+Trade Review is still a review / journaling UI layer.
+
+Current selection state is component-local via useState.
+
+No persistence layer has been implemented yet for:
+
+Trade Context
+Setup
+Entry Reason
+Exit Reason
+Psychology
+Mistakes
+Strengths
+Review status
+Quality Score
+AI Summary
+
+Those should remain separate from canonical Trade accounting when
+persistence is implemented.
+
+
+# ============================================================
+# 27. CURRENT CLEANUP BEFORE NEXT DEVELOPMENT STEP
+# ============================================================
+
+One small cleanup remains:
+
+Remove the unused:
+
+const isWideChip = ...
+
+from Chip.
+
+Current active helper logic should remain:
+
+const isCompactLabel =
+  label === "Support / Resistance" ||
+  label === "Volume Confirmation";
+
+const isOverconfident =
+  label === "Overconfident";
+
+
+# ============================================================
+# 28. CURRENT APPROVED UI STATE
+# ============================================================
+
+Approved:
+
+- Trade Quality Score card
+- 72px gauge
+- 110px Quality Score card
+- Responsive score bar width
+- Compact score labels
+- ChoiceSection card geometry
+- Individual ChoiceSection heights
+- Premium subtle violet selected chips
+- Psychology icons
+- Individual Psychology icon colors
+- 4-column Psychology layout
+- Seven Psychology states
+- Collapsible Mistakes
+- Collapsible Strengths
+- Custom expanded heights for Mistakes / Strengths
+- Compact 32px Review action buttons
+- AI Trade Summary card
+- Fixed/z-indexed Trade Tabs
+- Drawer scroll behavior
+
+
+# ============================================================
+# 29. NEXT DEVELOPMENT AREA
+# ============================================================
+
+UI visual pass is considered complete for the current Review tab.
+
+Next step should move from visual refinement into the next planned
+Review functionality / architecture work.
+
+Before making code changes:
+
+1. Read the current file version.
+2. Make one targeted change at a time.
+3. Preserve the current approved UI geometry unless explicitly
+   changing that UI.
+4. Do not introduce review fields into canonical Trade merely to
+   support persistence.
+5. Keep Review data isolated from accounting data.
+
+
+# ============================================================
+# END CHECKPOINT
+# ============================================================
