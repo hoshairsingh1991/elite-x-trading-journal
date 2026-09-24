@@ -26,6 +26,12 @@ interface DailyReviewTradeDrawerProps {
     trade: Trade,
     reviewed: boolean
   ) => void;
+
+  onPreviousTrade?: () => void;
+  onNextTrade?: () => void;
+
+  canGoPrevious?: boolean;
+  canGoNext?: boolean;
 }
 
 // =====================================================
@@ -243,6 +249,10 @@ export default function DailyReviewTradeDrawer({
   reportingCurrency,
   onClose,
   onReviewStatusChange,
+  onPreviousTrade,
+  onNextTrade,
+  canGoPrevious,
+  canGoNext,
 }: DailyReviewTradeDrawerProps) {
 
   const currencySymbol =
@@ -663,6 +673,18 @@ className={`
   trade={trade}
   onReviewStatusChange={
     onReviewStatusChange
+  }
+  onPreviousTrade={
+    onPreviousTrade
+  }
+  onNextTrade={
+    onNextTrade
+  }
+  canGoPrevious={
+    canGoPrevious
+  }
+  canGoNext={
+    canGoNext
   }
 />
     </div>

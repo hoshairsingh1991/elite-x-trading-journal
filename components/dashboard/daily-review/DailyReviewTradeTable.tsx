@@ -25,6 +25,8 @@ interface DailyReviewTradeTableProps {
 
   reviewedTradeKeys: Set<string>;
 
+  selectedTradeId: string | null;
+
   onSelectTrade: (
     trade: Trade
   ) => void;
@@ -209,6 +211,7 @@ export default function DailyReviewTradeTable({
   allTrades,
   reportingCurrency,
   reviewedTradeKeys,
+  selectedTradeId,
   onSelectTrade,
   onEditTrade,
 }: DailyReviewTradeTableProps) {
@@ -675,6 +678,10 @@ const isReviewed =
       )
     : false;
 
+const isSelected =
+  selectedTradeId ===
+  trade.id;
+
                 return (
 <tr
   key={
@@ -694,14 +701,18 @@ const isReviewed =
       )
     )
   }
-  className="
+  className={`
     h-[42px]
     cursor-pointer
     border-b
     border-white/[0.045]
     transition-colors
-    hover:bg-white/[0.018]
-  "
+${
+  isSelected
+    ? "bg-violet-500/[0.035] shadow-[inset_0_1px_0_rgba(139,92,246,0.22),inset_0_-1px_0_rgba(139,92,246,0.22)]"
+    : "hover:bg-white/[0.018]"
+}
+  `}
 >
 
                     {/* INDEX */}

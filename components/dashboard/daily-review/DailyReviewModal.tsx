@@ -265,6 +265,61 @@ const handleSelectTrade = (
   );
 };
 
+const selectedTradeIndex =
+  selectedTrade
+    ? filteredSelectedTrades.findIndex(
+        (trade) =>
+          trade.id ===
+          selectedTrade.id
+      )
+    : -1;
+
+const canGoPrevious =
+  selectedTradeIndex > 0;
+
+const canGoNext =
+  selectedTradeIndex >= 0 &&
+  selectedTradeIndex <
+    filteredSelectedTrades.length - 1;
+
+const handlePreviousTrade = () => {
+
+  if (
+    !canGoPrevious
+  ) {
+    return;
+  }
+
+  setSelectedTrade(
+    filteredSelectedTrades[
+      selectedTradeIndex - 1
+    ]
+  );
+
+  setTradeDrawerCollapsed(
+    false
+  );
+};
+
+const handleNextTrade = () => {
+
+  if (
+    !canGoNext
+  ) {
+    return;
+  }
+
+  setSelectedTrade(
+    filteredSelectedTrades[
+      selectedTradeIndex + 1
+    ]
+  );
+
+  setTradeDrawerCollapsed(
+    false
+  );
+};
+
 const handleReviewStatusChange = (
   trade: Trade,
   reviewed: boolean
@@ -649,6 +704,10 @@ ${
   reviewedTradeKeys={
     reviewedTradeKeys
   }
+    selectedTradeId={
+    selectedTrade?.id ??
+    null
+  }
   onSelectTrade={
     handleSelectTrade
   }
@@ -738,6 +797,18 @@ bottom-[18px]
   }
   onReviewStatusChange={
     handleReviewStatusChange
+  }
+  onPreviousTrade={
+    handlePreviousTrade
+  }
+  onNextTrade={
+    handleNextTrade
+  }
+  canGoPrevious={
+    canGoPrevious
+  }
+  canGoNext={
+    canGoNext
   }
 />
     </div>

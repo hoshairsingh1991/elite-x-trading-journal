@@ -36,6 +36,12 @@ interface TradeReviewTabProps {
     trade: Trade,
     reviewed: boolean
   ) => void;
+
+  onPreviousTrade?: () => void;
+  onNextTrade?: () => void;
+
+  canGoPrevious?: boolean;
+  canGoNext?: boolean;
 }
 
 // =====================================================
@@ -320,7 +326,7 @@ function ChoiceSection({
 <div
   className="
     mt-1
-    translate-x-[8px]
+    translate-x-[20px]
     translate-y-[1px]
     text-[11px]
     font-semibold
@@ -675,6 +681,10 @@ function QualityScoreCard() {
 export default function TradeReviewTab({
   trade,
   onReviewStatusChange,
+  onPreviousTrade,
+  onNextTrade,
+  canGoPrevious,
+  canGoNext,
 }: TradeReviewTabProps) {
 
 const [
@@ -1245,12 +1255,18 @@ onClick={() =>
           gap-1.5
         "
       >
-        <button
-          type="button"
-          className="
-            flex
-            h-[32px]
-            flex-1
+<button
+  type="button"
+  onClick={
+    onPreviousTrade
+  }
+  disabled={
+    !canGoPrevious
+  }
+  className="
+    flex
+    h-[32px]
+    flex-1
             items-center
             justify-center
             gap-1
@@ -1261,7 +1277,9 @@ onClick={() =>
             text-[10px]
             font-semibold
             text-slate-300
-            transition
+                transition
+    disabled:cursor-not-allowed
+    disabled:opacity-40
             hover:border-white/[0.12]
             hover:text-white
           "
@@ -1275,6 +1293,12 @@ onClick={() =>
 
 <button
   type="button"
+  onClick={
+    onNextTrade
+  }
+  disabled={
+    !canGoNext
+  }
   className="
     flex
     h-[32px]
@@ -1291,6 +1315,8 @@ font-semibold
 leading-tight
 text-slate-300
     transition
+        disabled:cursor-not-allowed
+    disabled:opacity-40
     hover:border-white/[0.12]
     hover:text-white
   "
