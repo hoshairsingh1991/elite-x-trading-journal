@@ -273,6 +273,15 @@ export default function DailyReviewTradeDrawer({
 const assetType =
   trade.assetType?.toUpperCase() ?? "";
 
+const instrumentSideLabel =
+  assetType === "OPTIONS"
+    ? trade.contractKey?.endsWith("_C")
+      ? "CALL"
+      : trade.contractKey?.endsWith("_P")
+        ? "PUT"
+        : "OPTION"
+    : trade.side;
+
 const ticker =
   trade.ticker ?? "";
 
@@ -834,21 +843,21 @@ className={`
                   {trade.status}
                 </span>
 
-                <span
-                  className="
-                    flex
-                    h-6
-                    w-[110px]
-                    items-center
-                    justify-center
-                    rounded-[6px]
-                    bg-white/[0.04]
-                    text-[11px]
-                    text-slate-300
-                  "
-                >
-                  {trade.side}
-                </span>
+<span
+  className="
+    flex
+    h-6
+    w-[110px]
+    items-center
+    justify-center
+    rounded-[6px]
+    bg-white/[0.04]
+    text-[11px]
+    text-slate-300
+  "
+>
+  {instrumentSideLabel}
+</span>
 
               </div>
 
@@ -1053,26 +1062,31 @@ valueClassName={
 
                   <div className="translate-y-[4px]">
 
-                    <PreviewRow
-                      label="Return"
-                      value={
-                        pnlPercent !=
-                        null
-                          ? `${
-                              pnlPercent >
-                              0
-                                ? "+"
-                                : ""
-                            }${pnlPercent.toFixed(2)}%`
-                          : "—"
-                      }
-                      positive={
-                        pnlPercent !=
-                          null &&
-                        pnlPercent > 0
-                      }
-                      labelClassName="translate-x-[10px]"
-                    />
+<PreviewRow
+  label="Return"
+  value={
+    pnlPercent != null
+      ? `${
+          pnlPercent > 0
+            ? "+"
+            : pnlPercent < 0
+              ? "-"
+              : ""
+        }${Math.abs(pnlPercent).toFixed(2)}%`
+      : "—"
+  }
+  positive={
+    pnlPercent != null &&
+    pnlPercent > 0
+  }
+  valueClassName={
+    pnlPercent != null &&
+    pnlPercent < 0
+      ? "!text-red-400"
+      : ""
+  }
+  labelClassName="translate-x-[10px]"
+/>
 
                   </div>
 
