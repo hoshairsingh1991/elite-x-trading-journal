@@ -2,9 +2,9 @@
 ---------------------------------------------------------------------
 Project location
 
-cd "/Volumes/Gallery/EliteX Trading Journal/elite-x-trading-journal"
+cd "/Volumes/Storage Drive/EliteX Trading Journal/elite-x-trading-journal"
 
-cd "/Volumes/Gallery/EliteX Trading Journal/elite-x-trading-journal"
+cd "/Volumes/Storage Drive/EliteX Trading Journal/elite-x-trading-journal"
 npm run dev
 
 
@@ -511,7 +511,7 @@ git commit -m "Complete daily review trade review UI pass"
 git commit -m "Expand daily review trade options"
 git commit -m "Complete daily review persistence flow"
 git commit -m "Complete daily review system"
-
+git commit -m "Fix trade review drawer financial values"
 
 
 

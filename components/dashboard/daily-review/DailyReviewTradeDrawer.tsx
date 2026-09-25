@@ -883,15 +883,17 @@ className={`
                           : "text-white"
                     }`}
                   >
-                    {isPositive
-                      ? "+"
-                      : ""}
-                    {currencySymbol}
-                    {Math.abs(
-                      pnl
-                    ).toFixed(
-                      2
-                    )}
+{pnl > 0
+  ? "+"
+  : pnl < 0
+    ? "-"
+    : ""}
+{currencySymbol}
+{Math.abs(
+  pnl
+).toFixed(
+  2
+)}
                   </div>
 
                 </div>
@@ -972,16 +974,17 @@ className={`
                   <PreviewRow
                     label="Entry Value"
                     value={`${currencySymbol}${(
-                      Number(
-                        trade.entryPrice ||
-                        0
-                      ) *
-                      Math.abs(
-                        Number(
-                          trade.quantity ||
-                          0
-                        )
-                      )
+Number(
+  trade.entryPrice ||
+  0
+) *
+Math.abs(
+  Number(
+    trade.quantity ||
+    0
+  )
+) *
+(assetType === "OPTIONS" ? 100 : 1)
                     ).toFixed(2)}`}
                     valueClassName="translate-x-[-10px]"
                   />
@@ -994,15 +997,16 @@ className={`
                         trade.exitPrice !=
                         null
                           ? `${currencySymbol}${(
-                              Number(
-                                trade.exitPrice
-                              ) *
-                              Math.abs(
-                                Number(
-                                  trade.quantity ||
-                                  0
-                                )
-                              )
+Number(
+  trade.exitPrice
+) *
+Math.abs(
+  Number(
+    trade.quantity ||
+    0
+  )
+) *
+(assetType === "OPTIONS" ? 100 : 1)
                             ).toFixed(2)}`
                           : "—"
                       }
@@ -1027,19 +1031,25 @@ className={`
 
                 <div className="pl-4">
 
-                  <PreviewRow
-                    label="Gross P&L"
-                    value={`${
-                      grossPnL > 0
-                        ? "+"
-                        : ""
-                    }${currencySymbol}${Math.abs(
-                      grossPnL
-                    ).toFixed(2)}`}
-                    positive={grossPnL > 0}
-                    valueClassName=""
-                    labelClassName="translate-x-[10px]"
-                  />
+<PreviewRow
+  label="Gross P&L"
+  value={`${
+    grossPnL > 0
+      ? "+"
+      : grossPnL < 0
+        ? "-"
+        : ""
+  }${currencySymbol}${Math.abs(
+    grossPnL
+  ).toFixed(2)}`}
+  positive={grossPnL > 0}
+valueClassName={
+  grossPnL < 0
+    ? "!text-red-400"
+    : ""
+}
+  labelClassName="translate-x-[10px]"
+/>
 
                   <div className="translate-y-[4px]">
 
@@ -1116,12 +1126,12 @@ Math.abs(
 Open
                       </div>
 
-                      <div className="mt-2 text-[13px] text-slate-400">
-                        $
-                        {formatNumber(
-                          trade.entryPrice
-                        )}
-                      </div>
+<div className="mt-2 text-[13px] text-slate-400">
+  {currencySymbol}
+  {formatNumber(
+    trade.entryPrice
+  )}
+</div>
 
                       <div className="mt-2 text-[12px] text-slate-500">
                         Position remains open
@@ -1150,19 +1160,19 @@ Math.abs(
 Closed
                       </div>
 
-                      <div className="mt-2 text-[13px] text-slate-400">
-                        $
-                        {formatNumber(
-                          trade.entryPrice
-                        )}{" "}
-                        →{" "}
-                        {trade.exitPrice !=
-                        null
-                          ? `$${formatNumber(
-                              trade.exitPrice
-                            )}`
-                          : "—"}
-                      </div>
+<div className="mt-2 text-[13px] text-slate-400">
+  {currencySymbol}
+  {formatNumber(
+    trade.entryPrice
+  )}{" "}
+  →{" "}
+  {trade.exitPrice !=
+  null
+    ? `${currencySymbol}${formatNumber(
+        trade.exitPrice
+      )}`
+    : "—"}
+</div>
 
                       <div className="mt-2 text-[12px] text-slate-500">
                         Fully Closed
