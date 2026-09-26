@@ -15,7 +15,6 @@ import {
 
 import StarterKit from "@tiptap/starter-kit";
 
-import UnderlineExtension from "@tiptap/extension-underline";
 
 import TextAlign from "@tiptap/extension-text-align";
 
@@ -104,7 +103,6 @@ export default function TiptapEditor({
 
 extensions: [
   StarterKit,
-  UnderlineExtension,
   TextStyle,
   FontSizeExtension,
   Color,

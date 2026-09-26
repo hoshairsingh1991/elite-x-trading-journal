@@ -24,6 +24,8 @@ export interface TradeReview {
 
   psychology: string | null;
 
+   trade_management: string | null;
+
   mistakes: string[];
 
   strengths: string[];
@@ -56,6 +58,8 @@ export interface SaveTradeReviewInput {
   exitReason: string | null;
 
   psychology: string | null;
+
+  tradeManagement: string | null;
 
   mistakes: string[];
 
@@ -310,29 +314,15 @@ export async function saveTradeReview(
           exit_execution_id:
             input.exitExecutionId,
 
-          trade_context:
-            input.tradeContext ?? null,
-
-          setup:
-            input.setup ?? null,
-
-          entry_reason:
-            input.entryReason ?? null,
-
-          exit_reason:
-            input.exitReason ?? null,
-
-          psychology:
-            input.psychology ?? null,
-
-          mistakes:
-            input.mistakes ?? [],
-
-          strengths:
-            input.strengths ?? [],
-
-          updated_at:
-            new Date().toISOString(),
+      trade_context: input.tradeContext ?? null,
+      setup: input.setup ?? null,
+      entry_reason: input.entryReason ?? null,
+      exit_reason: input.exitReason ?? null,
+      psychology: input.psychology ?? null,
+      trade_management: input.tradeManagement ?? null,
+      mistakes: input.mistakes ?? [],
+      strengths: input.strengths ?? [],
+      updated_at: new Date().toISOString(),
         },
         {
           onConflict:

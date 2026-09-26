@@ -88,6 +88,7 @@ const entryReasonOptions: ChipOption[] = [
   { label: "Break of Structure" },
   { label: "Volume Confirmation" },
   { label: "Momentum" },
+  { label: "FOMO" },
   { label: "Support / Resistance" },
   { label: "Fib Confluence" },
   { label: "EMA Confluence" },
@@ -109,6 +110,17 @@ const exitReasonOptions: ChipOption[] = [
   { label: "Other" },
 ];
 
+const tradeManagementOptions: ChipOption[] = [
+  { label: "Held to Plan" },
+  { label: "Scaled Out" },
+  { label: "Added to Position" },
+  { label: "Reduced Risk" },
+  { label: "Moved Stop" },
+  { label: "Cut Trade Early" },
+  { label: "Let Winner Run" },
+  { label: "Other" },
+];
+
 const psychologyOptions = [
   {
     label: "Calm",
@@ -124,6 +136,11 @@ const psychologyOptions = [
     label: "Hesitant",
     icon: CircleHelp,
     iconClassName: "text-sky-400",
+  },
+  {
+    label: "Impatient",
+    icon: Zap,
+    iconClassName: "text-orange-300",
   },
   {
     label: "Anxious",
@@ -712,6 +729,11 @@ const [
   setPsychology,
 ] = useState("");
 
+const [
+  tradeManagement,
+  setTradeManagement,
+] = useState("");
+
   const [
     selectedMistakes,
     setSelectedMistakes,
@@ -820,8 +842,9 @@ const [
       setEntryReason("");
       setExitReason("");
       setPsychology("");
+      setTradeManagement("");
       setSelectedMistakes([]);
-setSelectedStrengths([]);
+      setSelectedStrengths([]);
 
       if (
         !canReviewTrade ||
@@ -868,6 +891,10 @@ setSelectedStrengths([]);
 
         setPsychology(
           review.psychology ?? ""
+        );
+
+        setTradeManagement(
+          review.trade_management ?? ""
         );
 
         setSelectedMistakes(
@@ -944,6 +971,7 @@ async function handleSaveReview() {
         entryReason.trim() ||
         exitReason.trim() ||
         psychology.trim() ||
+        tradeManagement.trim() ||
         selectedMistakes.length > 0 ||
         selectedStrengths.length > 0
       );
@@ -983,6 +1011,9 @@ await saveTradeReview({
 
   psychology:
     psychology || null,
+
+  tradeManagement:
+    tradeManagement || null,
 
   mistakes:
     selectedMistakes,
@@ -1132,13 +1163,40 @@ onSelect={(value) =>
 />
 
 {/* ================================================= */}
+{/* TRADE MANAGEMENT */}
+{/* ================================================= */}
+
+<ChoiceSection
+  number="5"
+  title="Trade Management"
+  question="How did you manage this position?"
+  options={
+    tradeManagementOptions
+  }
+selected={
+  tradeManagement
+}
+onSelect={(value) =>
+  toggleSingleSelection(
+    tradeManagement,
+    value,
+    setTradeManagement
+  )
+}
+  columns={3}
+  width="w-[100%]"
+  height="h-[138px]"
+  
+/>
+
+{/* ================================================= */}
 {/* PSYCHOLOGY */}
 {/* ================================================= */}
 
 <section
   className="
     w-[100%]
-    h-[94px]
+    h-[126px]
     rounded-[8px]
     border
     border-white/[0.06]
@@ -1166,7 +1224,7 @@ onSelect={(value) =>
       translate-x-[8px]
       translate-y-[8px]
       grid
-      grid-cols-4
+      grid-cols-3
       gap-1.5
     "
   >
