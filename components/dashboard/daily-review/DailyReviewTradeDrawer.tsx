@@ -6,6 +6,7 @@ import {
 
 import {
   PanelRightOpen,
+  Sparkle,
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
@@ -260,15 +261,15 @@ export default function DailyReviewTradeDrawer({
       reportingCurrency
     );
 
-  const [activeTab, setActiveTab] =
-    useState<
-      "OVERVIEW" |
-      "REVIEW" |
-      "EXECUTIONS" |
-      "NOTES"
-    >(
-      "OVERVIEW"
-    );
+const [activeTab, setActiveTab] =
+  useState<
+    "OVERVIEW" |
+    "REVIEW" |
+    "INTELLIGENCE" |
+    "NOTES"
+  >(
+    "OVERVIEW"
+  );
 
 const assetType =
   trade.assetType?.toUpperCase() ?? "";
@@ -514,21 +515,21 @@ const pnlPercent =
       {/* ================================================= */}
 
       <div
-  className="
-    relative
-    z-30
-    grid
-    h-[30px]
-    w-[calc(100%-30px)]
-    shrink-0
-    translate-x-[14px]
-    grid-cols-4
-    overflow-visible
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#07111d]
-  "
+className="
+  relative
+  z-30
+  grid
+  h-[30px]
+  w-[calc(100%-30px)]
+  shrink-0
+  translate-x-[14px]
+  grid-cols-[1fr_0.85fr_1.45fr_0.75fr]
+  overflow-visible
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#07111d]
+"
 >
 
         {/* OVERVIEW */}
@@ -591,39 +592,75 @@ className={`
           Review
         </button>
 
-        {/* EXECUTIONS */}
+{/* INTELLIGENCE */}
 
-        <button
-          type="button"
-          onClick={() =>
-            setActiveTab(
-              "EXECUTIONS"
-            )
-          }
-          className={`
-            relative
-            flex
-            h-[30px]
-            items-center
-            justify-center
-            text-[11px]
-            font-medium
-            transition
-            ${
-              activeTab ===
-              "EXECUTIONS"
-                ? "mx-[2px] my-[2px] h-[26px] rounded-[6px] border border-violet-500/30 bg-[#151b2d] text-white shadow-[inset_0_1px_3px_rgba(0,0,0,0.55),0_0_12px_rgba(139,92,246,0.12)]"
-                : "text-slate-400 hover:bg-white/[0.025] hover:text-slate-200"
-            }
-          `}
-        >
-          Executions (
-          {trade.executions?.length ??
-            0}
-          )
-        </button>
+<button
+  type="button"
+  onClick={() =>
+    setActiveTab(
+      "INTELLIGENCE"
+    )
+  }
+  className={`
+    group
+    relative
+    flex
+    h-[30px]
+    items-center
+    justify-center
+    gap-3
+    text-[11px]
+    font-medium
+    transition
+    ${
+      activeTab ===
+      "INTELLIGENCE"
+        ? "mx-[2px] my-[2px] h-[26px] rounded-[6px] border border-violet-500/30 bg-[#151b2d] text-white shadow-[inset_0_1px_3px_rgba(0,0,0,0.55),0_0_12px_rgba(139,92,246,0.12)]"
+        : "text-slate-400 hover:bg-white/[0.025] hover:text-slate-200"
+    }
+  `}
+>
+  <span
+    className="
+      relative
+      flex
+      h-[14px]
+      w-[14px]
+      shrink-0
+      items-center
+      justify-center
+      text-violet-200
+      drop-shadow-[0_0_5px_rgba(167,139,250,0.45)]
+    "
+  >
+<Sparkle
+  size={11}
+  strokeWidth={2}
+  fill="currentColor"
+  className="
+    animate-pulse
+  "
+/>
 
-        {/* NOTES */}
+<Sparkle
+  size={5}
+  strokeWidth={2}
+  fill="currentColor"
+  className="
+    absolute
+    right-0
+    top-0
+    text-violet-300
+    drop-shadow-[0_0_5px_rgba(167,139,250,0.65)]
+    [animation:ping_2.8s_ease-in-out_infinite]
+  "
+/>
+  </span>
+
+  Intelligence
+</button>
+
+{/* NOTES */}
 
         <button
           type="button"
