@@ -516,7 +516,7 @@ git commit -m "fix: display option call put in trade review"
 git commit -m "Add trade management to trade review"
 git commit -m "Refine trade review intelligence tab"
 git commit -m "Refine trade intelligence UI"
-
+git commit -m "Build trade intelligence generated UI"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

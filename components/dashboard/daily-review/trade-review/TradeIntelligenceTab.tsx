@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   BarChart3,
   Brain,
   FileText,
   Lightbulb,
   Sparkle,
-  Target,
 } from "lucide-react";
+
+import TradeIntelligenceGenerated from "./TradeIntelligenceGenerated";
 
 // =====================================================
 // TRADE INTELLIGENCE TAB
@@ -20,6 +23,12 @@ import {
 // =====================================================
 
 export default function TradeIntelligenceTab() {
+  const [isGenerated, setIsGenerated] = useState(false);
+
+  if (isGenerated) {
+    return <TradeIntelligenceGenerated />;
+  }
+
   return (
     <div
       className="
@@ -867,6 +876,7 @@ className="
 
       <button
         type="button"
+        onClick={() => setIsGenerated(true)}
         className="
           group
           flex
