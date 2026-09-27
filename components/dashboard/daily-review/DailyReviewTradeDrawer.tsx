@@ -18,6 +18,9 @@ import {
 import TradeReviewTab
   from "@/components/dashboard/daily-review/trade-review/TradeReviewTab";
 
+  import TradeIntelligenceTab
+  from "@/components/dashboard/daily-review/trade-review/TradeIntelligenceTab";
+
 interface DailyReviewTradeDrawerProps {
   trade: Trade;
   reportingCurrency: string;
@@ -733,6 +736,18 @@ className={`
     canGoNext
   }
 />
+    </div>
+
+  </div>
+) : activeTab === "INTELLIGENCE" ? (
+  <div className="flex justify-center">
+
+    <div
+      className="
+        w-[98%]
+      "
+    >
+      <TradeIntelligenceTab />
     </div>
 
   </div>

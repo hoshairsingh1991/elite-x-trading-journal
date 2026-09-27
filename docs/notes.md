@@ -513,6 +513,10 @@ git commit -m "Complete daily review persistence flow"
 git commit -m "Complete daily review system"
 git commit -m "Fix trade review drawer financial values"
 git commit -m "fix: display option call put in trade review"
+git commit -m "Add trade management to trade review"
+git commit -m "Refine trade review intelligence tab"
+git commit -m "Refine trade intelligence UI"
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
