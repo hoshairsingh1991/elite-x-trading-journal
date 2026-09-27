@@ -438,6 +438,22 @@ const pnlPercent =
   "
 >
       {/* ================================================= */}
+      {/* TOP ALIGNMENT SPACER */}
+      {/* ================================================= */}
+
+      <div
+        className="
+          h-[20px]
+          shrink-0
+          opacity-0
+          pointer-events-none
+          select-none
+        "
+      >
+        spacer
+      </div>
+
+      {/* ================================================= */}
       {/* DRAWER HEADER */}
       {/* Same structural settings as Add Trade Preview */}
       {/* ================================================= */}

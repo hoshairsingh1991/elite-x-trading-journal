@@ -643,7 +643,7 @@ export default function TradeIntelligenceGenerated() {
           className="
             relative
             left-[11px]
-            top-[18px]
+            top-[12px]
             grid
             w-[306px]
             grid-cols-2

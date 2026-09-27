@@ -871,6 +871,243 @@ className="
       </section>
 
       {/* ================================================= */}
+      {/* INTELLIGENCE ENGINE */}
+      {/* ================================================= */}
+
+      <section
+        className="
+          relative
+          h-[108px]
+          w-full
+          overflow-hidden
+          rounded-[8px]
+          border
+          border-violet-400/20
+          bg-[linear-gradient(135deg,rgba(24,18,62,0.42),rgba(8,17,31,0.94))]
+          shadow-[inset_0_0_28px_rgba(139,92,246,0.035)]
+        "
+      >
+
+        {/* ================================================= */}
+        {/* HEADER */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            left-[11px]
+            top-[8px]
+            text-[9px]
+            font-semibold
+            tracking-[0.24em]
+            text-violet-300
+          "
+        >
+          INTELLIGENCE ENGINE
+        </div>
+
+        <div
+          className="
+            absolute
+            right-[11px]
+            top-[8px]
+            flex
+            items-center
+            gap-1.5
+            text-[8px]
+            font-medium
+            tracking-[0.08em]
+            text-emerald-300
+          "
+        >
+          <span
+            className="
+              h-[5px]
+              w-[5px]
+              rounded-full
+              bg-emerald-400
+              shadow-[0_0_7px_rgba(52,211,153,0.8)]
+              animate-pulse
+            "
+          />
+
+          READY
+        </div>
+
+        {/* ================================================= */}
+        {/* CENTRAL SIGNAL LINE */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            left-[20px]
+            right-[20px]
+            top-[62px]
+            h-px
+            bg-gradient-to-r
+            from-transparent
+            via-violet-400/35
+            to-transparent
+          "
+        />
+
+        {/* ================================================= */}
+        {/* LEFT NODE */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            left-[38px]
+            top-[56px]
+            h-[13px]
+            w-[13px]
+            rounded-full
+            border
+            border-sky-300/40
+            bg-sky-400/[0.08]
+            shadow-[0_0_12px_rgba(56,189,248,0.24)]
+          "
+        />
+
+        {/* ================================================= */}
+        {/* LEFT NODE LABEL */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            left-[16px]
+            top-[31px]
+            text-[7px]
+            font-medium
+            uppercase
+            tracking-[0.12em]
+            text-slate-500
+          "
+        >
+          Evidence
+        </div>
+
+        {/* ================================================= */}
+        {/* CENTER CORE */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            left-1/2
+            top-[62px]
+            flex
+            h-[24px]
+            w-[24px]
+            -translate-x-1/2
+            -translate-y-1/2
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-violet-300/45
+            bg-violet-500/[0.12]
+            shadow-[0_0_18px_rgba(139,92,246,0.32)]
+          "
+        >
+
+          <span
+            className="
+              h-[7px]
+              w-[7px]
+              rounded-full
+              bg-violet-200
+              shadow-[0_0_10px_rgba(196,181,253,0.95)]
+              animate-pulse
+            "
+          />
+
+        </div>
+
+        {/* ================================================= */}
+        {/* CENTER LABEL */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            left-1/2
+            top-[33px]
+            -translate-x-1/2
+            text-[7px]
+            font-semibold
+            uppercase
+            tracking-[0.14em]
+            text-violet-300
+          "
+        >
+          Synthesis
+        </div>
+
+        {/* ================================================= */}
+        {/* RIGHT NODE */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            right-[38px]
+            top-[56px]
+            h-[13px]
+            w-[13px]
+            rounded-full
+            border
+            border-amber-300/40
+            bg-amber-400/[0.08]
+            shadow-[0_0_12px_rgba(251,191,36,0.20)]
+          "
+        />
+
+        {/* ================================================= */}
+        {/* RIGHT NODE LABEL */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            right-[16px]
+            top-[31px]
+            text-[7px]
+            font-medium
+            uppercase
+            tracking-[0.12em]
+            text-slate-500
+          "
+        >
+          Insight
+        </div>
+
+        {/* ================================================= */}
+        {/* LOWER STATUS */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            bottom-[9px]
+            left-1/2
+            -translate-x-1/2
+            whitespace-nowrap
+            text-[8px]
+            font-medium
+            tracking-[0.14em]
+            text-slate-500
+          "
+        >
+          READY TO SYNTHESIZE YOUR TRADE
+        </div>
+
+      </section>
+
+      {/* ================================================= */}
       {/* GENERATE */}
       {/* ================================================= */}
 
