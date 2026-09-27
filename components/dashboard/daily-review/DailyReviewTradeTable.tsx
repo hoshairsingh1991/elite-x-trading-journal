@@ -335,7 +335,7 @@ className="
 
 <div
   className="
-    max-h-[360px]
+    max-h-[244px]
     [@media(max-height:1079px)]:max-h-[244px]
     w-full
     min-w-0

@@ -1,20 +1,189 @@
 "use client";
 
 import {
-  MoreHorizontal,
   RotateCcw,
   Sparkle,
 } from "lucide-react";
+
+import type { Trade } from "@/types/trade";
+
+import type {
+  TradeIntelligenceResult,
+} from "@/lib/ai/tradeIntelligence/types";
 
 // =====================================================
 // TRADE INTELLIGENCE — GENERATED STATE
 // =====================================================
 //
-// UI-only mock state for Intelligence development.
-// Real AI data will be connected later.
+// Live generated Intelligence UI.
+// Receives canonical trade data and structured AI analysis.
 // =====================================================
 
-export default function TradeIntelligenceGenerated() {
+interface TradeIntelligenceGeneratedProps {
+  trade: Trade;
+  intelligence: TradeIntelligenceResult;
+  onRegenerate: () => void;
+  isRegenerating: boolean;
+}
+
+export default function TradeIntelligenceGenerated({
+  trade,
+  intelligence,
+  onRegenerate,
+  isRegenerating,
+}: TradeIntelligenceGeneratedProps) {
+
+  const formatPrice = (
+    value: number | null | undefined
+  ) => {
+    if (
+      value === null ||
+      value === undefined ||
+      !Number.isFinite(value)
+    ) {
+      return "—";
+    }
+
+    return value.toLocaleString(
+      "en-US",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4,
+      }
+    );
+  };
+
+  const formatPnl = (
+    value: number
+  ) => {
+    const absoluteValue =
+      Math.abs(value).toLocaleString(
+        "en-US",
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
+      );
+
+    return `${value < 0 ? "-" : ""}${trade.currency} ${absoluteValue}`;
+  };
+
+  const formatHoldTime = () => {
+    if (
+      !trade.openedAt ||
+      !trade.closedAt
+    ) {
+      return "—";
+    }
+
+    const start =
+      new Date(trade.openedAt).getTime();
+
+    const end =
+      new Date(trade.closedAt).getTime();
+
+    if (
+      !Number.isFinite(start) ||
+      !Number.isFinite(end) ||
+      end < start
+    ) {
+      return "—";
+    }
+
+    const totalSeconds = Math.floor(
+      (end - start) / 1000
+    );
+
+    if (totalSeconds < 60) {
+      return `${totalSeconds}s`;
+    }
+
+    const totalMinutes =
+      Math.floor(
+        totalSeconds / 60
+      );
+
+    const seconds =
+      totalSeconds % 60;
+
+    if (totalMinutes < 60) {
+      return seconds === 0
+        ? `${totalMinutes}m`
+        : `${totalMinutes}m ${seconds}s`;
+    }
+
+    const hours = Math.floor(
+      totalMinutes / 60
+    );
+
+    const minutes =
+      totalMinutes % 60;
+
+    return minutes === 0
+      ? `${hours}h`
+      : `${hours}h ${minutes}m`;
+  };
+
+  const formatTradeDate = (
+    value: string
+  ) => {
+    if (!value) {
+      return "—";
+    }
+
+    const dateOnlyMatch =
+      /^(\d{4})-(\d{2})-(\d{2})$/.exec(
+        value
+      );
+
+    if (dateOnlyMatch) {
+      const year =
+        Number(dateOnlyMatch[1]);
+
+      const month =
+        Number(dateOnlyMatch[2]) - 1;
+
+      const day =
+        Number(dateOnlyMatch[3]);
+
+      const localDate =
+        new Date(
+          year,
+          month,
+          day
+        );
+
+      return localDate.toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }
+      );
+    }
+
+    const parsedDate =
+      new Date(value);
+
+    if (
+      !Number.isFinite(
+        parsedDate.getTime()
+      )
+    ) {
+      return value;
+    }
+
+    return parsedDate.toLocaleDateString(
+      "en-US",
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }
+    );
+  };
+
   return (
     <div
       className="
@@ -126,9 +295,11 @@ export default function TradeIntelligenceGenerated() {
         {/* REGENERATE */}
         {/* ================================================= */}
 
-        <button
-          type="button"
-          className="
+<button
+  type="button"
+  onClick={onRegenerate}
+  disabled={isRegenerating}
+  className="
             absolute
             right-[10px]
             top-[14px]
@@ -152,7 +323,9 @@ export default function TradeIntelligenceGenerated() {
             strokeWidth={1.8}
           />
 
-          Regenerate
+          {isRegenerating
+  ? "Regenerating..."
+  : "Regenerate"}
         </button>
 
 
@@ -210,7 +383,7 @@ export default function TradeIntelligenceGenerated() {
                 text-violet-300
               "
             >
-              NVDA
+             {trade.ticker}
             </div>
 
 <div
@@ -224,7 +397,7 @@ export default function TradeIntelligenceGenerated() {
     text-slate-400
   "
 >
-  Oct 18, 2024
+  {formatTradeDate(trade.date)}
 </div>
 
           </div>
@@ -273,20 +446,26 @@ export default function TradeIntelligenceGenerated() {
                 Net P&L
               </div>
 
-              <div
-                className="
-                  relative
-                  left-[8px]
-                  top-[6px]
-                  mt-[7px]
-                  whitespace-nowrap
-                  text-[11px]
-                  font-semibold
-                  text-rose-400
-                "
-              >
-                -$86.40
-              </div>
+<div
+  className={`
+    relative
+    left-[8px]
+    top-[6px]
+    mt-[7px]
+    whitespace-nowrap
+    text-[11px]
+    font-semibold
+    ${
+      trade.pnl > 0
+        ? "text-emerald-400"
+        : trade.pnl < 0
+          ? "text-rose-400"
+          : "text-slate-300"
+    }
+  `}
+>
+  {formatPnl(trade.pnl)}
+</div>
 
             </div>
 
@@ -330,7 +509,7 @@ export default function TradeIntelligenceGenerated() {
                   text-white
                 "
               >
-                18m
+                {formatHoldTime()}
               </div>
 
             </div>
@@ -375,7 +554,7 @@ export default function TradeIntelligenceGenerated() {
                   text-white
                 "
               >
-                $1.74
+                {formatPrice(trade.entryPrice)}
               </div>
 
             </div>
@@ -420,7 +599,7 @@ export default function TradeIntelligenceGenerated() {
                   text-white
                 "
               >
-                $1.62
+                {formatPrice(trade.exitPrice)}
               </div>
 
             </div>
@@ -464,7 +643,7 @@ export default function TradeIntelligenceGenerated() {
                   text-white
                 "
               >
-                1
+                {trade.quantity}
               </div>
 
             </div>
@@ -515,25 +694,21 @@ export default function TradeIntelligenceGenerated() {
         {/* TRADE READ BODY */}
         {/* ================================================= */}
 
-        <p
-          className="
-            relative
-            left-[11px]
-            top-[12px]
-            mt-[8px]
-            w-[306px]
-            text-[11px]
-            leading-[16px]
-            text-slate-300
-          "
-        >
-          This was a high-probability setup that didn’t play out
-          as expected. The trade followed a clear support and
-          resistance idea, but the entry was driven by FOMO and
-          executed before full confirmation. The quick exit
-          suggests a lack of conviction after entry, even though
-          risk was kept controlled.
-        </p>
+<p
+  className="
+    relative
+    left-[11px]
+    top-[12px]
+    mt-[8px]
+    w-[306px]
+    text-[11px]
+    leading-[16px]
+    text-slate-300
+  "
+>
+  {intelligence.tradeRead ??
+    "No supported trade-level interpretation was generated from the available evidence."}
+</p>
 
       </section>
 
@@ -577,24 +752,21 @@ export default function TradeIntelligenceGenerated() {
         {/* BODY */}
         {/* ================================================= */}
 
-        <p
-          className="
-            relative
-            left-[11px]
-            top-[10px]
-            mt-[8px]
-            w-[306px]
-            text-[11px]
-            leading-[16px]
-            text-slate-300
-          "
-        >
-          The strongest contrast is between the quality of the
-          setup and the timing of the entry. The idea itself was
-          reasonable, but the decision to enter before full
-          confirmation appears to have been the key factor that
-          changed the trade.
-        </p>
+<p
+  className="
+    relative
+    left-[11px]
+    top-[10px]
+    mt-[8px]
+    w-[306px]
+    text-[11px]
+    leading-[16px]
+    text-slate-300
+  "
+>
+  {intelligence.whatStandsOut ??
+    "No sufficiently supported standout relationship was identified from the available evidence."}
+</p>
 
       </section>
 
@@ -670,116 +842,51 @@ export default function TradeIntelligenceGenerated() {
               Strengths
             </div>
 
-            {/* ================================================= */}
-            {/* STRENGTH 1 */}
-            {/* ================================================= */}
-
-            <div
-              className="
-                mt-[9px]
-                flex
-                items-start
-                gap-[6px]
-              "
-            >
-
-              <span
+            {intelligence.strength ? (
+              <div
                 className="
-                  shrink-0
-                  text-[11px]
-                  font-semibold
-                  leading-[14px]
-                  text-emerald-400
+                  mt-[9px]
+                  flex
+                  items-start
+                  gap-[6px]
                 "
               >
-                ✓
-              </span>
 
-              <span
+                <span
+                  className="
+                    shrink-0
+                    text-[11px]
+                    font-semibold
+                    leading-[14px]
+                    text-emerald-400
+                  "
+                >
+                  ✓
+                </span>
+
+                <span
+                  className="
+                    text-[10px]
+                    leading-[14px]
+                    text-slate-300
+                  "
+                >
+                  {intelligence.strength}
+                </span>
+
+              </div>
+            ) : (
+              <div
                 className="
+                  mt-[9px]
                   text-[10px]
                   leading-[14px]
-                  text-slate-300
+                  text-slate-500
                 "
               >
-                Recognized a valid setup
-              </span>
-
-            </div>
-
-            {/* ================================================= */}
-            {/* STRENGTH 2 */}
-            {/* ================================================= */}
-
-            <div
-              className="
-                mt-[7px]
-                flex
-                items-start
-                gap-[6px]
-              "
-            >
-
-              <span
-                className="
-                  shrink-0
-                  text-[11px]
-                  font-semibold
-                  leading-[14px]
-                  text-emerald-400
-                "
-              >
-                ✓
-              </span>
-
-              <span
-                className="
-                  text-[10px]
-                  leading-[14px]
-                  text-slate-300
-                "
-              >
-                Managed risk appropriately
-              </span>
-
-            </div>
-
-            {/* ================================================= */}
-            {/* STRENGTH 3 */}
-            {/* ================================================= */}
-
-            <div
-              className="
-                mt-[7px]
-                flex
-                items-start
-                gap-[6px]
-              "
-            >
-
-              <span
-                className="
-                  shrink-0
-                  text-[11px]
-                  font-semibold
-                  leading-[14px]
-                  text-emerald-400
-                "
-              >
-                ✓
-              </span>
-
-              <span
-                className="
-                  text-[10px]
-                  leading-[14px]
-                  text-slate-300
-                "
-              >
-                Closed the trade decisively
-              </span>
-
-            </div>
+                No sufficiently supported strength identified.
+              </div>
+            )}
 
           </div>
 
@@ -815,153 +922,51 @@ export default function TradeIntelligenceGenerated() {
               Weaknesses
             </div>
 
-            {/* ================================================= */}
-            {/* WEAKNESS 1 */}
-            {/* ================================================= */}
-
-            <div
-              className="
-                mt-[9px]
-                flex
-                items-start
-                gap-[6px]
-              "
-            >
-
-              <span
+            {intelligence.weakness ? (
+              <div
                 className="
-                  shrink-0
-                  text-[11px]
-                  font-semibold
-                  leading-[14px]
-                  text-rose-400
+                  mt-[9px]
+                  flex
+                  items-start
+                  gap-[6px]
                 "
               >
-                ×
-              </span>
 
-              <span
+                <span
+                  className="
+                    shrink-0
+                    text-[11px]
+                    font-semibold
+                    leading-[14px]
+                    text-rose-400
+                  "
+                >
+                  ×
+                </span>
+
+                <span
+                  className="
+                    text-[10px]
+                    leading-[14px]
+                    text-slate-300
+                  "
+                >
+                  {intelligence.weakness}
+                </span>
+
+              </div>
+            ) : (
+              <div
                 className="
+                  mt-[9px]
                   text-[10px]
                   leading-[14px]
-                  text-slate-300
+                  text-slate-500
                 "
               >
-                FOMO entry
-              </span>
-
-            </div>
-
-            {/* ================================================= */}
-            {/* WEAKNESS 2 */}
-            {/* ================================================= */}
-
-            <div
-              className="
-                mt-[7px]
-                flex
-                items-start
-                gap-[6px]
-              "
-            >
-
-              <span
-                className="
-                  shrink-0
-                  text-[11px]
-                  font-semibold
-                  leading-[14px]
-                  text-rose-400
-                "
-              >
-                ×
-              </span>
-
-              <span
-                className="
-                  text-[10px]
-                  leading-[14px]
-                  text-slate-300
-                "
-              >
-                Impatience
-              </span>
-
-            </div>
-
-            {/* ================================================= */}
-            {/* WEAKNESS 3 */}
-            {/* ================================================= */}
-
-            <div
-              className="
-                mt-[7px]
-                flex
-                items-start
-                gap-[6px]
-              "
-            >
-
-              <span
-                className="
-                  shrink-0
-                  text-[11px]
-                  font-semibold
-                  leading-[14px]
-                  text-rose-400
-                "
-              >
-                ×
-              </span>
-
-              <span
-                className="
-                  text-[10px]
-                  leading-[14px]
-                  text-slate-300
-                "
-              >
-                Exited too early
-              </span>
-
-            </div>
-
-            {/* ================================================= */}
-            {/* WEAKNESS 4 */}
-            {/* ================================================= */}
-
-            <div
-              className="
-                mt-[7px]
-                flex
-                items-start
-                gap-[6px]
-              "
-            >
-
-              <span
-                className="
-                  shrink-0
-                  text-[11px]
-                  font-semibold
-                  leading-[14px]
-                  text-rose-400
-                "
-              >
-                ×
-              </span>
-
-              <span
-                className="
-                  text-[10px]
-                  leading-[14px]
-                  text-slate-300
-                "
-              >
-                Lack of conviction
-              </span>
-
-            </div>
+                No sufficiently supported weakness identified.
+              </div>
+            )}
 
           </div>
 
@@ -970,7 +975,7 @@ export default function TradeIntelligenceGenerated() {
       </section>
 
 
-      {/* ================================================= */}
+{/* ================================================= */}
       {/* EXECUTION ANALYSIS */}
       {/* ================================================= */}
 
@@ -1009,7 +1014,7 @@ export default function TradeIntelligenceGenerated() {
         </div>
 
         {/* ================================================= */}
-        {/* ANALYSIS ROWS */}
+        {/* ANALYSIS */}
         {/* ================================================= */}
 
         <div
@@ -1022,21 +1027,19 @@ export default function TradeIntelligenceGenerated() {
           "
         >
 
-          {/* ================================================= */}
-          {/* SETUP */}
-          {/* ================================================= */}
-
           <div
             className="
               grid
               grid-cols-[72px_10px_minmax(0,1fr)]
-              items-center
+              items-start
               gap-x-[6px]
-              border-b
-              border-white/[0.06]
               py-[7px]
             "
           >
+
+            {/* ================================================= */}
+            {/* LABEL */}
+            {/* ================================================= */}
 
             <div
               className="
@@ -1045,18 +1048,27 @@ export default function TradeIntelligenceGenerated() {
                 text-white
               "
             >
-              Setup
+              Execution
             </div>
+
+            {/* ================================================= */}
+            {/* SIGNAL */}
+            {/* ================================================= */}
 
             <div
               className="
+                mt-[3px]
                 h-[7px]
                 w-[7px]
                 rounded-full
-                bg-emerald-400
-                shadow-[0_0_7px_rgba(52,211,153,0.65)]
+                bg-cyan-400
+                shadow-[0_0_7px_rgba(34,211,238,0.65)]
               "
             />
+
+            {/* ================================================= */}
+            {/* INTELLIGENCE */}
+            {/* ================================================= */}
 
             <div
               className="
@@ -1065,197 +1077,7 @@ export default function TradeIntelligenceGenerated() {
                 text-slate-300
               "
             >
-              Aligned with your strategy
-            </div>
-
-          </div>
-
-          {/* ================================================= */}
-          {/* ENTRY */}
-          {/* ================================================= */}
-
-          <div
-            className="
-              grid
-              grid-cols-[72px_10px_minmax(0,1fr)]
-              items-center
-              gap-x-[6px]
-              border-b
-              border-white/[0.06]
-              py-[7px]
-            "
-          >
-
-            <div
-              className="
-                text-[10px]
-                font-medium
-                text-white
-              "
-            >
-              Entry
-            </div>
-
-            <div
-              className="
-                h-[7px]
-                w-[7px]
-                rounded-full
-                bg-rose-400
-                shadow-[0_0_7px_rgba(251,113,133,0.6)]
-              "
-            />
-
-            <div
-              className="
-                text-[10px]
-                leading-[14px]
-                text-slate-300
-              "
-            >
-              Impulsive (FOMO)
-            </div>
-
-          </div>
-
-          {/* ================================================= */}
-          {/* MANAGEMENT */}
-          {/* ================================================= */}
-
-          <div
-            className="
-              grid
-              grid-cols-[72px_10px_minmax(0,1fr)]
-              items-center
-              gap-x-[6px]
-              border-b
-              border-white/[0.06]
-              py-[7px]
-            "
-          >
-
-            <div
-              className="
-                text-[10px]
-                font-medium
-                text-white
-              "
-            >
-              Management
-            </div>
-
-            <div
-              className="
-                h-[7px]
-                w-[7px]
-                rounded-full
-                bg-amber-400
-                shadow-[0_0_7px_rgba(251,191,36,0.6)]
-              "
-            />
-
-            <div
-              className="
-                text-[10px]
-                leading-[14px]
-                text-slate-300
-              "
-            >
-              Cut trade early
-            </div>
-
-          </div>
-
-          {/* ================================================= */}
-          {/* EXIT */}
-          {/* ================================================= */}
-
-          <div
-            className="
-              grid
-              grid-cols-[72px_10px_minmax(0,1fr)]
-              items-center
-              gap-x-[6px]
-              border-b
-              border-white/[0.06]
-              py-[7px]
-            "
-          >
-
-            <div
-              className="
-                text-[10px]
-                font-medium
-                text-white
-              "
-            >
-              Exit
-            </div>
-
-            <div
-              className="
-                h-[7px]
-                w-[7px]
-                rounded-full
-                bg-amber-400
-                shadow-[0_0_7px_rgba(251,191,36,0.6)]
-              "
-            />
-
-            <div
-              className="
-                text-[10px]
-                leading-[14px]
-                text-slate-300
-              "
-            >
-              Could have given more room
-            </div>
-
-          </div>
-
-          {/* ================================================= */}
-          {/* RISK CONTROL */}
-          {/* ================================================= */}
-
-          <div
-            className="
-              grid
-              grid-cols-[72px_10px_minmax(0,1fr)]
-              items-center
-              gap-x-[6px]
-              py-[7px]
-            "
-          >
-
-            <div
-              className="
-                text-[10px]
-                font-medium
-                text-white
-              "
-            >
-              Risk Control
-            </div>
-
-            <div
-              className="
-                h-[7px]
-                w-[7px]
-                rounded-full
-                bg-emerald-400
-                shadow-[0_0_7px_rgba(52,211,153,0.65)]
-              "
-            />
-
-            <div
-              className="
-                text-[10px]
-                leading-[14px]
-                text-slate-300
-              "
-            >
-              Position size kept in check
+              {intelligence.executionRead}
             </div>
 
           </div>
@@ -1264,7 +1086,7 @@ export default function TradeIntelligenceGenerated() {
 
       </section>
 
-      {/* ================================================= */}
+       {/* ================================================= */}
       {/* BEHAVIORAL INSIGHT */}
       {/* ================================================= */}
 
@@ -1316,11 +1138,8 @@ export default function TradeIntelligenceGenerated() {
             text-slate-300
           "
         >
-          The review suggests that impatience influenced the
-          entry more than the underlying setup itself. That
-          tendency appears again in the quick exit, creating
-          a pattern where the trade was given less room to
-          develop than the original idea required.
+          {intelligence.behavioralSignal ??
+            "No sufficiently supported behavioral signal was identified from the available evidence."}
         </p>
 
       </section>
@@ -1328,6 +1147,7 @@ export default function TradeIntelligenceGenerated() {
       {/* ================================================= */}
       {/* KEY TAKEAWAY */}
       {/* ================================================= */}
+
       <section
         className="
           relative
@@ -1377,14 +1197,12 @@ export default function TradeIntelligenceGenerated() {
             text-amber-50
           "
         >
-          The setup was sound, but the entry was not. Focus on
-          waiting for full confirmation before entering, and avoid
-          acting on FOMO even when the setup looks strong.
+          {intelligence.keyTakeaway}
         </p>
 
-      </section>   
+      </section>
 
-            {/* ================================================= */}
+      {/* ================================================= */}
       {/* X-FACTOR */}
       {/* ================================================= */}
 
@@ -1424,41 +1242,40 @@ export default function TradeIntelligenceGenerated() {
         {/* MAIN INSIGHT */}
         {/* ================================================= */}
 
-        <div
-          className="
-            relative
-            left-[11px]
-            top-[14px]
-            mt-[8px]
-            w-[306px]
-            text-[13px]
-            font-semibold
-            leading-[18px]
-            text-violet-200
-          "
-        >
-          Execution discipline — not the setup — was the limiting factor in this trade.
-        </div>
-
-        {/* ================================================= */}
-        {/* SUPPORTING INSIGHT */}
-        {/* ================================================= */}
-
-        <p
-          className="
-            relative
-            left-[11px]
-            top-[16px]
-            mt-[7px]
-            w-[306px]
-            text-[11px]
-            leading-[16px]
-            text-slate-300
-          "
-        >
-          You correctly identified the opportunity, but entering
-          before confirmation turned a good setup into a losing trade.
-        </p>
+        {intelligence.xFactor ? (
+          <>
+            <div
+              className="
+                relative
+                left-[11px]
+                top-[14px]
+                mt-[8px]
+                w-[306px]
+                text-[13px]
+                font-semibold
+                leading-[18px]
+                text-violet-200
+              "
+            >
+              {intelligence.xFactor}
+            </div>
+          </>
+        ) : (
+          <div
+            className="
+              relative
+              left-[11px]
+              top-[14px]
+              mt-[8px]
+              w-[306px]
+              text-[11px]
+              leading-[16px]
+              text-slate-500
+            "
+          >
+            No sufficiently supported higher-order relationship was identified in this trade.
+          </div>
+        )}
 
       </section>
 

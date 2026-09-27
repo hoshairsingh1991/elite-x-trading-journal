@@ -12,6 +12,14 @@ import {
 
 import TradeIntelligenceGenerated from "./TradeIntelligenceGenerated";
 
+import { Trade } from "@/types/trade";
+
+import { supabase } from "@/lib/supabase";
+
+import type {
+  TradeIntelligenceResult,
+} from "@/lib/ai/tradeIntelligence/types";
+
 // =====================================================
 // TRADE INTELLIGENCE TAB
 // =====================================================
@@ -22,12 +30,124 @@ import TradeIntelligenceGenerated from "./TradeIntelligenceGenerated";
 // This component owns all Intelligence-specific UI.
 // =====================================================
 
-export default function TradeIntelligenceTab() {
-  const [isGenerated, setIsGenerated] = useState(false);
+interface TradeIntelligenceTabProps {
+  trade: Trade;
+}
 
-  if (isGenerated) {
-    return <TradeIntelligenceGenerated />;
-  }
+export default function TradeIntelligenceTab({
+  trade,
+}: TradeIntelligenceTabProps) {
+  const [intelligence, setIntelligence] =
+    useState<TradeIntelligenceResult | null>(null);
+
+  const [isGenerating, setIsGenerating] =
+    useState(false);
+
+  const [generationError, setGenerationError] =
+    useState<string | null>(null);
+
+  const handleGenerateIntelligence =
+    async () => {
+      if (
+        !trade.executions ||
+        trade.executions.length !== 2
+      ) {
+        setGenerationError(
+          "This trade does not contain a valid entry and exit execution pair."
+        );
+
+        return;
+      }
+
+      const entryExecution =
+        trade.executions[0];
+
+      const exitExecution =
+        trade.executions[1];
+
+      setIsGenerating(true);
+      setGenerationError(null);
+
+      try {
+        const {
+          data: {
+            session,
+          },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        if (
+          sessionError ||
+          !session?.access_token
+        ) {
+          throw new Error(
+            "Your session could not be verified. Please sign in again."
+          );
+        }
+
+        const response =
+          await fetch(
+            "/api/ai/trade-summary",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Authorization:
+                  `Bearer ${session.access_token}`,
+              },
+
+              body: JSON.stringify({
+                entryExecutionId:
+                  entryExecution.id,
+
+                exitExecutionId:
+                  exitExecution.id,
+              }),
+            }
+          );
+
+        const payload =
+          await response.json();
+
+        if (
+          !response.ok ||
+          !payload?.success
+        ) {
+          throw new Error(
+            typeof payload?.error ===
+              "string"
+              ? payload.error
+              : "Trade Intelligence generation failed."
+          );
+        }
+
+        setIntelligence(
+          payload.intelligence
+        );
+      } catch (error) {
+        setGenerationError(
+          error instanceof Error
+            ? error.message
+            : "Trade Intelligence generation failed."
+        );
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+
+if (intelligence) {
+  return (
+    <TradeIntelligenceGenerated
+      trade={trade}
+      intelligence={intelligence}
+      onRegenerate={handleGenerateIntelligence}
+      isRegenerating={isGenerating}
+    />
+  );
+}
 
   return (
     <div
@@ -1111,10 +1231,11 @@ className="
       {/* GENERATE */}
       {/* ================================================= */}
 
-      <button
-        type="button"
-        onClick={() => setIsGenerated(true)}
-        className="
+<button
+  type="button"
+  onClick={handleGenerateIntelligence}
+  disabled={isGenerating}
+  className="
           group
           flex
           h-[46px]
@@ -1181,7 +1302,9 @@ className="
 
         </span>
 
-        Generate Intelligence
+        {isGenerating
+  ? "Analyzing..."
+  : "Generate Intelligence"}
 
         <span
           className="
@@ -1198,6 +1321,12 @@ className="
         </span>
 
       </button>
+
+            {generationError && (
+        <p className="mt-3 text-center text-[11px] leading-4 text-red-400">
+          {generationError}
+        </p>
+      )}
 
       {/* ================================================= */}
       {/* FOOTER SPACING */}
