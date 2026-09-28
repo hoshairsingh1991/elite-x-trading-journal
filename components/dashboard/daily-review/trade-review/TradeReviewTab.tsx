@@ -15,7 +15,6 @@ import {
   Flame,
   HeartPulse,
   Save,
-  Sparkles,
   Target,
   Zap,
   type LucideIcon,
@@ -50,11 +49,6 @@ interface TradeReviewTabProps {
 
 type ChipOption = {
   label: string;
-};
-
-type ScoreItem = {
-  label: string;
-  value: number;
 };
 
 // =====================================================
@@ -190,28 +184,7 @@ const strengthOptions: ChipOption[] = [
   { label: "Protected Profit" },
 ];
 
-const scoreItems: ScoreItem[] = [
-  {
-    label: "Plan Adherence",
-    value: 100,
-  },
-  {
-    label: "Setup Quality",
-    value: 90,
-  },
-  {
-    label: "Risk Management",
-    value: 100,
-  },
-  {
-    label: "Execution",
-    value: 90,
-  },
-  {
-    label: "Psychology",
-    value: 85,
-  },
-];
+
 
 // =====================================================
 // HELPERS
@@ -300,6 +273,7 @@ function ChoiceSection({
   width = "w-full",
   height = "h-auto",
   chipWidth = "w-full",
+  premiumHover = false,
 }: {
   number: string;
   title: string;
@@ -311,6 +285,7 @@ function ChoiceSection({
   columns?: 2 | 3;
   width?: string;
   height?: string;
+  premiumHover?: boolean;
 }) {
 
 
@@ -326,6 +301,14 @@ function ChoiceSection({
     bg-[#0b1220]
     px-3.5
     py-3
+    transition-all
+    duration-200
+    ease-[cubic-bezier(0.22,1,0.36,1)]
+    ${
+      premiumHover
+        ? "hover:-translate-y-[1px] hover:scale-[1.002] hover:bg-white/[0.028] hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]"
+        : ""
+    }
   `}
 >
 <div
@@ -397,6 +380,7 @@ function MultiSelectSection({
   onToggleOpen,
   onToggleOption,
   height = "h-auto",
+  premiumHover = false,
 }: {
   title: string;
   subtitle: string;
@@ -408,6 +392,7 @@ function MultiSelectSection({
     value: string
   ) => void;
   height?: string;
+  premiumHover?: boolean;
 }) {
   return (
 <section
@@ -421,6 +406,14 @@ function MultiSelectSection({
     bg-[#0b1220]
     px-3.5
     py-3
+    transition-all
+    duration-200
+    ease-[cubic-bezier(0.22,1,0.36,1)]
+    ${
+      premiumHover
+        ? "hover:-translate-y-[1px] hover:scale-[1.002] hover:bg-white/[0.028] hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]"
+        : ""
+    }
   `}
 >
       <button
@@ -510,186 +503,7 @@ function MultiSelectSection({
   );
 }
 
-// =====================================================
-// QUALITY SCORE
-// =====================================================
 
-function QualityScoreCard() {
-  const score = 91;
-
-  return (
-<section
-  className="
-    h-[110px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    px-4
-    py-3.5
-  "
->
-<div
-  className="
-    translate-x-[8px]
-    translate-y-[4px]
-    text-[13px]
-    font-semibold
-    text-slate-200
-  "
->
-  Trade Quality Score
-</div>
-
-<div
-  className="
-    mt-3
-    flex
-    items-center
-    gap-4
-  "
->
-{/* GAUGE */}
-
-<div
-  className="
-    relative
-    flex
-    h-[72px]
-    w-[72px]
-    shrink-0
-    translate-x-[6px]
-    translate-y-[8px]
-    items-center
-    justify-center
-  "
->
-          <div
-            className="
-              absolute
-              inset-[3px]
-              rounded-full
-              border-[6px]
-              border-slate-700/70
-              border-l-emerald-400
-              border-t-emerald-400
-              border-r-cyan-400
-              rotate-[16deg]
-            "
-          />
-
-          <div
-            className="
-              relative
-              z-10
-              mt-4
-              flex
-              flex-col
-              items-center
-            "
-          >
-            <div
-              className="
-                text-[22px]
-                font-semibold
-                leading-none
-                text-emerald-400
-              "
-            >
-              A
-            </div>
-
-            <div
-              className="
-                mt-1
-                text-[9px]
-                font-semibold
-                text-slate-100
-              "
-            >
-              {score} / 100
-            </div>
-          </div>
-        </div>
-
-{/* SCORE BARS */}
-
-<div
-  className="
-    min-w-0
-    flex-1
-    translate-x-[0px]
-    translate-y-[10px]
-    pr-2
-  "
->
-  <div className="flex flex-col gap-y-[2px]">
-    {scoreItems.map(
-      (item) => (
-        <div
-          key={item.label}
-          className="
-            flex
-            items-center
-            gap-1
-          "
-        >
-<span
-  className="
-    w-[80px]
-    shrink-0
-    whitespace-nowrap
-    text-[9px]
-    font-semibold
-    text-slate-400
-  "
->
-  {item.label}
-</span>
-
-<div
-  className="
-    h-[5px]
-    w-[clamp(90px,45%,105px)]
-    shrink-0
-    overflow-hidden
-    rounded-full
-    bg-white/[0.06]
-  "
->
-            <div
-              className="
-                h-full
-                rounded-full
-                bg-emerald-400
-              "
-              style={{
-                width: `${item.value}%`,
-              }}
-            />
-          </div>
-
-          <span
-            className="
-              w-[28px]
-              shrink-0
-              text-right
-              text-[9px]
-              font-semibold
-              text-slate-300
-            "
-          >
-            {item.value}%
-          </span>
-        </div>
-      )
-    )}
-  </div>
-</div>
-      </div>
-    </section>
-  );
-}
 
 // =====================================================
 // MAIN
@@ -1054,11 +868,7 @@ onReviewStatusChange?.(
       gap-3
     "
   >
-      {/* ================================================= */}
-      {/* QUALITY SCORE */}
-      {/* ================================================= */}
 
-      <QualityScoreCard />
 
       {/* ================================================= */}
       {/* TRADE CONTEXT */}
@@ -1069,18 +879,19 @@ onReviewStatusChange?.(
   title="Trade Context"
   question="What was the overall market environment?"
   options={tradeContextOptions}
-selected={tradeContext}
-onSelect={(value) =>
-  toggleSingleSelection(
-    tradeContext,
-    value,
-    setTradeContext
-  )
-}
+  selected={tradeContext}
+  onSelect={(value) =>
+    toggleSingleSelection(
+      tradeContext,
+      value,
+      setTradeContext
+    )
+  }
   columns={3}
   width="w-[100%]"
   height="h-[108px]"
   chipWidth="w-[90%]"
+  premiumHover
 />
 
 {/* ================================================= */}
@@ -1094,18 +905,18 @@ onSelect={(value) =>
   options={
     setupOptions
   }
-selected={setup}
-onSelect={(value) =>
-  toggleSingleSelection(
-    setup,
-    value,
-    setSetup
-  )
-}
+  selected={setup}
+  onSelect={(value) =>
+    toggleSingleSelection(
+      setup,
+      value,
+      setSetup
+    )
+  }
   columns={3}
   width="w-[100%]"
   height="h-[170px]"
-  
+  premiumHover
 />
 
 {/* ================================================= */}
@@ -1119,20 +930,20 @@ onSelect={(value) =>
   options={
     entryReasonOptions
   }
-selected={
-  entryReason
-}
-onSelect={(value) =>
-  toggleSingleSelection(
-    entryReason,
-    value,
-    setEntryReason
-  )
-}
+  selected={
+    entryReason
+  }
+  onSelect={(value) =>
+    toggleSingleSelection(
+      entryReason,
+      value,
+      setEntryReason
+    )
+  }
   columns={3}
   width="w-[100%]"
   height="h-[170px]"
-  
+  premiumHover
 />
 
 {/* ================================================= */}
@@ -1159,7 +970,7 @@ onSelect={(value) =>
   columns={3}
   width="w-[100%]"
   height="h-[138px]"
-  
+  premiumHover
 />
 
 {/* ================================================= */}
@@ -1186,7 +997,7 @@ onSelect={(value) =>
   columns={3}
   width="w-[100%]"
   height="h-[138px]"
-  
+  premiumHover
 />
 
 {/* ================================================= */}
@@ -1203,6 +1014,13 @@ onSelect={(value) =>
     bg-[#0b1220]
     px-3.5
     py-3
+    transition-all
+    duration-200
+    ease-[cubic-bezier(0.22,1,0.36,1)]
+    hover:-translate-y-[1px]
+    hover:scale-[1.002]
+    hover:bg-white/[0.028]
+    hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
   "
 >
   <div
@@ -1228,33 +1046,33 @@ onSelect={(value) =>
       gap-1.5
     "
   >
-{psychologyOptions.map(
-  (option) => (
-    <Chip
-      key={option.label}
-      label={option.label}
-selected={
-  psychology ===
-  option.label
-}
-onClick={() =>
-  toggleSingleSelection(
-    psychology,
-    option.label,
-    setPsychology
-  )
-}
-      icon={option.icon}
-      iconClassName={option.iconClassName}
-    />
-  )
-)}
+    {psychologyOptions.map(
+      (option) => (
+        <Chip
+          key={option.label}
+          label={option.label}
+          selected={
+            psychology ===
+            option.label
+          }
+          onClick={() =>
+            toggleSingleSelection(
+              psychology,
+              option.label,
+              setPsychology
+            )
+          }
+          icon={option.icon}
+          iconClassName={option.iconClassName}
+        />
+      )
+    )}
   </div>
 </section>
 
-      {/* ================================================= */}
-      {/* MISTAKES */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* MISTAKES */}
+{/* ================================================= */}
 
 <MultiSelectSection
   title="Mistakes"
@@ -1275,11 +1093,12 @@ onClick={() =>
     )
   }
   height="h-[238px]"
+  premiumHover
 />
 
-      {/* ================================================= */}
-      {/* STRENGTHS */}
-      {/* ================================================= */}
+{/* ================================================= */}
+{/* STRENGTHS */}
+{/* ================================================= */}
 
 <MultiSelectSection
   title="Strengths"
@@ -1300,6 +1119,7 @@ onClick={() =>
     )
   }
   height="h-[174px]"
+  premiumHover
 />
 
       {/* ================================================= */}
@@ -1313,18 +1133,19 @@ onClick={() =>
           gap-1.5
         "
       >
-<button
-  type="button"
-  onClick={
-    onPreviousTrade
-  }
-  disabled={
-    !canGoPrevious
-  }
-  className="
-    flex
-    h-[32px]
-    flex-1
+
+        <button
+          type="button"
+          onClick={
+            onPreviousTrade
+          }
+          disabled={
+            !canGoPrevious
+          }
+          className="
+            flex
+            h-[32px]
+            flex-1
             items-center
             justify-center
             gap-1
@@ -1335,11 +1156,21 @@ onClick={() =>
             text-[10px]
             font-semibold
             text-slate-300
-                transition
-    disabled:cursor-not-allowed
-    disabled:opacity-40
+            transition-all
+            duration-200
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+            hover:-translate-y-[1px]
+            hover:scale-[1.002]
             hover:border-white/[0.12]
+            hover:bg-white/[0.028]
             hover:text-white
+            hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
+            disabled:cursor-not-allowed
+            disabled:opacity-40
+            disabled:hover:translate-y-0
+            disabled:hover:scale-100
+            disabled:hover:bg-[#0b1220]
+            disabled:hover:shadow-none
           "
         >
           <ChevronRight
@@ -1349,84 +1180,95 @@ onClick={() =>
           Previous
         </button>
 
-<button
-  type="button"
-  onClick={
-    onNextTrade
-  }
-  disabled={
-    !canGoNext
-  }
-  className="
-    flex
-    h-[32px]
-    flex-1
-    items-center
-    justify-center
-    gap-1
-    rounded-[7px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-   text-[10px]
-font-semibold
-leading-tight
-text-slate-300
-    transition
-        disabled:cursor-not-allowed
-    disabled:opacity-40
-    hover:border-white/[0.12]
-    hover:text-white
-  "
->
-  Next
-  <ChevronRight
-    size={12}
-  />
-</button>
+        <button
+          type="button"
+          onClick={
+            onNextTrade
+          }
+          disabled={
+            !canGoNext
+          }
+          className="
+            flex
+            h-[32px]
+            flex-1
+            items-center
+            justify-center
+            gap-1
+            rounded-[7px]
+            border
+            border-white/[0.06]
+            bg-[#0b1220]
+            text-[10px]
+            font-semibold
+            leading-tight
+            text-slate-300
+            transition-all
+            duration-200
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+            hover:-translate-y-[1px]
+            hover:scale-[1.002]
+            hover:border-white/[0.12]
+            hover:bg-white/[0.028]
+            hover:text-white
+            hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
+            disabled:cursor-not-allowed
+            disabled:opacity-40
+            disabled:hover:translate-y-0
+            disabled:hover:scale-100
+            disabled:hover:bg-[#0b1220]
+            disabled:hover:shadow-none
+          "
+        >
+          Next
+          <ChevronRight
+            size={12}
+          />
+        </button>
 
-<button
-  type="button"
-  onClick={handleSaveReview}
-  disabled={
-    reviewLoading ||
-    reviewSaving ||
-    !canReviewTrade
-  }
-  className={`
-    flex
-    h-[32px]
-    flex-1
-    items-center
-    justify-center
-    gap-1
-    rounded-[7px]
-    px-2
-    text-[10px]
-    font-semibold
-    transition
-    disabled:cursor-not-allowed
-    disabled:opacity-50
-    ${
-      reviewSaving
-        ? "bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.18)] hover:bg-violet-400"
-        : "border border-white/[0.06] bg-[#0b1220] text-slate-300 hover:border-white/[0.12] hover:text-white"
-    }
-  `}
->
-  <Save
-    size={12}
-  />
-  {reviewSaving
-    ? "Saving..."
-    : "Save Review"}
-</button>
-
-
-
+        <button
+          type="button"
+          onClick={handleSaveReview}
+          disabled={
+            reviewLoading ||
+            reviewSaving ||
+            !canReviewTrade
+          }
+          className={`
+            flex
+            h-[32px]
+            flex-1
+            items-center
+            justify-center
+            gap-1
+            rounded-[7px]
+            px-2
+            text-[10px]
+            font-semibold
+            transition-all
+            duration-200
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+            disabled:hover:translate-y-0
+            disabled:hover:scale-100
+            disabled:hover:shadow-none
+            ${
+              reviewSaving
+                ? "bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.18)] hover:-translate-y-[1px] hover:scale-[1.002] hover:bg-violet-400 hover:shadow-[0_4px_14px_rgba(139,92,246,0.20)]"
+                : "border border-white/[0.06] bg-[#0b1220] text-slate-300 hover:-translate-y-[1px] hover:scale-[1.002] hover:border-white/[0.12] hover:bg-white/[0.028] hover:text-white hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]"
+            }
+          `}
+        >
+          <Save
+            size={12}
+          />
+          {reviewSaving
+            ? "Saving..."
+            : "Save Review"}
+        </button>
 
       </div>
-
 
       {/* ================================================= */}
       {/* INTERNAL UI FOOTER SPACING */}

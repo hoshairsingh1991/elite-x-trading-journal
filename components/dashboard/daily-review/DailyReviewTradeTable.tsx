@@ -701,18 +701,20 @@ const isSelected =
       )
     )
   }
-  className={`
-    h-[42px]
-    cursor-pointer
-    border-b
-    border-white/[0.045]
-    transition-colors
+    className={`
+      h-[42px]
+      cursor-pointer
+      border-b
+      border-white/[0.045]
+      transition-all
+      duration-200
+      ease-[cubic-bezier(0.22,1,0.36,1)]
 ${
   isSelected
     ? "bg-violet-500/[0.035] shadow-[inset_0_1px_0_rgba(139,92,246,0.22),inset_0_-1px_0_rgba(139,92,246,0.22)]"
-    : "hover:bg-white/[0.018]"
+    : "hover:-translate-y-[1px] hover:scale-[1.002] hover:bg-white/[0.028] hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]"
 }
-  `}
+    `}
 >
 
                     {/* INDEX */}

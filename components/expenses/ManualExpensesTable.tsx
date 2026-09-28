@@ -1009,8 +1009,14 @@ bg-[#0b1220]
     text-[12px]
     text-slate-300
 
-    transition-colors
-    hover:bg-white/[0.02]
+    transition-all
+    duration-200
+    ease-[cubic-bezier(0.22,1,0.36,1)]
+    hover:z-10
+    hover:-translate-y-[0.5px]
+    hover:scale-[1.001]
+    hover:bg-white/[0.022]
+    hover:shadow-[0_3px_10px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.025)]
 
     last:border-b-0
   `}

@@ -346,6 +346,7 @@ useEffect(() => {
   className="
     h-[calc(100vh-300px)]
     min-h-[500px]
+       overflow-x-hidden
     overflow-y-auto
     scrollbar-thin
     scrollbar-track-transparent
@@ -355,9 +356,9 @@ useEffect(() => {
   <div
     className="
       grid
+      grid-cols-1
       [--trade-row-height:50px]
       [--trade-content-y:0px]
-      grid-cols-[0.90fr_0.82fr_0.9fr_0.65fr_0.85fr_0.8fr_0.75fr_0.8fr_0.8fr_60px_1fr_0.9fr_0.95fr]
     "
     style={{
       gridAutoRows:
@@ -416,12 +417,26 @@ const isActionLocked =
 
                   return (
 
-                    <React.Fragment
-                      key={
-                        trade.id ||
-                        `trade-${index}`
-                      }
-                    >
+<div
+  key={
+    trade.id ||
+    `trade-${index}`
+  }
+  className="
+    relative
+    grid
+    h-[var(--trade-row-height)]
+    grid-cols-[0.90fr_0.82fr_0.9fr_0.65fr_0.85fr_0.8fr_0.75fr_0.8fr_0.8fr_60px_1fr_0.9fr_0.95fr]
+    transition-all
+    duration-200
+    ease-[cubic-bezier(0.22,1,0.36,1)]
+    hover:z-10
+    hover:-translate-y-[0.5px]
+    hover:scale-[1.001]
+    hover:bg-white/[0.022]
+    hover:shadow-[0_3px_10px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.025)]
+  "
+>
 
 {/* SYMBOL */}
 
@@ -441,8 +456,6 @@ const isActionLocked =
     border-b
     border-white/[0.04]
     px-5
-    transition-all
-    hover:bg-white/[0.02]
   "
 >
   {/* TICKER */}
@@ -485,7 +498,7 @@ const isActionLocked =
       trade
     )
   }
-  className="flex h-[var(--trade-row-height)] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[13px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
+  className="flex h-[var(--trade-row-height)] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[13px] font-medium text-slate-400"
 >
   {trade.openedAt
     ? (() => {
@@ -533,7 +546,7 @@ return (
       trade
     )
   }
-  className="flex h-[var(--trade-row-height)] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[13px] font-medium text-slate-400 transition-all hover:bg-white/[0.02]"
+  className="flex h-[var(--trade-row-height)] cursor-pointer items-center justify-center border-b border-white/[0.04] px-5 text-center text-[13px] font-medium text-slate-400"
 >
   {trade.closedAt
     ? (() => {
@@ -824,8 +837,6 @@ return (
     border-white/[0.04]
     px-5
     text-center
-    transition-all
-    hover:bg-white/[0.02]
   "
 >
   <span className="text-[13px] font-medium text-slate-300">
@@ -998,7 +1009,7 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 
                       </div>
 
-                                    </React.Fragment>
+                                    </div>
               );
             }
           )}

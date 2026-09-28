@@ -801,7 +801,7 @@ className="
             left-[11px]
             top-[8px]
             z-10
-            text-[8px]
+            text-[10px]
             font-semibold
             tracking-[0.22em]
             text-violet-300
@@ -819,7 +819,7 @@ className="
             flex
             items-center
             gap-1.5
-            text-[7px]
+            text-[9px]
             font-medium
             tracking-[0.12em]
             text-emerald-300/70
@@ -855,7 +855,7 @@ className="
     items-center
     justify-center
     relative
-    left-[50px]
+    left-[30px]
   "
 >
 
@@ -996,7 +996,7 @@ className="
 
               <div
                 className={`
-                  text-[9px]
+                  text-[11px]
                   font-semibold
                   uppercase
                   tracking-[0.16em]
@@ -1022,7 +1022,7 @@ className="
               <div
                 className="
                   mt-[2px]
-                  text-[8px]
+                  text-[10px]
                   leading-[11px]
                   text-slate-500
                 "

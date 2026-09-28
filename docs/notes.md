@@ -520,6 +520,9 @@ git commit -m "Build trade intelligence generated UI"
 git commit -m "Refine trade intelligence pre-generation UI"
 git commit -m "Implement live Trade Intelligence with Gemini"
 git commit -m "Refine AI insight lenses UI"
+git commit -m "Polish table row hover interactions"
+
+
 
 
 

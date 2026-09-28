@@ -786,6 +786,7 @@ className={`
 
 <section
   className="
+    relative
     overflow-hidden
     rounded-[8px]
     border
@@ -793,6 +794,12 @@ className={`
     bg-[#0b1220]
     px-4
     py-4
+    transition-all
+    duration-200
+    hover:-translate-y-[2px]
+    hover:z-10
+    hover:border-cyan-500/20
+    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
   "
 >
 
@@ -939,7 +946,23 @@ className={`
           {/* FINANCIAL SUMMARY */}
           {/* ================================================= */}
 
-          <div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+          <div
+  className="
+    relative
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-4
+    py-4
+    transition-all
+    duration-200
+    hover:-translate-y-[2px]
+    hover:z-10
+    hover:border-cyan-500/20
+    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+  "
+>
 
             <div className="flex h-[70px] items-center">
 
@@ -1040,7 +1063,23 @@ className={`
           {/* VALUES */}
           {/* ================================================= */}
 
-          <div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+          <div
+  className="
+    relative
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-4
+    py-4
+    transition-all
+    duration-200
+    hover:-translate-y-[2px]
+    hover:z-10
+    hover:border-cyan-500/20
+    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+  "
+>
 
             <div className="flex h-[80px] items-center">
 
@@ -1172,7 +1211,23 @@ valueClassName={
           {/* POSITION IMPACT */}
           {/* ================================================= */}
 
-          <div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+          <div
+  className="
+    relative
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-4
+    py-4
+    transition-all
+    duration-200
+    hover:-translate-y-[2px]
+    hover:z-10
+    hover:border-cyan-500/20
+    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+  "
+>
 
             <div className="relative h-[110px] w-[calc(100%-30px)] translate-x-[14px]">
 
@@ -1276,7 +1331,23 @@ Closed
           {/* TIMELINE */}
           {/* ================================================= */}
 
-          <div className="rounded-[8px] border border-white/[0.06] bg-[#0b1220] px-4 py-4">
+          <div
+  className="
+    relative
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    px-4
+    py-4
+    transition-all
+    duration-200
+    hover:-translate-y-[2px]
+    hover:z-10
+    hover:border-cyan-500/20
+    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+  "
+>
 
             <div className="w-[calc(100%-30px)] translate-x-[14px]">
 
