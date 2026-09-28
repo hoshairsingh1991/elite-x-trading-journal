@@ -553,6 +553,14 @@ Do not simply say:
 
 Explain why the evidence supports the interpretation.
 
+Do not infer the absence of an execution event merely because the
+supplied reconstructed trade contains only its matched entry and
+exit executions.
+
+For example, do not claim that no partial fills, no order changes,
+no stop modifications, or no other management actions occurred
+unless those facts are explicitly present in the supplied data.
+
 ------------------------------------------------------------
 BEHAVIORAL SIGNAL
 ------------------------------------------------------------

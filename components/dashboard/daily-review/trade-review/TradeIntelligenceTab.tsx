@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import {
   BarChart3,
@@ -45,6 +48,22 @@ export default function TradeIntelligenceTab({
 
   const [generationError, setGenerationError] =
     useState<string | null>(null);
+
+      const [activeLens, setActiveLens] =
+    useState(0);
+
+  useEffect(() => {
+    const lensTimer =
+      setInterval(() => {
+        setActiveLens((current) =>
+          (current + 1) % 3
+        );
+      }, 3000);
+
+    return () => {
+      clearInterval(lensTimer);
+    };
+  }, []);
 
   const handleGenerateIntelligence =
     async () => {
@@ -735,192 +754,284 @@ className="
       </section>
 
       {/* ================================================= */}
-      {/* VALUE PROPOSITION */}
+      {/* AI INSIGHT LENSES */}
       {/* ================================================= */}
 
       <section
         className="
-          h-[74px]
-          w-[100%]
+          relative
+          h-[82px]
+          w-full
+          overflow-hidden
           rounded-[8px]
           border
-          border-white/[0.06]
-          bg-[#08111f]
-          px-2
-          py-3
+          border-violet-400/[0.12]
+          bg-[linear-gradient(135deg,rgba(12,18,34,0.96),rgba(8,17,31,0.99))]
+          shadow-[inset_0_0_30px_rgba(139,92,246,0.025)]
         "
       >
 
+        {/* ================================================= */}
+        {/* AMBIENT AI GLOW */}
+        {/* ================================================= */}
+
         <div
           className="
-            grid
-            h-full
-            grid-cols-3
-            divide-x
-            divide-white/[0.06]
+            pointer-events-none
+            absolute
+            left-1/2
+            top-[-28px]
+            h-[60px]
+            w-[190px]
+            -translate-x-1/2
+            rounded-full
+            bg-violet-500/[0.045]
+            blur-2xl
+            animate-pulse
+          "
+        />
+
+        {/* ================================================= */}
+        {/* HEADER */}
+        {/* ================================================= */}
+
+        <div
+          className="
+            absolute
+            left-[11px]
+            top-[8px]
+            z-10
+            text-[8px]
+            font-semibold
+            tracking-[0.22em]
+            text-violet-300
+          "
+        >
+          AI INSIGHT LENSES
+        </div>
+
+        <div
+          className="
+            absolute
+            right-[11px]
+            top-[8px]
+            z-10
+            flex
+            items-center
+            gap-1.5
+            text-[7px]
+            font-medium
+            tracking-[0.12em]
+            text-emerald-300/70
           "
         >
 
-          {/* ================================================= */}
-          {/* DEEPER INSIGHTS */}
-          {/* ================================================= */}
-
-          <div
+          <span
             className="
-              flex
-              items-start
-              gap-2
-              pr-2
+              h-[4px]
+              w-[4px]
+              rounded-full
+              bg-emerald-400
+              shadow-[0_0_7px_rgba(52,211,153,0.75)]
+              animate-pulse
             "
-          >
+          />
 
+          LIVE ANALYSIS
 
-            <div
-              className="
-                min-w-0
-              "
-            >
+        </div>
+
+        {/* ================================================= */}
+        {/* ACTIVE LENS */}
+        {/* ================================================= */}
 
 <div
   className="
+    absolute
+    inset-x-0
+    bottom-[7px]
+    top-[37px]
+    flex
+    items-center
+    justify-center
     relative
-    left-[0px]
-    top-[10px]
-    w-full
-    text-center
-    text-[11px]
-    font-semibold
-    leading-[12px]
-    text-white
+    left-[50px]
   "
 >
-  Deeper Insights
-</div>
-
-<div
-  className="
-    relative
-    left-[0px]
-    top-[18px]
-    mt-1
-    w-full
-    text-center
-    text-[10px]
-    leading-[12px]
-    text-slate-500
-  "
->
-  Find what really mattered in this trade.
-</div>
-
-            </div>
-
-          </div>
-
-          {/* ================================================= */}
-          {/* EXECUTION ANALYSIS */}
-          {/* ================================================= */}
 
           <div
+            key={activeLens}
             className="
               flex
-              items-start
-              gap-2
-              px-2
+              items-center
+              gap-2.5
+              animate-in
+              fade-in
+              slide-in-from-bottom-1
+              duration-500
             "
           >
 
+            {/* ================================================= */}
+            {/* ACTIVE LENS ICON */}
+            {/* ================================================= */}
+
+            <div
+              className={`
+                relative
+                flex
+                h-[24px]
+                w-[24px]
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                transition-all
+                duration-500
+
+                ${
+                  activeLens === 0
+                    ? "border border-sky-300/35 bg-sky-400/[0.05] shadow-[0_0_16px_rgba(56,189,248,0.16)]"
+                    : activeLens === 1
+                      ? "border border-violet-300/40 bg-violet-400/[0.06] shadow-[0_0_18px_rgba(139,92,246,0.22)]"
+                      : "border border-amber-300/35 bg-amber-400/[0.05] shadow-[0_0_16px_rgba(251,191,36,0.16)]"
+                }
+              `}
+            >
+
+              {/* ================================================= */}
+              {/* PATTERNS ICON */}
+              {/* ================================================= */}
+
+              {activeLens === 0 && (
+                <span
+                  className="
+                    h-[8px]
+                    w-[8px]
+                    rotate-45
+                    rounded-[2px]
+                    border
+                    border-sky-200/80
+                    bg-sky-300/[0.10]
+                    shadow-[0_0_9px_rgba(125,211,252,0.75)]
+                    animate-pulse
+                  "
+                />
+              )}
+
+              {/* ================================================= */}
+              {/* EXECUTION ICON */}
+              {/* ================================================= */}
+
+              {activeLens === 1 && (
+                <>
+                  <span
+                    className="
+                      h-[8px]
+                      w-[8px]
+                      rounded-full
+                      bg-violet-200
+                      shadow-[0_0_11px_rgba(196,181,253,0.95)]
+                      animate-pulse
+                    "
+                  />
+
+                  <span
+                    className="
+                      absolute
+                      inset-[4px]
+                      rounded-full
+                      border
+                      border-violet-200/[0.18]
+                    "
+                  />
+                </>
+              )}
+
+              {/* ================================================= */}
+              {/* LESSONS ICON */}
+              {/* ================================================= */}
+
+              {activeLens === 2 && (
+                <>
+                  <span
+                    className="
+                      h-[8px]
+                      w-[8px]
+                      rotate-45
+                      rounded-[2px]
+                      bg-amber-300/[0.12]
+                      shadow-[0_0_10px_rgba(253,224,71,0.80)]
+                      animate-pulse
+                    "
+                  />
+
+                  <span
+                    className="
+                      absolute
+                      h-[4px]
+                      w-[4px]
+                      translate-x-[5px]
+                      translate-y-[-5px]
+                      rounded-full
+                      bg-amber-200
+                      shadow-[0_0_7px_rgba(253,224,71,0.85)]
+                    "
+                  />
+                </>
+              )}
+
+            </div>
+
+            {/* ================================================= */}
+            {/* ACTIVE LENS TEXT */}
+            {/* ================================================= */}
+
             <div
               className="
-                min-w-0
+                min-w-[190px]
+                text-left
               "
             >
 
               <div
-                className="
-                  relative
-                  left-[0px]
-                  top-[10px]
-                  w-full
-                  text-center
-                  text-[11px]
+                className={`
+                  text-[9px]
                   font-semibold
-                  leading-[12px]
-                  text-white
-                "
+                  uppercase
+                  tracking-[0.16em]
+                  transition-colors
+                  duration-500
+
+                  ${
+                    activeLens === 0
+                      ? "text-sky-300"
+                      : activeLens === 1
+                        ? "text-violet-300"
+                        : "text-amber-300"
+                  }
+                `}
               >
-                Execution Analysis
+                {activeLens === 0
+                  ? "Patterns"
+                  : activeLens === 1
+                    ? "Execution"
+                    : "Lessons"}
               </div>
 
               <div
                 className="
-                  relative
-                  left-[0px]
-                  top-[18px]
-                  mt-1
-                  w-full
-                  text-center
-                  text-[10px]
-                  leading-[12px]
+                  mt-[2px]
+                  text-[8px]
+                  leading-[11px]
                   text-slate-500
                 "
               >
-                See strengths, weaknesses and patterns.
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* ================================================= */}
-          {/* ACTIONABLE TAKEAWAYS */}
-          {/* ================================================= */}
-
-          <div
-            className="
-              flex
-              items-start
-              gap-2
-              pl-2
-            "
-          >
-
-            <div
-              className="
-                min-w-0
-              "
-            >
-
-              <div
-                className="
-                  relative
-                  left-[0px]
-                  top-[10px]
-                  w-full
-                  text-center
-                  text-[10px]
-                  font-semibold
-                  leading-[12px]
-                  text-white
-                "
-              >
-                Actionable Takeaways
-              </div>
-
-              <div
-                className="
-                  relative
-                  left-[0px]
-                  top-[18px]
-                  mt-1
-                  w-full
-                  text-center
-                  text-[10px]
-                  leading-[12px]
-                  text-slate-500
-                "
-              >
-                Get clear lessons for future trades.
+                {activeLens === 0
+                  ? "Finding relationships across your trade"
+                  : activeLens === 1
+                    ? "Examining entry, management and exit"
+                    : "Extracting what to carry forward"}
               </div>
 
             </div>
@@ -929,7 +1040,9 @@ className="
 
         </div>
 
+
       </section>
+
       {/* ================================================= */}
       {/* REVIEW GUIDANCE */}
       {/* ================================================= */}
