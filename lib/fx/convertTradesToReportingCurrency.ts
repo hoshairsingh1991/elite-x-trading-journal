@@ -39,11 +39,12 @@ export function convertTradesToReportingCurrency(
         rates
       ),
 
-      currency:
-        reportingCurrency,
+currency:
+  trade.currency,
 
-      feeCurrency:
-        reportingCurrency,
+feeCurrency:
+  trade.feeCurrency ??
+    trade.currency,
     })
   );
 }

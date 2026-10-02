@@ -30,6 +30,8 @@ export interface DailyReviewHeaderProps {
 
   selectedTrades: Trade[];
 
+  reportingCurrency: string;
+
   accountOptions: string[];
 
   selectedAccount: string;

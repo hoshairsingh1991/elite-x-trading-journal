@@ -10,8 +10,8 @@ import {
 } from "@/types/trade";
 
 import {
-  getCurrencySymbol,
-} from "@/lib/fx/currencyFormatting";
+  formatCurrency,
+} from "@/lib/utils/formatCurrency";
 
 import {
   getTradeReviewKey,
@@ -168,8 +168,10 @@ function formatQuantity(
 }
 
 function formatPrice(
-  value?: number | null
+  value?: number | null,
+  currency?: string
 ) {
+
   if (
     value == null ||
     !Number.isFinite(
@@ -179,7 +181,10 @@ function formatPrice(
     return "—";
   }
 
-  return `$${value.toFixed(2)}`;
+  return formatCurrency(
+    value,
+    currency
+  );
 }
 
 function getAssetTypeLabel(
@@ -636,6 +641,7 @@ translate-x-1
                     trade.pnl || 0
                   );
 
+
                 const canEdit =
                   trade.contractKey?.startsWith(
                     "MANUAL-"
@@ -872,9 +878,10 @@ ${
                         text-slate-300
                       "
                     >
-                      {formatPrice(
-                        trade.entryPrice
-                      )}
+{formatPrice(
+  trade.entryPrice,
+  trade.currency
+)}
                     </td>
 
                     {/* EXIT */}
@@ -906,7 +913,10 @@ ${
   Expired
 </span>
   ) : (
-    formatPrice(trade.exitPrice)
+    formatPrice(
+  trade.exitPrice,
+  trade.currency
+)
   )}
 </td>
 
@@ -926,17 +936,13 @@ ${
                         }
                       `}
                     >
-                      {pnl >= 0
-                        ? "+"
-                        : "-"}
-                      {getCurrencySymbol(
-                        reportingCurrency
-                      )}
-                      {Math.abs(
-                        pnl
-                      ).toFixed(
-                        2
-                      )}
+{pnl >= 0
+  ? "+"
+  : "-"}
+{formatCurrency(
+  Math.abs(pnl),
+  reportingCurrency
+)}
                     </td>
 
 {/* COMMISSION */}
@@ -952,16 +958,14 @@ className="
   text-slate-400
 "
 >
-  {getCurrencySymbol(
-    reportingCurrency
-  )}
-  {Math.abs(
+{formatCurrency(
+  Math.abs(
     Number(
       trade.fees || 0
     )
-  ).toFixed(
-    2
-  )}
+  ),
+  reportingCurrency
+)}
 </td>
 
                     {/* R-MULTIPLE */}

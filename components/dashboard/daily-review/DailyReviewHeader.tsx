@@ -15,9 +15,9 @@ import {
   X,
 } from "lucide-react";
 
-import {
-  DailyReviewHeaderProps,
-} from "./dailyReviewTypes";
+import { DailyReviewHeaderProps } from "./dailyReviewTypes";
+
+import CurrencyFlag from "@/components/ui/CurrencyFlag";
 
 function parseDateTime(
   value?: string | null
@@ -41,15 +41,27 @@ function parseDateTime(
 }
 
 export default function DailyReviewHeader({
+
   selectedDay,
+
   currentMonth,
+
   monthName,
+
   currentYear,
+
   selectedTrades,
+
+  reportingCurrency,
+
   accountOptions,
+
   selectedAccount,
+
   onAccountChange,
+
   onClose,
+
 }: DailyReviewHeaderProps) {
 
   const [
@@ -395,9 +407,47 @@ const tradingStart =
     </>
   )}
 
+  </div>
+
+  {/* ============================================= */}
+  {/* REPORTING CURRENCY */}
+  {/* ============================================= */}
+
+{/* ============================================= */}
+{/* REPORTING CURRENCY */}
+{/* ============================================= */}
+
+<div
+  className="
+    hidden
+    h-[34px]
+    w-[80px]
+    shrink-0
+    items-center
+    justify-center
+    rounded-[8px]
+    border
+    border-white/[0.06]
+    bg-[#0b1220]
+    @[900px]:flex
+  "
+>
+  <div className="flex items-center gap-1.5">
+    <CurrencyFlag currency={reportingCurrency} />
+
+    <span
+      className="
+        text-[12px]
+        font-semibold
+        text-white
+      "
+    >
+      {reportingCurrency}
+    </span>
+  </div>
 </div>
 
-        {/* SESSION */}
+{/* SESSION */}
 
         <div
           className="

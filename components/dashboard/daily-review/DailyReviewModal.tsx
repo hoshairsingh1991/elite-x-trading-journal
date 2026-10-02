@@ -498,6 +498,9 @@ ${
   selectedTrades={
     filteredSelectedTrades
   }
+  reportingCurrency={
+    reportingCurrency
+  }
   accountOptions={
     accountOptions
   }

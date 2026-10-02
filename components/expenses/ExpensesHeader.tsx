@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  CalendarDays,
-  ChevronDown,
-  CircleHelp,
-} from "lucide-react";
+
 
 import UserMenuV2 from "@/components/layout/UserMenuV2";
 
@@ -21,9 +17,6 @@ import { FileDown } from "lucide-react";
 // Move Reporting content (flag + text)
 const reportingContentOffset = "translate-x-3";
 
-// Move Reporting chevron
-const reportingChevronX = "-translate-x-2";
-const reportingChevronY = "translate-y-1";
 
 
 /* =====================================================
@@ -42,21 +35,7 @@ const exportWidth = "w-[140px]";
 const exportHeight = "h-[46px]";
 
 
-/* =====================================================
-   DATE RANGE FINE TUNING
-   ===================================================== */
 
-// Move entire date content block
-const dateContentX = "translate-x-2";
-const dateContentY = "translate-y-0";
-
-// Move calendar icon
-const dateIconX = "translate-x-0";
-const dateIconY = "translate-y-0";
-
-// Move dropdown chevron
-const dateChevronX = "-translate-x-1";
-const dateChevronY = "translate-y-0";
 
 interface ExpensesHeaderProps {
   reportingCurrency: string;
