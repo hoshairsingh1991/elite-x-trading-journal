@@ -522,7 +522,7 @@ git commit -m "Implement live Trade Intelligence with Gemini"
 git commit -m "Refine AI insight lenses UI"
 git commit -m "Polish table row hover interactions"
 git commit -m "Fix native trade currency display"
-
+git commit -m "Fix native trade currency in review drawer"
 
 
 

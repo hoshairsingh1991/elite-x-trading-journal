@@ -274,6 +274,15 @@ const selectedTradeIndex =
       )
     : -1;
 
+    const nativeSelectedTrade =
+  selectedTrade
+    ? allTrades.find(
+        (trade) =>
+          trade.id ===
+          selectedTrade.id
+      ) ?? selectedTrade
+    : null;
+
 const canGoPrevious =
   selectedTradeIndex > 0;
 
@@ -788,11 +797,10 @@ bottom-[18px]
     >
 <DailyReviewTradeDrawer
   trade={
+    nativeSelectedTrade ??
     selectedTrade
   }
-  reportingCurrency={
-    reportingCurrency
-  }
+
   onClose={() =>
     setTradeDrawerCollapsed(
       true

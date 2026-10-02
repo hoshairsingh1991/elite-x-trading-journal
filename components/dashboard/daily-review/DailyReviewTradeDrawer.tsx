@@ -23,7 +23,6 @@ import TradeReviewTab
 
 interface DailyReviewTradeDrawerProps {
   trade: Trade;
-  reportingCurrency: string;
   onClose: () => void;
 
   onReviewStatusChange?: (
@@ -32,9 +31,11 @@ interface DailyReviewTradeDrawerProps {
   ) => void;
 
   onPreviousTrade?: () => void;
+
   onNextTrade?: () => void;
 
   canGoPrevious?: boolean;
+
   canGoNext?: boolean;
 }
 
@@ -250,7 +251,6 @@ function PreviewRow({
 
 export default function DailyReviewTradeDrawer({
   trade,
-  reportingCurrency,
   onClose,
   onReviewStatusChange,
   onPreviousTrade,
@@ -259,10 +259,10 @@ export default function DailyReviewTradeDrawer({
   canGoNext,
 }: DailyReviewTradeDrawerProps) {
 
-  const currencySymbol =
-    getCurrencySymbol(
-      reportingCurrency
-    );
+const currencySymbol =
+  getCurrencySymbol(
+    trade.currency
+  );
 
 const [activeTab, setActiveTab] =
   useState<
@@ -1403,10 +1403,9 @@ Math.abs(
 ) !== 1
   ? "s"
   : ""}{" "}
-@ $
-                      {formatNumber(
-                        trade.entryPrice
-                      )}
+{" "}@ {currencySymbol}{formatNumber(
+  trade.entryPrice
+)}
                     </div>
 
                     <div className="mt-1 text-[13px] text-slate-400">
@@ -1491,7 +1490,7 @@ Math.abs(
   : ""}{" "}
 {trade.exitPrice !=
 null
-  ? ` @ $${formatNumber(
+  ? ` @ ${currencySymbol}${formatNumber(
       trade.exitPrice
     )}`
   : ""}
