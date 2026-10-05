@@ -714,7 +714,8 @@ className={`
         </button>
 
       </div>
-
+      {/* GAP BETWEEN TABS AND CONTENT */}
+      <div className="h-[10px] shrink-0" />
       {/* ================================================= */}
       {/* DRAWER CONTENT */}
       {/* Exact Add Trade Preview geometry */}
