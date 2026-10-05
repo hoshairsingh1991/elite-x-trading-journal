@@ -14,8 +14,7 @@ import {
 
 import MetricInfoTooltip from "@/components/dashboard-v2/MetricInfoTooltip";
 
-import { CalendarSync } from "lucide-react";
-
+import VendorIcon from "@/components/common/VendorIcon";
 
 
 import {
@@ -884,15 +883,10 @@ className="translate-x-0 translate-y-0"
 
         <div className="flex items-center">
 
-<Calendar
-  className={`
-    h-[15px]
-    w-[15px]
-    text-slate-400
-
-    ${renewalIconX}
-    ${renewalIconY}
-  `}
+<VendorIcon
+  vendor={renewal.vendor}
+  size="sm"
+  className={`${renewalIconX} ${renewalIconY}`}
 />
 
           <span

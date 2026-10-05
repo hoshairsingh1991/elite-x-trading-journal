@@ -24,6 +24,8 @@ import type { ReportingExpense } from "@/lib/types/expense";
 
 import { Trade } from "@/types/trade";
 
+import VendorIcon from "@/components/common/VendorIcon";
+
 import {
   BusinessCostAnalyticsData,
 } from "@/lib/analytics/businessCostAnalytics";
@@ -1052,15 +1054,27 @@ duration-700
           <div className="flex items-center justify-between">
 
             {/* Left */}
-            <div className="flex items-center gap-3">
+            <div
+  className={`
+    flex
+    items-center
+    gap-3
+    ${
+      vendor.amount > 0
+        ? "relative left-[-8px]"
+        : ""
+    }
+  `}
+>
 
-              <span
-                className={`h-2 w-2 rounded-full ${
-                  vendor.amount > 0
-                    ? "bg-blue-500"
-                    : "bg-slate-600"
-                }`}
-              />
+{vendor.amount > 0 ? (
+  <VendorIcon
+    vendor={vendor.vendor}
+    size="sm"
+  />
+) : (
+  <span className="h-2 w-2 rounded-full bg-slate-600" />
+)}
 
               <span
                 className={`text-[13px] ${

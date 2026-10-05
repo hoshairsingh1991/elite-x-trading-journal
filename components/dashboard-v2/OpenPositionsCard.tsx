@@ -13,9 +13,21 @@ interface OpenPositionsCardProps {
 export default function OpenPositionsCard({
   trades,
 }: OpenPositionsCardProps) {
-  const openTrades = trades.filter(
+const openTrades = trades
+  .filter(
     (trade) => trade.isOpen
-  );
+  )
+  .sort((a, b) => {
+    const aTime = a.openedAt
+      ? new Date(a.openedAt).getTime()
+      : 0;
+
+    const bTime = b.openedAt
+      ? new Date(b.openedAt).getTime()
+      : 0;
+
+    return bTime - aTime;
+  });
 
   function formatQuantity(
     quantity: number

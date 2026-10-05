@@ -527,7 +527,7 @@ git commit -m "Fix trade review drawer scroll spacing"
 git commit -m "Fix native currency display on dashboard cards"
 git commit -m "Redesign dashboard position and recent trade cards"
 git commit -m "Add reusable asset icon system"
-
+git commit -m "Add asset and vendor identity icon systems"
 
 
 
