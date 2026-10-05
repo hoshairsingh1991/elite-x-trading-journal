@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -15,62 +16,177 @@ import {
   Link,
   List,
   Save,
+  Trash2,
   Underline,
 } from "lucide-react";
 
+import { Trade } from "@/types/trade";
+
+import {
+  createDailyReviewTradeNote,
+  deleteDailyReviewTradeNote,
+  loadDailyReviewTradeNotes,
+} from "@/lib/storage/supabaseDailyReviewTradeNoteStorage";
+
+import {
+  DailyReviewTradeNote,
+} from "@/types/dailyReviewTradeNote";
 
 
-export default function TradeNotesTab() {
+
+interface TradeNotesTabProps {
+  trade: Trade;
+}
+
+
+
+export default function TradeNotesTab({
+  trade,
+}: TradeNotesTabProps) {
   const [note, setNote] =
     useState("");
-
-
 
   const [savedLocally, setSavedLocally] =
     useState(false);
 
-const canSave =
-  note.trim().length > 0;
+  const [pastNotes, setPastNotes] =
+    useState<DailyReviewTradeNote[]>([]);
+
+  const [isSaving, setIsSaving] =
+    useState(false);
+
+  const canSave =
+    note.trim().length > 0 &&
+    !isSaving;
 
 
 
-  function handleSave() {
-    if (!canSave) {
-      return;
+  // =====================================================
+  // LOAD EXISTING NOTES FOR SELECTED TRADE
+  // =====================================================
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setNote("");
+setSavedLocally(false);
+
+    async function loadNotes() {
+      if (!trade.id) {
+        setPastNotes([]);
+        return;
+      }
+
+      const notes =
+        await loadDailyReviewTradeNotes(
+          trade.id
+        );
+
+      if (!cancelled) {
+        setPastNotes(notes);
+      }
     }
+
+    loadNotes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [trade.id]);
+
+
+
+// =====================================================
+// SAVE NOTE
+// =====================================================
+
+async function handleSave() {
+  if (!canSave) {
+    return;
+  }
+
+  setIsSaving(true);
+
+  const createdNote =
+    await createDailyReviewTradeNote(
+      trade.id,
+      note
+    );
+
+  if (createdNote) {
+    setPastNotes((currentNotes) => [
+      createdNote,
+      ...currentNotes,
+    ]);
 
     setSavedLocally(true);
   }
 
-  return (
-<div
-  className="
-    flex
-    h-full
-    min-h-0
-    w-full
-    flex-col
-    gap-3
-    px-[14px]
-    pb-5
-  "
->
+  setIsSaving(false);
+}
+
+// =====================================================
+// DELETE NOTE
+// =====================================================
+
+async function handleDelete(
+  noteId: string
+) {
+  const confirmed =
+    window.confirm(
+      "Delete this trade note?\n\nThis action cannot be undone."
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  const deleted =
+    await deleteDailyReviewTradeNote(
+      noteId
+    );
+
+  if (!deleted) {
+    return;
+  }
+
+  setPastNotes((currentNotes) =>
+    currentNotes.filter(
+      (savedNote) =>
+        savedNote.id !== noteId
+    )
+  );
+}
+
+return (
+    <div
+      className="
+        flex
+        h-full
+        min-h-0
+        w-full
+        flex-col
+        gap-3
+        px-[14px]
+        pb-5
+      "
+    >
       {/* TRADE NOTES */}
 
-<section
-  className="
-    flex
-    h-[480px]
-    shrink-0
-    flex-col
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    px-5
-    py-5
-  "
->
+      <section
+        className="
+          flex
+          h-[480px]
+          shrink-0
+          flex-col
+          rounded-[8px]
+          border
+          border-white/[0.06]
+          bg-[#0b1220]
+          px-5
+          py-5
+        "
+      >
         <div
           className="
             flex
@@ -79,15 +195,15 @@ const canSave =
             gap-3
           "
         >
-<div
-  className="
-    flex
-    items-center
-    gap-2.5
-    translate-x-[8px]
-    translate-y-[6px]
-  "
->
+          <div
+            className="
+              flex
+              items-center
+              gap-2.5
+              translate-x-[8px]
+              translate-y-[6px]
+            "
+          >
             <FileText
               size={17}
               strokeWidth={1.9}
@@ -105,16 +221,16 @@ const canSave =
             </h4>
           </div>
 
-<div
-  className="
-    flex
-    items-center
-    gap-1.5
-    text-[10px]
-    translate-x-[-8px]
-    translate-y-[6px]
-  "
->
+          <div
+            className="
+              flex
+              items-center
+              gap-1.5
+              text-[10px]
+              translate-x-[-8px]
+              translate-y-[6px]
+            "
+          >
             <span
               className={
                 savedLocally
@@ -123,7 +239,7 @@ const canSave =
               }
             >
               {savedLocally
-                ? "Saved locally"
+                ? "Saved"
                 : "Draft"}
             </span>
 
@@ -139,191 +255,193 @@ const canSave =
           </div>
         </div>
 
-<div
-  className="
-    mt-3
-    flex
-    h-[400px]
-    shrink-0
-    w-[calc(100%-14px)]
-    flex-col
-    translate-x-[7px]
-    translate-y-[12px]
-    overflow-hidden
-    rounded-[8px]
-    border
-    border-white/[0.08]
-    bg-[#091521]
-  "
->
-  {/* EDITOR TOOLBAR */}
+        <div
+          className="
+            mt-3
+            flex
+            h-[400px]
+            shrink-0
+            w-[calc(100%-14px)]
+            flex-col
+            translate-x-[7px]
+            translate-y-[12px]
+            overflow-hidden
+            rounded-[8px]
+            border
+            border-white/[0.08]
+            bg-[#091521]
+          "
+        >
+          {/* EDITOR TOOLBAR */}
 
-  <div
-    className="
-      flex
-      h-10
-      items-center
-      gap-1.5
-      border-b
-      border-white/[0.06]
-      px-2.5
-      translate-x-[8px]
-    "
-  >
-    <button
-      type="button"
-      title="Text style"
-      className="
-        flex
-        h-7
-        w-[80px]
-        items-center
-        justify-between
-        rounded-[6px]
-        border
-        border-white/[0.08]
-        px-2
-        text-[11px]
-        text-slate-300
-      "
-    >
-      <span className="relative left-[8px]">
-        Normal
-      </span>
+          <div
+            className="
+              flex
+              h-10
+              items-center
+              gap-1.5
+              border-b
+              border-white/[0.06]
+              px-2.5
+              translate-x-[8px]
+            "
+          >
+            <button
+              type="button"
+              title="Text style"
+              className="
+                flex
+                h-7
+                w-[80px]
+                items-center
+                justify-between
+                rounded-[6px]
+                border
+                border-white/[0.08]
+                px-2
+                text-[11px]
+                text-slate-300
+              "
+            >
+              <span className="relative left-[8px]">
+                Normal
+              </span>
 
-      <ChevronDown
-        size={14}
-        className="text-slate-400"
-      />
-    </button>
+              <ChevronDown
+                size={14}
+                className="text-slate-400"
+              />
+            </button>
 
-    <div
-      className="
-        ml-1
-        flex
-        items-center
-        gap-0.5
-      "
-    >
-      <ToolbarButton label="Bold">
-        <Bold size={15} />
-      </ToolbarButton>
+            <div
+              className="
+                ml-1
+                flex
+                items-center
+                gap-0.5
+              "
+            >
+              <ToolbarButton label="Bold">
+                <Bold size={15} />
+              </ToolbarButton>
 
-      <ToolbarButton label="Italic">
-        <Italic size={16} />
-      </ToolbarButton>
+              <ToolbarButton label="Italic">
+                <Italic size={16} />
+              </ToolbarButton>
 
-      <ToolbarButton label="Underline">
-        <Underline size={15} />
-      </ToolbarButton>
-    </div>
+              <ToolbarButton label="Underline">
+                <Underline size={15} />
+              </ToolbarButton>
+            </div>
 
-    <span
-      className="
-        mx-1
-        h-5
-        w-px
-        bg-white/[0.06]
-      "
-    />
+            <span
+              className="
+                mx-1
+                h-5
+                w-px
+                bg-white/[0.06]
+              "
+            />
 
-    <ToolbarButton label="Bulleted list">
-      <List size={16} />
-    </ToolbarButton>
+            <ToolbarButton label="Bulleted list">
+              <List size={16} />
+            </ToolbarButton>
 
-    <ToolbarButton label="Add link">
-      <Link size={16} />
-    </ToolbarButton>
-  </div>
+            <ToolbarButton label="Add link">
+              <Link size={16} />
+            </ToolbarButton>
+          </div>
 
-<div
-  className="
-    box-border
-    min-h-0
-    flex-1
-    w-full
-  "
-  style={{
-    padding: "10px",
-  }}
->
-<textarea
-  value={note}
-    onChange={(event) => {
-      setNote(
-        event.target.value
-      );
+          <div
+            className="
+              box-border
+              min-h-0
+              flex-1
+              w-full
+            "
+            style={{
+              padding: "10px",
+            }}
+          >
+            <textarea
+              value={note}
+              onChange={(event) => {
+                setNote(
+                  event.target.value
+                );
 
-      setSavedLocally(false);
-    }}
-    placeholder="Write your notes about this trade..."
-    className="
-      h-full
-      w-full
-      resize-none
-      bg-transparent
-      px-0
-      py-0
-      text-[12px]
-      leading-5
-      text-slate-200
-      outline-none
-      placeholder:text-slate-500
-    "
-  />
-</div>
-</div>
+                setSavedLocally(false);
+              }}
+              placeholder="Write your notes about this trade..."
+              className="
+                h-full
+                w-full
+                resize-none
+                bg-transparent
+                px-0
+                py-0
+                text-[12px]
+                leading-5
+                text-slate-200
+                outline-none
+                placeholder:text-slate-500
+              "
+            />
+          </div>
+        </div>
 
+        <div
+          className="
+            mt-3
+            flex
+            justify-end
+            translate-x-[-10px]
+            translate-y-[20px]
+          "
+        >
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!canSave}
+            className="
+              flex
+              h-8
+              w-[100px]
+              items-center
+              justify-center
+              gap-2
+              rounded-[7px]
+              bg-blue-500
+              px-3.5
+              text-[11px]
+              font-semibold
+              text-white
+              transition
+              hover:bg-blue-400
+              disabled:cursor-not-allowed
+              disabled:opacity-45
+            "
+          >
+            <Save
+              size={15}
+              strokeWidth={2}
+            />
 
-<div
-  className="
-    mt-3
-    flex
-    justify-end
-    translate-x-[-10px]
-    translate-y-[20px]
-  "
->
-<button
-  type="button"
-  onClick={handleSave}
-  disabled={!canSave}
-  className="
-    flex
-    h-8
-    w-[100px]
-    items-center
-    justify-center
-    gap-2
-    rounded-[7px]
-    bg-blue-500
-    px-3.5
-    text-[11px]
-    font-semibold
-    text-white
-    transition
-    hover:bg-blue-400
-    disabled:cursor-not-allowed
-    disabled:opacity-45
-  "
->
-  <Save
-    size={15}
-    strokeWidth={2}
-  />
-
-  Save Note
-</button>
+            {isSaving
+              ? "Saving..."
+              : "Save Note"}
+          </button>
         </div>
       </section>
 
-      
 {/* PAST NOTES */}
 
 <section
   className="
-    h-[80px]
+    flex
+    h-[210px]
     shrink-0
+    flex-col
     rounded-[8px]
     border
     border-white/[0.06]
@@ -331,80 +449,67 @@ const canSave =
     p-4
   "
 >
+  {/* HEADER */}
+
   <div
     className="
       flex
+      shrink-0
       items-center
-      justify-between
-      gap-3
+      gap-2.5
+      translate-x-[8px]
+      translate-y-[6px]
     "
   >
-    <div
+    <FileText
+      size={17}
+      strokeWidth={1.9}
+      className="text-slate-200"
+    />
+
+    <h4
       className="
-        flex
-        items-center
-        gap-2.5
-        translate-x-[8px]
-        translate-y-[6px]
+        text-[13px]
+        font-semibold
+        text-slate-100
       "
     >
-      <FileText
-        size={17}
-        strokeWidth={1.9}
-        className="text-slate-200"
-      />
-
-      <h4
-        className="
-          text-[13px]
-          font-semibold
-          text-slate-100
-        "
-      >
-        Past Notes
-      </h4>
-    </div>
-
-    <button
-      type="button"
-      title="Past Notes will be connected later"
-      className="
-        flex
-        items-center
-        gap-1
-        text-[11px]
-        font-medium
-        text-blue-400
-        transition
-        hover:text-blue-300
-        translate-x-[-8px]
-        translate-y-[6px]
-      "
-    >
-      View All
-
-      <ChevronRight
-        size={14}
-        strokeWidth={2}
-      />
-    </button>
+      Past Notes ({pastNotes.length})
+    </h4>
   </div>
+
+  {/* NOTES LIST */}
 
 <div
   className="
-    mt-5
-    w-[calc(100%-14px)]
-    rounded-[7px]
-    border
-    border-dashed
-    border-white/[0.08]
-    px-4
-    py-5
-    text-center
-    translate-x-[7px]
-    translate-y-[16px]
+    relative
+    mt-4
+    min-h-0
+    flex-1
+    w-full
+    overflow-y-auto
+    left-[-4px]
   "
 >
+{pastNotes.length === 0 ? (
+  <div
+    className="
+      relative
+      left-[10px]
+      top-[18px]
+      flex
+      h-[160px]
+      w-[calc(100%-14px)]
+      shrink-0
+      items-center
+      justify-center
+      rounded-[7px]
+      border
+      border-dashed
+      border-white/[0.08]
+      text-center
+    "
+  >
     <p
       className="
         text-[11px]
@@ -414,22 +519,184 @@ const canSave =
     >
       No saved notes yet
     </p>
+  </div>
+) : (
+<div
+  className="
+    relative
+    left-[8px]
+    flex
+    w-[calc(100%-14px)]
+    flex-col
+    gap-2
+  "
+>
+        {pastNotes.map((savedNote) => {
+          const lines =
+            savedNote.content
+              .split(/\r?\n/)
+              .map((line) => line.trim())
+              .filter(Boolean);
 
+          const title =
+            lines[0] || "Trade note";
+
+          const preview =
+            lines.length > 1
+              ? lines.slice(1).join(" ")
+              : "";
+
+          const savedDate =
+            new Date(
+              savedNote.createdAt
+            );
+
+          const formattedDate =
+            savedDate.toLocaleDateString(
+              undefined,
+              {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              }
+            );
+
+          const formattedTime =
+            savedDate.toLocaleTimeString(
+              undefined,
+              {
+                hour: "numeric",
+                minute: "2-digit",
+              }
+            );
+
+          return (
+<div
+  key={savedNote.id}
+  className="
+    group
+    relative
+    top-[10px]
+    h-[52px]
+    shrink-0
+    overflow-hidden
+    rounded-[7px]
+    border
+    border-white/[0.08]
+    bg-[#091521]
+    px-3
+    py-2.5
+  "
+>
+{/* NOTE HEADER */}
+
+<div
+  className="
+    flex
+    
+    items-start
+    justify-between
+    gap-3
+  "
+>
+  {/* NOTE CONTENT */}
+
+  <div
+    className="
+      relative
+      left-[6px]
+      top-[4px]
+      min-w-0
+      flex-1
+    "
+  >
     <p
       className="
-        mt-1
-        text-[10px]
-        leading-4
-        text-slate-500
+        truncate
+        text-[11px]
+        font-semibold
+        text-slate-100
       "
     >
-      Saved trade notes will appear here.
+      {title}
     </p>
+
+    {/* NOTE PREVIEW */}
+
+    {preview && (
+      <p
+        className="
+          mt-1
+          line-clamp-2
+          text-[10px]
+          leading-4
+          text-slate-400
+        "
+      >
+        {preview}
+      </p>
+    )}
+  </div>
+
+{/* DATE / TIME */}
+
+<span
+  className="
+    relative
+    left-[-8px]
+    top-[6px]
+    shrink-0
+    whitespace-nowrap
+    text-[9px]
+    text-slate-500
+  "
+>
+  {formattedDate}{" "}
+  {formattedTime}
+</span>
+
+<button
+  type="button"
+  onClick={() =>
+    handleDelete(savedNote.id)
+  }
+  aria-label="Delete note"
+  title="Delete note"
+  className="
+    absolute
+    right-[6px]
+    top-[26px]
+    hidden
+    h-[18px]
+    w-[18px]
+    items-center
+    justify-center
+    rounded-[4px]
+    text-red-400
+    transition
+    hover:bg-red-500/10
+    hover:text-red-300
+    group-hover:flex
+  "
+>
+  <Trash2
+    size={12}
+    strokeWidth={1.9}
+  />
+</button>
+</div>
+            </div>
+          );
+        })}
+      </div>
+    )}
   </div>
 </section>
     </div>
   );
 }
+
+
 
 function ToolbarButton({
   label,

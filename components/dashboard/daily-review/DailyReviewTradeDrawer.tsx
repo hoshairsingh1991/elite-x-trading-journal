@@ -784,7 +784,9 @@ className={`
         w-[98%]
       "
     >
-      <TradeNotesTab />
+      <TradeNotesTab
+  trade={trade}
+/>
     </div>
 
   </div>
