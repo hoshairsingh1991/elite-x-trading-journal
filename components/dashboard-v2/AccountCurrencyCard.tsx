@@ -160,7 +160,7 @@ return (
       relative
       z-50
 
-      h-[730px]
+      h-[710px]
       overflow-hidden
 rounded-[8px]
 border
@@ -944,11 +944,11 @@ translate-x-4
 
 </div>
 
-<div className="h-[4px]" />
+<div className="h-[2px]" />
 
 <div className="h-px bg-white/[0.06]" />
 
-<div className="h-[4px]" />
+<div className="h-[2px]" />
 
 {/* Conversion Method */}
 
@@ -981,13 +981,13 @@ translate-x-4
 
 </div>
 
-<div className="h-[4px]" />
+<div className="h-[2px]" />
 
 <div className="h-px bg-white/[0.06]" />
 
 {/* FX Source */}
 
-<div className="h-[4px]" />
+<div className="h-[2px]" />
 
 <div className="flex items-center justify-between">
 
@@ -1018,13 +1018,13 @@ translate-x-4
 
 </div>
 
-<div className="h-[4px]" />
+<div className="h-[2px]" />
 
 <div className="h-px bg-white/[0.06]" />
 
 {/* Last Updated */}
 
-<div className="h-[4px]" />
+<div className="h-[2px]" />
 
 <div className="flex items-center justify-between">
 
@@ -1055,13 +1055,13 @@ translate-x-4
 
 </div>
 
-<div className="h-[4px]" />
+<div className="h-[2px]" />
 
 </div>
 
 </div>
 
-<div className="h-[12px]" />
+<div className="h-[8px]" />
 
 <div
   className="

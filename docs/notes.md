@@ -524,6 +524,12 @@ git commit -m "Polish table row hover interactions"
 git commit -m "Fix native trade currency display"
 git commit -m "Fix native trade currency in review drawer"
 git commit -m "Fix trade review drawer scroll spacing"
+git commit -m "Fix native currency display on dashboard cards"
+git commit -m "Redesign dashboard position and recent trade cards"
+
+
+
+
 
 
 

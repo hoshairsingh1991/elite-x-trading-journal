@@ -11,217 +11,340 @@ interface OpenPositionsCardProps {
 export default function OpenPositionsCard({
   trades,
 }: OpenPositionsCardProps) {
-
   const openTrades = trades.filter(
-  (trade) => trade.isOpen
-);
+    (trade) => trade.isOpen
+  );
 
+  function formatQuantity(
+    quantity: number
+  ) {
+    if (quantity >= 1000) {
+      return (
+        quantity / 1000
+      ).toFixed(1).replace(
+        ".0",
+        ""
+      ) + "K";
+    }
 
-function formatQuantity(
-  quantity: number
-) {
-  if (quantity >= 1000) {
-    return (
-      quantity / 1000
-    ).toFixed(1).replace(
-      ".0",
-      ""
-    ) + "K";
+    return quantity.toString();
   }
 
-  return quantity.toString();
-}
+  function getPositionLabel(
+    trade: Trade
+  ) {
+    if (
+      trade.assetType ===
+      "Options"
+    ) {
+      if (
+        trade.contractKey?.endsWith(
+          "_C"
+        )
+      ) {
+        return "CALL";
+      }
+
+      if (
+        trade.contractKey?.endsWith(
+          "_P"
+        )
+      ) {
+        return "PUT";
+      }
+
+      return "OPTION";
+    }
+
+    return trade.side;
+  }
 
   return (
-<div
-  className="
-    relative
-    z-50
-
-    h-[205px]
-    overflow-visible
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    backdrop-blur-xl
-
-    transition-all
-    duration-300
-
-    hover:-translate-y-1
-    hover:border-white/[0.12]
-    hover:bg-[#0b0c1e]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.35)]
-  "
->
-      {/* ===================================== */}
-      {/* INVISIBLE SPACER */}
-      {/* ===================================== */}
-
-      <div className="h-[6px]" />
-
+    <div
+      className="
+        relative
+        z-50
+        h-[205px]
+        overflow-hidden
+        rounded-[8px]
+        border
+        border-white/[0.06]
+        bg-[#0b1220]
+        backdrop-blur-xl
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:border-white/[0.12]
+        hover:bg-[#0b0c1e]
+        hover:shadow-[0_12px_30px_rgba(0,0,0,0.35)]
+      "
+    >
       {/* ================================================= */}
       {/* HEADER */}
       {/* ================================================= */}
 
-   <div className="px-8 pt-5">
-
-  <div className="flex items-center">
-
-    <h3
-      className="
-        relative
-        left-4
-        text-[14px]
-        font-semibold
-        text-white
-      "
-    >
-     Open Positions ({openTrades.length})
-    </h3>
-
-
-
-  </div>
-
-</div>
-
-  {/* ===================================== */}
-      {/* INVISIBLE SPACER */}
-      {/* ===================================== */}
-
-      <div className="h-[4px]" />
-
-      {/* ================================================= */}
-      {/* TABLE */}
-      {/* ================================================= */}
-
       <div
   className="
     relative
-    z-50
-    mt-6
-    flex
-    justify-center
+    left-4
+    top-2
+    px-4
+    pt-4
   "
 >
-        <div className="w-[90%]">
+        <div className="flex items-center justify-between">
+          <h3
+            className="
+              text-[14px]
+              font-semibold
+              text-white
+            "
+          >
+            Open Positions ({openTrades.length})
+          </h3>
+        </div>
+      </div>
 
-          {/* HEADER ROW */}
+{/* ================================================= */}
+{/* TABLE */}
+{/* ================================================= */}
+
+<div
+  className="
+    relative
+    left-1
+    top-2
+    mt-5
+  "
+>
+<div
+  className="
+    relative
+    left-1
+    top-1
+    mx-auto
+    w-[95%]
+    overflow-hidden
+    rounded-[6px]
+    border
+    border-white/[0.05]
+  "
+>
+
+{/* --------------------------------------------- */}
+{/* HEADER ROW */}
+{/* --------------------------------------------- */}
+
+<div
+  className="
+    border-b
+    border-white/[0.06]
+  "
+>
+  <div
+    className="
+      relative
+      left-1
+      mx-auto
+      w-[92%]
+      grid
+      grid-cols-4
+      items-center
+      h-[20px]
+      text-[9px]
+      font-semibold
+      uppercase
+      tracking-[0.1em]
+      text-slate-500
+    "
+  >
+    <div className="relative left-6 top-0.5">
+      Symbol
+    </div>
+
+<div className="relative left-8 top-0.5">
+  Side
+</div>
+
+    <div className="relative left-7 top-0.5">
+      Size
+    </div>
+
+<div className="relative top-0.5 whitespace-nowrap text-right">
+  Unrealized P&L
+</div>
+  </div>
+</div>
+
+
+{/* --------------------------------------------- */}
+{/* DATA ROWS */}
+{/* --------------------------------------------- */}
+
+<div
+  className="
+    max-h-[140px]
+    overflow-y-auto
+    overflow-x-hidden
+    [scrollbar-width:none]
+    [&::-webkit-scrollbar]:hidden
+  "
+>
+  {openTrades.length === 0 ? (
+    <div
+      className="
+        flex
+        h-[72px]
+        items-center
+        justify-center
+        text-[12px]
+        text-slate-500
+      "
+    >
+      No open positions
+    </div>
+  ) : (
+    openTrades.map((trade) => {
+      const isProfit =
+        trade.pnl >= 0;
+
+      const fallbackLetter =
+        trade.ticker
+          .trim()
+          .charAt(0)
+          .toUpperCase();
+
+      return (
+        <div
+          key={trade.id}
+          className="
+            relative
+            left-1
+            mx-auto
+            w-[92%]
+            grid
+            grid-cols-4
+            items-center
+            h-[28px]
+            border-b
+            border-white/[0.04]
+transition-all
+duration-200
+ease-[cubic-bezier(0.22,1,0.36,1)]
+last:border-b-0
+hover:-translate-y-[1px]
+hover:scale-[1.002]
+hover:bg-white/[0.028]
+hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
+          "
+        >
+          {/* ----------------------------------- */}
+          {/* SYMBOL */}
+          {/* ----------------------------------- */}
 
           <div
             className="
-              grid
-              grid-cols-4
-              text-[10px]
-              uppercase
-              tracking-[0.12em]
-              text-slate-500
+              relative
+              left-0
+              flex
+              min-w-0
+              items-center
+              gap-2
             "
           >
-            <div>Symbol</div>
-
             <div
-  className="
-    relative
-    left-5
-  "
->
-  Direction
-</div>
-
-<div
-  className="
-    relative
-    right-5
-    text-right
-  "
->
-  Size
-</div>
-
-            <div className="text-right">
-              Unrealized P&L
+              className="
+                flex
+                h-5
+                w-5
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-white/[0.08]
+                bg-white/[0.04]
+                text-[9px]
+                font-semibold
+                text-slate-300
+              "
+            >
+              {fallbackLetter}
             </div>
+
+            <span
+              className="
+                min-w-0
+                truncate
+                text-[12px]
+                font-medium
+                text-slate-300
+              "
+            >
+              {trade.ticker}
+            </span>
           </div>
 
-{/* DATA ROWS */}
+          {/* ----------------------------------- */}
+          {/* SIDE */}
+          {/* ----------------------------------- */}
 
-<div
-  className="
-    mt-4
-    h-[145px]
-    overflow-y-scroll
-    overflow-x-hidden
-    pr-1
-    
-  "
->
+          <div
+            className={`
+              relative
+              left-8
+              text-[11px]
+              font-medium
+              ${
+                trade.assetType === "Options"
+                  ? trade.contractKey?.endsWith("_C")
+                    ? "text-cyan-400"
+                    : trade.contractKey?.endsWith("_P")
+                      ? "text-amber-400"
+                      : "text-slate-400"
+                  : trade.side === "LONG"
+                    ? "text-emerald-400"
+                    : "text-red-400"
+              }
+            `}
+          >
+            {getPositionLabel(
+              trade
+            )}
+          </div>
 
+          {/* ----------------------------------- */}
+          {/* SIZE */}
+          {/* ----------------------------------- */}
 
- {openTrades.map((trade, index) => {
+          <div
+            className="
+              relative
+              left-1
+              text-center
+              text-[11px]
+              tabular-nums
+              text-slate-300
+            "
+          >
+            {formatQuantity(
+              trade.quantity
+            )}
+          </div>
 
-
-
-    const isProfit =
-      trade.pnl >= 0;
-
-    return (
-
-      <div
-        key={trade.id}
-        className="
-          grid
-          grid-cols-[1fr_1fr_0.8fr_1.2fr]
-          items-center
-          border-t
-          border-white/[0.04]
-          py-3
-        "
-      >
-
-        {/* SYMBOL */}
-
-        <div className="text-[13px] font-medium text-slate-300">
-  {trade.ticker}
-</div>
-
-        {/* DIRECTION */}
-
-        <div
-className={`
-  relative
-  left-8
-  text-[13px]
-  font-medium
-  ${
-    trade.side === "LONG"
-      ? "text-emerald-400"
-      : "text-red-400"
-  }
-`}
-        >
-          {trade.side}
-        </div>
-
-        {/* SIZE */}
-
-        <div className="text-[13px] text-right text-slate-300">
-          {formatQuantity(
-            trade.quantity
-          )}
-        </div>
-
-        {/* PNL */}
+          {/* ----------------------------------- */}
+          {/* P&L */}
+          {/* ----------------------------------- */}
 
 <div
   className={`
     relative
-    right-4
-    text-[13px]
+    -left-0
+    whitespace-nowrap
     text-right
-    font-medium
+    text-[11px]
+    font-semibold
+    tabular-nums
     ${
       isProfit
         ? "text-emerald-400"
@@ -229,22 +352,22 @@ className={`
     }
   `}
 >
-{isProfit ? "+" : "-"}
-{getCurrencySymbol(trade.currency)}
-{Math.abs(trade.pnl).toFixed(2)}
-</div>
-
-      </div>
-
-    );
-  })}
-
-</div>
-
+            {isProfit ? "+" : "-"}
+            {getCurrencySymbol(
+              trade.currency
+            )}
+            {Math.abs(
+              trade.pnl
+            ).toFixed(2)}
           </div>
-
         </div>
+      );
+    })
+  )}
+</div>
+  </div>
+</div>
       </div>
-  
+   
   );
 }
