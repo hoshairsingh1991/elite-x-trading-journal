@@ -2,14 +2,17 @@
 # EXPENSES — RECURRING EXPENSE DUPLICATION FIX
 # MASTER CHANGE / CHECKPOINT NOTES
 
-Date:
+Original Issue Date:
 September 14, 2026
+
+Final Verification Date:
+October 5, 2026
 
 Area:
 Expenses → Recurring Expenses
 
 Status:
-IMPLEMENTED — PENDING NEXT-CYCLE LIVE VERIFICATION
+PRODUCTION FIX VERIFIED
 
 
 ============================================================
@@ -79,7 +82,8 @@ apart.
 This confirmed that the problem was a race condition between
 the existence check and the INSERT.
 
-The application could not guarantee uniqueness by itself.
+The application-level check could not guarantee uniqueness by
+itself.
 
 
 ============================================================
@@ -161,15 +165,15 @@ Success. No rows returned
 
 
 Therefore there were no remaining duplicate recurring
-occurrences in the database at the time the uniqueness index
-was created.
+occurrences before the database uniqueness protection was
+created.
 
 
 ============================================================
-6. DATABASE-LEVEL FIX
+6. INITIAL DATABASE FIX
 ============================================================
 
-A unique index was added to the expenses table:
+The first database-level fix added a unique index:
 
 CREATE UNIQUE INDEX expenses_recurring_occurrence_unique_idx
 ON public.expenses (
@@ -180,7 +184,43 @@ ON public.expenses (
 WHERE recurring_group_id IS NOT NULL;
 
 
-The resulting index was verified directly through pg_indexes:
+This correctly established uniqueness at the database level,
+but the partial-index design introduced a compatibility issue
+with the new Supabase ON CONFLICT implementation.
+
+This issue was discovered during the October 2026 live-cycle
+verification and was subsequently corrected.
+
+IMPORTANT:
+
+The partial index above is NO LONGER the active production
+index.
+
+The final production index is documented below.
+
+
+============================================================
+7. FINAL DATABASE-LEVEL FIX
+============================================================
+
+The initial partial index was removed:
+
+DROP INDEX IF EXISTS public.expenses_recurring_occurrence_unique_idx;
+
+
+The final production index was then created:
+
+CREATE UNIQUE INDEX expenses_recurring_occurrence_unique_idx
+ON public.expenses (
+    user_id,
+    recurring_group_id,
+    expense_date
+);
+
+
+The final index was verified through pg_indexes.
+
+Final definition:
 
 expenses_recurring_occurrence_unique_idx
 
@@ -192,25 +232,96 @@ USING btree
     recurring_group_id,
     expense_date
 )
+
+
+There is NO WHERE clause on the final production index.
+
+
+============================================================
+8. WHY THE FINAL INDEX IS NOT PARTIAL
+============================================================
+
+The recurring generator uses:
+
+onConflict:
+"user_id,recurring_group_id,expense_date"
+
+
+PostgreSQL requires a matching unique or exclusion constraint
+for the ON CONFLICT target.
+
+The original partial unique index:
+
+UNIQUE (
+    user_id,
+    recurring_group_id,
+    expense_date
+)
 WHERE recurring_group_id IS NOT NULL
 
 
-This establishes the database-level invariant:
+was not compatible with the ON CONFLICT specification being
+used by the Supabase generator.
 
-For a given user:
+This produced the following production error:
 
-same recurring_group_id
+"there is no unique or exclusion constraint matching the
+ON CONFLICT specification"
+
+
+Therefore the partial index was removed.
+
+The final normal unique index is compatible with:
+
+onConflict:
+"user_id,recurring_group_id,expense_date"
+
+
+PostgreSQL's normal unique-index behavior allows multiple NULL
+values for recurring_group_id.
+
+Therefore ordinary non-recurring expenses with:
+
+recurring_group_id = NULL
+
+do not conflict with one another.
+
+This allows the database to use the simpler and correct
+non-partial uniqueness rule.
+
+
+============================================================
+9. FINAL OCCURRENCE IDENTITY
+============================================================
+
+The authoritative identity of a recurring occurrence is:
+
+user_id
 +
-same expense_date
+recurring_group_id
++
+expense_date
+
+
+This means:
+
+ONE USER
++
+ONE RECURRING GROUP
++
+ONE EXPENSE DATE
 =
-only one row may exist.
+ONE RECURRING OCCURRENCE
+
+
+The database now enforces this invariant.
 
 
 ============================================================
-7. IMPORTANT SOFT-DELETE BEHAVIOR
+10. IMPORTANT SOFT-DELETE BEHAVIOR
 ============================================================
 
-The unique index intentionally does NOT exclude:
+The final unique index does NOT exclude:
 
 is_deleted = true
 
@@ -234,7 +345,7 @@ is_deleted = true
 
 the deleted row remains in the database.
 
-The recurring generator sees that occurrence as already existing
+The recurring generator still sees that occurrence as existing
 and does not recreate it.
 
 This preserves the existing rule:
@@ -243,27 +354,7 @@ DELETED RECURRING OCCURRENCES MUST NOT BE REGENERATED.
 
 
 ============================================================
-8. WHY user_id IS INCLUDED
-============================================================
-
-The uniqueness identity is:
-
-user_id
-+
-recurring_group_id
-+
-expense_date
-
-
-This explicitly scopes the recurrence occurrence to the user.
-
-This is appropriate for the multi-user Elite X architecture
-and prevents one user's recurring data from conflicting with
-another user's data.
-
-
-============================================================
-9. GENERATOR FILE UPDATED
+11. GENERATOR FILE UPDATED
 ============================================================
 
 Exact file changed:
@@ -271,22 +362,26 @@ Exact file changed:
 lib/expenses/generateRecurringOccurrences.ts
 
 
-The recurring generator was rewritten to improve both efficiency
-and concurrency behavior.
+The recurring generator was rewritten to improve:
+
+1. Concurrency safety
+2. Idempotency
+3. Database efficiency
+4. Recurring-group validation
 
 
 ============================================================
-10. RECURRING VALIDATION IMPROVEMENT
+12. RECURRING VALIDATION IMPROVEMENT
 ============================================================
 
-The generator already validated:
+The generator validates:
 
 is_recurring
 is_active
 is_generated
 
 
-A new validation was added for:
+A validation was also added for:
 
 recurring_group_id
 
@@ -301,7 +396,7 @@ recurring group.
 
 
 ============================================================
-11. OCCURRENCE LOOKUP IMPROVEMENT
+13. OCCURRENCE LOOKUP IMPROVEMENT
 ============================================================
 
 The old generator performed an individual database query for
@@ -319,8 +414,8 @@ INSERT date 2
 ...
 
 
-The new generator retrieves existing occurrence dates in a
-single query.
+The new generator retrieves existing occurrence dates using
+one database query.
 
 It filters by:
 
@@ -331,7 +426,7 @@ recurring_group_id
 occurrence dates
 
 
-The existing dates are then converted into a JavaScript Set.
+The existing dates are converted into a JavaScript Set.
 
 Missing dates are calculated in memory.
 
@@ -339,15 +434,13 @@ This eliminates the unnecessary N+1 query pattern.
 
 
 ============================================================
-12. CONCURRENCY-SAFE INSERT
+14. CONCURRENCY-SAFE INSERT
 ============================================================
 
-The generator now uses Supabase upsert behavior with:
+The generator now uses Supabase upsert behavior:
 
 onConflict:
 "user_id,recurring_group_id,expense_date"
-
-and:
 
 ignoreDuplicates:
 true
@@ -361,15 +454,17 @@ If the occurrence does not exist:
 If another generator creates it first:
     → ignore the duplicate.
 
-If another generator creates it between our SELECT and INSERT:
+If another generator creates it between our SELECT and
+the INSERT:
     → PostgreSQL unique index prevents a second row.
 
-The application therefore no longer treats concurrent
-generation as a duplicate-creation failure.
+
+The application therefore no longer relies on timing to prevent
+duplicate recurring occurrences.
 
 
 ============================================================
-13. IMPORTANT: NO OVERWRITE OF EXISTING OCCURRENCES
+15. IMPORTANT: NO OVERWRITE OF EXISTING OCCURRENCES
 ============================================================
 
 The generator uses:
@@ -398,7 +493,7 @@ Concurrent duplicate attempt:
 
 
 ============================================================
-14. FINAL ARCHITECTURE
+16. FINAL ARCHITECTURE
 ============================================================
 
 Recurring generation now follows:
@@ -428,75 +523,59 @@ INSERT                     IGNORE
 Exactly one occurrence
 
 
-The database is now the final authority for occurrence
-uniqueness.
+The database is the final authority for occurrence uniqueness.
 
 
 ============================================================
-15. WHY THE DATABASE CONSTRAINT IS THE REAL FIX
+17. ORIGINAL BUG VS FINAL BEHAVIOR
 ============================================================
 
-The application-level check alone could never guarantee
-uniqueness.
+ORIGINAL SYSTEM:
 
-Even with:
+Generator A
+    ↓
+Check
+    ↓
+Missing
 
-SELECT → check → INSERT
+Generator B
+    ↓
+Check
+    ↓
+Missing
 
+A → INSERT
+B → INSERT
 
-another request could execute between the SELECT and INSERT.
-
-The database unique index closes this race window.
-
-Therefore the invariant is enforced at the database layer:
-
-ONE USER
-+
-ONE RECURRING GROUP
-+
-ONE EXPENSE DATE
-=
-ONE RECURRING OCCURRENCE
+❌ TWO OCCURRENCES
 
 
-This remains true regardless of how many generator executions,
-browser refreshes, tabs, or concurrent requests occur.
+FINAL SYSTEM:
+
+Generator A
+    ↓
+Check
+    ↓
+Missing
+
+Generator B
+    ↓
+Check
+    ↓
+Missing
+
+A → UPSERT → INSERT
+B → UPSERT → IGNORE
+
+✅ ONE OCCURRENCE
 
 
-============================================================
-16. FILES CHANGED
-============================================================
-
-Changed:
-
-lib/expenses/generateRecurringOccurrences.ts
-
-
-Database change:
-
-Added unique index:
-
-expenses_recurring_occurrence_unique_idx
-
-
-No changes were made to:
-
-app/expenses/page.tsx
-Dashboard V2
-Trade engine
-FIFO engine
-Executions
-Reconstructed trades
-P&L
-Analytics
-Other canonical trading infrastructure
-
-
-The fix is isolated to the recurring expense system.
+The database uniqueness rule makes the system safe even when
+multiple generators execute concurrently.
 
 
 ============================================================
-17. BUILD VERIFICATION
+18. BUILD VERIFICATION
 ============================================================
 
 After replacing:
@@ -511,36 +590,28 @@ Result:
 BUILD PASSED
 
 
-Therefore the new generator implementation passes the current
+Therefore the new generator implementation passed the current
 project build/type validation.
 
 
 ============================================================
-18. DATABASE VERIFICATION
+19. INITIAL DATABASE VERIFICATION
 ============================================================
 
-The new index was verified:
-
-expenses_recurring_occurrence_unique_idx
-    UNIQUE
-    (user_id, recurring_group_id, expense_date)
-
-
-The duplicate detector was run again after cleanup and returned:
+After historical duplicate cleanup, the duplicate detector
+returned:
 
 Success. No rows returned
 
 
-Therefore:
-
-No duplicate recurring occurrence groups currently exist.
+The initial unique index was also successfully created.
 
 
 ============================================================
-19. APPLICATION VERIFICATION
+20. INITIAL APPLICATION VERIFICATION
 ============================================================
 
-The Expenses page was opened after the change.
+The Expenses page was opened after the original fix.
 
 The recurring expense appeared correctly.
 
@@ -548,87 +619,334 @@ The page was refreshed multiple times.
 
 The recurring expense continued to appear only once.
 
-No new duplicate was observed during the immediate test.
+No duplicate was observed during the immediate refresh test.
 
 
 ============================================================
-20. CURRENT TEST STATUS
+21. LIVE VERIFICATION — OCTOBER 5, 2026
 ============================================================
 
-Immediate verification:
+The original production fix intentionally required a real
+recurrence cycle to verify the system.
 
-PASS
+A recurring expense was identified:
 
+Expense:
+US Equity and Options
 
-Build:
+Frequency:
+Monthly
 
-PASS
+Recurring Anchor:
+2026-08-04
 
+Recurring Group:
 
-Database uniqueness index:
-
-PASS
-
-
-Existing duplicate cleanup:
-
-PASS
-
-
-Duplicate detection query:
-
-PASS
+c6f8e2aa-109f-41dd-a993-70c11473456d
 
 
-Repeated Expenses page refresh:
+Expected sequence:
 
-PASS
+2026-08-04
+    ↓
+2026-09-04
+    ↓
+2026-10-04
 
 
-Next scheduled recurrence:
-
-PENDING
-
-
-The next naturally generated recurring occurrence is the
-important live-cycle verification.
-
-The system should be observed when the next recurrence is due.
+On October 5, 2026, the expected October 4 occurrence was
+initially missing from the database.
 
 
 ============================================================
-21. NEXT-CYCLE VERIFICATION PLAN
+22. LIVE FAILURE DISCOVERED
 ============================================================
 
-When the next recurring occurrence is generated:
+When the Expenses page was refreshed, the browser console
+reported:
 
-1. Open Expenses.
-2. Confirm the occurrence appears exactly once.
-3. Refresh the Expenses page.
-4. Confirm it remains exactly once.
-5. Refresh again if desired.
-6. Check the database for that recurring_group_id/date.
-7. Confirm COUNT(*) = 1.
-8. Run the global duplicate detector again.
+FAILED TO CREATE RECURRING OCCURRENCES:
 
-Expected:
+"there is no unique or exclusion constraint matching the
+ON CONFLICT specification"
+
+
+The call stack confirmed the error originated from:
+
+generateRecurringOccurrences
+    ↓
+catchUpRecurringExpenses
+    ↓
+initializePage
+
+
+This confirmed that the generator itself was functioning far
+enough to attempt the INSERT/UPSERT, but PostgreSQL could not
+match the ON CONFLICT target against the partial unique index.
+
+
+============================================================
+23. LIVE FAILURE ROOT CAUSE
+============================================================
+
+The sequence was:
+
+September 14:
+    Partial unique index created.
+
+September 14:
+    Generator changed to use:
+
+    onConflict:
+    "user_id,recurring_group_id,expense_date"
+
+October 4:
+    Next recurring occurrence became due.
+
+October 5:
+    Expenses page attempted catch-up generation.
+
+PostgreSQL:
+    Could not match ON CONFLICT against the partial index.
+
+Result:
+
+❌ October 4 occurrence was not created.
+
+
+This was a secondary defect in the original fix.
+
+The original duplicate-generation race condition was correctly
+identified, but the first database-index implementation was
+incompatible with the chosen ON CONFLICT strategy.
+
+
+============================================================
+24. SECONDARY DEFECT CORRECTED
+============================================================
+
+The incorrect partial index was removed:
+
+DROP INDEX IF EXISTS public.expenses_recurring_occurrence_unique_idx;
+
+
+The corrected non-partial unique index was created:
+
+CREATE UNIQUE INDEX expenses_recurring_occurrence_unique_idx
+ON public.expenses (
+    user_id,
+    recurring_group_id,
+    expense_date
+);
+
+
+The final index definition was verified:
+
+CREATE UNIQUE INDEX expenses_recurring_occurrence_unique_idx
+ON public.expenses
+USING btree
+(user_id, recurring_group_id, expense_date)
+
+
+No WHERE clause exists.
+
+
+============================================================
+25. LIVE RECURRENCE RECOVERY
+============================================================
+
+After the corrected index was created, the Expenses page was
+refreshed.
+
+The generator successfully detected that:
+
+2026-10-04
+
+was missing.
+
+The generator then created the occurrence automatically.
+
+No manual expense was created.
+
+The database returned:
+
+2026-08-04
+    is_generated = false
+    → anchor
+
+2026-09-04
+    is_generated = true
+    → generated occurrence
+
+2026-10-04
+    is_generated = true
+    → generated occurrence
+
+
+October 4 was successfully created at:
+
+2026-10-05 16:02:06.089329+00
+
+
+This confirms that catch-up generation works correctly with the
+final database index.
+
+
+============================================================
+26. LIVE DUPLICATE VERIFICATION
+============================================================
+
+After the October 4 occurrence was generated, the global
+duplicate detector was run again:
+
+SELECT
+    user_id,
+    recurring_group_id,
+    expense_date,
+    COUNT(*) AS occurrence_count
+FROM public.expenses
+WHERE recurring_group_id IS NOT NULL
+GROUP BY
+    user_id,
+    recurring_group_id,
+    expense_date
+HAVING COUNT(*) > 1
+ORDER BY
+    occurrence_count DESC,
+    expense_date;
+
+
+Result:
 
 Success. No rows returned
 
 
-If the next cycle produces exactly one occurrence and the
-duplicate detector remains clean, the recurring duplication fix
-will have passed both:
-
-APPLICATION-LEVEL VERIFICATION
-
-and
-
-REAL-WORLD RECURRENCE VERIFICATION.
+This is the final confirmation that the October recurrence was
+created exactly once.
 
 
 ============================================================
-22. IMPORTANT ENGINEERING RULES ESTABLISHED
+27. FINAL LIVE TEST RESULT
+============================================================
+
+The system has now passed both sides of the recurrence test.
+
+TEST 1:
+Missing occurrence
+
+Result:
+
+Missing occurrence
+        ↓
+Generator detects it
+        ↓
+Occurrence created
+        ↓
+Exactly one row
+
+PASS
+
+
+TEST 2:
+Existing occurrence
+
+Result:
+
+Existing occurrence
+        ↓
+Generator runs again
+        ↓
+ON CONFLICT / UNIQUE INDEX
+        ↓
+Duplicate ignored
+        ↓
+Exactly one row
+
+PASS
+
+
+TEST 3:
+Global duplicate audit
+
+Result:
+
+Success. No rows returned
+
+PASS
+
+
+============================================================
+28. FINAL STATUS
+============================================================
+
+RECURRING EXPENSE DUPLICATION BUG:
+
+ROOT CAUSE IDENTIFIED
+        ↓
+HISTORICAL DUPLICATES CLEANED
+        ↓
+DATABASE UNIQUENESS PROTECTION ADDED
+        ↓
+GENERATOR MADE CONCURRENCY-SAFE
+        ↓
+BUILD PASSED
+        ↓
+INITIAL APPLICATION TEST PASSED
+        ↓
+FIRST INDEX DESIGN FOUND INCOMPATIBLE
+        ↓
+LIVE ON CONFLICT ERROR IDENTIFIED
+        ↓
+PARTIAL INDEX REMOVED
+        ↓
+FINAL NON-PARTIAL UNIQUE INDEX CREATED
+        ↓
+INDEX VERIFIED
+        ↓
+OCTOBER 4 CATCH-UP OCCURRENCE GENERATED
+        ↓
+OCTOBER 4 CREATED EXACTLY ONCE
+        ↓
+GLOBAL DUPLICATE AUDIT PASSED
+        ↓
+LIVE RECURRENCE VERIFICATION PASSED
+
+
+FINAL STATUS:
+
+PRODUCTION FIX VERIFIED
+
+
+============================================================
+29. FINAL PRODUCTION DATABASE RULE
+============================================================
+
+The authoritative production uniqueness rule is:
+
+CREATE UNIQUE INDEX expenses_recurring_occurrence_unique_idx
+ON public.expenses (
+    user_id,
+    recurring_group_id,
+    expense_date
+);
+
+
+This rule MUST remain compatible with:
+
+onConflict:
+"user_id,recurring_group_id,expense_date"
+
+ignoreDuplicates:
+true
+
+
+Do not convert this index back to a partial index without
+reworking the generator's ON CONFLICT strategy and explicitly
+testing PostgreSQL conflict-target inference.
+
+
+============================================================
+30. IMPORTANT ENGINEERING RULES ESTABLISHED
 ============================================================
 
 Recurring occurrence identity:
@@ -653,13 +971,54 @@ Recurring generation must be idempotent.
 
 The database must enforce critical data-integrity invariants.
 
+The ON CONFLICT target must always match an actual database
+unique or exclusion constraint/index that PostgreSQL can use.
+
 
 ============================================================
-23. FUTURE CONSIDERATIONS — NOT PART OF THIS FIX
+31. FILES / DATABASE CHANGED
 ============================================================
 
-The current recurrence-date utility still uses JavaScript
-Date.setMonth() for Monthly and Quarterly recurrence.
+Application file changed:
+
+lib/expenses/generateRecurringOccurrences.ts
+
+
+Documentation:
+
+docs/Expense/RECURRING EXPENSE DUPLICATION FIX
+
+
+Database:
+
+expenses_recurring_occurrence_unique_idx
+
+
+No changes were made to:
+
+app/expenses/page.tsx
+Dashboard V2
+Trade engine
+FIFO engine
+Executions
+Reconstructed trades
+P&L
+Analytics
+Other canonical trading infrastructure
+
+
+The fix remains isolated to the recurring expense system.
+
+
+============================================================
+32. FUTURE CONSIDERATION — NOT PART OF THIS FIX
+============================================================
+
+The recurrence-date utility still uses JavaScript:
+
+Date.setMonth()
+
+for Monthly and Quarterly recurrence.
 
 Month-end anchors such as:
 
@@ -676,39 +1035,133 @@ January 31
 
 This is a separate recurrence-calendar semantics issue.
 
-It was NOT the cause of the duplicate occurrence bug and was
-intentionally not changed as part of this fix.
+It was NOT the cause of the recurring duplication bug.
 
-It should be addressed separately so that this production fix
-remains isolated and easier to validate.
+It was intentionally not changed as part of this production fix.
+
+It should be addressed separately so that recurrence-calendar
+semantics remain isolated from the concurrency/idempotency fix.
 
 
 ============================================================
-24. FINAL STATUS
+33. FINAL AUTHORITATIVE ARCHITECTURE
 ============================================================
 
-RECURRING EXPENSE DUPLICATION BUG:
+RECURRING EXPENSE GENERATION
 
-ROOT CAUSE IDENTIFIED
-        ↓
-HISTORICAL DUPLICATES CLEANED
-        ↓
-DATABASE UNIQUE INDEX ADDED
-        ↓
-GENERATOR MADE CONCURRENCY-SAFE
-        ↓
-BUILD PASSED
-        ↓
-DATABASE VERIFIED
-        ↓
-APPLICATION REFRESH TEST PASSED
-        ↓
-NEXT RECURRENCE LIVE VERIFICATION PENDING
+Recurring Anchor
+       ↓
+Calculate required occurrence dates
+       ↓
+Query existing occurrences
+       ↓
+Determine missing dates
+       ↓
+Prepare occurrence rows
+       ↓
+Supabase UPSERT
+       ↓
+ON CONFLICT:
+user_id + recurring_group_id + expense_date
+       ↓
+PostgreSQL UNIQUE INDEX
+       ↓
+---------------------------------------
+|                                     |
+Missing occurrence              Existing occurrence
+|                                     |
+CREATE                              IGNORE
+|                                     |
+---------------------------------------
+       ↓
+ONE AND ONLY ONE OCCURRENCE
 
 
-Current state:
+DATABASE = FINAL SOURCE OF TRUTH FOR OCCURRENCE UNIQUENESS
 
-IMPLEMENTED AND PROTECTED AT DATABASE LEVEL.
 
-No further recurrence code changes should be made unless the
-next live recurrence test reveals another issue.
+============================================================
+34. FINAL VERIFICATION CHECKPOINT
+============================================================
+
+As of October 5, 2026:
+
+Build:
+PASS
+
+Historical duplicate cleanup:
+PASS
+
+Database unique index:
+PASS
+
+Final index definition:
+PASS
+
+Initial page-refresh test:
+PASS
+
+ON CONFLICT compatibility:
+PASS
+
+Live monthly catch-up:
+PASS
+
+October 4 occurrence:
+CREATED SUCCESSFULLY
+
+October 4 duplicate count:
+1
+
+Global duplicate detector:
+PASS
+
+Next recurrence cycle:
+NOT REQUIRED FOR INITIAL LIVE VERIFICATION,
+BUT NORMAL PRODUCTION MONITORING SHOULD CONTINUE
+
+
+============================================================
+35. FINAL CONCLUSION
+============================================================
+
+The original recurring-expense duplication problem was caused
+by a concurrency race between the application's existence
+check and INSERT.
+
+The final solution establishes database-enforced occurrence
+uniqueness and makes the generator idempotent and
+concurrency-safe.
+
+A secondary issue in the first implementation was discovered
+during the October 5 live recurrence test: the initial partial
+unique index could not be used by the generator's ON CONFLICT
+target.
+
+That issue was diagnosed from the actual PostgreSQL console
+error, corrected by replacing the partial index with a normal
+unique index, and then live-tested successfully.
+
+The October 4 recurring occurrence was subsequently generated
+automatically and exactly once.
+
+The final global duplicate audit returned:
+
+Success. No rows returned
+
+
+Therefore the recurring expense duplication fix has now passed
+both application-level and real-world recurrence verification.
+
+
+FINAL STATUS:
+
+IMPLEMENTED
++
+DATABASE PROTECTED
++
+CONCURRENCY-SAFE
++
+IDEMPOTENT
++
+LIVE-VERIFIED

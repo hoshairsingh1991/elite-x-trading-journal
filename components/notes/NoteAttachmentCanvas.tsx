@@ -18,10 +18,6 @@ from "@/lib/supabase";
 
 
 import {
-  updateNoteAttachmentLayout,
-} from "@/lib/storage/noteAttachmentStorage";
-
-import {
   Trash2,
 } from "lucide-react";
 

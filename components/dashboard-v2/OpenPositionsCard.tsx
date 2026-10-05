@@ -1,5 +1,9 @@
 import { Trade } from "@/types/trade";
 
+import {
+  getCurrencySymbol,
+} from "@/lib/fx/currencyFormatting";
+
 interface OpenPositionsCardProps {
   trades: Trade[];
 }
@@ -225,8 +229,9 @@ className={`
     }
   `}
 >
-  {isProfit ? "+" : "-"}$
-  {Math.abs(trade.pnl).toFixed(2)}
+{isProfit ? "+" : "-"}
+{getCurrencySymbol(trade.currency)}
+{Math.abs(trade.pnl).toFixed(2)}
 </div>
 
       </div>
