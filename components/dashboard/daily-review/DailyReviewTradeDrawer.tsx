@@ -18,8 +18,11 @@ import {
 import TradeReviewTab
   from "@/components/dashboard/daily-review/trade-review/TradeReviewTab";
 
-  import TradeIntelligenceTab
+import TradeIntelligenceTab
   from "@/components/dashboard/daily-review/trade-review/TradeIntelligenceTab";
+
+import TradeNotesTab
+  from "@/components/dashboard/daily-review/trade-review/TradeNotesTab";
 
 interface DailyReviewTradeDrawerProps {
   trade: Trade;
@@ -724,7 +727,7 @@ className={`
   "
 >
 
-<div className="h-4 shrink-0" />
+
 
 {activeTab === "REVIEW" ? (
   <div className="flex justify-center">
@@ -766,6 +769,19 @@ className={`
       <TradeIntelligenceTab
   trade={trade}
 />
+    </div>
+
+  </div>
+) : activeTab === "NOTES" ? (
+  <div className="flex min-h-0 flex-1 justify-center">
+
+    <div
+      className="
+        min-h-0
+        w-[98%]
+      "
+    >
+      <TradeNotesTab />
     </div>
 
   </div>
