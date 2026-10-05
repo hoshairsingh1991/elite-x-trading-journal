@@ -4,6 +4,8 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import AssetIcon from "@/components/common/AssetIcon";
+
 interface OpenPositionsCardProps {
   trades: Trade[];
 }
@@ -208,11 +210,6 @@ export default function OpenPositionsCard({
       const isProfit =
         trade.pnl >= 0;
 
-      const fallbackLetter =
-        trade.ticker
-          .trim()
-          .charAt(0)
-          .toUpperCase();
 
       return (
         <div
@@ -245,32 +242,19 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
           <div
             className="
               relative
-              left-0
+              left-2
               flex
               min-w-0
               items-center
               gap-2
             "
           >
-            <div
-              className="
-                flex
-                h-5
-                w-5
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                border
-                border-white/[0.08]
-                bg-white/[0.04]
-                text-[9px]
-                font-semibold
-                text-slate-300
-              "
-            >
-              {fallbackLetter}
-            </div>
+<AssetIcon
+  ticker={trade.ticker}
+  assetType={trade.assetType}
+  contractKey={trade.contractKey}
+  size="sm"
+/>
 
             <span
               className="
@@ -338,8 +322,6 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
 
 <div
   className={`
-    relative
-    -left-0
     whitespace-nowrap
     text-right
     text-[11px]

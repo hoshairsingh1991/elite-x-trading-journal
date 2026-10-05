@@ -24,6 +24,8 @@ import TradeIntelligenceTab
 import TradeNotesTab
   from "@/components/dashboard/daily-review/trade-review/TradeNotesTab";
 
+  import AssetIcon from "@/components/common/AssetIcon";
+
 interface DailyReviewTradeDrawerProps {
   trade: Trade;
   onClose: () => void;
@@ -838,33 +840,24 @@ className={`
                 "
               >
 
-                <div
-                  className="
-                    flex
-                    h-[50px]
-                    w-[50px]
-                    shrink-0
-                    translate-x-[6px]
-                    items-center
-                    justify-center
-                    rounded-full
-                    border
-                    border-white/[0.08]
-                    bg-[#0b1220]
-                    text-[22px]
-                    font-semibold
-                    text-white
-                  "
-                >
-                  {trade.ticker
-                    ? trade.ticker
-                        .slice(
-                          0,
-                          1
-                        )
-                        .toUpperCase()
-                    : "•"}
-                </div>
+<div
+  className="
+    flex
+    h-[50px]
+    w-[50px]
+    shrink-0
+    translate-x-[6px]
+    items-center
+    justify-center
+  "
+>
+  <AssetIcon
+    ticker={trade.ticker}
+    assetType={trade.assetType}
+    contractKey={trade.contractKey}
+    size="lg"
+  />
+</div>
 
                 <div
                   className="

@@ -18,6 +18,8 @@ import {
   formatCurrency,
 } from "@/lib/utils/formatCurrency";
 
+import AssetIcon from "@/components/common/AssetIcon";
+
 interface BrokerConnection {
   broker_account_id: string;
   account_alias: string;
@@ -310,26 +312,30 @@ useEffect(() => {
     tracking-[0.08em]
     text-slate-500
 
-    ${
-      header === "Type"
-        ? "relative left-[-6px]"
-        : header === "Side"
-        ? "relative left-[-2px]"
-        : header === "Entry"
-        ? "relative left-[-3px]"
-        : header === "Exit"
-        ? "relative left-[-8px]"
-        : header === "Qty"
-        ? "relative left-[-6px]"
-        : header === "Net P&L"
-        ? "relative left-[-6px]"
-        : header === "Commission"
-        ? "relative left-[-2px]"
-        : header === "Status"
-        ? "relative left-[-20px]"
-        : ""
-    }
-  `}
+${
+  header === "Symbol"
+    ? "relative left-[8px]"
+    : header === "Type"
+    ? "relative left-[20px]"
+    : header === "Account"
+    ? "relative left-[6px]"
+    : header === "Side"
+    ? "relative left-[12px]"
+    : header === "Entry"
+    ? "relative left-[6px]"
+    : header === "Exit"
+    ? "relative left-[-8px]"
+    : header === "Qty"
+    ? "relative left-[-6px]"
+    : header === "Net P&L"
+    ? "relative left-[-6px]"
+    : header === "Commission"
+    ? "relative left-[-2px]"
+    : header === "Status"
+    ? "relative left-[-20px]"
+    : ""
+}
+`}
 >
   {header}
 </div>
@@ -450,7 +456,6 @@ const isActionLocked =
     flex
     h-[var(--trade-row-height)]
     cursor-pointer
-    flex-col
     items-center
     justify-center
     border-b
@@ -458,36 +463,48 @@ const isActionLocked =
     px-5
   "
 >
-  {/* TICKER */}
+  <div className="flex items-center gap-2">
+    <AssetIcon
+      ticker={trade.ticker}
+      assetType={trade.assetType}
+      contractKey={trade.contractKey}
+      size="sm"
+    />
 
-  <span
-    className="
-      text-[14px]
-      font-bold
-      tracking-wide
-      text-slate-200
-    "
-  >
-    {trade.ticker}
-  </span>
+    <div className="flex min-w-0 flex-col items-start">
+      {/* TICKER */}
 
-  {/* EXCHANGE */}
+      <span
+        className="
+          truncate
+          text-[14px]
+          font-bold
+          tracking-wide
+          text-slate-200
+        "
+      >
+        {trade.ticker}
+      </span>
 
-  <span
-    className="
-      text-[10px]
-      font-medium
-      uppercase
-      tracking-[0.08em]
-      text-slate-500
-    "
-  >
-    {trade.executions?.find(
-      (execution) =>
-        execution.exchange &&
-        execution.exchange.trim() !== ""
-    )?.exchange || "--"}
-  </span>
+      {/* EXCHANGE */}
+
+      <span
+        className="
+          text-[10px]
+          font-medium
+          uppercase
+          tracking-[0.08em]
+          text-slate-500
+        "
+      >
+        {trade.executions?.find(
+          (execution) =>
+            execution.exchange &&
+            execution.exchange.trim() !== ""
+        )?.exchange || "--"}
+      </span>
+    </div>
+  </div>
 </div>
 
 {/* OPEN DATE */}
@@ -826,18 +843,20 @@ return (
       trade
     )
   }
-  className="
-    flex
-    h-[var(--trade-row-height)]
-    cursor-pointer
-    flex-col
-    items-center
-    justify-center
-    border-b
-    border-white/[0.04]
-    px-5
-    text-center
-  "
+className="
+  relative
+  left-[8px]
+  flex
+  h-[var(--trade-row-height)]
+  cursor-pointer
+  flex-col
+  items-center
+  justify-center
+  border-b
+  border-white/[0.04]
+  px-5
+  text-center
+"
 >
   <span className="text-[13px] font-medium text-slate-300">
     {accountMap.get(
@@ -853,7 +872,7 @@ return (
 
 {/* TYPE */}
 
-<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
+<div className="relative left-[26px] flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5">
   <span className="text-[13px] font-semibold uppercase tracking-[0.08em] text-sky-400">
     {trade.assetType || "TRADE"}
   </span>
@@ -861,7 +880,7 @@ return (
 
 {/* SIDE */}
 
-<div className="flex h-[var(--trade-row-height)] items-center   translate-x-[4px] justify-center border-b border-white/[0.04] px-5">
+<div className="flex h-[var(--trade-row-height)] items-center   translate-x-[20px] justify-center border-b border-white/[0.04] px-5">
 
   <span
 className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
@@ -889,7 +908,7 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 
 {/* ENTRY */}
 
-<div className="flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
+<div className="relative left-[10px] flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-400">
   {trade.entryPrice > 0
     ? formatCurrency(
         Number(trade.entryPrice),

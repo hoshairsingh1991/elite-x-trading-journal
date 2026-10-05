@@ -4,6 +4,8 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import AssetIcon from "@/components/common/AssetIcon";
+
 interface RecentTradesCardProps {
   trades: Trade[];
 }
@@ -264,12 +266,6 @@ export default function RecentTradesCard({
                 const isProfit =
                   trade.pnl >= 0;
 
-                const fallbackLetter =
-                  trade.ticker
-                    .trim()
-                    .charAt(0)
-                    .toUpperCase();
-
                 const formattedDate =
                   parseLocalDate(
                     trade.date
@@ -296,14 +292,14 @@ export default function RecentTradesCard({
                       h-[28px]
                       border-b
                       border-white/[0.04]
-transition-all
-duration-200
-ease-[cubic-bezier(0.22,1,0.36,1)]
-last:border-b-0
-hover:-translate-y-[1px]
-hover:scale-[1.002]
-hover:bg-white/[0.028]
-hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
+                      transition-all
+                      duration-200
+                      ease-[cubic-bezier(0.22,1,0.36,1)]
+                      last:border-b-0
+                      hover:-translate-y-[1px]
+                      hover:scale-[1.002]
+                      hover:bg-white/[0.028]
+                      hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
                     "
                   >
 
@@ -314,34 +310,19 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
                     <div
                       className="
                         relative
-                        left-0
+                        left-2
                         flex
                         min-w-0
                         items-center
                         gap-2
                       "
                     >
-                      {/* Temporary AssetIcon placeholder */}
-
-                      <div
-                        className="
-                          flex
-                          h-5
-                          w-5
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-full
-                          border
-                          border-white/[0.08]
-                          bg-white/[0.04]
-                          text-[9px]
-                          font-semibold
-                          text-slate-300
-                        "
-                      >
-                        {fallbackLetter}
-                      </div>
+                      <AssetIcon
+                        ticker={trade.ticker}
+                        assetType={trade.assetType}
+                        contractKey={trade.contractKey}
+                        size="sm"
+                      />
 
                       <span
                         className="
@@ -406,8 +387,6 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
 
                     <div
                       className={`
-                        relative
-                        -left-0
                         whitespace-nowrap
                         text-right
                         text-[11px]

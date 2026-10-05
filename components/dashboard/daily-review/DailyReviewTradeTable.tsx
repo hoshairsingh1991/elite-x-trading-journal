@@ -17,6 +17,7 @@ import {
   getTradeReviewKey,
 } from "@/lib/storage/supabaseTradeReviewStorage";
 
+import AssetIcon from "@/components/common/AssetIcon";
 
 interface DailyReviewTradeTableProps {
   selectedTrades: Trade[];
@@ -447,7 +448,7 @@ className="
                   truncate
                   px-1
                   text-left
-                translate-x-1
+                translate-x-5
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -466,7 +467,7 @@ className="
                   truncate
                   px-1
                   text-left
-                  translate-x-1.5
+                  translate-x-6
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -480,7 +481,7 @@ className="
                   truncate
                   px-1
                   text-left
-                  translate-x-3
+                  translate-x-5
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -774,21 +775,32 @@ ${
                       )}
                     </td>
 
-                    {/* SYMBOL */}
+{/* SYMBOL */}
 
-                    <td
-                      className="
-                        truncate
-                        px-1
-                        text-left
-                        translate-x-2
-                        text-[11px]
-                        font-semibold
-                        text-slate-100
-                      "
-                    >
-                      {trade.ticker}
-                    </td>
+<td
+  className="
+    truncate
+    px-1
+    text-left
+    translate-x-1
+    text-[11px]
+    font-semibold
+    text-slate-100
+  "
+>
+  <div className="flex items-center gap-2">
+    <AssetIcon
+      ticker={trade.ticker}
+      assetType={trade.assetType}
+      contractKey={trade.contractKey}
+      size="sm"
+    />
+
+    <span className="truncate">
+      {trade.ticker}
+    </span>
+  </div>
+</td>
 
                     {/* TYPE */}
 
@@ -797,6 +809,7 @@ ${
                         truncate
                         px-1
                         text-left
+                        translate-x-5
                         text-[11px]
                         font-medium
                         text-slate-400
@@ -813,7 +826,7 @@ ${
   className={`
     px-1
     text-left
-    translate-x-3
+    translate-x-5
     text-[11px]
     font-bold
     ${
