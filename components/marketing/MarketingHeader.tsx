@@ -16,7 +16,7 @@ export default function MarketingHeader() {
       >
         {/* LEFT ZONE: Official Elite X Brand Wordmark */}
         <div className="flex items-center shrink-0">
-          <Link href="/landing" className="flex flex-col transition-opacity hover:opacity-90">
+          <Link href="/" className="flex flex-col transition-opacity hover:opacity-90">
             <div className="flex items-end">
               <span className="text-xl font-extrabold tracking-[-0.055em] text-white sm:text-2xl">
                 Elite

@@ -168,7 +168,7 @@ className="
     {/* =================================================== */}
 
     <Link
-      href="/landing"
+  href="/"
       className="
         absolute
         left-[200px]
