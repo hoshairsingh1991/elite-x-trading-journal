@@ -7,14 +7,32 @@ import TradingIntelligenceSection from "@/components/marketing/TradingIntelligen
 import MarketingFooter from "@/components/marketing/MarketingFooter";
 
 export const metadata: Metadata = {
-  title: "Elite X — Institutional Trading OS & Business Intelligence Platform",
+  title:
+    "Elite X Trading Journal | Trading Analytics & Performance Intelligence",
   description:
-    "Professional trading performance analytics, multi-account trade reconstruction, behavioral journaling, and operating expense accounting platform.",
+    "Elite X is a professional trading journal and performance analytics platform for tracking trades, analyzing performance, reviewing execution, and improving trading decisions.",
+  alternates: {
+    canonical: "https://www.elitextrading.ca/",
+  },
 };
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#040914] text-slate-200">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Elite X Trading Journal",
+            url: "https://www.elitextrading.ca",
+            description:
+              "Professional trading journal and performance analytics platform for tracking trades, analyzing performance, reviewing execution, and improving trading decisions.",
+          }),
+        }}
+      />
+
       <MarketingHeader />
 
       <main>

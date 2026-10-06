@@ -529,7 +529,7 @@ git commit -m "Redesign dashboard position and recent trade cards"
 git commit -m "Add reusable asset icon system"
 git commit -m "Add asset and vendor identity icon systems"
 git commit -m "Add persistent daily review trade notes"
-
+git commit -m "Fix public landing route and SEO entrypoint"
 
 
 
