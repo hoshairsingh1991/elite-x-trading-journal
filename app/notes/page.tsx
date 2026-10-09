@@ -6,6 +6,8 @@ import {
   useState,
 } from "react";
 
+import { createPortal } from "react-dom";
+
 import {
   Editor,
 } from "@tiptap/core";
@@ -79,6 +81,21 @@ export default function NotesPage() {
     selectedNoteId,
     setSelectedNoteId,
   ] = useState<string>("");
+
+  const [
+  pendingDeleteNoteId,
+  setPendingDeleteNoteId,
+] = useState<string | null>(null);
+
+const [
+  deletingNoteId,
+  setDeletingNoteId,
+] = useState<string | null>(null);
+
+const [
+  isConfirmingDelete,
+  setIsConfirmingDelete,
+] = useState(false);
 
 const [
   noteSearchQuery,
@@ -1583,49 +1600,72 @@ updatedAt:
 
 
 
+
   // =================================================
   // DELETE NOTE
   // =================================================
 
-  async function handleDeleteNote() {
-
+  function handleDeleteNote(
+    noteId: string = selectedNoteId
+  ) {
     if (
-      !selectedNote
+      !noteId ||
+      isConfirmingDelete ||
+      deletingNoteId !== null
     ) {
-
       return;
     }
 
-    await deleteNoteFromSupabase(
-      selectedNote.id
-    );
+    setPendingDeleteNoteId(noteId);
+  }
 
-    const updatedNotes =
-      notes.filter(
-        (note) =>
-          note.id !==
-          selectedNote.id
-      );
-
-    setNotes(
-      updatedNotes
-    );
+  async function confirmDeleteNote() {
+    const noteId = pendingDeleteNoteId;
 
     if (
-      updatedNotes.length > 0
+      !noteId ||
+      isConfirmingDelete ||
+      deletingNoteId !== null
     ) {
+      return;
+    }
 
-      setSelectedNoteId(
-        updatedNotes[0].id
+    setIsConfirmingDelete(true);
+
+    try {
+      await deleteNoteFromSupabase(noteId);
+
+      const updatedNotes = notes.filter(
+        (note) => note.id !== noteId
       );
 
-    } else {
+      const nextSelectedNoteId =
+        selectedNoteId === noteId
+          ? updatedNotes[0]?.id ?? ""
+          : selectedNoteId;
 
-      setSelectedNoteId(
-        ""
+      setPendingDeleteNoteId(null);
+      setDeletingNoteId(noteId);
+
+      window.setTimeout(() => {
+        setNotes(updatedNotes);
+
+        if (selectedNoteId === noteId) {
+          setSelectedNoteId(nextSelectedNoteId);
+        }
+
+        setDeletingNoteId(null);
+      }, 220);
+    } catch (error) {
+      console.error(
+        "Failed to delete note:",
+        error
       );
+    } finally {
+      setIsConfirmingDelete(false);
     }
   }
+
 
 // =================================================
 // UPDATE NOTE
@@ -2123,7 +2163,7 @@ Your trading workspace
     }
     aria-label="Create note"
     title="Create note"
-    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-[#0b0c1e] text-blue-400 transition-colors hover:border-white/[0.12] hover:bg-[#0b1730]"
+    className="group flex h-10 w-10 shrink-0 transform-gpu translate-x-[-4px] items-center justify-center rounded-[8px] border border-white/[0.06] bg-[#0b0c1e] text-blue-400 shadow-[0_0_0_rgba(59,130,246,0)] transition-all duration-200 ease-out hover:scale-[1.06] hover:border-blue-400/40 hover:bg-[#0b1730] hover:text-blue-300 hover:shadow-[0_0_16px_rgba(59,130,246,0.22)] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111d]"
   >
 
     <Plus
@@ -2319,11 +2359,15 @@ const linkedTradePnl =
                         note.id
                       )
                     }
-className={`group relative flex min-h-[80px] w-full flex-col justify-start rounded-[8px] border px-3 py-4 text-left transform-gpu transition-all duration-200 ease-out hover:-translate-y-[2px] hover:shadow-[0_4px_14px_rgba(139,92,246,0.14)] active:translate-y-0 active:scale-[0.99] ${
-  isActive
-    ? "border-blue-500/60 bg-[#0b1220] hover:border-blue-400/80"
-    : "border-white/[0.06] bg-[#0b1220] hover:border-violet-300/50 hover:bg-[#0c1a2a]"
+
+className={`group relative flex min-h-[80px] w-full flex-col justify-start rounded-[8px] border px-3 py-4 text-left transform-gpu transition-all duration-200 ease-out ${
+  deletingNoteId === note.id
+    ? "translate-x-[12px] scale-95 opacity-0 pointer-events-none border-red-500/60 bg-red-500/[0.08] shadow-[0_0_16px_rgba(239,68,68,0.22)]"
+    : isActive
+      ? "border-blue-500/60 bg-[#0b1220] hover:border-blue-400/80 hover:-translate-y-[2px] hover:shadow-[0_4px_14px_rgba(139,92,246,0.14)] active:translate-y-0 active:scale-[0.99]"
+      : "border-white/[0.06] bg-[#0b1220] hover:border-violet-300/50 hover:bg-[#0c1a2a] hover:-translate-y-[2px] hover:shadow-[0_4px_14px_rgba(139,92,246,0.14)] active:translate-y-0 active:scale-[0.99]"
 }`}
+
                   >
 
 {/* ================================= */}
@@ -2468,41 +2512,23 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
 <span
   role="button"
   tabIndex={0}
-  onClick={(event) => {
+
+onClick={(event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  handleDeleteNote(note.id);
+}}
+onKeyDown={(event) => {
+  if (
+    event.key === "Enter" ||
+    event.key === " "
+  ) {
     event.preventDefault();
     event.stopPropagation();
+    handleDeleteNote(note.id);
+  }
+}}
 
-    if (
-      note.id ===
-      selectedNoteId
-    ) {
-      handleDeleteNote();
-    }
-  }}
-  onKeyDown={(event) => {
-
-    if (
-      (
-        event.key ===
-        "Enter"
-      ) ||
-      (
-        event.key ===
-        " "
-      )
-    ) {
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (
-        note.id ===
-        selectedNoteId
-      ) {
-        handleDeleteNote();
-      }
-    }
-  }}
  className="
   absolute
   right-3
@@ -3118,6 +3144,70 @@ noteId={
         </div>
 
       </div>
+
+{pendingDeleteNoteId !== null &&
+  createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 backdrop-blur-[5px]"
+      onClick={() => {
+        if (!isConfirmingDelete) {
+          setPendingDeleteNoteId(null);
+        }
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="main-note-delete-modal-title"
+        onClick={(event) => event.stopPropagation()}
+        className="w-full max-w-[320px] min-h-[220px] rounded-[8px] border border-slate-700/70 bg-gradient-to-br from-[#0d1625] to-[#080e19] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.65)] animate-in fade-in zoom-in-95 duration-200"
+      >
+        <div className="relative left-[130px] top-[16px] mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-400">
+          <Trash2 size={20} strokeWidth={1.8} />
+        </div>
+
+        <h2
+          id="main-note-delete-modal-title"
+          className="relative left-[0px] top-[30px] mt-6 text-center text-[20px] font-semibold text-white"
+        >
+          Delete this note?
+        </h2>
+
+        <p className="relative left-[0px] top-[36px] mt-2 text-center text-[13px] leading-[22px] text-slate-400">
+          This note will be permanently deleted.
+          This action cannot be undone.
+        </p>
+
+        <div className="relative top-[44px] mt-7 h-px bg-slate-700/60" />
+
+        <div className="relative left-[30px] top-[56px] mt-6 flex gap-3 sm:gap-4">
+          <button
+            type="button"
+            disabled={isConfirmingDelete}
+            onClick={() => setPendingDeleteNoteId(null)}
+            className="h-[36px] w-[100px] rounded-[6px] border border-slate-600/70 bg-slate-800/60 text-[12px] font-medium text-slate-300 transition-colors duration-200 hover:bg-slate-700/70 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            disabled={isConfirmingDelete}
+            onClick={() => {
+              void confirmDeleteNote();
+            }}
+            className="h-[36px] w-[140px] rounded-[6px] border border-red-500/40 bg-gradient-to-r from-red-600 to-red-500 text-[12px] font-semibold text-white shadow-[0_0_14px_rgba(239,68,68,0.15)] transition-all duration-200 hover:from-red-500 hover:to-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isConfirmingDelete
+              ? "Deleting..."
+              : "Delete note"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
+
 
     </main>
   );
