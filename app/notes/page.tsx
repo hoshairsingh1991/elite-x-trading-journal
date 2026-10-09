@@ -2319,10 +2319,10 @@ const linkedTradePnl =
                         note.id
                       )
                     }
-className={`group relative flex min-h-[80px] w-full flex-col justify-start rounded-[8px] border px-3 py-4 text-left transition-all ${
+className={`group relative flex min-h-[80px] w-full flex-col justify-start rounded-[8px] border px-3 py-4 text-left transform-gpu transition-all duration-200 ease-out hover:-translate-y-[2px] hover:shadow-[0_4px_14px_rgba(139,92,246,0.14)] active:translate-y-0 active:scale-[0.99] ${
   isActive
-    ? "border-blue-500/60 bg-[#0b1220]"
-    : "border-white/[0.06] bg-[#0b1220] hover:border-white/[0.12] hover:bg-[#0b1730]"
+    ? "border-blue-500/60 bg-[#0b1220] hover:border-blue-400/80"
+    : "border-white/[0.06] bg-[#0b1220] hover:border-violet-300/50 hover:bg-[#0c1a2a]"
 }`}
                   >
 
@@ -2503,7 +2503,34 @@ className={`group relative flex min-h-[80px] w-full flex-col justify-start round
       }
     }
   }}
- className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1 cursor-pointer items-center justify-center rounded-[6px] text-slate-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400"
+ className="
+  absolute
+  right-3
+  top-1/2
+  flex
+  h-7
+  w-7
+  -translate-y-1
+  scale-90
+  cursor-pointer
+  items-center
+  justify-center
+  rounded-[6px]
+  text-red-400
+  opacity-0
+  pointer-events-none
+  transition-all
+  duration-200
+  ease-out
+  group-hover:opacity-100
+  group-hover:scale-100
+  group-hover:pointer-events-auto
+  hover:bg-red-500/10
+  hover:text-red-400
+  focus-visible:opacity-100
+  focus-visible:scale-100
+  focus-visible:pointer-events-auto
+"
   title="Delete note"
   aria-label="Delete note"
 >

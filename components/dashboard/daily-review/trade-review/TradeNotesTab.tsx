@@ -15,6 +15,7 @@ import {
   Italic,
   Link,
   List,
+  Plus,
   Save,
   Trash2,
   Underline,
@@ -26,6 +27,7 @@ import {
   createDailyReviewTradeNote,
   deleteDailyReviewTradeNote,
   loadDailyReviewTradeNotes,
+  updateDailyReviewTradeNote,
 } from "@/lib/storage/supabaseDailyReviewTradeNoteStorage";
 
 import {
@@ -43,8 +45,13 @@ interface TradeNotesTabProps {
 export default function TradeNotesTab({
   trade,
 }: TradeNotesTabProps) {
+
+
   const [note, setNote] =
     useState("");
+
+const [activeNoteId, setActiveNoteId] =
+  useState<string | null>(null);
 
   const [savedLocally, setSavedLocally] =
     useState(false);
@@ -68,8 +75,9 @@ export default function TradeNotesTab({
   useEffect(() => {
     let cancelled = false;
 
-    setNote("");
+setNote("");
 setSavedLocally(false);
+setActiveNoteId(null);
 
     async function loadNotes() {
       if (!trade.id) {
@@ -107,23 +115,57 @@ async function handleSave() {
 
   setIsSaving(true);
 
-  const createdNote =
-    await createDailyReviewTradeNote(
-      trade.id,
-      note
+  try {
+    // UPDATE EXISTING NOTE
+    if (activeNoteId) {
+      const updatedNote =
+        await updateDailyReviewTradeNote(
+          activeNoteId,
+          note
+        );
+
+      if (!updatedNote) {
+        return;
+      }
+
+      setPastNotes((currentNotes) =>
+        currentNotes.map((savedNote) =>
+          savedNote.id === updatedNote.id
+            ? updatedNote
+            : savedNote
+        )
+      );
+
+      setSavedLocally(true);
+      return;
+    }
+
+    // CREATE NOTE ON FIRST SAVE
+    const createdNote =
+      await createDailyReviewTradeNote(
+        trade.id,
+        note
+      );
+
+    if (createdNote) {
+      setPastNotes((currentNotes) => [
+        createdNote,
+        ...currentNotes,
+      ]);
+
+      setActiveNoteId(createdNote.id);
+      setSavedLocally(true);
+    }
+  } catch (error) {
+    console.error(
+      "FAILED TO SAVE DAILY REVIEW TRADE NOTE:",
+      error
     );
-
-  if (createdNote) {
-    setPastNotes((currentNotes) => [
-      createdNote,
-      ...currentNotes,
-    ]);
-
-    setSavedLocally(true);
+  } finally {
+    setIsSaving(false);
   }
-
-  setIsSaving(false);
 }
+
 
 // =====================================================
 // DELETE NOTE
@@ -150,12 +192,73 @@ async function handleDelete(
     return;
   }
 
-  setPastNotes((currentNotes) =>
-    currentNotes.filter(
-      (savedNote) =>
-        savedNote.id !== noteId
-    )
-  );
+setPastNotes((currentNotes) =>
+  currentNotes.filter(
+    (savedNote) =>
+      savedNote.id !== noteId
+  )
+);
+
+if (activeNoteId === noteId) {
+  setNote("");
+  setActiveNoteId(null);
+  setSavedLocally(false);
+}
+}
+
+// =====================================================
+// SELECT AN EXISTING NOTE
+// =====================================================
+
+function handleSelectNote(savedNote: DailyReviewTradeNote) {
+  if (isSaving) {
+    return;
+  }
+
+  const hasUnsavedChanges =
+    !savedLocally &&
+    (note.length > 0 || activeNoteId !== null);
+
+  if (hasUnsavedChanges) {
+    const confirmed = window.confirm(
+      "You have unsaved changes. Discard them and open this note?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+  }
+
+  setNote(savedNote.content);
+  setActiveNoteId(savedNote.id);
+  setSavedLocally(true);
+}
+
+// =====================================================
+// START A NEW NOTE
+// =====================================================
+
+function handleNewNote() {
+  if (isSaving) {
+    return;
+  }
+
+  if (
+  !savedLocally &&
+  (note.length > 0 || activeNoteId !== null)
+) {
+    const confirmed = window.confirm(
+      "You have unsaved changes. Discard them and start a new note?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+  }
+
+  setNote("");
+  setActiveNoteId(null);
+  setSavedLocally(false);
 }
 
 return (
@@ -390,48 +493,102 @@ return (
           </div>
         </div>
 
-        <div
-          className="
-            mt-3
-            flex
-            justify-end
-            translate-x-[-10px]
-            translate-y-[20px]
-          "
-        >
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={!canSave}
-            className="
-              flex
-              h-8
-              w-[100px]
-              items-center
-              justify-center
-              gap-2
-              rounded-[7px]
-              bg-blue-500
-              px-3.5
-              text-[11px]
-              font-semibold
-              text-white
-              transition
-              hover:bg-blue-400
-              disabled:cursor-not-allowed
-              disabled:opacity-45
-            "
-          >
-            <Save
-              size={15}
-              strokeWidth={2}
-            />
+<div
+  className="
+    mt-3
+    flex
+    justify-end
+    gap-2
+    translate-x-[-10px]
+    translate-y-[20px]
+  "
+>
+{/* NEW NOTE */}
 
-            {isSaving
-              ? "Saving..."
-              : "Save Note"}
-          </button>
-        </div>
+<button
+  type="button"
+  onClick={handleNewNote}
+  disabled={isSaving}
+  className="
+    group
+    relative
+    flex
+    h-8
+    w-[84px]
+    items-center
+    justify-center
+    gap-1
+    overflow-hidden
+    rounded-[7px]
+    border
+    border-violet-400/30
+    bg-gradient-to-r
+    from-violet-500/[0.14]
+    to-blue-500/[0.10]
+    text-[10px]
+    font-semibold
+    text-violet-200
+    shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]
+    transition-all
+    duration-200
+    hover:border-violet-300/50
+    hover:from-violet-500/25
+    hover:to-blue-500/20
+    hover:text-white
+    hover:shadow-[0_0_12px_rgba(139,92,246,0.16)]
+    active:scale-[0.97]
+    disabled:cursor-not-allowed
+    disabled:opacity-45
+  "
+>
+  <Plus
+    size={14}
+    strokeWidth={2.2}
+    className="
+      text-violet-300
+      transition-transform
+      duration-200
+      group-hover:rotate-90
+      group-hover:text-white
+    "
+  />
+
+  <span>New Note</span>
+</button>
+
+  {/* SAVE NOTE */}
+
+  <button
+    type="button"
+    onClick={handleSave}
+    disabled={!canSave}
+    className="
+      flex
+      h-8
+      w-[100px]
+      items-center
+      justify-center
+      gap-2
+      rounded-[7px]
+      bg-blue-500
+      px-3.5
+      text-[11px]
+      font-semibold
+      text-white
+      transition
+      hover:bg-blue-400
+      disabled:cursor-not-allowed
+      disabled:opacity-45
+    "
+  >
+    <Save
+      size={15}
+      strokeWidth={2}
+    />
+
+    {isSaving ? "Saving..." : "Save Note"}
+  </button>
+</div>
       </section>
 
 {/* PAST NOTES */}
@@ -570,24 +727,54 @@ return (
               }
             );
 
-          return (
-<div
-  key={savedNote.id}
-  className="
-    group
-    relative
-    top-[10px]
-    h-[52px]
-    shrink-0
-    overflow-hidden
-    rounded-[7px]
-    border
-    border-white/[0.08]
-    bg-[#091521]
-    px-3
-    py-2.5
-  "
->
+return (
+  <div
+    key={savedNote.id}
+    role="button"
+    tabIndex={0}
+    aria-pressed={activeNoteId === savedNote.id}
+    onClick={() => handleSelectNote(savedNote)}
+    onKeyDown={(event) => {
+      if (event.target !== event.currentTarget) {
+        return;
+      }
+
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        handleSelectNote(savedNote);
+      }
+    }}
+className={`
+  group
+  relative
+  top-[10px]
+  h-[52px]
+  shrink-0
+  overflow-hidden
+  rounded-[7px]
+  border
+  ${
+    activeNoteId === savedNote.id
+      ? "border-violet-400/35 bg-violet-500/[0.06]"
+      : "border-white/[0.08] bg-[#091521]"
+  }
+  px-3
+  py-2.5
+  cursor-pointer
+  transition-all
+  duration-200
+  ease-out
+  hover:-translate-y-[2px]
+  hover:border-violet-300/50
+  hover:bg-[#0c1a2a]
+  hover:shadow-[0_4px_14px_rgba(139,92,246,0.14)]
+  active:translate-y-0
+  active:scale-[0.99]
+  focus-visible:outline-none
+  focus-visible:ring-1
+  focus-visible:ring-violet-400/50
+`}
+  >
 {/* NOTE HEADER */}
 
 <div
@@ -657,27 +844,38 @@ return (
 
 <button
   type="button"
-  onClick={() =>
-    handleDelete(savedNote.id)
-  }
+  onClick={(event) => {
+    event.stopPropagation();
+    void handleDelete(savedNote.id);
+  }}
   aria-label="Delete note"
   title="Delete note"
-  className="
-    absolute
-    right-[6px]
-    top-[26px]
-    hidden
-    h-[18px]
-    w-[18px]
-    items-center
-    justify-center
-    rounded-[4px]
-    text-red-400
-    transition
-    hover:bg-red-500/10
-    hover:text-red-300
-    group-hover:flex
-  "
+className="
+  absolute
+  right-[6px]
+  top-[26px]
+  flex
+  h-[18px]
+  w-[18px]
+  items-center
+  justify-center
+  rounded-[4px]
+  text-red-400
+  opacity-0
+  scale-90
+  pointer-events-none
+  transition-all
+  duration-200
+  ease-out
+  hover:bg-red-500/10
+  hover:text-red-300
+  group-hover:opacity-100
+  group-hover:scale-100
+  group-hover:pointer-events-auto
+  focus-visible:opacity-100
+  focus-visible:scale-100
+  focus-visible:pointer-events-auto
+"
 >
   <Trash2
     size={12}
