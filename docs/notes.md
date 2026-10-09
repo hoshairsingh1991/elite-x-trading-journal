@@ -530,6 +530,10 @@ git commit -m "Add reusable asset icon system"
 git commit -m "Add asset and vendor identity icon systems"
 git commit -m "Add persistent daily review trade notes"
 git commit -m "Fix public landing route and SEO entrypoint"
+git commit -m "Improve SEO foundation and search metadata"
+git commit -m "Fix daily review timeline and session times"
+
+
 
 
 

@@ -131,9 +131,14 @@ const tradingStart =
             trade.openedAt
           );
 
-        if (!candidate) {
-          return earliest;
-        }
+if (
+  !candidate ||
+  candidate.getFullYear() !== currentYear ||
+  candidate.getMonth() !== currentMonth ||
+  candidate.getDate() !== selectedDay
+) {
+  return earliest;
+}
 
         if (!earliest) {
           return candidate;
@@ -158,9 +163,14 @@ const tradingStart =
             trade.closedAt
           );
 
-        if (!candidate) {
-          return latest;
-        }
+if (
+  !candidate ||
+  candidate.getFullYear() !== currentYear ||
+  candidate.getMonth() !== currentMonth ||
+  candidate.getDate() !== selectedDay
+) {
+  return latest;
+}
 
         if (!latest) {
           return candidate;

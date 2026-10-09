@@ -112,6 +112,35 @@ function formatTime(
   );
 }
 
+function formatDate(
+  value?: string | null
+): string | null {
+  if (!value) {
+    return null;
+  }
+
+  // Preserve date-only values without timezone conversion.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const year = date.getFullYear();
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function formatDuration(
   openedAt?: string,
   closedAt?: string | null
@@ -1420,15 +1449,16 @@ Math.abs(
 )}
                     </div>
 
-                    <div className="mt-1 text-[13px] text-slate-400">
-                      {trade.date ||
-                        "—"}
-                      {trade.openedAt
-                        ? ` • ${formatTime(
-                            trade.openedAt
-                          )}`
-                        : ""}
-                    </div>
+<div className="mt-1 text-[13px] text-slate-400">
+  {formatDate(trade.openedAt) ||
+    trade.date ||
+    "—"}
+  {trade.openedAt
+    ? ` • ${formatTime(
+        trade.openedAt
+      )}`
+    : ""}
+</div>
 
                   </div>
 
@@ -1508,15 +1538,16 @@ null
   : ""}
                       </div>
 
-                      <div className="mt-1 text-[13px] text-slate-400">
-                        {trade.date ||
-                          "—"}
-                        {trade.closedAt
-                          ? ` • ${formatTime(
-                              trade.closedAt
-                            )}`
-                          : ""}
-                      </div>
+<div className="mt-1 text-[13px] text-slate-400">
+  {formatDate(trade.closedAt) ||
+    trade.date ||
+    "—"}
+  {trade.closedAt
+    ? ` • ${formatTime(
+        trade.closedAt
+      )}`
+    : ""}
+</div>
 
                     </div>
 
