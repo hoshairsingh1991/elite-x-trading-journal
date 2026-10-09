@@ -6,14 +6,15 @@ import {
   type ReactNode,
 } from "react";
 
+import { createPortal } from "react-dom";
+
 import {
   Bold,
   CheckCircle2,
   ChevronDown,
-  ChevronRight,
+   Eraser,
   FileText,
   Italic,
-  Link,
   List,
   Plus,
   Save,
@@ -59,12 +60,24 @@ const [activeNoteId, setActiveNoteId] =
   const [pastNotes, setPastNotes] =
     useState<DailyReviewTradeNote[]>([]);
 
-  const [isSaving, setIsSaving] =
-    useState(false);
+const [isSaving, setIsSaving] =
+  useState(false);
 
-  const canSave =
-    note.trim().length > 0 &&
-    !isSaving;
+const [deletingNoteId, setDeletingNoteId] =
+  useState<string | null>(null);
+
+const [pendingDeleteNoteId, setPendingDeleteNoteId] =
+  useState<string | null>(null);
+
+const [isConfirmingDelete, setIsConfirmingDelete] =
+  useState(false);
+
+  const [isClearConfirmationOpen, setIsClearConfirmationOpen] =
+  useState(false);
+
+const canSave =
+  (note.trim().length > 0 || activeNoteId !== null) &&
+  !isSaving;
 
 
 
@@ -168,42 +181,70 @@ async function handleSave() {
 
 
 // =====================================================
-// DELETE NOTE
+// OPEN DELETE CONFIRMATION
 // =====================================================
 
-async function handleDelete(
-  noteId: string
-) {
-  const confirmed =
-    window.confirm(
-      "Delete this trade note?\n\nThis action cannot be undone."
-    );
-
-  if (!confirmed) {
+function handleDelete(noteId: string) {
+  if (deletingNoteId !== null) {
     return;
   }
 
-  const deleted =
-    await deleteDailyReviewTradeNote(
-      noteId
-    );
-
-  if (!deleted) {
-    return;
-  }
-
-setPastNotes((currentNotes) =>
-  currentNotes.filter(
-    (savedNote) =>
-      savedNote.id !== noteId
-  )
-);
-
-if (activeNoteId === noteId) {
-  setNote("");
-  setActiveNoteId(null);
-  setSavedLocally(false);
+  setPendingDeleteNoteId(noteId);
 }
+
+// =====================================================
+// CONFIRM DELETE NOTE
+// =====================================================
+
+async function confirmDeleteNote() {
+  if (
+    !pendingDeleteNoteId ||
+    isConfirmingDelete ||
+    deletingNoteId !== null
+  ) {
+    return;
+  }
+
+  const noteId = pendingDeleteNoteId;
+
+  setIsConfirmingDelete(true);
+
+  try {
+    const deleted =
+      await deleteDailyReviewTradeNote(noteId);
+
+    if (!deleted) {
+      return;
+    }
+
+    // CLOSE CONFIRMATION MODAL
+    setPendingDeleteNoteId(null);
+
+    // START DELETE ANIMATION
+    setDeletingNoteId(noteId);
+
+    // REMOVE NOTE AFTER ANIMATION
+    window.setTimeout(() => {
+      setPastNotes((currentNotes) =>
+        currentNotes.filter(
+          (savedNote) => savedNote.id !== noteId
+        )
+      );
+
+      // CLEAR EDITOR IF THIS NOTE WAS SELECTED
+      if (activeNoteId === noteId) {
+        setNote("");
+        setActiveNoteId(null);
+        setSavedLocally(false);
+      }
+
+      setDeletingNoteId(null);
+    }, 220);
+  } catch (error) {
+    console.error("FAILED TO DELETE DAILY REVIEW TRADE NOTE:", error);
+  } finally {
+    setIsConfirmingDelete(false);
+  }
 }
 
 // =====================================================
@@ -244,9 +285,9 @@ function handleNewNote() {
   }
 
   if (
-  !savedLocally &&
-  (note.length > 0 || activeNoteId !== null)
-) {
+    !savedLocally &&
+    (note.length > 0 || activeNoteId !== null)
+  ) {
     const confirmed = window.confirm(
       "You have unsaved changes. Discard them and start a new note?"
     );
@@ -261,20 +302,46 @@ function handleNewNote() {
   setSavedLocally(false);
 }
 
+// =====================================================
+// CLEAR EDITOR
+// =====================================================
+
+function handleClearEditor() {
+  if (isSaving || note.length === 0) {
+    return;
+  }
+
+  setIsClearConfirmationOpen(true);
+}
+
+// =====================================================
+// CONFIRM CLEAR EDITOR
+// =====================================================
+
+function confirmClearEditor() {
+  if (isSaving) {
+    return;
+  }
+
+  setNote("");
+  setSavedLocally(false);
+  setIsClearConfirmationOpen(false);
+}
+
 return (
-    <div
-      className="
-        flex
-        h-full
-        min-h-0
-        w-full
-        flex-col
-        gap-3
-        px-[14px]
-        pb-5
-      "
-    >
-      {/* TRADE NOTES */}
+  <div
+    className="
+      flex
+      h-full
+      min-h-0
+      w-full
+      flex-col
+      gap-3
+      px-[14px]
+      pb-5
+    "
+  >
+    {/* TRADE NOTES */}
 
       <section
         className="
@@ -378,16 +445,19 @@ return (
           {/* EDITOR TOOLBAR */}
 
           <div
-            className="
-              flex
-              h-10
-              items-center
-              gap-1.5
-              border-b
-              border-white/[0.06]
-              px-2.5
-              translate-x-[8px]
-            "
+className="
+  relative
+  box-border
+  flex
+  w-[calc(100%_-_8px)]
+  h-10
+  items-center
+  gap-1
+  border-b
+  border-white/[0.06]
+  px-2.5
+  translate-x-[8px]
+"
           >
             <button
               type="button"
@@ -450,10 +520,58 @@ return (
               <List size={16} />
             </ToolbarButton>
 
-            <ToolbarButton label="Add link">
-              <Link size={16} />
-            </ToolbarButton>
-          </div>
+{/* CLEAR EDITOR DIVIDER */}
+<span className="mx-1 h-5 w-px shrink-0 bg-white/[0.06]" />
+
+{/* CLEAR EDITOR BUTTON */}
+<div className="absolute right-[10px] top-1/2 flex -translate-y-1/2 items-center">
+  <button
+    type="button"
+    onClick={handleClearEditor}
+    disabled={note.length === 0 || isSaving}
+    title="Clear editor"
+    aria-label="Clear editor"
+className="
+  group
+  flex
+  h-6
+  w-6
+  shrink-0
+  items-center
+  justify-center
+  rounded-[5px]
+  border
+  border-transparent
+  text-red-400
+  transition-all
+  duration-200
+  ease-out
+  hover:scale-110
+  hover:border-red-400/25
+  hover:bg-red-500/10
+  hover:text-red-300
+  hover:shadow-[0_0_12px_rgba(248,113,113,0.18)]
+  active:scale-95
+  focus-visible:outline-none
+  focus-visible:ring-1
+  focus-visible:ring-red-400/50
+  disabled:cursor-not-allowed
+  disabled:opacity-40
+"
+  >
+    <Eraser
+  size={15}
+  strokeWidth={1.9}
+  className="
+    transition-transform
+    duration-200
+    group-hover:-rotate-12
+    group-hover:scale-110
+  "
+/>
+  </button>
+</div>
+</div>
 
           <div
             className="
@@ -753,29 +871,28 @@ className={`
   overflow-hidden
   rounded-[7px]
   border
+  transform-gpu
+  transition-all
+  duration-200
+  ease-out
   ${
-    activeNoteId === savedNote.id
-      ? "border-violet-400/35 bg-violet-500/[0.06]"
-      : "border-white/[0.08] bg-[#091521]"
+    deletingNoteId === savedNote.id
+      ? "translate-x-[12px] scale-95 opacity-0 pointer-events-none border-red-500/60 bg-red-500/[0.08] shadow-[0_0_16px_rgba(239,68,68,0.22)]"
+      : activeNoteId === savedNote.id
+        ? "border-violet-400/35 bg-violet-500/[0.06]"
+        : "border-white/[0.08] bg-[#091521]"
   }
   px-3
   py-2.5
   cursor-pointer
-  transition-all
-  duration-200
-  ease-out
-  hover:-translate-y-[2px]
-  hover:border-violet-300/50
-  hover:bg-[#0c1a2a]
-  hover:shadow-[0_4px_14px_rgba(139,92,246,0.14)]
-  active:translate-y-0
-  active:scale-[0.99]
-  focus-visible:outline-none
-  focus-visible:ring-1
-  focus-visible:ring-violet-400/50
+  ${
+    deletingNoteId !== savedNote.id
+      ? "hover:-translate-y-[2px] hover:border-violet-300/50 hover:bg-[#0c1a2a] hover:shadow-[0_4px_14px_rgba(139,92,246,0.14)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-400/50"
+      : ""
+  }
 `}
-  >
-{/* NOTE HEADER */}
+>
+  {/* NOTE HEADER */}
 
 <div
   className="
@@ -816,7 +933,7 @@ className={`
           mt-1
           line-clamp-2
           text-[10px]
-          leading-4
+          leading-3.5
           text-slate-400
         "
       >
@@ -889,8 +1006,412 @@ className="
       </div>
     )}
   </div>
-</section>
+      </section>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {pendingDeleteNoteId !== null &&
+        createPortal(
+          <div
+            className="
+              fixed
+              inset-0
+              z-[9999]
+              flex
+              items-center
+              justify-center
+              bg-black/75
+              p-4
+              backdrop-blur-[5px]
+            "
+            onClick={() => {
+              if (!isConfirmingDelete) {
+                setPendingDeleteNoteId(null);
+              }
+            }}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-note-modal-title"
+className="
+  w-full
+  max-w-[320px]
+  min-h-[220px]
+  rounded-[8px]
+  border
+  border-slate-700/70
+  bg-gradient-to-br
+  from-[#0d1625]
+  to-[#080e19]
+  p-6
+  shadow-[0_24px_80px_rgba(0,0,0,0.65)]
+  animate-in
+  fade-in
+  zoom-in-95
+  duration-200
+"
+              onClick={(event) => event.stopPropagation()}
+            >
+              {/* CENTERED DELETE ICON */}
+              <div className="flex justify-center">
+                <div
+className="
+  relative
+  left-[0px]
+  top-[16px]
+  flex
+  h-[40px]
+  w-[40px]
+  items-center
+  justify-center
+  rounded-full
+  border
+  border-red-500/40
+  bg-red-500/[0.09]
+  text-red-400
+  shadow-[0_0_35px_rgba(239,68,68,0.10)]
+"
+                >
+                  <Trash2 size={24} strokeWidth={1.8} />
+                </div>
+              </div>
+
+              {/* CENTERED TITLE */}
+              <h3
+                id="delete-note-modal-title"
+className="
+  relative
+  left-[0px]
+  top-[30px]
+  mt-6
+  text-center
+  text-[20px]
+  font-semibold
+  tracking-tight
+  text-white
+"
+              >
+                Delete this note?
+              </h3>
+
+              {/* WARNING MESSAGE */}
+              <p
+className="
+  relative
+  left-[0px]
+  top-[36px]
+  mx-auto
+  mt-4
+  max-w-[320px]
+  text-center
+  text-[13px]
+  leading-[22px]
+  text-slate-400
+"
+              >
+                This note will be permanently deleted.
+                <span className="block">
+                  This action cannot be undone.
+                </span>
+              </p>
+
+              {/* DIVIDER */}
+              <div
+className="
+  relative
+  top-[44px]
+  mt-7
+  h-px
+  w-full
+  bg-gradient-to-r
+  from-transparent
+  via-slate-700/70
+  to-transparent
+"
+              />
+
+              {/* ACTION BUTTONS */}
+              <div className="relative left-[30px] top-[56px] mt-6 flex gap-3 sm:gap-4">
+                <button
+                  type="button"
+                  onClick={() => setPendingDeleteNoteId(null)}
+                  disabled={isConfirmingDelete}
+className="
+  flex
+  h-[36px]
+  w-[100px]
+  shrink-0
+  items-center
+  justify-center
+  rounded-[8px]
+  border
+  border-slate-700
+  bg-white/[0.02]
+  px-3
+  text-[12px]
+  font-medium
+  text-slate-300
+  transition-all
+  duration-200
+  hover:border-slate-500
+  hover:bg-white/[0.06]
+  hover:text-white
+  active:scale-[0.98]
+  disabled:cursor-not-allowed
+  disabled:opacity-50
+"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => void confirmDeleteNote()}
+                  disabled={isConfirmingDelete}
+className="
+  flex
+  h-[36px]
+  w-[140px]
+  shrink-0
+  items-center
+  justify-center
+  gap-2
+  rounded-[8px]
+  border
+  border-red-400/30
+  bg-gradient-to-r
+  from-red-600
+  to-red-500
+  px-3
+  text-[12px]
+  font-semibold
+  text-white
+  shadow-[0_4px_18px_rgba(239,68,68,0.15)]
+  transition-all
+  duration-200
+  hover:from-red-500
+  hover:to-red-400
+  hover:shadow-[0_0_24px_rgba(239,68,68,0.25)]
+  active:scale-[0.98]
+  disabled:cursor-not-allowed
+  disabled:opacity-50
+"
+                >
+                  <Trash2 size={17} strokeWidth={1.9} />
+                  {isConfirmingDelete
+                    ? "Deleting..."
+                    : "Delete note"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* CLEAR EDITOR CONFIRMATION MODAL */}
+      {isClearConfirmationOpen &&
+        createPortal(
+          <div
+            className="
+              fixed
+              inset-0
+              z-[9999]
+              flex
+              items-center
+              justify-center
+              bg-black/75
+              p-4
+              backdrop-blur-[5px]
+            "
+            onClick={() => {
+              if (!isSaving) {
+                setIsClearConfirmationOpen(false);
+              }
+            }}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="clear-editor-modal-title"
+              className="
+                w-full
+                max-w-[320px]
+                min-h-[220px]
+                rounded-[8px]
+                border
+                border-slate-700/70
+                bg-gradient-to-br
+                from-[#0d1625]
+                to-[#080e19]
+                p-6
+                shadow-[0_24px_80px_rgba(0,0,0,0.65)]
+                animate-in
+                fade-in
+                zoom-in-95
+                duration-200
+              "
+              onClick={(event) => event.stopPropagation()}
+            >
+              {/* CENTERED CLEAR ICON */}
+              <div className="flex justify-center">
+                <div
+                  className="
+                    relative
+                    left-[0px]
+                    top-[16px]
+                    flex
+                    h-[40px]
+                    w-[40px]
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-red-500/40
+                    bg-red-500/[0.09]
+                    text-red-400
+                    shadow-[0_0_35px_rgba(239,68,68,0.10)]
+                  "
+                >
+                  <Eraser size={24} strokeWidth={1.8} />
+                </div>
+              </div>
+
+              {/* CENTERED TITLE */}
+              <h3
+                id="clear-editor-modal-title"
+                className="
+                  relative
+                  left-[0px]
+                  top-[30px]
+                  mt-6
+                  text-center
+                  text-[20px]
+                  font-semibold
+                  tracking-tight
+                  text-white
+                "
+              >
+                Clear all text?
+              </h3>
+
+              {/* WARNING MESSAGE */}
+              <p
+                className="
+                  relative
+                  left-[0px]
+                  top-[36px]
+                  mx-auto
+                  mt-4
+                  max-w-[320px]
+                  text-center
+                  text-[13px]
+                  leading-[22px]
+                  text-slate-400
+                "
+              >
+                This will clear all text from the editor.
+                <span className="block">
+                  Your saved note will not be deleted.
+                </span>
+              </p>
+
+              {/* DIVIDER */}
+              <div
+                className="
+                  relative
+                  top-[44px]
+                  mt-7
+                  h-px
+                  w-full
+                  bg-gradient-to-r
+                  from-transparent
+                  via-slate-700/70
+                  to-transparent
+                "
+              />
+
+              {/* ACTION BUTTONS */}
+              <div className="relative left-[30px] top-[56px] mt-6 flex gap-3 sm:gap-4">
+                {/* CANCEL BUTTON */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsClearConfirmationOpen(false)
+                  }
+                  disabled={isSaving}
+                  className="
+                    flex
+                    h-[36px]
+                    w-[100px]
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-[8px]
+                    border
+                    border-slate-700
+                    bg-white/[0.02]
+                    px-3
+                    text-[12px]
+                    font-medium
+                    text-slate-300
+                    transition-all
+                    duration-200
+                    hover:border-slate-500
+                    hover:bg-white/[0.06]
+                    hover:text-white
+                    active:scale-[0.98]
+                    disabled:cursor-not-allowed
+                    disabled:opacity-50
+                  "
+                >
+                  Cancel
+                </button>
+
+                {/* CONFIRM CLEAR BUTTON */}
+                <button
+                  type="button"
+                  onClick={confirmClearEditor}
+                  disabled={isSaving}
+                  className="
+                    flex
+                    h-[36px]
+                    w-[140px]
+                    shrink-0
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-[8px]
+                    border
+                    border-red-400/30
+                    bg-gradient-to-r
+                    from-red-600
+                    to-red-500
+                    px-3
+                    text-[12px]
+                    font-semibold
+                    text-white
+                    shadow-[0_4px_18px_rgba(239,68,68,0.15)]
+                    transition-all
+                    duration-200
+                    hover:from-red-500
+                    hover:to-red-400
+                    hover:shadow-[0_0_24px_rgba(239,68,68,0.25)]
+                    active:scale-[0.98]
+                    disabled:cursor-not-allowed
+                    disabled:opacity-50
+                  "
+                >
+                  <Eraser size={17} strokeWidth={1.9} />
+                  Clear text
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
     </div>
+
   );
 }
 
