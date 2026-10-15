@@ -51,6 +51,9 @@ export default function TradeNotesTab({
   const [note, setNote] =
     useState("");
 
+const [noteTitle, setNoteTitle] =
+  useState("");
+
 const [activeNoteId, setActiveNoteId] =
   useState<string | null>(null);
 
@@ -76,7 +79,11 @@ const [isConfirmingDelete, setIsConfirmingDelete] =
   useState(false);
 
 const canSave =
-  (note.trim().length > 0 || activeNoteId !== null) &&
+  (
+    noteTitle.trim().length > 0 ||
+    note.trim().length > 0 ||
+    activeNoteId !== null
+  ) &&
   !isSaving;
 
 
@@ -88,6 +95,7 @@ const canSave =
   useEffect(() => {
     let cancelled = false;
 
+setNoteTitle("");
 setNote("");
 setSavedLocally(false);
 setActiveNoteId(null);
@@ -116,8 +124,7 @@ setActiveNoteId(null);
   }, [trade.id]);
 
 
-
-// =====================================================
+ // =====================================================
 // SAVE NOTE
 // =====================================================
 
@@ -129,11 +136,15 @@ async function handleSave() {
   setIsSaving(true);
 
   try {
+    const title =
+      noteTitle.trim() || "Trade note";
+
     // UPDATE EXISTING NOTE
     if (activeNoteId) {
       const updatedNote =
         await updateDailyReviewTradeNote(
           activeNoteId,
+          title,
           note
         );
 
@@ -157,6 +168,7 @@ async function handleSave() {
     const createdNote =
       await createDailyReviewTradeNote(
         trade.id,
+        title,
         note
       );
 
@@ -167,6 +179,7 @@ async function handleSave() {
       ]);
 
       setActiveNoteId(createdNote.id);
+      setNoteTitle(createdNote.title);
       setSavedLocally(true);
     }
   } catch (error) {
@@ -270,24 +283,31 @@ function handleSelectNote(savedNote: DailyReviewTradeNote) {
     }
   }
 
-  setNote(savedNote.content);
-  setActiveNoteId(savedNote.id);
-  setSavedLocally(true);
+setNoteTitle(savedNote.title || "Trade note");
+setNote(savedNote.content);
+setActiveNoteId(savedNote.id);
+setSavedLocally(true);
 }
 
 // =====================================================
 // START A NEW NOTE
 // =====================================================
 
+
 function handleNewNote() {
   if (isSaving) {
     return;
   }
 
-  if (
+  const hasUnsavedChanges =
     !savedLocally &&
-    (note.length > 0 || activeNoteId !== null)
-  ) {
+    (
+      noteTitle.trim().length > 0 ||
+      note.length > 0 ||
+      activeNoteId !== null
+    );
+
+  if (hasUnsavedChanges) {
     const confirmed = window.confirm(
       "You have unsaved changes. Discard them and start a new note?"
     );
@@ -297,10 +317,12 @@ function handleNewNote() {
     }
   }
 
+  setNoteTitle("");
   setNote("");
   setActiveNoteId(null);
   setSavedLocally(false);
 }
+
 
 // =====================================================
 // CLEAR EDITOR
@@ -442,6 +464,44 @@ return (
             bg-[#091521]
           "
         >
+
+
+
+{/* TITLE TOP SPACING */}
+<div className="h-[14px] shrink-0" />
+
+{/* NOTE TITLE */}
+<div className="relative box-border w-[calc(100%_-_14px)] shrink-0 translate-x-[8px]">
+  <label
+    htmlFor="daily-review-trade-note-title"
+    className="absolute left-[12px] top-[-4px] z-10 bg-[#091521] px-1.5 text-[11px] leading-none text-slate-400"
+  >
+    Note Title
+  </label>
+
+  <input
+    id="daily-review-trade-note-title"
+    type="text"
+    value={noteTitle}
+    onChange={(event) => {
+      setNoteTitle(event.target.value);
+      setSavedLocally(false);
+    }}
+    placeholder="Enter a title..."
+    aria-label="Note title"
+    maxLength={42}
+    style={{
+  borderRadius: "6px",
+  paddingLeft: "10px",
+}}
+className="box-border h-[30px] w-full rounded-[8px] border border-violet-400/40 bg-transparent px-3.5 pt-1 text-[13px] font-medium text-slate-100 outline-none transition-all duration-200 placeholder:text-slate-500 focus:border-violet-400 focus:shadow-[0_0_12px_rgba(139,92,246,0.12)]"
+  />
+</div>
+
+{/* TITLE BOTTOM SPACING */}
+<div className="h-[4px] shrink-0" />
+
+        
           {/* EDITOR TOOLBAR */}
 
           <div
@@ -807,19 +867,15 @@ className="
   "
 >
         {pastNotes.map((savedNote) => {
-          const lines =
-            savedNote.content
-              .split(/\r?\n/)
-              .map((line) => line.trim())
-              .filter(Boolean);
 
-          const title =
-            lines[0] || "Trade note";
+const title =
+  savedNote.title?.trim() || "Trade note";
 
-          const preview =
-            lines.length > 1
-              ? lines.slice(1).join(" ")
-              : "";
+const preview =
+  savedNote.content
+    .replace(/\s+/g, " ")
+    .trim();
+
 
           const savedDate =
             new Date(

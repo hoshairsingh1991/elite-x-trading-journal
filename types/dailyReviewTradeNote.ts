@@ -5,6 +5,8 @@ export interface DailyReviewTradeNote {
 
   tradeId: string;
 
+  title: string;
+
   content: string;
 
   createdAt: string;

@@ -535,7 +535,7 @@ git commit -m "Fix daily review timeline and session times"
 git commit -m "Polish note card hover interactions"
 git commit -m "Add trade note clear and delete confirmation modals"
 git commit -m "Enhance Notes page deletion flow and UI"
-
+git commit -m "Add separate titles to daily review trade notes"
 
 
 
