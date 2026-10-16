@@ -537,7 +537,7 @@ git commit -m "Add trade note clear and delete confirmation modals"
 git commit -m "Enhance Notes page deletion flow and UI"
 git commit -m "Add separate titles to daily review trade notes"
 git commit -m "Harden Daily Review trade notes workflow"
-
+git commit -m "Polish notes toolbars and editor interactions"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

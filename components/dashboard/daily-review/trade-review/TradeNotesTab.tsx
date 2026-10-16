@@ -14,17 +14,25 @@ import {
   Bold,
   CheckCircle2,
   ChevronDown,
-   Eraser,
+  Eraser,
   FileText,
   Italic,
   List,
+  ListOrdered,
+  Minus,
+  Palette,
   Plus,
   Save,
+  Undo2,
   Trash2,
   Underline,
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
+
+import type { Editor } from "@tiptap/core";
+
+import DailyReviewTradeNotesEditor from "@/components/dashboard/daily-review/trade-review/DailyReviewTradeNotesEditor";
 
 import {
   createDailyReviewTradeNote,
@@ -57,6 +65,89 @@ export default function TradeNotesTab({
 
   const [note, setNote] =
     useState("");
+
+    const [noteEditor, setNoteEditor] =
+  useState<Editor | null>(null);
+
+  const [isTextSizeOpen, setIsTextSizeOpen] =
+  useState(false);
+
+  const textSizeDropdownRef = useRef<HTMLDivElement | null>(null);
+
+const [selectedFontSize, setSelectedFontSize] =
+  useState("12");
+
+  const [isTextColorOpen, setIsTextColorOpen] =
+  useState(false);
+
+const [selectedTextColor, setSelectedTextColor] =
+  useState("#f8fafc");
+
+const textColors = [
+  { name: "White", value: "#f8fafc" },
+  { name: "Slate", value: "#cbd5e1" },
+  { name: "Blue", value: "#60a5fa" },
+  { name: "Cyan", value: "#22d3ee" },
+  { name: "Green", value: "#4ade80" },
+  { name: "Yellow", value: "#facc15" },
+  { name: "Orange", value: "#fb923c" },
+  { name: "Red", value: "#f87171" },
+  { name: "Purple", value: "#c084fc" },
+  { name: "Pink", value: "#f472b6" },
+];
+
+  useEffect(() => {
+  if (!noteEditor || noteEditor.isDestroyed) {
+    return;
+  }
+
+  const syncSelectedFontSize = () => {
+    const fontSize =
+      noteEditor.getAttributes("textStyle")?.fontSize;
+
+    const normalizedFontSize =
+      typeof fontSize === "string"
+        ? fontSize.replace(/px$/i, "")
+        : "";
+
+    setSelectedFontSize(normalizedFontSize || "12");
+  };
+
+  // Read the size at the current cursor position.
+  syncSelectedFontSize();
+
+  // Update when the cursor moves or the document changes.
+  noteEditor.on("selectionUpdate", syncSelectedFontSize);
+  noteEditor.on("transaction", syncSelectedFontSize);
+
+  return () => {
+    noteEditor.off("selectionUpdate", syncSelectedFontSize);
+    noteEditor.off("transaction", syncSelectedFontSize);
+  };
+}, [noteEditor]);
+
+useEffect(() => {
+  if (!isTextSizeOpen) {
+    return;
+  }
+
+  const handlePointerDown = (event: PointerEvent) => {
+    const dropdown = textSizeDropdownRef.current;
+
+    if (
+      dropdown &&
+      !dropdown.contains(event.target as Node)
+    ) {
+      setIsTextSizeOpen(false);
+    }
+  };
+
+  document.addEventListener("pointerdown", handlePointerDown);
+
+  return () => {
+    document.removeEventListener("pointerdown", handlePointerDown);
+  };
+}, [isTextSizeOpen]);
 
 const [noteTitle, setNoteTitle] =
   useState("");
@@ -535,9 +626,11 @@ return (
     aria-label="Note title"
     disabled={isSaving}
     maxLength={42}
-    style={{
+style={{
   borderRadius: "6px",
   paddingLeft: "10px",
+  position: "relative",
+  top: "3px",
 }}
 className="box-border h-[30px] w-full rounded-[8px] border border-violet-400/40 bg-transparent px-3.5 pt-1 text-[13px] font-medium text-slate-100 outline-none transition-all duration-200 placeholder:text-slate-500 focus:border-violet-400 focus:shadow-[0_0_12px_rgba(139,92,246,0.12)]"
   />
@@ -547,135 +640,403 @@ className="box-border h-[30px] w-full rounded-[8px] border border-violet-400/40 
 <div className="h-[4px] shrink-0" />
 
         
-          {/* EDITOR TOOLBAR */}
-
-          <div
-className="
-  relative
-  box-border
-  flex
-  w-[calc(100%_-_8px)]
-  h-10
-  items-center
-  gap-1
-  border-b
-  border-white/[0.06]
-  px-2.5
-  translate-x-[8px]
-"
-          >
-            <button
-              type="button"
-              title="Text style"
-              className="
-                flex
-                h-7
-                w-[80px]
-                items-center
-                justify-between
-                rounded-[6px]
-                border
-                border-white/[0.08]
-                px-2
-                text-[11px]
-                text-slate-300
-              "
-            >
-              <span className="relative left-[8px]">
-                Normal
-              </span>
-
-              <ChevronDown
-                size={14}
-                className="text-slate-400"
-              />
-            </button>
-
-            <div
-              className="
-                ml-1
-                flex
-                items-center
-                gap-0.5
-              "
-            >
-              <ToolbarButton label="Bold">
-                <Bold size={15} />
-              </ToolbarButton>
-
-              <ToolbarButton label="Italic">
-                <Italic size={16} />
-              </ToolbarButton>
-
-              <ToolbarButton label="Underline">
-                <Underline size={15} />
-              </ToolbarButton>
-            </div>
-
-            <span
-              className="
-                mx-1
-                h-5
-                w-px
-                bg-white/[0.06]
-              "
-            />
-
-            <ToolbarButton label="Bulleted list">
-              <List size={16} />
-            </ToolbarButton>
-
-{/* CLEAR EDITOR DIVIDER */}
-<span className="mx-1 h-5 w-px shrink-0 bg-white/[0.06]" />
-
-{/* CLEAR EDITOR BUTTON */}
-<div className="absolute right-[10px] top-1/2 flex -translate-y-1/2 items-center">
+{/* EDITOR TOOLBAR */}
+<div
+  className="
+    relative
+    z-20
+    box-border
+    flex
+    w-[calc(100%-8px)]
+    h-10
+    items-center
+    gap-0.5
+    rounded-t-[6px]
+    border-b
+    border-white/[0.06]
+    px-2.5
+    translate-x-[8px]
+    transition-all
+    duration-200
+    ease-out
+    hover:bg-white/[0.015]
+    hover:border-white/[0.12]
+  "
+>
+{/* TEXT SIZE */}
+<div
+  ref={textSizeDropdownRef}
+  className="relative shrink-0"
+>
   <button
     type="button"
-    onClick={handleClearEditor}
-    disabled={note.length === 0 || isSaving}
-    title="Clear editor"
-    aria-label="Clear editor"
+    title="Text size"
+    aria-label="Text size"
+    onClick={() => {
+      setIsTextSizeOpen((current) => !current);
+    }}
 className="
   group
+  relative
   flex
-  h-6
-  w-6
+  h-7
+  w-[52px]
   shrink-0
   items-center
-  justify-center
-  rounded-[5px]
+  justify-between
+  rounded-[6px]
   border
-  border-transparent
-  text-red-400
+  border-white/[0.08]
+  px-1.5
+  text-[10px]
+  text-slate-300
   transition-all
   duration-200
   ease-out
-  hover:scale-110
-  hover:border-red-400/25
-  hover:bg-red-500/10
-  hover:text-red-300
-  hover:shadow-[0_0_12px_rgba(248,113,113,0.18)]
-  active:scale-95
-  focus-visible:outline-none
-  focus-visible:ring-1
-  focus-visible:ring-red-400/50
-  disabled:cursor-not-allowed
-  disabled:opacity-40
+  hover:-translate-y-[1px]
+  hover:scale-[1.02]
+  hover:bg-white/[0.07]
+  hover:text-white
+  hover:shadow-[0_0_8px_rgba(148,163,184,0.10)]
+  active:translate-y-0
+  active:scale-[0.98]
 "
   >
-    <Eraser
-  size={15}
-  strokeWidth={1.9}
-  className="
-    transition-transform
-    duration-200
-    group-hover:-rotate-12
-    group-hover:scale-110
-  "
+    <span className="relative left-[6px]">
+      {selectedFontSize} px
+    </span>
+
+<ChevronDown
+  size={12}
+  className="text-slate-400 transition-colors duration-200 group-hover:text-slate-200"
 />
   </button>
+
+  {isTextSizeOpen && (
+    <div
+      className="
+        absolute
+        left-0
+        top-[32px]
+        z-50
+        w-[54px]
+        overflow-hidden
+        rounded-[8px]
+        border
+        border-white/[0.08]
+        bg-[#0b1421]
+        p-1
+        shadow-[0_16px_40px_rgba(0,0,0,0.35)]
+      "
+    >
+      {["12", "14", "16", "18", "20", "24", "28", "32"].map(
+        (size) => (
+          <button
+            key={size}
+            type="button"
+            onClick={() => {
+              noteEditor
+                ?.chain()
+                .focus()
+                .setMark("textStyle", {
+                  fontSize: `${size}px`,
+                })
+                .updateAttributes("listItem", {
+                  fontSize: `${size}px`,
+                })
+                .run();
+
+              setSelectedFontSize(size);
+              setIsTextSizeOpen(false);
+            }}
+className={`
+  flex
+  h-[24px]
+  w-full
+  items-center
+  justify-between
+  rounded-[6px]
+  px-2
+  text-[11px]
+  font-medium
+  transition-all
+  duration-200
+  ease-out
+  hover:translate-x-[1px]
+  hover:bg-white/[0.06]
+  hover:text-white
+  active:scale-[0.98]
+  ${
+    selectedFontSize === size
+      ? "bg-[#0b1730]/70 text-blue-300"
+      : "text-slate-300"
+  }
+`}
+          >
+            <span className="relative left-[4px]">
+  {size} px
+</span>
+
+{selectedFontSize === size && (
+  <span className="relative right-[6px] text-blue-300">
+    ✓
+  </span>
+)}
+          </button>
+        )
+      )}
+    </div>
+  )}
 </div>
+
+  {/* BOLD / ITALIC / UNDERLINE */}
+  <div className="flex shrink-0 items-center gap-0">
+<ToolbarButton
+  label="Bold"
+  onClick={() => {
+    noteEditor?.chain().focus().toggleBold().run();
+  }}
+>
+  <Bold size={15} />
+</ToolbarButton>
+
+<ToolbarButton
+  label="Italic"
+  onClick={() => {
+    noteEditor?.chain().focus().toggleItalic().run();
+  }}
+>
+  <Italic size={16} />
+</ToolbarButton>
+
+<ToolbarButton
+  label="Underline"
+  onClick={() => {
+    noteEditor?.chain().focus().toggleUnderline().run();
+  }}
+>
+  <Underline size={15} />
+</ToolbarButton>
+  </div>
+
+  {/* FORMATTING DIVIDER */}
+  <span className="mx-1 h-5 w-px shrink-0 bg-white/[0.06]" />
+
+{/* TEXT COLOR */}
+<div className="relative shrink-0">
+  <ToolbarButton
+    label="Text color"
+    onClick={() => {
+      setIsTextColorOpen((current) => !current);
+    }}
+  >
+    <Palette size={15} />
+  </ToolbarButton>
+
+  {isTextColorOpen && (
+    <div
+      className="
+        absolute
+        left-0
+        top-[32px]
+        z-50
+        w-[148px]
+        rounded-[8px]
+        border
+        border-white/[0.08]
+        bg-[#0b1421]
+        p-2
+        shadow-[0_16px_40px_rgba(0,0,0,0.35)]
+      "
+    >
+      <div className="mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
+        Text Color
+      </div>
+
+      <div className="grid grid-cols-5 gap-1.5">
+        {textColors.map((color) => (
+          <button
+            key={color.value}
+            type="button"
+            title={color.name}
+            aria-label={`Text color: ${color.name}`}
+            onClick={() => {
+              noteEditor
+                ?.chain()
+                .focus()
+                .setMark("textStyle", {
+                  color: color.value,
+                })
+                .run();
+
+              setSelectedTextColor(color.value);
+              setIsTextColorOpen(false);
+            }}
+            className={`
+              flex
+              h-6
+              w-6
+              items-center
+              justify-center
+              rounded-full
+              border
+              transition-all
+              ${
+                selectedTextColor === color.value
+                  ? "border-white/80"
+                  : "border-white/[0.08] hover:border-white/40"
+              }
+            `}
+          >
+            <span
+              className="h-4 w-4 rounded-full"
+              style={{
+                backgroundColor: color.value,
+              }}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+  {/* LIST DIVIDER */}
+  <span className="mx-1 h-5 w-px shrink-0 bg-white/[0.06]" />
+
+  {/* LIST / DIVIDER / NUMBERED LIST */}
+  <div className="flex shrink-0 items-center gap-0">
+  <ToolbarButton
+  label="Bulleted list"
+  onClick={() => {
+    noteEditor?.chain().focus().toggleBulletList().run();
+  }}
+>
+  <List size={16} />
+</ToolbarButton>
+
+   <ToolbarButton
+  label="Horizontal divider"
+  onClick={() => {
+    noteEditor?.chain().focus().setHorizontalRule().run();
+  }}
+>
+  <Minus size={16} />
+</ToolbarButton>
+
+<ToolbarButton
+  label="Numbered list"
+  onClick={() => {
+    noteEditor?.chain().focus().toggleOrderedList().run();
+  }}
+>
+  <ListOrdered size={16} />
+</ToolbarButton>
+  </div>
+
+  {/* CLEAR EDITOR DIVIDER */}
+  <span className="mx-1 h-5 w-px shrink-0 bg-white/[0.06]" />
+
+
+
+  {/* CLEAR EDITOR BUTTON */}
+  <div className="absolute right-[18px] top-1/2 flex -translate-y-1/2 items-center">
+    <button
+      type="button"
+      onClick={handleClearEditor}
+      disabled={note.length === 0 || isSaving}
+      title="Clear editor"
+      aria-label="Clear editor"
+      className="
+        group
+        flex
+        h-6
+        w-6
+        shrink-0
+        items-center
+        justify-center
+        rounded-[5px]
+        border
+        border-transparent
+        text-red-400
+        transition-all
+        duration-200
+        ease-out
+        hover:scale-110
+        hover:border-red-400/25
+        hover:bg-red-500/10
+        hover:text-red-300
+        hover:shadow-[0_0_12px_rgba(248,113,113,0.18)]
+        active:scale-95
+        focus-visible:outline-none
+        focus-visible:ring-1
+        focus-visible:ring-red-400/50
+        disabled:cursor-not-allowed
+        disabled:opacity-40
+      "
+    >
+      <Eraser
+        size={15}
+        strokeWidth={1.9}
+        className="
+          transition-transform
+          duration-200
+          group-hover:-rotate-12
+          group-hover:scale-110
+        "
+      />
+    </button>
+
+{/* UNDO BUTTON */}
+<button
+  type="button"
+  onClick={() => {
+    noteEditor?.chain().focus().undo().run();
+  }}
+  disabled={!noteEditor || isSaving}
+  title="Undo"
+  aria-label="Undo"
+  className="
+    group
+    relative
+    left-[3px]
+    flex
+    h-6
+    w-6
+    shrink-0
+    items-center
+    justify-center
+    rounded-[5px]
+    border
+    border-transparent
+    text-slate-300
+    transition-all
+    duration-200
+    ease-out
+    hover:scale-110
+    hover:border-slate-400/25
+    hover:bg-white/[0.06]
+    hover:text-white
+    hover:shadow-[0_0_12px_rgba(148,163,184,0.16)]
+    active:scale-95
+    focus-visible:outline-none
+    focus-visible:ring-1
+    focus-visible:ring-slate-400/50
+    disabled:cursor-not-allowed
+    disabled:opacity-40
+  "
+>
+  <Undo2
+    size={15}
+    strokeWidth={1.9}
+    className="
+      transition-transform
+      duration-200
+      group-hover:scale-110
+    "
+  />
+</button>
+  </div>
 </div>
 
           <div
@@ -689,31 +1050,15 @@ className="
               padding: "10px",
             }}
           >
-                     <textarea
-              value={note}
-              disabled={isSaving}
-              onChange={(event) => {
-                setNote(
-                  event.target.value
-                );
-
-                setSavedLocally(false);
-              }}
-              placeholder="Write your notes about this trade..."
-              className="
-                h-full
-                w-full
-                resize-none
-                bg-transparent
-                px-0
-                py-0
-                text-[12px]
-                leading-5
-                text-slate-200
-                outline-none
-                placeholder:text-slate-500
-              "
-            />
+<DailyReviewTradeNotesEditor
+  content={note}
+  editable={!isSaving}
+  onChange={(content) => {
+    setNote(content);
+    setSavedLocally(false);
+  }}
+  onEditorReady={setNoteEditor}
+/>
           </div>
         </div>
 
@@ -919,6 +1264,15 @@ const title =
 
 const preview =
   savedNote.content
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/(p|li|div|h[1-6])\s*>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&amp;/gi, "&")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -1016,16 +1370,19 @@ className={`
       flex-1
     "
   >
-    <p
-      className="
-        truncate
-        text-[11px]
-        font-semibold
-        text-slate-100
-      "
-    >
-      {title}
-    </p>
+<p
+className="
+  truncate
+  text-[11px]
+  font-semibold
+  text-sky-200
+  transition-colors
+  duration-200
+  group-hover:text-cyan-200
+"
+>
+  {title}
+</p>
 
     {/* NOTE PREVIEW */}
 
@@ -1522,28 +1879,40 @@ className="
 function ToolbarButton({
   label,
   children,
+  onClick,
 }: {
   label: string;
   children: ReactNode;
+  onClick?: () => void;
 }) {
   return (
-    <button
-      type="button"
-      title={`${label} will be added later`}
-      aria-label={label}
-      className="
-        flex
-        h-7
-        w-7
-        items-center
-        justify-center
-        rounded-[5px]
-        text-slate-300
-        transition
-        hover:bg-white/[0.06]
-        hover:text-white
-      "
-    >
+<button
+  type="button"
+  title={label}
+  aria-label={label}
+  onMouseDown={(event) => event.preventDefault()}
+  onClick={onClick}
+className="
+  flex
+  h-7
+  w-6
+  shrink-0
+  items-center
+  justify-center
+  rounded-[5px]
+  text-slate-300
+  transition-all
+  duration-200
+  ease-out
+  hover:-translate-y-[1px]
+  hover:scale-105
+  hover:bg-white/[0.07]
+  hover:text-white
+  hover:shadow-[0_0_8px_rgba(148,163,184,0.10)]
+  active:translate-y-0
+  active:scale-95
+"
+>
       {children}
     </button>
   );

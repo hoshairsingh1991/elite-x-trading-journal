@@ -511,263 +511,248 @@ return (
     {/* TOOLBAR ROW */}
     {/* ================================================= */}
 
-    <div className="flex min-h-[38px] w-full items-center gap-2">
+   <div
+  className="
+    flex
+    min-h-[38px]
+    w-full
+    items-center
+    gap-2
+    rounded-[8px]
+    transition-all
+    duration-200
+    ease-out
+    hover:bg-white/[0.015]
+  "
+>
 
       {/* ================================================= */}
       {/* TEXT SIZE GROUP */}
       {/* ================================================= */}
 
-     <div className="group flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-2 transition-colors hover:bg-white/[0.04]">
+      <div className="flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-2 transition-colors hover:bg-white/[0.04]">
 
-<div
-  ref={
-    textSizeRef
-  }
-  className="relative"
->
-
-<button
-  type="button"
-  title="Text size"
-  onClick={() =>
-    setIsTextSizeOpen(
-      (current) => !current
-    )
-  }
-   className="flex h-full min-w-[62px] items-center justify-center gap-1 rounded-[6px] px-2 text-[11px] font-medium text-slate-300 transition-colors group-hover:text-white"
-  >
-
-    <Type
-      size={14}
-      strokeWidth={1.7}
-    />
-
-    <span>
-      {selectedFontSize}
-    </span>
-
-    <ChevronDown
-      size={11}
-      strokeWidth={1.8}
-      className="text-slate-500"
-    />
-
-  </button>
-
-  {isTextSizeOpen && (
-
-  <div className="absolute left-0 top-[42px] z-50 w-[60px] overflow-hidden rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-1 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
-
-      {[
-        "12",
-        "14",
-        "16",
-        "18",
-        "20",
-        "24",
-        "28",
-        "32",
-      ].map(
-        (size) => (
-
+        <div
+          ref={textSizeRef}
+          className="relative"
+        >
           <button
-            key={
-              size
-            }
             type="button"
-            onClick={() => {
-
-const storageKey =
-  activeBlockId
-    ? `elite-x-note-font-size-${noteId}-block-${activeBlockId}`
-    : `elite-x-note-font-size-${noteId}-note`;
-
-activeEditor
-  .chain()
-  .focus()
-  .setMark(
-    "textStyle",
-    {
-      fontSize:
-        `${size}px`,
-    }
-  )
-  .updateAttributes(
-    "listItem",
-    {
-      fontSize:
-        `${size}px`,
-    }
-  )
-  .run();
-
-applyTypingFontSize(
-  size
-);
-
-window.localStorage.setItem(
-  storageKey,
-  size
-);
-
-setSelectedFontSize(
-  size
-);
-
-setIsTextSizeOpen(
-  false
-);
-
-            }}
-className={`flex h-[24px] w-full items-center justify-between rounded-[6px] px-3 text-[12px] font-medium transition-colors ${
-  selectedFontSize === size
-    ? "bg-[#0b1730]/70 text-blue-300"
-    : "text-slate-300 hover:bg-white/[0.04] hover:text-white"
-}`}
+            title="Text size"
+            onClick={() =>
+              setIsTextSizeOpen((current) => !current)
+            }
+            className="
+              group
+              relative
+              flex
+              h-full
+              min-w-[62px]
+              items-center
+              justify-center
+              gap-1
+              rounded-[6px]
+              px-2
+              text-[11px]
+              font-medium
+              text-slate-300
+              transition-all
+              duration-200
+              ease-out
+              hover:-translate-y-[1px]
+              hover:scale-[1.02]
+              hover:bg-white/[0.07]
+              hover:text-white
+              hover:shadow-[0_0_8px_rgba(148,163,184,0.10)]
+              active:translate-y-0
+              active:scale-[0.98]
+            "
           >
+            <Type
+              size={14}
+              strokeWidth={1.7}
+              className="transition-transform duration-200 ease-out group-hover:scale-110"
+            />
 
-<span className="relative left-[6px]">
-  {size} px
-</span>
+            <span>
+              {selectedFontSize}
+            </span>
 
-{selectedFontSize === size && (
-  <span className="text-[11px] text-blue-300">
-    ✓
-  </span>
-)}
-
+            <ChevronDown
+              size={11}
+              strokeWidth={1.8}
+              className="text-slate-500 transition-colors duration-200 group-hover:text-slate-300"
+            />
           </button>
 
-        )
-      )}
+          {isTextSizeOpen && (
+            <div className="absolute left-0 top-[42px] z-50 w-[60px] overflow-hidden rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-1 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+              {[
+                "12",
+                "14",
+                "16",
+                "18",
+                "20",
+                "24",
+                "28",
+                "32",
+              ].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => {
+                    const storageKey = activeBlockId
+                      ? `elite-x-note-font-size-${noteId}-block-${activeBlockId}`
+                      : `elite-x-note-font-size-${noteId}-note`;
 
-    </div>
+                    activeEditor
+                      .chain()
+                      .focus()
+                      .setMark("textStyle", {
+                        fontSize: `${size}px`,
+                      })
+                      .updateAttributes("listItem", {
+                        fontSize: `${size}px`,
+                      })
+                      .run();
 
-  )}
+                    applyTypingFontSize(size);
 
-</div>
+                    window.localStorage.setItem(
+                      storageKey,
+                      size
+                    );
+
+                    setSelectedFontSize(size);
+                    setIsTextSizeOpen(false);
+                  }}
+className={`flex h-[24px] w-full items-center justify-between rounded-[6px] px-3 text-[12px] font-medium transition-all duration-200 ease-out hover:translate-x-[1px] hover:bg-white/[0.06] hover:text-white active:scale-[0.98] ${
+  selectedFontSize === size
+    ? "bg-[#0b1730]/70 text-blue-300"
+    : "text-slate-300"
+}`}
+                >
+                  <span className="relative left-[6px]">
+                    {size} px
+                  </span>
+
+                  {selectedFontSize === size && (
+<span className="relative right-[6px] text-[11px] text-blue-300">
+  ✓
+</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
       </div>
 
-
-{/* ================================================= */}
-{/* TEXT COLOR GROUP */}
-{/* ================================================= */}
+      {/* ================================================= */}
+      {/* TEXT COLOR GROUP */}
+      {/* ================================================= */}
 
 <div
-  ref={
-    textColorRef
-  }
+  ref={textColorRef}
   className="relative flex h-[38px] shrink-0 items-center rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-1.5"
 >
-
   <button
     type="button"
     title="Text color"
     onClick={() =>
-      setIsTextColorOpen(
-        (current) => !current
-      )
+      setIsTextColorOpen((current) => !current)
     }
-    className="relative flex h-8 min-w-[52px] items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-white"
+    className="
+      group
+      relative
+      flex
+      h-8
+      min-w-[52px]
+      items-center
+      justify-center
+      rounded-[6px]
+      text-slate-300
+      transition-all
+      duration-200
+      ease-out
+      hover:-translate-y-[1px]
+      hover:scale-[1.02]
+      hover:bg-white/[0.07]
+      hover:text-white
+      hover:shadow-[0_0_8px_rgba(148,163,184,0.10)]
+      active:translate-y-0
+      active:scale-[0.98]
+    "
   >
-
     <Type
       size={14}
       strokeWidth={1.8}
+      className="transition-transform duration-200 ease-out group-hover:scale-110"
     />
 
     <span
       className="absolute bottom-[5px] left-1/2 h-[2px] w-3 -translate-x-1/2 rounded-full"
       style={{
-        backgroundColor:
-          selectedTextColor,
+        backgroundColor: selectedTextColor,
       }}
     />
 
     <ChevronDown
       size={10}
       strokeWidth={1.8}
-      className="ml-1 text-slate-500"
+      className="ml-1 text-slate-500 transition-colors duration-200 group-hover:text-slate-300"
     />
-
   </button>
 
+{/* ================================================= */}
+{/* COLOR DROPDOWN */}
+{/* ================================================= */}
 
-  {/* ================================================= */}
-  {/* COLOR DROPDOWN */}
-  {/* ================================================= */}
+{isTextColorOpen && (
+  <div className="absolute left-0 top-[42px] z-50 w-[148px] rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
 
-  {isTextColorOpen && (
-
-    <div className="absolute left-0 top-[42px] z-50 w-[148px] rounded-[8px] border border-white/[0.08] bg-[#0b1421] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
-
-      <div className="mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
-        Text Color
-      </div>
-
-      <div className="grid grid-cols-5 gap-1.5">
-
-        {textColors.map(
-          (color) => (
-
-            <button
-              key={
-                color.value
-              }
-              type="button"
-              title={
-                color.name
-              }
-              onClick={() => {
-
-activeEditor
-  .chain()
-  .focus()
-  .setMark(
-    "textStyle",
-    {
-      color:
-        color.value,
-    }
-  )
-  .run();
-
-                setSelectedTextColor(
-                  color.value
-                );
-
-                setIsTextColorOpen(
-                  false
-                );
-
-              }}
-              className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all ${
-                selectedTextColor ===
-                color.value
-                  ? "border-white/80"
-                  : "border-white/[0.08] hover:border-white/40"
-              }`}
-            >
-
-              <span
-                className="h-4 w-4 rounded-full"
-                style={{
-                  backgroundColor:
-                    color.value,
-                }}
-              />
-
-            </button>
-
-          )
-        )}
-
-      </div>
-
+    <div className="mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-500">
+      Text Color
     </div>
 
-  )}
+    <div className="grid grid-cols-5 gap-1.5">
+      {textColors.map((color) => (
+        <button
+          key={color.value}
+          type="button"
+          title={color.name}
+          aria-label={`Text color: ${color.name}`}
+          onClick={() => {
+            activeEditor
+              .chain()
+              .focus()
+              .setMark("textStyle", {
+                color: color.value,
+              })
+              .run();
+
+            setSelectedTextColor(color.value);
+            setIsTextColorOpen(false);
+          }}
+          className={`group relative z-0 flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-200 ease-out hover:z-10 hover:-translate-y-[1px] hover:scale-110 hover:border-white/70 hover:shadow-[0_0_10px_rgba(148,163,184,0.25)] active:translate-y-0 active:scale-95 ${
+            selectedTextColor === color.value
+              ? "border-white/80"
+              : "border-white/[0.08]"
+          }`}
+        >
+          <span
+            className="h-4 w-4 rounded-full transition-transform duration-200 ease-out group-hover:scale-110"
+            style={{
+              backgroundColor: color.value,
+            }}
+          />
+        </button>
+      ))}
+    </div>
+
+  </div>
+)}
 
 </div>
 
@@ -782,7 +767,31 @@ activeEditor
   onClick={
     onAddTextBlock
   }
-  className="flex h-[38px] shrink-0 items-center justify-center gap-1.5 rounded-[8px] border border-white/[0.06] bg-[#0b1421] px-3 text-slate-400 transition-colors hover:border-white/[0.1] hover:bg-[#101a28] hover:text-white"
+  className="
+  flex
+  h-[38px]
+  shrink-0
+  items-center
+  justify-center
+  gap-1.5
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#0b1421]
+  px-3
+  text-slate-400
+  transition-all
+  duration-200
+  ease-out
+  hover:-translate-y-[1px]
+  hover:scale-[1.02]
+  hover:border-white/[0.12]
+  hover:bg-[#101a28]
+  hover:text-white
+  hover:shadow-[0_0_8px_rgba(148,163,184,0.10)]
+  active:translate-y-0
+  active:scale-[0.98]
+"
 >
 
   <Type
@@ -812,11 +821,11 @@ activeEditor
       .toggleBold()
       .run()
   }
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[12px] font-bold transition-colors ${
-    activeEditor.isActive("bold")
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[12px] font-bold transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive("bold")
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   B
 </button>
@@ -831,11 +840,11 @@ onClick={() =>
     .toggleItalic()
     .run()
 }
- className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-colors ${
-    activeEditor.isActive("italic")
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive("italic")
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <Italic
     size={14}
@@ -853,11 +862,11 @@ onClick={() =>
     .toggleUnderline()
     .run()
 }
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] transition-colors max-[1535px]:w-7 ${
-    activeEditor.isActive("underline")
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive("underline")
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <Underline
     size={14}
@@ -875,11 +884,11 @@ onClick={() =>
     .toggleStrike()
     .run()
 }
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center  rounded-[6px] transition-colors max-[1535px]:w-7 ${
-    activeEditor.isActive("strike")
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive("strike")
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <Strikethrough
     size={14}
@@ -908,11 +917,11 @@ activeEditor
   .toggleBulletList()
   .run();
 }}
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-colors ${
-   activeEditor.isActive("bulletList")
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive("bulletList")
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
 
   <Circle
@@ -933,11 +942,11 @@ onClick={() => {
     .toggleOrderedList()
     .run();
 }}
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[10px] font-semibold transition-colors ${
-    activeEditor.isActive("orderedList")
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[10px] font-semibold transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive("orderedList")
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   1.
 </button>
@@ -958,13 +967,13 @@ activeEditor
   )
   .run()
   }
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
- activeEditor.isActive({
-  textAlign: "left",
-})
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive({
+    textAlign: "left",
+  })
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <AlignLeft
     size={14}
@@ -987,13 +996,13 @@ activeEditor
   )
   .run()
   }
-  className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
-activeEditor.isActive({
-  textAlign: "center",
-})
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive({
+    textAlign: "center",
+  })
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <AlignCenter
     size={14}
@@ -1016,13 +1025,13 @@ activeEditor
   )
   .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
-activeEditor.isActive({
-  textAlign: "right",
-})
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive({
+    textAlign: "right",
+  })
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <AlignRight
     size={14}
@@ -1045,13 +1054,13 @@ activeEditor
   )
   .run()
   }
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-colors ${
-activeEditor.isActive({
-  textAlign: "justify",
-})
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 items-center justify-center rounded-[6px] text-[11px] font-semibold transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeEditor.isActive({
+    textAlign: "justify",
+  })
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <AlignJustify
     size={14}
@@ -1083,11 +1092,11 @@ onClick={() => {
   onAnnotationToolChange("select");
   setIsDrawingSettingsOpen(false);
 }}
-  className={`flex h-8 w-auto shrink-0 items-center justify-center gap-1.5 rounded-[6px] border px-3 text-[10px] font-medium transition-colors max-[1535px]:w-8 max-[1535px]:px-0 ${
-    activeAnnotationTool === "select"
-      ? "border-blue-400/40 bg-[#0b1730] text-blue-300"
-      : "border-transparent text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-auto shrink-0 items-center justify-center gap-1.5 rounded-[6px] border px-3 text-[10px] font-medium transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 max-[1535px]:w-8 max-[1535px]:px-0 ${
+  activeAnnotationTool === "select"
+    ? "border-blue-400/40 bg-[#0b1730] text-blue-300"
+    : "border-transparent text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <MousePointer2
     size={14}
@@ -1138,11 +1147,11 @@ setIsDrawingSettingsOpen(
 );
 
     }}
-    className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors max-[1535px]:w-7 ${
-      activeAnnotationTool === "pen"
-        ? "bg-[#0b1730] text-blue-300"
-        : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-    }`}
+className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 max-[1535px]:w-7 ${
+  activeAnnotationTool === "pen"
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
   >
 
     <PenLine
@@ -1164,8 +1173,6 @@ setIsDrawingSettingsOpen(
 <div className="relative left-[10px] top-[6px] mb-4 px-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
   Drawing Settings
 </div>
-
-
 
 {/* ============================================= */}
 {/* COLOR */}
@@ -1320,11 +1327,11 @@ setIsDrawingSettingsOpen(
     );
 
   }}
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
-    activeAnnotationTool === "line"
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeAnnotationTool === "line"
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
   <Minus
     size={15}
@@ -1349,11 +1356,11 @@ setIsDrawingSettingsOpen(
     );
 
   }}
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
-    activeAnnotationTool === "arrow"
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeAnnotationTool === "arrow"
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
 
           <span className="text-[16px] leading-none">
@@ -1379,11 +1386,11 @@ setIsDrawingSettingsOpen(
     );
 
   }}
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
-    activeAnnotationTool === "zone"
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeAnnotationTool === "zone"
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
 
           <Square
@@ -1410,11 +1417,11 @@ setIsDrawingSettingsOpen(
     );
 
   }}
-  className={`relative flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
-    activeAnnotationTool === "highlight"
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`relative flex h-8 w-8 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeAnnotationTool === "highlight"
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
 
           <Highlighter
@@ -1443,11 +1450,11 @@ setIsDrawingSettingsOpen(
     );
 
   }}
-  className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-colors ${
-    activeAnnotationTool === "eraser"
-      ? "bg-[#0b1730] text-blue-300"
-      : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-  }`}
+className={`flex h-8 w-8 items-center justify-center rounded-[6px] transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 ${
+  activeAnnotationTool === "eraser"
+    ? "bg-[#0b1730] text-blue-300"
+    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+}`}
 >
 
           <Eraser
@@ -1474,7 +1481,26 @@ setIsDrawingSettingsOpen(
   onClick={
     onDrawingUndo
   }
-  className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+  className="
+  flex
+  h-8
+  w-8
+  max-[1535px]:w-7
+  items-center
+  justify-center
+  rounded-[6px]
+  text-slate-400
+  transition-all
+  duration-200
+  ease-out
+  hover:-translate-y-[1px]
+  hover:scale-105
+  hover:bg-white/[0.07]
+  hover:text-white
+  hover:shadow-[0_0_8px_rgba(148,163,184,0.10)]
+  active:translate-y-0
+  active:scale-95
+"
 >
 
   <Undo2
@@ -1492,7 +1518,26 @@ setIsDrawingSettingsOpen(
   onClick={
     onDrawingRedo
   }
-  className="flex h-8 w-8 max-[1535px]:w-7 items-center justify-center rounded-[6px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+  className="
+  flex
+  h-8
+  w-8
+  max-[1535px]:w-7
+  items-center
+  justify-center
+  rounded-[6px]
+  text-slate-400
+  transition-all
+  duration-200
+  ease-out
+  hover:-translate-y-[1px]
+  hover:scale-105
+  hover:bg-white/[0.07]
+  hover:text-white
+  hover:shadow-[0_0_8px_rgba(148,163,184,0.10)]
+  active:translate-y-0
+  active:scale-95
+"
 >
 
   <Redo2
