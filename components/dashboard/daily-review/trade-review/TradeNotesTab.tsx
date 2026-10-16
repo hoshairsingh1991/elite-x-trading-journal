@@ -2,6 +2,8 @@
 
 import {
   useEffect,
+  useLayoutEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -47,6 +49,11 @@ export default function TradeNotesTab({
   trade,
 }: TradeNotesTabProps) {
 
+    const currentTradeIdRef = useRef(trade.id);
+
+  useLayoutEffect(() => {
+    currentTradeIdRef.current = trade.id;
+  }, [trade.id]);
 
   const [note, setNote] =
     useState("");
@@ -62,6 +69,9 @@ const [activeNoteId, setActiveNoteId] =
 
   const [pastNotes, setPastNotes] =
     useState<DailyReviewTradeNote[]>([]);
+
+    const [loadError, setLoadError] =
+  useState<string | null>(null);
 
 const [isSaving, setIsSaving] =
   useState(false);
@@ -99,6 +109,8 @@ setNoteTitle("");
 setNote("");
 setSavedLocally(false);
 setActiveNoteId(null);
+setPastNotes([]);
+setLoadError(null);
 
     async function loadNotes() {
       if (!trade.id) {
@@ -106,13 +118,28 @@ setActiveNoteId(null);
         return;
       }
 
-      const notes =
-        await loadDailyReviewTradeNotes(
-          trade.id
+      try {
+        const notes =
+          await loadDailyReviewTradeNotes(
+            trade.id
+          );
+
+        if (!cancelled) {
+          setPastNotes(notes);
+          setLoadError(null);
+        }
+      } catch (error) {
+        console.error(
+          "FAILED TO LOAD DAILY REVIEW TRADE NOTES:",
+          error
         );
 
-      if (!cancelled) {
-        setPastNotes(notes);
+        if (!cancelled) {
+          setPastNotes([]);
+          setLoadError(
+            "Unable to load saved notes. Please try again."
+          );
+        }
       }
     }
 
@@ -123,8 +150,7 @@ setActiveNoteId(null);
     };
   }, [trade.id]);
 
-
- // =====================================================
+// =====================================================
 // SAVE NOTE
 // =====================================================
 
@@ -133,22 +159,28 @@ async function handleSave() {
     return;
   }
 
+  const saveTradeId = trade.id;
+  const saveNoteId = activeNoteId;
+  const title = noteTitle.trim() || "Trade note";
+  const content = note;
+
   setIsSaving(true);
 
   try {
-    const title =
-      noteTitle.trim() || "Trade note";
-
     // UPDATE EXISTING NOTE
-    if (activeNoteId) {
-      const updatedNote =
-        await updateDailyReviewTradeNote(
-          activeNoteId,
-          title,
-          note
-        );
+    if (saveNoteId) {
+      const updatedNote = await updateDailyReviewTradeNote(
+        saveNoteId,
+        title,
+        content
+      );
 
       if (!updatedNote) {
+        return;
+      }
+
+      // Prevent a previous trade's save from updating the current UI.
+      if (currentTradeIdRef.current !== saveTradeId) {
         return;
       }
 
@@ -165,23 +197,29 @@ async function handleSave() {
     }
 
     // CREATE NOTE ON FIRST SAVE
-    const createdNote =
-      await createDailyReviewTradeNote(
-        trade.id,
-        title,
-        note
-      );
+    const createdNote = await createDailyReviewTradeNote(
+      saveTradeId,
+      title,
+      content
+    );
 
-    if (createdNote) {
-      setPastNotes((currentNotes) => [
-        createdNote,
-        ...currentNotes,
-      ]);
-
-      setActiveNoteId(createdNote.id);
-      setNoteTitle(createdNote.title);
-      setSavedLocally(true);
+    if (!createdNote) {
+      return;
     }
+
+    // Ignore stale results if the selected trade has changed.
+    if (currentTradeIdRef.current !== saveTradeId) {
+      return;
+    }
+
+    setPastNotes((currentNotes) => [
+      createdNote,
+      ...currentNotes,
+    ]);
+
+    setActiveNoteId(createdNote.id);
+    setNoteTitle(createdNote.title);
+    setSavedLocally(true);
   } catch (error) {
     console.error(
       "FAILED TO SAVE DAILY REVIEW TRADE NOTE:",
@@ -198,7 +236,7 @@ async function handleSave() {
 // =====================================================
 
 function handleDelete(noteId: string) {
-  if (deletingNoteId !== null) {
+  if (isSaving || deletingNoteId !== null) {
     return;
   }
 
@@ -212,6 +250,7 @@ function handleDelete(noteId: string) {
 async function confirmDeleteNote() {
   if (
     !pendingDeleteNoteId ||
+    isSaving ||
     isConfirmingDelete ||
     deletingNoteId !== null
   ) {
@@ -246,6 +285,7 @@ async function confirmDeleteNote() {
 
       // CLEAR EDITOR IF THIS NOTE WAS SELECTED
       if (activeNoteId === noteId) {
+        setNoteTitle("");
         setNote("");
         setActiveNoteId(null);
         setSavedLocally(false);
@@ -271,7 +311,11 @@ function handleSelectNote(savedNote: DailyReviewTradeNote) {
 
   const hasUnsavedChanges =
     !savedLocally &&
-    (note.length > 0 || activeNoteId !== null);
+    (
+      noteTitle.trim().length > 0 ||
+      note.length > 0 ||
+      activeNoteId !== null
+    );
 
   if (hasUnsavedChanges) {
     const confirmed = window.confirm(
@@ -489,6 +533,7 @@ return (
     }}
     placeholder="Enter a title..."
     aria-label="Note title"
+    disabled={isSaving}
     maxLength={42}
     style={{
   borderRadius: "6px",
@@ -644,8 +689,9 @@ className="
               padding: "10px",
             }}
           >
-            <textarea
+                     <textarea
               value={note}
+              disabled={isSaving}
               onChange={(event) => {
                 setNote(
                   event.target.value
@@ -852,7 +898,7 @@ className="
         text-slate-400
       "
     >
-      No saved notes yet
+      {loadError ?? "No saved notes yet"}
     </p>
   </div>
 ) : (
@@ -877,10 +923,10 @@ const preview =
     .trim();
 
 
-          const savedDate =
-            new Date(
-              savedNote.createdAt
-            );
+const savedDate =
+  new Date(
+    savedNote.updatedAt
+  );
 
           const formattedDate =
             savedDate.toLocaleDateString(
