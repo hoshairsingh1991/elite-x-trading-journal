@@ -10,9 +10,9 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
-  X,
-  Pencil,
 } from "lucide-react";
+
+import TradingCalendarNotes from "./TradingCalendarNotes";
 
 import { Trade } from "@/types/trade";
 
@@ -21,8 +21,6 @@ from "@/lib/supabase";
 
 import {
   loadDailyNotesFromSupabase,
-  getDailyNoteFromSupabase,
-  upsertDailyNoteInSupabase,
 } from "@/lib/storage/supabaseDailyNotesStorage";
 
 import DailyReviewModal
@@ -102,10 +100,7 @@ const [
   null
 );
 
-const [
-  noteInput,
-  setNoteInput,
-] = useState("");
+
 const [mounted, setMounted] =
   useState(false);
 
@@ -126,7 +121,6 @@ const [mounted, setMounted] =
 
   loadNoteDates();
 }, []);
-
 
 
 
@@ -430,6 +424,7 @@ const selectedTrades =
     return "border-white/[0.06] bg-[#0b1220]";
   }
 
+
   // =====================================================
   // CALENDAR CELLS
   // =====================================================
@@ -441,7 +436,6 @@ const selectedTrades =
     i < firstDayOfMonth;
     i++
   ) {
-
     calendarCells.push(
       <div key={`empty-${i}`} />
     );
@@ -452,21 +446,20 @@ const selectedTrades =
     day <= daysInMonth;
     day++
   ) {
-
     const dayData =
       tradesByDay[day];
-      const formattedDay =
-  `${currentYear}-${String(
-    currentMonth + 1
-  ).padStart(2, "0")}-${String(
-    day
-  ).padStart(2, "0")}`;
 
-const hasNote =
-  noteDates.has(formattedDay);
+    const formattedDay =
+      `${currentYear}-${String(
+        currentMonth + 1
+      ).padStart(2, "0")}-${String(
+        day
+      ).padStart(2, "0")}`;
+
+    const hasNote =
+      noteDates.has(formattedDay);
 
     calendarCells.push(
-
       <button
         key={day}
         onClick={() =>
@@ -480,42 +473,29 @@ const hasNote =
             : "border-white/[0.06] bg-[#0b1220]"
         }`}
       >
-
         <span className="relative left-[8px] top-[4px] text-[11px] font-bold text-slate-400">
           {day}
         </span>
+
         <div
-  role="button"
-  tabIndex={0}
-  onClick={async (event) => {
-
-  event.stopPropagation();
-
-setNoteInput("");
-
-const existingNote =
-  await getDailyNoteFromSupabase(
-    formattedDay
-  );
-
-setNoteInput(existingNote);
-setSelectedNoteDate(formattedDay);
-}}
-  className={`absolute right-2 top-0 flex h-[20px] w-[20px] items-center justify-center rounded-[7px] transition-all ${
-    hasNote
-  ? "border border-blue-500/20 bg-blue-500/10 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.25)]"
-  : "text-slate-600 hover:text-slate-400"
-  }`}
->
-  <FileText size={12} />
-</div>
-  
+          role="button"
+          tabIndex={0}
+          onClick={(event) => {
+            event.stopPropagation();
+            setSelectedNoteDate(formattedDay);
+          }}
+          className={`absolute right-0 top-0 flex h-[20px] w-[20px] items-center justify-center rounded-[7px] transition-all ${
+            hasNote
+              ? "border border-blue-500/20 bg-blue-500/10 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.25)]"
+              : "text-slate-600 hover:text-slate-400"
+          }`}
+        >
+          <FileText size={12} />
+        </div>
 
         {dayData ? (
-
-        <div className="relative -top-1 left-[6px]">
-
-          <p
+          <div className="relative -top-1 left-[6px]">
+            <p
               className={`text-[13px] font-black tracking-tight ${
                 dayData.pnl >= 0
                   ? "text-emerald-400"
@@ -523,17 +503,15 @@ setSelectedNoteDate(formattedDay);
               }`}
             >
               {dayData.pnl >= 0 ? "+" : ""}
-{getCurrencySymbol(reportingCurrency)}
-{dayData.pnl.toFixed(2)}
+              {getCurrencySymbol(reportingCurrency)}
+              {dayData.pnl.toFixed(2)}
             </p>
 
             <p className="mt-1 text-[10px] font-semibold text-slate-300">
               {dayData.trades} Trades
             </p>
           </div>
-
         ) : (
-
           <div />
         )}
       </button>
@@ -541,8 +519,9 @@ setSelectedNoteDate(formattedDay);
   }
 
   // =====================================================
-// DELETE MANUAL TRADE
-// =====================================================
+  // DELETE MANUAL TRADE
+  // =====================================================
+
 
 const handleDeleteTrade =
   async (
@@ -823,196 +802,30 @@ bg-[#0b1220]
       </div>
 
 
-      {/* ===================================================== */}
-      {/* MODAL */}
-      {/* ===================================================== */}
-
-      {/* ===================================================== */}
+{/* ===================================================== */}
 {/* DAILY NOTES MODAL */}
 {/* ===================================================== */}
 
 {selectedNoteDate && (
+  <TradingCalendarNotes
+    selectedDate={selectedNoteDate}
+    onSelectedDateChange={setSelectedNoteDate}
+    onNotesChanged={(date, hasNote) => {
+      setNoteDates((previous) => {
+        const next = new Set(previous);
 
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm">
+        if (hasNote) {
+          next.add(date);
+        } else {
+          next.delete(date);
+        }
 
-    <div className="w-full max-w-[560px] rounded-[32px] border border-blue-500/15 bg-[linear-gradient(180deg,#13213a_0%,#0a162d_100%)] p-8 shadow-[0_0_90px_rgba(0,0,0,0.60)]">
-
-      <div className="rounded-[8px] border border-white/[0.05] bg-[#0c1a31]/92 px-[28px] pt-[28px] pb-[28px]">
-      <div className="flex">
-
-  <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
-    spacer
-  </div>
-
-  <div className="flex-1">
-
-{/* HEADER */}
-
-        <div className="relative top-[6px] flex items-start justify-between">
-
-          <div>
-
-            <h2 className="text-[22px] font-black tracking-tight text-slate-400">
-              Session Notes
-            </h2>
-
-            <p className="mt-2 text-[12px] text-slate-400">
-              {selectedNoteDate}
-            </p>
-          </div>
-
-          <button
-            onClick={async () => {
-
-              setSelectedNoteDate(
-                null
-              );
-
-              setNoteInput("");
-            }}
-            className="flex h-[36px] w-[36px] items-center justify-center rounded-[14px] border border-white/[0.05] bg-white/[0.03] text-slate-400 transition-all hover:text-slate-400"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* SPACER */}
-
-        <div className="h-[10px] opacity-0 select-none">
-          spacer
-        </div>
-
-        {/* TEXTAREA */}
-
-        <textarea
-  style={{
-    WebkitAppearance: "none",
-  }}
-  value={noteInput}
-  onChange={(event) =>
-    setNoteInput(
-      event.target.value
-    )
-  }
-          placeholder="Add trading session notes..."
-          className="min-h-[220px] w-full resize-none rounded-[10px] border border-white/[0.06] bg-[#081526]/110 px-[26px] pt-[30px] pb-6 text-sm leading-7 tracking-[0.01em] text-slate-200 outline-none transition-all placeholder:text-slate-500 focus:border-blue-500/30"
-        />
-
-        {/* SPACER */}
-
-        <div className="h-[08px] opacity-0 select-none">
-          spacer
-        </div>
-
-        {/* ACTIONS */}
-
-        <div className="flex items-center justify-end gap-4">
-
-          <button
-            onClick={async () => {
-
-              setSelectedNoteDate(
-                null
-              );
-
-              setNoteInput("");
-            }}
-            className="
-  h-[30px]
-  w-[60px]
-
-  translate-x-0
-  translate-y-0
-
-  rounded-[14px]
-  border
-  border-white/[0.05]
-  bg-white/[0.03]
-
-  text-[12px]
-  font-semibold
-  text-slate-300
-
-  transition-all
-  duration-200
-
-  hover:text-slate-400
-"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={async () => {
-
-              if (
-                !selectedNoteDate
-              ) {
-                return;
-              }
-
-              await upsertDailyNoteInSupabase(
-              selectedNoteDate,
-              noteInput
-              );
-
-              setNoteDates((prev) => {
-  const next = new Set(prev);
-
-  if (noteInput.trim()) {
-    next.add(selectedNoteDate);
-  } else {
-    next.delete(selectedNoteDate);
-  }
-
-  return next;
-});
-
-              setSelectedNoteDate(
-                null
-              );
-            }}
-                        className="
-  h-[30px]
-  w-[80px]
-
-  translate-x-0
-  translate-y-0
-
-  rounded-[14px]
-  border
-  border-blue-500/20
-  bg-blue-500/10
-
-  text-[12px]
-  font-semibold
-  text-blue-400
-
-  transition-all
-  duration-200
-
-  hover:bg-blue-500/20
-"
-          >
-            Save Notes
-          </button>
-        </div>
-      </div>
-
-      <div className="w-[18px] shrink-0 opacity-0 pointer-events-none select-none">
-        spacer
-      </div>
-
-    </div>
-
-    <p className="invisible text-[16px] leading-[18px]">
-      spacing
-    </p>
-
-      </div>
-    </div>
-  </div>
+        return next;
+      });
+    }}
+  />
 )}
+
 
 {selectedDay && (
   <DailyReviewModal
