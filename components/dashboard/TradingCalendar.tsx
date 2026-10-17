@@ -486,11 +486,18 @@ const selectedTrades =
           }}
           className={`absolute right-0 top-0 flex h-[20px] w-[20px] items-center justify-center rounded-[7px] transition-all ${
             hasNote
-              ? "border border-blue-500/20 bg-blue-500/10 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.25)]"
+              ? "text-blue-400"
               : "text-slate-600 hover:text-slate-400"
           }`}
         >
-          <FileText size={12} />
+          <FileText
+  size={12}
+  className={
+    hasNote
+      ? "drop-shadow-[0_0_5px_rgba(59,130,246,0.85)]"
+      : ""
+  }
+/>
         </div>
 
         {dayData ? (

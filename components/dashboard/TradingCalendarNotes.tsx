@@ -36,9 +36,11 @@ import type { Editor } from "@tiptap/core";
 import DailyReviewTradeNotesEditor from "@/components/dashboard/daily-review/trade-review/DailyReviewTradeNotesEditor";
 
 import {
-  getDailyNoteFromSupabase,
+  createDailyNoteInSupabase,
+  deleteDailyNoteFromSupabase,
   loadDailyNotesFromSupabase,
-  upsertDailyNoteInSupabase,
+  updateDailyNoteInSupabase,
+  type DailyNote,
 } from "@/lib/storage/supabaseDailyNotesStorage";
 
 interface TradingCalendarNotesProps {
@@ -107,6 +109,19 @@ function formatNoteDate(date: string): string {
       year: "numeric",
     },
   );
+}
+
+function formatNoteTime(updatedAt: string): string {
+  const date = new Date(updatedAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function getMonthDay(
@@ -181,16 +196,16 @@ export default function TradingCalendarNotes({
   const [activeDate, setActiveDate] =
     useState<string | null>(selectedDate);
 
+const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 const [noteInput, setNoteInput] = useState("");
 const [noteTitle, setNoteTitle] = useState("");
 const [savedContent, setSavedContent] = useState("");
+const [savedTitle, setSavedTitle] = useState("");
 
 
   const [editor, setEditor] = useState<Editor | null>(null);
 
-  const [pastNotes, setPastNotes] = useState<
-    { date: string; note: string }[]
-  >([]);
+const [pastNotes, setPastNotes] = useState<DailyNote[]>([]);
 
   const [search, setSearch] = useState("");
   const [loadingNote, setLoadingNote] = useState(false);
@@ -231,56 +246,38 @@ const [isConfirmingDelete, setIsConfirmingDelete] =
 
   const requestId = useRef(0);
 
-  const dirty = noteInput !== savedContent;
+const dirty =
+  noteInput !== savedContent ||
+  noteTitle !== savedTitle;
 
-  const savedLocally =
-    !dirty && !isEmptyNote(savedContent);
+const savedLocally =
+  activeNoteId !== null && !dirty;
 
-  useEffect(() => {
-    setActiveDate(selectedDate);
-  }, [selectedDate]);
+useEffect(() => {
+  setActiveDate(selectedDate);
+  setActiveNoteId(null);
+  setNoteInput("");
+  setNoteTitle("");
+  setSavedContent("");
+  setSavedTitle("");
+  setIsTextSizeOpen(false);
+  setIsTextColorOpen(false);
+  setIsClearConfirmationOpen(false);
+}, [selectedDate]);
 
-  const loadNote = useCallback(async (date: string) => {
-    const request = ++requestId.current;
+const refreshPastNotes = useCallback(async () => {
+  const notes = await loadDailyNotesFromSupabase();
 
-    setLoadingNote(true);
-    setNoteInput("");
-    setSavedContent("");
-    setEditor(null);
-
-    try {
-      const content = await getDailyNoteFromSupabase(date);
-
-      if (request !== requestId.current) {
-        return;
-      }
-
-      setNoteInput(content);
-      setSavedContent(content);
-    } finally {
-      if (request === requestId.current) {
-        setLoadingNote(false);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!activeDate) {
-      return;
-    }
-
-    void loadNote(activeDate);
-  }, [activeDate, loadNote]);
-
-  const refreshPastNotes = useCallback(async () => {
-    const notes = await loadDailyNotesFromSupabase();
-
-    setPastNotes(
-      [...notes]
-        .filter((item) => !isEmptyNote(item.note))
-        .sort((a, b) => b.date.localeCompare(a.date)),
-    );
-  }, []);
+  setPastNotes(
+    [...notes]
+      .filter(
+        (item) =>
+          item.title.trim().length > 0 ||
+          !isEmptyNote(item.note),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date)),
+  );
+}, []);
 
   useEffect(() => {
     void refreshPastNotes();
@@ -366,28 +363,30 @@ const [isConfirmingDelete, setIsConfirmingDelete] =
     };
   }, [editor]);
 
-  const filteredNotes = useMemo(() => {
-    const query = search.trim().toLowerCase();
+const notesForActiveDate = useMemo(
+  () => pastNotes.filter((item) => item.date === activeDate),
+  [pastNotes, activeDate],
+);
 
-    if (!query) {
-      return pastNotes;
-    }
+const filteredNotes = useMemo(() => {
+  const query = search.trim().toLowerCase();
 
-    return pastNotes.filter((item) => {
-      const cardText = getNoteCardText(item.note);
+  if (!query) {
+    return notesForActiveDate;
+  }
 
-      return (
-        item.date.toLowerCase().includes(query) ||
-        formatNoteDate(item.date)
-          .toLowerCase()
-          .includes(query) ||
-        cardText.title.toLowerCase().includes(query) ||
-        getPlainNoteText(item.note)
-          .toLowerCase()
-          .includes(query)
-      );
-    });
-  }, [pastNotes, search]);
+  return notesForActiveDate.filter((item) => {
+    const cardText = getNoteCardText(item.note);
+
+return (
+  item.date.toLowerCase().includes(query) ||
+  formatNoteDate(item.date).toLowerCase().includes(query) ||
+  item.title.toLowerCase().includes(query) ||
+  cardText.title.toLowerCase().includes(query) ||
+  getPlainNoteText(item.note).toLowerCase().includes(query)
+);
+  });
+}, [notesForActiveDate, search]);
 
   const closeModal = () => {
     if (
@@ -430,125 +429,178 @@ const [isConfirmingDelete, setIsConfirmingDelete] =
     onSelectedDateChange(date);
   };
 
-const handleNewNote = () => {
+
+const openPastNote = (note: DailyNote) => {
   if (
     saving ||
     loadingNote ||
     isConfirmingDelete ||
     deletingNoteDate !== null
   ) {
-    return;
-  }
-
-  const now = new Date();
-
-  const today =
-    `${now.getFullYear()}-` +
-    `${String(now.getMonth() + 1).padStart(2, "0")}-` +
-    `${String(now.getDate()).padStart(2, "0")}`;
-
-  if (today === activeDate) {
     return;
   }
 
   if (
     dirty &&
     !window.confirm(
-      "Discard your unsaved note changes and return to today's note?",
+      "Discard your unsaved changes and open this note?",
     )
   ) {
     return;
   }
 
+  setActiveDate(note.date);
+  setActiveNoteId(note.id);
+  setNoteTitle(note.title);
+  setSavedTitle(note.title);
+  setNoteInput(note.note);
+  setSavedContent(note.note);
+
+  if (editor && !editor.isDestroyed) {
+    editor.commands.setContent(note.note || "");
+  }
+
+  setIsTextSizeOpen(false);
+  setIsTextColorOpen(false);
+  setIsClearConfirmationOpen(false);
+};
+
+const handleNewNote = () => {
+  if (
+    !activeDate ||
+    saving ||
+    loadingNote ||
+    isConfirmingDelete ||
+    deletingNoteDate !== null
+  ) {
+    return;
+  }
+
+  if (
+    dirty &&
+    !window.confirm(
+      "Discard your unsaved changes and start a new note?",
+    )
+  ) {
+    return;
+  }
+
+  setActiveNoteId(null);
+  setNoteInput("");
+  setNoteTitle("");
+  setSavedContent("");
+  setSavedTitle("");
   setEditor(null);
   setIsTextSizeOpen(false);
   setIsTextColorOpen(false);
-  setNoteTitle("");
-
-  setActiveDate(today);
-  onSelectedDateChange(today);
+  setIsClearConfirmationOpen(false);
 };
 
-  const saveNote = async () => {
-    if (!activeDate || saving || loadingNote) {
+const saveNote = async () => {
+  if (!activeDate || saving || loadingNote) {
+    return;
+  }
+
+  const content = isEmptyNote(noteInput) ? "" : noteInput;
+  const title = noteTitle.trim();
+
+  if (!title && !content) {
+    window.alert("Add a title or some note content before saving.");
+    return;
+  }
+
+  setSaving(true);
+
+  try {
+    const savedNote = activeNoteId
+      ? await updateDailyNoteInSupabase(
+          activeNoteId,
+          activeDate,
+          title,
+          content,
+        )
+      : await createDailyNoteInSupabase(
+          activeDate,
+          title,
+          content,
+        );
+
+    if (!savedNote) {
+      window.alert("Unable to save this note. Please try again.");
       return;
     }
 
-    setSaving(true);
+    setActiveNoteId(savedNote.id);
+    setNoteTitle(savedNote.title);
+    setSavedTitle(savedNote.title);
+    setNoteInput(savedNote.note);
+    setSavedContent(savedNote.note);
 
-    try {
-      const content = isEmptyNote(noteInput)
-        ? ""
-        : noteInput;
+    onNotesChanged(activeDate, true);
 
-      await upsertDailyNoteInSupabase(
-        activeDate,
-        content,
-      );
+    await refreshPastNotes();
+  } catch (error) {
+    console.error("Failed to save session note:", error);
 
-      setNoteInput(content);
-      setSavedContent(content);
+    window.alert("Unable to save this note. Please try again.");
+  } finally {
+    setSaving(false);
+  }
+};
 
-      onNotesChanged(
-        activeDate,
-        content.length > 0,
-      );
+const deleteNote = async () => {
+  if (!activeNoteId || !activeDate || saving || loadingNote) {
+    return;
+  }
 
-      await refreshPastNotes();
-    } catch (error) {
-      console.error(
-        "Failed to save session note:",
-        error,
-      );
+  if (
+    !window.confirm(
+      "Delete this session note? This cannot be undone.",
+    )
+  ) {
+    return;
+  }
 
-      window.alert(
-        "Unable to save this note. Please try again.",
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+  setSaving(true);
 
-  const deleteNote = async () => {
-    if (!activeDate || saving || loadingNote) {
+  try {
+    const deleted = await deleteDailyNoteFromSupabase(activeNoteId);
+
+    if (!deleted) {
+      window.alert("Unable to delete this note. Please try again.");
       return;
     }
 
-    if (
-      !window.confirm(
-        "Delete this session note? This cannot be undone.",
-      )
-    ) {
-      return;
+    const hasOtherNotes = pastNotes.some(
+      (item) =>
+        item.id !== activeNoteId &&
+        item.date === activeDate,
+    );
+
+    setActiveNoteId(null);
+    setNoteInput("");
+    setNoteTitle("");
+    setSavedContent("");
+    setSavedTitle("");
+
+    if (editor && !editor.isDestroyed) {
+      editor.commands.clearContent();
     }
 
-    setSaving(true);
+    onNotesChanged(activeDate, hasOtherNotes);
 
-    try {
-      await upsertDailyNoteInSupabase(activeDate, "");
+    await refreshPastNotes();
+  } catch (error) {
+    console.error("Failed to delete session note:", error);
 
-      setNoteInput("");
-      setSavedContent("");
-
-      onNotesChanged(activeDate, false);
-
-      await refreshPastNotes();
-    } catch (error) {
-      console.error(
-        "Failed to delete session note:",
-        error,
-      );
-
-      window.alert(
-        "Unable to delete this note. Please try again.",
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+    window.alert("Unable to delete this note. Please try again.");
+  } finally {
+    setSaving(false);
+  }
+};
 
 // OPEN PAST NOTE DELETE CONFIRMATION
-const requestDeletePastNote = (date: string) => {
+const requestDeletePastNote = (noteId: string) => {
   if (
     saving ||
     loadingNote ||
@@ -558,45 +610,68 @@ const requestDeletePastNote = (date: string) => {
     return;
   }
 
-  setPendingDeleteDate(date);
+  setPendingDeleteDate(noteId);
 };
 
 // CONFIRM DELETE PAST NOTE
 const confirmDeletePastNote = async () => {
-  const date = pendingDeleteDate;
+  const noteId = pendingDeleteDate;
 
   if (
-    !date ||
+    !noteId ||
     saving ||
     loadingNote ||
     isConfirmingDelete ||
     deletingNoteDate !== null
   ) {
+    return;
+  }
+
+  const noteToDelete = pastNotes.find(
+    (note) => note.id === noteId,
+  );
+
+  if (!noteToDelete) {
+    setPendingDeleteDate(null);
     return;
   }
 
   setIsConfirmingDelete(true);
 
   try {
-    await upsertDailyNoteInSupabase(date, "");
+    const deleted = await deleteDailyNoteFromSupabase(noteId);
+
+    if (!deleted) {
+      window.alert(
+        "Unable to delete this note. Please try again.",
+      );
+      return;
+    }
 
     // Close confirmation and start the exit animation.
     setPendingDeleteDate(null);
-    setDeletingNoteDate(date);
+    setDeletingNoteDate(noteId);
 
-    // Update the calendar indicator.
-    onNotesChanged(date, false);
+    // Keep the calendar indicator if another note shares this date.
+    const hasOtherNotes = pastNotes.some(
+      (note) =>
+        note.id !== noteId &&
+        note.date === noteToDelete.date,
+    );
 
-    // Clear the editor if this is the currently selected date.
-    if (activeDate === date) {
+    onNotesChanged(noteToDelete.date, hasOtherNotes);
+
+    // Clear the editor only if this exact note is active.
+    if (activeNoteId === noteId) {
       if (editor && !editor.isDestroyed) {
         editor.commands.clearContent();
-      } else {
-        setNoteInput("");
       }
 
+      setActiveNoteId(null);
+      setNoteInput("");
       setNoteTitle("");
       setSavedContent("");
+      setSavedTitle("");
     }
 
     // Let the 220ms exit animation finish.
@@ -604,14 +679,17 @@ const confirmDeletePastNote = async () => {
       window.setTimeout(resolve, 220);
     });
 
-    // Remove the deleted note from the sidebar.
+    // Remove only this note from the sidebar.
     setPastNotes((currentNotes) =>
-      currentNotes.filter((note) => note.date !== date),
+      currentNotes.filter((note) => note.id !== noteId),
     );
 
     setDeletingNoteDate(null);
   } catch (error) {
-    console.error("Failed to delete past session note:", error);
+    console.error(
+      "Failed to delete past session note:",
+      error,
+    );
 
     window.alert(
       "Unable to delete this note. Please try again.",
@@ -621,51 +699,55 @@ const confirmDeletePastNote = async () => {
   }
 };
 
-  const handleClearEditor = () => {
-    if (
-      saving ||
-      loadingNote ||
-      isEmptyNote(noteInput)
-    ) {
-      return;
-    }
-
-    setIsClearConfirmationOpen(true);
-  };
-
-  const confirmClearEditor = () => {
-    if (saving) {
-      return;
-    }
-
-    if (editor && !editor.isDestroyed) {
-      editor.chain().focus().clearContent().run();
-    } else {
-      setNoteInput("");
-    }
-
-    setIsClearConfirmationOpen(false);
-  };
-
-  if (!activeDate) {
-    return null;
+const handleClearEditor = () => {
+  if (
+    saving ||
+    loadingNote ||
+    isEmptyNote(noteInput)
+  ) {
+    return;
   }
 
-  const toolbarButton =
-    "flex h-7 w-6 shrink-0 items-center justify-center rounded-[5px] text-slate-300 transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:bg-white/[0.07] hover:text-white hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400/50 disabled:cursor-not-allowed disabled:opacity-40";
+  setIsClearConfirmationOpen(true);
+};
 
-  const visibleNotes = filteredNotes.slice(
-    0,
-    visibleNoteCount,
-  );
+const confirmClearEditor = () => {
+  if (saving) {
+    return;
+  }
 
-  const savedStatus = saving
-    ? "Saving changes…"
-    : dirty
-      ? "Unsaved changes"
-      : "Changes saved for this date";
+  if (editor && !editor.isDestroyed) {
+    editor.chain().focus().clearContent().run();
+  } else {
+    setNoteInput("");
+  }
 
-  return (
+  setIsClearConfirmationOpen(false);
+};
+
+if (!activeDate) {
+  return null;
+}
+
+const toolbarButton =
+  "flex h-7 w-6 shrink-0 items-center justify-center rounded-[5px] text-slate-300 transition-all duration-200 ease-out hover:-translate-y-[1px] hover:scale-105 hover:bg-white/[0.07] hover:text-white hover:shadow-[0_0_8px_rgba(148,163,184,0.10)] active:translate-y-0 active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400/50 disabled:cursor-not-allowed disabled:opacity-40";
+
+const visibleNotes = filteredNotes.slice(
+  0,
+  visibleNoteCount,
+);
+
+const savedStatus = saving
+  ? "Saving changes…"
+  : dirty
+    ? "Unsaved changes"
+    : notesForActiveDate.length === 0
+      ? "No saved notes for this date"
+      : `${notesForActiveDate.length} ${
+          notesForActiveDate.length === 1 ? "note" : "notes"
+        } saved for this date`;
+
+return (
     <div
       className="
         fixed
@@ -732,8 +814,8 @@ const confirmDeletePastNote = async () => {
             <div
               className="
                 flex
-                h-11
-                w-11
+                h-10
+                w-10
                 shrink-0
                 items-center
                 justify-center
@@ -1003,7 +1085,7 @@ const confirmDeletePastNote = async () => {
     onChange={(event) => setNoteTitle(event.target.value)}
     placeholder="Enter a title..."
     aria-label="Note title"
-    maxLength={42}
+    maxLength={40}
     disabled={saving || loadingNote}
     style={{
       borderRadius: "6px",
@@ -1175,7 +1257,7 @@ const confirmDeletePastNote = async () => {
                 </div>
 
                 {/* BOLD / ITALIC / UNDERLINE */}
-                <div className="flex shrink-0 items-center gap-0">
+                <div className="flex shrink-0 items-center gap-1">
                   <ToolbarButton
                     label="Bold"
                     disabled={!editor || saving}
@@ -1531,7 +1613,7 @@ const confirmDeletePastNote = async () => {
                     text-slate-100
                   "
                 >
-                  Past Notes ({pastNotes.length})
+                  Past Notes ({notesForActiveDate.length})
                 </h4>
               </div>
 
@@ -1590,11 +1672,13 @@ const confirmDeletePastNote = async () => {
               {visibleNotes.length === 0 ? (
                 <div
                   className="
-                    relative
-                    top-[8px]
-                    flex
+                  relative
+                  left-[8px]
+                  top-[18px]
+                  flex
                     min-h-[140px]
-                    w-full
+                    mx-auto
+                    w-[95%]
                     items-center
                     justify-center
                     rounded-[7px]
@@ -1605,10 +1689,10 @@ const confirmDeletePastNote = async () => {
                     text-center
                   "
                 >
-                  <div>
+                  <div className="flex w-full flex-col items-center justify-center">
                     <FileText
                       size={22}
-                      className="mx-auto mb-2 text-slate-600"
+                      className="relative top-[-8px] mx-auto mb-2 text-slate-600"
                     />
 
                     <p className="text-[11px] font-medium text-slate-400">
@@ -1634,17 +1718,22 @@ const confirmDeletePastNote = async () => {
   "
 >
                   {visibleNotes.map((item) => {
-                    const active = item.date === activeDate;
-                    const cardText = getNoteCardText(item.note);
-                    const itemDate = getMonthDay(item.date);
+                    const active = item.id === activeNoteId;
+const cardText = getNoteCardText(item.note);
+
+const previewText = item.title.trim()
+  ? getPlainNoteText(item.note) || "No text preview"
+  : cardText.preview;
+
+const itemDate = getMonthDay(item.date);
 
 return (
   <div
-    key={item.date}
+    key={item.id}
     role="button"
     tabIndex={0}
     aria-pressed={active}
-    onClick={() => switchDate(item.date)}
+    onClick={() => openPastNote(item)}
     onKeyDown={(event) => {
       if (event.target !== event.currentTarget) {
         return;
@@ -1652,7 +1741,7 @@ return (
 
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        switchDate(item.date);
+        openPastNote(item);
       }
     }}
     className={`
@@ -1675,10 +1764,10 @@ gap-4
                           duration-200
                           ease-out
 ${
-  deletingNoteDate === item.date
+  deletingNoteDate === item.id
     ? "translate-x-[12px] scale-95 opacity-0 pointer-events-none border-red-500/60 bg-red-500/[0.08] shadow-[0_0_16px_rgba(239,68,68,0.22)]"
     : active
-      ? "border-blue-400/30 bg-blue-500/[0.08]"
+      ? "border-blue-300/45 bg-gradient-to-r from-blue-500/[0.14] via-violet-500/[0.07] to-[#091521] shadow-[inset_3px_0_0_rgba(96,165,250,0.65),0_0_14px_rgba(59,130,246,0.08)]"
       : "border-white/[0.08] bg-[#091521] hover:-translate-y-[1px] hover:border-blue-300/35 hover:bg-[#0c1a2a] hover:shadow-[0_4px_14px_rgba(59,130,246,0.10)] active:translate-y-0 active:scale-[0.99]"
 }
                         `}
@@ -1686,7 +1775,7 @@ ${
 <span
   className={`
     relative
-    left-[6px]
+    left-[8px]
     flex
     h-10
     w-10
@@ -1696,11 +1785,11 @@ ${
     justify-center
     rounded-[8px]
     border
-    ${
-      active
-        ? "border-blue-400/20 bg-blue-500/[0.12]"
-        : "border-white/[0.06] bg-[#0d1b2b]"
-    }
+${
+  active
+    ? "border-blue-400/35 bg-gradient-to-br from-blue-500/[0.24] via-violet-500/[0.18] to-cyan-500/[0.10] shadow-[0_0_12px_rgba(96,165,250,0.08)]"
+    : "border-white/[0.08] bg-gradient-to-br from-[#14243a] via-[#101b2c] to-[#0b1625]"
+}
   `}
 >
                           <span className="text-[9px] font-semibold leading-3 text-sky-300">
@@ -1716,7 +1805,7 @@ ${
                           <span
                             className={`
                               block
-                              truncate
+                              whitespace-nowrap
                               text-[11px]
                               font-semibold
                               transition-colors
@@ -1728,17 +1817,17 @@ ${
                               }
                             `}
                           >
-                            {cardText.title}
+                           {item.title.trim() || cardText.title}
                           </span>
 
-                          <span className="mt-1 block overflow-hidden text-ellipsis whitespace-nowrap text-[10px] leading-3.5 text-slate-400">
-                            {cardText.preview}
+                          <span className="relative top-[4px] mt-1 block overflow-hidden text-ellipsis whitespace-nowrap text-[10px] leading-3.5 text-slate-400">
+                            {previewText}
                           </span>
                         </span>
 
-                        {active && (
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.35)]" />
-                        )}
+                     <span className="relative left-[36px] top-[8px] shrink-0 self-start pt-0.5 text-[9px] font-medium tabular-nums text-slate-400">
+  {formatNoteTime(item.updated_at)}
+</span>
                         <button
   type="button"
   aria-label={`Delete note from ${item.date}`}
@@ -1751,15 +1840,16 @@ ${
   }
   onClick={(event) => {
     event.stopPropagation();
-    requestDeletePastNote(item.date);
+    requestDeletePastNote(item.id);
   }}
 className="
-  relative
-  right-1
-  flex
-  h-7
-  w-7
-  shrink-0
+relative
+right-1
+top-[10px]
+flex
+h-7
+w-7
+shrink-0
     items-center
     justify-center
     rounded-[8px]

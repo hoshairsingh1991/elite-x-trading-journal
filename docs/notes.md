@@ -541,8 +541,8 @@ git commit -m "Polish notes toolbars and editor interactions"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 git commit -m "Refactor trading calendar notes into separate component"
-
-
+git commit -m "Improve trading calendar notes UI"
+git commit -m "Improve trading calendar notes"
 
 
 
