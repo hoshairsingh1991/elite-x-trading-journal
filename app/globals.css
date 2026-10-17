@@ -318,3 +318,32 @@ Elite X drawer design system.
 .notes-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* ==========================================
+   TRADE NOTES TITLES — CHROME AUTOFILL FIX
+   ========================================== */
+
+#daily-review-trade-note-title:autofill,
+#daily-review-trade-note-title:-webkit-autofill,
+#daily-review-trade-note-title:-webkit-autofill:hover,
+#daily-review-trade-note-title:-webkit-autofill:focus,
+#daily-review-trade-note-title:-webkit-autofill:active,
+#session-note-title:autofill,
+#session-note-title:-webkit-autofill,
+#session-note-title:-webkit-autofill:hover,
+#session-note-title:-webkit-autofill:focus,
+#session-note-title:-webkit-autofill:active {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  background-color: #0b1220 !important;
+  background-image: none !important;
+
+  -webkit-box-shadow: 0 0 0 1000px #0b1220 inset !important;
+  box-shadow: 0 0 0 1000px #0b1220 inset !important;
+
+  -webkit-text-fill-color: #f1f5f9 !important;
+  caret-color: #f1f5f9 !important;
+
+  transition: background-color 99999s ease-in-out 0s !important;
+}
