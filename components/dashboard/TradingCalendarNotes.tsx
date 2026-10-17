@@ -959,6 +959,7 @@ return (
             py-2.5
             sm:px-4
             md:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)]
+            md:grid-rows-[minmax(0,1fr)]
             md:overflow-hidden
           "
         >
@@ -966,16 +967,14 @@ return (
 <div
   className="
     flex
-    h-[460px]
+    h-[calc(100%_-_22px)]
     min-h-0
     min-w-0
     w-[100%]
     translate-y-[14px]
     translate-x-[5px]
-    flex-none
     flex-col
     justify-self-center
-    self-start
     overflow-hidden
     rounded-[8px]
     border
@@ -1055,25 +1054,25 @@ return (
 
 {/* INSET EDITOR SURFACE — SAME IDEA AS TRADE NOTES */}
 <div
-  className="
-    relative
-    mt-3
-    flex
-    h-[420px]
-    max-h-full
-    max-w-full
-    min-h-0
-    w-[calc(100%-16px)]
-    flex-none
-    translate-x-[8px]
-    translate-y-[10px]
-    flex-col
-    overflow-hidden
-    rounded-[8px]
-    border
-    border-white/[0.08]
-    bg-[#091521]
-  "
+className="
+  relative
+  mt-3
+  flex
+  h-[calc(100%_-_36px)]
+  translate-y-[10px]
+  max-h-full
+  max-w-full
+  min-h-0
+  w-[calc(100%-16px)]
+  shrink-0
+  translate-x-[8px]
+  flex-col
+  overflow-hidden
+  rounded-[8px]
+  border
+  border-white/[0.08]
+  bg-[#091521]
+"
 >
 
 {/* TITLE TOP SPACING */}
@@ -1569,16 +1568,14 @@ return (
 <aside
   className="
     flex
-    h-[460px]
+    h-[calc(100%_-_24px)]
     min-h-0
     min-w-0
     w-[97%]
     translate-y-[14px]
     translate-x-[-2px]
-    flex-none
     flex-col
     justify-self-center
-    self-start
     overflow-hidden
     rounded-[8px]
     border
