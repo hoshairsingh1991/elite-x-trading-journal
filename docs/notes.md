@@ -550,7 +550,7 @@ git commit -m "Fix note title autofill and update docs"
 git commit -m "Improve Session Notes responsive layout"
 git commit -m "checkpoint: trade history UI polish"
 git commit -m "feat(dashboard): redesign performance breakdown heatmap UI"
-
+git commit -m "fix(dashboard): finalize symbol breakdown scrolling"
 
 
 

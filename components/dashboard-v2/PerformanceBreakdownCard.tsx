@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type {
   PerformanceBreakdownData,
@@ -164,6 +164,46 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     badge: "€",
     badgeColor: "#2563eb",
   },
+  {
+    symbol: "AMD",
+    asset: "Stocks",
+    trades: 17,
+    pnl: 64.25,
+    badge: "A",
+    badgeColor: "#475569",
+  },
+  {
+    symbol: "IWM",
+    asset: "Options",
+    trades: 15,
+    pnl: -32.18,
+    badge: "I",
+    badgeColor: "#2563eb",
+  },
+  {
+    symbol: "ETHUSDT",
+    asset: "Crypto",
+    trades: 13,
+    pnl: 41.60,
+    badge: "Ξ",
+    badgeColor: "#7c3aed",
+  },
+  {
+    symbol: "GBPUSD",
+    asset: "Forex",
+    trades: 7,
+    pnl: 12.45,
+    badge: "£",
+    badgeColor: "#2563eb",
+  },
+  {
+    symbol: "ES",
+    asset: "Futures",
+    trades: 6,
+    pnl: -21.30,
+    badge: "E",
+    badgeColor: "#d97706",
+  },
 ];
 
 const HEAT_COLORS = [
@@ -239,8 +279,59 @@ export default function PerformanceBreakdownCard({
   performanceBreakdownAnalytics,
   reportingCurrency,
 }: PerformanceBreakdownCardProps) {
-  const [activeView, setActiveView] =
-    useState<BreakdownView>("mix");
+const [activeView, setActiveView] =
+  useState<BreakdownView>("mix");
+
+const symbolRowsRef = useRef<HTMLDivElement | null>(null);
+
+const [symbolScrollbarWidth, setSymbolScrollbarWidth] =
+  useState(0);
+
+useEffect(() => {
+  if (activeView !== "symbol") {
+    setSymbolScrollbarWidth(0);
+    return;
+  }
+
+  const element = symbolRowsRef.current;
+
+  if (!element) return;
+
+  const updateScrollbarWidth = () => {
+    const hasOverflow =
+      element.scrollHeight > element.clientHeight + 1;
+
+    const scrollbarWidth = Math.max(
+      0,
+      element.offsetWidth - element.clientWidth
+    );
+
+    setSymbolScrollbarWidth(
+      hasOverflow ? scrollbarWidth : 0
+    );
+  };
+
+  updateScrollbarWidth();
+
+  const resizeObserver = new ResizeObserver(
+    updateScrollbarWidth
+  );
+
+  resizeObserver.observe(element);
+
+  const mutationObserver = new MutationObserver(
+    updateScrollbarWidth
+  );
+
+  mutationObserver.observe(element, {
+    childList: true,
+  });
+
+  return () => {
+    resizeObserver.disconnect();
+    mutationObserver.disconnect();
+  };
+}, [activeView]);
 
   const currencySymbol =
     getCurrencySymbol(reportingCurrency);
@@ -729,34 +820,95 @@ className="
         </div>
       )}
 
-      {/* SYMBOL */}
+{/* SYMBOL */}
 
-      {activeView === "symbol" && (
-        <div className="mt-[8px] flex min-h-0 flex-1 flex-col">
-          <div
-            className="
-              grid grid-cols-[62px_56px_minmax(0,1fr)_25px]
-              gap-[4px] text-[9px] font-medium
-              uppercase tracking-[0.08em] text-slate-500
-            "
-          >
-            <div>Symbol</div>
-            <div>P&amp;L</div>
-            <div>Activity</div>
-            <div className="text-right">#</div>
-          </div>
+{activeView === "symbol" && (
+  <div
+    className="
+      relative
+      left-[0px]
+      top-[14px]
+      mt-[8px]
+      flex
+      min-h-0
+      flex-1
+      flex-col
+    "
+  >
+    <div
+      className="
+        grid grid-cols-[62px_56px_minmax(0,1fr)_25px]
+        gap-[4px] text-[9px] font-medium
+        uppercase tracking-[0.08em] text-slate-500
+      "
+    >
+      <div>Symbol</div>
+      <div
+  className="
+    relative
+    left-[8px]
+  "
+>
+  P&amp;L
+</div>
+      <div>Activity</div>
+<div
+  className="
+    relative
+    text-right
+  "
+  style={{
+    left:
+      symbolScrollbarWidth > 0
+        ? `${-symbolScrollbarWidth - 6}px`
+        : "0px",
+  }}
+>
+  #
+</div>
+    </div>
 
-          <div className="mt-[4px] flex min-h-0 flex-1 flex-col">
+<div
+  ref={symbolRowsRef}
+  role="region"
+  aria-label="Symbol breakdown rows"
+  tabIndex={0}
+  className="
+    absolute
+    left-[0px]
+    right-[0px]
+    top-[18px]
+    bottom-[30px]
+    flex
+    flex-col
+    gap-[4.5px]
+    overflow-y-auto
+    overflow-x-hidden
+    overscroll-contain
+    pr-[2px]
+    focus-visible:outline-none
+    focus-visible:ring-1
+    focus-visible:ring-sky-500/40
+  "
+  style={{
+    scrollbarWidth: "thin",
+    scrollbarColor: "#334155 transparent",
+  }}
+>
             {SYMBOL_PREVIEW_ROWS.map((row) => (
               <div
                 key={row.symbol}
-                className="
-                  grid min-h-0 flex-1
-                  grid-cols-[62px_56px_minmax(0,1fr)_25px]
-                  items-center gap-[4px]
-                  border-b border-white/[0.035]
-                  last:border-b-0
-                "
+className="
+  grid
+  min-h-[27px]
+  shrink-0
+  grid-cols-[62px_56px_minmax(0,1fr)_25px]
+  items-center
+  gap-[4px]
+  border-b
+  border-white/[0.035]
+  last:border-b-0
+"
               >
                 <div className="flex min-w-0 items-center gap-[4px]">
                   <span
@@ -807,14 +959,21 @@ className="
                   />
                 </div>
 
-                <span
-                  className="
-                    text-right text-[11px] font-semibold
-                    tabular-nums text-slate-200
-                  "
-                >
-                  {row.trades}
-                </span>
+<span
+  className="
+    relative
+    text-right
+    text-[11px]
+    font-semibold
+    tabular-nums
+    text-slate-200
+  "
+  style={{
+    left: symbolScrollbarWidth > 0 ? "-4px" : "0px",
+  }}
+>
+  {row.trades}
+</span>
               </div>
             ))}
           </div>
