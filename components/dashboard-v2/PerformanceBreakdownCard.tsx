@@ -15,18 +15,32 @@ type PerformanceBreakdownCardProps = {
 
 type BreakdownView = "mix" | "weekday" | "symbol";
 
+type BreakdownMetric =
+  | "trades"
+  | "netPnl"
+  | "winRate"
+  | "commissions";
+
 type MixRow = {
   asset: string;
   leftLabel: string;
   leftTrades: number;
   rightLabel: string;
   rightTrades: number;
+  leftPnl: number;
+  rightPnl: number;
+  leftWinRate: number;
+  rightWinRate: number;
+  leftCommissions: number;
+  rightCommissions: number;
 };
 
 type WeekdayRow = {
   day: string;
   trades: number;
   pnl: number;
+  winRate: number;
+  commissions: number;
 };
 
 type SymbolRow = {
@@ -34,6 +48,8 @@ type SymbolRow = {
   asset: string;
   trades: number;
   pnl: number;
+  winRate: number;
+  commissions: number;
   badge: string;
   badgeColor: string;
 };
@@ -53,6 +69,12 @@ const MIX_PREVIEW_ROWS: MixRow[] = [
     leftTrades: 42,
     rightLabel: "SHORT",
     rightTrades: 28,
+    leftPnl: 680.25,
+    rightPnl: -145.60,
+    leftWinRate: 64.3,
+    rightWinRate: 42.9,
+    leftCommissions: 18.45,
+    rightCommissions: 12.80,
   },
   {
     asset: "Options",
@@ -60,6 +82,12 @@ const MIX_PREVIEW_ROWS: MixRow[] = [
     leftTrades: 64,
     rightLabel: "PUTS",
     rightTrades: 58,
+    leftPnl: 1240.50,
+    rightPnl: -520.75,
+    leftWinRate: 62.5,
+    rightWinRate: 46.6,
+    leftCommissions: 86.40,
+    rightCommissions: 74.25,
   },
   {
     asset: "Crypto",
@@ -67,6 +95,12 @@ const MIX_PREVIEW_ROWS: MixRow[] = [
     leftTrades: 15,
     rightLabel: "SHORT",
     rightTrades: 11,
+    leftPnl: 126.80,
+    rightPnl: -85.40,
+    leftWinRate: 60.0,
+    rightWinRate: 45.5,
+    leftCommissions: 9.60,
+    rightCommissions: 7.35,
   },
   {
     asset: "Forex",
@@ -74,6 +108,12 @@ const MIX_PREVIEW_ROWS: MixRow[] = [
     leftTrades: 6,
     rightLabel: "SHORT",
     rightTrades: 4,
+    leftPnl: 45.20,
+    rightPnl: -26.80,
+    leftWinRate: 66.7,
+    rightWinRate: 50.0,
+    leftCommissions: 3.40,
+    rightCommissions: 2.80,
   },
   {
     asset: "Futures",
@@ -81,6 +121,12 @@ const MIX_PREVIEW_ROWS: MixRow[] = [
     leftTrades: 12,
     rightLabel: "SHORT",
     rightTrades: 9,
+    leftPnl: 310.60,
+    rightPnl: -115.25,
+    leftWinRate: 66.7,
+    rightWinRate: 44.4,
+    leftCommissions: 14.40,
+    rightCommissions: 10.80,
   },
   {
     asset: "Other",
@@ -88,15 +134,51 @@ const MIX_PREVIEW_ROWS: MixRow[] = [
     leftTrades: 3,
     rightLabel: "SHORT",
     rightTrades: 2,
+    leftPnl: 18.50,
+    rightPnl: -12.20,
+    leftWinRate: 66.7,
+    rightWinRate: 50.0,
+    leftCommissions: 1.80,
+    rightCommissions: 1.20,
   },
 ];
 
 const WEEKDAY_PREVIEW_ROWS: WeekdayRow[] = [
-  { day: "Mon", trades: 18, pnl: 42 },
-  { day: "Tue", trades: 27, pnl: -18 },
-  { day: "Wed", trades: 14, pnl: 36 },
-  { day: "Thu", trades: 32, pnl: 68 },
-  { day: "Fri", trades: 21, pnl: -12 },
+  {
+    day: "Mon",
+    trades: 18,
+    pnl: 42,
+    winRate: 61.1,
+    commissions: 8.45,
+  },
+  {
+    day: "Tue",
+    trades: 27,
+    pnl: -18,
+    winRate: 44.4,
+    commissions: 12.60,
+  },
+  {
+    day: "Wed",
+    trades: 14,
+    pnl: 36,
+    winRate: 64.3,
+    commissions: 6.80,
+  },
+  {
+    day: "Thu",
+    trades: 32,
+    pnl: 68,
+    winRate: 71.9,
+    commissions: 15.25,
+  },
+  {
+    day: "Fri",
+    trades: 21,
+    pnl: -12,
+    winRate: 47.6,
+    commissions: 10.40,
+  },
 ];
 
 const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
@@ -105,6 +187,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Options",
     trades: 68,
     pnl: 482.16,
+    winRate: 64.7,
+    commissions: 42.60,
     badge: "Q",
     badgeColor: "#2563eb",
   },
@@ -113,6 +197,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Stocks",
     trades: 54,
     pnl: -124.32,
+    winRate: 46.3,
+    commissions: 31.25,
     badge: "T",
     badgeColor: "#dc2626",
   },
@@ -121,6 +207,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Stocks",
     trades: 42,
     pnl: 318.4,
+    winRate: 61.9,
+    commissions: 24.80,
     badge: "N",
     badgeColor: "#65a30d",
   },
@@ -129,6 +217,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Stocks",
     trades: 38,
     pnl: 96.28,
+    winRate: 55.3,
+    commissions: 18.40,
     badge: "A",
     badgeColor: "#475569",
   },
@@ -137,6 +227,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Stocks",
     trades: 24,
     pnl: -56.12,
+    winRate: 45.8,
+    commissions: 14.20,
     badge: "M",
     badgeColor: "#2563eb",
   },
@@ -145,6 +237,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Options",
     trades: 20,
     pnl: 44.76,
+    winRate: 60.0,
+    commissions: 12.50,
     badge: "S",
     badgeColor: "#dc2626",
   },
@@ -153,6 +247,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Crypto",
     trades: 12,
     pnl: 26.14,
+    winRate: 58.3,
+    commissions: 5.90,
     badge: "₿",
     badgeColor: "#d97706",
   },
@@ -161,6 +257,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Forex",
     trades: 9,
     pnl: -18.42,
+    winRate: 44.4,
+    commissions: 4.65,
     badge: "€",
     badgeColor: "#2563eb",
   },
@@ -169,6 +267,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Stocks",
     trades: 17,
     pnl: 64.25,
+    winRate: 58.8,
+    commissions: 8.75,
     badge: "A",
     badgeColor: "#475569",
   },
@@ -177,6 +277,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Options",
     trades: 15,
     pnl: -32.18,
+    winRate: 46.7,
+    commissions: 7.80,
     badge: "I",
     badgeColor: "#2563eb",
   },
@@ -185,6 +287,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Crypto",
     trades: 13,
     pnl: 41.60,
+    winRate: 61.5,
+    commissions: 6.25,
     badge: "Ξ",
     badgeColor: "#7c3aed",
   },
@@ -193,6 +297,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Forex",
     trades: 7,
     pnl: 12.45,
+    winRate: 57.1,
+    commissions: 3.90,
     badge: "£",
     badgeColor: "#2563eb",
   },
@@ -201,6 +307,8 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     asset: "Futures",
     trades: 6,
     pnl: -21.30,
+    winRate: 33.3,
+    commissions: 5.40,
     badge: "E",
     badgeColor: "#d97706",
   },
@@ -221,6 +329,16 @@ const VIEW_TABS: {
   { id: "mix", label: "Mix" },
   { id: "weekday", label: "Weekday" },
   { id: "symbol", label: "Symbol" },
+];
+
+const METRIC_OPTIONS: {
+  value: BreakdownMetric;
+  label: string;
+}[] = [
+  { value: "trades", label: "Trades" },
+  { value: "netPnl", label: "Net P&L" },
+  { value: "winRate", label: "Win Rate" },
+  { value: "commissions", label: "Commissions" },
 ];
 
 function getHeatStyle(
@@ -295,6 +413,40 @@ function getWeekdayPnlStyle(
   };
 }
 
+function getWeekdayWinRateStyle(value: number) {
+  if (value >= 70) {
+    return {
+      backgroundColor: "#08745b",
+      borderColor: "#0b8b6b",
+    };
+  }
+
+  if (value >= 60) {
+    return {
+      backgroundColor: "#0c5b4b",
+      borderColor: "#127560",
+    };
+  }
+
+  if (value >= 50) {
+    return {
+      backgroundColor: "#103a3b",
+      borderColor: "#1b5354",
+    };
+  }
+
+  if (value >= 40) {
+    return {
+      backgroundColor: "#47212c",
+      borderColor: "#86404d",
+    };
+  }
+
+  return {
+    backgroundColor: "#6b2434",
+    borderColor: "#b64050",
+  };
+}
 
 function formatSignedCurrency(
   value: number,
@@ -330,6 +482,42 @@ export default function PerformanceBreakdownCard({
 }: PerformanceBreakdownCardProps) {
 const [activeView, setActiveView] =
   useState<BreakdownView>("mix");
+
+  const [selectedMetric, setSelectedMetric] =
+  useState<BreakdownMetric>("trades");
+
+const [isMetricMenuOpen, setIsMetricMenuOpen] =
+  useState(false);
+
+  const metricDropdownRef = useRef<HTMLDivElement | null>(null);
+useEffect(() => {
+  if (!isMetricMenuOpen) return;
+
+  const handleOutsideClick = (event: PointerEvent) => {
+    const target = event.target;
+
+    if (
+      target instanceof Node &&
+      !metricDropdownRef.current?.contains(target)
+    ) {
+      setIsMetricMenuOpen(false);
+    }
+  };
+
+  const handleEscape = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setIsMetricMenuOpen(false);
+    }
+  };
+
+  document.addEventListener("pointerdown", handleOutsideClick);
+  document.addEventListener("keydown", handleEscape);
+
+  return () => {
+    document.removeEventListener("pointerdown", handleOutsideClick);
+    document.removeEventListener("keydown", handleEscape);
+  };
+}, [isMetricMenuOpen]);
 
 const symbolRowsRef = useRef<HTMLDivElement | null>(null);
 
@@ -396,13 +584,61 @@ useEffect(() => {
     ])
   );
 
+  const maxMixAbsPnl = Math.max(
+  ...MIX_PREVIEW_ROWS.flatMap((row) => [
+    Math.abs(row.leftPnl),
+    Math.abs(row.rightPnl),
+  ]),
+  1
+);
+
+const maxMixWinRate = Math.max(
+  ...MIX_PREVIEW_ROWS.flatMap((row) => [
+    row.leftWinRate,
+    row.rightWinRate,
+  ]),
+  1
+);
+
+const maxMixCommissions = Math.max(
+  ...MIX_PREVIEW_ROWS.flatMap((row) => [
+    row.leftCommissions,
+    row.rightCommissions,
+  ]),
+  1
+);
+
 const maxWeekdayAbsPnl = Math.max(
   ...WEEKDAY_PREVIEW_ROWS.map((row) => Math.abs(row.pnl))
+);
+
+const maxWeekdayTrades = Math.max(
+  ...WEEKDAY_PREVIEW_ROWS.map((row) => row.trades)
+);
+
+const maxWeekdayCommissions = Math.max(
+  ...WEEKDAY_PREVIEW_ROWS.map((row) => row.commissions),
+  1
 );
 
   const maxSymbolTrades = Math.max(
     ...SYMBOL_PREVIEW_ROWS.map((row) => row.trades)
   );
+
+  const maxSymbolAbsPnl = Math.max(
+  ...SYMBOL_PREVIEW_ROWS.map((row) => Math.abs(row.pnl)),
+  1
+);
+
+const maxSymbolCommissions = Math.max(
+  ...SYMBOL_PREVIEW_ROWS.map((row) => row.commissions),
+  1
+);
+
+const maxSymbolWinRate = Math.max(
+  ...SYMBOL_PREVIEW_ROWS.map((row) => row.winRate),
+  1
+);
 
   return (
     <section
@@ -507,75 +743,163 @@ border-r
           })}
         </div>
 
-        {/* TRADES DROPDOWN */}
+{/* TRADES DROPDOWN */}
 
-        <div
-          className="
-            relative
-            left-[0px]
-            top-[8px]
-            min-w-0
-          "
-        >
-<button
-  type="button"
-  aria-label="Heatmap metric"
-  disabled
+<div
+  ref={metricDropdownRef}
   className="
-    h-full
-    w-full
-    appearance-none
-    rounded-[7px]
-    border
-    border-[#263a50]
-    bg-[#0b1727]
-    text-left
-    text-[12px]
-    font-semibold
-    text-slate-300
-    outline-none
-    disabled:cursor-default
-    disabled:opacity-100
+    relative
+    left-[0px]
+    top-[8px]
+    z-50
+    min-w-0
   "
 >
-  <span
-    className="
-      relative
-      left-[8px]
-      top-[0px]
-    "
-  >
-    Trades
-  </span>
-</button>
-
-          {/* DROPDOWN ARROW */}
-
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 16 16"
+        <button
+          type="button"
+          aria-label="Heatmap metric"
+          aria-haspopup="listbox"
+          aria-expanded={isMetricMenuOpen}
+          onClick={() =>
+            setIsMetricMenuOpen((open) => !open)
+          }
+          className="
+            relative
+            flex
+            h-full
+            w-full
+            items-center
+            appearance-none
+            rounded-[7px]
+            border
+            border-[#263a50]
+            bg-[#0b1727]
+            text-left
+            text-[12px]
+            font-semibold
+            text-slate-300
+            outline-none
+            transition-colors
+            duration-200
+            hover:border-[#36536e]
+            hover:bg-[#102033]
+            focus-visible:ring-1
+            focus-visible:ring-sky-400
+          "
+        >
+          <span
             className="
-              pointer-events-none
-              absolute
-              right-[8px]
-              top-1/2
-              h-[12px]
-              w-[12px]
-              -translate-y-1/2
-              text-slate-500
+              relative
+              left-[8px]
+              top-[0px]
+              truncate
             "
-            fill="none"
           >
-            <path
-              d="m3.5 6 4.5 4 4.5-4"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+            {METRIC_OPTIONS.find(
+              (option) => option.value === selectedMetric
+            )?.label ?? "Trades"}
+          </span>
+        </button>
+
+        {/* DROPDOWN ARROW */}
+
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 16 16"
+          className="
+            pointer-events-none
+            absolute
+            right-[8px]
+            top-1/2
+            h-[12px]
+            w-[12px]
+            -translate-y-1/2
+            text-slate-500
+          "
+          fill="none"
+        >
+          <path
+            d="m3.5 6 4.5 4 4.5-4"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        {/* DROPDOWN OPTIONS */}
+
+        {isMetricMenuOpen && (
+          <div
+            role="listbox"
+            aria-label="Select heatmap metric"
+            className="
+              absolute
+              right-0
+              top-full
+              z-50
+              mt-[6px]
+              min-w-[115px]
+              overflow-hidden
+              rounded-[7px]
+              border
+              border-[#263a50]
+              bg-[#0b1727]
+              py-[4px]
+              shadow-[0_8px_24px_rgba(0,0,0,0.45)]
+            "
+          >
+            {METRIC_OPTIONS.map((option) => {
+              const isSelected =
+                selectedMetric === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => {
+                    setSelectedMetric(option.value);
+                    setIsMetricMenuOpen(false);
+                  }}
+                  className={`
+relative
+flex
+w-full
+items-center
+justify-center
+px-[10px]
+                    py-[8px]
+                    text-left
+                    text-[12px]
+                    font-medium
+                    transition-colors
+                    duration-150
+                    ${
+                      isSelected
+                        ? "bg-[#12304a] text-white"
+                        : "text-slate-300 hover:bg-white/[0.06] hover:text-white"
+                    }
+                  `}
+                >
+                  <span>{option.label}</span>
+
+                  {isSelected && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute right-[10px] text-sky-400"
+                    >
+                      ✓
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
+    </div>
 
       {/* MIX */}
 
@@ -619,23 +943,74 @@ border-r
     text-slate-500
   "
 >
-  Trade type · Number of trades
+  Trade type ·{" "}
+  {selectedMetric === "trades"
+    ? "Number of trades"
+    : selectedMetric === "netPnl"
+      ? "Net P&L"
+      : selectedMetric === "winRate"
+        ? "Win Rate"
+        : "Commissions"}
 </div>
           </div>
 
           <div className="mt-[4px] flex min-h-0 flex-1 flex-col gap-[6px]">
-            {MIX_PREVIEW_ROWS.map((row) => {
-              const leftHeat = getHeatStyle(
-                row.leftTrades,
-                maxMixTrades
-              );
+{MIX_PREVIEW_ROWS.map((row) => {
+  const leftPnlStyle = getWeekdayPnlStyle(
+    row.leftPnl,
+    maxMixAbsPnl
+  );
 
-              const rightHeat = getHeatStyle(
-                row.rightTrades,
-                maxMixTrades
-              );
+  const rightPnlStyle = getWeekdayPnlStyle(
+    row.rightPnl,
+    maxMixAbsPnl
+  );
 
-              return (
+  const leftWinRateStyle = getWeekdayWinRateStyle(
+    row.leftWinRate
+  );
+
+  const rightWinRateStyle = getWeekdayWinRateStyle(
+    row.rightWinRate
+  );
+
+  const leftHeat =
+    selectedMetric === "trades"
+      ? getHeatStyle(row.leftTrades, maxMixTrades)
+      : selectedMetric === "netPnl"
+        ? {
+            background: leftPnlStyle.backgroundColor,
+            border: leftPnlStyle.borderColor,
+          }
+        : selectedMetric === "winRate"
+          ? {
+              background: leftWinRateStyle.backgroundColor,
+              border: leftWinRateStyle.borderColor,
+            }
+          : getHeatStyle(
+              row.leftCommissions,
+              maxMixCommissions
+            );
+
+  const rightHeat =
+    selectedMetric === "trades"
+      ? getHeatStyle(row.rightTrades, maxMixTrades)
+      : selectedMetric === "netPnl"
+        ? {
+            background: rightPnlStyle.backgroundColor,
+            border: rightPnlStyle.borderColor,
+          }
+        : selectedMetric === "winRate"
+          ? {
+              background: rightWinRateStyle.backgroundColor,
+              border: rightWinRateStyle.borderColor,
+            }
+          : getHeatStyle(
+              row.rightCommissions,
+              maxMixCommissions
+            );
+
+  return (
                 <div
                   key={row.asset}
 className="
@@ -717,7 +1092,13 @@ className="
     text-slate-100
   "
 >
-  {row.leftTrades}
+ {selectedMetric === "trades"
+  ? row.leftTrades
+  : selectedMetric === "netPnl"
+    ? formatSignedCurrency(row.leftPnl, currencySymbol)
+    : selectedMetric === "winRate"
+      ? `${row.leftWinRate.toFixed(1)}%`
+      : `${currencySymbol}${row.leftCommissions.toFixed(2)}`}
 </span>
                   </div>
 
@@ -775,7 +1156,13 @@ className="
     text-slate-100
   "
 >
-  {row.rightTrades}
+  {selectedMetric === "trades"
+  ? row.rightTrades
+  : selectedMetric === "netPnl"
+    ? formatSignedCurrency(row.rightPnl, currencySymbol)
+    : selectedMetric === "winRate"
+      ? `${row.rightWinRate.toFixed(1)}%`
+      : `${currencySymbol}${row.rightCommissions.toFixed(2)}`}
 </span>
                   </div>
                 </div>
@@ -813,7 +1200,23 @@ className="
 </div>
 
 <div className="relative top-[-4px] text-right">
-  Number of trades
+<span
+  className={
+    selectedMetric === "netPnl"
+      ? "relative left-[-12px]"
+      : selectedMetric === "winRate"
+        ? "relative left-[-8px]"
+        : "relative left-[0px]"
+  }
+>
+    {selectedMetric === "trades"
+      ? "Number of trades"
+      : selectedMetric === "netPnl"
+        ? "Net P&L"
+        : selectedMetric === "winRate"
+          ? "Win rate"
+          : "Commissions"}
+  </span>
 </div>
           </div>
 
@@ -826,10 +1229,38 @@ className="
   "
 >
 {WEEKDAY_PREVIEW_ROWS.map((row) => {
-  const pnlStyle = getWeekdayPnlStyle(
-    row.pnl,
-    maxWeekdayAbsPnl
+  const tradesHeatStyle = getHeatStyle(
+    row.trades,
+    maxWeekdayTrades
   );
+
+  const commissionsHeatStyle = getHeatStyle(
+  row.commissions,
+  maxWeekdayCommissions
+);
+
+const pnlStyle =
+  selectedMetric === "trades"
+    ? {
+        backgroundColor: tradesHeatStyle.background,
+        borderColor: tradesHeatStyle.border,
+      }
+    : selectedMetric === "netPnl"
+      ? getWeekdayPnlStyle(
+          row.pnl,
+          maxWeekdayAbsPnl
+        )
+      : selectedMetric === "winRate"
+        ? getWeekdayWinRateStyle(row.winRate)
+        : selectedMetric === "commissions"
+          ? {
+              backgroundColor: commissionsHeatStyle.background,
+              borderColor: commissionsHeatStyle.border,
+            }
+          : {
+              backgroundColor: "#0c1726",
+              borderColor: "#1b2c40",
+            };
 
   return (
 <div
@@ -842,25 +1273,11 @@ className="
     gap-[4px]
   "
 >
-                  <div className="flex min-w-0 flex-col justify-center">
-                    <span className="text-[11px] font-medium text-slate-200">
-                      {row.day}
-                    </span>
-
-                    <span
-                      className={`
-                        text-[9px] font-medium tabular-nums
-                        ${
-                          row.pnl >= 0
-                            ? "text-emerald-400"
-                            : "text-rose-400"
-                        }
-                      `}
-                    >
-                      P&amp;L{" "}
-                      {formatSignedCurrency(row.pnl, currencySymbol)}
-                    </span>
-                  </div>
+<div className="relative left-[10px] flex min-w-0 items-center">
+  <span className="text-[11px] font-medium text-slate-200">
+    {row.day}
+  </span>
+</div>
 
 <div
   className="
@@ -892,7 +1309,15 @@ pr-[9px]
       text-slate-100
     "
   >
-    {row.trades}
+{selectedMetric === "trades"
+  ? row.trades
+  : selectedMetric === "netPnl"
+    ? formatSignedCurrency(row.pnl, currencySymbol)
+    : selectedMetric === "winRate"
+      ? `${row.winRate.toFixed(1)}%`
+      : selectedMetric === "commissions"
+        ? `${currencySymbol}${row.commissions.toFixed(2)}`
+        : "—"}
   </span>
 </div>
                 </div>
@@ -902,162 +1327,248 @@ pr-[9px]
         </div>
       )}
 
-{/* SYMBOL */}
+      {/* SYMBOL */}
 
-{activeView === "symbol" && (
-  <div
-    className="
-      relative
-      left-[0px]
-      top-[14px]
-      mt-[8px]
-      flex
-      min-h-0
-      flex-1
-      flex-col
-    "
-  >
-    <div
-      className="
-        grid grid-cols-[62px_56px_minmax(0,1fr)_25px]
-        gap-[4px] text-[9px] font-medium
-        uppercase tracking-[0.08em] text-slate-500
-      "
-    >
-      <div>Symbol</div>
-      <div
-  className="
-    relative
-    left-[8px]
-  "
->
-  P&amp;L
-</div>
-      <div>Activity</div>
+      {activeView === "symbol" && (
+        <div
+          className="
+            relative
+            left-[0px]
+            top-[14px]
+            mt-[8px]
+            flex
+            min-h-0
+            flex-1
+            flex-col
+          "
+        >
+          {/* SYMBOL TABLE HEADER */}
+
+          <div
+            className={`
+              grid
+              ${
+                selectedMetric === "trades"
+                  ? "grid-cols-[72px_minmax(0,1fr)_30px]"
+                  : selectedMetric === "winRate"
+                    ? "grid-cols-[72px_minmax(0,1fr)_58px]"
+                    : "grid-cols-[72px_minmax(0,1fr)_76px]"
+              }
+              gap-[4px]
+              text-[9px]
+              font-medium
+              uppercase
+              tracking-[0.08em]
+              text-slate-500
+            `}
+          >
+            <div>Symbol</div>
+
+            <div>Activity</div>
+
 <div
-  className="
-    relative
-    text-right
-  "
-  style={{
-    left:
-      symbolScrollbarWidth > 0
+  className="relative whitespace-nowrap text-right"
+style={{
+  left:
+    selectedMetric === "trades"
+      ? symbolScrollbarWidth > 0
+        ? `${-symbolScrollbarWidth - 26}px`
+        : "-12px"
+      : symbolScrollbarWidth > 0
         ? `${-symbolScrollbarWidth - 6}px`
         : "0px",
-  }}
+}}
 >
-  #
+  {selectedMetric === "trades"
+    ? "Trades"
+    : selectedMetric === "netPnl"
+      ? "Net P&L"
+      : selectedMetric === "winRate"
+        ? "Win Rate"
+        : "Commissions"}
 </div>
-    </div>
+          </div>
 
-<div
-  ref={symbolRowsRef}
-  role="region"
-  aria-label="Symbol breakdown rows"
-  tabIndex={0}
-  className="
-    absolute
-    left-[0px]
-    right-[0px]
-    top-[18px]
-    bottom-[30px]
-    flex
-    flex-col
-    gap-[4.5px]
-    overflow-y-auto
-    overflow-x-hidden
-    overscroll-contain
-    pr-[2px]
-    focus-visible:outline-none
-    focus-visible:ring-1
-    focus-visible:ring-sky-500/40
-  "
-  style={{
-    scrollbarWidth: "thin",
-    scrollbarColor: "#334155 transparent",
-  }}
->
-            {SYMBOL_PREVIEW_ROWS.map((row) => (
-              <div
-                key={row.symbol}
-className="
-  grid
-  min-h-[27px]
-  shrink-0
-  grid-cols-[62px_56px_minmax(0,1fr)_25px]
-  items-center
-  gap-[4px]
-  border-b
-  border-white/[0.035]
-  last:border-b-0
-"
-              >
-                <div className="flex min-w-0 items-center gap-[4px]">
-                  <span
-                    className="
-                      flex h-[16px] w-[16px] shrink-0
-                      items-center justify-center
-                      rounded-[4px] text-[9px]
-                      font-semibold text-white
-                    "
-                    style={{
-                      backgroundColor: row.badgeColor,
-                    }}
-                  >
-                    {row.badge}
-                  </span>
+          {/* SYMBOL ROWS */}
 
-                  <span
-                    className="
-                      min-w-0 truncate text-[10px]
-                      font-medium text-slate-200
-                    "
-                  >
-                    {row.symbol}
-                  </span>
-                </div>
+          <div
+            ref={symbolRowsRef}
+            role="region"
+            aria-label="Symbol breakdown rows"
+            tabIndex={0}
+            className="
+              absolute
+              left-[0px]
+              right-[0px]
+              top-[18px]
+              bottom-[30px]
+              flex
+              flex-col
+              gap-[4.5px]
+              overflow-y-auto
+              overflow-x-hidden
+              overscroll-contain
+              pr-[2px]
+              focus-visible:outline-none
+              focus-visible:ring-1
+              focus-visible:ring-sky-500/40
+            "
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "#334155 transparent",
+            }}
+          >
+            {SYMBOL_PREVIEW_ROWS.map((row) => {
+const hasPreviewMetric = true;
 
-                <span
+const activityRatio =
+  selectedMetric === "trades"
+    ? row.trades / maxSymbolTrades
+    : selectedMetric === "netPnl"
+      ? Math.abs(row.pnl) / maxSymbolAbsPnl
+      : selectedMetric === "winRate"
+        ? row.winRate / maxSymbolWinRate
+        : row.commissions / maxSymbolCommissions;
+
+const activityBackground =
+  (selectedMetric === "netPnl" && row.pnl < 0) ||
+  (selectedMetric === "winRate" && row.winRate < 50)
+    ? "linear-gradient(90deg, #8f3344, #ef4444)"
+    : "linear-gradient(90deg, #116b62, #10b981)";
+
+const metricValue =
+  selectedMetric === "trades"
+    ? String(row.trades)
+    : selectedMetric === "netPnl"
+      ? formatSignedCurrency(row.pnl, currencySymbol)
+      : selectedMetric === "winRate"
+        ? `${row.winRate.toFixed(1)}%`
+        : `${currencySymbol}${row.commissions.toFixed(2)}`;
+
+const metricValueColor =
+  selectedMetric === "netPnl"
+    ? row.pnl > 0
+      ? "text-emerald-400"
+      : row.pnl < 0
+        ? "text-rose-400"
+        : "text-slate-300"
+    : selectedMetric === "winRate"
+      ? row.winRate >= 50
+        ? "text-emerald-400"
+        : "text-rose-400"
+      : "text-slate-200";
+
+              return (
+                <div
+                  key={row.symbol}
                   className={`
-                    truncate text-[9px] font-medium tabular-nums
-                    ${
-                      row.pnl >= 0
-                        ? "text-emerald-400"
-                        : "text-rose-400"
-                    }
+ grid
+grid-cols-[72px_minmax(0,1fr)_76px]
+                    min-h-[27px]
+                    shrink-0
+                    items-center
+                    gap-[4px]
+                    border-b
+                    border-white/[0.035]
+                    last:border-b-0
                   `}
                 >
-                  {formatSignedCurrency(row.pnl, currencySymbol)}
-                </span>
+                  {/* SYMBOL NAME */}
 
-                <div className="h-[8px] min-w-0 overflow-hidden rounded-full bg-[#102033]">
+                  <div className="flex min-w-0 items-center gap-[4px]">
+                    <span
+                      className="
+                        flex
+                        h-[16px]
+                        w-[16px]
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-[4px]
+                        text-[9px]
+                        font-semibold
+                        text-white
+                      "
+                      style={{
+                        backgroundColor: row.badgeColor,
+                      }}
+                    >
+                      {row.badge}
+                    </span>
+
+                    <span
+                      className="
+                        min-w-0
+                        truncate
+                        text-[10px]
+                        font-medium
+                        text-slate-200
+                      "
+                    >
+                      {row.symbol}
+                    </span>
+                  </div>
+
+                  {/* SELECTED METRIC ACTIVITY BAR */}
+
                   <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${(row.trades / maxSymbolTrades) * 100}%`,
-                      background:
-                        "linear-gradient(90deg, #116b62, #10b981)",
-                    }}
-                  />
-                </div>
+                    className="
+                      h-[8px]
+                      min-w-0
+                      overflow-hidden
+                      rounded-full
+                      bg-[#102033]
+                    "
+                  >
+                    {hasPreviewMetric && (
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${activityRatio * 100}%`,
+                          background: activityBackground,
+                        }}
+                      />
+                    )}
+                  </div>
 
-<span
-  className="
-    relative
-    text-right
-    text-[11px]
-    font-semibold
-    tabular-nums
-    text-slate-200
-  "
-  style={{
-    left: symbolScrollbarWidth > 0 ? "-4px" : "0px",
-  }}
->
-  {row.trades}
-</span>
-              </div>
-            ))}
+                  {/* SELECTED METRIC VALUE */}
+
+                  <span
+                    className={`
+                      relative
+                      left-[0px]
+                      truncate
+                      text-right
+                      text-[9px]
+                      font-semibold
+                      tabular-nums
+                      ${metricValueColor}
+                    `}
+style={{
+  left:
+    selectedMetric === "trades"
+      ? symbolScrollbarWidth > 0
+        ? "-30px"
+        : "-6px"
+      : selectedMetric === "netPnl"
+        ? symbolScrollbarWidth > 0
+          ? "-10px"
+          : "-4px"
+        : (
+            selectedMetric === "winRate" ||
+            selectedMetric === "commissions"
+          ) && symbolScrollbarWidth > 0
+          ? "-26px"
+          : symbolScrollbarWidth > 0
+            ? "-4px"
+            : "0px",
+}}
+                  >
+                    {metricValue}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

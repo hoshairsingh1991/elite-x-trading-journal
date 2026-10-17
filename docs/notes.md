@@ -552,7 +552,7 @@ git commit -m "checkpoint: trade history UI polish"
 git commit -m "feat(dashboard): redesign performance breakdown heatmap UI"
 git commit -m "fix(dashboard): finalize symbol breakdown scrolling"
 git commit -m "feat(dashboard): finalize weekday breakdown heatmap"
-
+git commit -m "feat(dashboard): add performance breakdown metric selector"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
