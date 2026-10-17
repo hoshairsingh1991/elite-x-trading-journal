@@ -247,6 +247,55 @@ function getHeatStyle(
   return HEAT_COLORS[level];
 }
 
+function getWeekdayPnlStyle(
+  value: number,
+  maxAbsPnl: number
+) {
+  const ratio =
+    maxAbsPnl > 0 ? Math.abs(value) / maxAbsPnl : 0;
+
+  if (value > 0) {
+    if (ratio >= 0.75) {
+      return {
+        backgroundColor: "#08745b",
+        borderColor: "#0b8b6b",
+      };
+    }
+
+    if (ratio >= 0.55) {
+      return {
+        backgroundColor: "#0c5b4b",
+        borderColor: "#127560",
+      };
+    }
+
+    return {
+      backgroundColor: "#103a3b",
+      borderColor: "#1b5354",
+    };
+  }
+
+  if (value < 0) {
+    if (ratio >= 0.25) {
+      return {
+        backgroundColor: "#6b2434",
+        borderColor: "#b64050",
+      };
+    }
+
+    return {
+      backgroundColor: "#47212c",
+      borderColor: "#86404d",
+    };
+  }
+
+  return {
+    backgroundColor: "#0c1726",
+    borderColor: "#1b2c40",
+  };
+}
+
+
 function formatSignedCurrency(
   value: number,
   currencySymbol: string
@@ -347,9 +396,9 @@ useEffect(() => {
     ])
   );
 
-  const maxWeekdayTrades = Math.max(
-    ...WEEKDAY_PREVIEW_ROWS.map((row) => row.trades)
-  );
+const maxWeekdayAbsPnl = Math.max(
+  ...WEEKDAY_PREVIEW_ROWS.map((row) => Math.abs(row.pnl))
+);
 
   const maxSymbolTrades = Math.max(
     ...SYMBOL_PREVIEW_ROWS.map((row) => row.trades)
@@ -398,13 +447,14 @@ useEffect(() => {
       >
 <div
   className="
-    relative
-    left-[0px]
-    top-[8px]
-    grid
-    min-w-0
-    grid-cols-[0.78fr_1.1fr_0.92fr]
-    overflow-hidden
+relative
+left-[0px]
+top-[8px]
+grid
+h-full
+min-w-0
+grid-cols-[0.78fr_1.1fr_0.92fr]
+overflow-hidden
     rounded-[6px]
     border
     border-[#263a50]
@@ -421,10 +471,11 @@ useEffect(() => {
   aria-pressed={isActive}
   onClick={() => setActiveView(tab.id)}
   className={`
-    relative
-    top-[0px]
-    min-w-0
-    border-r
+relative
+top-[0px]
+h-full
+min-w-0
+border-r
     border-[#263a50]
     px-[3px]
     text-[11px]
@@ -736,8 +787,20 @@ className="
 
       {/* WEEKDAY */}
 
-      {activeView === "weekday" && (
-        <div className="mt-[8px] flex min-h-0 flex-1 flex-col">
+     {activeView === "weekday" && (
+  <div
+    className="
+      relative
+      left-[0px]
+      top-[20px]
+      mt-[8px]
+      flex
+      min-h-0
+      flex-1
+      flex-col
+      overflow-hidden
+    "
+  >
           <div
             className="
               grid grid-cols-[55px_minmax(0,1fr)]
@@ -745,24 +808,40 @@ className="
               uppercase tracking-[0.1em] text-slate-500
             "
           >
-            <div>Weekday</div>
-            <div className="text-right">Number of trades</div>
+<div className="relative top-[-4px]">
+  Weekday
+</div>
+
+<div className="relative top-[-4px] text-right">
+  Number of trades
+</div>
           </div>
 
-          <div className="mt-[5px] flex min-h-0 flex-1 flex-col gap-[4px]">
-            {WEEKDAY_PREVIEW_ROWS.map((row) => {
-              const heatRatio =
-                row.trades / maxWeekdayTrades;
+<div
+  className="
+    mt-[5px]
+    flex
+    flex-col
+    gap-[6px]
+  "
+>
+{WEEKDAY_PREVIEW_ROWS.map((row) => {
+  const pnlStyle = getWeekdayPnlStyle(
+    row.pnl,
+    maxWeekdayAbsPnl
+  );
 
-              return (
-                <div
-                  key={row.day}
-                  className="
-                    grid min-h-0 flex-1
-                    grid-cols-[55px_minmax(0,1fr)]
-                    gap-[4px]
-                  "
-                >
+  return (
+<div
+  key={row.day}
+  className="
+    grid
+    h-[36px]
+    shrink-0
+    grid-cols-[55px_minmax(0,1fr)]
+    gap-[4px]
+  "
+>
                   <div className="flex min-w-0 flex-col justify-center">
                     <span className="text-[11px] font-medium text-slate-200">
                       {row.day}
@@ -783,36 +862,39 @@ className="
                     </span>
                   </div>
 
-                  <div
-                    className="
-                      relative flex min-w-0 items-center
-                      overflow-hidden rounded-[7px]
-                      border border-[#1b3448] bg-[#0c1a29]
-                    "
-                  >
-                    <div
-                      className="absolute inset-y-0 left-0 rounded-[6px]"
-                      style={{
-                        width: `${Math.max(8, heatRatio * 100)}%`,
-                        background:
-                          heatRatio > 0.75
-                            ? "#08745b"
-                            : heatRatio > 0.45
-                              ? "#10483f"
-                              : "#10303b",
-                      }}
-                    />
-
-                    <span
-                      className="
-                        relative z-10 ml-auto pr-[9px]
-                        text-[14px] font-semibold
-                        tabular-nums text-slate-100
-                      "
-                    >
-                      {row.trades}
-                    </span>
-                  </div>
+<div
+  className="
+    relative
+    flex
+    w-full
+    min-w-0
+    items-center
+    justify-end
+    overflow-hidden
+    rounded-[7px]
+    border
+  "
+  style={{
+    backgroundColor: pnlStyle.backgroundColor,
+    borderColor: pnlStyle.borderColor,
+  }}
+>
+  <span
+    className="
+relative
+left-[-16px]
+z-10
+ml-auto
+pr-[9px]
+      text-[14px]
+      font-semibold
+      tabular-nums
+      text-slate-100
+    "
+  >
+    {row.trades}
+  </span>
+</div>
                 </div>
               );
             })}
