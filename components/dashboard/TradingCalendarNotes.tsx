@@ -206,7 +206,7 @@ const [savedTitle, setSavedTitle] = useState("");
   const [editor, setEditor] = useState<Editor | null>(null);
 
 const [pastNotes, setPastNotes] = useState<DailyNote[]>([]);
-
+const [isLoadingPastNotes, setIsLoadingPastNotes] = useState(true);
   const [search, setSearch] = useState("");
   const [loadingNote, setLoadingNote] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -266,17 +266,25 @@ useEffect(() => {
 }, [selectedDate]);
 
 const refreshPastNotes = useCallback(async () => {
-  const notes = await loadDailyNotesFromSupabase();
+  setIsLoadingPastNotes(true);
 
-  setPastNotes(
-    [...notes]
-      .filter(
-        (item) =>
-          item.title.trim().length > 0 ||
-          !isEmptyNote(item.note),
-      )
-      .sort((a, b) => b.date.localeCompare(a.date)),
-  );
+  try {
+    const notes = await loadDailyNotesFromSupabase();
+
+    setPastNotes(
+      [...notes]
+        .filter(
+          (item) =>
+            item.title.trim().length > 0 ||
+            !isEmptyNote(item.note),
+        )
+        .sort((a, b) => b.date.localeCompare(a.date)),
+    );
+  } catch (error) {
+    console.error("Failed to load daily notes:", error);
+  } finally {
+    setIsLoadingPastNotes(false);
+  }
 }, []);
 
   useEffect(() => {
@@ -741,11 +749,13 @@ const savedStatus = saving
   ? "Saving changes…"
   : dirty
     ? "Unsaved changes"
-    : notesForActiveDate.length === 0
-      ? "No saved notes for this date"
-      : `${notesForActiveDate.length} ${
-          notesForActiveDate.length === 1 ? "note" : "notes"
-        } saved for this date`;
+    : isLoadingPastNotes
+      ? "Loading notes…"
+      : notesForActiveDate.length === 0
+        ? "No saved notes for this date"
+        : `${notesForActiveDate.length} ${
+            notesForActiveDate.length === 1 ? "note" : "notes"
+          } saved for this date`;
 
 return (
     <div
@@ -1669,7 +1679,14 @@ return (
 
             {/* PAST NOTES LIST */}
             <div className="min-h-0 flex-1 overflow-y-auto px-2 pt-5 pb-2">
-              {visibleNotes.length === 0 ? (
+              {isLoadingPastNotes ? (
+  <div className="flex min-h-[140px] items-center justify-center">
+    <LoaderCircle
+      size={18}
+      className="animate-spin text-slate-500"
+    />
+  </div>
+) : visibleNotes.length === 0 ? (
                 <div
                   className="
                   relative

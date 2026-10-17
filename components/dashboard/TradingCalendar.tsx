@@ -490,13 +490,13 @@ const selectedTrades =
               : "text-slate-600 hover:text-slate-400"
           }`}
         >
-          <FileText
+<FileText
   size={12}
-  className={
+  className={`transition-all duration-200 ease-out hover:scale-110 ${
     hasNote
-      ? "drop-shadow-[0_0_5px_rgba(59,130,246,0.85)]"
+      ? "drop-shadow-[0_0_5px_rgba(59,130,246,0.85)] hover:drop-shadow-[0_0_7px_rgba(96,165,250,1)]"
       : ""
-  }
+  }`}
 />
         </div>
 
