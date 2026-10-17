@@ -16,6 +16,10 @@ import {
   loadTradeReviewKeys,
 } from "@/lib/storage/supabaseTradeReviewStorage";
 
+import {
+  loadDailyReviewTradeNoteTradeIds,
+} from "@/lib/storage/supabaseDailyReviewTradeNoteStorage";
+
 import EditTradeModal
   from "@/components/trades/EditTradeModal";
 
@@ -134,6 +138,9 @@ const [
   new Set()
 );
 
+const [tradeNoteIds, setTradeNoteIds] =
+  useState<Set<string>>(new Set());
+
 useEffect(() => {
 
   let cancelled = false;
@@ -220,6 +227,54 @@ useEffect(() => {
   selectedAccount,
   selectedTrades,
 ]);
+
+useEffect(() => {
+  let cancelled = false;
+
+  async function loadTradeNoteIds() {
+    setTradeNoteIds(new Set());
+
+    const tradesForNotes =
+      selectedAccount === "ALL"
+        ? selectedTrades
+        : selectedTrades.filter(
+            (trade) =>
+              trade.account?.trim() === selectedAccount
+          );
+
+    const tradeIds = tradesForNotes
+      .map((trade) => trade.id)
+      .filter(Boolean);
+
+    if (tradeIds.length === 0) {
+      return;
+    }
+
+    try {
+      const ids =
+        await loadDailyReviewTradeNoteTradeIds(tradeIds);
+
+      if (!cancelled) {
+        setTradeNoteIds(ids);
+      }
+    } catch (error) {
+      console.error(
+        "FAILED TO LOAD TRADE NOTE STATUS:",
+        error
+      );
+
+      if (!cancelled) {
+        setTradeNoteIds(new Set());
+      }
+    }
+  }
+
+  void loadTradeNoteIds();
+
+  return () => {
+    cancelled = true;
+  };
+}, [selectedAccount, selectedTrades]);
 
 const handleAccountChange = (
   account: string
@@ -716,7 +771,10 @@ ${
   reviewedTradeKeys={
     reviewedTradeKeys
   }
-    selectedTradeId={
+  tradeNoteIds={
+    tradeNoteIds
+  }
+  selectedTradeId={
     selectedTrade?.id ??
     null
   }
@@ -809,6 +867,22 @@ bottom-[18px]
   onReviewStatusChange={
     handleReviewStatusChange
   }
+  onNotesChanged={(
+    tradeId,
+    hasNotes
+  ) => {
+    setTradeNoteIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+
+      if (hasNotes) {
+        nextIds.add(tradeId);
+      } else {
+        nextIds.delete(tradeId);
+      }
+
+      return nextIds;
+    });
+  }}
   onPreviousTrade={
     handlePreviousTrade
   }

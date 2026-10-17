@@ -19,6 +19,7 @@ import {
   Italic,
   List,
   ListOrdered,
+  LoaderCircle,
   Minus,
   Palette,
   Plus,
@@ -46,15 +47,17 @@ import {
 } from "@/types/dailyReviewTradeNote";
 
 
-
 interface TradeNotesTabProps {
   trade: Trade;
+  onNotesChanged?: (
+    tradeId: string,
+    hasNotes: boolean
+  ) => void;
 }
-
-
 
 export default function TradeNotesTab({
   trade,
+  onNotesChanged,
 }: TradeNotesTabProps) {
 
     const currentTradeIdRef = useRef(trade.id);
@@ -161,6 +164,9 @@ const [activeNoteId, setActiveNoteId] =
   const [pastNotes, setPastNotes] =
     useState<DailyReviewTradeNote[]>([]);
 
+    const [isLoadingPastNotes, setIsLoadingPastNotes] =
+  useState(true);
+
     const [loadError, setLoadError] =
   useState<string | null>(null);
 
@@ -196,6 +202,8 @@ const canSave =
   useEffect(() => {
     let cancelled = false;
 
+     setIsLoadingPastNotes(true);
+
 setNoteTitle("");
 setNote("");
 setSavedLocally(false);
@@ -203,36 +211,41 @@ setActiveNoteId(null);
 setPastNotes([]);
 setLoadError(null);
 
-    async function loadNotes() {
-      if (!trade.id) {
-        setPastNotes([]);
-        return;
-      }
+async function loadNotes() {
+  if (!trade.id) {
+    setPastNotes([]);
+    setIsLoadingPastNotes(false);
+    return;
+  }
 
-      try {
-        const notes =
-          await loadDailyReviewTradeNotes(
-            trade.id
-          );
+  try {
+    const notes =
+      await loadDailyReviewTradeNotes(
+        trade.id
+      );
 
-        if (!cancelled) {
-          setPastNotes(notes);
-          setLoadError(null);
-        }
-      } catch (error) {
-        console.error(
-          "FAILED TO LOAD DAILY REVIEW TRADE NOTES:",
-          error
-        );
-
-        if (!cancelled) {
-          setPastNotes([]);
-          setLoadError(
-            "Unable to load saved notes. Please try again."
-          );
-        }
-      }
+    if (!cancelled) {
+      setPastNotes(notes);
+      setLoadError(null);
     }
+  } catch (error) {
+    console.error(
+      "FAILED TO LOAD DAILY REVIEW TRADE NOTES:",
+      error
+    );
+
+    if (!cancelled) {
+      setPastNotes([]);
+      setLoadError(
+        "Unable to load saved notes. Please try again."
+      );
+    }
+  } finally {
+    if (!cancelled) {
+      setIsLoadingPastNotes(false);
+    }
+  }
+}
 
     loadNotes();
 
@@ -303,12 +316,14 @@ async function handleSave() {
       return;
     }
 
-    setPastNotes((currentNotes) => [
-      createdNote,
-      ...currentNotes,
-    ]);
+setPastNotes((currentNotes) => [
+  createdNote,
+  ...currentNotes,
+]);
 
-    setActiveNoteId(createdNote.id);
+onNotesChanged?.(trade.id, true);
+
+setActiveNoteId(createdNote.id);
     setNoteTitle(createdNote.title);
     setSavedLocally(true);
   } catch (error) {
@@ -359,6 +374,13 @@ async function confirmDeleteNote() {
     if (!deleted) {
       return;
     }
+
+onNotesChanged?.(
+  trade.id,
+  pastNotes.some(
+    (savedNote) => savedNote.id !== noteId
+  )
+);
 
     // CLOSE CONFIRMATION MODAL
     setPendingDeleteNoteId(null);
@@ -1217,7 +1239,14 @@ className={`
     left-[-4px]
   "
 >
-{pastNotes.length === 0 ? (
+{isLoadingPastNotes ? (
+  <div className="relative left-[10px] top-[18px] flex h-[160px] w-[calc(100%-14px)] shrink-0 items-center justify-center rounded-[7px]">
+    <LoaderCircle
+      size={18}
+      className="animate-spin text-slate-500"
+    />
+  </div>
+) : pastNotes.length === 0 ? (
   <div
     className="
       relative

@@ -23,7 +23,7 @@ interface DailyReviewTradeTableProps {
   selectedTrades: Trade[];
   allTrades: Trade[];
   reportingCurrency: string;
-
+tradeNoteIds: Set<string>;
   reviewedTradeKeys: Set<string>;
 
   selectedTradeId: string | null;
@@ -218,6 +218,7 @@ export default function DailyReviewTradeTable({
   reportingCurrency,
   reviewedTradeKeys,
   selectedTradeId,
+   tradeNoteIds,
   onSelectTrade,
   onEditTrade,
 }: DailyReviewTradeTableProps) {
@@ -365,20 +366,21 @@ className="
 
 <colgroup>
   <col className="w-[3%]" />
-  <col className="w-[9%]" />
-  <col className="w-[9%]" />
   <col className="w-[8%]" />
-  <col className="w-[7%]" />
+  <col className="w-[8%]" />
+  <col className="w-[8%]" />
   <col className="w-[6%]" />
   <col className="w-[5%]" />
-  <col className="w-[7%]" />
-  <col className="w-[7%]" />
-  <col className="w-[8%]" />
-  <col className="w-[8%]" />
-  <col className="w-[9%]" />
+  <col className="w-[5%]" />
+  <col className="w-[6%]" />
+  <col className="w-[6%]" />
   <col className="w-[7%]" />
   <col className="w-[7%]" />
   <col className="w-[7%]" />
+  <col className="w-[6%]" />
+  <col className="w-[6%]" />
+  <col className="w-[6%]" />
+  <col className="w-[6%]" />
 </colgroup>
 
           {/* ================================================= */}
@@ -481,7 +483,7 @@ className="
                   truncate
                   px-1
                   text-left
-                  translate-x-5
+                  translate-x-6
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -537,7 +539,7 @@ className="
                   truncate
                   px-1
                   text-right
-                  -translate-x-2
+                  -translate-x-3
                   text-[11px]
                   font-medium
                   text-slate-500
@@ -621,6 +623,19 @@ translate-x-1
                 Reviewed
               </th>
 
+<th
+  className="
+    truncate
+    px-1
+    text-center
+    text-[11px]
+    font-medium
+    text-slate-500
+  "
+>
+  Notes
+</th>
+
             </tr>
 
           </thead>
@@ -684,6 +699,9 @@ const isReviewed =
         reviewKey
       )
     : false;
+
+// TEMPORARY VISUAL PREVIEW — replace with real note status later.
+const hasNotes = tradeNoteIds.has(trade.id);
 
 const isSelected =
   selectedTradeId ===
@@ -782,7 +800,7 @@ ${
     truncate
     px-1
     text-left
-    translate-x-1
+    translate-x-2
     text-[11px]
     font-semibold
     text-slate-100
@@ -809,7 +827,7 @@ ${
                         truncate
                         px-1
                         text-left
-                        translate-x-5
+                        translate-x-4
                         text-[11px]
                         font-medium
                         text-slate-400
@@ -826,7 +844,7 @@ ${
   className={`
     px-1
     text-left
-    translate-x-5
+    translate-x-6
     text-[11px]
     font-bold
     ${
@@ -940,6 +958,7 @@ ${
                         truncate
                         px-1
                         text-right
+                        -translate-x-1
                         text-[11px]
                         font-bold
                         ${
@@ -1089,6 +1108,47 @@ className="
         border-white/[0.14]
       "
       aria-label="Not reviewed"
+    />
+  )}
+</td>
+
+{/* NOTES — TEMPORARY VISUAL PREVIEW */}
+
+<td className="px-1 text-center">
+  {hasNotes ? (
+    <span
+      className="
+        inline-flex
+        h-[13px]
+        w-[13px]
+        items-center
+        justify-center
+        rounded-[4px]
+        border
+        border-blue-400/30
+        bg-blue-500/[0.10]
+        text-[9px]
+        font-bold
+        leading-none
+        text-blue-300
+      "
+      aria-label="Has notes (preview)"
+    >
+      ✓
+    </span>
+  ) : (
+    <span
+      className="
+        inline-flex
+        h-[13px]
+        w-[13px]
+        items-center
+        justify-center
+        rounded-[4px]
+        border
+        border-white/[0.14]
+      "
+      aria-label="No notes (preview)"
     />
   )}
 </td>

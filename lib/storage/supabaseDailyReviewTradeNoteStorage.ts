@@ -91,6 +91,56 @@ export async function loadDailyReviewTradeNotes(
 }
 
 // =====================================================
+// LOAD TRADE IDS THAT HAVE SAVED NOTES
+// =====================================================
+
+export async function loadDailyReviewTradeNoteTradeIds(
+  tradeIds: string[]
+): Promise<Set<string>> {
+  const uniqueTradeIds = [
+    ...new Set(
+      tradeIds.filter((id) => id.trim().length > 0)
+    ),
+  ];
+
+  if (uniqueTradeIds.length === 0) {
+    return new Set<string>();
+  }
+
+  const { data: authData } =
+    await supabase.auth.getUser();
+
+  const user = authData.user;
+
+  if (!user) {
+    console.error("NO AUTHENTICATED USER FOUND");
+    return new Set<string>();
+  }
+
+  const { data, error } = await supabase
+    .from("daily_review_trade_notes")
+    .select("trade_id")
+    .eq("user_id", user.id)
+    .in("trade_id", uniqueTradeIds);
+
+  if (error) {
+    console.error(
+      "FAILED TO LOAD TRADE NOTE STATUS:",
+      error.message
+    );
+
+    return new Set<string>();
+  }
+
+  const rows =
+    (data as { trade_id: string }[] | null) ?? [];
+
+  return new Set(
+    rows.map((row) => row.trade_id)
+  );
+}
+
+// =====================================================
 // CREATE TRADE NOTE
 // =====================================================
 

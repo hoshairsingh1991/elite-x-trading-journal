@@ -35,6 +35,11 @@ interface DailyReviewTradeDrawerProps {
     reviewed: boolean
   ) => void;
 
+  onNotesChanged?: (
+    tradeId: string,
+    hasNotes: boolean
+  ) => void;
+
   onPreviousTrade?: () => void;
 
   onNextTrade?: () => void;
@@ -287,6 +292,7 @@ export default function DailyReviewTradeDrawer({
   trade,
   onClose,
   onReviewStatusChange,
+  onNotesChanged,
   onPreviousTrade,
   onNextTrade,
   canGoPrevious,
@@ -813,8 +819,9 @@ className={`
         w-[98%]
       "
     >
-      <TradeNotesTab
+<TradeNotesTab
   trade={trade}
+  onNotesChanged={onNotesChanged}
 />
     </div>
 
