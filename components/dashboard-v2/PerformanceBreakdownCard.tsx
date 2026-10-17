@@ -1,4 +1,6 @@
-import {
+import { useState } from "react";
+
+import type {
   PerformanceBreakdownData,
 } from "@/lib/analytics/performanceBreakdownAnalytics";
 
@@ -6,526 +8,1047 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
-import { useEffect, useState } from "react";
-
-import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
-
-
 type PerformanceBreakdownCardProps = {
   performanceBreakdownAnalytics: PerformanceBreakdownData;
   reportingCurrency: string;
 };
 
+type BreakdownView = "mix" | "weekday" | "symbol";
+
+type MixRow = {
+  asset: string;
+  leftLabel: string;
+  leftTrades: number;
+  rightLabel: string;
+  rightTrades: number;
+};
+
+type WeekdayRow = {
+  day: string;
+  trades: number;
+  pnl: number;
+};
+
+type SymbolRow = {
+  symbol: string;
+  asset: string;
+  trades: number;
+  pnl: number;
+  badge: string;
+  badgeColor: string;
+};
+
+/*
+ * UI preview fixtures.
+ *
+ * These values are for layout development only.
+ * Wire these breakdowns to canonical analytics later.
+ * The commissions footer already uses the supplied analytics.
+ */
+
+const MIX_PREVIEW_ROWS: MixRow[] = [
+  {
+    asset: "Stocks",
+    leftLabel: "LONG",
+    leftTrades: 42,
+    rightLabel: "SHORT",
+    rightTrades: 28,
+  },
+  {
+    asset: "Options",
+    leftLabel: "CALLS",
+    leftTrades: 64,
+    rightLabel: "PUTS",
+    rightTrades: 58,
+  },
+  {
+    asset: "Crypto",
+    leftLabel: "LONG",
+    leftTrades: 15,
+    rightLabel: "SHORT",
+    rightTrades: 11,
+  },
+  {
+    asset: "Forex",
+    leftLabel: "LONG",
+    leftTrades: 6,
+    rightLabel: "SHORT",
+    rightTrades: 4,
+  },
+  {
+    asset: "Futures",
+    leftLabel: "LONG",
+    leftTrades: 12,
+    rightLabel: "SHORT",
+    rightTrades: 9,
+  },
+  {
+    asset: "Other",
+    leftLabel: "LONG",
+    leftTrades: 3,
+    rightLabel: "SHORT",
+    rightTrades: 2,
+  },
+];
+
+const WEEKDAY_PREVIEW_ROWS: WeekdayRow[] = [
+  { day: "Mon", trades: 18, pnl: 42 },
+  { day: "Tue", trades: 27, pnl: -18 },
+  { day: "Wed", trades: 14, pnl: 36 },
+  { day: "Thu", trades: 32, pnl: 68 },
+  { day: "Fri", trades: 21, pnl: -12 },
+];
+
+const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
+  {
+    symbol: "QQQ",
+    asset: "Options",
+    trades: 68,
+    pnl: 482.16,
+    badge: "Q",
+    badgeColor: "#2563eb",
+  },
+  {
+    symbol: "TSLA",
+    asset: "Stocks",
+    trades: 54,
+    pnl: -124.32,
+    badge: "T",
+    badgeColor: "#dc2626",
+  },
+  {
+    symbol: "NVDA",
+    asset: "Stocks",
+    trades: 42,
+    pnl: 318.4,
+    badge: "N",
+    badgeColor: "#65a30d",
+  },
+  {
+    symbol: "AAPL",
+    asset: "Stocks",
+    trades: 38,
+    pnl: 96.28,
+    badge: "A",
+    badgeColor: "#475569",
+  },
+  {
+    symbol: "MSFT",
+    asset: "Stocks",
+    trades: 24,
+    pnl: -56.12,
+    badge: "M",
+    badgeColor: "#2563eb",
+  },
+  {
+    symbol: "SPY",
+    asset: "Options",
+    trades: 20,
+    pnl: 44.76,
+    badge: "S",
+    badgeColor: "#dc2626",
+  },
+  {
+    symbol: "BTCUSDT",
+    asset: "Crypto",
+    trades: 12,
+    pnl: 26.14,
+    badge: "₿",
+    badgeColor: "#d97706",
+  },
+  {
+    symbol: "EURUSD",
+    asset: "Forex",
+    trades: 9,
+    pnl: -18.42,
+    badge: "€",
+    badgeColor: "#2563eb",
+  },
+];
+
+const HEAT_COLORS = [
+  { background: "#0c1726", border: "#1b2c40" },
+  { background: "#102131", border: "#1b3448" },
+  { background: "#10303b", border: "#1b4350" },
+  { background: "#0c4b45", border: "#126457" },
+  { background: "#08745b", border: "#0b8b6b" },
+];
+
+const VIEW_TABS: {
+  id: BreakdownView;
+  label: string;
+}[] = [
+  { id: "mix", label: "Mix" },
+  { id: "weekday", label: "Weekday" },
+  { id: "symbol", label: "Symbol" },
+];
+
+function getHeatStyle(
+  value: number,
+  maxValue: number
+) {
+  if (value <= 0 || maxValue <= 0) {
+    return HEAT_COLORS[0];
+  }
+
+  const ratio = value / maxValue;
+
+  const level =
+    ratio >= 0.85
+      ? 4
+      : ratio >= 0.55
+        ? 3
+        : ratio >= 0.3
+          ? 2
+          : ratio >= 0.12
+            ? 1
+            : 0;
+
+  return HEAT_COLORS[level];
+}
+
+function formatSignedCurrency(
+  value: number,
+  currencySymbol: string
+) {
+  const sign =
+    value > 0 ? "+" : value < 0 ? "−" : "";
+
+  return `${sign}${currencySymbol}${Math.abs(value).toFixed(2)}`;
+}
+
+function InfoMark() {
+  return (
+    <span
+      aria-label="Performance breakdown information"
+      title="Breakdown values are grouped by the selected view and date range."
+      className="
+        inline-flex h-[14px] w-[14px] shrink-0
+        items-center justify-center rounded-full
+        border border-slate-500
+        text-[10px] font-medium leading-none
+        text-slate-400
+      "
+    >
+      i
+    </span>
+  );
+}
+
 export default function PerformanceBreakdownCard({
   performanceBreakdownAnalytics,
   reportingCurrency,
 }: PerformanceBreakdownCardProps) {
+  const [activeView, setActiveView] =
+    useState<BreakdownView>("mix");
 
-  const [activeIndex, setActiveIndex] =
-  useState<number | null>(null);
+  const currencySymbol =
+    getCurrencySymbol(reportingCurrency);
 
-  const [isCompact, setIsCompact] =
-  useState(false);
-
-useEffect(() => {
-  const mediaQuery =
-    window.matchMedia("(max-width: 1599px)");
-
-  const updateCompactMode = () => {
-    setIsCompact(mediaQuery.matches);
-  };
-
-  updateCompactMode();
-
-  mediaQuery.addEventListener(
-    "change",
-    updateCompactMode
+  const commissionTotal = Math.abs(
+    performanceBreakdownAnalytics.commissions ?? 0
   );
 
-  return () => {
-    mediaQuery.removeEventListener(
-      "change",
-      updateCompactMode
-    );
-  };
-}, []);
-
-const currencySymbol =
-  getCurrencySymbol(
-    reportingCurrency
+  const maxMixTrades = Math.max(
+    ...MIX_PREVIEW_ROWS.flatMap((row) => [
+      row.leftTrades,
+      row.rightTrades,
+    ])
   );
 
-const donutData = [
-  {
-    name: "Long P&L",
-    value: Math.abs(
-      performanceBreakdownAnalytics.longPnL
-    ),
-    color: "#41855a",
-  },
-  {
-    name: "Short P&L",
-    value: Math.abs(
-      performanceBreakdownAnalytics.shortPnL
-    ),
-    color: "#4b19c0",
-  },
-  {
-    name: "Commissions",
-    value: Math.abs(
-      performanceBreakdownAnalytics.commissions
-    ),
-    color: "#124eaf",
-  },
-];
+  const maxWeekdayTrades = Math.max(
+    ...WEEKDAY_PREVIEW_ROWS.map((row) => row.trades)
+  );
 
-return (
+  const maxSymbolTrades = Math.max(
+    ...SYMBOL_PREVIEW_ROWS.map((row) => row.trades)
+  );
+
+  return (
+    <section
+      aria-label="Performance breakdown"
+      className="
+        box-border flex h-[400px] w-full flex-col
+        overflow-hidden rounded-[8px]
+        border border-white/[0.06]
+        bg-[#0b1220] text-slate-100
+        transition-colors duration-200
+        hover:border-white/[0.12]
+      "
+      style={{
+        padding: "10px 11px 8px",
+      }}
+    >
+      {/* HEADER */}
+
+      <div className="flex min-h-[20px] items-center gap-[5px]">
+        <h3
+          className="
+            text-[16px] font-semibold leading-[20px]
+            text-white
+          "
+        >
+          Performance Breakdown
+        </h3>
+
+        <InfoMark />
+      </div>
+
+
+
+      {/* NAVIGATION AND METRIC */}
+
+      <div
+        className="
+          mt-[8px] grid h-[28px] shrink-0
+          grid-cols-[minmax(0,1.55fr)_minmax(100px,1fr)]
+          gap-[7px]
+        "
+      >
 <div
   className="
-    h-[400px]
+    relative
+    left-[0px]
+    top-[8px]
+    grid
+    min-w-0
+    grid-cols-[0.78fr_1.1fr_0.92fr]
     overflow-hidden
-rounded-[8px]
-border
-border-white/[0.06]
-bg-[#0b1220]
-backdrop-blur-xl
-
-    transition-all
-    duration-300
-
-bg-[#0b1220]
-
-hover:-translate-y-1
-hover:border-white/[0.12]
-hover:bg-[#0b0c1e]
-hover:shadow-[0_12px_30px_rgba(0,0,0,0.20)]
+    rounded-[6px]
+    border
+    border-[#263a50]
+    bg-[#081321]
   "
 >
+          {VIEW_TABS.map((tab) => {
+            const isActive = activeView === tab.id;
 
-      {/* ===================================== */}
-      {/* INVISIBLE SPACER */}
-      {/* ===================================== */}
+            return (
+<button
+  key={tab.id}
+  type="button"
+  aria-pressed={isActive}
+  onClick={() => setActiveView(tab.id)}
+  className={`
+    relative
+    top-[0px]
+    min-w-0
+    border-r
+    border-[#263a50]
+    px-[3px]
+    text-[11px]
+    font-medium
 
-      <div className="h-[10px]" />
+    transition-all
+    duration-200
+    ease-out
 
-      {/* ================================================= */}
-      {/* HEADER */}
-      {/* ================================================= */}
+    last:border-r-0
 
-      <div className="px-7 pt-5">
-        <div className="relative left-3">
-          <h3 className="text-[15px] font-semibold text-white">
-            Performance Breakdown
-          </h3>
+    focus-visible:outline-none
+    focus-visible:ring-1
+    focus-visible:ring-inset
+    focus-visible:ring-sky-400
 
-          <p className="mt-1.5 text-[14px] text-slate-500">
-            Trading distribution analysis
-          </p>
+    motion-reduce:transition-none
+
+    ${
+      isActive
+        ? "rounded-[6px] border border-[#2788ff] bg-gradient-to-b from-[#1764b8] to-[#10417d] text-white hover:brightness-110 hover:shadow-[inset_0_0_0_1px_rgba(56,189,248,0.22),0_0_8px_rgba(37,99,235,0.18)]"
+        : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-100 hover:shadow-[inset_0_0_0_1px_rgba(56,189,248,0.12)]"
+    }
+  `}
+>
+  {tab.label}
+</button>
+            );
+          })}
+        </div>
+
+        {/* TRADES DROPDOWN */}
+
+        <div
+          className="
+            relative
+            left-[0px]
+            top-[8px]
+            min-w-0
+          "
+        >
+<button
+  type="button"
+  aria-label="Heatmap metric"
+  disabled
+  className="
+    h-full
+    w-full
+    appearance-none
+    rounded-[7px]
+    border
+    border-[#263a50]
+    bg-[#0b1727]
+    text-left
+    text-[12px]
+    font-semibold
+    text-slate-300
+    outline-none
+    disabled:cursor-default
+    disabled:opacity-100
+  "
+>
+  <span
+    className="
+      relative
+      left-[8px]
+      top-[0px]
+    "
+  >
+    Trades
+  </span>
+</button>
+
+          {/* DROPDOWN ARROW */}
+
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 16 16"
+            className="
+              pointer-events-none
+              absolute
+              right-[8px]
+              top-1/2
+              h-[12px]
+              w-[12px]
+              -translate-y-1/2
+              text-slate-500
+            "
+            fill="none"
+          >
+            <path
+              d="m3.5 6 4.5 4 4.5-4"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
       </div>
 
-{/* ================================================= */}
-{/* DONUT + LEGEND */}
-{/* ================================================= */}
+      {/* MIX */}
 
-<div className="mt-8 flex justify-center">
-  <div className="w-full">
-
-    <div className="relative top-10 flex items-center justify-center gap-3 min-[1600px]:gap-7">
-
-      {/* DONUT PLACEHOLDER */}
-
+      {activeView === "mix" && (
+        <div className="mt-[8px] min-h-0 flex-1">
+          <div
+            className="
+              grid grid-cols-[55px_minmax(0,1fr)_minmax(0,1fr)]
+              gap-[4px]
+            "
+          >
 <div
-  className={`
+  className="
     relative
-    shrink-0
-    ${isCompact
-      ? "left-0 h-[135px] w-[135px]"
-      : "left-0 h-[165px] w-[165px]"
-    }
-  `}
+    left-[0px]
+    top-[16px]
+    flex
+    items-center
+    text-[10px]
+    font-medium
+    uppercase
+    tracking-[0.12em]
+    text-slate-500
+  "
 >
-
-<ResponsiveContainer
-  width="100%"
-  height="100%"
-  minWidth={1}
-  minHeight={1}
-  initialDimension={{
-    width: isCompact ? 135 : 165,
-    height: isCompact ? 135 : 165,
-  }}
->
-
-    <PieChart>
-
-      <Pie
-        data={donutData}
-        dataKey="value"
-        innerRadius={
-          isCompact
-            ? 49
-            : 60
-        }
-        outerRadius={
-          isCompact
-            ? 67
-            : 82
-        }
-        paddingAngle={3}
-        stroke="none"
-        onMouseEnter={(_, index) =>
-          setActiveIndex(index)
-        }
-        onMouseLeave={() =>
-          setActiveIndex(null)
-        }
-      >
-
-{donutData.map(
-  (entry, index) => (
-    <Cell
-  key={entry.name}
-  fill={entry.color}
-  fillOpacity={
-    activeIndex === null ||
-    activeIndex === index
-      ? 1
-      : 0.30
-  }
-  style={{
-    transition: "all 200ms ease",
-    filter:
-      activeIndex === index
-        ? "drop-shadow(0 0 4px rgba(65,133,90,0.40))"
-        : "none",
-  }}
-/>
-  )
-)}
-
-            </Pie>
-
-          </PieChart>
-
-        </ResponsiveContainer>
-
-{/* CENTER LABEL */}
+  Asset
+</div>
 
 <div
   className="
-    absolute
-    inset-0
+    relative
+    left-[0px]
+    top-[16px]
+    col-span-2
     flex
-    flex-col
     items-center
-    justify-center
-    pointer-events-none
+    text-[10px]
+    font-medium
+    uppercase
+    tracking-[0.1em]
+    text-slate-500
   "
 >
+  Trade type · Number of trades
+</div>
+          </div>
 
-  <div className="text-[18px] font-bold text-slate-300 min-[1600px]:text-[20px]">
-    {currencySymbol}
-    {performanceBreakdownAnalytics.netTradingPnL.toFixed(2)}
-  </div>
+          <div className="mt-[4px] flex min-h-0 flex-1 flex-col gap-[6px]">
+            {MIX_PREVIEW_ROWS.map((row) => {
+              const leftHeat = getHeatStyle(
+                row.leftTrades,
+                maxMixTrades
+              );
+
+              const rightHeat = getHeatStyle(
+                row.rightTrades,
+                maxMixTrades
+              );
+
+              return (
+                <div
+                  key={row.asset}
+className="
+  grid min-h-[28px] flex-1
+  grid-cols-[55px_minmax(0,1fr)_minmax(0,1fr)]
+  gap-[4px]
+"
+                >
+<div
+  className="
+    relative
+    left-[0px]
+    top-[24px]
+    flex
+    min-w-0
+    items-center
+    pr-[2px]
+    text-[11px]
+    font-medium
+    text-slate-300
+  "
+>
+  <span className="truncate">
+    {row.asset}
+  </span>
+</div>
+
+<div
+  className="
+    relative
+    left-[-6px]
+    top-[24px]
+    flex
+    min-w-0
+    items-center
+    justify-between
+    rounded-[4px]
+    border
+    px-[8px]
+
+    transition-all
+    duration-200
+    ease-out
+
+    hover:-translate-y-[1px]
+    hover:brightness-110
+    hover:shadow-[0_0_0_1px_rgba(56,189,248,0.16),0_4px_10px_rgba(0,0,0,0.22)]
+
+    motion-reduce:transition-none
+  "
+  style={{
+    backgroundColor: leftHeat.background,
+    borderColor: leftHeat.border,
+  }}
+>
+<span
+  className="
+    relative
+    left-[6px]
+    truncate
+    text-[9px]
+    font-semibold
+    tracking-[0.04em]
+    text-[#9cb9ca]
+  "
+>
+  {row.leftLabel}
+</span>
+
+<span
+  className="
+    relative
+    left-[-8px]
+    top-[0px]
+    ml-[3px]
+    text-[14px]
+    font-semibold
+    tabular-nums
+    text-slate-100
+  "
+>
+  {row.leftTrades}
+</span>
+                  </div>
+
+<div
+  className="
+    relative
+    left-[0px]
+    top-[24px]
+    flex
+    min-w-0
+    items-center
+    justify-between
+    rounded-[4px]
+    border
+    px-[8px]
+
+    transition-all
+    duration-200
+    ease-out
+
+    hover:-translate-y-[1px]
+    hover:brightness-110
+    hover:shadow-[0_0_0_1px_rgba(56,189,248,0.16),0_4px_10px_rgba(0,0,0,0.22)]
+
+    motion-reduce:transition-none
+  "
+  style={{
+    backgroundColor: rightHeat.background,
+    borderColor: rightHeat.border,
+  }}
+>
+<span
+  className="
+    relative
+    left-[6px]
+    truncate
+    text-[9px]
+    font-semibold
+    tracking-[0.04em]
+    text-[#9cb9ca]
+  "
+>
+  {row.rightLabel}
+</span>
+
+<span
+  className="
+    relative
+    left-[-8px]
+    top-[0px]
+    ml-[3px]
+    text-[14px]
+    font-semibold
+    tabular-nums
+    text-slate-100
+  "
+>
+  {row.rightTrades}
+</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* WEEKDAY */}
+
+      {activeView === "weekday" && (
+        <div className="mt-[8px] flex min-h-0 flex-1 flex-col">
+          <div
+            className="
+              grid grid-cols-[55px_minmax(0,1fr)]
+              gap-[4px] text-[10px] font-medium
+              uppercase tracking-[0.1em] text-slate-500
+            "
+          >
+            <div>Weekday</div>
+            <div className="text-right">Number of trades</div>
+          </div>
+
+          <div className="mt-[5px] flex min-h-0 flex-1 flex-col gap-[4px]">
+            {WEEKDAY_PREVIEW_ROWS.map((row) => {
+              const heatRatio =
+                row.trades / maxWeekdayTrades;
+
+              return (
+                <div
+                  key={row.day}
+                  className="
+                    grid min-h-0 flex-1
+                    grid-cols-[55px_minmax(0,1fr)]
+                    gap-[4px]
+                  "
+                >
+                  <div className="flex min-w-0 flex-col justify-center">
+                    <span className="text-[11px] font-medium text-slate-200">
+                      {row.day}
+                    </span>
+
+                    <span
+                      className={`
+                        text-[9px] font-medium tabular-nums
+                        ${
+                          row.pnl >= 0
+                            ? "text-emerald-400"
+                            : "text-rose-400"
+                        }
+                      `}
+                    >
+                      P&amp;L{" "}
+                      {formatSignedCurrency(row.pnl, currencySymbol)}
+                    </span>
+                  </div>
+
+                  <div
+                    className="
+                      relative flex min-w-0 items-center
+                      overflow-hidden rounded-[7px]
+                      border border-[#1b3448] bg-[#0c1a29]
+                    "
+                  >
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-[6px]"
+                      style={{
+                        width: `${Math.max(8, heatRatio * 100)}%`,
+                        background:
+                          heatRatio > 0.75
+                            ? "#08745b"
+                            : heatRatio > 0.45
+                              ? "#10483f"
+                              : "#10303b",
+                      }}
+                    />
+
+                    <span
+                      className="
+                        relative z-10 ml-auto pr-[9px]
+                        text-[14px] font-semibold
+                        tabular-nums text-slate-100
+                      "
+                    >
+                      {row.trades}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* SYMBOL */}
+
+      {activeView === "symbol" && (
+        <div className="mt-[8px] flex min-h-0 flex-1 flex-col">
+          <div
+            className="
+              grid grid-cols-[62px_56px_minmax(0,1fr)_25px]
+              gap-[4px] text-[9px] font-medium
+              uppercase tracking-[0.08em] text-slate-500
+            "
+          >
+            <div>Symbol</div>
+            <div>P&amp;L</div>
+            <div>Activity</div>
+            <div className="text-right">#</div>
+          </div>
+
+          <div className="mt-[4px] flex min-h-0 flex-1 flex-col">
+            {SYMBOL_PREVIEW_ROWS.map((row) => (
+              <div
+                key={row.symbol}
+                className="
+                  grid min-h-0 flex-1
+                  grid-cols-[62px_56px_minmax(0,1fr)_25px]
+                  items-center gap-[4px]
+                  border-b border-white/[0.035]
+                  last:border-b-0
+                "
+              >
+                <div className="flex min-w-0 items-center gap-[4px]">
+                  <span
+                    className="
+                      flex h-[16px] w-[16px] shrink-0
+                      items-center justify-center
+                      rounded-[4px] text-[9px]
+                      font-semibold text-white
+                    "
+                    style={{
+                      backgroundColor: row.badgeColor,
+                    }}
+                  >
+                    {row.badge}
+                  </span>
+
+                  <span
+                    className="
+                      min-w-0 truncate text-[10px]
+                      font-medium text-slate-200
+                    "
+                  >
+                    {row.symbol}
+                  </span>
+                </div>
+
+                <span
+                  className={`
+                    truncate text-[9px] font-medium tabular-nums
+                    ${
+                      row.pnl >= 0
+                        ? "text-emerald-400"
+                        : "text-rose-400"
+                    }
+                  `}
+                >
+                  {formatSignedCurrency(row.pnl, currencySymbol)}
+                </span>
+
+                <div className="h-[8px] min-w-0 overflow-hidden rounded-full bg-[#102033]">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${(row.trades / maxSymbolTrades) * 100}%`,
+                      background:
+                        "linear-gradient(90deg, #116b62, #10b981)",
+                    }}
+                  />
+                </div>
+
+                <span
+                  className="
+                    text-right text-[11px] font-semibold
+                    tabular-nums text-slate-200
+                  "
+                >
+                  {row.trades}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+{/* ================================================= */}
+{/* COMMISSIONS FOOTER */}
+{/* ================================================= */}
+
+<div
+  className="
+    relative
+    mt-[9px]
+    shrink-0
+    pt-[9px]
+  "
+>
+  {/* DIVIDER — INDEPENDENT Y CONTROL */}
 
   <div
     className="
-      mt-1
-      text-[8px]
-      min-[1600px]:text-[9px]
-      uppercase
-      tracking-[0.14em]
-      text-slate-400
+      absolute
+      left-0
+      right-0
+      top-[-16px]
+      h-px
+      bg-[#203248]
+    "
+  />
+
+  {/* COMMISSION CARD — INDEPENDENT Y CONTROL */}
+
+<div
+  className="
+    relative
+    left-[0px]
+    top-[-8px]
+    flex
+    h-[46px]
+    items-center
+    justify-between
+    rounded-[8px]
+    border
+    border-[#20374c]
+    bg-[#0d1b2a]
+    px-[9px]
+
+    transition-all
+    duration-200
+    ease-out
+
+    hover:-translate-y-[1px]
+    hover:border-[#2b4c69]
+    hover:bg-[#102033]
+    hover:shadow-[0_4px_12px_rgba(0,0,0,0.22)]
+
+    motion-reduce:transition-none
+  "
+>
+    <div
+  className="
+    relative
+    left-[10px]
+    flex
+    min-w-0
+    items-center
+    gap-[8px]
+  "
+>
+      <span
+        className="
+          flex
+          h-[20px]
+          w-[20px]
+          shrink-0
+          items-center
+          justify-center
+          rounded-full
+          bg-[#123d57]
+          text-[13px]
+          font-medium
+          leading-none
+          text-sky-400
+        "
+      >
+        #
+      </span>
+
+      <div className="flex min-w-0 flex-col justify-center">
+        <span className="text-[11px] leading-[13px] text-slate-400">
+          Total commissions
+        </span>
+
+<span
+  className="
+    relative
+    left-[0px]
+    top-[2px]
+    text-[16px]
+    font-semibold
+    leading-[18px]
+    tabular-nums
+    text-slate-300
+  "
+>
+  {currencySymbol}
+  {commissionTotal.toFixed(2)}
+</span>
+      </div>
+    </div>
+
+<span
+  className="
+    relative
+    left-[-10px]
+    ml-[6px]
+    shrink-0
+    text-[10px]
+    text-slate-400
+  "
+>
+  Selected period
+</span>
+  </div>
+</div>
+
+{/* ================================================= */}
+{/* HEATMAP LEGEND */}
+{/* ================================================= */}
+
+
+<div
+  className="
+    relative
+    left-[0px]
+    top-[0px]
+    mt-[8px]
+    shrink-0
+    antialiased
+  "
+  style={{
+    fontFamily: "Arial, Helvetica, sans-serif",
+  }}
+>
+  {/* LEGEND TITLE */}
+
+  <p
+    className="
+      relative
+      left-[0px]
+      top-[0px]
+      text-[11px]
+      font-semibold
+      leading-[13px]
+      text-slate-500
     "
   >
-    Net P&amp;L
-  </div>
+    Heat intensity = activity level
+  </p>
 
-</div>
-
-      </div>
-
-{/* LEGEND */}
-
-<div
-  className={`
-    relative
-    left-0
-    shrink-0
-    flex
-    flex-col
-    gap-5
-    ${isCompact ? "w-[155px]" : "w-[185px]"}
-  `}
->
-
-{/* LONG */}
-
-<div className="flex min-w-0 items-center justify-between gap-2">
+  {/* HEAT SCALE + LABELS */}
 
   <div
-    className={`
-      flex items-center gap-2.5
-      transition-all duration-200
-      ${
-        activeIndex === 0
-          ? "translate-x-1"
-          : ""
-      }
-    `}
+    className="
+      relative
+      left-[0px]
+      top-[2px]
+      mt-[5px]
+      flex
+      items-center
+      gap-[5px]
+    "
   >
-<div
-  className={`
-    rounded-full
-    transition-all duration-200
-    ${
-      activeIndex === 0
-        ? "h-2.5 w-2.5"
-        : "h-2 w-2"
-    }
-  `}
-  style={{ backgroundColor: "#41855a" }}
-/>
+    {/* HEAT INTENSITY LEVELS */}
+
+    {HEAT_COLORS.slice(0, 4).map((color, index) => (
+      <span
+        key={color.background}
+        className="
+          relative
+          left-[0px]
+          top-[0px]
+          h-[8px]
+          w-[25px]
+          shrink-0
+          rounded-[3px]
+          border
+        "
+        style={{
+          backgroundColor: color.background,
+          borderColor: color.border,
+          opacity: index === 0 ? 0.85 : 1,
+        }}
+      />
+    ))}
+
+    {/* LOWER ACTIVITY */}
 
     <span
-      className={`
-        text-[14px]
-        transition-all duration-200
-        ${
-          activeIndex === 0
-            ? "text-white"
-            : "text-slate-400"
-        }
-      `}
+      className="
+        relative
+        left-[10px]
+        top-[0px]
+        ml-[3px]
+        whitespace-nowrap
+        text-[10px]
+        font-normal
+        leading-[12px]
+        text-slate-400
+      "
     >
-      Long P&amp;L
+      Fewer trades
     </span>
-  </div>
 
-  <span
-    className={`
-      text-[14px]
-      font-medium
-      transition-all duration-200
-      ${
-        activeIndex === 0
-          ? "-translate-x-1 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.18)]"
-          : "text-slate-300"
-      }
-    `}
-  >
-    {currencySymbol}
-    {performanceBreakdownAnalytics.longPnL.toFixed(2)}
-  </span>
-
-</div>
-
-{/* SHORT */}
-
-<div className="flex items-center justify-between">
-
-  <div
-    className={`
-      flex items-center gap-2.5
-      transition-all duration-200
-      ${
-        activeIndex === 1
-          ? "translate-x-1"
-          : ""
-      }
-    `}
-  >
-<div
-  className={`
-    rounded-full
-    transition-all
-    duration-200
-    ${
-      activeIndex === 1
-        ? "h-2.5 w-2.5"
-        : "h-2 w-2"
-    }
-  `}
-  style={{
-    backgroundColor: "#4b19c0",
-  }}
-/>
+    {/* HIGHER ACTIVITY */}
 
     <span
-      className={`
-        text-[14px]
-        transition-all duration-200
-        ${
-          activeIndex === 1
-            ? "text-white"
-            : "text-slate-400"
-        }
-      `}
+      className="
+        relative
+        left-[60px]
+        top-[0px]
+        ml-auto
+        whitespace-nowrap
+        text-[10px]
+        font-normal
+        leading-[12px]
+        text-slate-400
+      "
     >
-      Short P&amp;L
+      More trades
     </span>
   </div>
-
-  <span
-    className={`
-      text-[14px]
-      font-medium
-      transition-all duration-200
-      ${
-        activeIndex === 1
-          ? "-translate-x-1 text-white drop-shadow-[0_0_6px_rgba(75,25,192,0.30)]"
-          : "text-slate-300"
-      }
-    `}
-  >
-    {currencySymbol}
-    {performanceBreakdownAnalytics.shortPnL.toFixed(2)}
-  </span>
-
 </div>
-
-{/* COMMISSIONS */}
-
-<div className="flex items-center justify-between">
-
-  <div
-    className={`
-      flex items-center gap-2.5
-      transition-all duration-200
-      ${
-        activeIndex === 2
-          ? "translate-x-1"
-          : ""
-      }
-    `}
-  >
-<div
-  className={`
-    rounded-full
-    transition-all
-    duration-200
-    ${
-      activeIndex === 2
-        ? "h-2.5 w-2.5"
-        : "h-2 w-2"
-    }
-  `}
-  style={{
-    backgroundColor: "#124eaf",
-  }}
-/>
-
-    <span
-      className={`
-        text-[14px]
-        transition-all duration-200
-        ${
-          activeIndex === 2
-            ? "text-white"
-            : "text-slate-400"
-        }
-      `}
-    >
-      Commissions
-    </span>
-  </div>
-
-  <span
-    className={`
-      text-[14px]
-      font-medium
-      transition-all duration-200
-      ${
-        activeIndex === 2
-          ? "-translate-x-1 text-white drop-shadow-[0_0_6px_rgba(59,130,246,0.30)]"
-          : "text-slate-300"
-      }
-    `}
-  >
-    {currencySymbol}
-    {Math.abs(
-      performanceBreakdownAnalytics.commissions
-    ).toFixed(2)}
-  </span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-{/* ===================================== */}
-{/* INVISIBLE SPACER */}
-{/* ===================================== */}
-
-      <div className="h-[120px]" />
-
-{/* ================================================= */}
-{/* BOTTOM METRICS */}
-{/* ================================================= */}
-
-<div className="flex justify-center">
- <div className="w-[92%] min-[1600px]:w-[92%]">
-
-    <div className="grid grid-cols-3 gap-5">
-
-      {/* LONG TRADES */}
-
-      <div className="flex flex-col items-center">
-
-       <p className="whitespace-nowrap text-[11px] uppercase tracking-[0.12em] text-slate-500">
-  Long Trades
-</p>
-
-        <p className="mt-2.5 text-[18px] font-semibold text-white">
-          {performanceBreakdownAnalytics.longTrades}
-        </p>
-
-      </div>
-
-      {/* SHORT TRADES */}
-
-      <div className="flex flex-col items-center">
-
-       <p className="whitespace-nowrap text-[11px] uppercase tracking-[0.12em] text-slate-500">
-  Short Trades
-</p>
-
-        <p className="mt-2.5 text-[18px] font-semibold text-white">
-          {performanceBreakdownAnalytics.shortTrades}
-        </p>
-
-      </div>
-
-      {/* GROSS P&L */}
-
-      <div className="flex flex-col items-center">
-
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
-          Gross P&amp;L
-        </p>
-
-        <p className="mt-2.5 text-[18px] font-semibold text-emerald-400">
-          {currencySymbol}
-          {performanceBreakdownAnalytics.grossPnL.toFixed(2)}
-        </p>
-
-      </div>
-
-    </div>
-
-  </div>
-</div>
-
-    </div>
+    </section>
   );
 }
