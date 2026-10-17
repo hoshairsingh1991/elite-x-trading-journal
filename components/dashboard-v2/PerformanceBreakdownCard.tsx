@@ -193,23 +193,23 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     badgeColor: "#2563eb",
   },
   {
-    symbol: "TSLA",
+    symbol: "AMZN",
     asset: "Stocks",
-    trades: 54,
-    pnl: -124.32,
-    winRate: 46.3,
-    commissions: 31.25,
-    badge: "T",
-    badgeColor: "#dc2626",
+    trades: 14,
+    pnl: -32.60,
+    winRate: 42.9,
+    commissions: 7.20,
+    badge: "A",
+    badgeColor: "#d97706",
   },
   {
-    symbol: "NVDA",
-    asset: "Stocks",
-    trades: 42,
-    pnl: 318.4,
-    winRate: 61.9,
-    commissions: 24.80,
-    badge: "N",
+    symbol: "IWM",
+    asset: "Options",
+    trades: 10,
+    pnl: 64.35,
+    winRate: 60.0,
+    commissions: 5.60,
+    badge: "I",
     badgeColor: "#65a30d",
   },
   {
@@ -222,6 +222,7 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     badge: "A",
     badgeColor: "#475569",
   },
+  
   {
     symbol: "MSFT",
     asset: "Stocks",
@@ -250,66 +251,6 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
     winRate: 58.3,
     commissions: 5.90,
     badge: "₿",
-    badgeColor: "#d97706",
-  },
-  {
-    symbol: "EURUSD",
-    asset: "Forex",
-    trades: 9,
-    pnl: -18.42,
-    winRate: 44.4,
-    commissions: 4.65,
-    badge: "€",
-    badgeColor: "#2563eb",
-  },
-  {
-    symbol: "AMD",
-    asset: "Stocks",
-    trades: 17,
-    pnl: 64.25,
-    winRate: 58.8,
-    commissions: 8.75,
-    badge: "A",
-    badgeColor: "#475569",
-  },
-  {
-    symbol: "IWM",
-    asset: "Options",
-    trades: 15,
-    pnl: -32.18,
-    winRate: 46.7,
-    commissions: 7.80,
-    badge: "I",
-    badgeColor: "#2563eb",
-  },
-  {
-    symbol: "ETHUSDT",
-    asset: "Crypto",
-    trades: 13,
-    pnl: 41.60,
-    winRate: 61.5,
-    commissions: 6.25,
-    badge: "Ξ",
-    badgeColor: "#7c3aed",
-  },
-  {
-    symbol: "GBPUSD",
-    asset: "Forex",
-    trades: 7,
-    pnl: 12.45,
-    winRate: 57.1,
-    commissions: 3.90,
-    badge: "£",
-    badgeColor: "#2563eb",
-  },
-  {
-    symbol: "ES",
-    asset: "Futures",
-    trades: 6,
-    pnl: -21.30,
-    winRate: 33.3,
-    commissions: 5.40,
-    badge: "E",
     badgeColor: "#d97706",
   },
 ];
@@ -1334,7 +1275,7 @@ pr-[9px]
           className="
             relative
             left-[0px]
-            top-[14px]
+            top-[18px]
             mt-[8px]
             flex
             min-h-0
@@ -1368,16 +1309,20 @@ pr-[9px]
 
 <div
   className="relative whitespace-nowrap text-right"
-style={{
-  left:
-    selectedMetric === "trades"
-      ? symbolScrollbarWidth > 0
-        ? `${-symbolScrollbarWidth - 26}px`
-        : "-12px"
-      : symbolScrollbarWidth > 0
-        ? `${-symbolScrollbarWidth - 6}px`
-        : "0px",
-}}
+  style={{
+    left:
+      selectedMetric === "trades"
+        ? symbolScrollbarWidth > 0
+          ? `${-symbolScrollbarWidth - 26}px`
+          : "-26px"
+        : symbolScrollbarWidth > 0
+          ? `${-symbolScrollbarWidth - 6}px`
+          : selectedMetric === "netPnl"
+            ? "-16px"
+            : selectedMetric === "winRate"
+              ? "-12px"
+              : "-0px",
+  }}
 >
   {selectedMetric === "trades"
     ? "Trades"
@@ -1400,7 +1345,7 @@ style={{
               absolute
               left-[0px]
               right-[0px]
-              top-[18px]
+              top-[12px]
               bottom-[30px]
               flex
               flex-col
@@ -1549,19 +1494,22 @@ style={{
     selectedMetric === "trades"
       ? symbolScrollbarWidth > 0
         ? "-30px"
-        : "-6px"
+        : "-30px"
       : selectedMetric === "netPnl"
         ? symbolScrollbarWidth > 0
           ? "-10px"
-          : "-4px"
-        : (
-            selectedMetric === "winRate" ||
-            selectedMetric === "commissions"
-          ) && symbolScrollbarWidth > 0
-          ? "-26px"
-          : symbolScrollbarWidth > 0
-            ? "-4px"
-            : "0px",
+          : "-20px"
+        : selectedMetric === "winRate"
+          ? symbolScrollbarWidth > 0
+            ? "-20px"
+            : "-22px"
+          : selectedMetric === "commissions"
+            ? symbolScrollbarWidth > 0
+              ? "-26px"
+              : "-22px"
+            : symbolScrollbarWidth > 0
+              ? "-4px"
+              : "0px",
 }}
                   >
                     {metricValue}
