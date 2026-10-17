@@ -659,9 +659,9 @@ border-white/[0.06]
 <button
   onClick={handleReset}
   className="
-  translate-x-[-20px]
+  translate-x-[-18px]
     h-[40px]
-    w-[100px]
+    w-[80px]
     rounded-[8px]
     border
     border-red-500/15

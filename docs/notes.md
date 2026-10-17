@@ -548,7 +548,7 @@ git commit -m "Add Daily Review trade note indicators"
 git commit -m "Fix browser autofill styling for note titles"
 git commit -m "Fix note title autofill and update docs"
 git commit -m "Improve Session Notes responsive layout"
-
+git commit -m "checkpoint: trade history UI polish"
 
 
 
