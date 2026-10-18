@@ -64,17 +64,17 @@ return (
 
           {/* Top Row */}
 
-          <div className="flex gap-6">
+          <div className="flex gap-4">
 
-            {/* EQUITY CURVE */}
+{/* EQUITY CURVE */}
 
-            <div className="flex-[1.6] min-w-0">
-              <EquityCurveCard
-                equityAnalytics={equityAnalytics}
-                dailyPnL={dailyPnL}
-                reportingCurrency={reportingCurrency}
-              />
-            </div>
+<div className="flex-[1.5] min-w-0">
+  <EquityCurveCard
+    equityAnalytics={equityAnalytics}
+    dailyPnL={dailyPnL}
+    reportingCurrency={reportingCurrency}
+  />
+</div>
 
             {/* PERFORMANCE BREAKDOWN */}
 

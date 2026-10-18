@@ -98,7 +98,7 @@ function formatCurrency(
   return (
 <div
   className="
-    h-[400px]
+    h-[432px]
     overflow-hidden
  rounded-[8px]
 border

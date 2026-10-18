@@ -465,7 +465,7 @@ const selectedTrades =
         onClick={() =>
           setSelectedDay(day)
         }
-        className={`relative flex h-[90px] flex-col justify-between rounded-[8px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
+        className={`relative flex h-[84px] flex-col justify-between rounded-[8px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
           dayData
             ? getDayIntensity(
                 dayData.pnl

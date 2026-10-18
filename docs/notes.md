@@ -553,6 +553,9 @@ git commit -m "feat(dashboard): redesign performance breakdown heatmap UI"
 git commit -m "fix(dashboard): finalize symbol breakdown scrolling"
 git commit -m "feat(dashboard): finalize weekday breakdown heatmap"
 git commit -m "feat(dashboard): add performance breakdown metric selector"
+git commit -m "fix(dashboard): tune symbol metric alignment"
+git commit -m "style(ui): refine dashboard cards and trading calendar"
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -128,52 +128,39 @@ const MIX_PREVIEW_ROWS: MixRow[] = [
     leftCommissions: 14.40,
     rightCommissions: 10.80,
   },
-  {
-    asset: "Other",
-    leftLabel: "LONG",
-    leftTrades: 3,
-    rightLabel: "SHORT",
-    rightTrades: 2,
-    leftPnl: 18.50,
-    rightPnl: -12.20,
-    leftWinRate: 66.7,
-    rightWinRate: 50.0,
-    leftCommissions: 1.80,
-    rightCommissions: 1.20,
-  },
 ];
 
 const WEEKDAY_PREVIEW_ROWS: WeekdayRow[] = [
   {
-    day: "Mon",
+    day: "Monday",
     trades: 18,
     pnl: 42,
     winRate: 61.1,
     commissions: 8.45,
   },
   {
-    day: "Tue",
+    day: "Tuesday",
     trades: 27,
     pnl: -18,
     winRate: 44.4,
     commissions: 12.60,
   },
   {
-    day: "Wed",
+    day: "Wednesday",
     trades: 14,
     pnl: 36,
     winRate: 64.3,
     commissions: 6.80,
   },
   {
-    day: "Thu",
+    day: "Thursday",
     trades: 32,
     pnl: 68,
     winRate: 71.9,
     commissions: 15.25,
   },
   {
-    day: "Fri",
+    day: "Friday",
     trades: 21,
     pnl: -12,
     winRate: 47.6,
@@ -585,7 +572,7 @@ const maxSymbolWinRate = Math.max(
     <section
       aria-label="Performance breakdown"
       className="
-        box-border flex h-[400px] w-full flex-col
+        box-border flex h-[432px] w-full flex-col
         overflow-hidden rounded-[8px]
         border border-white/[0.06]
         bg-[#0b1220] text-slate-100
@@ -845,7 +832,7 @@ px-[10px]
       {/* MIX */}
 
       {activeView === "mix" && (
-        <div className="mt-[8px] min-h-0 flex-1">
+        <div className="mt-[8px] flex min-h-0 flex-1 flex-col">
           <div
             className="
               grid grid-cols-[55px_minmax(0,1fr)_minmax(0,1fr)]
@@ -895,7 +882,7 @@ px-[10px]
 </div>
           </div>
 
-          <div className="mt-[4px] flex min-h-0 flex-1 flex-col gap-[6px]">
+          <div className="mt-[4px] flex min-h-0 flex-1 flex-col gap-[10px]">
 {MIX_PREVIEW_ROWS.map((row) => {
   const leftPnlStyle = getWeekdayPnlStyle(
     row.leftPnl,
@@ -955,7 +942,7 @@ px-[10px]
                 <div
                   key={row.asset}
 className="
-  grid min-h-[28px] flex-1
+  grid h-[38px] shrink-0
   grid-cols-[55px_minmax(0,1fr)_minmax(0,1fr)]
   gap-[4px]
 "
@@ -1120,7 +1107,7 @@ className="
     className="
       relative
       left-[0px]
-      top-[20px]
+      top-[24px]
       mt-[8px]
       flex
       min-h-0
@@ -1136,7 +1123,7 @@ className="
               uppercase tracking-[0.1em] text-slate-500
             "
           >
-<div className="relative top-[-4px]">
+<div className="relative left-[10px] top-[-4px]">
   Weekday
 </div>
 
@@ -1166,7 +1153,7 @@ className="
     mt-[5px]
     flex
     flex-col
-    gap-[6px]
+    gap-[8px]
   "
 >
 {WEEKDAY_PREVIEW_ROWS.map((row) => {
@@ -1206,13 +1193,13 @@ const pnlStyle =
   return (
 <div
   key={row.day}
-  className="
-    grid
-    h-[36px]
-    shrink-0
-    grid-cols-[55px_minmax(0,1fr)]
-    gap-[4px]
-  "
+className="
+  grid
+  h-[40px]
+  shrink-0
+  grid-cols-[76px_minmax(0,1fr)]
+  gap-[4px]
+"
 >
 <div className="relative left-[10px] flex min-w-0 items-center">
   <span className="text-[11px] font-medium text-slate-200">
@@ -1274,7 +1261,7 @@ pr-[9px]
         <div
           className="
             relative
-            left-[0px]
+            left-[8px]
             top-[18px]
             mt-[8px]
             flex
@@ -1349,7 +1336,7 @@ pr-[9px]
               bottom-[30px]
               flex
               flex-col
-              gap-[4.5px]
+              gap-[8px]
               overflow-y-auto
               overflow-x-hidden
               overscroll-contain
@@ -1408,8 +1395,8 @@ const metricValueColor =
                   key={row.symbol}
                   className={`
  grid
-grid-cols-[72px_minmax(0,1fr)_76px]
-                    min-h-[27px]
+grid-cols-[80px_minmax(0,1fr)_66px]
+                    min-h-[28px]
                     shrink-0
                     items-center
                     gap-[4px]
@@ -1546,7 +1533,7 @@ style={{
     "
   />
 
-  {/* COMMISSION CARD — INDEPENDENT Y CONTROL */}
+{/* COMMISSION CARD — PREMIUM STYLE */}
 
 <div
   className="
@@ -1557,89 +1544,141 @@ style={{
     h-[46px]
     items-center
     justify-between
+    overflow-hidden
     rounded-[8px]
     border
-    border-[#20374c]
-    bg-[#0d1b2a]
+    border-[#2a465e]
+    bg-[linear-gradient(110deg,#11283b_0%,#0d1b2a_55%,#0b1624_100%)]
     px-[9px]
-
+    shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_4px_12px_rgba(0,0,0,0.16)]
     transition-all
     duration-200
     ease-out
-
     hover:-translate-y-[1px]
-    hover:border-[#2b4c69]
-    hover:bg-[#102033]
-    hover:shadow-[0_4px_12px_rgba(0,0,0,0.22)]
-
+    hover:border-[#365a75]
+    hover:brightness-110
+    hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_4px_14px_rgba(0,0,0,0.22)]
     motion-reduce:transition-none
   "
 >
-    <div
-  className="
-    relative
-    left-[10px]
-    flex
-    min-w-0
-    items-center
-    gap-[8px]
-  "
->
+  {/* SUBTLE ACCENT */}
+
+  <div
+    aria-hidden="true"
+    className="
+      pointer-events-none
+      absolute
+      left-0
+      top-[7px]
+      bottom-[7px]
+      w-[2px]
+      rounded-r-full
+      bg-gradient-to-b
+      from-sky-400/80
+      via-cyan-400/60
+      to-emerald-400/50
+    "
+  />
+
+  {/* COMMISSION VALUE */}
+
+  <div
+    className="
+      relative
+      left-[10px]
+      flex
+      min-w-0
+      items-center
+      gap-[8px]
+    "
+  >
+    <span
+      className="
+        flex
+        h-[22px]
+        w-[22px]
+        shrink-0
+        items-center
+        justify-center
+        rounded-full
+        border
+        border-sky-300/20
+        bg-[linear-gradient(135deg,#164b69,#12354b)]
+        text-[13px]
+        font-semibold
+        leading-none
+        text-sky-400
+        shadow-[0_0_10px_rgba(56,189,248,0.08)]
+      "
+    >
+      #
+    </span>
+
+    <div className="flex min-w-0 flex-col justify-center">
       <span
         className="
-          flex
-          h-[20px]
-          w-[20px]
-          shrink-0
-          items-center
-          justify-center
-          rounded-full
-          bg-[#123d57]
-          text-[13px]
+          text-[10px]
           font-medium
-          leading-none
-          text-sky-400
+          uppercase
+          leading-[12px]
+          tracking-[0.08em]
+          text-slate-400
         "
       >
-        #
+        Total commissions
       </span>
 
-      <div className="flex min-w-0 flex-col justify-center">
-        <span className="text-[11px] leading-[13px] text-slate-400">
-          Total commissions
-        </span>
-
-<span
-  className="
-    relative
-    left-[0px]
-    top-[2px]
-    text-[16px]
-    font-semibold
-    leading-[18px]
-    tabular-nums
-    text-slate-300
-  "
->
-  {currencySymbol}
-  {commissionTotal.toFixed(2)}
-</span>
-      </div>
+      <span
+        className="
+          relative
+          top-[4px]
+          text-[16px]
+          font-semibold
+          leading-[18px]
+          tracking-[-0.02em]
+          tabular-nums
+          text-slate-100
+        "
+      >
+        {currencySymbol}
+        {commissionTotal.toFixed(2)}
+      </span>
     </div>
+  </div>
+
+  {/* PERIOD INDICATOR */}
 
 <span
-  className="
-    relative
-    left-[-10px]
-    ml-[6px]
-    shrink-0
-    text-[10px]
-    text-slate-400
-  "
+className="
+  relative
+  left-[-10px]
+  ml-[6px]
+  inline-flex
+  h-[22px]
+  w-[80px]
+  shrink-0
+  items-center
+  justify-center
+  rounded-[6px]
+  border
+  border-white/[0.07]
+  bg-[#122337]
+  text-[9px]
+  font-medium
+  leading-none
+  text-slate-400
+  transition-all
+  duration-200
+  ease-out
+  hover:border-[#365a75]
+  hover:bg-[#172c40]
+  hover:text-slate-200
+  hover:shadow-[0_0_0_1px_rgba(56,189,248,0.10)]
+"
 >
   Selected period
 </span>
-  </div>
+</div>
 </div>
 
 {/* ================================================= */}
