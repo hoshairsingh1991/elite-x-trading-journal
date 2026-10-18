@@ -556,7 +556,7 @@ git commit -m "feat(dashboard): add performance breakdown metric selector"
 git commit -m "fix(dashboard): tune symbol metric alignment"
 git commit -m "style(ui): refine dashboard cards and trading calendar"
 git commit -m "feat(performance-breakdown): wire real analytics and refine Mix UI"
-
+git commit -m "feat(performance-breakdown): finalize analytics notes and tooltip"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

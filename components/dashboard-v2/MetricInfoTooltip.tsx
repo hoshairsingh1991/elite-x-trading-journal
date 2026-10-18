@@ -12,8 +12,9 @@ type MetricInfoTooltipProps = {
   formula: string;
   calculation: string;
   interpretation: string;
-
   className?: string;
+  width?: number;
+  roomy?: boolean;
 };
 
 export default function MetricInfoTooltip({
@@ -22,6 +23,8 @@ export default function MetricInfoTooltip({
   calculation,
   interpretation,
   className,
+  width = 400,
+  roomy = false,
 }: MetricInfoTooltipProps) {
   
   const [isOpen, setIsOpen] = useState(false);
@@ -73,30 +76,46 @@ export default function MetricInfoTooltip({
     portalReady &&
     rect
       ? createPortal(
-          <div
-            ref={tooltipRef}
-            onMouseEnter={openTooltip}
-            onMouseLeave={closeTooltip}
-            className="
-              fixed
-              z-[999999]
-              rounded-[16px]
-              border
-              border-cyan-500/20
-              bg-[#081526]
-              px-7
-              py-6
-              shadow-[0_12px_40px_rgba(0,0,0,0.55)]
-            "
-style={{
-  top: rect.bottom + 12,
-  left: Math.min(
-    rect.left,
-    window.innerWidth - 416
-  ),
-  width: "400px",
-}}
-          >
+<div
+  ref={tooltipRef}
+  onMouseEnter={openTooltip}
+  onMouseLeave={closeTooltip}
+  className={`
+    fixed
+    z-[999999]
+    rounded-[16px]
+    border
+    border-cyan-500/20
+    bg-[#081526]
+    ${roomy ? "" : "px-7 py-6"}
+    shadow-[0_12px_40px_rgba(0,0,0,0.55)]
+  `}
+  style={{
+    top: rect.bottom + 12,
+
+    left: roomy
+      ? Math.max(
+          12,
+          Math.min(
+            rect.left,
+            window.innerWidth -
+              Math.min(width, window.innerWidth - 24) -
+              12
+          )
+        )
+      : Math.min(
+          rect.left,
+          window.innerWidth - 416
+        ),
+
+    width: roomy
+      ? `${Math.min(width, window.innerWidth - 24)}px`
+      : "400px",
+
+    padding: roomy ? "6px 10px" : undefined,
+    boxSizing: "border-box",
+  }}
+>
             <div className="h-3" />
             <div
               className="

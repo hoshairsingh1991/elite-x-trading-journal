@@ -10,6 +10,8 @@ import {
 
 import AssetIcon from "@/components/common/AssetIcon";
 
+import MetricInfoTooltip from "./MetricInfoTooltip";
+
 type PerformanceBreakdownCardProps = {
   performanceBreakdownAnalytics: PerformanceBreakdownData;
   reportingCurrency: string;
@@ -230,19 +232,19 @@ function formatSignedCurrency(
 
 function InfoMark() {
   return (
-    <span
-      aria-label="Performance breakdown information"
-      title="Breakdown values are grouped by the selected view and date range."
-      className="
-        inline-flex h-[14px] w-[14px] shrink-0
-        items-center justify-center rounded-full
-        border border-slate-500
-        text-[10px] font-medium leading-none
-        text-slate-400
-      "
-    >
-      i
-    </span>
+    <MetricInfoTooltip
+      width={480}
+      roomy
+      definition="Compare performance by asset class and trade direction in Mix, weekday in Weekday, or individual ticker in Symbol."
+
+      formula="Win Rate = Winning Completed Trades ÷ Completed Trades × 100. Net P&L = Sum of Completed-Trade P&L. Commissions = Sum of Recorded Fees."
+
+      calculation="P&L and commissions use your selected reporting currency. Mix and Symbol trade counts and commissions include open trades; Weekday counts and commissions use completed trades only. Net P&L and Win Rate use completed trades in every view."
+
+      interpretation="Colours reflect the selected metric. Net P&L colours indicate profit or loss, while Win Rate colours represent win-rate ranges. A high win rate does not guarantee profitability."
+
+      className="translate-x-0 translate-y-0"
+    />
   );
 }
 
@@ -1145,8 +1147,22 @@ className={`
   maxWeekdayCommissions
 );
 
-const pnlStyle =
-  selectedMetric === "trades"
+const isZeroValue =
+  (selectedMetric === "trades" &&
+    row.trades === 0) ||
+  (selectedMetric === "netPnl" &&
+    row.pnl === 0) ||
+  (selectedMetric === "winRate" &&
+    row.winRate === 0) ||
+  (selectedMetric === "commissions" &&
+    row.commissions === 0);
+
+const pnlStyle = isZeroValue
+  ? {
+      backgroundColor: "rgba(148, 163, 184, 0.04)",
+      borderColor: "#263548",
+    }
+  : selectedMetric === "trades"
     ? {
         backgroundColor: tradesHeatStyle.background,
         borderColor: tradesHeatStyle.border,
