@@ -165,10 +165,10 @@ return (
       <AreaChart
         data={data}
         margin={{
-          top: 12,
+          top: 30,
           right: 8,
           left: -10,
-          bottom: 0,
+          bottom:4,
         }}
       >
         {/* GRID */}

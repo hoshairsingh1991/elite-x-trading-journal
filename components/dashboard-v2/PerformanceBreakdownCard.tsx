@@ -919,7 +919,7 @@ className="
     duration-200
     ease-out
 
-    hover:-translate-y-[1px]
+    hover:-translate-y-[2px]
     hover:brightness-110
     hover:shadow-[0_0_0_1px_rgba(56,189,248,0.16),0_4px_10px_rgba(0,0,0,0.22)]
 
@@ -1000,12 +1000,10 @@ className={`
     rounded-[4px]
     border
     px-[8px]
-
     transition-all
     duration-200
     ease-out
-
-    hover:-translate-y-[1px]
+    hover:-translate-y-[2px]
     hover:brightness-110
     hover:shadow-[0_0_0_1px_rgba(56,189,248,0.16),0_4px_10px_rgba(0,0,0,0.22)]
 
@@ -1202,7 +1200,7 @@ className="
 </div>
 
 <div
-  className="
+className="
     relative
     flex
     w-full
@@ -1212,6 +1210,18 @@ className="
     overflow-hidden
     rounded-[7px]
     border
+        transition-all
+    duration-200
+    ease-out
+    hover:-translate-y-[2px]
+    hover:brightness-110
+    hover:shadow-[0_0_0_1px_rgba(56,189,248,0.16),0_4px_10px_rgba(0,0,0,0.22)]
+    motion-reduce:transition-none
+    transition-[filter,box-shadow]
+    duration-150
+    ease-out
+    hover:brightness-105
+    hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]
   "
   style={{
     backgroundColor: pnlStyle.backgroundColor,
@@ -1385,20 +1395,26 @@ const metricValueColor =
       : "text-slate-200";
 
               return (
-                <div
-                  key={row.symbol}
-                  className={`
- grid
-grid-cols-[80px_minmax(0,1fr)_66px]
-                    min-h-[28px]
-                    shrink-0
-                    items-center
-                    gap-[4px]
-                    border-b
-                    border-white/[0.035]
-                    last:border-b-0
-                  `}
-                >
+<div
+  key={row.symbol}
+  className={`
+    grid
+    grid-cols-[80px_minmax(0,1fr)_66px]
+    min-h-[28px]
+    shrink-0
+    items-center
+    gap-[4px]
+    border-b
+    border-white/[0.035]
+    last:border-b-0
+    transition-all
+    duration-200
+    ease-out
+    hover:-translate-y-[2px]
+    hover:brightness-110
+    motion-reduce:transition-none
+  `}
+>
                   {/* SYMBOL NAME */}
 
                   <div className="flex min-w-0 items-center gap-[8px]">
@@ -1534,7 +1550,7 @@ style={{
     transition-all
     duration-200
     ease-out
-    hover:-translate-y-[1px]
+    hover:-translate-y-[2px]
     hover:border-[#365a75]
     hover:brightness-110
     hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_4px_14px_rgba(0,0,0,0.22)]

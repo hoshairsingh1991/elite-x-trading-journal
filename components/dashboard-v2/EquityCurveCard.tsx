@@ -140,27 +140,29 @@ backdrop-blur-xl
 <div className="mt-5 flex justify-end px-10">
   <div className="relative bottom-8 right-5">
 
-    <button
-      className="
-        h-[32px]
-        min-w-[74px]
-        rounded-[12px]
-        border
-        border-cyan-400/20
-        bg-cyan-500/10
-        px-4
-        text-[13px]
-        font-semibold
-        text-cyan-300
-
-        transition-all
-        duration-200
-
-        hover:bg-cyan-500/15
-      "
-    >
-      Linear
-    </button>
+<button
+  className="
+    h-[32px]
+    min-w-[74px]
+    rounded-[8px]
+    border
+    border-cyan-400/20
+    bg-cyan-500/10
+    px-4
+    text-[13px]
+    font-semibold
+    text-cyan-300
+    transition-all
+    duration-200
+    ease-out
+    hover:-translate-y-[2px]
+    hover:brightness-110
+    hover:bg-cyan-500/15
+    motion-reduce:transition-none
+  "
+>
+  Linear
+</button>
 
   </div>
 </div>
