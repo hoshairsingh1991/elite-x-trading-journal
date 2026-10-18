@@ -8,6 +8,8 @@ import {
   getCurrencySymbol,
 } from "@/lib/fx/currencyFormatting";
 
+import AssetIcon from "@/components/common/AssetIcon";
+
 type PerformanceBreakdownCardProps = {
   performanceBreakdownAnalytics: PerformanceBreakdownData;
   reportingCurrency: string;
@@ -27,6 +29,8 @@ type MixRow = {
   leftTrades: number;
   rightLabel: string;
   rightTrades: number;
+  leftCompletedTrades: number;
+  rightCompletedTrades: number;
   leftPnl: number;
   rightPnl: number;
   leftWinRate: number;
@@ -54,193 +58,31 @@ type SymbolRow = {
   badgeColor: string;
 };
 
-/*
- * UI preview fixtures.
- *
- * These values are for layout development only.
- * Wire these breakdowns to canonical analytics later.
- * The commissions footer already uses the supplied analytics.
- */
-
-const MIX_PREVIEW_ROWS: MixRow[] = [
-  {
-    asset: "Stocks",
-    leftLabel: "LONG",
-    leftTrades: 42,
-    rightLabel: "SHORT",
-    rightTrades: 28,
-    leftPnl: 680.25,
-    rightPnl: -145.60,
-    leftWinRate: 64.3,
-    rightWinRate: 42.9,
-    leftCommissions: 18.45,
-    rightCommissions: 12.80,
-  },
-  {
-    asset: "Options",
-    leftLabel: "CALLS",
-    leftTrades: 64,
-    rightLabel: "PUTS",
-    rightTrades: 58,
-    leftPnl: 1240.50,
-    rightPnl: -520.75,
-    leftWinRate: 62.5,
-    rightWinRate: 46.6,
-    leftCommissions: 86.40,
-    rightCommissions: 74.25,
-  },
-  {
-    asset: "Crypto",
-    leftLabel: "LONG",
-    leftTrades: 15,
-    rightLabel: "SHORT",
-    rightTrades: 11,
-    leftPnl: 126.80,
-    rightPnl: -85.40,
-    leftWinRate: 60.0,
-    rightWinRate: 45.5,
-    leftCommissions: 9.60,
-    rightCommissions: 7.35,
-  },
-  {
-    asset: "Forex",
-    leftLabel: "LONG",
-    leftTrades: 6,
-    rightLabel: "SHORT",
-    rightTrades: 4,
-    leftPnl: 45.20,
-    rightPnl: -26.80,
-    leftWinRate: 66.7,
-    rightWinRate: 50.0,
-    leftCommissions: 3.40,
-    rightCommissions: 2.80,
-  },
-  {
-    asset: "Futures",
-    leftLabel: "LONG",
-    leftTrades: 12,
-    rightLabel: "SHORT",
-    rightTrades: 9,
-    leftPnl: 310.60,
-    rightPnl: -115.25,
-    leftWinRate: 66.7,
-    rightWinRate: 44.4,
-    leftCommissions: 14.40,
-    rightCommissions: 10.80,
-  },
+const SYMBOL_BADGE_COLORS = [
+  "#2563eb",
+  "#d97706",
+  "#65a30d",
+  "#475569",
+  "#7c3aed",
+  "#0891b2",
 ];
 
-const WEEKDAY_PREVIEW_ROWS: WeekdayRow[] = [
-  {
-    day: "Monday",
-    trades: 18,
-    pnl: 42,
-    winRate: 61.1,
-    commissions: 8.45,
-  },
-  {
-    day: "Tuesday",
-    trades: 27,
-    pnl: -18,
-    winRate: 44.4,
-    commissions: 12.60,
-  },
-  {
-    day: "Wednesday",
-    trades: 14,
-    pnl: 36,
-    winRate: 64.3,
-    commissions: 6.80,
-  },
-  {
-    day: "Thursday",
-    trades: 32,
-    pnl: 68,
-    winRate: 71.9,
-    commissions: 15.25,
-  },
-  {
-    day: "Friday",
-    trades: 21,
-    pnl: -12,
-    winRate: 47.6,
-    commissions: 10.40,
-  },
-];
+function getSymbolBadgeColor(symbol: string): string {
+  const hash = symbol
+    .toUpperCase()
+    .split("")
+    .reduce(
+      (total, character) =>
+        total + character.charCodeAt(0),
+      0
+    );
 
-const SYMBOL_PREVIEW_ROWS: SymbolRow[] = [
-  {
-    symbol: "QQQ",
-    asset: "Options",
-    trades: 68,
-    pnl: 482.16,
-    winRate: 64.7,
-    commissions: 42.60,
-    badge: "Q",
-    badgeColor: "#2563eb",
-  },
-  {
-    symbol: "AMZN",
-    asset: "Stocks",
-    trades: 14,
-    pnl: -32.60,
-    winRate: 42.9,
-    commissions: 7.20,
-    badge: "A",
-    badgeColor: "#d97706",
-  },
-  {
-    symbol: "IWM",
-    asset: "Options",
-    trades: 10,
-    pnl: 64.35,
-    winRate: 60.0,
-    commissions: 5.60,
-    badge: "I",
-    badgeColor: "#65a30d",
-  },
-  {
-    symbol: "AAPL",
-    asset: "Stocks",
-    trades: 38,
-    pnl: 96.28,
-    winRate: 55.3,
-    commissions: 18.40,
-    badge: "A",
-    badgeColor: "#475569",
-  },
-  
-  {
-    symbol: "MSFT",
-    asset: "Stocks",
-    trades: 24,
-    pnl: -56.12,
-    winRate: 45.8,
-    commissions: 14.20,
-    badge: "M",
-    badgeColor: "#2563eb",
-  },
-  {
-    symbol: "SPY",
-    asset: "Options",
-    trades: 20,
-    pnl: 44.76,
-    winRate: 60.0,
-    commissions: 12.50,
-    badge: "S",
-    badgeColor: "#dc2626",
-  },
-  {
-    symbol: "BTCUSDT",
-    asset: "Crypto",
-    trades: 12,
-    pnl: 26.14,
-    winRate: 58.3,
-    commissions: 5.90,
-    badge: "₿",
-    badgeColor: "#d97706",
-  },
-];
+  return SYMBOL_BADGE_COLORS[
+    hash % SYMBOL_BADGE_COLORS.length
+  ];
+}
+
+
 
 const HEAT_COLORS = [
   { background: "#0c1726", border: "#1b2c40" },
@@ -500,6 +342,21 @@ useEffect(() => {
 
   const currencySymbol =
     getCurrencySymbol(reportingCurrency);
+
+    const MIX_PREVIEW_ROWS: MixRow[] =
+  performanceBreakdownAnalytics.mixRows;
+
+const WEEKDAY_PREVIEW_ROWS: WeekdayRow[] =
+  performanceBreakdownAnalytics.weekdayRows;
+
+const SYMBOL_PREVIEW_ROWS: SymbolRow[] =
+  performanceBreakdownAnalytics.symbolRows.map(
+    (row) => ({
+      ...row,
+      badge: row.symbol.slice(0, 1).toUpperCase() || "?",
+      badgeColor: getSymbolBadgeColor(row.symbol),
+    })
+  );
 
   const commissionTotal = Math.abs(
     performanceBreakdownAnalytics.commissions ?? 0
@@ -832,7 +689,7 @@ px-[10px]
       {/* MIX */}
 
       {activeView === "mix" && (
-        <div className="mt-[8px] flex min-h-0 flex-1 flex-col">
+        <div className="relative mt-[8px] flex min-h-0 flex-1 flex-col">
           <div
             className="
               grid grid-cols-[55px_minmax(0,1fr)_minmax(0,1fr)]
@@ -882,7 +739,32 @@ px-[10px]
 </div>
           </div>
 
-          <div className="mt-[4px] flex min-h-0 flex-1 flex-col gap-[10px]">
+          <div
+  role="region"
+  aria-label="Asset mix breakdown rows"
+  tabIndex={0}
+  className="
+    absolute
+    left-[0px]
+    right-[0px]
+    top-[14px]
+    bottom-[24px]
+    flex
+    flex-col
+    gap-[10px]
+    overflow-y-auto
+    overflow-x-hidden
+    overscroll-contain
+    pr-[2px]
+    focus-visible:outline-none
+    focus-visible:ring-1
+    focus-visible:ring-sky-500/40
+  "
+  style={{
+    scrollbarWidth: "thin",
+    scrollbarColor: "#334155 transparent",
+  }}
+>
 {MIX_PREVIEW_ROWS.map((row) => {
   const leftPnlStyle = getWeekdayPnlStyle(
     row.leftPnl,
@@ -938,6 +820,58 @@ px-[10px]
               maxMixCommissions
             );
 
+              const leftActivityRatio = Math.min(
+    1,
+    Math.max(
+      0,
+      selectedMetric === "trades"
+        ? row.leftTrades / Math.max(maxMixTrades, 1)
+        : selectedMetric === "netPnl"
+          ? Math.abs(row.leftPnl) / maxMixAbsPnl
+          : selectedMetric === "winRate"
+            ? row.leftWinRate / maxMixWinRate
+            : row.leftCommissions / maxMixCommissions
+    )
+  );
+
+  const leftTypeRgb =
+    row.leftLabel === "CALLS"
+      ? "14, 165, 233"
+      : row.leftLabel === "PUTS"
+        ? "168, 85, 247"
+        : row.leftLabel === "LONG"
+          ? "16, 185, 129"
+          : "251, 113, 133";
+
+  const leftBackgroundOpacity =
+    0.12 + leftActivityRatio * 0.22;
+
+    const rightActivityRatio = Math.min(
+  1,
+  Math.max(
+    0,
+    selectedMetric === "trades"
+      ? row.rightTrades / Math.max(maxMixTrades, 1)
+      : selectedMetric === "netPnl"
+        ? Math.abs(row.rightPnl) / maxMixAbsPnl
+        : selectedMetric === "winRate"
+          ? row.rightWinRate / maxMixWinRate
+          : row.rightCommissions / maxMixCommissions
+  )
+);
+
+const rightTypeRgb =
+  row.rightLabel === "CALLS"
+    ? "14, 165, 233"
+    : row.rightLabel === "PUTS"
+      ? "168, 85, 247"
+      : row.rightLabel === "LONG"
+        ? "16, 185, 129"
+        : "244, 63, 94";
+
+const rightBackgroundOpacity =
+  0.12 + rightActivityRatio * 0.22;
+
   return (
                 <div
                   key={row.asset}
@@ -989,10 +923,24 @@ className="
 
     motion-reduce:transition-none
   "
-  style={{
-    backgroundColor: leftHeat.background,
-    borderColor: leftHeat.border,
-  }}
+style={{
+  backgroundColor:
+    (selectedMetric === "trades" && row.leftTrades === 0) ||
+    (selectedMetric === "winRate" && row.leftWinRate === 0) ||
+    (selectedMetric === "commissions" && row.leftCommissions === 0)
+      ? "rgba(148, 163, 184, 0.04)"
+      : selectedMetric === "netPnl"
+        ? leftHeat.background
+        : `rgba(${leftTypeRgb}, ${leftBackgroundOpacity})`,
+  borderColor:
+    (selectedMetric === "trades" && row.leftTrades === 0) ||
+    (selectedMetric === "winRate" && row.leftWinRate === 0) ||
+    (selectedMetric === "commissions" && row.leftCommissions === 0)
+      ? "#263548"
+      : selectedMetric === "netPnl"
+        ? leftHeat.border
+        : `rgba(${leftTypeRgb}, 0.45)`,
+}}
 >
 <span
   className="
@@ -1009,16 +957,24 @@ className="
 </span>
 
 <span
-  className="
-    relative
-    left-[-8px]
-    top-[0px]
-    ml-[3px]
-    text-[14px]
-    font-semibold
-    tabular-nums
-    text-slate-100
-  "
+className={`
+  relative
+  left-[-8px]
+  top-[0px]
+  ml-[3px]
+  text-[14px]
+  font-semibold
+  tabular-nums
+  ${
+    selectedMetric === "netPnl"
+      ? row.leftPnl > 0
+        ? "text-emerald-400"
+        : row.leftPnl < 0
+          ? "text-rose-400"
+          : "text-slate-300"
+      : "text-slate-100"
+  }
+`}
 >
  {selectedMetric === "trades"
   ? row.leftTrades
@@ -1053,10 +1009,24 @@ className="
 
     motion-reduce:transition-none
   "
-  style={{
-    backgroundColor: rightHeat.background,
-    borderColor: rightHeat.border,
-  }}
+style={{
+  backgroundColor:
+    (selectedMetric === "trades" && row.rightTrades === 0) ||
+    (selectedMetric === "winRate" && row.rightWinRate === 0) ||
+    (selectedMetric === "commissions" && row.rightCommissions === 0)
+      ? "rgba(148, 163, 184, 0.04)"
+      : selectedMetric === "netPnl"
+        ? rightHeat.background
+        : `rgba(${rightTypeRgb}, ${rightBackgroundOpacity})`,
+  borderColor:
+    (selectedMetric === "trades" && row.rightTrades === 0) ||
+    (selectedMetric === "winRate" && row.rightWinRate === 0) ||
+    (selectedMetric === "commissions" && row.rightCommissions === 0)
+      ? "#263548"
+      : selectedMetric === "netPnl"
+        ? rightHeat.border
+        : `rgba(${rightTypeRgb}, 0.45)`,
+}}
 >
 <span
   className="
@@ -1073,16 +1043,24 @@ className="
 </span>
 
 <span
-  className="
-    relative
-    left-[-8px]
-    top-[0px]
-    ml-[3px]
-    text-[14px]
-    font-semibold
-    tabular-nums
-    text-slate-100
-  "
+className={`
+  relative
+  left-[-8px]
+  top-[0px]
+  ml-[3px]
+  text-[14px]
+  font-semibold
+  tabular-nums
+  ${
+    selectedMetric === "netPnl"
+      ? row.rightPnl > 0
+        ? "text-emerald-400"
+        : row.rightPnl < 0
+          ? "text-rose-400"
+          : "text-slate-300"
+      : "text-slate-100"
+  }
+`}
 >
   {selectedMetric === "trades"
   ? row.rightTrades
@@ -1332,7 +1310,7 @@ pr-[9px]
               absolute
               left-[0px]
               right-[0px]
-              top-[12px]
+              top-[15px]
               bottom-[30px]
               flex
               flex-col
@@ -1407,26 +1385,12 @@ grid-cols-[80px_minmax(0,1fr)_66px]
                 >
                   {/* SYMBOL NAME */}
 
-                  <div className="flex min-w-0 items-center gap-[4px]">
-                    <span
-                      className="
-                        flex
-                        h-[16px]
-                        w-[16px]
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-[4px]
-                        text-[9px]
-                        font-semibold
-                        text-white
-                      "
-                      style={{
-                        backgroundColor: row.badgeColor,
-                      }}
-                    >
-                      {row.badge}
-                    </span>
+                  <div className="flex min-w-0 items-center gap-[8px]">
+<AssetIcon
+  ticker={row.symbol}
+  assetType={row.asset === "Mixed" ? "Stocks" : row.asset}
+  size="sm"
+/>
 
                     <span
                       className="

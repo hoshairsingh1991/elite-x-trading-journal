@@ -54,7 +54,7 @@ export default function EquitySection({
 return (
   <div className="flex justify-center">
     <div className="w-[98%]">
-      <div className="flex gap-6">
+      <div className="flex gap-4">
 
         {/* ================================================= */}
         {/* LEFT COLUMN */}
