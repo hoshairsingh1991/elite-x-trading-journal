@@ -23,6 +23,8 @@ type KPICardProps = {
   titleOffset?: string;
   valueOffset?: string;
   subtitleOffset?: string;
+  sparklineOffset?: string;
+  sparklineHeight?: string;
 };
 
 export default function KPICard({
@@ -40,6 +42,8 @@ export default function KPICard({
   titleOffset = "translate-y-3",
   valueOffset = "-translate-y-5",
   subtitleOffset = "-translate-y-13",
+  sparklineOffset = "",
+  sparklineHeight = "",
 }: KPICardProps) {
 
   const valueClasses = {
@@ -132,20 +136,21 @@ bg-[#0b1220]
 
       {/* SPARKLINE */}
 
-      {sparkline && (
-        <div
-          className="
-            absolute
-            bottom-0
-            left-0
-            right-0
-            px-2
-            pb-0.5
-          "
-        >
-          {sparkline}
-        </div>
-      )}
+{sparkline && (
+  <div
+    className={`
+      absolute
+      bottom-0
+      left-0
+      right-0
+      px-2
+      pb-0.5
+      ${sparklineOffset}
+    `}
+  >
+    {sparkline}
+  </div>
+)}
 
       {/* HISTOGRAM */}
 

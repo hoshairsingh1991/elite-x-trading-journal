@@ -349,13 +349,14 @@ const bottomCards = [
 
 {
   title: "Best Day",
-    tooltip: undefined,
+  tooltip: undefined,
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-3",
   subtitleOffset: "-translate-y-9",
-
+  sparklineOffset: "translate-y-2",
+  sparklineHeight: "h-[56px]",
   value:
-`${currencySymbol}${dashboardMetrics.bestDay.toFixed(2)}`,
+    `${currencySymbol}${dashboardMetrics.bestDay.toFixed(2)}`,
 
   subtitle:
     formatDate(
@@ -380,9 +381,11 @@ const bottomCards = [
   titleOffset: "translate-y-2",
   valueOffset: "-translate-y-3",
   subtitleOffset: "-translate-y-9",
+  sparklineOffset: "translate-y-2",
+  sparklineHeight: "h-[56px]",
 
   value:
-`${currencySymbol}${dashboardMetrics.worstDay.toFixed(2)}`,
+    `${currencySymbol}${dashboardMetrics.worstDay.toFixed(2)}`,
 
   subtitle:
     formatDate(
@@ -504,6 +507,7 @@ bg-[#0b1220]
     titleOffset={card.titleOffset}
     valueOffset={card.valueOffset}
     subtitleOffset={card.subtitleOffset}
+    
 
 sparkline={
   card.sparkline ? (
@@ -601,13 +605,19 @@ histogram={
   titleOffset={card.titleOffset}
   valueOffset={card.valueOffset}
   subtitleOffset={card.subtitleOffset}
-
+sparklineOffset={card.sparklineOffset}
+sparklineHeight={card.sparklineHeight}
   sparkline={
     card.sparkline ? (
-      <KPISparkline
-        data={card.sparklineData}
-        color={card.sparklineColor}
-      />
+<KPISparkline
+  data={card.sparklineData}
+  color={card.sparklineColor}
+  heightClass={
+    card.sparklineHeight
+      ? "h-[50px]"
+      : "h-[48px]"
+  }
+/>
     ) : undefined
   }
 

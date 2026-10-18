@@ -955,7 +955,11 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 {/* QTY */}
 
 <div className="relative left-[10px] flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-1 text-center text-[14px] font-medium text-slate-400">
-  {trade.quantity}
+ {trade.assetType === "Stocks"
+  ? Number(trade.quantity).toLocaleString("en-US", {
+      maximumFractionDigits: 4,
+    })
+  : trade.quantity}
 </div>
 
 {/* PNL */}

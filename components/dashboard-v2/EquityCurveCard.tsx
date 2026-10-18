@@ -57,14 +57,7 @@ const ending =
 const netChange =
   ending - starting;
 
-const percentChange =
-  Math.abs(starting) > 0.01
-    ? (
-        (netChange /
-          Math.abs(starting)) *
-        100
-      )
-    : 0;
+
 
 const high =
   equityValues.length > 0
@@ -180,7 +173,7 @@ backdrop-blur-xl
   <div className="flex justify-center">
     <div
       className="
-        h-[275px]
+        h-[300px]
         w-[95%]
         overflow-hidden
         rounded-[8px]
@@ -205,10 +198,10 @@ backdrop-blur-xl
 {/* KPI STRIP */}
 {/* ================================================= */}
 
-<div className="relative -top-2 mt-5 flex justify-center">
+<div className="relative top-0 mt-5 flex justify-center">
   <div className="w-[95%]">
 
-    <div className="grid grid-cols-6 gap-2 min-[1600px]:gap-4">
+    <div className="grid grid-cols-5 gap-2 min-[1600px]:gap-4">
 
       {/* STARTING */}
 
@@ -258,23 +251,6 @@ backdrop-blur-xl
         </p>
       </div>
 
-      {/* PERCENT CHANGE */}
-
-      <div className="flex flex-col items-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 min-[1400px]:max-[1599px]:whitespace-nowrap">
-          % Change
-        </p>
-
-        <p
-          className={`mt-3 text-[16px] font-bold ${
-            percentChange >= 0
-              ? "text-emerald-400"
-              : "text-red-400"
-          }`}
-        >
-          {percentChange.toFixed(1)}%
-        </p>
-      </div>
 
       {/* HIGH */}
 

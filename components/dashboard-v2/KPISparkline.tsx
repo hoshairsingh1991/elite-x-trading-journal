@@ -3,11 +3,13 @@ import { useState } from "react";
 type KPISparklineProps = {
   data: number[];
   color?: string;
+  heightClass?: string;
 };
 
 export default function KPISparkline({
   data,
   color = "#34d399",
+  heightClass = "h-[48px]",
 }: KPISparklineProps) {
 
   const gradientId =
@@ -89,7 +91,7 @@ for (
   return (
 <svg
   viewBox="0 0 100 100"
-  className="h-[48px] w-full"
+  className={`${heightClass} w-full`}
   preserveAspectRatio="none"
   onMouseEnter={() =>
     setIsHovered(true)

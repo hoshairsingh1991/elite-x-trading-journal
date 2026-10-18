@@ -158,10 +158,10 @@ const currencySymbol =
   );
 
 return (
-  <ResponsiveContainer
-    width="100%"
-    height={260}
-  >
+<ResponsiveContainer
+  width="100%"
+  height="98%"
+>
       <AreaChart
         data={data}
         margin={{
