@@ -56,16 +56,16 @@ export default function ExpenseKpiGrid({
   );
 
   return (
-    <div className=" grid grid-cols-6 gap-5">
-      <ExpenseKpiCard
-        icon={<Wallet className="h-6 w-6 text-blue-300" />}
-        iconBg="bg-blue-500/15 border border-blue-400/15"
-        title="Manual Expenses"
-        subtitle="This Period"
-        value={`${currencySymbol}${analytics.totalExpenses.toFixed(2)}`}
-trend={`${expenses.length} expense records`}
-      />
-
+    <div className=" grid grid-cols-6 gap-3">
+<ExpenseKpiCard
+  icon={<Wallet className="h-6 w-6 text-blue-300" />}
+  iconBg="bg-blue-500/15 border border-blue-400/15"
+  title="Manual Expenses"
+  subtitle="This Period"
+  value={`${currencySymbol}${analytics.totalExpenses.toFixed(2)}`}
+  trend={`${expenses.length} expense records`}
+  textOffsetXOverride="-translate-x-[40px]"
+/>
 <ExpenseKpiCard
   icon={<BarChart3 className="h-6 w-6 text-violet-300" />}
   iconBg="bg-violet-500/15 border border-violet-400/15"
@@ -74,7 +74,7 @@ trend={`${expenses.length} expense records`}
   subtitleOffsetY="-translate-y-[5px]"
   value={`${currencySymbol}${businessCostAnalytics.commissions.toFixed(2)}`}
   trend="Imported From Trade History"
-  badge="AUTO"
+  textOffsetXOverride="-translate-x-[40px]"
 />
 
 <ExpenseKpiCard
@@ -84,6 +84,7 @@ trend={`${expenses.length} expense records`}
   subtitle="Manual + Brokerage"
   value={`${currencySymbol}${businessCostAnalytics.totalBusinessCosts.toFixed(2)}`}
   trend="Manual Expenses + Commissions"
+  textOffsetXOverride="-translate-x-[40px]"
 />
 
 <ExpenseKpiCard
@@ -93,16 +94,18 @@ trend={`${expenses.length} expense records`}
   subtitle="Trading Performance"
   value={`${currencySymbol}${netTradingPnL.toFixed(2)}`}
   trend="Imported From Trade Analytics"
+  textOffsetXOverride="-translate-x-[40px]"
 />
 
-      <ExpenseKpiCard
-        icon={<Receipt className="h-6 w-6 text-emerald-300" />}
-        iconBg="bg-emerald-500/15 border border-emerald-400/15"
-        title="Tax Deductible"
-        subtitle="Eligible Expenses"
-        value={`${currencySymbol}${analytics.taxDeductibleAmount.toFixed(2)}`}
-trend={`${analytics.deductiblePercent.toFixed(1)}% of Total Expenses`}
-      />
+<ExpenseKpiCard
+  icon={<Receipt className="h-6 w-6 text-emerald-300" />}
+  iconBg="bg-emerald-500/15 border border-emerald-400/15"
+  title="Tax Deductible"
+  subtitle="Eligible Expenses"
+  value={`${currencySymbol}${analytics.taxDeductibleAmount.toFixed(2)}`}
+  trend={`${analytics.deductiblePercent.toFixed(1)}% of Total Expenses`}
+  textOffsetXOverride="-translate-x-[40px]"
+/>
 
 <ExpenseKpiCard
   icon={<TrendingUp className="h-6 w-6 text-cyan-300" />}
@@ -111,6 +114,7 @@ trend={`${analytics.deductiblePercent.toFixed(1)}% of Total Expenses`}
   subtitle="After Operating Costs"
   value={`${currencySymbol}${businessCostAnalytics.netBusinessProfit.toFixed(2)}`}
   trend="Trading P&L - Manual Expenses"
+  textOffsetXOverride="-translate-x-[44px]"
 />
     </div>
   );

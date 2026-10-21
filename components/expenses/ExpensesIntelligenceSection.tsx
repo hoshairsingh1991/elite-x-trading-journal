@@ -114,9 +114,9 @@ const profitValueX = "translate-x-4";
 const profitValueY = "translate-y-4";
 
 const profitSubtitleX = "translate-x-0";
-const profitSubtitleY = "translate-y-2";
+const profitSubtitleY = "translate-y-3";
 
-const profitMetricsX = "translate-x-4";
+const profitMetricsX = "translate-x-3";
 const profitMetricsY = "translate-y-9";
 const profitMetricsWidth = "w-[90%]";
 
@@ -131,12 +131,12 @@ const projectedHeaderY = "translate-y-2";
 const projectedValueX = "translate-x-5";
 const projectedValueY = "translate-y-4";
 
-const projectedMetricsX = "translate-x-4";
+const projectedMetricsX = "translate-x-3";
 const projectedMetricsY = "translate-y-14";
 const projectedMetricsWidth = "w-[90%]";
 
-const projectedSubtitleX = "translate-x-0";
-const projectedSubtitleY = "translate-y-2";
+const projectedSubtitleX = "-translate-x-1";
+const projectedSubtitleY = "translate-y-3";
 
 
 /* =====================================================
@@ -149,13 +149,11 @@ const burnHeaderY = "translate-y-2";
 const burnValueX = "translate-x-5";
 const burnValueY = "translate-y-4";
 
-const burnTrendX = "translate-x-0";
+const burnTrendX = "-translate-x-1";
 const burnTrendY = "translate-y-2";
 
-const burnChartX = "translate-x-54";
-const burnChartY = "-translate-y-7";
 
-const burnMetricsX = "translate-x-4";
+const burnMetricsX = "translate-x-3";
 const burnMetricsY = "translate-y-9";
 const burnMetricsWidth = "w-[90%]";
 
@@ -182,8 +180,6 @@ const renewalIconY = "translate-y-1.5";
 const renewalNameX = "translate-x-3";
 const renewalNameY = "translate-y-2";
 
-const renewalDateX = "translate-x-4";
-const renewalDateY = "translate-y-2";
 
 const renewalDaysX = "-translate-x-6";
 const renewalDaysY = "translate-y-2";
@@ -201,7 +197,7 @@ const avgTrendY = "translate-y-2";
 const avgValueX = "translate-x-6";
 const avgValueY = "translate-y-5";
 
-const avgMetricsX = "translate-x-4";
+const avgMetricsX = "translate-x-3";
 const avgMetricsY = "translate-y-9";
 const avgMetricsWidth = "w-[90%]";
 
@@ -213,23 +209,14 @@ const avgMetricsWidth = "w-[90%]";
 const headerX = "translate-x-2";
 const headerY = "translate-y-2";
 
-// Status badge ("Excellent")
-const statusX = "-translate-x-4";
-const statusY = "translate-y-2";
-
-
 const scoreX = "translate-x-4";
 const scoreY = "translate-y-5";
 
 const scoreTrendX = "translate-x-0";
 const scoreTrendY = "translate-y-1";
 
-// Sparkline
-const sparklineX = "translate-x-2";
-const sparklineY = "translate-y-3";
-
 // Metrics section
-const metricsX = "translate-x-4";
+const metricsX = "translate-x-3";
 const metricsY = "translate-y-9";
 const metricsWidth = "w-[90%]";
 
@@ -262,7 +249,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     </svg>
 
     return (
-  <div className=" -translate-y-2 grid grid-cols-6 gap-5">
+  <div className=" -translate-y-2 grid grid-cols-6 gap-3">
 
 
 
@@ -295,18 +282,6 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
 />
 </div>
 
-    <span
-      className={`
-        text-[12px]
-        font-medium
-        text-emerald-400
-
-        ${statusX}
-        ${statusY}
-      `}
-    >
-      Excellent
-    </span>
   </div>
 
   {/* ============================================= */}
@@ -534,7 +509,6 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
   />
 </div>
 
-    {/* Donut Placeholder */}
 
   </div>
 
@@ -559,7 +533,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     ${profitSubtitleY}
   `}
 >
-  Percent of profit retained after expenses
+  Retained after expenses
 </p>
   </div>
 
@@ -669,7 +643,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
     ${projectedSubtitleY}
   `}
 >
-  Projected full-year business expenses
+  Projected annual expenses
 </p>
   </div>
 
@@ -704,7 +678,7 @@ const renewalBoxSize = "h-6 w-6"; // try h-7 w-7, h-8 w-8, h-9 w-9
 <div className="h-[6px]" />
 
 <div className="flex justify-between text-[11px] text-slate-400">
-  <span>Method</span>
+
 <span>
   YTD Actual + Remaining Recurring
 </span>
@@ -806,7 +780,6 @@ className="translate-x-0 translate-y-0"
 <div className="h-[6px]" />
 
 <div className="flex justify-between text-[11px] text-slate-400">
-  <span>Method</span>
   <span>
     YTD Expenses ÷ Active Months
   </span>
@@ -900,7 +873,9 @@ className="translate-x-0 translate-y-0"
               ${renewalNameY}
             `}
           >
-            {renewal.vendor}
+            {renewal.vendor === "Interactive Brokers"
+  ? "IBKR"
+  : renewal.vendor}
           </span>
 
         </div>

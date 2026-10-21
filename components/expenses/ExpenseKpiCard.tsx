@@ -11,15 +11,15 @@ const subtitleOffsetY = "translate-y-0";
    ===================================================== */
 
 // Move entire icon + content group
-const cardContentX = "translate-x-18";
+const cardContentX = "translate-x-14";
 const cardContentY = "translate-y-2";
 
 // Move icon independently
-const iconOffsetX = "-translate-x-14";
+const iconOffsetX = "-translate-x-12";
 const iconOffsetY = "translate-y-9";
 
 // Move text block independently
-const textOffsetX = "-translate-x-12";
+const textOffsetX = "-translate-x-14";
 const textOffsetY = "translate-y-1";
 
 // Move three-dot menu
@@ -31,11 +31,11 @@ const menuOffsetY = "translate-y-0";
    ===================================================== */
 
 // Main KPI value (e.g. C$842.29)
-const valueOffsetX = "translate-x-2";
+const valueOffsetX = "translate-x-1";
 const valueOffsetY = "-translate-y-7";
 
 // Trend text (e.g. ↑ 3.1% vs Previous 30 Days)
-const trendOffsetX = "-translate-x-1";
+const trendOffsetX = "translate-x-0";
 const trendOffsetY = "-translate-y-6";
 
 /* =====================================================
@@ -71,6 +71,7 @@ interface ExpenseKpiCardProps {
   trend: string;
   trendColor?: "green" | "red" | "amber" | "slate";
   badge?: string;
+  textOffsetXOverride?: string;
   subtitleOffsetY?: string;
 
   // Future use
@@ -86,7 +87,8 @@ export default function ExpenseKpiCard({
   value,
   trend,
   trendColor = "green",
-  badge,
+   badge,
+  textOffsetXOverride,
 
   subtitleOffsetY = "translate-y-0",
 
@@ -162,12 +164,12 @@ hover:bg-[#0b0c1e]
       >
         {/* Top */}
        <div className="flex min-w-0 items-start justify-between">
-  <div className="flex min-w-0 items-center gap-3">
+  <div className="flex min-w-0 items-center gap-2">
             <div
               className={`
                 flex
-                h-[44px]
-                w-[44px]
+                h-[36px]
+                w-[36px]
                 items-center
                 justify-center
                 rounded-[8px]
@@ -180,12 +182,12 @@ hover:bg-[#0b0c1e]
               {icon}
             </div>
 
-            <div
-              className={`
-                ${textOffsetX}
-                ${textOffsetY}
-              `}
-            >
+<div
+  className={`
+    ${textOffsetXOverride ?? textOffsetX}
+    ${textOffsetY}
+  `}
+>
               <div className="flex items-center gap-2">
                 <h3 className="text-[14px] font-semibold text-white">
                   {title}
@@ -257,11 +259,9 @@ hover:bg-[#0b0c1e]
 <p
   className={`
     mt-2
-    max-w-[calc(100%_-_72px)]
-    truncate
-    whitespace-nowrap
-    overflow-hidden
-    text-[clamp(9px,0.65vw,12px)]
+max-w-[calc(100%_-_16px)]
+whitespace-nowrap
+text-[clamp(8px,0.6vw,10px)]
     font-medium
 ${
   trendColor === "green"

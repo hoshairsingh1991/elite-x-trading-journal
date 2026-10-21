@@ -167,38 +167,38 @@ export default function DemoExpensesPage() {
 
               {/* Expense Ledger & Tax Summary */}
               <div className="pb-10">
-                <div className="grid grid-cols-12 gap-6">
-                  <div className="col-span-9">
-                    <ManualExpensesTable
-                      expenses={DEMO_EXPENSES}
-                      reportingCurrency={reportingCurrency}
-                      fxRates={FALLBACK_RATES}
-                      onAddExpense={() => {
-                        setViewOnly(false);
-                        setEditingExpense(null);
-                        setIsAddExpenseOpen(true);
-                      }}
-                      onEditExpense={(expense) => {
-                        setViewOnly(false);
-                        setEditingExpense(expense);
-                        setIsAddExpenseOpen(true);
-                      }}
-                      onViewExpense={(expense) => {
-                        setViewOnly(true);
-                        setEditingExpense(expense);
-                        setIsAddExpenseOpen(true);
-                      }}
-                      onExpensesChanged={() => {}}
-                    />
-                  </div>
+<div className="grid grid-cols-12 gap-3">
+  <div className="col-span-9 min-w-0">
+    <ManualExpensesTable
+      expenses={DEMO_EXPENSES}
+      reportingCurrency={reportingCurrency}
+      fxRates={FALLBACK_RATES}
+      onAddExpense={() => {
+        setViewOnly(false);
+        setEditingExpense(null);
+        setIsAddExpenseOpen(true);
+      }}
+      onEditExpense={(expense) => {
+        setViewOnly(false);
+        setEditingExpense(expense);
+        setIsAddExpenseOpen(true);
+      }}
+      onViewExpense={(expense) => {
+        setViewOnly(true);
+        setEditingExpense(expense);
+        setIsAddExpenseOpen(true);
+      }}
+      onExpensesChanged={() => {}}
+    />
+  </div>
 
-                  <div className="col-span-3">
-                    <TaxDeductibleSummary
-                      expenses={filteredExpenses}
-                      reportingCurrency={reportingCurrency}
-                    />
-                  </div>
-                </div>
+  <div className="col-span-3">
+    <TaxDeductibleSummary
+      expenses={filteredExpenses}
+      reportingCurrency={reportingCurrency}
+    />
+  </div>
+</div>
               </div>
             </div>
           </div>

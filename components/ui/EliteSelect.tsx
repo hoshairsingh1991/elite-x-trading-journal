@@ -109,7 +109,13 @@ ${disabled ? "cursor-not-allowed opacity-50" : ""}
 transition-all
 duration-200
 
-hover:border-white/20
+
+hover:border-violet-400/50
+hover:bg-gradient-to-r
+hover:from-violet-500/[0.08]
+hover:to-blue-500/[0.06]
+hover:shadow-[0_0_12px_rgba(139,92,246,0.12)]
+
 
     data-[state=open]:text-white
   `}

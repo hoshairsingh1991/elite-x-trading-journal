@@ -691,7 +691,7 @@ trades={filteredTrades}
 {/* ================================================= */}
 
 <div className="pb-10">
-  <div className="grid grid-cols-12 gap-6">
+  <div className="grid grid-cols-12 gap-3">
     {/* Left */}
     <div className="col-span-9">
 <ManualExpensesTable

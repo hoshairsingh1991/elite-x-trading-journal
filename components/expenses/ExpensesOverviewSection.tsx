@@ -266,7 +266,7 @@ const expenseRows = [
     color: "bg-blue-600",
   },
   {
-    name: "Brokerage Fees",
+    name: "Broker Fees",
     amount: brokerageFees?.amount ?? 0,
     percentage: brokerageFees?.percentage ?? 0,
     color: "bg-orange-500",
@@ -443,7 +443,7 @@ const recurringRowSpacing = "h-2";
 
 return (
   <div
-  className="grid gap-5"
+  className="grid gap-3"
   style={{
     gridTemplateColumns: "3.8fr 2fr 2fr 2fr",
   }}
@@ -574,7 +574,7 @@ bg-[#0b0c1e]
 <div className="absolute left-14 right-4 bottom-12 h-px bg-white/5" />
 
 {/* Bars */}
-<div className="absolute bottom-2 left-20 right-8 flex items-end justify-between">
+<div className="absolute bottom-2 left-16 right-4 flex items-end justify-between gap-1">
  {chartData.map((item) => (
     <div
   key={item.label}
@@ -849,7 +849,7 @@ text-[14px]
     setHoveredSeries(null)
   }
   className="
-    w-7
+    w-6
     rounded-t
 
     bg-emerald-600/80
@@ -881,7 +881,7 @@ text-[14px]
     setHoveredSeries(null)
   }
   className="
-    w-7
+    w-6
     bg-blue-700/75
     transition-all
 duration-700
@@ -967,20 +967,20 @@ duration-700
         <div className="flex items-center justify-between">
 
           {/* Left */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
 
             <span
               className={`h-3 w-3 rounded-full ${row.color}`}
             />
 
-            <span className="text-[13px] text-slate-300">
-              {row.name}
-            </span>
+<span className="min-w-0 text-[13px] text-slate-300">
+  {row.name}
+</span>
 
           </div>
 
           {/* Right */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-0 -translate-x-2">
 
             <span
               className={`${breakdownAmountWidth} text-right text-[13px] -translate-x-6 text-white`}
@@ -1083,13 +1083,15 @@ duration-700
                     : "text-slate-500"
                 }`}
               >
-                {vendor.vendor}
+                {vendor.vendor === "Interactive Brokers"
+  ? "IBKR"
+  : vendor.vendor}
               </span>
 
             </div>
 
             {/* Right */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-0">
 
               <span
                 className={`${vendorAmountWidth} text-right -translate-x-8 text-[13px] ${

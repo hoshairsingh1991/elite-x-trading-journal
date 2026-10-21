@@ -298,6 +298,8 @@ export default function AddExpenseDrawer({
 // FORM STATE
 // ==========================================
 
+const [isSaving, setIsSaving] = useState(false);
+
 const [expenseName, setExpenseName] = useState("");
 const [category, setCategory] = useState("");
 const [vendor, setVendor] = useState("");
@@ -592,19 +594,23 @@ setTaxAmount(
 // ==========================================
 
 async function handleSave() {
-if (
-  !expenseName ||
-  !category ||
-  !vendor ||
-  !expenseDate ||
-  !originalAmount ||
-  !billedCurrency
-) {
+  if (isSaving) return;
+
+  if (
+    !expenseName ||
+    !category ||
+    !vendor ||
+    !expenseDate ||
+    !originalAmount ||
+    !billedCurrency
+  ) {
     alert("Please complete all required fields.");
     return;
   }
 
-try {
+  setIsSaving(true);
+
+  try {
   const recurringGroupId =
   editingExpense?.recurring_group_id
     ? editingExpense.recurring_group_id
@@ -735,6 +741,8 @@ if (editingExpense?.id) {
 } catch (error) {
   console.error(error);
   alert("Failed to save expense.");
+} finally {
+  setIsSaving(false);
 }
 }
 
@@ -1601,14 +1609,34 @@ className={`
 
       ) : (
 
-        <button
-          onClick={handleSave}
-          className={`${saveButtonWidth} ${saveButtonHeight} rounded-[8px] bg-blue-600 text-[14px] font-semibold text-white`}
-        >
-          {editingExpense
-            ? "Update Expense"
-            : "Save Expense"}
-        </button>
+<button
+  type="button"
+  onClick={handleSave}
+  disabled={isSaving}
+  className={`
+    ${saveButtonWidth}
+    ${saveButtonHeight}
+    rounded-[8px]
+    bg-blue-600
+    text-[14px]
+    font-semibold
+    text-white
+    transition-all
+    duration-200
+    hover:bg-blue-500
+    active:scale-[0.98]
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+  `}
+>
+  {isSaving
+    ? editingExpense
+      ? "Updating..."
+      : "Saving..."
+    : editingExpense
+      ? "Update Expense"
+      : "Save Expense"}
+</button>
 
       )}
 

@@ -400,8 +400,9 @@ const endItem = Math.min(
 
 const paginationInfoX = "translate-x-6";
 
-const headerCategoryX = "translate-x-6";
-const headerVendorX = "translate-x-7";
+
+
+
 
 /* =====================================================
    FINE TUNING
@@ -430,9 +431,8 @@ const headerVendorX = "translate-x-7";
   const tabWidth = "w-[100px]";
 const tabHeight = "h-[34px]";
 
-const searchWidth = "w-[180px]";
-const filterWidth = "w-[100px]";
-const dateFilterWidth = "w-[145px]";
+const searchWidth = "w-[140px] min-[1536px]:w-[180px]";
+const filterWidth = "w-[90px] min-[1536px]:w-[100px]";
 
 const tableHeaderHeight = "h-[34px]";
 const tableRowHeight = "min-h-[38px] h-auto"; // Allow rows to grow naturally when text wraps
@@ -445,19 +445,30 @@ const tableRowSpacerBottom = "pb-1.5";
 
 const actionIconSize = 14;
 
-const deductibleX = "-translate-x-5"; // try: translate-x-1, -translate-x-1, -translate-x-2, etc.
+const headerDateX = "translate-x-2";
+const headerExpenseX = "translate-x-8";
+const headerCategoryX = "translate-x-10";
+const headerVendorX = "translate-x-12";
+const headerOriginalAmountX = "translate-x-10";
+const headerReportingAmountX = "translate-x-6";
+const headerRecurringX = "translate-x-4";
+const headerDeductibleX = "translate-x-3";
+const headerActionsX = "translate-x-0";
+const headerPaymentX = "translate-x-0";
 
-const expenseX = "-translate-x-2"; // adjust as needed
 
-const categoryX = "-translate-x-2";
-const vendorX = "-translate-x-2";
-const originalAmountX = "-translate-x-4";
-const reportingAmountX = "-translate-x-8";
-const recurringX = "-translate-x-5";
-const headerTypeX = "translate-x-14";
-const typeX = "translate-x-4";
-const headerPaymentX = "translate-x-10";
-const paymentMethodX = "translate-x-4";
+const paymentMethodX = "translate-x-0";
+const deductibleX = "translate-x-2";
+const expenseX = "translate-x-6";
+const categoryX = "translate-x-10";
+const vendorX = "translate-x-12";
+const originalAmountX = "translate-x-9";
+const reportingAmountX = "translate-x-5";
+const recurringX = "translate-x-4";
+const headerTypeX = "translate-x-0";
+const typeX = "translate-x-0";
+const dateX = "translate-x-2";
+
 
   return (
     
@@ -531,29 +542,61 @@ bg-[#0b1220]
 
 {/* Add Expense */}
 <button
+  type="button"
   onClick={() => onAddExpense()}
   className={`
+    group
+    relative
     flex
     ${addButtonWidth}
     ${addButtonHeight}
     items-center
     justify-center
     gap-2
+    overflow-hidden
 
     rounded-[8px]
-    bg-blue-600
+    border
+    border-violet-400/30
+    bg-gradient-to-r
+    from-violet-500/[0.14]
+    to-blue-500/[0.10]
+
     text-[12px]
     font-semibold
-    text-white
+    text-violet-200
 
-    transition
-    hover:bg-blue-500
+    shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]
+
+    transition-all
+    duration-200
+
+    hover:border-violet-300/50
+    hover:from-violet-500/25
+    hover:to-blue-500/20
+    hover:text-white
+    hover:shadow-[0_0_12px_rgba(139,92,246,0.16)]
+
+    active:scale-[0.97]
+
+    disabled:cursor-not-allowed
+    disabled:opacity-45
 
     ${addButtonX}
     ${addButtonY}
   `}
 >
-  <Plus className="h-4 w-4" />
+  <Plus
+    className="
+      h-4
+      w-4
+      text-violet-300
+      transition-transform
+      duration-200
+      group-hover:rotate-90
+      group-hover:text-white
+    "
+  />
   Add Expense
 </button>
       </div>
@@ -566,7 +609,7 @@ bg-[#0b1220]
 
 <div
   className={`
-    flex flex-wrap items-center gap-3
+    flex flex-wrap items-center gap-2
 
     ${filtersX}
     ${filtersY}
@@ -692,7 +735,10 @@ bg-[#0b1220]
       ),
     ].map((vendor) => ({
       value: vendor,
-      label: vendor,
+label:
+  vendor.toLowerCase().trim().includes("interactive brokers")
+    ? "IBKR"
+    : vendor,
     })),
   ]}
   onChange={(value) => {
@@ -904,7 +950,7 @@ bg-[#0b1220]
   <div
     className={`
       grid
-      grid-cols-[1fr_2fr_1.3fr_1.3fr_1.3fr_1.5fr_1fr_1.2fr_1fr_1.3fr_0.8fr]
+      grid-cols-[1.1fr_1.8fr_1.2fr_1.2fr_1.5fr_1.5fr_1.2fr_1.5fr_1.5fr_0.8fr_1fr]
 
       items-center
 
@@ -925,52 +971,80 @@ bg-[#0b1220]
       text-slate-400
     `}
   >
-    <span className="flex items-center justify-center">Date</span>
+    <span className={`flex items-center justify-center ${headerDateX}`}>
+  Date
+</span>
     <span
   className={`
     flex
     items-center
     justify-center
 
-    ${expenseX}
+    ${headerExpenseX}
   `}
 >
   Expense
+
 </span>
-    <span
-  className={`
-    ${headerCategoryX}
-  `}
+<span
+  className={`flex items-center justify-center text-center ${headerCategoryX}`}
 >
   Category
 </span>
-    <span
-  className={`
-    ${headerVendorX}
-  `}
+
+
+<span
+  className={`flex items-center justify-center text-center ${headerVendorX}`}
 >
   Vendor
 </span>
-    <span>Original Amount</span>
-    <span>Reporting Amount </span>
-    <span>Recurring</span>
-    <span>Tax Deductible</span>
 <span
-  className={`
-    ${headerPaymentX}
-  `}
+  className={`flex items-center justify-center text-center leading-tight ${headerOriginalAmountX}`}
 >
-  Payment Method
+  Original
+  <br />
+  Amount
 </span>
 
 <span
-  className={`
-    ${headerTypeX}
-  `}
+  className={`flex items-center justify-center text-center leading-tight ${headerReportingAmountX}`}
+>
+  Reporting
+  <br />
+  Amount
+</span>
+
+<span
+  className={`flex items-center justify-center text-center ${headerRecurringX}`}
+>
+  Recurring
+</span>
+
+<span
+  className={`flex items-center justify-center text-center leading-tight ${headerDeductibleX}`}
+>
+  Tax
+  <br />
+  Deductible
+</span>
+<span
+  className={`flex items-center justify-center text-center leading-tight ${headerPaymentX}`}
+>
+  Payment
+  <br />
+  Method
+</span>
+
+<span
+  className={`flex items-center justify-center text-center ${headerTypeX}`}
 >
   Receipt
 </span>
-    <span className="text-center">Actions</span>
+<span
+  className={`flex items-center justify-center text-center ${headerActionsX}`}
+>
+  Actions
+</span>
   </div>
 
 {filteredExpenses
@@ -991,7 +1065,7 @@ bg-[#0b1220]
   onClick={() => onViewExpense(row)}
   className={`
     grid
-    grid-cols-[1fr_2fr_1.3fr_1.3fr_1.3fr_1.5fr_1fr_1.2fr_1fr_1.3fr_0.8fr]
+    grid-cols-[1.1fr_1.8fr_1.2fr_1.2fr_1.5fr_1.5fr_1.2fr_1.5fr_1.5fr_0.8fr_1fr]
 
     cursor-pointer
 
@@ -1021,7 +1095,7 @@ bg-[#0b1220]
     last:border-b-0
   `}
 >
-<span className="flex items-center justify-center">
+<span className={`flex items-center justify-center whitespace-nowrap ${dateX}`}>
   {new Date(
     `${row.expense_date}T12:00:00`
   ).toLocaleDateString("en-US", {
@@ -1032,32 +1106,47 @@ bg-[#0b1220]
 </span>
 
 <span
+  title={row.expense_name}
   className={`
     flex
     items-center
     justify-center
-
+    whitespace-nowrap
     font-medium
     text-white
-
     ${expenseX}
   `}
 >
-  {row.expense_name}
+  {row.expense_name && row.expense_name.length > 16
+    ? `${row.expense_name.slice(0, 16)}.`
+    : row.expense_name}
 </span>
 
+
 <span
+  title={row.category}
   className={`
     flex
     justify-center
-    justify-center
     pt-0.5
-
+    whitespace-nowrap
     ${categoryX}
   `}
 >
-  {row.category}
+  {row.category === "Brokerage Fees"
+    ? (
+        <>
+          <span className="min-[1620px]:hidden">
+            Brokerage
+          </span>
+          <span className="hidden min-[1620px]:inline">
+            Brokerage Fees
+          </span>
+        </>
+      )
+    : row.category}
 </span>
+
 
 <span
   className={`
@@ -1069,7 +1158,9 @@ bg-[#0b1220]
     ${vendorX}
   `}
 >
-  {row.vendor}
+  {row.vendor?.toLowerCase().trim().includes("interactive brokers")
+  ? "IBKR"
+  : row.vendor}
 </span>
 
 <span
@@ -1111,29 +1202,34 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    justify-center
+    items-center
     justify-center
     gap-1
     pt-0.5
-
     ${recurringX}
   `}
 >
-  <span>
-    {row.is_recurring
-      ? row.frequency ?? "Recurring"
-      : "One-Time"}
-  </span>
+<span
+  className={
+    isPrimaryRecurringExpense
+      ? "translate-x-1"
+      : ""
+  }
+>
+  {row.is_recurring
+    ? row.frequency ?? "Recurring"
+    : "One-Time"}
+</span>
 
   {isPrimaryRecurringExpense && (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          onClick={(e) => e.stopPropagation()}
-          className="cursor-help"
-          aria-label="Recurring schedule"
-        >
+<TooltipTrigger asChild>
+  <button
+    type="button"
+    onClick={(e) => e.stopPropagation()}
+    className="relative left-1 cursor-help"
+    aria-label="Recurring schedule"
+  >
           <Star
             className="h-3 w-3 fill-amber-400 text-amber-400"
           />
@@ -1234,30 +1330,57 @@ bg-[#0b1220]
 <span
   className={`
     flex
-    justify-center
+    items-center
     justify-center
     pt-0.5
-
     ${typeX}
   `}
 >
   {row.receipt_url ? (
-    <Paperclip
-      size={16}
+    <button
+      type="button"
       onClick={(e) => {
         e.stopPropagation();
         viewReceipt(row.receipt_url);
       }}
+      title="View receipt"
+      aria-label="View receipt"
       className="
-        cursor-pointer
-        text-blue-400
-        transition-colors
+        group
+        flex
+        items-center
+        justify-center
+        rounded-[5px]
+        border
+        border-transparent
+        p-1
+        text-slate-500
+        transition-all
+        duration-200
+        ease-out
+        hover:scale-110
+        hover:border-blue-400/25
+        hover:bg-blue-500/10
         hover:text-blue-300
+        hover:shadow-[0_0_12px_rgba(96,165,250,0.22)]
+        active:scale-95
+        focus-visible:outline-none
+        focus-visible:ring-1
+        focus-visible:ring-blue-400/50
       "
-    />
+    >
+      <Paperclip
+        size={14}
+        className="
+          transition-transform
+          duration-200
+          group-hover:scale-110
+        "
+      />
+    </button>
   ) : (
     <Paperclip
-      size={16}
+      size={14}
       className="text-slate-600"
     />
   )}
@@ -1265,40 +1388,105 @@ bg-[#0b1220]
 
 <div className="flex justify-center gap-3 pt-0.5">
 
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      onEditExpense(row);
-    }}
-    className="text-slate-400 transition hover:text-white"
-  >
-    <Pencil size={actionIconSize} />
-  </button>
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    onEditExpense(row);
+  }}
+  title="Edit expense"
+  aria-label="Edit expense"
+  className="
+    group
+    flex
+    items-center
+    justify-center
+    rounded-[5px]
+    border
+    border-transparent
+    p-1
+    text-slate-400
+    transition-all
+    duration-200
+    ease-out
+    hover:scale-110
+    hover:border-slate-400/25
+    hover:bg-white/[0.06]
+    hover:text-white
+    hover:shadow-[0_0_12px_rgba(148,163,184,0.16)]
+    active:scale-95
+    focus-visible:outline-none
+    focus-visible:ring-1
+    focus-visible:ring-slate-400/50
+  "
+>
+  <Pencil
+    size={actionIconSize}
+    className="
+      transition-transform
+      duration-200
+      group-hover:scale-110
+    "
+  />
+</button>
 
-  <button
-    onClick={async (e) => {
-      e.stopPropagation();
+<button
+  type="button"
+  onClick={async (e) => {
+    e.stopPropagation();
 
-      const confirmed = window.confirm(
-        `Are you sure you want to delete "${row.expense_name}"?`
-      );
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${row.expense_name}"?`
+    );
 
-      if (!confirmed) {
-        return;
-      }
+    if (!confirmed) {
+      return;
+    }
 
-      try {
-        await deleteExpense(row.id);
-        onExpensesChanged();
-      } catch (error) {
-        console.error(error);
-        alert("Failed to delete expense.");
-      }
-    }}
-    className="text-red-500 transition hover:text-red-400"
-  >
-    <Trash2 size={actionIconSize} />
-  </button>
+    try {
+      await deleteExpense(row.id);
+      onExpensesChanged();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete expense.");
+    }
+  }}
+  title="Delete expense"
+  aria-label="Delete expense"
+  className="
+    group
+    flex
+    items-center
+    justify-center
+    rounded-[5px]
+    border
+    border-transparent
+    p-1
+    text-red-500
+    transition-all
+    duration-200
+    ease-out
+    hover:scale-110
+    hover:border-red-400/25
+    hover:bg-red-500/10
+    hover:text-red-300
+    hover:shadow-[0_0_12px_rgba(248,113,113,0.18)]
+    active:scale-95
+    focus-visible:outline-none
+    focus-visible:ring-1
+    focus-visible:ring-red-400/50
+  "
+>
+  <Trash2
+    size={actionIconSize}
+    strokeWidth={1.9}
+    className="
+      transition-transform
+      duration-200
+      group-hover:scale-110
+    "
+  />
+</button>
 
 </div>
     </div>
