@@ -205,22 +205,22 @@ const leftColumnGap = "gap-3";
 const deductibleCardX = "translate-x-3";
 const deductibleCardY = "translate-y-7";
 
-const deductibleCardWidth = "w-full";
-const deductibleCardHeight = "h-[90px]";
+const deductibleCardWidth = "w-[105%]";
+const deductibleCardHeight = "h-[80px]";
 
-const deductibleTitleX = "translate-x-6";
-const deductibleTitleY = "translate-y-3";
+const deductibleTitleX = "translate-x-3";
+const deductibleTitleY = "translate-y-2";
 
-const deductibleValueX = "translate-x-6";
+const deductibleValueX = "translate-x-4";
 const deductibleValueY = "translate-y-3";
 
 const deductibleSubtitleX = "translate-x-4";
 const deductibleSubtitleY = "translate-y-3";
 
-const deductibleIconX = "translate-x-2";
+const deductibleIconX = "translate-x-1";
 const deductibleIconY = "translate-y-6";
 
-const deductibleIconSize = "h-9 w-9";
+const deductibleIconSize = "h-7 w-7";
 
 const deductibleValueFontSize = "text-[20px]";
 
@@ -233,22 +233,22 @@ const deductibleSubtitleFontSize = "text-[11px]";
 const benefitCardX = "translate-x-3";
 const benefitCardY = "translate-y-8";
 
-const benefitCardWidth = "w-full";
-const benefitCardHeight = "h-[90px]";
+const benefitCardWidth = "w-[105%]";
+const benefitCardHeight = "h-[80px]";
 
-const benefitTitleX = "translate-x-6";
+const benefitTitleX = "translate-x-3";
 const benefitTitleY = "translate-y-3";
 
-const benefitValueX = "translate-x-6";
+const benefitValueX = "translate-x-4";
 const benefitValueY = "translate-y-3";
 
-const benefitSubtitleX = "translate-x-6";
+const benefitSubtitleX = "translate-x-4";
 const benefitSubtitleY = "translate-y-3";
 
-const benefitIconX = "translate-x-2";
+const benefitIconX = "translate-x-1";
 const benefitIconY = "translate-y-6";
 
-const benefitIconSize = "h-9 w-9";
+const benefitIconSize = "h-7 w-7";
 
 const benefitValueFontSize = "text-[20px]";
 
@@ -258,14 +258,14 @@ const benefitSubtitleFontSize = "text-[11px]";
    DONUT SECTION
    ===================================================== */
 
-const donutContainerX = "translate-x-0";
-const donutContainerY = "translate-y-10";
+const donutContainerX = "translate-x-2";
+const donutContainerY = "translate-y-14";
 
 const donutContainerWidth = "w-[38%]";
 const donutContainerHeight = "h-auto";
 
-const donutOuterSize = 140;
-const donutInnerSize = 115;
+const donutOuterSize = 100;
+const donutInnerSize = 80;
 
 const donutPercentX = "translate-x-0";
 const donutPercentY = "-translate-y-0";
@@ -276,8 +276,8 @@ const donutLabelY = "-translate-y-0";
 const donutBottomTextX = "translate-x-0";
 const donutBottomTextY = "translate-y-2";
 
-const donutPercentFontSize = "text-[20px]";
-const donutLabelFontSize = "text-[12px]";
+const donutPercentFontSize = "text-[16px]";
+const donutLabelFontSize = "text-[11px]";
 const donutBottomTextFontSize = "text-[12px]";
 
 /* =====================================================
@@ -298,9 +298,9 @@ const taxRateSectionX = "translate-x-2";
 const taxRateSectionY = "translate-y-1";
 const taxRateSectionWidth = "w-auto";
 
-const taxRateIconX = "translate-x-0";
+const taxRateIconX = "translate-x-1";
 const taxRateIconY = "-translate-y-1";
-const taxRateIconSize = "h-6 w-6";
+const taxRateIconSize = "h-5 w-5";
 const taxRateIconSvgSize = "h-3.5 w-3.5";
 
 const taxRateValueX = "-translate-x-1";
@@ -315,88 +315,7 @@ const taxRateLabelFontSize = "text-[10px]";
    DIVIDER 1
    ===================================================== */
 
-const divider1X = "translate-x-3";
-const divider1Y = "translate-y-0";
 const divider1Height = "h-9";
-
-/* =====================================================
-   PROVINCE
-   ===================================================== */
-
-const provinceSectionX = "translate-x-5";
-const provinceSectionY = "translate-y-1";
-const provinceSectionWidth = "w-auto";
-
-const provinceIconX = "translate-x-0";
-const provinceIconY = "-translate-y-1";
-const provinceIconSize = "h-6 w-6";
-const provinceIconSvgSize = "h-3.5 w-3.5";
-
-const provinceValueX = "-translate-x-1";
-const provinceValueY = "translate-y-0";
-const provinceValueFontSize = "text-[12px]";
-
-const provinceLabelX = "-translate-x-1";
-const provinceLabelY = "translate-y-";
-const provinceLabelFontSize = "text-[10px]";
-
-/* =====================================================
-   DIVIDER 2
-   ===================================================== */
-
-const divider2X = "translate-x-6";
-const divider2Y = "translate-y-0";
-const divider2Height = "h-9";
-
-/* =====================================================
-   ENTITY
-   ===================================================== */
-
-const entitySectionX = "translate-x-7";
-const entitySectionY = "translate-y-1";
-const entitySectionWidth = "w-auto";
-
-const entityIconX = "translate-x-1";
-const entityIconY = "-translate-y-1";
-const entityIconSize = "h-6 w-6";
-const entityIconSvgSize = "h-3.5 w-3.5";
-
-const entityValueX = "translate-x-0";
-const entityValueY = "translate-y-0";
-const entityValueFontSize = "text-[12px]";
-
-const entityLabelX = "translate-x-0";
-const entityLabelY = "translate-y-0";
-const entityLabelFontSize = "text-[10px]";
-
-/* =====================================================
-   DIVIDER 3
-   ===================================================== */
-
-const divider3X = "translate-x-9";
-const divider3Y = "translate-y-0";
-const divider3Height = "h-9";
-
-/* =====================================================
-   YEAR
-   ===================================================== */
-
-const yearSectionX = "translate-x-11";
-const yearSectionY = "translate-y-1";
-const yearSectionWidth = "w-auto";
-
-const yearIconX = "translate-x-0";
-const yearIconY = "-translate-y-1";
-const yearIconSize = "h-6 w-6";
-const yearIconSvgSize = "h-3.5 w-3.5";
-
-const yearValueX = "-translate-x-1";
-const yearValueY = "translate-y-0";
-const yearValueFontSize = "text-[12px]";
-
-const yearLabelX = "-translate-x-1.5";
-const yearLabelY = "translate-y-0";
-const yearLabelFontSize = "text-[10px]";
 
 
 /* =====================================================
@@ -406,7 +325,8 @@ const yearLabelFontSize = "text-[10px]";
 /* CARD */
 
 const calculationCardX = "translate-x-3";
-const calculationCardY = "translate-y-16";
+const calculationCardY =
+  "translate-y-0 min-[1440px]:translate-y-16";
 
 const calculationCardWidth = "w-[95%]";
 const calculationCardHeight = "h-[90px]";
@@ -414,35 +334,32 @@ const calculationCardHeight = "h-[90px]";
 /* HEADER ROW */
 
 const calculationHeaderX = "translate-x-2";
-const calculationHeaderY = "-translate-y-8";
+const calculationHeaderY = "-translate-y-7";
 
 /* ICON */
 
-const calculationIconX = "translate-x-0";
+const calculationIconX = "-translate-x-1";
 const calculationIconY = "translate-y-14";
 
-const calculationIconSize = "h-9 w-9";
+const calculationIconSize = "h-5 w-5";
 
 /* TITLE */
 
 const calculationTitleX = "translate-x-2";
-const calculationTitleY = "translate-y-7";
+const calculationTitleY = "translate-y-8.5";
 
 const calculationTitleFontSize = "text-[12px]";
 
-/* INFO ICON */
-
-const calculationInfoX = "translate-x-64";
-const calculationInfoY = "translate-y-8";
 
 /* FORMULA ROW */
 
-const calculationBoxesX = "translate-x-6";
-const calculationBoxesY = "-translate-y-1";
+const calculationBoxesX =
+  "translate-x-0 min-[1440px]:translate-x-3";
+const calculationBoxesY = "translate-y-3";
 
 /* AMOUNT BOX */
 
-const calculationAmountWidth = "w-[70px]";
+const calculationAmountWidth = "w-[60px]";
 const calculationAmountHeight = "h-[30px]";
 
 const calculationAmountBoxX = "translate-x-0";
@@ -453,15 +370,15 @@ const calculationAmountLabelY = "translate-y-1";
 
 /* MULTIPLY */
 
-const calculationMultiplyX = "translate-x-0";
+const calculationMultiplyX = "-translate-x-2";
 const calculationMultiplyY = "translate-y-0";
 
 /* TAX BOX */
 
-const calculationTaxWidth = "w-[55px]";
+const calculationTaxWidth = "w-[60px]";
 const calculationTaxHeight = "h-[30px]";
 
-const calculationTaxBoxX = "translate-x-0";
+const calculationTaxBoxX = "-translate-x-2";
 const calculationTaxBoxY = "translate-y-0";
 
 const calculationTaxLabelX = "translate-x-0";
@@ -469,7 +386,7 @@ const calculationTaxLabelY = "translate-y-1";
 
 /* EQUALS */
 
-const calculationEqualsX = "translate-x-0";
+const calculationEqualsX = "-translate-x-2";
 const calculationEqualsY = "translate-y-0";
 
 /* RESULT BOX */
@@ -477,7 +394,7 @@ const calculationEqualsY = "translate-y-0";
 const calculationResultWidth = "w-[90px]";
 const calculationResultHeight = "h-[30px]";
 
-const calculationResultBoxX = "translate-x-0";
+const calculationResultBoxX = "-translate-x-1";
 const calculationResultBoxY = "translate-y-0";
 
 const calculationResultLabelX = "translate-x-0";
@@ -487,21 +404,21 @@ const calculationResultLabelY = "translate-y-1";
    DISCLAIMER V2
    ===================================================== */
 
-const disclaimerX = "translate-x-3";
+const disclaimerX = "translate-x-2";
 const disclaimerY = "translate-y-20";
 
 const disclaimerWidth = "w-[95%]";
-const disclaimerHeight = "h-[80px]";
+const disclaimerHeight = "h-[100px]";
 
-const disclaimerIconX = "translate-x-1";
-const disclaimerIconY = "translate-y-6";
+const disclaimerIconX = "translate-x-0";
+const disclaimerIconY = "translate-y-7";
 
 const disclaimerIconSize = "h-10 w-10";
 
 const disclaimerTextWidth = "w-[85%]";
 
-const disclaimerTextX = "translate-x-12";
-const disclaimerTextY = "-translate-y-9";
+const disclaimerTextX = "translate-x-10";
+const disclaimerTextY = "-translate-y-7";
 
 const disclaimerTextFontSize = "text-[11px]";
 
@@ -599,86 +516,64 @@ bg-[#0b1220]
 
   <div className="flex items-center gap-4">
 
-    {/* HIGH CONFIDENCE */}
 
-    <div
-      className={`
-        ${confidenceBadgeWidth}
-        ${confidenceBadgeHeight}
+{/* EDIT BUTTON */}
 
-        flex
-        items-center
-        justify-center
-        gap-2
-
-rounded-[8px]
-border
-border-emerald-500/25
-bg-emerald-500/10
-text-emerald-400
-
-        ${confidenceBadgeX}
-        ${confidenceBadgeY}
-      `}
-    >
-      <ShieldCheck
-        className={`
-          ${confidenceIconSize}
-          text-emerald-400
-
-          ${confidenceIconX}
-          ${confidenceIconY}
-        `}
-      />
-
-      <span
-        className={`
-          ${confidenceTextFontSize}
-
-          font-medium
-          text-emerald-400
-
-          ${confidenceTextX}
-          ${confidenceTextY}
-        `}
-      >
-        Profile Configured
-      </span>
-    </div>
-
-    {/* EDIT BUTTON */}
-
-    <button
-  onClick={() =>
-    setIsTaxSettingsOpen(true)
-  }
+<button
+  onClick={() => setIsTaxSettingsOpen(true)}
   className={`
     ${editButtonWidth}
     ${editButtonHeight}
 
-  rounded-[8px]
+    group
+    rounded-[8px]
     border
     border-white/10
-    hover:bg-[#0b1220]
+    bg-white/[0.02]
     px-3
     py-1.5
 
     text-[12px]
     font-medium
-    text-white
+    text-slate-300
 
-    transition-colors
-    hover:bg-white/5
+    transition-all
+    duration-200
+    ease-out
+
+    hover:border-violet-400/40
+    hover:bg-gradient-to-r
+    hover:from-violet-500/[0.10]
+    hover:to-blue-500/[0.08]
+    hover:text-white
+    hover:shadow-[0_0_14px_rgba(139,92,246,0.14)]
+
+    active:scale-[0.97]
+
+    focus-visible:outline-none
+    focus-visible:ring-2
+    focus-visible:ring-violet-400/60
+    focus-visible:ring-offset-2
+    focus-visible:ring-offset-[#0b1220]
 
     ${editButtonX}
     ${editButtonY}
   `}
 >
   <div className="flex items-center justify-center gap-2">
-    <Pencil className="h-3 w-3" />
+    <Pencil
+      className="
+        h-3 w-3
+        transition-transform
+        duration-200
+        group-hover:rotate-[-8deg]
+        group-hover:scale-110
+      "
+    />
     Edit
   </div>
 </button>
+
 
   </div>
 </div>
@@ -801,7 +696,7 @@ text-emerald-400
     ${deductibleSubtitleY}
   `}
 >
-  Total deductible expenses
+  Eligible expenses
 </div>
 
     </div>
@@ -1038,8 +933,8 @@ text-emerald-400
     gap-3
     px-3
 
-    -translate-x-0
-    translate-y-1
+    -translate-x-1
+    translate-y-0
   "
 >
   <div
@@ -1075,7 +970,7 @@ text-emerald-400
         font-semibold
         leading-none
         text-white
-
+        translate-x-1
         ${taxRateValueX}
         ${taxRateValueY}
       `}
@@ -1088,7 +983,7 @@ text-emerald-400
         mt-0.5
         ${taxRateLabelFontSize}
         text-slate-400
-
+translate-x-0
         ${taxRateLabelX}
         ${taxRateLabelY}
       `}
@@ -1105,7 +1000,7 @@ text-emerald-400
     shrink-0
     bg-white/10
 
-    -translate-x-1
+    -translate-x-2
     translate-y-0
   `}
  />
@@ -1122,14 +1017,14 @@ text-emerald-400
     gap-3
     px-3
 
-    -translate-x-1
-    translate-y-1
+    -translate-x-2
+    translate-y-0
   "
 >
   <div
     className="
-      h-6
-      w-6
+      h-5
+      w-5
       shrink-0
       flex
       items-center
@@ -1152,6 +1047,7 @@ text-emerald-400
         text-[12px]
         font-semibold
         leading-none
+        -translate-x-1
         text-white
       "
     >
@@ -1163,6 +1059,7 @@ text-emerald-400
     <div
       className="
         mt-0.5
+        -translate-x-1
         text-[10px]
         text-slate-400
       "
@@ -1178,7 +1075,7 @@ text-emerald-400
     w-px
     shrink-0
     bg-white/10
-    -translate-x-1
+    -translate-x-2
     translate-y-0
   "
 />
@@ -1192,17 +1089,17 @@ text-emerald-400
     flex
     items-center
     justify-center
-    gap-3
+    gap-2
     px-3
 
-    translate-x-0
-    translate-y-1
+    -translate-x-1
+    translate-y-0
   "
 >
   <div
     className="
-      h-6
-      w-6
+      h-5
+      w-5
       shrink-0
       flex
       items-center
@@ -1251,11 +1148,13 @@ text-emerald-400
 
 <div
   className="
+    hidden
+    min-[1680px]:block
     h-9
     w-px
     shrink-0
     bg-white/10
-    translate-x-1
+    translate-x-2
     translate-y-0
   "
 />
@@ -1264,22 +1163,23 @@ text-emerald-400
 
 <div
   className="
+    hidden
+    min-[1680px]:flex
     min-w-0
     flex-1
-    flex
     items-center
     justify-center
-    gap-3
+    gap-1
     px-3
 
-    translate-x-0
-    translate-y-1
+    translate-x-1
+    translate-y-0
   "
 >
   <div
     className="
-      h-6
-      w-6
+      h-5
+      w-5
       shrink-0
       flex
       items-center
