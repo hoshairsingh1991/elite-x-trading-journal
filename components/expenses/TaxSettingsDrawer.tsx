@@ -310,7 +310,10 @@ const TAX_YEAR_OPTIONS: EliteSelectOption[] =
     fetchProfile();
   }, [open]);
 
-  async function handleSave() {
+
+async function handleSave() {
+  if (loading || saving) return;
+
   try {
     setSaving(true);
 
@@ -331,6 +334,7 @@ const TAX_YEAR_OPTIONS: EliteSelectOption[] =
     setSaving(false);
   }
 }
+
 
 function handleReset() {
   setCountry("Canada");
@@ -614,7 +618,9 @@ className={`h-[36px] w-[70px] rounded-[8px] border text-xs font-medium transitio
   >
     <button
       onClick={onClose}
-      className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-[8px] border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]`}
+      
+className={`${cancelButtonWidth} ${cancelButtonHeight} rounded-[8px] border border-white/10 bg-white/[0.02] text-[14px] text-slate-200 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07] hover:text-white active:translate-y-0 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20`}
+
     >
       Cancel
     </button>
@@ -626,7 +632,9 @@ className={`h-[36px] w-[70px] rounded-[8px] border text-xs font-medium transitio
     <button
       type="button"
       onClick={handleReset}
-      className="h-10 w-[80px] rounded-[8px] border border-white/10 text-white text-[14px] transition-all duration-200 hover:bg-white/[0.04]"
+     
+className="h-10 w-[80px] rounded-[8px] border border-white/10 bg-white/[0.02] text-[14px] text-slate-200 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-amber-400/30 hover:bg-amber-400/[0.08] hover:text-amber-200 active:translate-y-0 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/30"
+
     >
       Reset
     </button>
@@ -640,7 +648,9 @@ className={`h-[36px] w-[70px] rounded-[8px] border text-xs font-medium transitio
         disabled={
           loading || saving
         }
-        className={`${saveButtonWidth} ${saveButtonHeight} rounded-[8px] bg-blue-600 font-semibold text-[14px] text-white transition-all duration-200 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50`}
+        
+className={`${saveButtonWidth} ${saveButtonHeight} rounded-[8px] border border-blue-400/20 bg-gradient-to-r from-blue-600 to-blue-500 font-semibold text-[14px] text-white shadow-[0_2px_10px_rgba(37,99,235,0.12)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-300/40 hover:from-blue-500 hover:to-indigo-500 hover:shadow-[0_5px_18px_rgba(59,130,246,0.28)] active:translate-y-0 active:scale-[0.97] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111d]`}
+
       >
         {saving
           ? "Saving..."

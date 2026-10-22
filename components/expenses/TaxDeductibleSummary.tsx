@@ -1262,18 +1262,12 @@ translate-x-0
       `}
     >
 
-    <div
-  className={`
-    ${calculationIconSize}
 
+<div
+  className={`
     flex
     items-center
     justify-center
-
-    rounded-[8px]
-    border
-    border-sky-500/20
-    bg-sky-500/10
 
     ${calculationIconX}
     ${calculationIconY}
@@ -1281,6 +1275,7 @@ translate-x-0
 >
   <Calculator className="h-6 w-6 text-sky-400" />
 </div>
+
 
       <div
         className={`

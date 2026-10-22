@@ -562,7 +562,7 @@ git commit -m "feat(dashboard): refine equity curve and performance interactions
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 git commit -m "Polish expense table and save interactions"
 git commit -m "fix(tax-summary): improve responsive calculation basis layout"
-
+git commit -m "ui(expenses): polish calculation basis and responsive layout"
 
 
 
