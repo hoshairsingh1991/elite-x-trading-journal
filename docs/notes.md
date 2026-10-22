@@ -564,7 +564,7 @@ git commit -m "Polish expense table and save interactions"
 git commit -m "fix(tax-summary): improve responsive calculation basis layout"
 git commit -m "ui(expenses): polish calculation basis and responsive layout"
 git commit -m "style: align dashboard secondary metric cards"
-
+git commit -m "Adjust trading calendar notes modal width"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

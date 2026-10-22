@@ -784,7 +784,7 @@ return (
           flex
           h-[64vh]
           max-h-[800px]
-          w-[66vw]
+          w-[60vw]
           max-w-[1180px]
           flex-col
           overflow-hidden
