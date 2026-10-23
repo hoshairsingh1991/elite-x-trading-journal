@@ -71,7 +71,7 @@ export default function ExpenseKpiGrid({
   iconBg="bg-violet-500/15 border border-violet-400/15"
   title="Commissions"
   subtitle="Auto Calculated"
-  subtitleOffsetY="-translate-y-[5px]"
+  subtitleOffsetY="-translate-y-[1px]"
   value={`${currencySymbol}${businessCostAnalytics.commissions.toFixed(2)}`}
   trend="Imported From Trade History"
   textOffsetXOverride="-translate-x-[40px]"

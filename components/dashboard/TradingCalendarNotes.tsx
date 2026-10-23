@@ -782,10 +782,10 @@ return (
       <section
         className="
           flex
-          h-[64vh]
-          max-h-[800px]
+          h-[60vh]
+          max-h-[660px]
           w-[60vw]
-          max-w-[1180px]
+          max-w-[920px]
           flex-col
           overflow-hidden
           rounded-[8px]

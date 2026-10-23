@@ -12,6 +12,7 @@ import {
   Settings,
   NotebookPen,
   Calculator,
+   Sigma,
   Bell,
   Monitor,
   CircleHelp,
@@ -51,11 +52,16 @@ const mainItems = [
 ];
 
 const toolItems = [
-{
-  title: "Toolkit",
-  icon: Calculator,
-  href: "#",
-},
+  {
+    title: "Quant Research",
+    icon: Sigma,
+    href: "#",
+  },
+  {
+    title: "Toolkit",
+    icon: Calculator,
+    href: "#",
+  },
   {
     title: "Watchlist",
     icon: Monitor,
@@ -64,11 +70,6 @@ const toolItems = [
   {
     title: "Alerts",
     icon: Bell,
-    href: "#",
-  },
-  {
-    title: "Performance",
-    icon: BarChart3,
     href: "#",
   },
 ];
@@ -179,8 +180,9 @@ export default function Sidebar() {
 
   {mainItems.map((item) => {
 
-    const Icon = item.icon;
-    const isActive = pathname === item.href;
+const Icon = item.icon;
+const isActive = pathname === item.href;
+const isPlaceholder = item.href === "#";
 
     const content = (
      
@@ -218,11 +220,13 @@ const className = `
   border
   transition-all
   duration-150
-  ${
-    isActive
-      ? "border-[#17345E] bg-[#0D1932]"
+${
+  isActive
+    ? "border-[#17345E] bg-[#0D1932]"
+    : isPlaceholder
+      ? "border-transparent opacity-50 cursor-not-allowed"
       : "border-transparent hover:bg-white/[0.03]"
-  }
+}
 `;
 
    if (item.href === "#") {
@@ -231,9 +235,13 @@ const className = `
     key={item.title}
     className="flex justify-center"
   >
-    <button className={className}>
-      {content}
-    </button>
+<button
+  type="button"
+  disabled={isPlaceholder}
+  className={className}
+>
+  {content}
+</button>
   </div>
 );
 }
@@ -284,31 +292,41 @@ return (
         </div>
       );
 
-      const className = `
-        group
-        flex
-        h-[46px]
-        w-[170px]
-        -translate-x-0
-        translate-y-6
-        items-center
-        justify-start
-        rounded-[8px]
-        border
-        border-transparent
-        transition-all
-        duration-150
-        hover:bg-white/[0.03]
-      `;
+const isPlaceholder = item.href === "#";
+
+const className = `
+  group
+  flex
+  h-[46px]
+  w-[170px]
+  -translate-x-0
+  translate-y-6
+  items-center
+  justify-start
+  rounded-[8px]
+  border
+  border-transparent
+  transition-all
+  duration-150
+  ${
+    isPlaceholder
+      ? "opacity-50 cursor-not-allowed"
+      : "hover:bg-white/[0.03]"
+  }
+`;
 
       return (
         <div
           key={item.title}
           className="flex justify-center"
         >
-          <button className={className}>
-            {content}
-          </button>
+<button
+  type="button"
+  disabled={isPlaceholder}
+  className={className}
+>
+  {content}
+</button>
         </div>
       );
 
@@ -330,8 +348,9 @@ return (
 
     {systemItems.map((item) => {
 
-      const Icon = item.icon;
-      const isActive = pathname === item.href;
+const Icon = item.icon;
+const isActive = pathname === item.href;
+const isPlaceholder = item.href === "#";
 
       const content = (
         <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
@@ -356,25 +375,27 @@ return (
         </div>
       );
 
-      const className = `
-        group
-        flex
-        h-[46px]
-        w-[170px]
-        -translate-x-0
-        translate-y-6
-        items-center
-        justify-start
-        rounded-[8px]
-        border
-        transition-all
-        duration-150
-        ${
-          isActive
-            ? "border-[#17345E] bg-[#0D1932]"
-            : "border-transparent hover:bg-white/[0.03]"
-        }
-      `;
+const className = `
+  group
+  flex
+  h-[46px]
+  w-[170px]
+  -translate-x-0
+  translate-y-6
+  items-center
+  justify-start
+  rounded-[8px]
+  border
+  transition-all
+  duration-150
+  ${
+    isActive
+      ? "border-[#17345E] bg-[#0D1932]"
+      : isPlaceholder
+        ? "border-transparent opacity-50 cursor-not-allowed"
+        : "border-transparent hover:bg-white/[0.03]"
+  }
+`;
 
       if (item.href === "#") {
         return (
@@ -382,9 +403,13 @@ return (
             key={item.title}
             className="flex justify-center"
           >
-            <button className={className}>
-              {content}
-            </button>
+<button
+  type="button"
+  disabled={isPlaceholder}
+  className={className}
+>
+  {content}
+</button>
           </div>
         );
       }

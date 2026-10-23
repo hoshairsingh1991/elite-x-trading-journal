@@ -756,7 +756,6 @@ px-[10px]
     gap-[10px]
     overflow-y-auto
     overflow-x-hidden
-    overscroll-contain
     pr-[2px]
     focus-visible:outline-none
     focus-visible:ring-1
