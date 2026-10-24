@@ -568,6 +568,10 @@ git commit -m "Adjust trading calendar notes modal width"
 git commit -m "feat(dashboard): refine analytics, calendar, expenses, and sidebar" 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 git commit -m "security: harden manual execution edits and document audit findings"
+git commit -m "docs: update project notes after manual edit security fix"
+git commit -m "fix(sync): protect manual executions during broker replacement"
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

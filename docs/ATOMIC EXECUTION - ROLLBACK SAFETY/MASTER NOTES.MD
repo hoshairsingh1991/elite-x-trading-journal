@@ -44,7 +44,7 @@ It connects the two major execution-ingestion paths:
                        ▼
              P&L / ANALYTICS /
                   DASHBOARD
-```
+
 
 This document explains how the entire architecture fits together.
 
