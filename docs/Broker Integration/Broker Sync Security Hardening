@@ -1,0 +1,248 @@
+# Broker Sync Security Hardening — Checkpoint
+
+**Date:** October 24, 2026  
+**Scope:** Broker synchronization endpoint security, IBKR Flex logging, and related code review  
+**Status:** Initial hardening changes implemented; production runtime verification pending.
+
+---
+
+## 1. Scheduled Broker Sync Authentication
+
+**File:** `app/api/cron/sync-brokers/route.ts`
+
+### Change implemented
+
+Added an explicit check that `CRON_SECRET` exists before comparing the request's Authorization header.
+
+- If `CRON_SECRET` is missing, the route logs `CRON_SYNC_BLOCKED: CRON_SECRET is not configured.` and returns HTTP 500 without starting synchronization.
+- If the Authorization header does not match `Bearer ${CRON_SECRET}`, the route returns HTTP 401.
+- If authentication succeeds, the route continues to call `syncAllBrokers()` as before.
+
+### Behavior preserved
+
+- Global scheduled broker synchronization.
+- Existing `syncAllBrokers()` implementation.
+- Existing success response and error handling.
+- Existing broker-sync and execution-processing logic.
+
+### Reason for change
+
+Previously, when `CRON_SECRET` was unset, the expected authorization string could become `Bearer undefined`. The new check ensures that a missing secret fails closed.
+
+**Validation:** `npm run build` passed.
+
+---
+
+## 2. Test Sync Endpoint Authentication
+
+**File:** `app/api/test-sync/route.ts`
+
+### Findings before the change
+
+The route exposed a `GET` handler without an authentication check. It called `syncAllBrokers()` and returned the broker count and synchronization results.
+
+A source-code search found no application-code callers of `/api/test-sync` in `app`, `components`, or `lib`.
+
+### Change implemented
+
+Added an explicit `CRON_SECRET` configuration check and Authorization-header validation before invoking synchronization.
+
+- If `CRON_SECRET` is missing, the route returns HTTP 500 without starting synchronization.
+- If the request has an invalid or missing Authorization header, it returns HTTP 401.
+- If authenticated, it retains the existing behavior: call `syncAllBrokers()` and return the success status, broker count, and broker results.
+- Existing error handling remains in place.
+
+### Behavior preserved
+
+The endpoint remains available for authorized testing. The route's synchronization logic has not been rewritten, and no database records were intentionally changed by this code modification.
+
+### Remaining consideration
+
+The route still triggers synchronization across all active broker connections and returns the resulting broker data when called with the correct secret. It shares `CRON_SECRET` with the scheduled sync route. Its long-term purpose and whether it should remain deployed have not been decided.
+
+**Validation:** `npm run build` passed.
+
+---
+
+## 3. Global Broker Synchronization Function Reviewed
+
+**File:** `lib/server/sync/syncAllBrokers.ts`
+
+### Current behavior confirmed
+
+The function:
+
+1. Uses `supabaseAdmin` to query `broker_connections`.
+2. Selects all connections where `is_active = true`.
+3. Calls `syncBroker()` for each active connection sequentially.
+4. Waits three seconds between iterations to reduce IBKR Flex rate-limit pressure.
+5. Returns the collected synchronization results.
+
+The query does not filter by an individual user's ID.
+
+### Decision
+
+**No changes made.**
+
+This function is used by the scheduled broker-sync endpoint and is designed to process active broker connections globally. Changing its scope without understanding the application architecture could break legitimate scheduled synchronization.
+
+The test endpoint was hardened at its entry point instead of rewriting this shared function.
+
+---
+
+## 4. IBKR Flex Statement Error Logging
+
+**File:** `lib/server/brokers/ibkr/fetchFlexStatement.ts`
+
+### Change implemented
+
+Removed logging of the complete raw IBKR XML response when the initial Flex SendRequest fails unexpectedly.
+
+The failure log now reports:
+
+- A fixed failure message.
+- The HTTP response status.
+- The extracted IBKR error code, or `unknown` if it cannot be extracted.
+
+The function continues to throw the existing `Failed to retrieve reference code` error.
+
+### Behavior preserved
+
+- Existing retry handling for IBKR error code `1018`.
+- Maximum of five SendRequest attempts.
+- Existing retry delay.
+- Statement polling behavior.
+- Existing timeout error.
+- Return of the completed XML statement to the caller.
+
+### Reason for change
+
+Raw broker responses may contain account or financial information. Logging a structured failure summary provides diagnostic information without recording the entire response body.
+
+**Validation:** `npm run build` passed.
+
+---
+
+## 5. IBKR Execution Sync Logging Reviewed
+
+**File:** `lib/server/brokers/ibkr/fetchFlex.ts`
+
+### Review findings
+
+The file logs:
+
+- IBKR account ID.
+- Flex query ID.
+- XML length.
+- Number of parsed executions.
+- Whether synchronization was skipped because no executions were found.
+
+It does not log the complete XML statement.
+
+### Decision
+
+**No changes made.**
+
+The account-ID and query-ID logs were retained because they help diagnose broker-sync issues. We did not establish a sufficiently strong reason to remove these identifiers from the operational logs.
+
+The existing zero-execution safeguard and atomic broker-execution replacement call remain unchanged.
+
+---
+
+## 6. Legacy IBKR Flex Route Reviewed and Deferred
+
+**File:** `app/api/ibkr/flex/route.ts`
+
+### Findings
+
+The route:
+
+- Uses `supabaseAdmin` to select an active broker connection without filtering by user ID.
+- Requests a Flex statement from Interactive Brokers.
+- Logs the raw SendRequest and polling XML responses.
+- Returns the full XML report in its HTTP response.
+- Does not visibly authenticate the request or verify connection ownership.
+
+A source search did not identify an application-code caller of this route. Project documentation also refers to it as a legacy endpoint.
+
+### Decision
+
+**The file was deliberately left unchanged. It was not deleted.**
+
+The endpoint's original purpose and whether an external integration still depends on it have not been conclusively established. The user chose to preserve it until its purpose is better understood.
+
+### Outstanding concern
+
+The route's apparent lack of authentication and ownership checks remains a security concern. Leaving it in place is a deferred decision, not a resolution of the issue. Its purpose and any external callers need to be established before deciding whether to secure, disable, or remove it.
+
+---
+
+## 7. Trade Detail Modal Logging Reviewed
+
+**File:** `components/trades/TradeDetailModal.tsx`
+
+### Review findings
+
+The component logs the full trade object if it cannot identify the exact partial-exit execution. It also logs Supabase errors when deletion fails.
+
+Because this is a client component, its `console.error()` messages appear in the browser console rather than directly in server logs.
+
+### Decision
+
+**No changes made.**
+
+The logs were retained for troubleshooting. Existing partial-exit, trade-lifecycle deletion, and action-lock behavior were not modified. The existing Manual Entry Edit/Delete workflow remains outside the scope of this logging review.
+
+---
+
+## 8. Suggested File Not Found
+
+**Suggested path:** `lib/server/sync/supabaseExecutionStorage.ts`
+
+The file was not available at the suggested path in the current project inspection.
+
+**Decision:** No file was created, and no code was changed for this item. The actual execution-storage implementation would need to be located before reviewing its logging.
+
+---
+
+## 9. Database Least-Privilege Review Deferred
+
+The earlier database privilege investigation identified broad table-level privileges and default privileges.
+
+**Decision:** The user chose to defer this cleanup.
+
+- No database privileges were revoked as part of this review.
+- No default privileges were changed.
+- No migration was created for this deferred item.
+
+This decision is separate from the application endpoint changes above.
+
+---
+
+## 10. Validation Status and Next Steps
+
+### Completed
+
+- Added fail-closed `CRON_SECRET` validation to the scheduled broker-sync route.
+- Added fail-closed `CRON_SECRET` validation to the test-sync route.
+- Removed raw XML logging from the initial IBKR Flex request failure path.
+- Reviewed `syncAllBrokers()` without modifying its implementation.
+- Reviewed IBKR execution-sync logs and retained the account ID and Flex query ID logs.
+- Reviewed `TradeDetailModal.tsx` logging without modifying existing trade workflows.
+- Preserved the legacy IBKR Flex route pending confirmation of its purpose.
+- Confirmed that `npm run build` passed after the implemented code changes.
+- Tested both endpoints locally without an Authorization header. Both returned HTTP `401 Unauthorized`, and the requests were rejected before `syncAllBrokers()` was invoked.
+
+### Not yet verified at runtime
+
+The following remain outstanding:
+
+1. The missing-`CRON_SECRET` configuration branch has not been tested.
+2. The valid authorization path has not been tested. Avoid triggering a global production sync solely to test authentication.
+3. Successful scheduled broker synchronization has not been re-tested as part of this checkpoint.
+4. The legacy `/api/ibkr/flex` endpoint's original purpose and any external callers remain unconfirmed.
+5. The long-term decision for `/api/test-sync` remains open. It is now protected by `CRON_SECRET`, but it still triggers synchronization across all active broker connections when properly authorized.
+
+### Overall status
+
+The initial endpoint-hardening changes are implemented, the build passes, and both endpoints reject unauthenticated requests in the local development environment. Production runtime behavior has not been verified. The shared broker-sync implementation and existing trade workflows were preserved. The legacy endpoint and database least-privilege cleanup remain deferred.

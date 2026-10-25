@@ -5,22 +5,36 @@ import {
 export async function GET(
   request: Request
 ) {
+  const cronSecret =
+    process.env.CRON_SECRET;
 
-  const authHeader =
-    request.headers.get(
-      "authorization"
+  // Fail closed if the secret is not configured.
+  if (!cronSecret) {
+    console.error(
+      "CRON_SYNC_BLOCKED: CRON_SECRET is not configured."
     );
-
-  if (
-    authHeader !==
-    `Bearer ${process.env.CRON_SECRET}`
-  ) {
 
     return Response.json(
       {
         success: false,
-        error:
-          "Unauthorized",
+        error: "Cron authentication is not configured",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+
+  const authHeader =
+    request.headers.get("authorization");
+
+  if (
+    authHeader !== `Bearer ${cronSecret}`
+  ) {
+    return Response.json(
+      {
+        success: false,
+        error: "Unauthorized",
       },
       {
         status: 401,
@@ -29,15 +43,12 @@ export async function GET(
   }
 
   try {
-
     await syncAllBrokers();
 
     return Response.json({
       success: true,
     });
-
   } catch (error) {
-
     console.error(
       "CRON SYNC FAILED:",
       error

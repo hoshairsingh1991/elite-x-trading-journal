@@ -93,7 +93,14 @@ await sleep(
   }
 
 console.error(
-  sendXml
+  "IBKR Flex SendRequest failed",
+  {
+    httpStatus: sendResponse.status,
+    errorCode:
+      sendXml.match(
+        /<ErrorCode>(.*?)<\/ErrorCode>/
+      )?.[1] ?? "unknown",
+  }
 );
 
 throw new Error(
