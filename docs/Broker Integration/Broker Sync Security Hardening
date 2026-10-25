@@ -195,13 +195,29 @@ The logs were retained for troubleshooting. Existing partial-exit, trade-lifecyc
 
 ---
 
-## 8. Suggested File Not Found
+## 8. Execution Storage Logging Sanitized
 
-**Suggested path:** `lib/server/sync/supabaseExecutionStorage.ts`
+**File:** `lib/storage/supabaseExecutionStorage.ts`
 
-The file was not available at the suggested path in the current project inspection.
+### Finding
 
-**Decision:** No file was created, and no code was changed for this item. The actual execution-storage implementation would need to be located before reviewing its logging.
+The `saveExecutionsToSupabase()` error handler logged the complete first execution object when the Supabase upsert failed. The object could contain account details, ticker, contract, execution price, fees, broker execution ID, and user ID.
+
+### Change implemented
+
+Replaced full-object logging with logging of the first execution's ID, while retaining the attempted execution count.
+
+### Behavior preserved
+
+- Supabase error message, details, hint, and code logging.
+- Existing error propagation using `throw error`.
+- Execution serialization and duplicate protection.
+- Paginated execution loading and user ownership filtering.
+- Existing upsert behavior and canonical execution architecture.
+
+### Validation
+
+`npm run build` passed after the change.
 
 ---
 

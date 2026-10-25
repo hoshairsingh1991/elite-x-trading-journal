@@ -365,8 +365,8 @@ if (error) {
   );
 
   console.error(
-    "FIRST EXECUTION:",
-    uniqueExecutions[0]
+    "FIRST EXECUTION ID:",
+    uniqueExecutions[0]?.id ?? "unavailable"
   );
 
  throw error;

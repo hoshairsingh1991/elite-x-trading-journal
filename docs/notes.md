@@ -570,8 +570,8 @@ git commit -m "feat(dashboard): refine analytics, calendar, expenses, and sideba
 git commit -m "security: harden manual execution edits and document audit findings"
 git commit -m "docs: update project notes after manual edit security fix"
 git commit -m "fix(sync): protect manual executions during broker replacement"
-
-
+git commit -m "fix(security): harden broker sync endpoints"
+git commit -m "fix(security): sanitize execution storage logs"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
