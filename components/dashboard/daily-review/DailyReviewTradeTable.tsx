@@ -807,12 +807,19 @@ ${
   "
 >
   <div className="flex items-center gap-2">
-    <AssetIcon
-      ticker={trade.ticker}
-      assetType={trade.assetType}
-      contractKey={trade.contractKey}
-      size="sm"
-    />
+<AssetIcon
+  ticker={trade.ticker}
+  assetType={trade.assetType}
+  contractKey={trade.contractKey}
+  exchange={
+    trade.executions?.find(
+      (execution) =>
+        execution.exchange &&
+        execution.exchange.trim() !== ""
+    )?.exchange
+  }
+  size="sm"
+/>
 
     <span className="truncate">
       {trade.ticker}

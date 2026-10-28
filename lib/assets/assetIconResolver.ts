@@ -40,6 +40,52 @@ function normalizeAssetType(
   );
 }
 
+function normalizeExchange(
+  exchange?: string
+) {
+  return exchange
+    ?.trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
+
+const STOCK_TICKER_SUFFIX_BY_EXCHANGE: Record<
+  string,
+  string
+> = {
+  TSE: ".TO",
+  TSX: ".TO",
+  XTSE: ".TO",
+  TORONTOSTOCKEXCHANGE: ".TO",
+};
+
+function resolveProviderTicker(
+  ticker: string,
+  exchange?: string
+) {
+  const normalizedTicker = ticker.trim();
+  const normalizedExchange =
+    normalizeExchange(exchange);
+
+  const suffix =
+    normalizedExchange
+      ? STOCK_TICKER_SUFFIX_BY_EXCHANGE[
+          normalizedExchange
+        ]
+      : undefined;
+
+  if (
+    !suffix ||
+    normalizedTicker
+      .toUpperCase()
+      .endsWith(suffix)
+  ) {
+    return normalizedTicker;
+  }
+
+  return `${normalizedTicker}${suffix}`;
+}
+
 function getFallbackText(
   ticker: string
 ) {
@@ -164,11 +210,17 @@ export function resolveAssetIcon(
     assetType === "reits" ||
     assetType === "options";
 
-  if (isStockLike) {
-    const src =
-      buildStockLogoUrl(
-        ticker
-      );
+if (isStockLike) {
+  const providerTicker =
+    resolveProviderTicker(
+      ticker,
+      input.exchange
+    );
+
+  const src =
+    buildStockLogoUrl(
+      providerTicker
+    );
 
     if (!src) {
       return null;

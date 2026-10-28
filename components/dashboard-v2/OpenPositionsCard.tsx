@@ -180,9 +180,9 @@ const openTrades = trades
   Side
 </div>
 
-    <div className="relative left-7 top-0.5">
-      Size
-    </div>
+<div className="relative top-0.5 text-center">
+  Size
+</div>
 
 <div className="relative top-0.5 whitespace-nowrap text-right">
   Unrealized P&L
@@ -265,6 +265,13 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
   ticker={trade.ticker}
   assetType={trade.assetType}
   contractKey={trade.contractKey}
+  exchange={
+    trade.executions?.find(
+      (execution) =>
+        execution.exchange &&
+        execution.exchange.trim() !== ""
+    )?.exchange
+  }
   size="sm"
 />
 
@@ -313,20 +320,18 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
           {/* SIZE */}
           {/* ----------------------------------- */}
 
-          <div
-            className="
-              relative
-              left-1
-              text-center
-              text-[11px]
-              tabular-nums
-              text-slate-300
-            "
-          >
-            {formatQuantity(
-              trade.quantity
-            )}
-          </div>
+<div
+  className="
+    text-center
+    text-[11px]
+    tabular-nums
+    text-slate-300
+  "
+>
+  {formatQuantity(
+    trade.quantity
+  )}
+</div>
 
           {/* ----------------------------------- */}
           {/* P&L */}

@@ -4322,3 +4322,177 @@ Asset Identity and Vendor Identity systems.
 END OF MASTER NOTES
 
 ===============================================================
+
+
+
+
+
+# ELITE X — ASSET ICON EXCHANGE-AWARE RESOLUTION
+
+**Date:** October 28, 2026  
+**System:** AssetIcon Identity System  
+**Status:** Core fix implemented; visual verification completed in Open Positions and Trade History.
+
+---
+
+## 1. Problem
+
+The Canadian stock TELUS trades on the Toronto Stock Exchange under ticker `T`.
+
+Elite X displayed the AT&T logo for TELUS because the AssetIcon resolver passed the ticker to Logo.dev without considering the listing exchange.
+
+The provider interpreted the unqualified ticker `T` as the US security rather than the Canadian listing.
+
+**Root cause:** Ambiguous ticker resolution caused by missing exchange context, not an icon-rendering or sizing problem.
+
+## 2. Existing Architecture
+
+The AssetIcon system separates rendering from identity resolution.
+
+- **`components/common/AssetIcon.tsx`** — Renders the icon and manages sizing, fallback behavior, and image-loading failures.
+- **`lib/assets/assetIconResolver.ts`** — Normalizes input values, resolves the provider ticker, and constructs the logo URL.
+- **Icon consumers** — Pass the available instrument and exchange information to `AssetIcon`.
+
+The resolver already accepted an optional `exchange` property, and `AssetIcon` already forwarded that property to the resolver. The missing piece was using exchange information when resolving the provider ticker.
+
+## 3. Root Cause in the Logo URL
+
+The original stock-logo lookup used the ticker without a market suffix:
+
+```ts
+https://img.logo.dev/ticker/{ticker}?token=...
+```
+
+For ticker `T`, this could return the AT&T logo.
+
+The resolver needed to distinguish between the same ticker symbol listed on different exchanges.
+
+## 4. Resolver Fix
+
+### 4.1 Exchange normalization
+
+The resolver normalizes exchange identifiers by trimming whitespace, converting to uppercase, and removing non-alphanumeric characters.
+
+```ts
+function normalizeExchange(exchange?: string) {
+  return exchange
+    ?.trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
+```
+
+This allows equivalent exchange identifiers to be handled consistently.
+
+### 4.2 Exchange-to-provider-suffix mapping
+
+The following supported exchange identifiers map to the `.TO` suffix:
+
+| Exchange identifier after normalization | Provider suffix |
+|---|---|
+| `TSE` | `.TO` |
+| `TSX` | `.TO` |
+| `XTSE` | `.TO` |
+| `TORONTOSTOCKEXCHANGE` | `.TO` |
+
+The mapping lives inside `lib/assets/assetIconResolver.ts`. Provider-specific rules remain centralized rather than being duplicated in UI components.
+
+### 4.3 Provider ticker resolution
+
+A helper combines the instrument ticker with the appropriate suffix when the exchange is supported and the suffix is not already present.
+
+Example:
+
+```text
+Original ticker:  T
+Exchange:         TSE
+Resolved ticker:  T.TO
+```
+
+The stock-logo URL builder receives the resolved provider ticker:
+
+```text
+/ticker/T.TO?token=...
+```
+
+This supplies Logo.dev with exchange-specific ticker information for the Canadian listing.
+
+The transformation applies only to exchanges defined in the mapping. Unknown exchanges retain the existing ticker behavior.
+
+## 5. Exchange Data Flow
+
+Exchange information belongs to the execution records in Elite X's existing data model. It should be passed from the available execution data to the icon resolver rather than added to the canonical `Trade` model solely for display purposes.
+
+The consumer extracts the first execution that has a non-empty exchange:
+
+```tsx
+exchange={
+  trade.executions?.find(
+    (execution) =>
+      execution.exchange &&
+      execution.exchange.trim() !== ""
+  )?.exchange
+}
+```
+
+The exchange is then passed to `AssetIcon` alongside the ticker and asset type.
+
+### Resolution flow
+
+```text
+Trade
+  └── Executions
+        └── Exchange
+              ↓
+        AssetIcon consumer
+              ↓
+           AssetIcon
+              ↓
+      resolveAssetIcon()
+              ↓
+    resolveProviderTicker()
+              ↓
+      Exchange-aware ticker
+              ↓
+        Logo.dev URL
+              ↓
+       Correct instrument logo
+```
+
+If exchange information is unavailable, the resolver continues to use the existing ticker-based lookup.
+
+## 6. Components and Responsibilities
+
+The change preserves the existing architecture:
+
+- `components/common/AssetIcon.tsx` remains the shared presentation component.
+- `lib/assets/assetIconResolver.ts` remains the central location for provider resolution and URL construction.
+- Components displaying instrument icons pass exchange information from available executions.
+- The canonical Trade model, execution relationships, accounting, and lifecycle logic remain unchanged.
+
+The vendor identity system remains separate. `VendorIcon` and its resolver handle vendor identities and are not involved in financial instrument ticker resolution.
+
+## 7. Verification
+
+### Confirmed visually
+
+- **Open Positions:** TELUS displays the correct logo instead of AT&T.
+- **Trade History:** The TELUS trade displays the correct logo instead of AT&T.
+
+The Recent Trades card filters out open positions, so the currently open TELUS trade cannot be used to verify that card.
+
+The Daily Review icon consumers have also been updated to pass exchange information. Their visual results should be confirmed separately.
+
+## 8. Rules for Future Changes
+
+1. Keep exchange normalization, provider suffix mappings, and logo URL construction inside `lib/assets/assetIconResolver.ts`.
+2. Pass the available exchange from execution records when rendering an instrument icon.
+3. Do not add fields to the canonical Trade model solely to support icon rendering.
+4. Do not duplicate provider-specific ticker-resolution logic across consumers.
+5. Preserve `AssetIcon` as the shared component responsible for presentation, sizing, and fallback handling.
+6. Before adding another exchange mapping, verify the provider's expected ticker notation.
+7. Regression-test Canadian listings with potentially ambiguous tickers, US stocks and ETFs, options underlying symbols, and crypto assets where applicable.
+
+---
+
+**Final result:** Elite X now uses available exchange information to resolve supported Toronto-listed instruments with the `.TO` provider suffix. This fixes the TELUS-versus-AT&T logo ambiguity while preserving the existing AssetIcon architecture and canonical trade data model.

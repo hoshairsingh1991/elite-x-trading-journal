@@ -890,12 +890,19 @@ className={`
     justify-center
   "
 >
-  <AssetIcon
-    ticker={trade.ticker}
-    assetType={trade.assetType}
-    contractKey={trade.contractKey}
-    size="lg"
-  />
+<AssetIcon
+  ticker={trade.ticker}
+  assetType={trade.assetType}
+  contractKey={trade.contractKey}
+  exchange={
+    trade.executions?.find(
+      (execution) =>
+        execution.exchange &&
+        execution.exchange.trim() !== ""
+    )?.exchange
+  }
+  size="lg"
+/>
 </div>
 
                 <div
@@ -1112,147 +1119,143 @@ className={`
           {/* ================================================= */}
 
           <div
-  className="
-    relative
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    px-4
-    py-4
-    transition-all
-    duration-200
-    hover:-translate-y-[2px]
-    hover:z-10
-    hover:border-cyan-500/20
-    hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
-  "
->
-
+            className="
+              relative
+              rounded-[8px]
+              border
+              border-white/[0.06]
+              bg-[#0b1220]
+              px-4
+              py-4
+              transition-all
+              duration-200
+              hover:-translate-y-[2px]
+              hover:z-10
+              hover:border-cyan-500/20
+              hover:shadow-[0_0_20px_rgba(34,211,238,0.08)]
+            "
+          >
             <div className="flex h-[80px] items-center">
-
               <div className="grid w-[calc(100%-30px)] translate-x-[14px] grid-cols-2 divide-x divide-white/[0.06]">
 
                 {/* LEFT — VALUES */}
 
                 <div className="pr-4">
-
                   <PreviewRow
                     label="Entry Value"
                     value={`${currencySymbol}${(
-Number(
-  trade.entryPrice ||
-  0
-) *
-Math.abs(
-  Number(
-    trade.quantity ||
-    0
-  )
-) *
-(assetType === "OPTIONS" ? 100 : 1)
+                      Number(
+                        trade.entryPrice || 0
+                      ) *
+                      Math.abs(
+                        Number(
+                          trade.quantity || 0
+                        )
+                      ) *
+                      (assetType === "OPTIONS" ? 100 : 1)
                     ).toFixed(2)}`}
                     valueClassName="translate-x-[-10px]"
                   />
 
                   <div className="translate-y-[4px]">
-
                     <PreviewRow
                       label="Exit Value"
                       value={
-                        trade.exitPrice !=
-                        null
+                        trade.exitPrice != null
                           ? `${currencySymbol}${(
-Number(
-  trade.exitPrice
-) *
-Math.abs(
-  Number(
-    trade.quantity ||
-    0
-  )
-) *
-(assetType === "OPTIONS" ? 100 : 1)
+                              Number(trade.exitPrice) *
+                              Math.abs(
+                                Number(
+                                  trade.quantity || 0
+                                )
+                              ) *
+                              (assetType === "OPTIONS" ? 100 : 1)
                             ).toFixed(2)}`
                           : "—"
                       }
                       valueClassName="translate-x-[-10px]"
                     />
-
                   </div>
 
                   <div className="translate-y-[6px]">
-
                     <PreviewRow
                       label="Fees"
                       value={`${currencySymbol}${totalCommission.toFixed(2)}`}
                       valueClassName="translate-x-[-10px]"
                     />
-
                   </div>
-
                 </div>
 
                 {/* RIGHT — PERFORMANCE */}
 
                 <div className="pl-4">
-
-<PreviewRow
-  label="Gross P&L"
-  value={`${
-    grossPnL > 0
-      ? "+"
-      : grossPnL < 0
-        ? "-"
-        : ""
-  }${currencySymbol}${Math.abs(
-    grossPnL
-  ).toFixed(2)}`}
-  positive={grossPnL > 0}
-valueClassName={
-  grossPnL < 0
-    ? "!text-red-400"
-    : ""
-}
-  labelClassName="translate-x-[10px]"
-/>
+                  <PreviewRow
+                    label="Gross P&L"
+                    value={`${
+                      grossPnL > 0
+                        ? "+"
+                        : grossPnL < 0
+                          ? "-"
+                          : ""
+                    }${currencySymbol}${Math.abs(
+                      grossPnL
+                    ).toFixed(2)}`}
+                    positive={grossPnL > 0}
+                    valueClassName={
+                      grossPnL < 0
+                        ? "!text-red-400"
+                        : ""
+                    }
+                    labelClassName="translate-x-[10px]"
+                  />
 
                   <div className="translate-y-[4px]">
-
-<PreviewRow
-  label="Return"
-  value={
-    pnlPercent != null
-      ? `${
-          pnlPercent > 0
-            ? "+"
-            : pnlPercent < 0
-              ? "-"
-              : ""
-        }${Math.abs(pnlPercent).toFixed(2)}%`
-      : "—"
-  }
-  positive={
-    pnlPercent != null &&
-    pnlPercent > 0
-  }
-  valueClassName={
-    pnlPercent != null &&
-    pnlPercent < 0
-      ? "!text-red-400"
-      : ""
-  }
-  labelClassName="translate-x-[10px]"
-/>
-
+                    <PreviewRow
+                      label="Return"
+                      value={
+                        pnlPercent != null
+                          ? `${
+                              pnlPercent > 0
+                                ? "+"
+                                : pnlPercent < 0
+                                  ? "-"
+                                  : ""
+                            }${Math.abs(pnlPercent).toFixed(2)}%`
+                          : "—"
+                      }
+                      positive={
+                        pnlPercent != null &&
+                        pnlPercent > 0
+                      }
+                      valueClassName={
+                        pnlPercent != null &&
+                        pnlPercent < 0
+                          ? "!text-red-400"
+                          : ""
+                      }
+                      labelClassName="translate-x-[10px]"
+                    />
                   </div>
 
+                  {/* EXCHANGE */}
+
+                  <div className="translate-y-[6px]">
+                    <PreviewRow
+                      label="Exchange"
+                      value={
+                        trade.executions?.find(
+                          (execution) =>
+                            execution.exchange &&
+                            execution.exchange.trim() !== ""
+                        )?.exchange?.trim() || "—"
+                      }
+                      labelClassName="translate-x-[10px]"
+                    />
+                  </div>
                 </div>
 
               </div>
-
             </div>
-
           </div>
 
           {/* ================================================= */}

@@ -472,13 +472,20 @@ const isActionLocked =
     px-5
   "
 >
-  <div className="flex items-center gap-2">
-    <AssetIcon
-      ticker={trade.ticker}
-      assetType={trade.assetType}
-      contractKey={trade.contractKey}
-      size="sm"
-    />
+ <div className="grid w-[76px] shrink-0 grid-cols-[20px_minmax(0,1fr)] items-center gap-2">
+<AssetIcon
+  ticker={trade.ticker}
+  assetType={trade.assetType}
+  contractKey={trade.contractKey}
+  exchange={
+    trade.executions?.find(
+      (execution) =>
+        execution.exchange &&
+        execution.exchange.trim() !== ""
+    )?.exchange
+  }
+  size="sm"
+/>
 
     <div className="flex min-w-0 flex-col items-start">
       {/* TICKER */}

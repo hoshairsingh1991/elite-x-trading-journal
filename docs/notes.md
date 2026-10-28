@@ -573,8 +573,8 @@ git commit -m "fix(sync): protect manual executions during broker replacement"
 git commit -m "fix(security): harden broker sync endpoints"
 git commit -m "fix(security): sanitize execution storage logs"
 git commit -m "Add premium login transition animation"
-
-
+git commit -m "Fix chart warnings and refine login animation"
+git commit -m "Fix exchange-aware asset icon resolution"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
