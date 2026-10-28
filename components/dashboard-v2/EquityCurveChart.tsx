@@ -237,24 +237,23 @@ return (
 {/* ================================================= */}
 
 <Tooltip
-  labelFormatter={(label) => {
+labelFormatter={(label) => {
+  if (typeof label !== "string") {
+    return "";
+  }
 
-    if (label === "Start") {
-      return "Starting Point";
-    }
+  if (label === "Start") {
+    return "Starting Point";
+  }
 
-    const date =
-      parseLocalDate(label);
+  const date = parseLocalDate(label);
 
-    return date.toLocaleDateString(
-      "en-US",
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    );
-  }}
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}}
 
   formatter={(value) => {
 

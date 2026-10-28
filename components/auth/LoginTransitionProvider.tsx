@@ -195,7 +195,7 @@ export function LoginTransitionProvider({
   stroke-dashoffset: 100;
 
   animation-name: login-chart-draw;
-  animation-duration: ${TRANSITION_DURATION_MS + "ms"};
+  animation-duration: 1900ms;
   animation-delay: 0ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   animation-fill-mode: forwards;
@@ -205,9 +205,13 @@ export function LoginTransitionProvider({
   fill: #8bd5ff;
   opacity: 0;
 
+  filter:
+    drop-shadow(0 0 4px rgba(139, 213, 255, 0.9))
+    drop-shadow(0 0 9px rgba(79, 140, 255, 0.65));
+
   animation-name: login-chart-point-reveal;
   animation-duration: 180ms;
-  animation-delay: ${(TRANSITION_DURATION_MS - 180) + "ms"};
+  animation-delay: 1450ms;
   animation-timing-function: ease-out;
   animation-fill-mode: forwards;
 }
