@@ -180,6 +180,54 @@ useEffect(() => {
     );
   }
 
+function goToPreviousDay() {
+  if (!selectedDay) {
+    return;
+  }
+
+  const previousDate = new Date(
+    currentYear,
+    currentMonth,
+    selectedDay - 1
+  );
+
+  setCurrentDate(
+    new Date(
+      previousDate.getFullYear(),
+      previousDate.getMonth(),
+      1
+    )
+  );
+
+  setSelectedDay(
+    previousDate.getDate()
+  );
+}
+
+function goToNextDay() {
+  if (!selectedDay) {
+    return;
+  }
+
+  const nextDate = new Date(
+    currentYear,
+    currentMonth,
+    selectedDay + 1
+  );
+
+  setCurrentDate(
+    new Date(
+      nextDate.getFullYear(),
+      nextDate.getMonth(),
+      1
+    )
+  );
+
+  setSelectedDay(
+    nextDate.getDate()
+  );
+}
+
   // =====================================================
   // MONTH TRADES
   // =====================================================
@@ -843,6 +891,8 @@ bg-[#0b1220]
     selectedTrades={selectedTrades}
     allTrades={allTrades}
     reportingCurrency={reportingCurrency}
+    onPreviousDay={goToPreviousDay}
+    onNextDay={goToNextDay}
     onClose={() =>
       setSelectedDay(null)
     }

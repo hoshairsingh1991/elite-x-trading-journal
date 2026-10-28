@@ -58,6 +58,10 @@ interface DailyReviewModalProps {
 
   reportingCurrency: string;
 
+  onPreviousDay: () => void;
+
+  onNextDay: () => void;
+
   onClose: () => void;
 }
 
@@ -69,6 +73,8 @@ export default function DailyReviewModal({
   selectedTrades,
   allTrades,
   reportingCurrency,
+  onPreviousDay,
+  onNextDay,
   onClose,
 }: DailyReviewModalProps) {
 
@@ -574,6 +580,8 @@ ${
   onAccountChange={
     handleAccountChange
   }
+  onPreviousDay={onPreviousDay}
+  onNextDay={onNextDay}
   onClose={onClose}
 />
 

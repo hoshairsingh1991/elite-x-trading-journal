@@ -41,27 +41,18 @@ function parseDateTime(
 }
 
 export default function DailyReviewHeader({
-
   selectedDay,
-
   currentMonth,
-
   monthName,
-
   currentYear,
-
   selectedTrades,
-
   reportingCurrency,
-
   accountOptions,
-
   selectedAccount,
-
   onAccountChange,
-
+  onPreviousDay,
+  onNextDay,
   onClose,
-
 }: DailyReviewHeaderProps) {
 
   const [
@@ -251,7 +242,7 @@ if (
 
         <button
           type="button"
-          onClick={onClose}
+          onClick={onPreviousDay}
           className="
             flex
             h-[34px]
@@ -268,7 +259,8 @@ if (
             hover:border-white/[0.12]
             hover:text-slate-200
           "
-          aria-label="Close daily review"
+          aria-label="Previous day"
+title="Previous day"
         >
           <ChevronLeft size={16} />
         </button>
@@ -330,6 +322,33 @@ if (
             {weekday}
           </p>
         </div>
+
+        {/* NEXT DAY */}
+
+        <button
+          type="button"
+          onClick={onNextDay}
+          className="
+            flex
+            h-[34px]
+            w-[34px]
+            shrink-0
+            items-center
+            justify-center
+            rounded-[8px]
+            border
+            border-white/[0.06]
+            bg-[#0b1220]
+            text-slate-400
+            transition-all
+            hover:border-white/[0.12]
+            hover:text-slate-200
+          "
+          aria-label="Next day"
+          title="Next day"
+        >
+          <ChevronRight size={16} />
+        </button>
 
       </div>
 

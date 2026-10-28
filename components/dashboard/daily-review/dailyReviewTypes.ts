@@ -40,6 +40,10 @@ export interface DailyReviewHeaderProps {
     account: string
   ) => void;
 
+  onPreviousDay: () => void;
+
+  onNextDay: () => void;
+
   onClose: () => void;
 
 }
