@@ -13,9 +13,11 @@ import {
   EyeOff,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useLoginTransition } from "@/components/auth/LoginTransitionProvider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { startLoginTransition } = useLoginTransition();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,6 +41,7 @@ export default function LoginPage() {
         throw error;
       }
 
+      await startLoginTransition();
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message ?? "Something went wrong.");

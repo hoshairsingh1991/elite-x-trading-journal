@@ -7,6 +7,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { AuthProvider } from "@/providers/AuthProvider";
+import { LoginTransitionProvider } from "@/components/auth/LoginTransitionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,9 +64,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
+          <LoginTransitionProvider>
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
+          </LoginTransitionProvider>
         </AuthProvider>
       </body>
     </html>

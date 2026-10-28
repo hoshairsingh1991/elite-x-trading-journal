@@ -1,822 +1,937 @@
 # ELITE X TRADING JOURNAL
+
 # PRE-IMPLEMENTATION SECURITY CHECKLIST
 ## Before Invite-Only Signup and Delete User Modal
 
-**Project:** Elite X Trading Journal / Elite X Trading OS
-**Checklist Date:** October 24, 2026
-**Status:** NOT STARTED
-**Audit:** Read-only discovery completed
-**Scope:** Security remediation, execution integrity, database permissions, and account-deletion readiness
+**Project:** Elite X Trading Journal / Elite X Trading OS  
+**Last Updated:** October 25, 2026  
+**Status:** Security remediation partially completed; invite-only authorization remains in the audit/design phase.
 
-============================================================
+**Audit Scope:** Execution integrity, database permissions, API security, authentication, account approval, user-owned data, broker synchronization, and account-deletion readiness.
+
+## STATUS DEFINITIONS
+
+- [x] Implemented and verified within the stated scope.
+- [~] Implemented, but full validation or production verification remains outstanding.
+- [ ] Not implemented or not yet verified.
+- [DEFERRED] Deliberately postponed by decision; not considered complete.
+- [RISK] Known unresolved security concern.
+
+A completed implementation does not automatically mean every possible regression test has passed.
+
+---
+
 # 1. OBJECTIVE
-============================================================
 
-Complete the security and data-integrity work that should precede
-the invite-only beta rollout and safe account-deletion functionality.
+Prepare Elite X for controlled, invite-only access and eventual safe account-deletion functionality.
 
-The objective is NOT to redesign Elite X or audit every feature again.
+The objective is not to redesign the application or repeat the entire audit unnecessarily.
 
-The objective is to ensure:
+The objectives are to ensure:
 
 - Existing trading data remains protected.
 - Broker synchronization cannot accidentally delete manual executions.
 - Manual editing and deletion cannot target unintended executions.
 - Database permissions follow least privilege.
-- Legacy server endpoints are no longer unsafe release exceptions.
-- Authentication and authorization can support invite-only approval.
-- Account deletion can be implemented without orphaning data or files.
-- Existing FIFO reconstruction, analytics, password recovery, and
-  canonical execution architecture remain intact.
+- Server endpoints enforce authentication and appropriate authorization.
+- Invite-only approval and account permissions are enforced by trusted backend components.
+- Scheduled and manual broker synchronization follow consistent account-eligibility rules.
+- Account deletion removes intended user-owned data and files safely.
+- Existing FIFO reconstruction, analytics, manual-trade behavior, note editing, and password recovery remain intact.
 
-No task is considered complete until its implementation and relevant
-tests have been verified.
+No task should be considered complete without the implementation and relevant validation being recorded.
 
-============================================================
-# 2. PHASE 0 — ESTABLISH A SAFE CHECKPOINT
-# PRIORITY: REQUIRED BEFORE MAKING CHANGES
-============================================================
+---
 
-[ ] 2.1 Confirm current repository state.
+# 2. PHASE 0 — SAFE CHECKPOINT AND MIGRATION WORKFLOW
 
-    Run:
+## Current findings
 
-    git status --short
-    git branch --show-current
-    git log -1 --oneline
+- The project uses Next.js, TypeScript, Supabase, and Vercel.
+- Supabase CLI has been initialized and linked to the project.
+- The local `supabase/migrations` directory now contains the two execution-integrity migrations added during the security work.
+- The manual-edit migration was applied to the live database and marked as applied in migration history.
+- The broker-replacement migration was applied through the linked Supabase CLI workflow.
+- Security changes and documentation have been committed and pushed during this remediation session.
 
-    Record the current branch and commit.
+## Required maintenance
 
-[ ] 2.2 Preserve existing local changes.
+- [x] Establish a tracked migration directory.
+- [x] Add version-controlled migrations for the manual-edit and broker-replacement fixes.
+- [x] Establish a linked Supabase CLI workflow.
+- [ ] Before the next code change, run `git status --short`.
+- [ ] Confirm the current branch and latest commit.
+- [ ] Preserve any unrelated local modifications.
+- [ ] Verify the current status of `docs/ToolKit.md` before staging changes.
+- [ ] Review the complete diff before each commit.
+- [ ] Preserve rollback or recovery instructions for future destructive migrations.
+- [ ] Continue using isolated test fixtures or disposable accounts for destructive tests.
 
-    The October 24 audit identified an existing local modification:
+**Checkpoint rule:** Do not overwrite unrelated notes or include unrelated changes in security commits.
 
-    docs/ToolKit.md
+---
 
-    Do not overwrite, discard, or accidentally include this unrelated
-    modification in security-fix commits.
-
-[ ] 2.3 Inspect the latest versions of every file being changed.
-
-    Use the current repository as the authority.
-    Do not assume historical notes describe the exact current code.
-
-[ ] 2.4 Establish database migration/version-control workflow.
-
-    The local repository search did not find SQL migration files.
-
-    Before modifying live database functions or privileges:
-    - Determine the appropriate migration directory/workflow.
-    - Save the current relevant SQL definitions as a checkpoint.
-    - Prepare reviewed, version-controlled migrations.
-    - Define validation and rollback/recovery steps.
-    - Do not apply unreviewed SQL directly to production.
-
-[ ] 2.5 Establish a testing approach.
-
-    Determine how to test execution RPC behavior without risking
-    real trading records.
-
-    Use a suitable test environment or isolated test fixtures.
-    Do not run destructive tests against production trading data.
-
-
-============================================================
 # 3. PHASE 1 — PROTECT CANONICAL EXECUTION DATA
-# PRIORITY: P1 — BEFORE EXPANDING PRODUCTION BETA ACCESS
-============================================================
 
-Elite X architecture:
+Elite X's canonical architecture remains:
 
-    Canonical Executions
-            |
-            v
-        pairTrades()
-            |
-            v
-    Derived Trades / Positions
-            |
-            v
-       P&L / Analytics
+Canonical Executions
+        |
+        v
+    pairTrades()
+        |
+        v
+ Derived Trades / Positions
+        |
+        v
+    P&L / Analytics
 
 Executions remain the canonical source of truth.
 
-Do not redesign FIFO reconstruction as part of these fixes.
+Do not redesign FIFO reconstruction as part of this security work.
 
-------------------------------------------------------------
-3.1 FIX MANUAL EDIT RPC
-------------------------------------------------------------
+## 3.1 Manual Edit RPC
 
-Affected database function:
+**Affected function:**
 
-    public.replace_manual_executions_atomically(...)
+`public.replace_manual_executions_atomically(...)`
 
-Confirmed finding:
+### Implementation
 
-The current function deletes existing records by execution ID or
-contract key and user ID, but does not consistently require the
-existing records to be manual executions.
+- [x] Inspect the existing database function.
+- [x] Add manual-lifecycle restrictions to the deletion/replacement behavior.
+- [x] Preserve intended user ownership checks.
+- [x] Preserve atomic replacement semantics.
+- [x] Preserve partial-exit versus complete-lifecycle replacement behavior.
+- [x] Add migration:
 
-Required work:
+  `supabase/migrations/20261024224324_harden_manual_execution_edit.sql`
 
-[ ] Inspect the current function definition and back it up.
+- [x] Apply the migration to the live Supabase database.
+- [x] Mark the migration as applied in Supabase migration history.
+- [x] Validate the existing manual edit workflow using a disposable test trade.
+- [x] Confirm the test edit and cleanup succeeded.
+- [x] Confirm the project build passed during the remediation session.
 
-[ ] Add a database-enforced MANUAL- lifecycle restriction to both
-    execution-ID and contract-key deletion modes.
+### Remaining validation
 
-[ ] Ensure the existing target belongs to the intended user.
+- [ ] Add or run an explicit test proving a manual edit cannot delete a broker-imported execution owned by the same user.
+- [ ] Verify another user's executions cannot be affected.
+- [ ] Test invalid replacement data and transaction rollback.
+- [ ] Reconfirm partial-exit editing changes only the intended execution.
+- [ ] Reconfirm complete-lifecycle replacement remains atomic.
 
-[ ] Validate the target before deleting anything.
+**Current status:** Implemented and deployed; targeted UI testing completed. Additional regression tests remain.
 
-[ ] Preserve the current partial-exit versus complete-lifecycle
-    replacement semantics.
+## 3.2 Broker Execution Replacement
 
-[ ] Keep the transaction atomic:
-    failed replacement must leave the original executions intact.
+**Affected function:**
 
-[ ] Preserve the existing manual execution validation layer.
+`public.replace_broker_executions_atomically(...)`
 
-[ ] Test that a manual edit cannot delete a non-manual execution
-    owned by the same user.
+### Implementation
 
-[ ] Test that one user's request cannot affect another user's data.
+- [x] Inspect broker replacement behavior and manual execution identification.
+- [x] Add an explicit exclusion for manual executions.
+- [x] Preserve records whose `contract_key` is NULL for backward compatibility.
+- [x] Preserve user, account, and date-window scoping.
+- [x] Preserve the existing atomic replacement behavior.
+- [x] Add migration:
 
-[ ] Test that invalid replacement data causes rollback.
+  `supabase/migrations/20261024231200_protect_manual_executions_from_broker_sync.sql`
 
-[ ] Verify current production data and the resulting SQL definition
-    before applying a migration.
+- [x] Apply the migration to the linked Supabase database.
+- [x] Confirm the migration appears in local and remote migration history.
+- [x] Run SQL-level checks without errors.
 
-Completion criteria:
+### Remaining validation
 
-A manual-edit request cannot use the manual-edit database function
-to delete broker executions or another user's executions.
+- [ ] Test a populated mixed account/date scenario containing both manual and broker executions.
+- [ ] Verify manual executions survive an actual controlled broker refresh.
+- [ ] Verify intended broker records are still replaced correctly.
+- [ ] Verify failure and rollback behavior.
+- [ ] Record the result of a populated end-to-end replacement test.
 
-------------------------------------------------------------
-3.2 FIX BROKER EXECUTION REPLACEMENT
-------------------------------------------------------------
+The recent on-demand sync did not exercise populated replacement: the inspected active IBKR accounts returned zero executions, and replacement was skipped.
 
-Affected database function:
+**Current status:** Implemented and deployed; the populated mixed-data runtime test remains outstanding.
 
-    public.replace_broker_executions_atomically(...)
+## 3.3 Standardize Direct Execution Deletion Paths
 
-Confirmed finding:
+**Affected components:**
 
-The current DELETE condition matches user, account and execution date.
-It does not explicitly exclude manual executions.
+- `components/dashboard/TradingCalendar.tsx`
+- `components/trades/TradeDetailModal.tsx`
+- `components/trades/TradesTable.tsx`
 
-Current database evidence:
+**Existing API:**
 
-- One user/account pair contains manual and non-manual or
-  unclassified executions.
-- Four manual executions and 303 non-manual or unclassified
-  executions exist in that shared account pair.
-- No current user/account/date group containing both types
-  was found.
+`POST /api/trades/delete`
 
-No previous data loss was established.
+### Findings
 
-Required work:
+- Direct deletion handlers were identified in existing components.
+- Some handlers appeared unused in their respective components.
+- The existing TradeDetailModal workflow contains deletion behavior for manual trade executions.
+- The user explicitly chose to defer changes because the existing manual edit/delete workflow had already been made to work.
 
-[ ] Inspect the current broker import/parser source identification.
+### Status
 
-[ ] Confirm how broker account values and MANUAL- contract keys
-    are assigned in existing data.
+- [DEFERRED] Do not change these paths without revisiting the decision.
+- [ ] Keep this item open for a future dedicated review.
+- [ ] Before revisiting, map each visible deletion action to its actual handler and API.
+- [ ] Preserve partial-exit deletion by exact execution ID.
+- [ ] Preserve full-lifecycle deletion semantics.
+- [ ] Verify server-side ownership and manual-only restrictions.
+- [ ] Test FIFO reconstruction after deletion.
 
-[ ] Add an explicit, evidence-backed exclusion so broker replacement
-    cannot delete manual executions.
+**This item is deferred, not complete. No additional direct-delete refactor is authorized by this checklist update.**
 
-[ ] Preserve correct user, account and date-window scoping.
+---
 
-[ ] Preserve atomic replacement behavior.
-
-[ ] Test a scenario where manual and broker executions share the
-    same user, account and date.
-
-[ ] Confirm manual executions survive a broker refresh.
-
-[ ] Confirm intended broker records are still replaced correctly.
-
-[ ] Test failure and rollback behavior.
-
-Completion criteria:
-
-Broker sync cannot delete manual executions, including when those
-executions share an account and date with imported broker records.
-
-------------------------------------------------------------
-3.3 STANDARDIZE DIRECT EXECUTION DELETION PATHS
-------------------------------------------------------------
-
-Affected components:
-
-    components/dashboard/TradingCalendar.tsx
-    components/trades/TradeDetailModal.tsx
-    components/trades/TradesTable.tsx
-
-Current finding:
-
-These components contain direct DELETE operations against
-public.executions instead of consistently using the atomic
-server-side delete API.
-
-The existing API is:
-
-    POST /api/trades/delete
-
-Required work:
-
-[ ] Inspect the current delete button visibility and conditions.
-
-[ ] Identify which deletion actions apply only to manual trades.
-
-[ ] Route supported manual deletion actions through the existing
-    authenticated atomic delete API.
-
-[ ] Preserve partial-exit deletion by exact execution ID.
-
-[ ] Preserve complete-lifecycle deletion by contract key.
-
-[ ] Enforce the manual-only restriction in the API and database,
-    not solely in the UI.
-
-[ ] Ensure broker-imported executions cannot be deleted using
-    manual deletion actions.
-
-[ ] Ensure user ownership is checked server-side.
-
-[ ] Confirm legitimate existing manual deletion workflows still work.
-
-[ ] Verify FIFO reconstruction recalculates the resulting state
-    without special quantity-restoration logic.
-
-Completion criteria:
-
-All supported manual deletion paths use consistent server-side
-authorization and database-enforced target validation.
-
-
-============================================================
 # 4. PHASE 2 — DATABASE LEAST-PRIVILEGE REVIEW
-# PRIORITY: P1 — BEFORE EXPANDING PRODUCTION BETA ACCESS
-============================================================
 
-Confirmed findings:
+## Live database findings
 
-- RLS is enabled on all 14 public tables.
-- Effective privilege checks showed TRUNCATE privileges for
-  anon and authenticated across all 14 tables.
-- RLS does not protect against TRUNCATE.
-- The audit did not establish that ordinary Supabase REST requests
-  can invoke TRUNCATE directly.
+The live RLS audit returned 14 public tables:
 
-Required work:
+- RLS is enabled on all 14 tables.
+- Existing policies generally restrict records to their owner.
+- The profile table currently has ownership-based SELECT, INSERT, and UPDATE policies.
+- The audit identified excessive table privileges, including TRUNCATE, REFERENCES, and TRIGGER privileges.
+- Broad grants affecting some application tables were also observed.
+- RLS does not protect against operations such as TRUNCATE in the same way it protects ordinary row-level access.
 
-[ ] Identify the source of existing table privileges, including
-    explicit grants, PUBLIC grants and default privileges.
+## Status
 
-[ ] Inventory the privileges actually required by current app paths.
+- [x] Inspect the live RLS configuration.
+- [x] Inspect the profile policies.
+- [x] Inspect effective table privileges and default privileges.
+- [x] Record the finding that RLS enablement alone does not establish least privilege.
+- [DEFERRED] Do not revoke privileges or change grants as part of the current work without a separate reviewed plan.
 
-[ ] Identify unnecessary TRUNCATE privileges.
+## Future requirements
 
-[ ] Review excessive TRIGGER, REFERENCES and anonymous DML grants.
+- [ ] Identify required privileges for every current application access path.
+- [ ] Trace explicit grants, PUBLIC grants, and default privileges.
+- [ ] Determine which grants are unnecessary.
+- [ ] Review anonymous DML privileges and privileged server operations.
+- [ ] Prepare a version-controlled least-privilege migration.
+- [ ] Preserve the existing ownership policies.
+- [ ] Test trade, expense, note, attachment, profile, and broker workflows after any changes.
+- [ ] Verify privileged RPCs and server-side operations continue to work.
 
-[ ] Determine which operations require authenticated access,
-    service-role access, or a different access boundary.
+**Current status:** Audit completed; corrections deliberately deferred.
 
-[ ] Prepare a least-privilege migration.
+---
 
-[ ] Ensure existing RLS ownership protections are preserved.
-
-[ ] Do not revoke required privileges blindly.
-
-[ ] Test existing trade, expense, note, attachment, profile and
-    broker-connection operations after applying changes in a
-    safe environment.
-
-[ ] Confirm that privileged server functions continue to work.
-
-Completion criteria:
-
-Roles receive only the database privileges needed for their intended
-application responsibilities, without breaking existing functionality.
-
-
-============================================================
 # 5. PHASE 3 — SERVER ENDPOINT HARDENING
-# PRIORITY: P1 — BEFORE EXPANDING PRODUCTION BETA ACCESS
-============================================================
 
-------------------------------------------------------------
-5.1 LEGACY IBKR FLEX ENDPOINT
-------------------------------------------------------------
+## 5.1 Legacy IBKR Flex Endpoint
 
-Affected file:
+**Affected file:**
 
-    app/api/ibkr/flex/route.ts
+`app/api/ibkr/flex/route.ts`
 
-Confirmed findings:
+### Confirmed findings
 
 - No visible request authentication.
-- No user ownership filter.
-- Uses a privileged Supabase client.
-- Selects an active broker connection without scoping the query
-  to an authenticated user.
-- Returns full IBKR statement XML.
-- Logs statement XML.
-- No current application callers were found in the source search.
+- No user ownership filter for broker selection.
+- Uses privileged Supabase access.
+- Selects an active broker connection without scoping it to an authenticated user.
+- Logs and returns raw IBKR statement XML.
+- No current application callers were found during the source search.
+- The route is documented as a legacy endpoint.
 
-Historical context:
+### Decision
 
-The September audit documented this as an unused legacy weakness
-and recorded a decision not to change it at that time.
+The user explicitly chose to leave this endpoint unchanged for now.
 
-Required work:
+### Status
 
-[ ] Reconfirm there are no legitimate current callers.
+- [x] Inspect the endpoint.
+- [x] Search application source for callers.
+- [RISK] Leave the endpoint as a documented unresolved security exception.
+- [ ] Before invite-only production release, make an explicit decision to secure, disable, retire, or remove it.
+- [ ] If retained, authenticate requests, enforce ownership, and remove raw XML responses/logging.
+- [ ] Confirm the selected remediation with tests.
 
-[ ] Determine whether the endpoint can be retired, disabled,
-    removed, or safely secured.
+**Do not treat this endpoint as secure while it remains unchanged.**
 
-[ ] Make an explicit decision before changing the legacy route.
+## 5.2 Test-Sync Endpoint
 
-[ ] Do not treat the endpoint as an approved secure API while
-    it remains unauthenticated.
+**Affected file:**
 
-[ ] Remove full XML responses/logging if the endpoint is retained.
+`app/api/test-sync/route.ts`
 
-Completion criteria:
+### Implementation
 
-The endpoint is no longer an unresolved unauthenticated
-production security exception.
+- [x] Add a fail-closed check when `CRON_SECRET` is missing.
+- [x] Require the configured Bearer secret.
+- [x] Reject unauthenticated/incorrectly authenticated requests.
+- [x] Preserve the existing global sync behavior for authorized calls.
+- [x] Test an unauthenticated local request and confirm a `401` response.
+- [x] Search application source for legitimate callers; none were found.
 
-------------------------------------------------------------
-5.2 LEGACY TEST-SYNC ENDPOINT
-------------------------------------------------------------
+### Remaining validation
 
-Affected file:
+- [ ] Confirm production Vercel environment configuration without displaying the secret.
+- [ ] Verify missing-secret behavior in a controlled environment.
+- [ ] Do not exercise the valid-secret path casually: it invokes global broker synchronization.
+- [ ] Make a future explicit decision about retiring or retaining the test route.
 
-    app/api/test-sync/route.ts
+**Current status:** Authentication guard implemented; production and valid-secret behavior remain unverified.
 
-Historical finding:
+## 5.3 Cron Secret Must Fail Closed
 
-The September audit documented this as an unauthenticated test
-endpoint that invokes global broker synchronization.
+**Affected file:**
 
-The complete current implementation was not re-inspected during
-the October audit.
+`app/api/cron/sync-brokers/route.ts`
 
-Required work:
+### Implementation
 
-[ ] Inspect the current endpoint implementation.
+- [x] Explicitly reject requests if `CRON_SECRET` is missing.
+- [x] Reject requests with an invalid or missing Bearer secret.
+- [x] Preserve scheduled global synchronization behavior when correctly authorized.
+- [x] Test an unauthenticated local request and confirm a `401` response.
 
-[ ] Verify whether it has legitimate callers.
+### Remaining validation
 
-[ ] Determine whether it can trigger all-user broker synchronization.
+- [ ] Verify production environment configuration without exposing the secret.
+- [ ] Test the missing-secret branch in a safe environment.
+- [ ] Verify a correctly authorized scheduled run through a controlled operational procedure.
 
-[ ] Secure, disable or remove it through a deliberate decision.
+**Current status:** Fail-closed guard implemented; production configuration and authorized execution have not been independently verified.
 
-[ ] Ensure test routes cannot bypass the production cron security
-    boundary.
+## 5.4 Sensitive Logging
 
-Completion criteria:
+### `lib/server/brokers/ibkr/fetchFlexStatement.ts`
 
-No unauthenticated test endpoint can trigger privileged global sync.
+- [x] Replace raw XML logging for the initial SendRequest failure with safe HTTP status and error-code logging.
+- [x] Preserve the existing retry behavior, including handling ErrorCode 1018.
 
-------------------------------------------------------------
-5.3 CRON SECRET MUST FAIL CLOSED
-------------------------------------------------------------
+### `lib/server/brokers/ibkr/fetchFlex.ts`
 
-Affected file:
+- [x] Review current logging.
+- [DEFERRED] Retain the account and Flex Query ID logs according to the user's explicit decision.
+- [ ] Revisit only if new evidence shows these logs create a material security exposure.
 
-    app/api/cron/sync-brokers/route.ts
+### `lib/storage/supabaseExecutionStorage.ts`
 
-Confirmed conditional issue:
+- [x] Replace logging of the full first execution object with the first execution ID.
+- [x] Preserve execution counts, useful database error details, and thrown errors.
+- [x] Confirm the build passed after the change.
 
-The route interpolates CRON_SECRET into the expected bearer header.
-If the environment variable is undefined, the expected value may
-be the literal string:
+### `components/trades/TradeDetailModal.tsx`
 
-    Bearer undefined
+- [x] Review existing diagnostic logging.
+- [DEFERRED] Leave the reviewed trade-object logging unchanged for now, based on the user's decision.
 
-Production configuration has not been verified.
+### Legacy `/api/ibkr/flex/route.ts`
 
-Required work:
+- [RISK] Raw XML logging and XML responses remain unresolved because the endpoint was deliberately left unchanged.
 
-[ ] Explicitly reject requests if CRON_SECRET is missing or empty.
+### Status
 
-[ ] Compare the provided authorization header with the configured
-    secret only after confirming the secret exists.
+- [x] Sanitize the targeted execution-storage and initial Flex SendRequest logs.
+- [~] Retain useful diagnostic context.
+- [ ] Revisit the legacy route before invite-only production release.
+- [ ] Reassess deferred logs only if justified by concrete risk.
+- [ ] Verify final repository diff and commit history.
 
-[ ] Verify Vercel environment configuration without printing or
-    sharing the secret value.
+**Current status:** Partially completed; the listed deferred exceptions remain open.
 
-[ ] Confirm unauthorized requests do not trigger global sync.
+---
 
-[ ] Preserve the intended scheduled sync behavior for all users.
+# 6. PHASE 4 — INVITE-ONLY AUTHORIZATION FOUNDATION
 
-Completion criteria:
+**Priority:** Required before invite-only production release.
 
-Cron authentication fails closed and cannot be bypassed by
-missing-secret configuration.
+**Current state:** Discovery and read-only audit are underway. Approval enforcement has not been implemented.
 
-------------------------------------------------------------
-5.4 SANITIZE SENSITIVE LOGGING
-------------------------------------------------------------
+## 6.1 Signup, Login, and Auth Provider
 
-Review the following areas:
+### Findings
 
-    app/api/ibkr/flex/route.ts
-    lib/server/brokers/ibkr/fetchFlexStatement.ts
-    lib/server/brokers/ibkr/fetchFlex.ts
-    lib/storage/supabaseExecutionStorage.ts
-    components/trades/TradeDetailModal.tsx
+`app/signup/page.tsx`:
+- Supports ordinary signup through Supabase Auth.
+- Does not require an invitation or approval.
+- Signup success messaging assumes the user can proceed to the application.
 
-Required work:
+`app/login/page.tsx`:
+- Signs in through Supabase Auth.
+- Redirects the signed-in user to `/dashboard`.
+- Does not check application approval or account permissions.
 
-[ ] Remove raw broker statement XML from production logs.
+`providers/AuthProvider.tsx`:
+- Tracks the Supabase user, session, and loading state.
+- Does not resolve approval, administrator privileges, read-only access, or suspension.
 
-[ ] Avoid logging full execution objects on persistence failures.
+`components/auth/ProtectedRoute.tsx`:
+- Checks whether a user is signed in.
+- Redirects unauthenticated users.
+- Does not check approval or account permissions.
 
-[ ] Avoid logging full trade objects where a sanitized execution
-    identifier or error code is sufficient.
+`app/layout.tsx`:
+- Wraps the application in `AuthProvider` and `TooltipProvider`.
+- Does not globally enforce authentication or approval.
 
-[ ] Retain useful diagnostic context, such as operation, safe
-    error code, record count and request correlation ID.
+### Findings and required work
 
-Completion criteria:
+- [x] Inspect signup, login, AuthProvider, ProtectedRoute, and root layout.
+- [x] Confirm there is no `middleware.ts`, `middleware.js`, `proxy.ts`, or `proxy.js` in the searched project paths.
+- [ ] Design invitation and approval rules.
+- [ ] Decide whether signup should require an invitation token, administrator-issued invitation, or another explicit approval workflow.
+- [ ] Ensure a new registration cannot grant itself approval.
+- [ ] Ensure login distinguishes a valid Supabase session from an approved Elite X account.
+- [ ] Preserve password reset and update-password functionality.
+- [ ] Preserve the existing signup trigger/profile-creation lifecycle.
+- [ ] Define clear pending, approved, read-only, suspended, and administrator behavior.
 
-Production diagnostics remain useful without unnecessarily logging
-broker statements, credentials or detailed trading records.
+## 6.2 Profile Table and Signup Trigger
 
+### Live schema findings
 
-============================================================
-# 6. PHASE 4 — VERIFY THE AUTHORIZATION FOUNDATION
-# PRIORITY: REQUIRED BEFORE INVITE-ONLY PRODUCTION RELEASE
-============================================================
+The live `public.profiles` table contains only:
 
-Current state from the audit:
+- `id`
+- `display_name`
 
-- Supabase Auth is already integrated.
-- The current route guard checks session existence.
-- Signup has no visible invitation/approval gate.
-- Login redirects an authenticated user to /dashboard.
-- No application approval or entitlement resolver was found
-  in the inspected files.
-- public.profiles currently stores only id and display_name.
-- All six existing users are email-verified.
-- The six existing users have matching profile rows.
+Its RLS is enabled, with policies allowing authenticated users to read, insert, and update their own profile rows.
 
-This phase is the final prerequisite for the invite-only rollout.
-It should be implemented after the critical security changes have
-been designed and tested.
+The `auth.users` trigger `on_auth_user_created` executes `public.handle_new_user()`.
 
-[ ] Reinspect current signup/login/auth-provider/route-guard code.
+The function:
+- Uses `SECURITY DEFINER`.
+- Uses `search_path = public`.
+- Inserts a profile after user creation.
+- Takes `display_name` from signup metadata or defaults to `Elite X User`.
+- Does not assign approval or permission status.
 
-[ ] Preserve existing password-reset and update-password flows.
+### Required design work
 
-[ ] Design account approval independently of entitlement.
+- [x] Inspect the live profile schema.
+- [x] Inspect the profile RLS policies.
+- [x] Inspect the signup trigger and function definition.
+- [ ] Decide where authoritative account status is stored.
+- [ ] Ensure users cannot approve themselves by updating their profile.
+- [ ] Protect administrator status against self-modification.
+- [ ] Preserve profile creation for new Auth users.
+- [ ] Decide how existing verified users are migrated or explicitly approved.
+- [ ] Recheck the current existing-user and profile counts before implementation.
+- [ ] Prepare and review migrations before applying any production changes.
 
-[ ] Design administrative privileges independently of plan level.
+**Important:** Approval must not be trusted merely because a client-side page reads an `is_approved` field.
 
-[ ] Design suspension/read-only restrictions independently of
-    approval and underlying grants.
+## 6.3 Account States and Permission Model
 
-[ ] Define how the six existing verified accounts remain approved
-    or are explicitly transitioned.
+The authorization design must distinguish account states without conflating approval, administrator privileges, subscription/entitlement, and write permissions.
 
-[ ] Require new users to remain pending until the server-side
-    approval process authorizes access.
+Proposed states to design:
 
-[ ] Ensure login and protected routes account for application
-    approval status, not just valid Auth session.
+- **Pending:** Registered but not approved.
+- **Approved:** May use permitted product features.
+- **Read-only:** May view permitted data but cannot modify it.
+- **Suspended:** Cannot use protected application functions.
+- **Administrator:** Has separately controlled administrative permissions.
 
-[ ] Design the server authorization contract and machine-readable
-    401/403 responses.
+### Required work
 
-[ ] Ensure direct Supabase write paths cannot bypass approval and
-    read-only restrictions.
+- [ ] Define the valid status values and allowed transitions.
+- [ ] Decide how administrator privileges are granted and revoked.
+- [ ] Define the difference between approval, plan/entitlement, and write permissions.
+- [ ] Define machine-readable authentication and authorization responses, including `401` and `403`.
+- [ ] Define how revocation and suspension affect existing sessions.
+- [ ] Ensure approval changes do not automatically delete data.
+- [ ] Ensure password recovery remains available for pending users.
+- [ ] Preserve existing users through an explicit migration strategy.
 
-Completion criteria:
+## 6.4 Page Access and Data Loading
 
-The backend can distinguish unauthenticated, unverified, pending,
-approved, read-only and suspended users without mixing those states
-into one overloaded role field.
+### Findings
 
+`app/dashboard/page.tsx`:
+- Uses `ProtectedRoute`.
+- The guard verifies sign-in rather than approval.
 
-============================================================
+`app/profile/page.tsx`:
+- Uses `ProtectedRoute`.
+- Displays a hardcoded `Active` status rather than a database-verified account status.
+
+`app/expenses/page.tsx`:
+- Does not visibly use `ProtectedRoute` or perform an initial authentication check.
+- Loads expenses, recurring expense data, profile data, and trading analytics through storage helpers.
+
+`lib/storage/supabaseExpenseStorage.ts`:
+- Checks the authenticated user.
+- Scopes expense reads, updates, and soft deletes to the user's ID.
+- Assigns the authenticated user's ID during insertion.
+
+`app/trades/page.tsx`:
+- Does not visibly use `ProtectedRoute` or perform an initial authentication check.
+- Loads imported executions and manual trades.
+
+`lib/storage/tradeStorage.ts`:
+- Stores manual trades in browser `localStorage` using the shared key `elite-x-trades`.
+- Does not separate trades by authenticated user.
+
+`lib/trades/loadTradesForAnalytics.ts`:
+- Loads imported trades through the Supabase execution loader.
+- Loads manual trades from browser storage.
+
+`app/notes/page.tsx`:
+- Does not visibly use `ProtectedRoute` or perform an initial authentication check.
+- Loads notes and executions through storage helpers.
+
+`lib/storage/supabaseNoteStorage.ts`:
+- Checks authentication.
+- Scopes note reads, updates, and deletes to the authenticated user.
+- Checks parent-note ownership for several linked data operations.
+
+`lib/storage/noteAttachmentStorage.ts`:
+- Authenticates the user and verifies note ownership before upload, deletion, or layout updates.
+- Uses the `note-attachments` bucket.
+
+`lib/storage/noteAnnotationStorage.ts`:
+- Verifies attachment-to-note-to-user ownership for annotation creation, update, and deletion.
+
+`app/settings/page.tsx`:
+- Does not visibly use `ProtectedRoute` or perform a general initial authentication check.
+- Loads broker connections; its query relies on existing RLS for row ownership.
+- Adds brokers with the authenticated user's ID.
+- Edits brokers by ID, relying on RLS for ownership.
+
+### Required work
+
+- [ ] Design consistent route-level behavior for unauthenticated, pending, approved, read-only, and suspended users.
+- [ ] Enforce access at trusted authorization boundaries rather than relying on UI visibility.
+- [ ] Preserve existing user-scoped storage operations.
+- [ ] Decide how local manual trades should be migrated or separated by user without losing existing browser data.
+- [ ] Ensure read-only users cannot write directly through the application or direct Supabase mutations.
+- [ ] Update the Profile page to display the authoritative account status when that status exists.
+- [ ] Preserve the existing notes editor and linked-data model.
+- [ ] Recheck ownership policies before modifying storage behavior.
+- [ ] Avoid clearing `elite-x-trades` as part of authorization changes.
+
+## 6.5 Broker Credentials and Sync Authorization
+
+### Flex-token endpoint
+
+`app/api/broker-connections/[brokerId]/token/route.ts`:
+
+- [x] Validates the supplied Supabase access token.
+- [x] Filters broker lookup by both broker ID and authenticated user's ID.
+- [x] Returns the stored Flex token only after the ownership lookup succeeds.
+- [ ] Add the future account-approval and permission checks without breaking the Show Flex Token feature.
+
+### Manual sync endpoint
+
+`app/api/sync-all-brokers/route.ts`:
+
+- [x] Validates the user's Supabase access token.
+- [x] Calls `syncUserBrokers(user.id)`.
+
+`lib/server/sync/syncUserBrokers.ts`:
+
+- [x] Filters broker connections by the supplied user ID and active status.
+- [x] Preserves sequential processing and the three-second delay between brokers.
+- [ ] Enforce the future account-eligibility rules before privileged sync operations.
+
+`lib/server/sync/syncBroker.ts`:
+
+- Calls the broker fetch helper and updates sync status.
+- Does not independently enforce account approval.
+
+`lib/server/sync/updateSyncStatus.ts`:
+
+- Uses `supabaseAdmin`.
+- Updates sync status by broker ID.
+- Does not independently verify account ownership or status.
+
+### Scheduled sync
+
+`lib/server/sync/syncAllBrokers.ts`:
+
+- Uses `supabaseAdmin`.
+- Selects active broker connections across all users.
+- Calls the shared broker-sync engine sequentially.
+- Does not filter by account approval or suspension.
+
+### Required work
+
+- [x] Inspect user-triggered sync authentication and user scoping.
+- [x] Inspect the global scheduled sync flow.
+- [ ] Define which account states are eligible for scheduled sync.
+- [ ] Ensure pending and suspended users' broker connections are not synced when the new policy requires that restriction.
+- [ ] Ensure read-only permissions are distinguished from broker-sync entitlement.
+- [ ] Apply consistent account-eligibility rules to manual and scheduled sync paths.
+- [ ] Preserve the intended multi-account model.
+- [ ] Verify privileged database operations cannot be triggered by an unauthorized client.
+
+## 6.6 Manual Trade Creation and Privileged RPC
+
+### Findings
+
+`app/api/trades/create/route.ts`:
+- Validates the caller's access token.
+- Obtains the user ID from Supabase Auth.
+- Passes the authenticated user ID to the creation helper.
+- Performs basic request-shape validation.
+
+`lib/server/trades/validateManualExecutions.ts`:
+- Validates the execution array, required fields, actions, currencies, numeric values, manual contract-key prefix, and execution-value calculation.
+
+`lib/server/trades/createManualExecutionsAtomically.ts`:
+- Uses `supabaseAdmin.rpc("create_manual_executions_atomically", ...)`.
+- Passes the supplied user ID to the RPC.
+
+Live database inspection of `public.create_manual_executions_atomically(p_user_id uuid, p_executions jsonb)` confirmed:
+
+- It is owned by `postgres`.
+- It uses `SECURITY DEFINER`.
+- It sets `search_path = public`.
+- `anon` cannot execute it.
+- `authenticated` cannot execute it.
+- `service_role` can execute it.
+- It writes `p_user_id` into each inserted execution.
+
+### Required work
+
+- [x] Inspect the creation route and validation helper.
+- [x] Inspect the live RPC definition and execution grants.
+- [ ] Finish auditing the manual edit and delete API routes.
+- [ ] Ensure every privileged write path checks account authorization before invoking privileged functions.
+- [ ] Continue deriving user identity from the validated session, not from an untrusted request-body user ID.
+- [ ] Preserve the atomic creation and replacement mechanisms.
+
+## 6.7 Remaining API Inventory
+
+Current route inventory:
+
+- `app/api/ai/trade-summary/route.ts`
+- `app/api/broker-connections/[brokerId]/token/route.ts`
+- `app/api/cron/sync-brokers/route.ts`
+- `app/api/fx-rates/route.ts`
+- `app/api/ibkr/flex/route.ts`
+- `app/api/sync-all-brokers/route.ts`
+- `app/api/test-sync/route.ts`
+- `app/api/trades/create/route.ts`
+- `app/api/trades/delete/route.ts`
+- `app/api/trades/edit/route.ts`
+
+### Required work
+
+- [x] Inventory the current `app/api` route handlers.
+- [x] Review broker token retrieval.
+- [x] Review user-triggered broker sync.
+- [x] Review scheduled-sync helper structure.
+- [x] Review manual trade creation and its RPC.
+- [ ] Review `app/api/trades/edit/route.ts`.
+- [ ] Review `app/api/trades/delete/route.ts`.
+- [ ] Review `app/api/ai/trade-summary/route.ts`.
+- [ ] Review `app/api/fx-rates/route.ts` and confirm whether it has private-data or authorization implications.
+- [ ] Apply consistent authentication and account-authorization requirements to applicable endpoints.
+- [ ] Preserve the explicit decision to defer the legacy IBKR Flex route until it is reconsidered separately.
+
+## Phase 4 completion criteria
+
+- [ ] New users cannot obtain access merely by registering.
+- [ ] Pending users cannot access protected product features.
+- [ ] Approval and administrator privileges cannot be self-assigned.
+- [ ] Read-only users cannot mutate data through APIs or direct Supabase requests.
+- [ ] Suspended users cannot continue protected operations through existing sessions.
+- [ ] Existing approved users retain intended access.
+- [ ] Password reset and update-password flows still work.
+- [ ] User-owned database and Storage protections remain intact.
+- [ ] Broker sync follows account-eligibility rules for both manual and scheduled operation.
+- [ ] All privileged RPC paths are protected by trusted authorization checks.
+
+**Current status:** In discovery/design. Approval enforcement has not been implemented.
+
+---
+
 # 7. PHASE 5 — ACCOUNT DELETION READINESS
-# PRIORITY: REQUIRED BEFORE CONNECTING THE DELETE USER MODAL
-============================================================
 
-------------------------------------------------------------
-7.1 CONFIRM THE ACTUAL AUTH DELETION ERROR
-------------------------------------------------------------
+Account deletion must be a separate, server-authorized process. Suspension, subscription expiration, or entitlement changes must never trigger permanent deletion automatically.
 
-Known facts:
+The previous audit recorded the following facts, which must be revalidated before implementing deletion:
 
-- public.profiles.id references auth.users.id without ON DELETE CASCADE.
-- All six Auth users have matching profiles.
-- The profile creation trigger inserts a profile for a new Auth user.
-- No custom Auth-user deletion trigger was identified.
-- The exact deletion error has not yet been captured.
+- `profiles.id` references `auth.users.id` without `ON DELETE CASCADE`.
+- A profile-creation trigger exists.
+- No custom Auth-user deletion trigger was identified in the previous audit.
+- Some application tables, including `executions`, `expenses`, and `daily_notes`, were not shown as directly referencing `auth.users`.
+- The earlier Storage inventory recorded three objects in `note-attachments` and five in `receipts`. These counts are historical and must be rechecked.
 
-Required work:
+## 7.1 Confirm the Actual Auth Deletion Error
 
-[ ] Capture the exact Supabase Auth/Admin user deletion error.
+- [ ] Capture the exact Supabase Auth/Admin deletion error.
+- [ ] Determine the current code path used for deletion.
+- [ ] Verify whether `profiles_id_fkey` is the actual blocker.
+- [ ] Do not manually delete a profile merely to test the hypothesis.
 
-[ ] Determine where the deletion is being attempted:
-    dashboard, API, or another supported path.
+## 7.2 Design Database Cleanup
 
-[ ] Inspect relevant logs for a controlled test attempt.
+- [ ] Inventory every user-owned table.
+- [ ] Determine each table's intended deletion behavior.
+- [ ] Recheck foreign-key and cascade behavior.
+- [ ] Define a server-only account-deletion procedure.
+- [ ] Ensure the client cannot provide an arbitrary user ID to delete another account.
+- [ ] Define retry and partial-failure recovery.
+- [ ] Preserve appropriate audit records for privileged administrative actions.
 
-[ ] Confirm whether profiles_id_fkey is the actual blocker.
+## 7.3 Private Storage Cleanup
 
-[ ] Do not manually delete a profile to test the hypothesis.
+Current buckets observed:
 
-Completion criteria:
+- `note-attachments`
+- `receipts`
 
-The actual cause of the account deletion failure is established
-before changing foreign keys or deletion order.
+The live Storage audit confirmed:
 
-------------------------------------------------------------
-7.2 DESIGN ACCOUNT DATA CLEANUP
-------------------------------------------------------------
-
-Tables requiring explicit attention because the current foreign-key
-inventory did not show a reference to auth.users:
-
-    public.executions
-    public.expenses
-    public.daily_notes
-
-Other application tables have Auth-user cascade constraints.
-Nested note tables also have parent-note/attachment cascades.
+- `note-attachments` is private.
+- It has a 3 MB file-size limit.
+- Its configured MIME types are PNG, JPEG, and WebP.
+- Upload, read, and delete policies restrict objects to a folder prefixed by the authenticated user's UUID.
+- The current attachment uploader uses the path convention `user_id/note_id/attachment_id.extension`.
 
 Required work:
 
-[ ] Inventory all current user-owned tables.
+- [ ] Recheck current object counts and paths.
+- [ ] Use supported Supabase Storage APIs for listing and deletion.
+- [ ] Restrict cleanup to the exact user's UUID folder.
+- [ ] Handle pagination and partial failures.
+- [ ] Never delete `storage.objects` rows directly as a substitute for Storage API cleanup.
+- [ ] Test deletion with a disposable account.
+- [ ] Verify another user's files remain untouched.
 
-[ ] Decide the correct handling of each table on account deletion.
+## 7.4 Delete User Modal Release Gate
 
-[ ] Evaluate the profile foreign-key behavior.
+- [ ] Complete the deletion backend first.
+- [ ] Test against a disposable account.
+- [ ] Verify intended rows and files are removed.
+- [ ] Verify other users' data remains untouched.
+- [ ] Require deliberate UI confirmation.
+- [ ] Provide safe progress and error handling.
+- [ ] Keep privileged deletion capabilities on the server.
 
-[ ] Define a server-only account deletion procedure.
+**Current status:** Not implemented; existing deletion-error and cleanup assumptions require verification.
 
-[ ] Ensure a user ID cannot be supplied by an untrusted client
-    to delete another user's account.
+---
 
-[ ] Separate access suspension/expiration from permanent deletion.
+# 8. RELEASE GATES
 
-[ ] Define retry and recovery behavior for partial failures.
+## Before expanding production beta access
 
-[ ] Preserve appropriate audit records for privileged actions.
+- [x] Manual-edit RPC source-type protection implemented.
+- [x] Broker replacement excludes manual executions.
+- [ ] Complete the populated mixed manual/broker replacement test.
+- [DEFERRED] Direct execution deletion refactor.
+- [DEFERRED] Database least-privilege corrections.
+- [RISK] Resolve the legacy unauthenticated IBKR Flex endpoint.
+- [x] Test-sync endpoint requires the configured cron secret.
+- [x] Cron endpoint explicitly fails closed when the secret is missing.
+- [~] Verify production secret configuration and authorized scheduled behavior.
+- [~] Sanitize targeted execution-storage and broker-request logging.
+- [ ] Complete the remaining API authorization review.
+- [ ] Implement server-side signup approval enforcement.
+- [ ] Prevent direct write paths from bypassing approval/read-only restrictions.
+- [ ] Verify access behavior for existing and newly registered users.
 
-Completion criteria:
+## Before invite-only signup is considered production-ready
 
-The delete procedure covers every owned database resource and
-does not depend on accidental cascade behavior.
+- [ ] Signup communicates invite-only status.
+- [ ] Email verification requirements are defined and enforced.
+- [ ] New users remain pending until authorized approval.
+- [ ] Existing users are handled through an explicit migration plan.
+- [ ] Pending users cannot access protected product features.
+- [ ] Administrative approval is authorized and audited.
+- [ ] Backend authorization enforces approval.
+- [ ] Read-only and suspended states are enforced server-side.
+- [ ] Broker synchronization follows account-eligibility rules.
 
-------------------------------------------------------------
-7.3 PRIVATE STORAGE CLEANUP
-------------------------------------------------------------
+## Before the Delete User modal can delete real accounts
 
-Current buckets:
+- [ ] Actual Auth deletion error confirmed.
+- [ ] Profile foreign-key behavior verified.
+- [ ] Database cleanup covers all owned data.
+- [ ] Private Storage cleanup implemented.
+- [ ] Disposable-account end-to-end deletion test passes.
+- [ ] Other users' data remains untouched.
+- [ ] Partial-failure and retry behavior tested.
+- [ ] Server-side account-deletion authorization verified.
 
-    note-attachments
-    receipts
+The signup and Delete User modals may be designed separately, but they must not be enabled for production use before their respective backend release gates pass.
 
-Current object counts:
+---
 
-    note-attachments = 3
-    receipts = 5
-
-All eight current objects have a folder prefix matching an
-existing Auth user's UUID.
-
-Required work:
-
-[ ] Use Supabase Storage APIs to list and delete objects.
-
-[ ] Scope object deletion to the exact user's UUID folder.
-
-[ ] Handle pagination and partial failures.
-
-[ ] Do not delete storage.objects rows directly as a substitute
-    for supported Storage API deletion.
-
-[ ] Ensure another user's objects cannot be deleted.
-
-[ ] Test the complete sequence using a disposable account.
-
-[ ] Verify Auth deletion succeeds and no intended owned resources
-    remain after completion.
-
-Completion criteria:
-
-User-owned database rows and private Storage objects are cleaned
-up safely, with tested failure handling.
-
-------------------------------------------------------------
-7.4 DELETE USER MODAL RELEASE GATE
-------------------------------------------------------------
-
-[ ] Build the backend deletion procedure first.
-
-[ ] Test it against a disposable account.
-
-[ ] Verify all intended rows and files are removed.
-
-[ ] Verify another user's data remains untouched.
-
-[ ] Require deliberate confirmation in the UI.
-
-[ ] Provide safe progress and error handling.
-
-[ ] Do not expose privileged deletion capabilities to the browser.
-
-Completion criteria:
-
-The Delete User modal is connected only to a tested,
-authorized server-side deletion service.
-
-
-============================================================
-# 8. RELEASE GATES — WHAT MUST BE DONE WHEN?
-============================================================
-
-BEFORE EXPANDING PRODUCTION BETA ACCESS:
-
-[ ] Manual-edit RPC source-type protection fixed.
-[ ] Broker replacement preserves manual executions.
-[ ] Active manual-delete paths use the approved server API.
-[ ] Excessive database grants corrected and tested.
-[ ] Legacy IBKR Flex endpoint secured, disabled or retired.
-[ ] Legacy test-sync endpoint reviewed and secured/disabled.
-[ ] Cron secret guard fails closed.
-[ ] Sensitive production logs sanitized.
-[ ] Server-side signup approval enforcement implemented.
-[ ] Direct write paths cannot bypass approval or read-only rules.
-[ ] Access behavior tested for existing and new users.
-
-BEFORE INVITE-ONLY SIGNUP IS CONSIDERED PRODUCTION-READY:
-
-[ ] Signup communicates invite-only status.
-[ ] Email verification requirement is enforced.
-[ ] New users remain pending until approved.
-[ ] Existing verified users are handled through an explicit
-    migration strategy.
-[ ] Pending users cannot access protected product features.
-[ ] Admin approval is authorized and audited.
-[ ] Backend—not merely React UI—enforces the approval gate.
-
-BEFORE THE DELETE USER MODAL CAN DELETE REAL ACCOUNTS:
-
-[ ] Actual Auth deletion error confirmed.
-[ ] Profile foreign-key behavior resolved.
-[ ] Database cleanup procedure covers all owned data.
-[ ] Private Storage cleanup is implemented and tested.
-[ ] Disposable-account end-to-end deletion test passes.
-[ ] Other users' records and files remain untouched.
-[ ] Partial-failure and retry behavior are tested.
-[ ] Server-side account-deletion authorization is verified.
-
-The signup modal's visual design can be developed in parallel.
-It must not be enabled in production before its approval gate works.
-
-The Delete User modal can be designed in parallel.
-It must not perform real deletions before the deletion backend is safe.
-
-
-============================================================
 # 9. TESTING AND NON-REGRESSION REQUIREMENTS
-============================================================
 
-[ ] Existing Manual Entry works.
+## Execution integrity
 
-[ ] Existing Manual Edit works.
+- [x] Manual-edit migration applied.
+- [x] Broker-replacement migration applied.
+- [x] Existing manual-edit workflow tested using a disposable test trade.
+- [~] Project build passed during this remediation.
+- [ ] Manual edit cannot delete broker-imported executions.
+- [ ] Cross-user isolation tested for privileged manual-edit operations.
+- [ ] Invalid replacement rollback tested.
+- [ ] Populated mixed manual/broker replacement tested.
+- [DEFERRED] Direct manual-delete workflow refactor remains postponed.
 
-[ ] Partial-exit editing changes only the intended execution.
+## Endpoint security
 
-[ ] Complete-lifecycle editing remains atomic.
+- [x] Cron rejects unauthenticated local requests.
+- [x] Test-sync rejects unauthenticated local requests.
+- [x] Cron and test-sync explicitly reject missing-secret configuration in code.
+- [ ] Verify missing-secret behavior in a controlled environment.
+- [ ] Verify production secret configuration.
+- [ ] Review manual trade edit and delete routes.
+- [ ] Review AI trade-summary authorization.
+- [ ] Review applicable FX endpoint behavior.
+- [RISK] Legacy IBKR Flex endpoint remains unresolved.
 
-[ ] Manual deletion works through the server API.
+## Authorization and data isolation
 
-[ ] Broker execution replacement remains correct.
+- [x] Confirm RLS is enabled on the 14 public tables returned by the audit.
+- [x] Inspect current ownership policies.
+- [x] Inspect the profile trigger and schema.
+- [x] Inspect private note-attachment bucket configuration and policies.
+- [ ] Implement and test approval enforcement.
+- [ ] Test direct Supabase writes under pending/read-only/suspended states.
+- [ ] Test cross-user data isolation.
+- [ ] Test password reset and update-password flows after authorization changes.
+- [ ] Test session behavior after suspension or approval revocation.
+- [ ] Preserve existing user-owned data.
 
-[ ] Mixed manual/broker account-date test preserves manual rows.
+## Broker synchronization
 
-[ ] RLS still protects cross-user data isolation.
+- [x] Review user-scoped manual synchronization.
+- [x] Review global scheduled synchronization.
+- [ ] Enforce account-eligibility rules for scheduled synchronization.
+- [ ] Verify rejected account states cannot invoke prohibited sync operations.
+- [ ] Preserve rate-limit delays and the existing multi-account model.
 
-[ ] Direct Supabase writes obey the intended authorization model.
+## Account deletion
 
-[ ] Read-only users cannot write through either APIs or direct
-    Supabase mutations.
+- [ ] Test the backend with a disposable user.
+- [ ] Verify database cleanup and Storage cleanup.
+- [ ] Verify unrelated users remain untouched.
+- [ ] Test partial-failure and retry behavior.
 
-[ ] Broker connections and sync operations obey entitlement rules.
+## Final validation
 
-[ ] Scheduled sync remains authorized.
+- [ ] Run `npm run build`.
+- [ ] Inspect the final `git diff`.
+- [ ] Confirm only intended files are included.
+- [ ] Preserve unrelated documentation and local changes.
+- [ ] Record commit hashes and deployment/test evidence.
 
-[ ] Missing CRON_SECRET denies access.
+---
 
-[ ] Legacy/test endpoints do not expose privileged functionality.
-
-[ ] Password reset and update-password flows still work.
-
-[ ] Existing user sessions and approved access transition correctly.
-
-[ ] Account deletion is tested using a disposable user.
-
-[ ] Production build passes after implementation.
-
-[ ] Final git diff contains only intended changes.
-
-[ ] docs/ToolKit.md remains untouched unless explicitly requested.
-
-
-============================================================
 # 10. PROTECTED ARCHITECTURE — DO NOT REDESIGN AS PART OF THIS WORK
-============================================================
 
 Preserve:
 
-- Canonical public.executions ledger.
+- Canonical `public.executions` ledger.
 - Deterministic FIFO reconstruction.
-- Existing pairTrades() behavior.
+- Existing `pairTrades()` behavior.
 - Existing P&L and analytics calculations.
-- Existing manual execution lifecycle semantics.
+- Existing manual-execution lifecycle semantics.
 - Existing atomic transaction boundaries.
-- Existing note/editor data model unless a separate issue requires
-  a reviewed change.
-- Existing password recovery functionality.
+- Existing note/editor data model unless a separately reviewed change requires otherwise.
+- Existing password recovery and password update functionality.
 - Existing user-owned data and Storage objects.
 - Existing broker multi-account model.
+- Existing manual trade workflow while authorization is being introduced.
 
-Subscription status or access expiration must never trigger automatic
-account deletion.
+Additional rules:
 
-Never use UI-only checks as the final security boundary.
+- Subscription status or access expiration must never trigger automatic account deletion.
+- UI-only checks must never be treated as the final security boundary.
+- Never expose the Supabase service-role key to browser code.
+- Privileged server operations must not trust user IDs supplied by untrusted clients.
+- Do not revoke database privileges blindly.
+- Do not make destructive database changes without a reviewed, version-controlled migration and a test/recovery plan.
+- Do not clear existing browser storage as a shortcut for resolving account separation.
 
-Never expose the Supabase service-role key to browser code.
+---
 
-Never make destructive database changes without a reviewed,
-version-controlled migration and a test/recovery plan.
+# 11. CURRENT STATUS SUMMARY
 
+## Phase 0 — Safe checkpoint and migration workflow
 
-============================================================
-# 11. CURRENT STATUS
-============================================================
+**Status:** Partially complete.
 
-Phase 0 — Safe checkpoint:
-    NOT STARTED
+- Migration workflow established.
+- Two execution-integrity migrations added and applied.
+- Git and documentation checkpoints used.
+- Verify current repository state before the next changes.
 
-Phase 1 — Execution data-integrity remediation:
-    NOT STARTED
+## Phase 1 — Execution data integrity
 
-Phase 2 — Least-privilege database correction:
-    NOT STARTED
+**Status:** Partially complete.
 
-Phase 3 — Server endpoint hardening:
-    NOT STARTED
+- Manual-edit RPC protection implemented and deployed.
+- Broker replacement protection implemented and deployed.
+- Additional automated and populated mixed-data tests remain.
+- Direct deletion refactor deliberately deferred.
 
-Phase 4 — Invite-only authorization foundation:
-    NOT STARTED
+## Phase 2 — Database least privilege
 
-Phase 5 — Account deletion readiness:
-    NOT STARTED
+**Status:** Audited; corrections deferred.
 
-Code changes:
-    NONE
+- RLS and ownership policies inspected.
+- Excessive privilege grants identified.
+- No privilege-revocation migration applied during this work.
 
-Database changes:
-    NONE
+## Phase 3 — Endpoint hardening
 
-Trading data changes:
-    NONE
+**Status:** Partially complete.
 
-Audit mode:
-    READ-ONLY DISCOVERY COMPLETED FOR THE AREAS DOCUMENTED ABOVE
+- Cron/test-sync secret guards implemented.
+- Selected sensitive logging sanitized.
+- Production configuration and additional runtime validation remain.
+- Legacy IBKR Flex route remains an unresolved security exception.
+- The user's chosen logging/deletion deferrals remain in force.
 
+## Phase 4 — Invite-only authorization
 
-============================================================
+**Status:** Discovery/design.
+
+- Existing signup, login, AuthProvider, ProtectedRoute, profile schema/trigger, and public-table RLS reviewed.
+- Expense, manual-trade, notes, attachment, annotation, settings, broker-token, and sync paths reviewed.
+- Manual trade creation and its privileged RPC reviewed.
+- Remaining trade edit/delete and selected API reviews are outstanding.
+- Approval enforcement has not been implemented.
+- No approval schema migration has been applied.
+
+## Phase 5 — Account deletion
+
+**Status:** Not implemented.
+
+- Previous foreign-key and Storage findings need revalidation.
+- Exact Auth deletion error has not been established.
+- Safe server-side cleanup is still required.
+
+---
+
 # 12. NEXT ACTION
-============================================================
 
 When work resumes:
 
-1. Read this checklist and the security audit master notes.
-2. Inspect current git status and preserve unrelated local changes.
-3. Start with Phase 0.
-4. Prepare the exact execution RPC and direct-delete remediation.
-5. Review the database privilege correction as a separate migration.
-6. Verify the legacy endpoint and cron protections.
-7. Implement the invite-only approval foundation.
-8. Complete and test the account-deletion backend before connecting
-   the Delete User modal.
+1. Inspect `app/api/trades/edit/route.ts`.
+2. Inspect `app/api/trades/delete/route.ts`.
+3. Inspect remaining relevant API routes, especially AI trade summary.
+4. Finish the current authorization discovery pass without reopening deliberately deferred items.
+5. Finalize the account/invitation model and status transitions.
+6. Design trusted server-side and database enforcement.
+7. Prepare reviewed migrations and staged implementation steps.
+8. Implement invite-only authorization while preserving existing users and data.
+9. Test approval, read-only, suspension, sync eligibility, and cross-user isolation.
+10. Finish account-deletion design only after its release requirements are met.
 
-Do not repeat the entire broad audit unless the code or database
-state has changed.
+Do not repeat the entire broad audit unless the code or database state has changed.
 
-Do not begin applying production migrations until their SQL,
-impact, tests and recovery plan have been reviewed.
+Do not apply production migrations until their SQL, impact, tests, and recovery plan have been reviewed.
 
-END OF PRE-IMPLEMENTATION SECURITY CHECKLIST
+**END OF UPDATED PRE-IMPLEMENTATION SECURITY CHECKLIST**

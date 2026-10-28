@@ -25,8 +25,6 @@ import {
   loadExecutionsFromSupabase,
 } from "@/lib/storage/supabaseExecutionStorage";
 
-
-
 import {
   loadTrades,
 } from "@/lib/storage/tradeStorage";
