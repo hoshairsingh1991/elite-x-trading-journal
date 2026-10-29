@@ -2,7 +2,7 @@
 
 **Project:** Elite X Trading Journal\
 **Module:** Instrument Identity / Company Name Resolution\
-**Status:** Implemented and tested locally; final Git review and commit pending\
+**Status:** Implementation committed and pushed; production API-key verification pending\
 **Date:** October 28, 2026\
 **Initial provider:** OpenFIGI\
 **Initial scope:** Supported stocks, ADRs, ETFs, and the underlying stock or ETF for supported option trades\
@@ -32,27 +32,30 @@ The resolver uses both ticker and market context. It must not guess the identity
 
 ## 2. FINAL IMPLEMENTATION STATUS
 
-The initial feature has been implemented and tested in the local Elite X application.
+The instrument-name resolver is implemented, tested locally, and committed
+to GitHub.
 
 Completed:
-
-- Added a server-only OpenFIGI resolver.
-- Added an authenticated Next.js API route.
+- Added the server-only OpenFIGI resolver.
+- Added the authenticated Next.js API route.
 - Connected the Daily Review drawer to the API route.
-- Confirmed that the company name displays for the tested Canadian instruments, including TELUS and Rogers Communications.
-- Adjusted the drawer's instrument row to bring the icon, company name, and ticker closer together.
-- Kept longer names on one line; an ellipsis appears when the name exceeds the available width, and the element's `title` attribute exposes the full name on hover.
-- Passed TypeScript validation and the Next.js production build.
+- Confirmed company-name display for TELUS and Rogers Communications.
+- Adjusted the drawer layout to bring the icon, name, and ticker closer together.
+- Kept long names on one line; overflowing names use an ellipsis and the full
+  name remains available through the title tooltip.
+- Passed TypeScript validation and the production build.
+- Committed and pushed the implementation as `aa71d66`.
 
-Still pending:
+OpenFIGI configuration:
+- The local `.env.local` contains `OPENFIGI_API_KEY`.
+- The key has been added to Vercel as a Production Secret.
+- Production deployment and production lookup verification remain pending.
 
-- Review the final Git diff and current status before staging.
-- Commit only the three implementation paths listed in Section 10.
-- Push only after confirming the intended changes.
+The master notes are maintained in `docs/Ticker Symbol Name-OpenFIGI.md`.
+The current API-key checkpoint is a documentation update to be committed
+separately from the implementation.
 
-This document supersedes the earlier blueprint. The intended project-note destination is `docs/OpenFIGI.md`. Keep the documentation replacement deliberate and separate from the implementation-code commit so it is not staged accidentally.
-
----
+The separate local modification to `docs/notes.md` must remain untouched.
 
 ## 3. WHY THE RESOLVER IS SEPARATE FROM LOGO.DEV
 
@@ -302,21 +305,26 @@ No database migration or execution-schema change was required.
 
 ## 10. FILES AND CURRENT GIT STATUS
 
-Implementation paths for the feature:
+Implementation paths:
+1. `components/dashboard/daily-review/DailyReviewTradeDrawer.tsx`
+2. `app/api/instrument-name/route.ts`
+3. `lib/instruments/openFigiResolver.ts`
 
-1. Modified: `components/dashboard/daily-review/DailyReviewTradeDrawer.tsx`
-2. New: `app/api/instrument-name/route.ts`
-3. New: `lib/instruments/openFigiResolver.ts`
+The implementation and original master notes were committed and pushed:
+- Commit: `aa71d66`
+- Message: `Add OpenFIGI instrument name resolver`
+- Branch: `main`
+- Remote: `origin/main`
 
-The most recent reported `git status --short` also showed:
+The API-key checkpoint in this master-notes file is a separate documentation
+update. Review and commit that update without including unrelated files.
 
-- `?? docs/OpenFIGI.md`
+The latest known working-tree status showed:
+- `docs/Ticker Symbol Name-OpenFIGI.md` — modified for this checkpoint.
+- `docs/notes.md` — a separate local modification.
 
-That documentation file was untracked at the time of the check. Replace its previous blueprint content with this final master-note content as a separate, deliberate documentation update. Do not include it in the implementation-code commit unless documentation is intentionally being committed as a separate change. Review `git status --short` again before staging to account for any later changes.
-
-Do not stage or commit unrelated documentation or other user work as part of the code change.
-
----
+Do not stage, modify, or commit `docs/notes.md` as part of this checkpoint.
+Always run `git status --short` again before staging.
 
 ## 11. VALIDATION COMPLETED
 
@@ -351,61 +359,154 @@ Do not stage or commit unrelated documentation or other user work as part of the
 - [x] Daily Review drawer connected to the endpoint.
 - [x] Verified company/instrument name displays for tested TELUS and Rogers trades.
 - [x] Unsupported or unresolved results do not invent a name.
-- [x] Existing ticker and exchange/trade metadata remain the source for existing display fields.
-- [x] Existing Logo.dev icon integration left unchanged.
+- [x] Existing Logo.dev integration left unchanged.
 - [x] IBKR parser, shared trade types, execution storage, FIFO, and P&L logic left unchanged.
 - [x] TypeScript validation passed.
-- [x] Production build passed after final UI spacing adjustments.
-- [ ] Final Git diff reviewed for all three implementation paths.
-- [ ] Implementation paths staged and committed without including unrelated files.
-- [ ] Commit pushed to `origin main` after review.
-
----
+- [x] Production build passed after the final UI spacing adjustments.
+- [x] Implementation committed as `aa71d66` and pushed to `origin/main`.
+- [ ] API-key checkpoint documentation update committed and pushed.
+- [ ] Vercel Production deployment using the new secret reaches Ready.
+- [ ] Production Daily Review lookup verified.
 
 ## 13. RESUME POINT / NEXT ACTION
 
-The resolver is implemented, appears correctly in the Daily Review drawer for the tested Canadian instruments, and passes the reported TypeScript and production build checks. No implementation commit has been reported yet.
+The implementation commit `aa71d66` has been pushed to `origin/main`.
+The local and Vercel OpenFIGI API-key settings have been configured.
+Production deployment verification remains pending.
 
-Before committing, run:
+Next actions:
 
-```bash
-cd "/Volumes/Storage Drive/EliteX Trading Journal/elite-x-trading-journal"
+1. Run `git diff --check`.
+2. Review the documentation-only diff for this checkpoint.
+3. Stage only `docs/Ticker Symbol Name-OpenFIGI.md`.
+4. Review the staged diff and ensure `docs/notes.md` is excluded.
+5. Commit the checkpoint with a message such as:
+   `Update OpenFIGI configuration checkpoint`.
+6. Push to `origin main`.
+7. Confirm that Vercel Production reaches Ready.
+8. Test the instrument-name lookup on the production site.
 
-git status --short
-git diff --check
-git diff --stat
-git diff -- components/dashboard/daily-review/DailyReviewTradeDrawer.tsx
-```
-
-Review the new files as well:
-
-```bash
-sed -n '1,320p' lib/instruments/openFigiResolver.ts
-sed -n '1,240p' app/api/instrument-name/route.ts
-```
-
-Then stage only the implementation paths:
-
-```bash
-git add components/dashboard/daily-review/DailyReviewTradeDrawer.tsx app/api/instrument-name/route.ts lib/instruments/openFigiResolver.ts
-
-git diff --cached --check
-git diff --cached --stat
-git status --short
-```
-
-Inspect the staged diff before committing. Only after the staged changes are confirmed, commit with a message such as:
-
-```bash
-git commit -m "Add OpenFIGI instrument name resolver"
-```
-
-Push to `origin main` only after verifying the commit and intended working-tree state.
-
----
+Do not expose the OpenFIGI API key or add it to Git.
 
 ## 14. ACCURACY COMMITMENT
 
 No reference-data provider guarantees a correct name for every financial instrument. Elite X's policy is to display a name only when the resolver's configured validation checks pass. Otherwise, the existing ticker remains visible and no guessed name is shown.
 
 The resolver is intentionally separate from canonical trading and accounting logic so instrument-name resolution can evolve without changing trade reconstruction or financial results.
+
+
+---
+
+# 15. CHECKPOINT — OPENFIGI API KEY CONFIGURATION
+
+
+**Date:** October 28–29, 2026\
+**Project:** Elite X Trading Journal\
+**Feature:** Instrument Name Resolver\
+**Status:** Implementation pushed to GitHub; Vercel deployment verification pending
+
+## 15.1 Current Implementation Status
+
+The OpenFIGI instrument-name resolver is implemented and working in the local Elite X application.
+
+The feature consists of:
+
+- `lib/instruments/openFigiResolver.ts` — server-side instrument-name resolver.
+- `app/api/instrument-name/route.ts` — authenticated API endpoint.
+- `components/dashboard/daily-review/DailyReviewTradeDrawer.tsx` — displays the verified instrument name above the ticker.
+
+Confirmed browser tests:
+- TELUS — company name displayed successfully.
+- Rogers Communications — company name displayed successfully.
+
+The instrument name remains on one line. Long names may show an ellipsis, with the full name available through the element's hover tooltip.
+
+## 15.2 OpenFIGI Account and API Key
+
+A free OpenFIGI account has been created.
+
+The API key is configured in the local project's `.env.local` file under:
+
+`OPENFIGI_API_KEY`
+
+The presence of the variable was verified without exposing its value.
+
+The existing resolver already supports this environment variable. When a non-empty key is configured, it sends the key using the `X-OPENFIGI-APIKEY` request header.
+
+**No additional application-code changes are required to enable API-key support.**
+
+Security requirements:
+- Never commit the API key to Git.
+- Never expose the key through a `NEXT_PUBLIC_` variable.
+- Keep the key in server-side environment configuration only.
+- Do not paste the actual key into project notes or chat.
+
+## 15.3 Vercel Configuration
+
+The `OPENFIGI_API_KEY` variable has been added in Vercel as a **Secret**, with the **Production** environment selected.
+
+The secret is not stored in the repository.
+
+**Still pending:** Confirm that a new production deployment has picked up the variable. Adding an environment variable does not retroactively update an already-built deployment.
+
+After deployment, verify that:
+1. The latest Production deployment reaches **Ready** status.
+2. The production Daily Review drawer displays a verified company name for a supported instrument.
+3. No errors appear in the API route or Vercel function logs.
+
+The local resolver worked before the new API key was configured. A local restart and lookup test after adding the key have not yet been confirmed in this checkpoint.
+
+## 15.4 GitHub Status
+
+The implementation and original master notes were committed and pushed.
+
+**Implementation commit:** `aa71d66`\
+**Commit message:** `Add OpenFIGI instrument name resolver`
+
+The previously reported repository state showed:
+
+`main` and `origin/main` pointing to `aa71d66`.
+
+The following four paths were included in that commit:
+- `app/api/instrument-name/route.ts`
+- `components/dashboard/daily-review/DailyReviewTradeDrawer.tsx`
+- `docs/Ticker Symbol Name-OpenFIGI.md`
+- `lib/instruments/openFigiResolver.ts`
+
+The current API-key checkpoint is a subsequent documentation update and still needs to be committed and pushed separately.
+
+## 15.5 Preserve Unrelated Work
+
+An earlier `git status --short` showed:
+
+`M docs/notes.md`
+
+This is a pre-existing local modification. Leave `docs/notes.md` untouched and do not stage it as part of this checkpoint.
+
+Review Git status again before staging, because the working tree may have changed since the last check.
+
+## 15.6 Next Actions
+
+1. Append this checkpoint to the master notes.
+2. Run `git diff --check` and inspect the documentation diff.
+3. Stage only `docs/Ticker Symbol Name-OpenFIGI.md`.
+4. Confirm the staged diff contains only the intended checkpoint.
+5. Commit the documentation update.
+6. Push the new commit to `origin main`.
+7. Confirm the resulting Vercel Production deployment reaches **Ready**.
+8. Test the production instrument-name lookup.
+9. Confirm `docs/notes.md` remains untouched by this operation.
+
+Suggested documentation commit message:
+
+`Update OpenFIGI configuration checkpoint`
+
+## 15.7 Completion Criteria
+
+The feature is considered fully deployed when:
+- The production deployment is Ready.
+- The production function has access to `OPENFIGI_API_KEY`.
+- The Daily Review drawer successfully displays verified instrument names.
+- The existing logo integration, execution storage, IBKR parser, FIFO reconstruction, and P&L logic remain unaffected.
+
+**Current checkpoint conclusion:** The application code is complete and has been pushed to GitHub. The OpenFIGI account and API key have been configured. The remaining work is the documentation checkpoint commit, production deployment verification, and a production smoke test.

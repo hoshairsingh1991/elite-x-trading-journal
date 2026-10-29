@@ -576,7 +576,7 @@ git commit -m "Add premium login transition animation"
 git commit -m "Fix chart warnings and refine login animation"
 git commit -m "Fix exchange-aware asset icon resolution"
 git commit -m "Add daily review date navigation and login animation notes"
-
+git commit -m "Add OpenFIGI instrument name resolver"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
