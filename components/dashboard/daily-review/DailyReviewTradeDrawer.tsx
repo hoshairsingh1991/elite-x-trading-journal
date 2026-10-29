@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { Trade } from "@/types/trade";
+import { supabase } from "@/lib/supabase";
 
 import {
   getCurrencySymbol,
@@ -328,6 +330,114 @@ const instrumentSideLabel =
 
 const ticker =
   trade.ticker ?? "";
+
+const instrumentExchange =
+  trade.executions?.find(
+    (execution) =>
+      typeof execution.exchange === "string" &&
+      execution.exchange.trim() !== ""
+  )?.exchange?.trim() ?? "";
+
+const [instrumentName, setInstrumentName] =
+  useState<string | null>(null);
+
+useEffect(() => {
+  let isCurrent = true;
+  const controller = new AbortController();
+
+  setInstrumentName(null);
+
+  const loadInstrumentName = async () => {
+    if (
+      !ticker.trim() ||
+      !instrumentExchange ||
+      !assetType
+    ) {
+      return;
+    }
+
+    try {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (
+        !isCurrent ||
+        sessionError ||
+        !session?.access_token
+      ) {
+        return;
+      }
+
+      const response = await fetch(
+        "/api/instrument-name",
+        {
+          method: "POST",
+          cache: "no-store",
+          signal: controller.signal,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            ticker,
+            exchange: instrumentExchange,
+            assetType,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        return;
+      }
+
+      const payload = (await response.json()) as {
+        success?: boolean;
+        result?: {
+          status?: string;
+          ticker?: string;
+          name?: string | null;
+        };
+      };
+
+      if (!isCurrent) {
+        return;
+      }
+
+      const resolvedName =
+        payload.result?.name?.trim();
+
+      const resolvedTicker =
+        payload.result?.ticker
+          ?.trim()
+          .toUpperCase();
+
+      if (
+        payload.success === true &&
+        payload.result?.status === "resolved" &&
+        resolvedName &&
+        resolvedTicker === ticker.trim().toUpperCase()
+      ) {
+        setInstrumentName(resolvedName);
+      }
+    } catch (error) {
+      if (!controller.signal.aborted) {
+        console.error(
+          "INSTRUMENT NAME LOOKUP FAILED:",
+          error
+        );
+      }
+    }
+  };
+
+  void loadInstrumentName();
+
+  return () => {
+    isCurrent = false;
+    controller.abort();
+  };
+}, [ticker, instrumentExchange, assetType]);
 
 const previewQuantityUnitMap: Record<string, string> = {
   STOCKS: "Share",
@@ -861,22 +971,23 @@ className={`
 >
 
 <div
-  className="
-    flex
-    h-[70px]
-    items-center
-    justify-between
-    gap-4
-  "
+className="
+  flex
+  min-h-[70px]
+  items-center
+  justify-between
+  gap-0
+"
 >
 
               <div
-                className="
-                  flex
-                  min-w-0
-                  items-center
-                  gap-4
-                "
+className="
+  flex
+  flex-1
+  min-w-0
+  items-center
+  gap-1
+"
               >
 
 <div
@@ -905,29 +1016,41 @@ className={`
 />
 </div>
 
-                <div
-                  className="
-                    min-w-0
-                    translate-x-[10px]
-                  "
-                >
+<div className="min-w-0 flex-1">
+
+{instrumentName && (
+  <div
+    title={instrumentName}
+    className="
+      max-w-[220px]
+      truncate
+      text-[11px]
+      font-medium
+      leading-[14px]
+      text-slate-400
+    "
+  >
+    {instrumentName}
+  </div>
+)}
 
                   <div
                     className="
-                      text-[24px]
+                      text-[22px]
                       font-semibold
+                      leading-[26px]
                       tracking-[-0.02em]
                       text-white
                     "
                   >
-                    {trade.ticker ||
-                      "—"}
+                    {trade.ticker || "—"}
                   </div>
 
                   <div
                     className="
-                      mt-1
-                      text-[14px]
+                      mt-[2px]
+                      text-[11px]
+                      leading-[14px]
                       text-slate-400
                     "
                   >
@@ -979,7 +1102,7 @@ className={`
   className="
     flex
     h-6
-    w-[110px]
+    w-[90px]
     items-center
     justify-center
     rounded-[6px]
