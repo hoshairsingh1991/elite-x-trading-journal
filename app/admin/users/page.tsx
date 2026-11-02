@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -8,20 +9,33 @@ import {
 import {
   Activity,
   AlertCircle,
+  AlertTriangle,
   Bell,
   CalendarDays,
+  CalendarClock,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
+  CreditCard,
   Eye,
   FileText,
+  History,
+  KeyRound,
+  LockKeyhole,
+  LogOut,
   RotateCcw,
   Info,
   Search,
+  Save,
+  Shield,
   ShieldCheck,
+  Trash2,
+  Unlock,
   Users,
+  UserCheck,
   X,
 } from "lucide-react";
 
@@ -249,6 +263,136 @@ const MOCK_USERS: AdminUser[] = [
   trialExpiration: "—",
   notes: "Account suspended pending review.",
 },
+  {
+    id: "USR-1016",
+    name: "Lucas Mitchell",
+    email: "lucas@example.com",
+    registered: "Oct 28, 2026",
+    verified: true,
+    status: "ACTIVE",
+    plan: "ELITE",
+    lastActive: "Nov 02, 2026 13:45",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Active Elite account.",
+  },
+  {
+    id: "USR-1017",
+    name: "Mia Rodriguez",
+    email: "mia@example.com",
+    registered: "Oct 27, 2026",
+    verified: false,
+    status: "PENDING",
+    plan: null,
+    lastActive: "Never",
+    entitlementSource: "—",
+    trialExpiration: "—",
+    notes: "Awaiting email verification.",
+  },
+  {
+    id: "USR-1018",
+    name: "Alexander Wright",
+    email: "alex@example.com",
+    registered: "Oct 26, 2026",
+    verified: true,
+    status: "ACTIVE",
+    plan: "PRO",
+    lastActive: "Nov 02, 2026 10:32",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Active Pro account.",
+  },
+  {
+    id: "USR-1019",
+    name: "Sophia Bennett",
+    email: "sophia@example.com",
+    registered: "Oct 25, 2026",
+    verified: true,
+    status: "READ_ONLY",
+    plan: "PRO",
+    lastActive: "Oct 30, 2026 15:20",
+    entitlementSource: "Expired subscription",
+    trialExpiration: "—",
+    notes: "Subscription expired. Historical access only.",
+  },
+  {
+    id: "USR-1020",
+    name: "William Foster",
+    email: "william@example.com",
+    registered: "Oct 24, 2026",
+    verified: true,
+    status: "ACTIVE",
+    plan: "BASIC",
+    lastActive: "Nov 01, 2026 17:18",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Active Basic account.",
+  },
+  {
+    id: "USR-1021",
+    name: "Isabella Garcia",
+    email: "isabella.garcia@example.com",
+    registered: "Oct 23, 2026",
+    verified: true,
+    status: "ACTIVE",
+    plan: "TRIAL",
+    lastActive: "Nov 02, 2026 08:45",
+    entitlementSource: "Trial grant",
+    trialExpiration: "Nov 07, 2026",
+    notes: "Currently using the Elite trial.",
+  },
+  {
+    id: "USR-1022",
+    name: "Henry Walker",
+    email: "henry@example.com",
+    registered: "Oct 22, 2026",
+    verified: true,
+    status: "SUSPENDED",
+    plan: "ELITE",
+    lastActive: "Oct 29, 2026 12:10",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Account suspended pending administrator review.",
+  },
+  {
+    id: "USR-1023",
+    name: "Ella Thompson",
+    email: "ella@example.com",
+    registered: "Oct 21, 2026",
+    verified: true,
+    status: "ACTIVE",
+    plan: "PRO",
+    lastActive: "Nov 02, 2026 11:26",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Active Pro account.",
+  },
+  {
+    id: "USR-1024",
+    name: "Jack Harrison",
+    email: "jack@example.com",
+    registered: "Oct 20, 2026",
+    verified: false,
+    status: "PENDING",
+    plan: null,
+    lastActive: "Never",
+    entitlementSource: "—",
+    trialExpiration: "—",
+    notes: "Awaiting email verification and administrator approval.",
+  },
+  {
+    id: "USR-1025",
+    name: "Chloe Martin",
+    email: "chloe@example.com",
+    registered: "Oct 19, 2026",
+    verified: true,
+    status: "ACTIVE",
+    plan: "ELITE",
+    lastActive: "Nov 02, 2026 09:52",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Active Elite account.",
+  },
 ];
 
 // =====================================================
@@ -763,14 +907,75 @@ function DetailRow({
 // USER DETAILS PANEL
 // =====================================================
 
-
 function UserDetailsPanel({
   user,
 }: {
   user: AdminUser;
 }) {
+  const [selectedPlan, setSelectedPlan] = useState<PlanType | "">(
+    user.plan ?? ""
+  );
+  const [effectiveDate, setEffectiveDate] = useState("IMMEDIATELY");
+  const [customEffectiveDate, setCustomEffectiveDate] = useState("");
+  const [trialDuration, setTrialDuration] = useState("14");
+  const [trialStartDate, setTrialStartDate] = useState("");
+  const [accessLevel, setAccessLevel] = useState<
+    "FULL_ACCESS" | "READ_ONLY" | "SUSPENDED"
+  >(
+    user.status === "READ_ONLY"
+      ? "READ_ONLY"
+      : user.status === "SUSPENDED"
+        ? "SUSPENDED"
+        : "FULL_ACCESS"
+  );
+  const [adminNotes, setAdminNotes] = useState(user.notes);
+  const [feedback, setFeedback] = useState("");
+
+  useEffect(() => {
+    setSelectedPlan(user.plan ?? "");
+    setEffectiveDate("IMMEDIATELY");
+    setCustomEffectiveDate("");
+    setTrialDuration("14");
+    setTrialStartDate("");
+    setAccessLevel(
+      user.status === "READ_ONLY"
+        ? "READ_ONLY"
+        : user.status === "SUSPENDED"
+          ? "SUSPENDED"
+          : "FULL_ACCESS"
+    );
+    setAdminNotes(user.notes);
+    setFeedback("");
+  }, [user.id, user.plan, user.status, user.notes]);
+
+  const sectionClass =
+    "relative left-1/2 top-[6px] w-[95%] -translate-x-1/2 shrink-0 overflow-hidden rounded-[8px] border border-white/[0.09] bg-gradient-to-b from-[#0B1A2A] to-[#081522]";
+
+  const sectionHeaderClass =
+    "relative left-[10px] flex h-[40px] items-center gap-2 border-b border-white/[0.08] px-3.5";
+
+  const sectionContentClass =
+    "relative left-[10px] px-3.5 py-1";
+
+  const fieldClass =
+    "h-[34px] w-full rounded-[6px] border border-white/[0.09] bg-[#030D19] px-2.5 text-[11px] text-slate-200 outline-none transition-colors focus:border-[#4F8CFF]/50";
+
+  const labelClass =
+    "mb-1.5 block text-[10px] font-medium text-slate-400";
+
+  const actionButtonClass =
+    "flex h-[32px] items-center justify-center gap-2 rounded-[6px] border border-[#347CE8]/30 bg-[#17345A] px-3 text-[10px] font-semibold text-blue-200 transition-colors hover:border-[#5595F5]/50 hover:bg-[#1D4779]";
+
+  const secondaryButtonClass =
+    "flex h-[32px] items-center justify-center gap-2 rounded-[6px] border border-white/[0.09] bg-white/[0.035] px-3 text-[10px] font-medium text-slate-300 transition-colors hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white";
+
+  const showPreviewFeedback = (message: string) => {
+    setFeedback(message);
+  };
+
   return (
-   <aside className="flex min-h-0 w-full flex-1 shrink-0 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-[8px] border border-white/[0.07] bg-[#071321] p-3 xl:w-[326px]">
+    <aside className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden rounded-[8px] border border-white/[0.07] bg-[#071321] p-3">
+
       {/* PANEL HEADER */}
 
       <div className="relative left-[10px] top-[10px] flex shrink-0 items-start justify-between border-b border-white/[0.06] px-1 pb-3 pt-1">
@@ -783,16 +988,6 @@ function UserDetailsPanel({
             Account overview and information
           </p>
         </div>
-
-        <button
-          type="button"
-          aria-label="Close user details"
-          title="Close user details"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
-          onClick={() => {}}
-        >
-          <X size={17} strokeWidth={1.8} />
-        </button>
       </div>
 
       {/* USER PROFILE */}
@@ -826,20 +1021,16 @@ function UserDetailsPanel({
 
       {/* ACCOUNT INFORMATION */}
 
-      <section className="relative left-1/2 top-[6px] w-[95%] -translate-x-1/2 shrink-0 overflow-hidden rounded-[8px] border border-white/[0.09] bg-gradient-to-b from-[#0B1A2A] to-[#081522]">
-
-        <div className="relative left-[10px] flex h-[40px] items-center gap-2 border-b border-white/[0.08] px-3.5">
-          <Users
-            size={16}
-            className="text-slate-300"
-          />
+      <section className={sectionClass}>
+        <div className={sectionHeaderClass}>
+          <Users size={16} className="text-slate-300" />
 
           <h3 className="text-[12px] font-semibold text-white">
             Account Information
           </h3>
         </div>
 
-        <div className="relative left-[10px] px-3.5 py-1">
+        <div className={sectionContentClass}>
           <DetailRow
             label="Registration Date"
             value={user.registered}
@@ -867,20 +1058,16 @@ function UserDetailsPanel({
 
       {/* ACCESS AND ENTITLEMENT */}
 
-      <section className="relative left-1/2 top-[6px] w-[95%] -translate-x-1/2 shrink-0 overflow-hidden rounded-[8px] border border-white/[0.09] bg-gradient-to-b from-[#0B1A2A] to-[#081522]">
-
-      <div className="relative left-[10px] flex h-[40px] items-center gap-2 border-b border-white/[0.08] px-3.5">
-          <Activity
-            size={16}
-            className="text-slate-300"
-          />
+      <section className={sectionClass}>
+        <div className={sectionHeaderClass}>
+          <Activity size={16} className="text-slate-300" />
 
           <h3 className="text-[12px] font-semibold text-white">
             Access & Entitlement
           </h3>
         </div>
 
-        <div className="relative left-[10px] px-3.5 py-1">
+        <div className={sectionContentClass}>
           <DetailRow
             label="Account Status"
             value={STATUS_CONFIG[user.status].label}
@@ -925,35 +1112,546 @@ function UserDetailsPanel({
         </div>
       </section>
 
-      {/* ACCOUNT NOTES */}
+{/* SUBSCRIPTION AND PLAN */}
 
-     <section className="relative left-1/2 top-[6px] w-[95%] -translate-x-1/2 shrink-0 overflow-hidden rounded-[8px] border border-white/[0.09] bg-gradient-to-b from-[#0B1A2A] to-[#081522]">
+<section className={`${sectionClass} min-h-[200px]`}>
+  <div className={sectionHeaderClass}>
+    <Activity size={16} className="text-slate-300" />
 
-        <div className="relative left-[10px] flex h-[40px] items-center gap-2 border-b border-white/[0.08] px-3.5">
-          <FileText
-            size={16}
-            className="text-slate-300"
-          />
+    <h3 className="text-[12px] font-semibold text-white">
+      Subscription & Plan
+    </h3>
+  </div>
+
+  <div className="relative left-[10px] top-[4px] w-[calc(100%-20px)] px-3.5 pb-4 pt-1">
+
+    <div style={{ marginBottom: "8px" }}>
+      <label className={labelClass}>
+        Assign Plan
+      </label>
+
+      <select
+        value={selectedPlan}
+        onChange={(event) =>
+          setSelectedPlan(event.target.value as PlanType | "")
+        }
+        className={`${fieldClass} relative top-[2px]`}
+      >
+        <option value="">Not assigned</option>
+        <option value="TRIAL">Trial</option>
+        <option value="BASIC">Basic</option>
+        <option value="PRO">Pro</option>
+        <option value="ELITE">Elite</option>
+      </select>
+    </div>
+
+    <div style={{ marginBottom: "8px" }}>
+      <label className={labelClass}>
+        Plan Effective Date
+      </label>
+
+      <select
+        value={effectiveDate}
+        onChange={(event) =>
+          setEffectiveDate(event.target.value)
+        }
+        className={`${fieldClass} relative top-[2px]`}
+      >
+        <option value="IMMEDIATELY">Immediately</option>
+        <option value="NEXT_BILLING">Next billing cycle</option>
+        <option value="CUSTOM">Custom date</option>
+      </select>
+    </div>
+
+    {effectiveDate === "CUSTOM" && (
+      <div style={{ marginBottom: "8px" }}>
+        <label className={labelClass}>
+          Custom Effective Date
+        </label>
+
+        <input
+          type="date"
+          value={customEffectiveDate}
+          onChange={(event) =>
+            setCustomEffectiveDate(event.target.value)
+          }
+          className={fieldClass}
+        />
+      </div>
+    )}
+
+    <button
+      type="button"
+      onClick={() =>
+        showPreviewFeedback(
+          "Plan assignment preview only. No account changes were made."
+        )
+      }
+      className={`${actionButtonClass} w-full`}
+    >
+      <CheckCircle2 size={13} />
+      Apply Plan
+    </button>
+
+  </div>
+</section>
+
+{/* TRIAL MANAGEMENT */}
+
+<section className={`${sectionClass} min-h-[240px]`}>
+  <div className={sectionHeaderClass}>
+    <Clock3 size={16} className="text-slate-300" />
+
+    <h3 className="text-[12px] font-semibold text-white">
+      Trial Management
+    </h3>
+  </div>
+
+  <div className="relative left-[10px] top-[4px] w-[calc(100%-20px)] px-3.5 pb-4 pt-1">
+
+    <div style={{ marginBottom: "8px" }}>
+      <label className={labelClass}>
+        Trial Duration
+      </label>
+
+      <select
+        value={trialDuration}
+        onChange={(event) =>
+          setTrialDuration(event.target.value)
+        }
+        className={`${fieldClass} relative top-[2px]`}
+      >
+        <option value="7">7 days</option>
+        <option value="14">14 days</option>
+        <option value="30">30 days</option>
+        <option value="60">60 days</option>
+        <option value="90">90 days</option>
+      </select>
+    </div>
+
+    <div style={{ marginBottom: "8px" }}>
+      <label className={labelClass}>
+        Trial Start Date
+      </label>
+
+      <input
+        type="date"
+        value={trialStartDate}
+        onChange={(event) =>
+          setTrialStartDate(event.target.value)
+        }
+        className={`${fieldClass} relative top-[2px]`}
+      />
+    </div>
+
+    <div className="mb-2 rounded-[6px] border border-white/[0.06] bg-[#101E2E] px-3 py-2">
+      <p className="text-[10px] text-slate-500">
+        Current Trial Expiration
+      </p>
+
+      <p className="mt-1 text-[11px] font-medium text-slate-200">
+        {user.trialExpiration}
+      </p>
+    </div>
+
+    <div className="relative top-[8px] flex gap-2">
+      <button
+        type="button"
+        onClick={() =>
+          showPreviewFeedback(
+            "Trial activation preview only. No account changes were made."
+          )
+        }
+        className={`${actionButtonClass} flex-1`}
+      >
+        <CheckCircle2 size={13} />
+        Start Trial
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          showPreviewFeedback(
+            "Trial extension preview only. No account changes were made."
+          )
+        }
+        className={`${secondaryButtonClass} flex-1`}
+      >
+        <RotateCcw size={13} />
+        Extend
+      </button>
+    </div>
+
+  </div>
+</section>
+
+{/* ACCOUNT ACCESS AND PERMISSIONS */}
+
+<section className={`${sectionClass} min-h-[230px]`}>
+  <div className={sectionHeaderClass}>
+    <ShieldCheck size={16} className="text-slate-300" />
+
+    <h3 className="text-[12px] font-semibold text-white">
+      Account Access & Permissions
+    </h3>
+  </div>
+
+  <div className="relative left-[10px] top-[4px] w-[calc(100%-20px)] px-3.5 pb-4 pt-1">
+
+    <div style={{ marginBottom: "8px" }}>
+      <label className={labelClass}>
+        Access Level
+      </label>
+
+      <div className="relative top-[2px] flex flex-col gap-2">
+        {[
+          {
+            value: "FULL_ACCESS",
+            label: "Full Access",
+            description: "All permitted application features",
+          },
+          {
+            value: "READ_ONLY",
+            label: "Read-only",
+            description: "View existing data without editing",
+          },
+          {
+            value: "SUSPENDED",
+            label: "Suspended",
+            description: "Block application access",
+          },
+        ].map((option) => (
+          <label
+            key={option.value}
+            className={`mb-3 flex cursor-pointer items-start gap-2.5 rounded-[6px] border px-3 py-2 transition-colors ${
+              accessLevel === option.value
+                ? "border-[#4F8CFF]/35 bg-[#17345A]/40"
+                : "border-white/[0.07] bg-[#101E2E] hover:border-white/[0.13]"
+            }`}
+          >
+            <input
+              type="radio"
+              name={`access-level-${user.id}`}
+              value={option.value}
+              checked={accessLevel === option.value}
+              onChange={() =>
+                setAccessLevel(
+                  option.value as
+                    | "FULL_ACCESS"
+                    | "READ_ONLY"
+                    | "SUSPENDED"
+                )
+              }
+              className="relative left-[3px] top-[8px] accent-blue-500"
+            />
+
+            <span className="min-w-0">
+              <span className="block text-[11px] font-medium text-slate-200">
+                {option.label}
+              </span>
+
+              <span className="mt-0.5 block text-[10px] text-slate-500">
+                {option.description}
+              </span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <div className="relative top-[4px]">
+      <button
+        type="button"
+        onClick={() =>
+          showPreviewFeedback(
+            "Access-level preview only. No permissions were changed."
+          )
+        }
+        className={`${actionButtonClass} w-full`}
+      >
+        <ShieldCheck size={13} />
+        Update Access
+      </button>
+    </div>
+
+  </div>
+</section>
+
+{/* ACCOUNT SECURITY */}
+
+<section className={`${sectionClass} min-h-[160px]`}>
+  <div className={sectionHeaderClass}>
+    <ShieldCheck size={16} className="text-slate-300" />
+
+    <h3 className="text-[12px] font-semibold text-white">
+      Account Security
+    </h3>
+  </div>
+
+  <div className="relative left-[10px] top-[2px] flex w-[calc(100%-20px)] flex-col gap-3 px-3.5 py-3">
+    <DetailRow
+      label="Email Verification"
+      value={user.verified ? "Verified" : "Unverified"}
+      compact
+      valueClassName={
+        user.verified
+          ? "text-emerald-400"
+          : "text-amber-400"
+      }
+    />
+
+<div className="relative -top-[8px] flex flex-col gap-3">
+  <button
+    type="button"
+    onClick={() =>
+      showPreviewFeedback(
+        "Password reset preview only. No email was sent."
+      )
+    }
+    className={`${secondaryButtonClass} w-full`}
+  >
+    <Bell size={13} />
+    Send Password Reset
+  </button>
+
+  <button
+    type="button"
+    onClick={() =>
+      showPreviewFeedback(
+        "Session revocation preview only. No sessions were revoked."
+      )
+    }
+    className={`${secondaryButtonClass} w-full`}
+  >
+    <RotateCcw size={13} />
+    Revoke All Sessions
+  </button>
+</div>
+
+    {!user.verified && (
+      <button
+        type="button"
+        onClick={() =>
+          showPreviewFeedback(
+            "Email verification review preview only. No account changes were made."
+          )
+        }
+        className={`${secondaryButtonClass} w-full`}
+      >
+        <CheckCircle2 size={13} />
+        Review Email Verification
+      </button>
+    )}
+  </div>
+</section>
+
+{/* ACCOUNT NOTES */}
+
+      <section className={sectionClass}>
+        <div className={sectionHeaderClass}>
+          <FileText size={16} className="text-slate-300" />
 
           <h3 className="text-[12px] font-semibold text-white">
             Account Notes
           </h3>
         </div>
 
-<div className="h-[100px] p-3">
-  <div className="relative left-1/2 top-1/2 flex h-[85%] w-[95%] -translate-x-1/2 -translate-y-1/2 items-start rounded-[8px] border border-white/[0.07] bg-[#101E2E]">
-<div
-  className="w-full"
-  style={{ padding: "12px 16px" }}
->
-  <p className="m-0 text-[12px] leading-[18px] text-slate-300">
-    {user.notes || "No account notes available."}
-  </p>
-</div>
-  </div>
-</div>
+        <div className="h-[100px] p-3">
+          <div className="relative left-1/2 top-1/2 flex h-[85%] w-[95%] -translate-x-1/2 -translate-y-1/2 items-start rounded-[8px] border border-white/[0.07] bg-[#101E2E]">
+            <div
+              className="w-full"
+              style={{ padding: "12px 16px" }}
+            >
+              <p className="m-0 text-[12px] leading-[18px] text-slate-300">
+                {user.notes || "No account notes available."}
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
+{/* ADMINISTRATOR NOTES */}
+
+<section className={`${sectionClass} h-[200px]`}>
+  <div className={sectionHeaderClass}>
+    <FileText size={16} className="text-slate-300" />
+
+    <h3 className="text-[12px] font-semibold text-white">
+      Administrator Notes
+    </h3>
+  </div>
+
+  <div className="h-[120px] p-3">
+    <div className="relative left-1/2 top-1/2 flex h-[90%] w-[95%] -translate-x-1/2 -translate-y-1/2 flex-col rounded-[8px] border border-white/[0.07] bg-[#101E2E]">
+      <div
+        className="w-full"
+        style={{ padding: "12px 16px" }}
+      >
+        <label className={`${labelClass} relative -top-[4px]`}>
+          Internal Notes
+        </label>
+
+        <textarea
+          value={adminNotes}
+          onChange={(event) =>
+            setAdminNotes(event.target.value)
+          }
+          rows={4}
+          placeholder="Add internal administrator notes..."
+          className="min-h-0 w-full resize-y border-0 bg-transparent px-0 py-1 text-[12px] leading-[18px] text-slate-200 outline-none placeholder:text-slate-600 focus:ring-0"
+        />
+      </div>
+    </div>
+
+    <div className="relative left-1/2 top-[12px] mt-2 w-[95%] -translate-x-1/2">
+      <button
+        type="button"
+        onClick={() =>
+          showPreviewFeedback(
+            "Administrator note save preview only. Notes were not persisted."
+          )
+        }
+        className={`${actionButtonClass} w-full`}
+      >
+        <CheckCircle2 size={13} />
+        Save Notes
+      </button>
+    </div>
+  </div>
+</section>
+
+{/* AUDIT HISTORY */}
+
+<section className={`${sectionClass} h-[120px]`}>
+  <div className={sectionHeaderClass}>
+    <CalendarDays size={16} className="text-slate-300" />
+
+    <h3 className="text-[12px] font-semibold text-white">
+      Audit History
+    </h3>
+  </div>
+
+  <div className="relative left-[10px] top-[4px] w-[calc(100%-20px)] space-y-3 px-3.5 py-3">
+
+{/* ACCOUNT REGISTRATION */}
+
+<div className="flex items-start gap-2.5">
+  <span className="relative top-[6px] h-[7px] w-[7px] shrink-0 rounded-full bg-blue-400" />
+
+  <div className="min-w-0">
+    <p className="text-[11px] font-medium text-slate-300">
+      Account registered
+    </p>
+
+    <p className="mt-0.5 text-[10px] text-slate-500">
+      {user.registered}
+    </p>
+  </div>
+</div>
+
+{/* EMAIL VERIFICATION */}
+
+<div className="relative top-[4px] flex items-start gap-2.5">
+  <span
+    className={`relative top-[6px] h-[7px] w-[7px] shrink-0 rounded-full ${
+      user.verified
+        ? "bg-emerald-400"
+        : "bg-amber-400"
+    }`}
+  />
+
+  <div className="min-w-0">
+    <p className="text-[11px] font-medium text-slate-300">
+      {user.verified
+        ? "Email verified"
+        : "Email verification pending"}
+    </p>
+
+    <p className="mt-0.5 text-[10px] text-slate-500">
+      Current account state
+    </p>
+  </div>
+</div>
+
+
+  </div>
+</section>
+
+{/* DANGER ZONE */}
+
+<section
+  className={`${sectionClass} mb-2 h-[182px] !border-red-400/[0.18] !bg-gradient-to-b !from-[#21151B] !to-[#160F17]`}
+>
+  {/* HEADER */}
+
+  <div className="relative left-[10px] flex h-[40px] items-center gap-2 border-b border-red-400/[0.12] px-3.5">
+    <AlertCircle size={16} className="text-red-300" />
+
+    <h3 className="text-[12px] font-semibold text-red-200">
+      Danger Zone
+    </h3>
+  </div>
+
+  {/* CONTENT */}
+
+  <div className="relative left-[10px] top-[4px] w-[calc(100%-20px)] space-y-3 px-3.5 py-3">
+
+    {/* REVOKE ACCOUNT ACCESS */}
+
+    <div>
+      <p className="text-[11px] font-medium text-slate-200">
+        Revoke Account Access
+      </p>
+
+      <p className="mt-1 text-[10px] leading-[15px] text-slate-500">
+        Restrict this account from accessing the application.
+      </p>
+
+      <button
+        type="button"
+        onClick={() =>
+          showPreviewFeedback(
+            "Access revocation preview only. The account remains unchanged."
+          )
+        }
+        className="mt-2 flex h-[31px] w-full items-center justify-center gap-2 rounded-[6px] border border-red-400/[0.20] bg-red-500/[0.08] px-3 text-[10px] font-semibold text-red-300 transition-colors hover:bg-red-500/[0.14]"
+      >
+        <ShieldCheck size={13} />
+        Revoke Access
+      </button>
+    </div>
+
+    {/* DELETE ACCOUNT */}
+
+    <div className="border-t border-red-400/[0.10] pt-3">
+      <p className="text-[11px] font-medium text-slate-200">
+        Delete Account
+      </p>
+
+      <p className="mt-1 text-[10px] leading-[15px] text-slate-500">
+        Permanently delete this user account and associated data.
+      </p>
+
+      <button
+        type="button"
+        onClick={() =>
+          showPreviewFeedback(
+            "Account deletion preview only. No data was deleted."
+          )
+        }
+        className="mt-2 flex h-[31px] w-full items-center justify-center gap-2 rounded-[6px] border border-red-400/[0.25] bg-red-500/[0.12] px-3 text-[10px] font-semibold text-red-300 transition-colors hover:bg-red-500/[0.20]"
+      >
+        <AlertCircle size={13} />
+        Delete Account
+      </button>
+    </div>
+
+  </div>
+</section>
+
+{/* BOTTOM SPACING */}
+
+<div className="relative h-[8px] w-full shrink-0" />
     </aside>
   );
 }
@@ -1078,7 +1776,7 @@ const [currentPage, setCurrentPage] =
 const [selectedUserId, setSelectedUserId] =
   useState("USR-1003");
 
-const USERS_PER_PAGE = 10;
+const USERS_PER_PAGE = 19;
 
   const selectedUser =
     MOCK_USERS.find(
@@ -1596,7 +2294,7 @@ className="
 
               {/* USER TABLE */}
 
-              <div className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden">
+              <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
                <table className="w-full min-w-0 table-fixed border-collapse text-left">
 <colgroup>
   <col style={{ width: "23%" }} />
@@ -1647,7 +2345,7 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
   ease-[cubic-bezier(0.22,1,0.36,1)]
   hover:z-10
   hover:-translate-y-[0.5px]
-  hover:scale-[1.001]
+  hover:-translate-y-[0.5px]
   ${
     isSelected
       ? "bg-[#10294A]/65 shadow-[inset_2px_0_0_#4F8CFF] hover:bg-[#163253]"
@@ -1764,7 +2462,7 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
 
 {/* TABLE FOOTER */}
 
-<div className="flex min-h-[38px] shrink-0 items-center justify-between border-t border-white/[0.06] bg-[#091827] px-4">
+<div className="flex min-h-[46px] shrink-0 items-center justify-between border-t border-white/[0.06] bg-[#091827] px-4">
 
   {/* RESULTS COUNT */}
 
@@ -1821,7 +2519,7 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
           {/* RIGHT USER DETAILS PANEL */}
           {/* ========================================= */}
 
-<div className="relative top-[82px] flex h-[calc(100dvh-205px)] min-h-0 w-full shrink-0 flex-col xl:mr-5 xl:w-[326px]">
+<div className="relative top-[10px] flex h-[calc(100dvh-130px)] min-h-0 w-full shrink-0 flex-col xl:mr-5 xl:w-[360px]">
   <UserDetailsPanel user={selectedUser} />
 </div>
         </div>
