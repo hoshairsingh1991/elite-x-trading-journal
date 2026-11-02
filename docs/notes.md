@@ -578,9 +578,9 @@ git commit -m "Fix exchange-aware asset icon resolution"
 git commit -m "Add daily review date navigation and login animation notes"
 git commit -m "Add OpenFIGI instrument name resolver"
 git commit -m "Update OpenFIGI configuration checkpoint"
-
+git commit -m "fix(dashboard): align calendar ranges and handle empty trading scores"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+git commit -m "feat(admin): add user management UI foundation"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

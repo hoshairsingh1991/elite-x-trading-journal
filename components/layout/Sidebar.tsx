@@ -12,11 +12,16 @@ import {
   Settings,
   NotebookPen,
   Calculator,
-   Sigma,
+  Sigma,
   Bell,
   Monitor,
   CircleHelp,
+  ShieldCheck,
 } from "lucide-react";
+
+// =====================================================
+// NAVIGATION ITEMS
+// =====================================================
 
 const mainItems = [
   {
@@ -29,21 +34,16 @@ const mainItems = [
     icon: CandlestickChart,
     href: "/trades",
   },
-  {
-    title: "Notes",
-    icon: NotebookPen,
-    href: "/notes",
-  },
-  {
-    title: "Calendar",
-    icon: CalendarDays,
-    href: "#",
-  },
-  {
-    title: "Analytics",
-    icon: BarChart3,
-    href: "#",
-  },
+{
+  title: "Notes",
+  icon: NotebookPen,
+  href: "/notes",
+},
+{
+  title: "Analytics",
+  icon: BarChart3,
+  href: "#",
+},
   {
     title: "Expenses",
     icon: Wallet,
@@ -87,25 +87,54 @@ const systemItems = [
   },
 ];
 
-export default function Sidebar() {
+// =====================================================
+// SIDEBAR PROPS
+// =====================================================
+
+interface SidebarProps {
+  showAdministrationPreview?: boolean;
+}
+
+// =====================================================
+// SIDEBAR
+// =====================================================
+
+export default function Sidebar({
+  showAdministrationPreview = false,
+}: SidebarProps) {
   const pathname = usePathname();
 
+  // ===================================================
+  // OPTIONAL ADMINISTRATION NAVIGATION
+  // ===================================================
+
+  const visibleSystemItems = showAdministrationPreview
+    ? [
+{
+  title: "Admin",
+  icon: ShieldCheck,
+  href: "/admin/users",
+},
+        ...systemItems,
+      ]
+    : systemItems;
+
   return (
-<aside
-  className="
-    translate-y-[22px]
-    flex
-    h-[calc(100vh-40px)]
-    w-[180px]
-    flex-col
-    overflow-hidden
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#07111C]
-    shadow-[0_24px_60px_rgba(0,0,0,0.55)]
-  "
->
+    <aside
+      className="
+        translate-y-[22px]
+        flex
+        h-[calc(100vh-40px)]
+        w-[180px]
+        flex-col
+        overflow-hidden
+        rounded-[8px]
+        border
+        border-white/[0.06]
+        bg-[#07111C]
+        shadow-[0_24px_60px_rgba(0,0,0,0.55)]
+      "
+    >
       {/* ================================================= */}
       {/* TOP */}
       {/* ================================================= */}
@@ -166,287 +195,305 @@ export default function Sidebar() {
 
         </div>
 
-{/* ================================================= */}
-{/* NAVIGATION */}
-{/* ================================================= */}
+        {/* ================================================= */}
+        {/* NAVIGATION */}
+        {/* ================================================= */}
 
-<nav className="flex-1 overflow-y-auto overflow-x-hidden pb-8">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden pb-8">
 
-  <div className="pl-8 pr-3">
+          <div className="pl-8 pr-3">
 
-   {/* ================= MAIN ================= */}
+            {/* ================= MAIN ================= */}
 
-<div className="space-y-2">
+            <div className="space-y-2">
 
-  {mainItems.map((item) => {
+              {mainItems.map((item) => {
 
-const Icon = item.icon;
-const isActive = pathname === item.href;
-const isPlaceholder = item.href === "#";
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                const isPlaceholder = item.href === "#";
 
-    const content = (
-     
-  <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
-        <Icon
-          size={20}
-          className={
-            isActive
-              ? "text-[#4F8CFF]"
-              : "text-slate-500 transition-colors group-hover:text-slate-300"
-          }
-        />
+                const content = (
+                  <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
 
-        <span
-          className={`text-[14px] font-medium ${
-            isActive
-              ? "text-white"
-              : "text-slate-400 transition-colors group-hover:text-slate-200"
-          }`}
-        >
-          {item.title}
-        </span>
-      </div>
-    );
+                    <Icon
+                      size={20}
+                      className={
+                        isActive
+                          ? "text-[#4F8CFF]"
+                          : "text-slate-500 transition-colors group-hover:text-slate-300"
+                      }
+                    />
 
-const className = `
-  group
-  flex
-  h-[46px]
-  w-[170px]
-  translate-x-0
-  items-center
-  justify-start
-  rounded-[8px]
-  border
-  transition-all
-  duration-150
-${
-  isActive
-    ? "border-[#17345E] bg-[#0D1932]"
-    : isPlaceholder
-      ? "border-transparent opacity-50 cursor-not-allowed"
-      : "border-transparent hover:bg-white/[0.03]"
-}
-`;
+                    <span
+                      className={`text-[14px] font-medium ${
+                        isActive
+                          ? "text-white"
+                          : "text-slate-400 transition-colors group-hover:text-slate-200"
+                      }`}
+                    >
+                      {item.title}
+                    </span>
 
-   if (item.href === "#") {
- return (
-  <div
-    key={item.title}
-    className="flex justify-center"
-  >
-<button
-  type="button"
-  disabled={isPlaceholder}
-  className={className}
->
-  {content}
-</button>
-  </div>
-);
-}
+                  </div>
+                );
 
-return (
-  <div
-    key={item.title}
-    className="flex justify-center"
-  >
-    <Link
-      href={item.href}
-      className={className}
-    >
-      {content}
-    </Link>
-  </div>
-);
+                const className = `
+                  group
+                  flex
+                  h-[46px]
+                  w-[170px]
+                  translate-x-0
+                  items-center
+                  justify-start
+                  rounded-[8px]
+                  border
+                  transition-all
+                  duration-150
+                  ${
+                    isActive
+                      ? "border-[#17345E] bg-[#0D1932]"
+                      : isPlaceholder
+                        ? "border-transparent opacity-50 cursor-not-allowed"
+                        : "border-transparent hover:bg-white/[0.03]"
+                  }
+                `;
 
-  })}
+                if (item.href === "#") {
+                  return (
+                    <div
+                      key={item.title}
+                      className="flex justify-center"
+                    >
+                      <button
+                        type="button"
+                        disabled={isPlaceholder}
+                        className={className}
+                      >
+                        {content}
+                      </button>
+                    </div>
+                  );
+                }
 
-</div>
-<div className="translate-y-2">
-{/* ================= TOOLS ================= */}
+                return (
+                  <div
+                    key={item.title}
+                    className="flex justify-center"
+                  >
+                    <Link
+                      href={item.href}
+                      className={className}
+                    >
+                      {content}
+                    </Link>
+                  </div>
+                );
 
-<div className="mt-8 border-t border-white/[0.05] pt-7">
+              })}
 
-  <p className="mb-5 translate-x-8 translate-y-4 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-500">
-  TOOLS
-</p>
-   
+            </div>
 
-  <div className="space-y-2">
+            <div className="translate-y-2">
 
-    {toolItems.map((item) => {
+              {/* ================= TOOLS ================= */}
 
-      const Icon = item.icon;
+              <div className="mt-8 border-t border-white/[0.05] pt-7">
 
-      const content = (
-        <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
-          <Icon
-            size={20}
-            className="text-slate-500 transition-colors group-hover:text-slate-300"
-          />
+                <p className="mb-5 translate-x-8 translate-y-4 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-500">
+                  TOOLS
+                </p>
 
-          <span className="text-[14px] font-medium text-slate-400 transition-colors group-hover:text-slate-200">
-            {item.title}
-          </span>
-        </div>
-      );
+                <div className="space-y-2">
 
-const isPlaceholder = item.href === "#";
+                  {toolItems.map((item) => {
 
-const className = `
-  group
-  flex
-  h-[46px]
-  w-[170px]
-  -translate-x-0
-  translate-y-6
-  items-center
-  justify-start
-  rounded-[8px]
-  border
-  border-transparent
-  transition-all
-  duration-150
-  ${
-    isPlaceholder
-      ? "opacity-50 cursor-not-allowed"
-      : "hover:bg-white/[0.03]"
-  }
-`;
+                    const Icon = item.icon;
 
-      return (
-        <div
-          key={item.title}
-          className="flex justify-center"
-        >
-<button
-  type="button"
-  disabled={isPlaceholder}
-  className={className}
->
-  {content}
-</button>
-        </div>
-      );
+                    const content = (
+                      <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
 
-    })}
+                        <Icon
+                          size={20}
+                          className="text-slate-500 transition-colors group-hover:text-slate-300"
+                        />
 
-  </div>
-</div>
-</div>
-<div className="translate-y-8">
-{/* ================= SYSTEM ================= */}
+                        <span className="text-[14px] font-medium text-slate-400 transition-colors group-hover:text-slate-200">
+                          {item.title}
+                        </span>
 
-<div className="mt-8 border-t border-white/[0.05] pt-7">
+                      </div>
+                    );
 
- <p className="mb-5 translate-x-8 translate-y-4 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-500">
-    SYSTEM
-  </p>
+                    const isPlaceholder = item.href === "#";
 
-  <div className="space-y-2">
+                    const className = `
+                      group
+                      flex
+                      h-[46px]
+                      w-[170px]
+                      -translate-x-0
+                      translate-y-6
+                      items-center
+                      justify-start
+                      rounded-[8px]
+                      border
+                      border-transparent
+                      transition-all
+                      duration-150
+                      ${
+                        isPlaceholder
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-white/[0.03]"
+                      }
+                    `;
 
-    {systemItems.map((item) => {
+                    return (
+                      <div
+                        key={item.title}
+                        className="flex justify-center"
+                      >
+                        <button
+                          type="button"
+                          disabled={isPlaceholder}
+                          className={className}
+                        >
+                          {content}
+                        </button>
+                      </div>
+                    );
 
-const Icon = item.icon;
-const isActive = pathname === item.href;
-const isPlaceholder = item.href === "#";
+                  })}
 
-      const content = (
-        <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
-          <Icon
-            size={20}
-            className={
-              isActive
-                ? "text-[#4F8CFF]"
-                : "text-slate-500 transition-colors group-hover:text-slate-300"
-            }
-          />
+                </div>
+              </div>
 
-          <span
-            className={`text-[14px] font-medium ${
-              isActive
-                ? "text-white"
-                : "text-slate-400 transition-colors group-hover:text-slate-200"
-            }`}
-          >
-            {item.title}
-          </span>
-        </div>
-      );
+            </div>
 
-const className = `
-  group
-  flex
-  h-[46px]
-  w-[170px]
-  -translate-x-0
-  translate-y-6
-  items-center
-  justify-start
-  rounded-[8px]
-  border
-  transition-all
-  duration-150
-  ${
-    isActive
-      ? "border-[#17345E] bg-[#0D1932]"
-      : isPlaceholder
-        ? "border-transparent opacity-50 cursor-not-allowed"
-        : "border-transparent hover:bg-white/[0.03]"
-  }
-`;
+            <div className="translate-y-8">
 
-      if (item.href === "#") {
-        return (
-          <div
-            key={item.title}
-            className="flex justify-center"
-          >
-<button
-  type="button"
-  disabled={isPlaceholder}
-  className={className}
->
-  {content}
-</button>
+              {/* ================= SYSTEM ================= */}
+
+              <div className="mt-8 border-t border-white/[0.05] pt-7">
+
+                <p className="mb-5 translate-x-8 translate-y-4 text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-500">
+                  SYSTEM
+                </p>
+
+                <div className="space-y-2">
+
+                  {visibleSystemItems.map((item) => {
+
+                    const Icon = item.icon;
+
+                    const isActive =
+                      pathname === item.href ||
+                      (
+                        item.href === "/admin/users" &&
+                        pathname.startsWith("/admin")
+                      );
+
+                    const isPlaceholder = item.href === "#";
+
+                    const content = (
+                      <div className="flex translate-x-[16px] items-center gap-4 transition-all duration-200 group-hover:translate-x-[18px]">
+
+                        <Icon
+                          size={20}
+                          className={
+                            isActive
+                              ? "text-[#4F8CFF]"
+                              : "text-slate-500 transition-colors group-hover:text-slate-300"
+                          }
+                        />
+
+                        <span
+                          className={`text-[14px] font-medium ${
+                            isActive
+                              ? "text-white"
+                              : "text-slate-400 transition-colors group-hover:text-slate-200"
+                          }`}
+                        >
+                          {item.title}
+                        </span>
+
+                      </div>
+                    );
+
+                    const className = `
+                      group
+                      flex
+                      h-[46px]
+                      w-[170px]
+                      -translate-x-0
+                      translate-y-6
+                      items-center
+                      justify-start
+                      rounded-[8px]
+                      border
+                      transition-all
+                      duration-150
+                      ${
+                        isActive
+                          ? "border-[#17345E] bg-[#0D1932]"
+                          : isPlaceholder
+                            ? "border-transparent opacity-50 cursor-not-allowed"
+                            : "border-transparent hover:bg-white/[0.03]"
+                      }
+                    `;
+
+                    if (item.href === "#") {
+                      return (
+                        <div
+                          key={item.title}
+                          className="flex justify-center"
+                        >
+                          <button
+                            type="button"
+                            disabled={isPlaceholder}
+                            className={className}
+                          >
+                            {content}
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={item.title}
+                        className="flex justify-center"
+                      >
+                        <Link
+                          key={item.title}
+                          href={item.href}
+                          className={className}
+                        >
+                          {content}
+                        </Link>
+                      </div>
+                    );
+
+                  })}
+
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
-        );
-      }
 
-      return (
-        <div
-          key={item.title}
-          className="flex justify-center"
-        >
-          <Link
-            key={item.title}
-            href={item.href}
-            className={className}
-          >
-            {content}
-          </Link>
-        </div>
-      );
+        </nav>
 
-    })}
+      </div>
 
-  </div>
+      {/* ================================================= */}
+      {/* BOTTOM */}
+      {/* ================================================= */}
 
-</div>
-</div>
-  </div>
+      <div className="border-t border-white/[0.05] py-4" />
 
-</nav>
-
-</div>
-
-{/* ================================================= */}
-{/* BOTTOM */}
-{/* ================================================= */}
-
-<div className="border-t border-white/[0.05] py-4" />
-
-</aside>
-);
+    </aside>
+  );
 }
