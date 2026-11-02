@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Clock3,
   Eye,
+  FileText,
   RotateCcw,
   Info,
   Search,
@@ -718,23 +719,26 @@ function MetricCard({
 // DETAIL ROW
 // =====================================================
 
-
-
-
 function DetailRow({
   label,
   value,
   valueClassName = "text-slate-200",
   icon: Icon,
+  compact = false,
 }: {
   label: string;
   value: string;
   valueClassName?: string;
   icon?: LucideIcon;
+  compact?: boolean;
 }) {
   return (
-    <div className="flex min-h-[39px] items-center justify-between gap-3">
-      <span className="flex min-w-0 items-center gap-2 text-[10px] text-slate-500">
+    <div
+      className={`flex items-center justify-between gap-3 ${
+        compact ? "min-h-[26px]" : "min-h-[39px]"
+      }`}
+    >
+      <span className="flex min-w-0 items-center gap-2 text-[11px] text-slate-400">
         {Icon && (
           <Icon
             size={13}
@@ -745,10 +749,10 @@ function DetailRow({
         {label}
       </span>
 
-      <span
-        className={`max-w-[58%] truncate text-right text-[10px] font-medium ${valueClassName}`}
-        title={value}
-      >
+<span
+  className={`relative -left-6 max-w-[58%] truncate text-right text-[11px] font-medium ${valueClassName}`}
+  title={value}
+>
         {value}
       </span>
     </div>
@@ -759,181 +763,201 @@ function DetailRow({
 // USER DETAILS PANEL
 // =====================================================
 
+
 function UserDetailsPanel({
   user,
 }: {
   user: AdminUser;
 }) {
   return (
-    <aside className="flex h-full w-full shrink-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#071321] xl:w-[326px]">
+   <aside className="flex min-h-0 w-full flex-1 shrink-0 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-[8px] border border-white/[0.07] bg-[#071321] p-3 xl:w-[326px]">
       {/* PANEL HEADER */}
 
-      <div className="border-b border-white/[0.06] px-4 py-4">
-        <h2 className="text-[13px] font-semibold text-white">
-          User Details
-        </h2>
+      <div className="relative left-[10px] top-[10px] flex shrink-0 items-start justify-between border-b border-white/[0.06] px-1 pb-3 pt-1">
+        <div>
+          <h2 className="text-[16px] font-semibold tracking-[-0.02em] text-white">
+            User Details
+          </h2>
 
-        <p className="mt-1 text-[10px] text-slate-500">
-          Account overview and information
-        </p>
-      </div>
-
-      {/* PROFILE */}
-
-      <div className="border-b border-white/[0.05] p-4">
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-[8px] border text-[17px] font-semibold ${getAvatarStyle(user.name)}`}
-          >
-            {getInitials(user.name)}
-          </div>
-
-          <div className="min-w-0">
-            <p className="truncate text-[14px] font-semibold text-white">
-              {user.name}
-            </p>
-
-            <p className="mt-1 truncate text-[10px] text-slate-400">
-              {user.email}
-            </p>
-
-            <p className="mt-1 text-[9px] text-slate-600">
-              {user.id}
-            </p>
-          </div>
+          <p className="mt-1 text-[11px] text-slate-400">
+            Account overview and information
+          </p>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <StatusBadge status={user.status} />
+        <button
+          type="button"
+          aria-label="Close user details"
+          title="Close user details"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white"
+          onClick={() => {}}
+        >
+          <X size={17} strokeWidth={1.8} />
+        </button>
+      </div>
 
-          <PlanBadge plan={user.plan} />
+      {/* USER PROFILE */}
+
+      <div className="relative left-[10px] top-[6px] flex shrink-0 items-center gap-3 px-1 py-1">
+        <div
+          className={`flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full border text-[20px] font-semibold ${getAvatarStyle(user.name)}`}
+        >
+          {getInitials(user.name)}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[16px] font-semibold tracking-[-0.02em] text-white">
+            {user.name}
+          </p>
+
+          <p className="mt-0.5 truncate text-[12px] text-slate-400">
+            {user.email}
+          </p>
+
+          <p className="mt-1 text-[11px] text-slate-500">
+            {user.id}
+          </p>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <StatusBadge status={user.status} />
+            <PlanBadge plan={user.plan} />
+          </div>
         </div>
       </div>
 
       {/* ACCOUNT INFORMATION */}
 
-      <div className="border-b border-white/[0.05] p-3.5">
-        <div className="mb-2 flex items-center gap-2">
+      <section className="relative left-1/2 top-[6px] w-[95%] -translate-x-1/2 shrink-0 overflow-hidden rounded-[8px] border border-white/[0.09] bg-gradient-to-b from-[#0B1A2A] to-[#081522]">
+
+        <div className="relative left-[10px] flex h-[40px] items-center gap-2 border-b border-white/[0.08] px-3.5">
           <Users
-            size={14}
-            className="text-slate-400"
+            size={16}
+            className="text-slate-300"
           />
 
-          <h3 className="text-[11px] font-semibold text-slate-200">
+          <h3 className="text-[12px] font-semibold text-white">
             Account Information
           </h3>
         </div>
 
-        <DetailRow
-          label="Registration Date"
-          value={user.registered}
-          icon={CalendarDays}
-        />
+        <div className="relative left-[10px] px-3.5 py-1">
+          <DetailRow
+            label="Registration Date"
+            value={user.registered}
+            compact
+          />
 
-        <DetailRow
-          label="Email Verification"
-          value={user.verified ? "Verified" : "Unverified"}
-          valueClassName={
-            user.verified
-              ? "text-emerald-400"
-              : "text-amber-400"
-          }
-          icon={user.verified ? CheckCircle2 : AlertCircle}
-        />
+          <DetailRow
+            label="Email Verification"
+            value={user.verified ? "Verified" : "Unverified"}
+            compact
+            valueClassName={
+              user.verified
+                ? "text-emerald-400"
+                : "text-amber-400"
+            }
+          />
 
-        <DetailRow
-          label="Last Active"
-          value={user.lastActive}
-          icon={Clock3}
-        />
-      </div>
+          <DetailRow
+            label="Last Active"
+            value={user.lastActive}
+            compact
+          />
+        </div>
+      </section>
 
       {/* ACCESS AND ENTITLEMENT */}
 
-      <div className="border-b border-white/[0.05] p-3.5">
-        <div className="mb-2 flex items-center gap-2">
+      <section className="relative left-1/2 top-[6px] w-[95%] -translate-x-1/2 shrink-0 overflow-hidden rounded-[8px] border border-white/[0.09] bg-gradient-to-b from-[#0B1A2A] to-[#081522]">
+
+      <div className="relative left-[10px] flex h-[40px] items-center gap-2 border-b border-white/[0.08] px-3.5">
           <Activity
-            size={14}
-            className="text-slate-400"
+            size={16}
+            className="text-slate-300"
           />
 
-          <h3 className="text-[11px] font-semibold text-slate-200">
+          <h3 className="text-[12px] font-semibold text-white">
             Access & Entitlement
           </h3>
         </div>
 
-        <DetailRow
-          label="Account Status"
-          value={STATUS_CONFIG[user.status].label}
-          valueClassName={
-            user.status === "ACTIVE"
-              ? "text-emerald-400"
-              : user.status === "PENDING"
-                ? "text-amber-400"
-                : user.status === "READ_ONLY"
-                  ? "text-blue-400"
-                  : "text-red-400"
-          }
-        />
+        <div className="relative left-[10px] px-3.5 py-1">
+          <DetailRow
+            label="Account Status"
+            value={STATUS_CONFIG[user.status].label}
+            compact
+            valueClassName={
+              user.status === "ACTIVE"
+                ? "text-emerald-400"
+                : user.status === "PENDING"
+                  ? "text-amber-400"
+                  : user.status === "READ_ONLY"
+                    ? "text-blue-400"
+                    : "text-red-400"
+            }
+          />
 
-        <DetailRow
-          label="Assigned Plan"
-          value={
-            user.plan
-              ? PLAN_CONFIG[user.plan].label
-              : "Not assigned"
-          }
-        />
+          <DetailRow
+            label="Assigned Plan"
+            value={
+              user.plan
+                ? PLAN_CONFIG[user.plan].label
+                : "Not assigned"
+            }
+            compact
+            valueClassName={
+              user.plan
+                ? "text-[#70A8FF]"
+                : "text-slate-400"
+            }
+          />
 
-        <DetailRow
-          label="Entitlement Source"
-          value={user.entitlementSource}
-        />
+          <DetailRow
+            label="Entitlement Source"
+            value={user.entitlementSource}
+            compact
+          />
 
-        <DetailRow
-          label="Trial Expiration"
-          value={user.trialExpiration}
-        />
-      </div>
+          <DetailRow
+            label="Trial Expiration"
+            value={user.trialExpiration}
+            compact
+          />
+        </div>
+      </section>
 
       {/* ACCOUNT NOTES */}
 
-      <div className="p-3.5">
-        <div className="mb-3 flex items-center gap-2">
-          <CalendarDays
-            size={14}
-            className="text-slate-400"
+     <section className="relative left-1/2 top-[6px] w-[95%] -translate-x-1/2 shrink-0 overflow-hidden rounded-[8px] border border-white/[0.09] bg-gradient-to-b from-[#0B1A2A] to-[#081522]">
+
+        <div className="relative left-[10px] flex h-[40px] items-center gap-2 border-b border-white/[0.08] px-3.5">
+          <FileText
+            size={16}
+            className="text-slate-300"
           />
 
-          <h3 className="text-[11px] font-semibold text-slate-200">
+          <h3 className="text-[12px] font-semibold text-white">
             Account Notes
           </h3>
         </div>
 
-        <div className="min-h-[65px] rounded-[8px] border border-white/[0.06] bg-[#0B1A2B] p-3">
-          <p className="text-[10px] leading-5 text-slate-400">
-            {user.notes}
-          </p>
-        </div>
-      </div>
+<div className="h-[100px] p-3">
+  <div className="relative left-1/2 top-1/2 flex h-[85%] w-[95%] -translate-x-1/2 -translate-y-1/2 items-start rounded-[8px] border border-white/[0.07] bg-[#101E2E]">
+<div
+  className="w-full"
+  style={{ padding: "12px 16px" }}
+>
+  <p className="m-0 text-[12px] leading-[18px] text-slate-300">
+    {user.notes || "No account notes available."}
+  </p>
+</div>
+  </div>
+</div>
+      </section>
 
-      {/* PREVIEW NOTICE */}
-
-      <div className="mx-3 mb-3 flex gap-2 rounded-[8px] border border-blue-500/15 bg-blue-500/[0.045] p-3">
-        <Info
-          size={14}
-          className="mt-0.5 shrink-0 text-blue-400"
-        />
-
-        <p className="text-[9px] leading-[17px] text-slate-500">
-          UI preview using fictional sample records.
-          No live user accounts or administrative actions
-          are connected.
-        </p>
-      </div>
     </aside>
   );
 }
+
 
 // =====================================================
 // ADMIN DATA SOURCE INDICATOR
@@ -1342,26 +1366,27 @@ function goToNextPage() {
         {/* =========================================== */}
 
 <div
-  className="
-    flex
-    min-h-0
-    flex-1
-    flex-col
-    gap-4
-    overflow-y-auto
-    px-5
-    pb-10
-    pt-5
-    xl:flex-row
-    2xl:pl-6
-  "
+className="
+  flex
+  min-h-0
+  flex-1
+  flex-col
+  gap-4
+  overflow-y-auto
+  px-5
+  pb-10
+  pt-5
+  xl:flex-row
+  xl:overflow-hidden
+  2xl:pl-6
+"
   style={{ paddingRight: 20 }}
 >
           {/* ========================================= */}
           {/* LEFT CONTENT */}
           {/* ========================================= */}
 
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-y-6 pb-5">
+          <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col gap-y-6">
             {/* PAGE TITLE */}
 
             <div className="relative top-3 flex items-center gap-3">
@@ -1437,7 +1462,7 @@ function goToNextPage() {
 
 {/* SEARCH AND FILTERS */}
 
-<div className="flex w-full min-w-0 flex-col gap-3 p-3.5 xl:flex-row xl:items-center xl:justify-between">
+<div className="relative -top-2 flex w-full min-w-0 flex-col gap-3 p-3.5 xl:flex-row xl:items-center xl:justify-between">
 
   {/* LEFT: SEARCH AND FILTERS */}
 
@@ -1566,10 +1591,7 @@ function goToNextPage() {
 
             {/* USER TABLE PANEL */}
 
-          <section
-  className="relative -top-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#071321]"
-  style={{ marginBottom: 10}}
->
+<section className="relative -top-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#071321]">
 
 
               {/* USER TABLE */}
@@ -1799,10 +1821,7 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
           {/* RIGHT USER DETAILS PANEL */}
           {/* ========================================= */}
 
-       <div
-  className="w-full shrink-0 xl:mr-5 xl:w-[326px]"
-  style={{ marginBottom: 20 }}
->
+<div className="relative top-[82px] flex h-[calc(100dvh-205px)] min-h-0 w-full shrink-0 flex-col xl:mr-5 xl:w-[326px]">
   <UserDetailsPanel user={selectedUser} />
 </div>
         </div>
