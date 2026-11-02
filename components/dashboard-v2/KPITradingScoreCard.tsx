@@ -1,15 +1,15 @@
 import MetricInfoTooltip from "./MetricInfoTooltip";
 
 type KPITradingScoreCardProps = {
-  score: number;
+  score: number | null;
 
-  profitability: number;
+  profitability: number | null;
 
-  consistency: number;
+  consistency: number | null;
 
-  risk: number;
+  risk: number | null;
 
-  reliability: number;
+  reliability: number | null;
 };
 
 export default function KPITradingScoreCard({
@@ -20,21 +20,27 @@ export default function KPITradingScoreCard({
   reliability,
 }: KPITradingScoreCardProps) {
 
-  const getScoreColor = (value: number) => {
-  if (value >= 80) {
-    return "text-emerald-400";
-  }
+  const getScoreColor = (
+    value: number | null
+  ) => {
+    if (value === null) {
+      return "text-slate-500";
+    }
 
-  if (value >= 65) {
-    return "text-green-400";
-  }
+    if (value >= 80) {
+      return "text-emerald-400";
+    }
 
-  if (value >= 50) {
-    return "text-sky-500";
-  }
+    if (value >= 65) {
+      return "text-green-400";
+    }
 
-  return "text-red-400";
-};
+    if (value >= 50) {
+      return "text-sky-500";
+    }
+
+    return "text-red-400";
+  };
 
   return (
     <div
@@ -43,10 +49,10 @@ export default function KPITradingScoreCard({
         h-[106px]
         z-[9999]
         flex-col
-rounded-[8px]
-border
-border-white/[0.06]
-bg-[#0b1220]
+        rounded-[8px]
+        border
+        border-white/[0.06]
+        bg-[#0b1220]
         px-4
         py-3.5
 
@@ -59,202 +65,225 @@ bg-[#0b1220]
       "
     >
 
-<div
-  className="
-    translate-x-2
-    translate-y-2
-    flex
-    items-center
-    gap-2
-  "
->
-  <p
-    className="
-      text-[10px]
-      font-semibold
-      uppercase
-      tracking-[0.12em]
-      text-slate-500
-    "
-  >
-    Trading Score
-  </p>
+      <div
+        className="
+          translate-x-2
+          translate-y-2
+          flex
+          items-center
+          gap-2
+        "
+      >
+        <p
+          className="
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-[0.12em]
+            text-slate-500
+          "
+        >
+          Trading Score
+        </p>
 
-  <MetricInfoTooltip
-    definition="Composite trading performance score."
+        <MetricInfoTooltip
+          definition="Composite trading performance score."
 
-    formula="Profitability + Consistency + Risk + Reliability"
+          formula="Profitability + Consistency + Risk + Reliability"
 
-    calculation={`${score} / 100`}
+          calculation={
+            score === null
+              ? "Insufficient data"
+              : `${score} / 100`
+          }
 
-    interpretation={
-      score >= 85
-        ? "Elite"
-        : score >= 70
-        ? "Strong"
-        : score >= 50
-        ? "Average"
-        : "Needs Improvement"
-    }
-  />
-</div>
+          interpretation={
+            score === null
+              ? "Insufficient trading data to calculate a meaningful score."
+              : score >= 85
+              ? "Elite"
+              : score >= 70
+              ? "Strong"
+              : score >= 50
+              ? "Average"
+              : "Needs Improvement"
+          }
+        />
+      </div>
 
-<div
-  className="
-    grid
-    min-w-0
-    grid-cols-[minmax(120px,42%)_minmax(0,1fr)]
-    items-center
-    gap-3
-  "
->
-<div
-  className="
-    flex
-    min-w-0
-    items-center
-    translate-x-7
-    translate-y-1
-  "
->
+      <div
+        className="
+          grid
+          min-w-0
+          grid-cols-[minmax(120px,42%)_minmax(0,1fr)]
+          items-center
+          gap-3
+        "
+      >
 
-  <div className="relative h-[62px] w-[62px]">
+        <div
+          className="
+            flex
+            min-w-0
+            items-center
+            translate-x-7
+            translate-y-1
+          "
+        >
 
-    <svg
-      className="absolute inset-0"
-      viewBox="0 0 100 100"
-    >
-      <circle
-        cx="50"
-        cy="50"
-        r="42"
-        fill="none"
-        stroke="#14243d"
-        strokeWidth="8"
-      />
+          <div className="relative h-[62px] w-[62px]">
 
-<defs>
-  <linearGradient
-    id="scoreGradient"
-    x1="0%"
-    y1="0%"
-    x2="100%"
-    y2="0%"
-  >
-    <stop
-      offset="0%"
-      stopColor="#2563eb"
-    />
-    <stop
-      offset="100%"
-      stopColor="#34d399"
-    />
-  </linearGradient>
-</defs>
+            <svg
+              className="absolute inset-0"
+              viewBox="0 0 100 100"
+            >
 
-      <circle
-        cx="50"
-        cy="50"
-        r="42"
-        fill="none"
-        stroke="url(#scoreGradient)"
-        strokeWidth="8"
-        strokeLinecap="round"
-        strokeDasharray={264}
-        strokeDashoffset={
-          264 -
-          (264 * score) / 100
-        }
-        transform="rotate(-90 50 50)"
-      />
-    </svg>
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke="#14243d"
+                strokeWidth="8"
+              />
 
-<div
-  className="
-    absolute
-    inset-0
-    flex
-    items-center
-    justify-center
-    text-[19px]
-    font-bold
-    leading-none
-    text-white
-  "
->
-  {score}
-</div>
+              <defs>
+                <linearGradient
+                  id="scoreGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop
+                    offset="0%"
+                    stopColor="#2563eb"
+                  />
 
-</div>
+                  <stop
+                    offset="100%"
+                    stopColor="#34d399"
+                  />
+                </linearGradient>
+              </defs>
 
-<div
-  className="
-    ml-2
-    translate-y-5
-    shrink-0
-    text-center
-    text-[15px]
-    font-medium
-    leading-none
-    text-slate-300
-  "
->
-  / 100
-</div>
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke="url(#scoreGradient)"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={264}
+                strokeDashoffset={
+                  score === null
+                    ? 264
+                    : 264 - (264 * score) / 100
+                }
+                transform="rotate(-90 50 50)"
+              />
 
+            </svg>
 
+            <div
+              className="
+                absolute
+                inset-0
+                flex
+                items-center
+                justify-center
+                text-[19px]
+                font-bold
+                leading-none
+                text-white
+              "
+            >
+              {score ?? "N/A"}
+            </div>
 
-</div>
+          </div>
 
-<div
-  className="
-    min-w-0
-    w-[125px]
-    min-[1600px]:w-[170px]
-    translate-x-2
-    min-[1600px]:translate-x-0
-    -translate-y-1
-    flex
-    flex-col
-    gap-1
-    text-[12px]
-  "
->
+          <div
+            className="
+              ml-2
+              translate-y-5
+              shrink-0
+              text-center
+              text-[15px]
+              font-medium
+              leading-none
+              text-slate-300
+            "
+          >
+            {score !== null && "/ 100"}
+          </div>
+
+        </div>
+
+        <div
+          className="
+            min-w-0
+            w-[125px]
+            min-[1600px]:w-[170px]
+            translate-x-2
+            min-[1600px]:translate-x-0
+            -translate-y-1
+            flex
+            flex-col
+            gap-1
+            text-[12px]
+          "
+        >
+
           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-           <span className="min-w-0 truncate text-slate-350">
+
+            <span className="min-w-0 truncate text-slate-350">
               Profit
             </span>
+
             <span className={getScoreColor(profitability)}>
-              {profitability}
+              {profitability ?? "N/A"}
             </span>
+
           </div>
 
           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+
             <span className="min-w-0 truncate text-slate-350">
               Consistency
             </span>
+
             <span className={getScoreColor(consistency)}>
-  {consistency}
-</span>
+              {consistency ?? "N/A"}
+            </span>
+
           </div>
 
           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+
             <span className="min-w-0 truncate text-slate-350">
               Risk
             </span>
+
             <span className={getScoreColor(risk)}>
-  {risk}
-</span>
+              {risk ?? "N/A"}
+            </span>
+
           </div>
 
           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+
             <span className="min-w-0 truncate text-slate-350">
               Reliability
             </span>
+
             <span className={getScoreColor(reliability)}>
-  {reliability}
-</span>
+              {reliability ?? "N/A"}
+            </span>
+
           </div>
+
         </div>
 
       </div>

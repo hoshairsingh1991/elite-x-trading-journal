@@ -39,13 +39,13 @@ type KPIGridProps = {
 };
 
   tradingScoreAnalytics: {
-    profitabilityScore: number;
-    calmarScore: number;
-    reliabilityScore: number;
-    tradingScore: number;
+    profitabilityScore: number | null;
+    calmarScore: number | null;
+    reliabilityScore: number | null;
+    tradingScore: number | null;
   };
 
-consistencyScore: number;
+  consistencyScore: number | null;
 
 netPnLSparklineData: {
   date: string;
@@ -642,9 +642,11 @@ sparklineHeight={card.sparklineHeight}
         profitability={
           tradingScoreAnalytics.profitabilityScore
         }
-        consistency={
-          consistencyScore
-        }
+       consistency={
+  tradingScoreAnalytics.tradingScore === null
+    ? null
+    : consistencyScore
+}
         risk={
           tradingScoreAnalytics.calmarScore
         }

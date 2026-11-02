@@ -42,6 +42,8 @@ const days = [
 interface TradingCalendarProps {
   trades: Trade[];
   allTrades?: Trade[];
+  startDate?: Date | null;
+  endDate?: Date | null;
   reportingCurrency: string;
   onTradesChanged: () => Promise<void>;
 }
@@ -80,9 +82,19 @@ function parseLocalDate(
   );
 }
 
+function formatDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
+}
+
 export default function TradingCalendar({
   trades,
   allTrades = trades,
+  startDate = null,
+  endDate = null,
   reportingCurrency,
   onTradesChanged,
 }: TradingCalendarProps) {
@@ -90,8 +102,8 @@ export default function TradingCalendar({
   const [currentDate, setCurrentDate] =
     useState(new Date());
 
-  const [selectedDay, setSelectedDay] =
-  useState<number | null>(null);
+const [selectedDate, setSelectedDate] =
+  useState<string | null>(null);
 
 const [
   selectedNoteDate,
@@ -136,6 +148,52 @@ useEffect(() => {
   const currentYear =
     currentDate.getFullYear();
 
+      // =====================================================
+  // DASHBOARD DATE RANGE
+  // =====================================================
+
+  const hasValidDateRange =
+    Boolean(
+      startDate &&
+      endDate &&
+      Number.isFinite(startDate.getTime()) &&
+      Number.isFinite(endDate.getTime()) &&
+      startDate.getTime() <= endDate.getTime()
+    );
+
+  const rangeStartDate =
+    hasValidDateRange && startDate
+      ? new Date(
+          startDate.getFullYear(),
+          startDate.getMonth(),
+          startDate.getDate()
+        )
+      : null;
+
+  const rangeEndDate =
+    hasValidDateRange && endDate
+      ? new Date(
+          endDate.getFullYear(),
+          endDate.getMonth(),
+          endDate.getDate()
+        )
+      : null;
+
+        useEffect(() => {
+    const targetDate =
+      rangeEndDate ?? new Date();
+
+    setCurrentDate(
+      new Date(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        1
+      )
+    );
+
+    setSelectedDate(null);
+  }, [startDate, endDate]);
+
   const firstDayOfMonth =
     new Date(
       currentYear,
@@ -150,6 +208,27 @@ useEffect(() => {
       0
     ).getDate();
 
+  // =====================================================
+  // VISIBLE CALENDAR RANGE
+  // =====================================================
+
+  const monthStartDate =
+    new Date(
+      currentYear,
+      currentMonth,
+      1
+    );
+
+
+  const visibleStartDate =
+    monthStartDate;
+
+  const firstVisibleDayOfWeek =
+    firstDayOfMonth;
+
+  const visibleDayCount =
+    daysInMonth;
+
   const monthName =
     currentDate.toLocaleString(
       "default",
@@ -158,61 +237,71 @@ useEffect(() => {
       }
     );
 
-  function goToPreviousMonth() {
+function goToPreviousMonth() {
 
-    setCurrentDate(
-      new Date(
-        currentYear,
-        currentMonth - 1,
-        1
-      )
+  const previousMonth =
+    new Date(
+      currentYear,
+      currentMonth - 1,
+      1
     );
-  }
 
-  function goToNextMonth() {
+  const firstAllowedMonth =
+    rangeStartDate
+      ? new Date(
+          rangeStartDate.getFullYear(),
+          rangeStartDate.getMonth(),
+          1
+        )
+      : null;
 
-    setCurrentDate(
-      new Date(
-        currentYear,
-        currentMonth + 1,
-        1
-      )
-    );
-  }
-
-function goToPreviousDay() {
-  if (!selectedDay) {
+  if (
+    firstAllowedMonth &&
+    previousMonth < firstAllowedMonth
+  ) {
     return;
   }
 
-  const previousDate = new Date(
-    currentYear,
-    currentMonth,
-    selectedDay - 1
-  );
-
-  setCurrentDate(
-    new Date(
-      previousDate.getFullYear(),
-      previousDate.getMonth(),
-      1
-    )
-  );
-
-  setSelectedDay(
-    previousDate.getDate()
-  );
+  setCurrentDate(previousMonth);
 }
 
-function goToNextDay() {
-  if (!selectedDay) {
+function goToNextMonth() {
+
+  const nextMonth =
+    new Date(
+      currentYear,
+      currentMonth + 1,
+      1
+    );
+
+  const lastAllowedMonth =
+    rangeEndDate
+      ? new Date(
+          rangeEndDate.getFullYear(),
+          rangeEndDate.getMonth(),
+          1
+        )
+      : null;
+
+  if (
+    lastAllowedMonth &&
+    nextMonth > lastAllowedMonth
+  ) {
     return;
   }
 
-  const nextDate = new Date(
-    currentYear,
-    currentMonth,
-    selectedDay + 1
+  setCurrentDate(nextMonth);
+}
+
+function moveSelectedDate(direction: number) {
+  if (!selectedDate) {
+    return;
+  }
+
+  const nextDate = parseLocalDate(selectedDate);
+
+  nextDate.setDate(
+    nextDate.getDate() + direction
   );
 
   setCurrentDate(
@@ -223,8 +312,8 @@ function goToNextDay() {
     )
   );
 
-  setSelectedDay(
-    nextDate.getDate()
+  setSelectedDate(
+    formatDateKey(nextDate)
   );
 }
 
@@ -272,49 +361,34 @@ const tradeDate =
   // TRADES BY DAY
   // =====================================================
 
-  const tradesByDay:
+  const tradesByDate:
     Record<
-      number,
+      string,
       {
         pnl: number;
         trades: number;
       }
     > = {};
 
-  currentMonthTrades.forEach(
+  trades.forEach(
     (trade) => {
-
-      const effectiveDate =
-  trade.isOpen
-    ? (
-        trade.openedAt ||
-        trade.date
-      )
-    : (
-        trade.closedAt ||
-        trade.date
-      );
-
 const tradeDate =
-  parseLocalDate(
-    effectiveDate
-  );
+  parseLocalDate(trade.date);
 
-      const day =
-        tradeDate.getDate();
+      const dateKey =
+        formatDateKey(tradeDate);
 
-      if (!tradesByDay[day]) {
-
-        tradesByDay[day] = {
+      if (!tradesByDate[dateKey]) {
+        tradesByDate[dateKey] = {
           pnl: 0,
           trades: 0,
         };
       }
 
-      tradesByDay[day].pnl +=
+      tradesByDate[dateKey].pnl +=
         Number(trade.pnl || 0);
 
-      tradesByDay[day].trades += 1;
+      tradesByDate[dateKey].trades += 1;
     }
   );
 
@@ -323,36 +397,18 @@ const tradeDate =
 // =====================================================
 
 const selectedTrades =
-  currentMonthTrades.filter(
+  trades.filter(
     (trade) => {
-
-      if (!selectedDay) {
+      if (!selectedDate) {
         return false;
       }
 
-      const effectiveDate =
-        trade.isOpen
-          ? (
-              trade.openedAt ||
-              trade.date
-            )
-          : (
-              trade.closedAt ||
-              trade.date
-            );
-
-      const tradeDate =
-        parseLocalDate(
-          effectiveDate
-        );
+const tradeDate =
+  parseLocalDate(trade.date);
 
       return (
-        tradeDate.getFullYear() ===
-          currentYear &&
-        tradeDate.getMonth() ===
-          currentMonth &&
-        tradeDate.getDate() ===
-          selectedDay
+        formatDateKey(tradeDate) ===
+        selectedDate
       );
     }
   );
@@ -414,12 +470,12 @@ const selectedTrades =
     );
 
   const tradingDays =
-    Object.keys(
-      tradesByDay
-    ).length;
+  Object.keys(
+  tradesByDate
+).length;
 
-  const totalTrades =
-    currentMonthTrades.length;
+const totalTrades =
+  trades.length;
 
   // =====================================================
   // HEATMAP COLORS
@@ -481,7 +537,7 @@ const selectedTrades =
 
   for (
     let i = 0;
-    i < firstDayOfMonth;
+    i < firstVisibleDayOfWeek;
     i++
   ) {
     calendarCells.push(
@@ -490,28 +546,34 @@ const selectedTrades =
   }
 
   for (
-    let day = 1;
-    day <= daysInMonth;
-    day++
+    let offset = 0;
+    offset < visibleDayCount;
+    offset++
   ) {
-    const dayData =
-      tradesByDay[day];
+    const calendarDate =
+      new Date(
+        visibleStartDate.getFullYear(),
+        visibleStartDate.getMonth(),
+        visibleStartDate.getDate() + offset
+      );
+
+    const day =
+      calendarDate.getDate();
 
     const formattedDay =
-      `${currentYear}-${String(
-        currentMonth + 1
-      ).padStart(2, "0")}-${String(
-        day
-      ).padStart(2, "0")}`;
+      formatDateKey(calendarDate);
+
+    const dayData =
+      tradesByDate[formattedDay];
 
     const hasNote =
       noteDates.has(formattedDay);
 
     calendarCells.push(
       <button
-        key={day}
+        key={formattedDay}
         onClick={() =>
-          setSelectedDay(day)
+          setSelectedDate(formattedDay)
         }
         className={`relative flex h-[84px] flex-col justify-between rounded-[8px] border p-4 text-left transition-all hover:scale-[1.01] hover:border-blue-500/40 ${
           dayData
@@ -626,6 +688,32 @@ await onTradesChanged();
   };
 
 
+// =====================================================
+// SELECTED DATE DETAILS
+// =====================================================
+
+const selectedDateObject =
+  selectedDate
+    ? parseLocalDate(selectedDate)
+    : null;
+
+const selectedModalDay =
+  selectedDateObject?.getDate() ?? null;
+
+const selectedModalMonth =
+  selectedDateObject?.getMonth() ?? null;
+
+const selectedModalYear =
+  selectedDateObject?.getFullYear() ?? null;
+
+const selectedModalMonthName =
+  selectedDateObject?.toLocaleString(
+    "default",
+    {
+      month: "long",
+    }
+  ) ?? "";
+
   return (
     <>
 {/* ===================================================== */}
@@ -716,7 +804,7 @@ bg-[#0b1220]
           text-slate-300
         "
       >
-        {monthName} {currentYear}
+{monthName} {currentYear}
       </h2>
 
       <p
@@ -882,22 +970,29 @@ bg-[#0b1220]
 )}
 
 
-{selectedDay && (
-  <DailyReviewModal
-    selectedDay={selectedDay}
-    currentMonth={currentMonth}
-    monthName={monthName}
-    currentYear={currentYear}
-    selectedTrades={selectedTrades}
-    allTrades={allTrades}
-    reportingCurrency={reportingCurrency}
-    onPreviousDay={goToPreviousDay}
-    onNextDay={goToNextDay}
-    onClose={() =>
-      setSelectedDay(null)
-    }
-  />
-)}
+{selectedDate &&
+  selectedModalDay !== null &&
+  selectedModalMonth !== null &&
+  selectedModalYear !== null && (
+    <DailyReviewModal
+      selectedDay={selectedModalDay}
+      currentMonth={selectedModalMonth}
+      monthName={selectedModalMonthName}
+      currentYear={selectedModalYear}
+      selectedTrades={selectedTrades}
+      allTrades={allTrades}
+      reportingCurrency={reportingCurrency}
+      onPreviousDay={() =>
+        moveSelectedDate(-1)
+      }
+      onNextDay={() =>
+        moveSelectedDate(1)
+      }
+      onClose={() =>
+        setSelectedDate(null)
+      }
+    />
+  )}
 
     </>
   );

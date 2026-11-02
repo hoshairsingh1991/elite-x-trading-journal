@@ -69,30 +69,51 @@ const calculatePresetRange = (
       };
 
 
-    case "This Week": {
+case "This Week": {
+  const start = new Date(today);
 
-      const start = new Date(today);
+  const daysSinceMonday =
+    (today.getDay() + 6) % 7;
 
-      start.setDate(
-        today.getDate() - today.getDay()
-      );
+  start.setDate(
+    today.getDate() - daysSinceMonday
+  );
 
-      return {
-        from: start,
-        to: new Date(today),
-      };
-    }
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+
+  end.setDate(
+    start.getDate() + 6
+  );
+
+  end.setHours(23, 59, 59, 999);
+
+  return {
+    from: start,
+    to: end,
+  };
+}
 
 
-    case "This Month":
-      return {
-        from: new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          1
-        ),
-        to: new Date(today),
-      };
+case "This Month": {
+  const end = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    0
+  );
+
+  end.setHours(23, 59, 59, 999);
+
+  return {
+    from: new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    ),
+    to: end,
+  };
+}
 
 
     case "Last 30 Days": {
@@ -100,7 +121,7 @@ const calculatePresetRange = (
       const start = new Date(today);
 
       start.setDate(
-        today.getDate() - 30
+        today.getDate() - 29
       );
 
       return {
@@ -504,32 +525,25 @@ case "This Week": {
 
   startDate = new Date(today);
 
+  const daysSinceMonday =
+    (today.getDay() + 6) % 7;
+
   startDate.setDate(
-    today.getDate() -
-    today.getDay()
+    today.getDate() - daysSinceMonday
   );
 
-  startDate.setHours(0, 0, 0, 0);
+  startDate.setHours(
+    0,
+    0,
+    0,
+    0
+  );
 
-  endDate = new Date(today);
-  endDate.setHours(23, 59, 59, 999);
+  endDate = new Date(startDate);
 
-  break;
-}
-
-case "This Month":
-
-  startDate =
-    new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      1
-    );
-
-  startDate.setHours(0, 0, 0, 0);
-
-  endDate =
-    new Date(today);
+  endDate.setDate(
+    startDate.getDate() + 6
+  );
 
   endDate.setHours(
     23,
@@ -539,6 +553,40 @@ case "This Month":
   );
 
   break;
+}
+
+case "This Month": {
+
+  startDate =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
+
+  startDate.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  endDate =
+    new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    );
+
+  endDate.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  break;
+}
 
    case "Last 30 Days":
 
@@ -546,7 +594,7 @@ case "This Month":
     new Date(today);
 
   startDate.setDate(
-    today.getDate() - 30
+    today.getDate() - 29
   );
 
   startDate.setHours(

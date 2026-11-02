@@ -1,12 +1,12 @@
 export interface TradingScoreAnalyticsData {
 
-  profitabilityScore: number;
+  profitabilityScore: number | null;
 
-  calmarScore: number;
+  calmarScore: number | null;
 
-  reliabilityScore: number;
+  reliabilityScore: number | null;
 
-  tradingScore: number;
+  tradingScore: number | null;
 }
 
 // =================================================
@@ -134,6 +134,22 @@ export function generateTradingScoreAnalytics(
   totalTrades: number,
   consistencyScore: number
 ): TradingScoreAnalyticsData {
+
+  // =================================================
+  // INSUFFICIENT TRADING DATA
+  // =================================================
+
+  if (
+    !Number.isFinite(totalTrades) ||
+    totalTrades <= 0
+  ) {
+    return {
+      profitabilityScore: null,
+      calmarScore: null,
+      reliabilityScore: null,
+      tradingScore: null,
+    };
+  }
 
   const profitabilityScore =
     calculateProfitabilityScore(

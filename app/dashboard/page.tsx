@@ -1571,6 +1571,8 @@ tradingCalendar={
 <TradingCalendar
   trades={reportingTrades}
   allTrades={filteredTrades}
+  startDate={startDate}
+  endDate={endDate}
   reportingCurrency={reportingCurrency}
   onTradesChanged={refreshTradeData}
 />
