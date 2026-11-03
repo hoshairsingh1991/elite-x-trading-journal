@@ -347,3 +347,17 @@ Elite X drawer design system.
 
   transition: background-color 99999s ease-in-out 0s !important;
 }
+
+/* ==========================================
+   ADMIN DATE INPUT — DARK MODE
+   ========================================== */
+
+.admin-date-input {
+  color-scheme: dark;
+}
+
+.admin-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0.9;
+  cursor: pointer;
+  transform: translateX(-6px);
+}

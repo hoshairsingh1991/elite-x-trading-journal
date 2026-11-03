@@ -583,6 +583,11 @@ git commit -m "fix(dashboard): align calendar ranges and handle empty trading sc
 git commit -m "feat(admin): add user management UI foundation"
 git commit -m "feat(admin): refine user details panel UI"
 git commit -m "feat(admin): refine user details panel UI"
+git commit -m "fix(admin): correct lifecycle and access preview logic"
+
+
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
