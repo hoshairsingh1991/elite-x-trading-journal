@@ -9,31 +9,18 @@ import {
 import {
   Activity,
   AlertCircle,
-  AlertTriangle,
   Bell,
   CalendarDays,
-  CalendarClock,
-  Check,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
-  CreditCard,
   Eye,
   FileText,
-  History,
-  KeyRound,
-  LockKeyhole,
-  LogOut,
   RotateCcw,
-  Info,
   Search,
-  Save,
-  Shield,
   ShieldCheck,
-  Trash2,
-  Unlock,
   Users,
   UserCheck,
   X,
@@ -54,6 +41,8 @@ type AccountStatus =
   | "ACTIVE"
   | "READ_ONLY"
   | "SUSPENDED";
+
+type AdminUserDisplayStatus = AccountStatus | "REJECTED";
 
 type PlanType =
   | "TRIAL"
@@ -209,7 +198,12 @@ interface AdminUser {
 // MOCK DATA — UI PREVIEW ONLY
 // =====================================================
 
+// =====================================================
+// MOCK DATA — UI PREVIEW ONLY
+// =====================================================
+
 const MOCK_USERS: AdminUser[] = [
+  // 1001 — VERIFIED, AWAITING ADMIN APPROVAL
   {
     id: "USR-1001",
     name: "Emily Carter",
@@ -217,12 +211,23 @@ const MOCK_USERS: AdminUser[] = [
     registered: "Oct 30, 2026",
     verified: true,
     status: "PENDING",
+    approvalStatus: "PENDING",
+    accessProvisioningStatus: "NOT_PROVISIONED",
     plan: null,
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [],
     lastActive: "Never",
     entitlementSource: "—",
     trialExpiration: "—",
-    notes: "Awaiting administrator review.",
+    notes: "Email verified. Awaiting administrator approval.",
   },
+
+  // 1002 — EMAIL VERIFICATION AND ADMIN APPROVAL PENDING
   {
     id: "USR-1002",
     name: "Daniel Kim",
@@ -230,208 +235,550 @@ const MOCK_USERS: AdminUser[] = [
     registered: "Oct 29, 2026",
     verified: false,
     status: "PENDING",
+    approvalStatus: "PENDING",
+    accessProvisioningStatus: "NOT_PROVISIONED",
     plan: null,
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [],
     lastActive: "Never",
     entitlementSource: "—",
     trialExpiration: "—",
-    notes: "Email verification is still pending.",
-  },
-{
-  id: "USR-1003",
-  name: "Marcus Reed",
-  email: "marcus@example.com",
-  registered: "Sep 18, 2026",
-  verified: true,
-  status: "ACTIVE",
-  plan: "ELITE",
-
-  // SUBSCRIPTION — MOCK DATA
-  subscription: {
-    plan: "PRO",
-    status: "ACTIVE",
-    priceLabel: "Not configured in preview",
-    billingInterval: "Monthly",
-    paymentStatus: "PAID",
-    currentPeriodStart: "Oct 18, 2026",
-    currentPeriodEnd: "Nov 18, 2026",
-    cancelAtPeriodEnd: false,
-    scheduledPlan: "BASIC",
-    scheduledChangeAt: "Nov 18, 2026",
+    notes: "Email verification and administrator approval are outstanding.",
   },
 
-  // IBKR ACCOUNTS — MOCK DATA
-  ibkrAccounts: [
-    {
-      id: "IBKR-001",
-      maskedAccountId: "U•••••789",
-      accountState: "ACTIVE",
-      connectionStatus: "CONNECTED",
-      scheduledSyncEnabled: true,
-      lastSuccessfulSync: "Nov 03, 2026 · 09:30 AM",
-      lastSyncStatus: "SUCCESS",
-      lastSyncResult: "Sync completed successfully",
-    },
-    {
-      id: "IBKR-002",
-      maskedAccountId: "U•••••421",
-      accountState: "ACTIVE",
-      connectionStatus: "CONNECTED",
-      scheduledSyncEnabled: true,
-      lastSuccessfulSync: "Nov 03, 2026 · 09:28 AM",
-      lastSyncStatus: "SUCCESS",
-      lastSyncResult: "Sync completed successfully",
-    },
-  ],
+  // 1003 — REJECTED APPLICATION
+  {
+    id: "USR-1003",
+    name: "Priya Shah",
+    email: "priya@example.com",
+    registered: "Oct 28, 2026",
+    verified: true,
+    status: "PENDING",
+    approvalStatus: "REJECTED",
+    accessProvisioningStatus: "NOT_PROVISIONED",
+    plan: null,
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [],
+    lastActive: "Never",
+    entitlementSource: "—",
+    trialExpiration: "—",
+    notes: "Application rejected. No application access was provisioned.",
+  },
 
-  // ACCOUNT INFORMATION
-  lastActive: "Nov 02, 2026 12:42",
-  entitlementSource: "Administrator grant",
-  trialExpiration: "—",
-  notes: "Active Elite account.",
-},
+  // 1004 — APPROVED BUT NOT YET PROVISIONED
   {
     id: "USR-1004",
-    name: "Sophie Laurent",
-    email: "sophie@example.com",
-    registered: "Sep 22, 2026",
+    name: "Leo Martin",
+    email: "leo@example.com",
+    registered: "Oct 27, 2026",
     verified: true,
     status: "ACTIVE",
-    plan: "PRO",
-    lastActive: "Nov 01, 2026 18:25",
-    entitlementSource: "Administrator grant",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "NOT_PROVISIONED",
+    plan: null,
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [],
+    lastActive: "Never",
+    entitlementSource: "—",
     trialExpiration: "—",
-    notes: "Active Pro account.",
+    notes: "Approved. Awaiting application access provisioning.",
   },
+
+  // 1005 — ENTITLEMENT EXISTS, BUT EMAIL IS UNVERIFIED
   {
     id: "USR-1005",
+    name: "Nadia Brooks",
+    email: "nadia@example.com",
+    registered: "Oct 26, 2026",
+    verified: false,
+    status: "ACTIVE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "PRO",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: {
+      id: "AGR-1005",
+      plan: "PRO",
+      grantedAt: "2026-10-26T14:00:00.000Z",
+      startsAt: "2026-10-26T14:00:00.000Z",
+      expiresAt: null,
+      revokedAt: null,
+      revocationReason: null,
+    },
+    subscription: null,
+    ibkrAccounts: [],
+    lastActive: "Oct 26, 2026 14:15",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Pro entitlement retained. Email verification still required for access.",
+  },
+
+  // 1006 — ACTIVE ELITE TRIAL WITH USAGE AND ONE IBKR ACCOUNT
+  {
+    id: "USR-1006",
     name: "Noah Patel",
     email: "noah@example.com",
     registered: "Oct 20, 2026",
     verified: true,
     status: "ACTIVE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
     plan: "TRIAL",
-    lastActive: "Nov 02, 2026 09:10",
+    trialStatus: "ACTIVE",
+    trialStartDate: "2026-10-28T14:00:00.000Z",
+    trialEndDate: "2026-11-11T14:00:00.000Z",
+    trialUsage: {
+      tradesUsed: 18,
+      expensesUsed: 12,
+      notesUsed: 16,
+      ibkrAccountsUsed: 1,
+    },
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [
+      {
+        id: "IBKR-1006-A",
+        maskedAccountId: "U•••••612",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 09:30 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Sync completed successfully.",
+      },
+    ],
+    lastActive: "Nov 03, 2026 09:42",
     entitlementSource: "Trial grant",
-    trialExpiration: "Nov 03, 2026",
-    notes: "Currently using the Elite trial.",
+    trialExpiration: "Nov 11, 2026",
+    notes: "Active Elite trial. Usage is approaching the trade quota.",
   },
+
+  // 1007 — SCHEDULED ELITE TRIAL
   {
-    id: "USR-1006",
+    id: "USR-1007",
+    name: "Maya Chen",
+    email: "maya@example.com",
+    registered: "Oct 25, 2026",
+    verified: true,
+    status: "ACTIVE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: null,
+    trialStatus: "SCHEDULED",
+    trialStartDate: "2026-11-07T14:00:00.000Z",
+    trialEndDate: "2026-11-21T14:00:00.000Z",
+    trialUsage: null,
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [],
+    lastActive: "Nov 02, 2026 16:20",
+    entitlementSource: "—",
+    trialExpiration: "Nov 21, 2026",
+    notes: "Trial is scheduled. Trial capabilities are not active yet.",
+  },
+
+  // 1008 — APPROVED, TRIAL NOT STARTED, NO START DATE RECORDED
+  {
+    id: "USR-1008",
+    name: "Ethan Clarke",
+    email: "ethan.clarke@example.com",
+    registered: "Oct 24, 2026",
+    verified: true,
+    status: "ACTIVE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: null,
+    trialStatus: "NOT_STARTED",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [],
+    lastActive: "Nov 01, 2026 10:15",
+    entitlementSource: "—",
+    trialExpiration: "—",
+    notes: "Approved account. Trial has not been started or scheduled.",
+  },
+
+  // 1009 — EXPIRED TRIAL, READ-ONLY ACCESS
+  {
+    id: "USR-1009",
     name: "Olivia Chen",
     email: "olivia@example.com",
     registered: "Oct 10, 2026",
     verified: true,
     status: "READ_ONLY",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
     plan: "TRIAL",
-    lastActive: "Oct 25, 2026 16:30",
+    trialStatus: "EXPIRED",
+    trialStartDate: "2026-10-10T13:00:00.000Z",
+    trialEndDate: "2026-11-01T13:00:00.000Z",
+    trialUsage: {
+      tradesUsed: 20,
+      expensesUsed: 20,
+      notesUsed: 18,
+      ibkrAccountsUsed: 1,
+    },
+    adminGrant: null,
+    subscription: null,
+    ibkrAccounts: [
+      {
+        id: "IBKR-1009-A",
+        maskedAccountId: "U•••••384",
+        accountState: "INACTIVE",
+        connectionStatus: "DISCONNECTED",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: "Oct 31, 2026 · 03:20 PM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Last successful sync before trial expiration.",
+      },
+    ],
+    lastActive: "Oct 31, 2026 16:30",
     entitlementSource: "Expired trial",
-    trialExpiration: "Oct 24, 2026",
-    notes: "Trial expired. Historical access only.",
+    trialExpiration: "Nov 01, 2026",
+    notes: "Trial expired. Historical account data remains available.",
   },
+
+  // 1010 — PERMANENT ELITE ADMINISTRATOR GRANT
   {
-    id: "USR-1007",
-    name: "Ethan Brooks",
-    email: "ethan@example.com",
-    registered: "Sep 12, 2026",
-    verified: true,
-    status: "SUSPENDED",
-    plan: "PRO",
-    lastActive: "Oct 28, 2026 14:12",
-    entitlementSource: "Administrator grant",
-    trialExpiration: "—",
-    notes: "Account suspended.",
-  },
-  {
-    id: "USR-1008",
-    name: "Ava Thompson",
-    email: "ava@example.com",
-    registered: "Oct 05, 2026",
+    id: "USR-1010",
+    name: "Marcus Reed",
+    email: "marcus.reed@example.com",
+    registered: "Sep 18, 2026",
     verified: true,
     status: "ACTIVE",
-    plan: "BASIC",
-    lastActive: "Nov 02, 2026 11:15",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "ELITE",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: {
+      id: "AGR-1010",
+      plan: "ELITE",
+      grantedAt: "2026-10-01T13:00:00.000Z",
+      startsAt: "2026-10-01T13:00:00.000Z",
+      expiresAt: null,
+      revokedAt: null,
+      revocationReason: null,
+    },
+    subscription: null,
+    ibkrAccounts: [
+      {
+        id: "IBKR-1010-A",
+        maskedAccountId: "U•••••789",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 09:30 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Sync completed successfully.",
+      },
+      {
+        id: "IBKR-1010-B",
+        maskedAccountId: "U•••••421",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 09:28 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Sync completed successfully.",
+      },
+      {
+        id: "IBKR-1010-C",
+        maskedAccountId: "U•••••936",
+        accountState: "ACTIVE",
+        connectionStatus: "ERROR",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 02, 2026 · 02:15 PM",
+        lastSyncStatus: "FAILED",
+        lastSyncResult: "Connection authentication failed. Reauthorization required.",
+      },
+    ],
+    lastActive: "Nov 03, 2026 12:42",
     entitlementSource: "Administrator grant",
     trialExpiration: "—",
-    notes: "Active Basic account.",
+    notes: "Permanent Elite administrator entitlement. Unlimited IBKR account allowance.",
   },
+
+  // 1011 — ACTIVE PRO GRANT OVERRIDES ACTIVE BASIC SUBSCRIPTION
   {
-    id: "USR-1009",
-    name: "Grace Wilson",
-    email: "grace@example.com",
-    registered: "Nov 01, 2026",
-    verified: false,
-    status: "PENDING",
-    plan: null,
-    lastActive: "Never",
-    entitlementSource: "—",
+    id: "USR-1011",
+    name: "Sophie Laurent",
+    email: "sophie@example.com",
+    registered: "Sep 22, 2026",
+    verified: true,
+    status: "ACTIVE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "BASIC",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: {
+      id: "AGR-1011",
+      plan: "PRO",
+      grantedAt: "2026-10-20T13:00:00.000Z",
+      startsAt: "2026-10-20T13:00:00.000Z",
+      expiresAt: "2026-11-10T23:59:59.000Z",
+      revokedAt: null,
+      revocationReason: null,
+    },
+    subscription: {
+      plan: "BASIC",
+      status: "ACTIVE",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "PAID",
+      currentPeriodStart: "2026-10-15T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-15T00:00:00.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: null,
+      scheduledChangeAt: null,
+    },
+    ibkrAccounts: [
+      {
+        id: "IBKR-1011-A",
+        maskedAccountId: "U•••••112",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 10:00 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Sync completed successfully.",
+      },
+      {
+        id: "IBKR-1011-B",
+        maskedAccountId: "U•••••224",
+        accountState: "ACTIVE",
+        connectionStatus: "DISCONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 01, 2026 · 02:20 PM",
+        lastSyncStatus: "FAILED",
+        lastSyncResult: "Broker connection disconnected. Reconnection required.",
+      },
+    ],
+    lastActive: "Nov 03, 2026 10:25",
+    entitlementSource: "Administrator grant",
     trialExpiration: "—",
-    notes: "New registration awaiting email verification and administrator review.",
+    notes: "Temporary Pro grant overrides the lower Basic subscription.",
   },
-{
-  id: "USR-1011",
-  name: "Isabella Morgan",
-  email: "isabella@example.com",
-  registered: "Nov 01, 2026",
-  verified: true,
-  status: "ACTIVE",
-  plan: "PRO",
-  lastActive: "Nov 02, 2026 14:10",
-  entitlementSource: "Administrator grant",
-  trialExpiration: "—",
-  notes: "Active Pro account.",
-},
-{
-  id: "USR-1012",
-  name: "James Anderson",
-  email: "james@example.com",
-  registered: "Nov 01, 2026",
-  verified: true,
-  status: "PENDING",
-  plan: null,
-  lastActive: "Never",
-  entitlementSource: "—",
-  trialExpiration: "—",
-  notes: "Awaiting administrator review.",
-},
-{
-  id: "USR-1013",
-  name: "Charlotte Davis",
-  email: "charlotte@example.com",
-  registered: "Oct 31, 2026",
-  verified: true,
-  status: "READ_ONLY",
-  plan: "BASIC",
-  lastActive: "Oct 31, 2026 16:45",
-  entitlementSource: "Expired subscription",
-  trialExpiration: "—",
-  notes: "Read-only account.",
-},
-{
-  id: "USR-1014",
-  name: "Benjamin Scott",
-  email: "benjamin@example.com",
-  registered: "Oct 30, 2026",
-  verified: true,
-  status: "ACTIVE",
-  plan: "ELITE",
-  lastActive: "Nov 02, 2026 15:20",
-  entitlementSource: "Administrator grant",
-  trialExpiration: "—",
-  notes: "Active Elite account.",
-},
-{
-  id: "USR-1015",
-  name: "Amelia Robinson",
-  email: "amelia@example.com",
-  registered: "Oct 29, 2026",
-  verified: false,
-  status: "SUSPENDED",
-  plan: "PRO",
-  lastActive: "Oct 29, 2026 10:15",
-  entitlementSource: "Administrator grant",
-  trialExpiration: "—",
-  notes: "Account suspended pending review.",
-},
+
+  // 1012 — SCHEDULED ELITE ADMINISTRATOR GRANT
+  {
+    id: "USR-1012",
+    name: "James Anderson",
+    email: "james@example.com",
+    registered: "Nov 01, 2026",
+    verified: true,
+    status: "ACTIVE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: null,
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: {
+      id: "AGR-1012",
+      plan: "ELITE",
+      grantedAt: "2026-11-02T14:00:00.000Z",
+      startsAt: "2026-11-06T15:00:00.000Z",
+      expiresAt: null,
+      revokedAt: null,
+      revocationReason: null,
+    },
+    subscription: null,
+    ibkrAccounts: [],
+    lastActive: "Nov 02, 2026 14:10",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Elite administrator grant is scheduled to begin November 6.",
+  },
+
+  // 1013 — EXPIRED ELITE GRANT FALLS BACK TO ACTIVE BASIC SUBSCRIPTION
+  {
+    id: "USR-1013",
+    name: "Charlotte Davis",
+    email: "charlotte@example.com",
+    registered: "Oct 31, 2026",
+    verified: true,
+    status: "ACTIVE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "BASIC",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: {
+      id: "AGR-1013",
+      plan: "ELITE",
+      grantedAt: "2026-09-01T12:00:00.000Z",
+      startsAt: "2026-09-01T12:00:00.000Z",
+      expiresAt: "2026-11-01T23:59:59.000Z",
+      revokedAt: null,
+      revocationReason: null,
+    },
+    subscription: {
+      plan: "BASIC",
+      status: "ACTIVE",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "PAID",
+      currentPeriodStart: "2026-10-15T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-15T00:00:00.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: null,
+      scheduledChangeAt: null,
+    },
+    ibkrAccounts: [
+      {
+        id: "IBKR-1013-A",
+        maskedAccountId: "U•••••335",
+        accountState: "INACTIVE",
+        connectionStatus: "DISCONNECTED",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: "Oct 30, 2026 · 11:30 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Connection retained after downgrade to Basic.",
+      },
+      {
+        id: "IBKR-1013-B",
+        maskedAccountId: "U•••••446",
+        accountState: "INACTIVE",
+        connectionStatus: "DISCONNECTED",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: "Oct 30, 2026 · 11:25 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Connection retained after downgrade to Basic.",
+      },
+    ],
+    lastActive: "Nov 02, 2026 16:45",
+    entitlementSource: "Paid subscription",
+    trialExpiration: "—",
+    notes: "Expired Elite grant. Basic subscription remains active. Existing broker records are retained but inactive.",
+  },
+
+  // 1014 — SUSPENDED ACCOUNT, REVOKED GRANT FALLS BACK TO ACTIVE PRO SUBSCRIPTION
+  {
+    id: "USR-1014",
+    name: "Benjamin Scott",
+    email: "benjamin@example.com",
+    registered: "Oct 30, 2026",
+    verified: true,
+    status: "SUSPENDED",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "PRO",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: {
+      id: "AGR-1014",
+      plan: "ELITE",
+      grantedAt: "2026-10-01T12:00:00.000Z",
+      startsAt: "2026-10-01T12:00:00.000Z",
+      expiresAt: null,
+      revokedAt: "2026-11-02T15:00:00.000Z",
+      revocationReason: "Temporary administrator entitlement ended.",
+    },
+    subscription: {
+      plan: "PRO",
+      status: "ACTIVE",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "PAID",
+      currentPeriodStart: "2026-10-15T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-15T00:00:00.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: null,
+      scheduledChangeAt: null,
+    },
+    ibkrAccounts: [
+      {
+        id: "IBKR-1014-A",
+        maskedAccountId: "U•••••557",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: "Nov 03, 2026 · 08:45 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Connection retained while account access is suspended. Scheduled synchronization is disabled.",
+      },
+      {
+        id: "IBKR-1014-B",
+        maskedAccountId: "U•••••668",
+        accountState: "ACTIVE",
+        connectionStatus: "PENDING",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: null,
+        lastSyncStatus: "NEVER",
+        lastSyncResult: "Broker connection setup is pending. Scheduled synchronization is disabled while the account is suspended.",
+      },
+    ],
+    lastActive: "Nov 02, 2026 15:20",
+    entitlementSource: "Paid subscription",
+    trialExpiration: "—",
+    notes: "Account access is suspended. The revoked Elite grant falls back to the active Pro subscription. Entitlement is retained, but application capabilities and scheduled IBKR synchronization are restricted.",
+  },
+
+  // 1015 — INVALID ADMINISTRATOR GRANT DATES, NO FALLBACK ENTITLEMENT
+  {
+    id: "USR-1015",
+    name: "Amelia Robinson",
+    email: "amelia@example.com",
+    registered: "Oct 29, 2026",
+    verified: true,
+    status: "READ_ONLY",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: null,
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: {
+      id: "AGR-1015",
+      plan: "PRO",
+      grantedAt: "2026-10-29T10:00:00.000Z",
+      startsAt: "2026-11-01T10:00:00.000Z",
+      expiresAt: "2026-10-30T10:00:00.000Z",
+      revokedAt: null,
+      revocationReason: null,
+    },
+    subscription: null,
+    ibkrAccounts: [],
+    lastActive: "Oct 29, 2026 10:15",
+    entitlementSource: "Administrator grant",
+    trialExpiration: "—",
+    notes: "Grant dates are invalid because expiration precedes the start date.",
+  },
+
+  // 1016 — ACTIVE PRO SUBSCRIPTION WITH SCHEDULED DOWNGRADE TO BASIC
   {
     id: "USR-1016",
     name: "Lucas Mitchell",
@@ -439,128 +786,255 @@ const MOCK_USERS: AdminUser[] = [
     registered: "Oct 28, 2026",
     verified: true,
     status: "ACTIVE",
-    plan: "ELITE",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "PRO",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: {
+      plan: "PRO",
+      status: "ACTIVE",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "PAID",
+      currentPeriodStart: "2026-10-20T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-20T00:00:00.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: "BASIC",
+      scheduledChangeAt: "2026-11-10T00:00:00.000Z",
+    },
+    ibkrAccounts: [
+      {
+        id: "IBKR-1016-A",
+        maskedAccountId: "U•••••771",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 09:15 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Sync completed successfully.",
+      },
+      {
+        id: "IBKR-1016-B",
+        maskedAccountId: "U•••••882",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 09:10 AM",
+        lastSyncStatus: "RUNNING",
+        lastSyncResult: "Synchronization is currently running.",
+      },
+      {
+        id: "IBKR-1016-C",
+        maskedAccountId: "U•••••993",
+        accountState: "INACTIVE",
+        connectionStatus: "DISCONNECTED",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: "Oct 25, 2026 · 11:00 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Retained broker account. Inactive under current Pro selection.",
+      },
+    ],
     lastActive: "Nov 02, 2026 13:45",
-    entitlementSource: "Administrator grant",
+    entitlementSource: "Paid subscription",
     trialExpiration: "—",
-    notes: "Active Elite account.",
+    notes: "Pro subscription is active. Downgrade to Basic is scheduled for November 10.",
   },
+
+  // 1017 — PAST-DUE ELITE SUBSCRIPTION, ACCESS RETAINED THROUGH CURRENT PERIOD
   {
     id: "USR-1017",
-    name: "Mia Rodriguez",
-    email: "mia@example.com",
-    registered: "Oct 27, 2026",
-    verified: false,
-    status: "PENDING",
-    plan: null,
-    lastActive: "Never",
-    entitlementSource: "—",
-    trialExpiration: "—",
-    notes: "Awaiting email verification.",
-  },
-  {
-    id: "USR-1018",
-    name: "Alexander Wright",
-    email: "alex@example.com",
-    registered: "Oct 26, 2026",
+    name: "Isabella Morgan",
+    email: "isabella.morgan@example.com",
+    registered: "Oct 23, 2026",
     verified: true,
     status: "ACTIVE",
-    plan: "PRO",
-    lastActive: "Nov 02, 2026 10:32",
-    entitlementSource: "Administrator grant",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "ELITE",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: {
+      plan: "ELITE",
+      status: "PAST_DUE",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "FAILED",
+      currentPeriodStart: "2026-10-20T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-10T00:00:00.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: null,
+      scheduledChangeAt: null,
+    },
+    ibkrAccounts: [
+      {
+        id: "IBKR-1017-A",
+        maskedAccountId: "U•••••114",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 08:30 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Sync completed successfully.",
+      },
+      {
+        id: "IBKR-1017-B",
+        maskedAccountId: "U•••••225",
+        accountState: "ACTIVE",
+        connectionStatus: "ERROR",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 02, 2026 · 04:10 PM",
+        lastSyncStatus: "FAILED",
+        lastSyncResult: "Broker returned an authorization error.",
+      },
+      {
+        id: "IBKR-1017-C",
+        maskedAccountId: "U•••••336",
+        accountState: "ACTIVE",
+        connectionStatus: "CONNECTED",
+        scheduledSyncEnabled: true,
+        lastSuccessfulSync: "Nov 03, 2026 · 08:25 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Sync completed successfully.",
+      },
+    ],
+    lastActive: "Nov 02, 2026 08:45",
+    entitlementSource: "Paid subscription",
     trialExpiration: "—",
-    notes: "Active Pro account.",
+    notes: "Payment is past due. Elite entitlement remains active through the current billing period.",
   },
+
+  // 1018 — CANCELED SUBSCRIPTION, PERIOD ENDED, READ-ONLY ACCESS
   {
-    id: "USR-1019",
-    name: "Sophia Bennett",
-    email: "sophia@example.com",
-    registered: "Oct 25, 2026",
-    verified: true,
-    status: "READ_ONLY",
-    plan: "PRO",
-    lastActive: "Oct 30, 2026 15:20",
-    entitlementSource: "Expired subscription",
-    trialExpiration: "—",
-    notes: "Subscription expired. Historical access only.",
-  },
-  {
-    id: "USR-1020",
+    id: "USR-1018",
     name: "William Foster",
     email: "william@example.com",
     registered: "Oct 24, 2026",
     verified: true,
-    status: "ACTIVE",
-    plan: "BASIC",
+    status: "READ_ONLY",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: "PRO",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: {
+      plan: "PRO",
+      status: "CANCELED",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "PAID",
+      currentPeriodStart: "2026-10-01T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-01T23:59:59.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: null,
+      scheduledChangeAt: null,
+    },
+    ibkrAccounts: [
+      {
+        id: "IBKR-1018-A",
+        maskedAccountId: "U•••••447",
+        accountState: "INACTIVE",
+        connectionStatus: "DISCONNECTED",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: "Oct 31, 2026 · 02:30 PM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Final successful sync before subscription cancellation.",
+      },
+    ],
     lastActive: "Nov 01, 2026 17:18",
-    entitlementSource: "Administrator grant",
+    entitlementSource: "Expired subscription",
     trialExpiration: "—",
-    notes: "Active Basic account.",
+    notes: "Subscription canceled and billing period ended. Historical access only.",
   },
+
+  // 1019 — INCOMPLETE SUBSCRIPTION, NO EFFECTIVE ENTITLEMENT
   {
-    id: "USR-1021",
-    name: "Isabella Garcia",
-    email: "isabella.garcia@example.com",
-    registered: "Oct 23, 2026",
-    verified: true,
-    status: "ACTIVE",
-    plan: "TRIAL",
-    lastActive: "Nov 02, 2026 08:45",
-    entitlementSource: "Trial grant",
-    trialExpiration: "Nov 07, 2026",
-    notes: "Currently using the Elite trial.",
-  },
-  {
-    id: "USR-1022",
-    name: "Henry Walker",
-    email: "henry@example.com",
-    registered: "Oct 22, 2026",
-    verified: true,
-    status: "SUSPENDED",
-    plan: "ELITE",
-    lastActive: "Oct 29, 2026 12:10",
-    entitlementSource: "Administrator grant",
-    trialExpiration: "—",
-    notes: "Account suspended pending administrator review.",
-  },
-  {
-    id: "USR-1023",
+    id: "USR-1019",
     name: "Ella Thompson",
     email: "ella@example.com",
     registered: "Oct 21, 2026",
     verified: true,
     status: "ACTIVE",
-    plan: "PRO",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
+    plan: null,
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: {
+      plan: "PRO",
+      status: "INCOMPLETE",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "PENDING",
+      currentPeriodStart: "2026-11-03T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-17T00:00:00.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: null,
+      scheduledChangeAt: null,
+    },
+    ibkrAccounts: [],
     lastActive: "Nov 02, 2026 11:26",
-    entitlementSource: "Administrator grant",
+    entitlementSource: "No active entitlement",
     trialExpiration: "—",
-    notes: "Active Pro account.",
+    notes: "Subscription setup is incomplete. No paid entitlement is active.",
   },
+
+  // 1020 — UNPAID SUBSCRIPTION, READ-ONLY ACCESS
   {
-    id: "USR-1024",
+    id: "USR-1020",
     name: "Jack Harrison",
     email: "jack@example.com",
     registered: "Oct 20, 2026",
-    verified: false,
-    status: "PENDING",
-    plan: null,
-    lastActive: "Never",
-    entitlementSource: "—",
-    trialExpiration: "—",
-    notes: "Awaiting email verification and administrator approval.",
-  },
-  {
-    id: "USR-1025",
-    name: "Chloe Martin",
-    email: "chloe@example.com",
-    registered: "Oct 19, 2026",
     verified: true,
-    status: "ACTIVE",
+    status: "READ_ONLY",
+    approvalStatus: "APPROVED",
+    accessProvisioningStatus: "PROVISIONED",
     plan: "ELITE",
-    lastActive: "Nov 02, 2026 09:52",
-    entitlementSource: "Administrator grant",
+    trialStatus: "NOT_APPLICABLE",
+    trialStartDate: null,
+    trialEndDate: null,
+    trialUsage: null,
+    adminGrant: null,
+    subscription: {
+      plan: "ELITE",
+      status: "UNPAID",
+      priceLabel: "Not configured in preview",
+      billingInterval: "Monthly",
+      paymentStatus: "FAILED",
+      currentPeriodStart: "2026-10-05T00:00:00.000Z",
+      currentPeriodEnd: "2026-11-02T23:59:59.000Z",
+      cancelAtPeriodEnd: false,
+      scheduledPlan: null,
+      scheduledChangeAt: null,
+    },
+    ibkrAccounts: [
+      {
+        id: "IBKR-1020-A",
+        maskedAccountId: "U•••••558",
+        accountState: "INACTIVE",
+        connectionStatus: "DISCONNECTED",
+        scheduledSyncEnabled: false,
+        lastSuccessfulSync: "Nov 01, 2026 · 10:15 AM",
+        lastSyncStatus: "SUCCESS",
+        lastSyncResult: "Synchronization stopped after entitlement ended.",
+      },
+    ],
+    lastActive: "Nov 01, 2026 09:52",
+    entitlementSource: "Expired subscription",
     trialExpiration: "—",
-    notes: "Active Elite account.",
+    notes: "Subscription is unpaid. Application access is read-only and historical data is retained.",
   },
 ];
 
@@ -569,7 +1043,7 @@ const MOCK_USERS: AdminUser[] = [
 // =====================================================
 
 const STATUS_CONFIG: Record<
-  AccountStatus,
+  AdminUserDisplayStatus,
   {
     label: string;
     className: string;
@@ -580,6 +1054,12 @@ const STATUS_CONFIG: Record<
     label: "Pending",
     className: "text-amber-400",
     dotClass: "bg-amber-400",
+  },
+
+  REJECTED: {
+    label: "Rejected",
+    className: "text-red-400",
+    dotClass: "bg-red-400",
   },
 
   ACTIVE: {
@@ -627,6 +1107,75 @@ const PLAN_CONFIG: Record<
     label: "Elite",
     className: "text-[#78A9FF]",
   },
+};
+
+// =====================================================
+// ADMIN PREVIEW — PLAN CAPABILITIES
+// =====================================================
+
+// Preview configuration only.
+// These values do not enforce production permissions.
+
+const ADMIN_PREVIEW_TRIAL_USAGE_LIMITS = {
+  trades: 20,
+  expenses: 20,
+  notes: 20,
+  ibkrAccounts: 1,
+} as const;
+
+type AdminPreviewPlanCapabilities = {
+  maxIbkrAccounts: number | "UNLIMITED" | null;
+  canConnectIBKR: boolean;
+  canScheduledSync: boolean;
+  canManualSync: boolean;
+  trialUsageLimits:
+    | typeof ADMIN_PREVIEW_TRIAL_USAGE_LIMITS
+    | null;
+};
+
+const ADMIN_PREVIEW_PLAN_CAPABILITIES: Record<
+  PlanType,
+  AdminPreviewPlanCapabilities
+> = {
+  TRIAL: {
+    maxIbkrAccounts: 1,
+    canConnectIBKR: true,
+    canScheduledSync: true,
+    canManualSync: true,
+    trialUsageLimits: ADMIN_PREVIEW_TRIAL_USAGE_LIMITS,
+  },
+
+  BASIC: {
+    maxIbkrAccounts: 0,
+    canConnectIBKR: false,
+    canScheduledSync: false,
+    canManualSync: false,
+    trialUsageLimits: null,
+  },
+
+  PRO: {
+    maxIbkrAccounts: 2,
+    canConnectIBKR: true,
+    canScheduledSync: true,
+    canManualSync: false,
+    trialUsageLimits: null,
+  },
+
+  ELITE: {
+    maxIbkrAccounts: "UNLIMITED",
+    canConnectIBKR: true,
+    canScheduledSync: true,
+    canManualSync: true,
+    trialUsageLimits: null,
+  },
+};
+
+const ADMIN_PREVIEW_NO_ENTITLEMENT_CAPABILITIES: AdminPreviewPlanCapabilities = {
+  maxIbkrAccounts: null,
+  canConnectIBKR: false,
+  canScheduledSync: false,
+  canManualSync: false,
+  trialUsageLimits: null,
 };
 
 const SUBSCRIPTION_STATUS_CONFIG: Record<
@@ -756,6 +1305,14 @@ function resolveAdminPreviewApprovalStatus(
     user.approvalStatus ??
     (user.status === "PENDING" ? "PENDING" : "APPROVED")
   );
+}
+
+function resolveAdminPreviewDisplayStatus(
+  user: AdminUser
+): AdminUserDisplayStatus {
+  return resolveAdminPreviewApprovalStatus(user) === "REJECTED"
+    ? "REJECTED"
+    : user.status;
 }
 
 function resolveAdminPreviewProvisioningStatus(
@@ -920,7 +1477,7 @@ function getAvatarStyle(name: string) {
 function StatusBadge({
   status,
 }: {
-  status: AccountStatus;
+  status: AdminUserDisplayStatus;
 }) {
   const config = STATUS_CONFIG[status];
 
@@ -968,76 +1525,6 @@ function PlanBadge({
 // =====================================================
 // KPI CARD
 // =====================================================
-
-function Sparkline({
-  color,
-  variant,
-  offset = "",
-  height = "",
-}: {
-  color: string;
-  variant: number;
-  offset?: string;
-  height?: string;
-}) {
-  const paths = [
-    "M0 29 C22 28 29 18 48 22 S80 13 98 17 S130 3 150 8",
-    "M0 30 C20 29 29 26 48 24 S76 29 95 15 S123 8 150 3",
-    "M0 29 C20 25 33 29 51 19 S80 20 98 12 S128 9 150 2",
-    "M0 30 C20 30 33 16 52 22 S79 23 99 12 S130 15 150 4",
-  ];
-
-  return (
-    <svg
-      viewBox="0 0 150 36"
-      preserveAspectRatio="none"
-      className={`
-        ml-auto
-        block
-        ${height || "h-[45px]"}
-        w-[44%]
-        opacity-40
-        ${offset}
-      `}
-    >
-      <defs>
-        <linearGradient
-          id={`admin-spark-${variant}`}
-          x1="0"
-          y1="0"
-          x2="0"
-          y2="1"
-        >
-          <stop
-            offset="0%"
-            stopColor={color}
-            stopOpacity="0.45"
-          />
-
-          <stop
-            offset="100%"
-            stopColor={color}
-            stopOpacity="0"
-          />
-        </linearGradient>
-      </defs>
-
-      <path
-        d={`${paths[variant]} L150 36 L0 36 Z`}
-        fill={`url(#admin-spark-${variant})`}
-      />
-
-      <path
-        d={paths[variant]}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-
 
 
 type MetricCardProps = {
@@ -1345,15 +1832,6 @@ function UserDetailsPanel({
   const [customEffectiveDate, setCustomEffectiveDate] = useState("");
   const [trialDuration, setTrialDuration] = useState("14");
   const [trialStartDate, setTrialStartDate] = useState("");
-  const [accessLevel, setAccessLevel] = useState<
-    "FULL_ACCESS" | "READ_ONLY" | "SUSPENDED"
-  >(
-    user.status === "READ_ONLY"
-      ? "READ_ONLY"
-      : user.status === "SUSPENDED"
-        ? "SUSPENDED"
-        : "FULL_ACCESS"
-  );
   const [adminNotes, setAdminNotes] = useState(user.notes);
   const [feedback, setFeedback] = useState("");
 
@@ -1364,13 +1842,7 @@ function UserDetailsPanel({
     setCustomEffectiveDate("");
     setTrialDuration("14");
     setTrialStartDate("");
-    setAccessLevel(
-      user.status === "READ_ONLY"
-        ? "READ_ONLY"
-        : user.status === "SUSPENDED"
-          ? "SUSPENDED"
-          : "FULL_ACCESS"
-    );
+
     setAdminNotes(user.notes);
     setFeedback("");
   }, [user.id, user.plan, user.status, user.notes]);
@@ -1384,8 +1856,8 @@ function UserDetailsPanel({
   const sectionContentClass =
     "relative left-[10px] px-3.5 py-1";
 
-  const fieldClass =
-    "h-[34px] w-full rounded-[6px] border border-white/[0.09] bg-[#030D19] px-2.5 text-[11px] text-slate-200 outline-none transition-colors focus:border-[#4F8CFF]/50";
+   const fieldClass =
+    "h-[34px] w-full rounded-[6px] border border-white/[0.09] bg-[#030D19] px-2.5 text-[11px] text-slate-200 outline-none transition-colors focus:border-[#4F8CFF]/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#78A9FF]";
 
   const labelClass =
     "mb-1.5 block text-[10px] font-medium text-slate-400";
@@ -1408,6 +1880,9 @@ const showPreviewFeedback = (message: string) => {
 
 const approvalStatus =
   resolveAdminPreviewApprovalStatus(user);
+
+const displayStatus =
+  resolveAdminPreviewDisplayStatus(user);
 
 const isApprovalPending = approvalStatus === "PENDING";
 const isApprovalRejected = approvalStatus === "REJECTED";
@@ -1491,9 +1966,6 @@ const isScheduledTrial =
 const isTrialNotStarted =
   trialStatus === "NOT_STARTED";
 
-const isTrialPending =
-  isScheduledTrial || isTrialNotStarted;
-
 // EFFECTIVE ENTITLEMENT RESOLUTION
 
 const paidSubscription = user.subscription ?? null;
@@ -1533,6 +2005,29 @@ const hasLegacyAdminGrant =
 
 const effectivePlan =
   resolveAdminPreviewEntitlementPlan(user);
+
+// ADMIN PREVIEW PLAN CAPABILITIES
+
+const planCapabilities =
+  effectivePlan !== null
+    ? ADMIN_PREVIEW_PLAN_CAPABILITIES[effectivePlan]
+    : ADMIN_PREVIEW_NO_ENTITLEMENT_CAPABILITIES;
+
+const ibkrLimit =
+  planCapabilities.maxIbkrAccounts === null
+    ? "N/A"
+    : planCapabilities.maxIbkrAccounts === "UNLIMITED"
+      ? "Unlimited"
+      : String(planCapabilities.maxIbkrAccounts);
+
+const ibkrUsageLimitLabel = ibkrLimit;
+
+const trialUsageQuotaLabel =
+  planCapabilities.trialUsageLimits !== null
+    ? `${planCapabilities.trialUsageLimits.trades} each`
+    : effectivePlan !== null
+      ? "No trial quota"
+      : "Unavailable";
 
   const accountAccessLabel =
   isApprovalRejected
@@ -1680,7 +2175,12 @@ if (
   isPaidSubscriptionActive &&
   paidSubscription
 ) {
-  if (paidSubscription.cancelAtPeriodEnd) {
+  if (paidSubscription.status === "PAST_DUE") {
+    addAccessChangeEvent(
+      paidSubscription.currentPeriodEnd,
+      "Past-due entitlement ends — access reevaluated on"
+    );
+  } else if (paidSubscription.cancelAtPeriodEnd) {
     addAccessChangeEvent(
       paidSubscription.currentPeriodEnd,
       "Subscription ends"
@@ -1807,8 +2307,8 @@ return (
             {user.id}
           </p>
 
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-  <StatusBadge status={user.status} />
+         <div className="mt-2 flex flex-wrap items-center gap-2">
+  <StatusBadge status={displayStatus} />
   <PlanBadge plan={effectivePlan} />
 </div>
         </div>
@@ -2134,12 +2634,12 @@ valueClassName={
   </div>
 
 </div>
-<div className="h-[10px] w-full shrink-0" />
+<div className="h-[6px] w-full shrink-0" />
 {/* APPROVAL CONTROLS */}
 
 {isApprovalPending && (
   <>
-    <div className="h-[12px] w-full shrink-0" />
+    <div className="h-[2px] w-full shrink-0" />
 
     <div className="relative left-[0px] flex min-h-[100px] flex-col justify-center w-[calc(100%-20px)] rounded-[6px] border border-amber-400/[0.14] bg-amber-400/[0.035] px-3 py-3">
 <div className="relative left-[10px]">
@@ -2196,7 +2696,7 @@ onClick={() =>
 
       </div>
 
-    <div className="h-[12px] w-full shrink-0" />
+    <div className="h-[8px] w-full shrink-0" />
   </>
     )}
 
@@ -2241,7 +2741,7 @@ onClick={() =>
           )}
 
         </div>
-
+<div className="h-[6px] w-full shrink-0" />
         {subscription ? (
           <>
 
@@ -2401,7 +2901,7 @@ onClick={() =>
       Subscription information is not available in this preview.
       Trial and administrator-granted access are managed separately.
     </p>
-<div className="h-[2px] w-full shrink-0" />
+<div className="h-[0px] w-full shrink-0" />
   </div>
 
 </div>
@@ -2417,11 +2917,15 @@ onClick={() =>
     {/* PLAN ASSIGNMENT */}
 
     <div style={{ marginBottom: "8px" }}>
-      <label className={labelClass}>
+      <label
+        htmlFor="admin-assign-plan"
+        className={labelClass}
+      >
         Assign Plan
       </label>
 
       <select
+        id="admin-assign-plan"
         value={selectedPlan}
         onChange={(event) =>
           setSelectedPlan(event.target.value as PlanType | "")
@@ -2439,11 +2943,15 @@ onClick={() =>
     {/* PLAN EFFECTIVE DATE */}
 
     <div style={{ marginBottom: "8px" }}>
-      <label className={labelClass}>
+      <label
+        htmlFor="admin-plan-effective-date"
+        className={labelClass}
+      >
         Plan Effective Date
       </label>
 
       <select
+        id="admin-plan-effective-date"
         value={effectiveDate}
         onChange={(event) =>
           setEffectiveDate(event.target.value)
@@ -2460,11 +2968,15 @@ onClick={() =>
 
     {effectiveDate === "CUSTOM" && (
       <div style={{ marginBottom: "8px" }}>
-        <label className={labelClass}>
+        <label
+          htmlFor="admin-custom-effective-date"
+          className={labelClass}
+        >
           Custom Effective Date
         </label>
 
         <input
+          id="admin-custom-effective-date"
           type="date"
           value={customEffectiveDate}
           onChange={(event) =>
@@ -2524,7 +3036,7 @@ onClick={() =>
 {/* TRIAL STATUS */}
 
 <div className="relative left-[0px] flex min-h-[60px] w-full flex-col justify-center rounded-[6px] border border-blue-400/[0.12] bg-[#101E2E] px-3">
-
+<div className="h-[4px] w-full shrink-0" />
   <div className="relative left-[10px]">
     <p className="text-[10px] font-medium text-slate-400">
       Trial Entitlement
@@ -2553,20 +3065,25 @@ onClick={() =>
               ? `The trial expired ${user.trialEndDate ?? user.trialExpiration ?? "on an unrecorded date"}. Another valid entitlement may still provide access.`
               : "This account has no trial entitlement. Paid and administrator-granted access are managed separately."}
     </p>
+
   </div>
 
 </div>
 
-    <div className="h-[12px] w-full shrink-0" />
+    <div className="h-[10px] w-full shrink-0" />
 
     {/* TRIAL CONFIGURATION */}
 
     <div style={{ marginBottom: "8px" }}>
-      <label className={labelClass}>
+      <label
+        htmlFor="admin-trial-duration"
+        className={labelClass}
+      >
         Trial Duration
       </label>
 
       <select
+        id="admin-trial-duration"
         value={trialDuration}
         onChange={(event) =>
           setTrialDuration(event.target.value)
@@ -2582,35 +3099,39 @@ onClick={() =>
     </div>
 
     <div style={{ marginBottom: "8px" }}>
-      <label className={labelClass}>
+      <label
+        htmlFor="admin-trial-start-date"
+        className={labelClass}
+      >
         Trial Start Date
       </label>
 
-<input
-  type="date"
-  value={trialStartDate}
-  onChange={(event) =>
-    setTrialStartDate(event.target.value)
-  }
-  onClick={(event) => {
-    const input = event.currentTarget;
+      <input
+        id="admin-trial-start-date"
+        type="date"
+        value={trialStartDate}
+        onChange={(event) =>
+          setTrialStartDate(event.target.value)
+        }
+        onClick={(event) => {
+          const input = event.currentTarget;
 
-    if (typeof input.showPicker === "function") {
-      try {
-        input.showPicker();
-      } catch {
-        input.focus();
-      }
-    }
-  }}
-  style={{ textIndent: "10px" }}
-  className={`${fieldClass} relative top-[2px] cursor-pointer admin-date-input`}
-/>
+          if (typeof input.showPicker === "function") {
+            try {
+              input.showPicker();
+            } catch {
+              input.focus();
+            }
+          }
+        }}
+        style={{ textIndent: "10px" }}
+        className={`${fieldClass} relative top-[2px] cursor-pointer admin-date-input`}
+      />
     </div>
 
 {/* CURRENT EXPIRATION */}
 
-<div className="relative left-[0px] w-full rounded-[6px] border border-white/[0.07] bg-[#101E2E] px-3 py-2">
+<div className="relative left-[0px] top-[2px] w-full rounded-[6px] border border-white/[0.07] bg-[#101E2E] px-3 py-2">
 
   <div className="relative left-[10px]">
     <p className="text-[10px] text-slate-500">
@@ -2651,27 +3172,27 @@ onClick={() =>
   <div className="mt-2 grid grid-cols-2 gap-2">
 
     {[
-      {
-        label: "Trades",
-        used: user.trialUsage.tradesUsed,
-        limit: 20,
-      },
-      {
-        label: "Expenses",
-        used: user.trialUsage.expensesUsed,
-        limit: 20,
-      },
-      {
-        label: "Notes",
-        used: user.trialUsage.notesUsed,
-        limit: 20,
-      },
-      {
-        label: "IBKR Accounts",
-        used: user.trialUsage.ibkrAccountsUsed,
-        limit: 1,
-      },
-    ].map((item) => {
+  {
+    label: "Trades",
+    used: user.trialUsage.tradesUsed,
+    limit: ADMIN_PREVIEW_TRIAL_USAGE_LIMITS.trades,
+  },
+  {
+    label: "Expenses",
+    used: user.trialUsage.expensesUsed,
+    limit: ADMIN_PREVIEW_TRIAL_USAGE_LIMITS.expenses,
+  },
+  {
+    label: "Notes",
+    used: user.trialUsage.notesUsed,
+    limit: ADMIN_PREVIEW_TRIAL_USAGE_LIMITS.notes,
+  },
+  {
+    label: "IBKR Accounts",
+    used: user.trialUsage.ibkrAccountsUsed,
+    limit: ADMIN_PREVIEW_TRIAL_USAGE_LIMITS.ibkrAccounts,
+  },
+].map((item) => {
       const usagePercentage = Math.min(
         Math.max((item.used / item.limit) * 100, 0),
         100
@@ -2716,7 +3237,7 @@ onClick={() =>
 
   </div>
 ) : (
-  <div className="relative left-[0px] flex min-h-[48px] w-full items-center rounded-[6px] border border-dashed border-white/[0.08] bg-[#101E2E] px-3">
+  <div className="relative left-[0px] top-[6px] flex min-h-[48px] w-full items-center rounded-[6px] border border-dashed border-white/[0.08] bg-[#101E2E] px-3">
 
     <p className="relative left-[8px] text-[10px] text-slate-500">
       {trialStatus === "NOT_APPLICABLE"
@@ -2837,11 +3358,11 @@ onClick={() =>
           </p>
 
           <p className="text-[11px] font-semibold text-slate-200">
-            {(user.ibkrAccounts ?? []).filter(
-              (account) => account.accountState === "ACTIVE"
-            ).length}
-            {" / "}
-            {effectivePlan === "ELITE" ? "Unlimited" : effectivePlan === "PRO" ? "2" : effectivePlan === "TRIAL" ? "1" : "N/A"}
+{(user.ibkrAccounts ?? []).filter(
+  (account) => account.accountState === "ACTIVE"
+).length}
+{" / "}
+{ibkrUsageLimitLabel}
           </p>
         </div>
 <div className="h-[4px] w-full shrink-0" />
@@ -2851,19 +3372,19 @@ onClick={() =>
 
     <div className="h-[12px] w-full shrink-0" />
 
-    {/* CONNECTED ACCOUNTS */}
+{/* IBKR ACCOUNT RECORDS */}
 
-    <div className="relative left-[0px]">
+<div className="relative left-[0px]">
 
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold text-slate-200">
-          Connected Accounts
-        </p>
+  <div className="flex items-center justify-between">
+    <p className="text-[11px] font-semibold text-slate-200">
+      IBKR Account Records
+    </p>
 
-        <span className="text-[9px] text-slate-500">
-          Mock account data
-        </span>
-      </div>
+    <span className="text-[9px] text-slate-500">
+      Mock account data
+    </span>
+  </div>
 
       <div className="h-[8px] w-full shrink-0" />
 
@@ -3036,13 +3557,15 @@ const accessState = isApprovalRejected
             : "Unavailable";
 
 const accessStateClass =
-  isApprovalRejected || isPending || isSuspended
+  isApprovalRejected || isSuspended
     ? "text-red-400"
-    : isReadOnly
-      ? "text-blue-400"
-      : hasAccess
-        ? "text-emerald-400"
-        : "text-slate-400";
+    : isPending
+      ? "text-amber-400"
+      : isReadOnly
+        ? "text-blue-400"
+        : hasAccess
+          ? "text-emerald-400"
+          : "text-slate-400";
 
 const planLabel = effectivePlanLabel;
 
@@ -3074,37 +3597,28 @@ const capabilities = {
   export: canViewData,
   ibkrConnect:
     hasAccess &&
-    ["PRO", "ELITE", "TRIAL"].includes(effectivePlan ?? ""),
+    planCapabilities.canConnectIBKR,
   scheduledSync:
     hasAccess &&
-    ["PRO", "ELITE", "TRIAL"].includes(effectivePlan ?? ""),
+    planCapabilities.canScheduledSync,
   manualSync:
     hasAccess &&
-    ["ELITE", "TRIAL"].includes(effectivePlan ?? ""),
+    planCapabilities.canManualSync,
 };
 
-      const ibkrLimit =
-        effectivePlan === "ELITE"
-          ? "Unlimited"
-          : effectivePlan === "PRO"
-            ? "2"
-            : effectivePlan === "TRIAL"
-              ? "1"
-              : "0";
+const permissionValue = (allowed: boolean) =>
+  allowed ? "Allowed" : "Restricted";
 
-      const permissionValue = (allowed: boolean) =>
-        allowed ? "Allowed" : "Restricted";
+const permissionClass = (allowed: boolean) =>
+  allowed ? "text-emerald-400" : "text-slate-500";
 
-      const permissionClass = (allowed: boolean) =>
-        allowed ? "text-emerald-400" : "text-slate-500";
-
-      const PermissionGroup = ({
-        title,
-        children,
-      }: {
-        title: string;
-        children: React.ReactNode;
-      }) => (
+const PermissionGroup = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-500">
             {title}
@@ -3154,11 +3668,11 @@ const capabilities = {
               />
 
               <DetailRow
-                label="Account Status"
-                value={STATUS_CONFIG[user.status].label}
-                compact
-                valueClassName={STATUS_CONFIG[user.status].className}
-              />
+  label="Account Status"
+  value={STATUS_CONFIG[displayStatus].label}
+  compact
+  valueClassName={STATUS_CONFIG[displayStatus].className}
+/>
 
             </div>
 
@@ -3270,17 +3784,11 @@ const capabilities = {
               compact
             />
 
-            <DetailRow
-              label="Trade / Expense / Notes Quotas"
-              value={
-                effectivePlan === "TRIAL"
-                  ? "20 each"
-                  : effectivePlan !== null
-                    ? "No trial quota"
-                    : "Unavailable"
-              }
-              compact
-            />
+<DetailRow
+  label="Trade / Expense / Notes Quotas"
+  value={trialUsageQuotaLabel}
+  compact
+/>
           </PermissionGroup>
 
           <div className="h-[10px] w-full shrink-0" />
@@ -3289,6 +3797,7 @@ const capabilities = {
 
           <div className="rounded-[6px] border border-white/[0.07] bg-[#101E2E] px-3 py-2.5">
             <div className="relative left-[8px] w-[90%]">
+              <div className="h-[4px] w-full shrink-0" />
               <p className="text-[10px] font-medium text-slate-300">
                 Permission Resolution
               </p>
@@ -3319,8 +3828,9 @@ const capabilities = {
                 : "Full application access is available. Individual capabilities are determined by the effective plan and its limits."}
               </p>
             </div>
+            <div className="h-[4px] w-full shrink-0" />
           </div>
-
+<div className="h-[4px] w-full shrink-0" />
         </>
       );
     })()}
@@ -3333,7 +3843,7 @@ const capabilities = {
 
 {/* ACCOUNT SECURITY */}
 
-<section className={`${sectionClass} min-h-[160px]`}>
+<section className={`${sectionClass} min-h-[154px]`}>
   <div className={sectionHeaderClass}>
     <ShieldCheck size={16} className="text-slate-300" />
 
@@ -3441,18 +3951,22 @@ const capabilities = {
         className="w-full"
         style={{ padding: "12px 16px" }}
       >
-        <label className={`${labelClass} relative -top-[4px]`}>
+        <label
+          htmlFor="admin-internal-notes"
+          className={`${labelClass} relative -top-[4px]`}
+        >
           Internal Notes
         </label>
 
         <textarea
+          id="admin-internal-notes"
           value={adminNotes}
           onChange={(event) =>
             setAdminNotes(event.target.value)
           }
           rows={4}
           placeholder="Add internal administrator notes..."
-          className="min-h-0 w-full resize-y border-0 bg-transparent px-0 py-1 text-[12px] leading-[18px] text-slate-200 outline-none placeholder:text-slate-600 focus:ring-0"
+          className="min-h-0 w-full resize-y border-0 bg-transparent px-0 py-1 text-[12px] leading-[18px] text-slate-200 outline-none placeholder:text-slate-600 focus:ring-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#78A9FF]"
         />
       </div>
     </div>
@@ -3534,7 +4048,7 @@ const capabilities = {
 {/* DANGER ZONE */}
 
 <section
-  className={`${sectionClass} mb-2 h-[182px] !border-red-400/[0.18] !bg-gradient-to-b !from-[#21151B] !to-[#160F17]`}
+  className={`${sectionClass} mb-2 h-[204px] !border-red-400/[0.18] !bg-gradient-to-b !from-[#21151B] !to-[#160F17]`}
 >
   {/* HEADER */}
 
@@ -3560,7 +4074,7 @@ const capabilities = {
       <p className="mt-1 text-[10px] leading-[15px] text-slate-500">
         Restrict this account from accessing the application.
       </p>
-
+<div className="h-[6px] w-full shrink-0" />
       <button
         type="button"
         onClick={() =>
@@ -3574,10 +4088,11 @@ const capabilities = {
         Revoke Access
       </button>
     </div>
-
+<div className="h-[6px] w-full shrink-0" />
     {/* DELETE ACCOUNT */}
 
     <div className="border-t border-red-400/[0.10] pt-3">
+    <div className="h-[6px] w-full shrink-0" />
       <p className="text-[11px] font-medium text-slate-200">
         Delete Account
       </p>
@@ -3585,7 +4100,7 @@ const capabilities = {
       <p className="mt-1 text-[10px] leading-[15px] text-slate-500">
         Permanently delete this user account and associated data.
       </p>
-
+<div className="h-[6px] w-full shrink-0" />
       <button
         type="button"
         onClick={() =>
@@ -3598,6 +4113,7 @@ const capabilities = {
         <AlertCircle size={13} />
         Delete Account
       </button>
+
     </div>
 
   </div>
@@ -3789,8 +4305,8 @@ const USERS_PER_PAGE = 19;
         user.id.toLowerCase().includes(query);
 
       const matchesStatus =
-        statusFilter === "ALL" ||
-        user.status === statusFilter;
+  statusFilter === "ALL" ||
+  resolveAdminPreviewDisplayStatus(user) === statusFilter;
 
 const resolvedPlan =
   resolveAdminPreviewEntitlementPlan(user);
@@ -4152,30 +4668,38 @@ className="
     {/* SEARCH */}
 
     <div className="relative min-w-0 w-[400px] shrink">
+      <label
+        htmlFor="admin-user-search"
+        className="sr-only"
+      >
+        Search users by name, email or user ID
+      </label>
+
       <Search
         size={15}
         className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
       />
 
       <input
+        id="admin-user-search"
         type="text"
         value={searchTerm}
-    onChange={(event) => {
-  setSearchTerm(event.target.value);
-  setCurrentPage(1);
-}}
+        onChange={(event) => {
+          setSearchTerm(event.target.value);
+          setCurrentPage(1);
+        }}
         placeholder="Search name, email or user ID..."
         style={{ paddingLeft: "44px" }}
-        className="h-[39px] w-full rounded-[8px] border border-white/[0.08] bg-[#030D19] pr-9 text-[12px] text-slate-200 outline-none transition-colors placeholder:text-slate-600 focus:border-[#4F8CFF]/40"
+        className="h-[39px] w-full rounded-[8px] border border-white/[0.08] bg-[#030D19] pr-9 text-[12px] text-slate-200 outline-none transition-colors placeholder:text-slate-600 focus:border-[#4F8CFF]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#78A9FF]"
       />
 
       {searchTerm && (
         <button
           type="button"
           onClick={() => {
-  setSearchTerm("");
-  setCurrentPage(1);
-}}
+            setSearchTerm("");
+            setCurrentPage(1);
+          }}
           aria-label="Clear search"
           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
         >
@@ -4198,18 +4722,19 @@ className="
         <select
           id="admin-status-filter"
           value={statusFilter}
-        onChange={(event) => {
-  setStatusFilter(event.target.value);
-  setCurrentPage(1);
-}}
+          onChange={(event) => {
+            setStatusFilter(event.target.value);
+            setCurrentPage(1);
+          }}
           style={{ textIndent: "8px" }}
-          className="h-[39px] w-[110px] appearance-none rounded-[8px] border border-white/[0.08] bg-[#030D19] pr-9 text-[11px] text-slate-200 outline-none transition-colors focus:border-[#4F8CFF]/40"
+          className="h-[39px] w-[110px] appearance-none rounded-[8px] border border-white/[0.08] bg-[#030D19] pr-9 text-[11px] text-slate-200 outline-none transition-colors focus:border-[#4F8CFF]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#78A9FF]"
         >
           <option value="ALL">All Statuses</option>
-          <option value="PENDING">Pending</option>
-          <option value="ACTIVE">Active</option>
-          <option value="READ_ONLY">Read-only</option>
-          <option value="SUSPENDED">Suspended</option>
+<option value="PENDING">Pending</option>
+<option value="REJECTED">Rejected</option>
+<option value="ACTIVE">Active</option>
+<option value="READ_ONLY">Read-only</option>
+<option value="SUSPENDED">Suspended</option>
         </select>
 
         <ChevronDown
@@ -4233,12 +4758,12 @@ className="
         <select
           id="admin-plan-filter"
           value={planFilter}
-         onChange={(event) => {
-  setPlanFilter(event.target.value);
-  setCurrentPage(1);
-}}
+          onChange={(event) => {
+            setPlanFilter(event.target.value);
+            setCurrentPage(1);
+          }}
           style={{ textIndent: "8px" }}
-          className="h-[39px] min-w-[100px] appearance-none rounded-[8px] border border-white/[0.08] bg-[#030D19] pr-8 text-[11px] text-slate-300 outline-none focus:border-[#4F8CFF]/40"
+          className="h-[39px] min-w-[100px] appearance-none rounded-[8px] border border-white/[0.08] bg-[#030D19] pr-8 text-[11px] text-slate-300 outline-none focus:border-[#4F8CFF]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#78A9FF]"
         >
           <option value="ALL">All Plans</option>
           <option value="TRIAL">Trial</option>
@@ -4291,25 +4816,25 @@ className="
 
                   <thead>
                     <tr className="h-[30px] border-b border-white/[0.07] bg-[#091827]">
-                    <th className="px-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-  <span className="relative left-14">User</span>
-</th>
-                      <th className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                      <th scope="col" className="px-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        <span className="relative left-14">User</span>
+                      </th>
+                      <th scope="col" className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                         Registered
                       </th>
-                      <th className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                      <th scope="col" className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                         Verification
                       </th>
-                      <th className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-  <span className="relative -left-2">Account Status</span>
-</th>
-                      <th className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                      <th scope="col" className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        <span className="relative -left-2">Account Status</span>
+                      </th>
+                      <th scope="col" className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                         Plan
                       </th>
-                      <th className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-  <span className="relative -left-1">Last Active</span>
-</th>
-                      <th className="px-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                      <th scope="col" className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        <span className="relative -left-1">Last Active</span>
+                      </th>
+                      <th scope="col" className="px-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                         Action
                       </th>
                     </tr>
@@ -4322,7 +4847,7 @@ className="
                       return (
                         <tr
                           key={user.id}
-className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
+                          className={`group h-[44px] border-b border-white/[0.045]
   transition-all
   duration-200
   ease-[cubic-bezier(0.22,1,0.36,1)]
@@ -4335,11 +4860,16 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
       : "hover:bg-[#10243A]/75 hover:shadow-[inset_2px_0_0_rgba(79,140,255,0.65),0_3px_10px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.025)]"
   }
 `}
-                          onClick={() => setSelectedUserId(user.id)}
                         >
                           {/* USER */}
                           <td className="px-4">
-                            <div className="relative left-2 flex min-w-0 items-center gap-3">
+                            <button
+                              type="button"
+                              aria-label={`Select ${user.name}`}
+                              aria-pressed={isSelected}
+                              onClick={() => setSelectedUserId(user.id)}
+                              className="relative left-2 flex min-w-0 w-full cursor-pointer items-center gap-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#78A9FF]"
+                            >
                               <div
                                 className={`flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold ${getAvatarStyle(user.name)}`}
                               >
@@ -4347,14 +4877,14 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
                               </div>
 
                               <div className="min-w-0">
-                               <p className="truncate text-[12px] font-semibold text-slate-200 transition-colors duration-150 group-hover:text-white">
-  {user.name}
-</p>
+                                <p className="truncate text-[12px] font-semibold text-slate-200 transition-colors duration-150 group-hover:text-white">
+                                  {user.name}
+                                </p>
                                 <p className="mt-0.5 truncate text-[11px] text-slate-500">
                                   {user.email}
                                 </p>
                               </div>
-                            </div>
+                            </button>
                           </td>
 
                           {/* REGISTERED */}
@@ -4384,9 +4914,9 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
                           </td>
 
                           {/* STATUS */}
-                          <td className="whitespace-nowrap px-2">
-                            <StatusBadge status={user.status} />
-                          </td>
+<td className="whitespace-nowrap px-2">
+  <StatusBadge status={resolveAdminPreviewDisplayStatus(user)} />
+</td>
 
                          {/* PLAN */}
 <td className="whitespace-nowrap px-2">
@@ -4405,10 +4935,7 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
                                 type="button"
                                 title={`View ${user.name}`}
                                 aria-label={`View ${user.name}`}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  setSelectedUserId(user.id);
-                                }}
+                                 onClick={() => setSelectedUserId(user.id)}
                                 className={`inline-flex h-[29px] w-[29px] items-center justify-center rounded-[6px] border transition-colors ${
                                   isSelected
                                     ? "border-[#4F8CFF]/30 bg-[#4F8CFF]/[0.10] text-[#8DB8FF]"
@@ -4449,7 +4976,12 @@ className={`group h-[44px] cursor-pointer border-b border-white/[0.045]
 
   {/* RESULTS COUNT */}
 
-  <p className="relative left-2 text-[11px] text-slate-500">
+  <p
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    className="relative left-2 text-[11px] text-slate-500"
+  >
     Showing {filteredUsers.length === 0 ? 0 : startIndex + 1}
     {"–"}
     {endIndex} of {filteredUsers.length} accounts

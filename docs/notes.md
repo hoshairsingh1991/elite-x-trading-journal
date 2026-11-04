@@ -584,7 +584,7 @@ git commit -m "feat(admin): add user management UI foundation"
 git commit -m "feat(admin): refine user details panel UI"
 git commit -m "feat(admin): refine user details panel UI"
 git commit -m "fix(admin): correct lifecycle and access preview logic"
-
+git commit -m "fix(admin): refine lifecycle preview states"
 
 
 
