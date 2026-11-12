@@ -48,7 +48,7 @@ function formatTime(
 }
 
 export default function DailyReviewTradeActivity({
-  selectedTrades,
+  activityTrades,
   reportingCurrency,
 }: DailyReviewTradeActivityProps) {
 
@@ -66,6 +66,7 @@ const [
   side?: string;
   pnl: number;
   currency: string;
+  isOpen: boolean;
 } | null>(null);
 
   const [
@@ -78,7 +79,7 @@ const [
 
   const activity = useMemo(() => {
 
-    return selectedTrades
+    return activityTrades
       .map(
         (
           trade,
@@ -115,7 +116,7 @@ const [
         (
           item
         ): item is {
-          trade: typeof selectedTrades[number];
+          trade: typeof activityTrades[number];
           timestamp: Date;
           index: number;
         } =>
@@ -144,9 +145,9 @@ const [
         }
       );
 
-  }, [
-    selectedTrades,
-  ]);
+}, [
+  activityTrades,
+]);
 
   const minTime =
     activity.length > 0
@@ -204,17 +205,18 @@ const [
       );
     };
 
-  const absolutePnLs =
-    activity.map(
-      (
-        item
-      ) =>
-        Math.abs(
-          Number(
-            item.trade.pnl || 0
-          )
-        )
-    );
+const absolutePnLs =
+  activity.map((item) => {
+    const isOpenTrade =
+      item.trade.isOpen ||
+      item.trade.status === "OPEN";
+
+    return isOpenTrade
+      ? 0
+      : Math.abs(
+          Number(item.trade.pnl || 0)
+        );
+  });
 
   const maxAbsolutePnL =
     Math.max(
@@ -305,30 +307,35 @@ const [
     item: typeof activity[number]
   ) => {
 
-    const pnl =
-      Number(
-        item.trade.pnl ||
-        0
-      );
+    const isOpenTrade =
+      item.trade.isOpen ||
+      item.trade.status === "OPEN";
 
-setHoveredTrade({
-  ticker:
-    item.trade.ticker ||
-    "Unknown",
-  time:
-    item.timestamp,
-  side:
-    item.trade.assetType === "Options"
-      ? item.trade.contractKey?.endsWith("_C")
-        ? "CALL"
-        : item.trade.contractKey?.endsWith("_P")
-          ? "PUT"
-          : "OPTION"
-      : item.trade.side,
-  pnl,
-currency:
-  reportingCurrency,
-});
+    const pnl = isOpenTrade
+      ? 0
+      : Number(
+          item.trade.pnl || 0
+        );
+
+    setHoveredTrade({
+      ticker:
+        item.trade.ticker ||
+        "Unknown",
+      time:
+        item.timestamp,
+      side:
+        item.trade.assetType === "Options"
+          ? item.trade.contractKey?.endsWith("_C")
+            ? "CALL"
+            : item.trade.contractKey?.endsWith("_P")
+              ? "PUT"
+              : "OPTION"
+          : item.trade.side,
+      pnl,
+      currency:
+        reportingCurrency,
+      isOpen: isOpenTrade,
+    });
   };
 
 
@@ -473,7 +480,7 @@ currency:
             text-slate-500
           "
         >
-          {selectedTrades.length} Trades
+          {activityTrades.length} Trades
         </span>
 
       </div>
@@ -575,56 +582,52 @@ currency:
             item
           ) => {
 
-            const pnl =
-              Number(
-                item.trade.pnl ||
-                0
-              );
+const isOpen =
+  item.trade.isOpen ||
+  item.trade.status === "OPEN";
 
-            const left =
-              getLeft(
-                item.timestamp
-              );
+const pnl = isOpen
+  ? 0
+  : Number(
+      item.trade.pnl || 0
+    );
 
-            const size =
-              8 +
-              Math.min(
-                6,
-                (
-                  Math.sqrt(
-                    Math.abs(
-                      pnl
-                    ) /
-                    maxAbsolutePnL
-                  ) * 6
-                )
-              );
+const left =
+  getLeft(
+    item.timestamp
+  );
 
-            const isOpen =
-              item.trade.status ===
-              "OPEN";
+const size =
+  8 +
+  Math.min(
+    6,
+    Math.sqrt(
+      Math.abs(pnl) /
+      maxAbsolutePnL
+    ) * 6
+  );
 
-            const isWinner =
-              pnl > 0;
+const isWinner =
+  !isOpen && pnl > 0;
 
-            const isLoser =
-              pnl < 0;
+const isLoser =
+  !isOpen && pnl < 0;
 
-            const markerClass =
-              isOpen
-                ? "border-amber-400 bg-amber-400/20"
-                : isWinner
-                  ? "border-emerald-400 bg-emerald-400/25"
-                  : isLoser
-                    ? "border-red-400 bg-red-400/25"
-                    : "border-slate-500 bg-slate-500/20";
+const markerClass =
+  isOpen
+    ? "border-amber-400 bg-amber-400/20"
+    : isWinner
+      ? "border-emerald-400 bg-emerald-400/25"
+      : isLoser
+        ? "border-red-400 bg-red-400/25"
+        : "border-slate-500 bg-slate-500/20";
 
-            const markerY =
-              isWinner
-                ? 28
-                : isLoser
-                  ? 66
-                  : 48;
+const markerY =
+  isWinner
+    ? 28
+    : isLoser
+      ? 66
+      : 48;
 
             return (
               <div
@@ -745,13 +748,13 @@ onMouseLeave={() => {
     text-slate-500
   "
 >
-                {formatTime(
-                  hoveredTrade.time
-                )}
-                {" · "}
-                {hoveredTrade.side ||
-                  "N/A"}
-              </div>
+  {formatTime(
+    hoveredTrade.time
+  )}
+  {" · "}
+  {hoveredTrade.side ||
+    "N/A"}
+</div>
 
 <div
   className={`
@@ -759,26 +762,22 @@ onMouseLeave={() => {
     font-bold
     leading-[12px]
     ${
-      hoveredTrade.pnl > 0
-        ? "text-emerald-400"
-        : hoveredTrade.pnl < 0
-          ? "text-red-400"
-          : "text-slate-400"
+      hoveredTrade.isOpen
+        ? "text-amber-400"
+        : hoveredTrade.pnl > 0
+          ? "text-emerald-400"
+          : hoveredTrade.pnl < 0
+            ? "text-red-400"
+            : "text-slate-400"
     }
   `}
 >
-{hoveredTrade.pnl > 0
-  ? "+"
-  : hoveredTrade.pnl < 0
-    ? "-"
-    : ""}
-{getCurrencySymbol(
-  hoveredTrade.currency
-)}
-{Math.abs(
-  hoveredTrade.pnl
-).toFixed(2)}
-              </div>
+  {hoveredTrade.isOpen
+    ? "OPEN"
+    : `${hoveredTrade.pnl > 0 ? "+" : hoveredTrade.pnl < 0 ? "-" : ""}${getCurrencySymbol(
+        hoveredTrade.currency
+      )}${Math.abs(hoveredTrade.pnl).toFixed(2)}`}
+</div>
 
             </div>
           )}

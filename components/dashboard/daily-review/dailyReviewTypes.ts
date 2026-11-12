@@ -52,6 +52,8 @@ export interface DailyReviewKpisProps {
 
   selectedTrades: Trade[];
 
+  totalTradeCount: number;
+
   reportingCurrency: string;
 
 }
@@ -66,7 +68,7 @@ export interface DailyReviewPerformanceProps {
 
 export interface DailyReviewTradeActivityProps {
 
-  selectedTrades: Trade[];
+  activityTrades: Trade[];
 
   reportingCurrency: string;
 

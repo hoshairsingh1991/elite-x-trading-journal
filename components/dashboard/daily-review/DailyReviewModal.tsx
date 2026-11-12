@@ -122,6 +122,13 @@ const filteredSelectedTrades =
           selectedAccount
       );
 
+const realizedSelectedTrades =
+  filteredSelectedTrades.filter(
+    (trade) =>
+      !trade.isOpen &&
+      trade.status !== "OPEN"
+  );
+
 const [
   selectedTrade,
   setSelectedTrade,
@@ -136,6 +143,28 @@ const [
 ] = useState(
   filteredSelectedTrades.length > 0
 );
+
+useEffect(() => {
+  const nextSelectedTrades =
+    selectedAccount === "ALL"
+      ? selectedTrades
+      : selectedTrades.filter(
+          (trade) =>
+            trade.account?.trim() ===
+            selectedAccount
+        );
+
+  setSelectedTrade(
+    nextSelectedTrades[0] ?? null
+  );
+
+}, [
+  selectedDay,
+  currentMonth,
+  currentYear,
+  selectedAccount,
+  selectedTrades,
+]);
 
 const [
   reviewedTradeKeys,
@@ -608,7 +637,10 @@ ${
 
 <DailyReviewKpis
   selectedTrades={
-    filteredSelectedTrades
+    realizedSelectedTrades
+  }
+  totalTradeCount={
+    filteredSelectedTrades.length
   }
   reportingCurrency={
     reportingCurrency
@@ -648,7 +680,7 @@ ${
                     >
 
 <DailyReviewTradeActivity
-  selectedTrades={
+  activityTrades={
     filteredSelectedTrades
   }
   reportingCurrency={
@@ -657,9 +689,9 @@ ${
 />
 
 <DailyReviewInsights
-  selectedTrades={
-    filteredSelectedTrades
-  }
+selectedTrades={
+  realizedSelectedTrades
+}
   reportingCurrency={
     reportingCurrency
   }
@@ -684,9 +716,9 @@ ${
                     </div>
 
 <DailyReviewSecondaryMetrics
-  selectedTrades={
-    filteredSelectedTrades
-  }
+selectedTrades={
+  realizedSelectedTrades
+}
   reportingCurrency={
     reportingCurrency
   }
@@ -720,9 +752,9 @@ ${
                     >
 
 <DailyReviewBreakdown
-  selectedTrades={
-    filteredSelectedTrades
-  }
+selectedTrades={
+  realizedSelectedTrades
+}
   reportingCurrency={
     reportingCurrency
   }

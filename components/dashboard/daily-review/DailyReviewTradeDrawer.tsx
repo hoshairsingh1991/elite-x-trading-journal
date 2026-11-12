@@ -457,109 +457,74 @@ const previewQuantityUnit =
         assetType
       ] ?? "Unit";
 
+const isOpenTrade =
+  trade.isOpen ||
+  trade.status === "OPEN";
+
 const pnl =
   Number(
     trade.pnl || 0
   );
 
 const calculatedPnlPercent =
+  !isOpenTrade &&
   trade.entryPrice != null &&
   trade.exitPrice != null &&
-  Number(
-    trade.entryPrice
-  ) !== 0
+  Number(trade.entryPrice) !== 0
     ? trade.side === "SHORT"
       ? (
           (
-            Number(
-              trade.entryPrice
-            ) -
-            Number(
-              trade.exitPrice
-            )
+            Number(trade.entryPrice) -
+            Number(trade.exitPrice)
           ) /
-          Number(
-            trade.entryPrice
-          )
+          Number(trade.entryPrice)
         ) * 100
       : (
           (
-            Number(
-              trade.exitPrice
-            ) -
-            Number(
-              trade.entryPrice
-            )
+            Number(trade.exitPrice) -
+            Number(trade.entryPrice)
           ) /
-          Number(
-            trade.entryPrice
-          )
+          Number(trade.entryPrice)
         ) * 100
     : null;
 
 const pnlPercent =
+  !isOpenTrade &&
   trade.pnlPercent != null &&
   Number.isFinite(
-    Number(
-      trade.pnlPercent
-    )
+    Number(trade.pnlPercent)
   )
-    ? Number(
-        trade.pnlPercent
-      )
+    ? Number(trade.pnlPercent)
     : calculatedPnlPercent;
 
-  /*
-   * Buy / Sell commissions are derived directly from
-   * canonical executions.
-   */
-  const buyCommission =
-    trade.executions
-      ?.filter(
-        (
-          execution
-        ) =>
-          execution.action ===
-          "BUY"
-      )
-      .reduce(
-        (
-          total,
-          execution
-        ) =>
-          total +
-          Number(
-            execution.fees || 0
-          ),
-        0
-      ) ??
-    0;
+// =================================================
+// ALLOCATED TRADE COMMISSIONS
+// =================================================
 
-  const sellCommission =
-    trade.executions
-      ?.filter(
-        (
-          execution
-        ) =>
-          execution.action ===
-          "SELL"
-      )
-      .reduce(
-        (
-          total,
-          execution
-        ) =>
-          total +
-          Number(
-            execution.fees || 0
-          ),
-        0
-      ) ??
-    0;
+// These values come from pairTrades().
+// Never sum original execution fees here.
 
-  const totalCommission =
-    buyCommission +
-    sellCommission;
+const entryCommission =
+  Number(trade.entryFees ?? 0);
+
+const exitCommission =
+  Number(trade.exitFees ?? 0);
+
+// LONG:  BUY = entry, SELL = exit
+// SHORT: SELL = entry, BUY = exit
+
+const buyCommission =
+  trade.side === "LONG"
+    ? entryCommission
+    : exitCommission;
+
+const sellCommission =
+  trade.side === "LONG"
+    ? exitCommission
+    : entryCommission;
+
+const totalCommission =
+  entryCommission + exitCommission;
 
   const grossPnL =
     pnl +
@@ -1156,24 +1121,28 @@ className="
 
                   <div
                     className={`mt-2 text-[16px] font-semibold ${
-                      isPositive
-                        ? "text-emerald-400"
-                        : isNegative
-                          ? "text-red-400"
-                          : "text-white"
+                      isOpenTrade
+                        ? "text-slate-500"
+                        : isPositive
+                          ? "text-emerald-400"
+                          : isNegative
+                            ? "text-red-400"
+                            : "text-white"
                     }`}
                   >
-{pnl > 0
-  ? "+"
-  : pnl < 0
-    ? "-"
-    : ""}
-{currencySymbol}
-{Math.abs(
-  pnl
-).toFixed(
-  2
-)}
+                    {isOpenTrade ? (
+                      "—"
+                    ) : (
+                      <>
+                        {pnl > 0
+                          ? "+"
+                          : pnl < 0
+                            ? "-"
+                            : ""}
+                        {currencySymbol}
+                        {Math.abs(pnl).toFixed(2)}
+                      </>
+                    )}
                   </div>
 
                 </div>
@@ -1312,25 +1281,33 @@ className="
                 {/* RIGHT — PERFORMANCE */}
 
                 <div className="pl-4">
-                  <PreviewRow
-                    label="Gross P&L"
-                    value={`${
-                      grossPnL > 0
-                        ? "+"
-                        : grossPnL < 0
-                          ? "-"
-                          : ""
-                    }${currencySymbol}${Math.abs(
-                      grossPnL
-                    ).toFixed(2)}`}
-                    positive={grossPnL > 0}
-                    valueClassName={
-                      grossPnL < 0
-                        ? "!text-red-400"
-                        : ""
-                    }
-                    labelClassName="translate-x-[10px]"
-                  />
+<PreviewRow
+  label="Gross P&L"
+  value={
+    isOpenTrade
+      ? "—"
+      : `${
+          grossPnL > 0
+            ? "+"
+            : grossPnL < 0
+              ? "-"
+              : ""
+        }${currencySymbol}${Math.abs(
+          grossPnL
+        ).toFixed(2)}`
+  }
+  positive={
+    !isOpenTrade &&
+    grossPnL > 0
+  }
+  valueClassName={
+    !isOpenTrade &&
+    grossPnL < 0
+      ? "!text-red-400"
+      : ""
+  }
+  labelClassName="translate-x-[10px]"
+/>
 
                   <div className="translate-y-[4px]">
                     <PreviewRow
@@ -1418,7 +1395,7 @@ className="
                   Position Impact
                 </div>
 
-                {trade.status === "OPEN" ? (
+                {isOpenTrade ? (
                   <>
                     <div className="translate-y-[2px]">
 

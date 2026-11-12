@@ -148,10 +148,24 @@ executions?: NormalizedExecution[];
   // PERFORMANCE
   // =================================================
 
-  pnl: number;
+pnl: number;
 
 pnlPercent?: number;
 
+/**
+ * Commission allocated to this trade's entry execution(s).
+ */
+entryFees?: number;
+
+/**
+ * Commission allocated to this trade's exit execution(s).
+ * Zero for open positions.
+ */
+exitFees?: number;
+
+/**
+ * Total allocated commission: entryFees + exitFees.
+ */
 fees: number;
 
 currency:

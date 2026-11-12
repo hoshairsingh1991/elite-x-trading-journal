@@ -321,10 +321,15 @@ function moveSelectedDate(direction: number) {
   // MONTH TRADES
   // =====================================================
 
+const realizedTrades = useMemo(
+  () => trades.filter((trade) => !trade.isOpen),
+  [trades]
+);
+
   const currentMonthTrades =
     useMemo(() => {
 
-      return trades.filter(
+      return realizedTrades.filter(
         (trade) => {
 
           const effectiveDate =
@@ -352,45 +357,55 @@ const tradeDate =
         }
       );
     }, [
-      trades,
-      currentMonth,
-      currentYear,
-    ]);
+  realizedTrades,
+  currentMonth,
+  currentYear,
+]);
 
-  // =====================================================
-  // TRADES BY DAY
-  // =====================================================
+// =====================================================
+// TRADES BY DAY
+// =====================================================
 
-  const tradesByDate:
-    Record<
-      string,
-      {
-        pnl: number;
-        trades: number;
-      }
-    > = {};
+const tradesByDate: Record<
+  string,
+  {
+    pnl: number;
+    trades: number;
+  }
+> = {};
 
-  trades.forEach(
-    (trade) => {
-const tradeDate =
-  parseLocalDate(trade.date);
+trades.forEach((trade) => {
+  const isOpenTrade =
+    trade.isOpen ||
+    trade.status === "OPEN";
 
-      const dateKey =
-        formatDateKey(tradeDate);
+  const effectiveDate =
+    isOpenTrade
+      ? (trade.openedAt || trade.date)
+      : (trade.closedAt || trade.date);
 
-      if (!tradesByDate[dateKey]) {
-        tradesByDate[dateKey] = {
-          pnl: 0,
-          trades: 0,
-        };
-      }
+  const tradeDate =
+    parseLocalDate(effectiveDate);
 
-      tradesByDate[dateKey].pnl +=
-        Number(trade.pnl || 0);
+  const dateKey =
+    formatDateKey(tradeDate);
 
-      tradesByDate[dateKey].trades += 1;
-    }
-  );
+  if (!tradesByDate[dateKey]) {
+    tradesByDate[dateKey] = {
+      pnl: 0,
+      trades: 0,
+    };
+  }
+
+  // Count both open and closed trades.
+  tradesByDate[dateKey].trades += 1;
+
+  // Only closed trades contribute to realized P&L.
+  if (!isOpenTrade) {
+    tradesByDate[dateKey].pnl +=
+      Number(trade.pnl || 0);
+  }
+});
 
 // =====================================================
 // SELECTED DAY TRADES
@@ -403,8 +418,13 @@ const selectedTrades =
         return false;
       }
 
-const tradeDate =
-  parseLocalDate(trade.date);
+      const effectiveDate =
+        trade.isOpen
+          ? (trade.openedAt || trade.date)
+          : (trade.closedAt || trade.date);
+
+      const tradeDate =
+        parseLocalDate(effectiveDate);
 
       return (
         formatDateKey(tradeDate) ===
@@ -457,23 +477,24 @@ const tradeDate =
         )
       : 0;
 
-  // =====================================================
-  // MONTH STATS
-  // =====================================================
+// =====================================================
+// MONTH STATS
+// =====================================================
 
-  const monthlyPnL =
-    currentMonthTrades.reduce(
-      (sum, trade) =>
-        sum +
-        Number(trade.pnl || 0),
-      0
-    );
+// Realized P&L only — open positions remain excluded.
+const monthlyPnL =
+  currentMonthTrades.reduce(
+    (sum, trade) =>
+      sum +
+      Number(trade.pnl || 0),
+    0
+  );
 
-  const tradingDays =
-  Object.keys(
-  tradesByDate
-).length;
+// Includes days with either open or closed trades.
+const tradingDays =
+  Object.keys(tradesByDate).length;
 
+// Includes both open and closed trades.
 const totalTrades =
   trades.length;
 

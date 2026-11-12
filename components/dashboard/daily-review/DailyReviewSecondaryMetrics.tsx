@@ -168,36 +168,39 @@ export default function DailyReviewSecondaryMetrics({
 
   /*
    * -------------------------------------------------------
+   * CLOSED TRADES
+   * -------------------------------------------------------
+   */
+
+  const closedTrades =
+    selectedTrades.filter(
+      (trade) =>
+        !trade.isOpen &&
+        trade.status !== "OPEN"
+    );
+
+  /*
+   * -------------------------------------------------------
    * BASIC PERFORMANCE
    * -------------------------------------------------------
    */
 
   const totalTrades =
-    selectedTrades.length;
+    closedTrades.length;
 
   const netPnL =
-    selectedTrades.reduce(
-      (
-        sum,
-        trade
-      ) =>
+    closedTrades.reduce(
+      (sum, trade) =>
         sum +
-        Number(
-          trade.pnl || 0
-        ),
+        Number(trade.pnl || 0),
       0
     );
 
   const totalFees =
-    selectedTrades.reduce(
-      (
-        sum,
-        trade
-      ) =>
+    closedTrades.reduce(
+      (sum, trade) =>
         sum +
-        Number(
-          trade.fees || 0
-        ),
+        Number(trade.fees || 0),
       0
     );
 
@@ -215,38 +218,20 @@ export default function DailyReviewSecondaryMetrics({
    * -------------------------------------------------------
    */
 
-  const closedTrades =
-    selectedTrades.filter(
-      (
-        trade
-      ) =>
-        trade.status !==
-        "OPEN"
-    );
-
   const sortedTrades =
     [...closedTrades].sort(
-      (
-        a,
-        b
-      ) =>
-        Number(
-          b.pnl || 0
-        ) -
-        Number(
-          a.pnl || 0
-        )
+      (a, b) =>
+        Number(b.pnl || 0) -
+        Number(a.pnl || 0)
     );
 
   const bestTrade =
-    sortedTrades[0] ??
-    null;
+    sortedTrades[0] ?? null;
 
   const worstTrade =
     sortedTrades[
       sortedTrades.length - 1
-    ] ??
-    null;
+    ] ?? null;
 
   /*
    * -------------------------------------------------------
@@ -256,53 +241,34 @@ export default function DailyReviewSecondaryMetrics({
 
   const winningTrades =
     closedTrades.filter(
-      (
-        trade
-      ) =>
-        Number(
-          trade.pnl || 0
-        ) > 0
+      (trade) =>
+        Number(trade.pnl || 0) > 0
     );
 
   const losingTrades =
     closedTrades.filter(
-      (
-        trade
-      ) =>
-        Number(
-          trade.pnl || 0
-        ) < 0
+      (trade) =>
+        Number(trade.pnl || 0) < 0
     );
+
   const averageWinner =
     winningTrades.length > 0
       ? winningTrades.reduce(
-          (
-            sum,
-            trade
-          ) =>
+          (sum, trade) =>
             sum +
-            Number(
-              trade.pnl || 0
-            ),
+            Number(trade.pnl || 0),
           0
-        ) /
-        winningTrades.length
+        ) / winningTrades.length
       : null;
 
   const averageLoser =
     losingTrades.length > 0
       ? losingTrades.reduce(
-          (
-            sum,
-            trade
-          ) =>
+          (sum, trade) =>
             sum +
-            Number(
-              trade.pnl || 0
-            ),
+            Number(trade.pnl || 0),
           0
-        ) /
-        losingTrades.length
+        ) / losingTrades.length
       : null;
 
   /*
@@ -312,16 +278,11 @@ export default function DailyReviewSecondaryMetrics({
    */
 
   const totalVolume =
-    selectedTrades.reduce(
-      (
-        sum,
-        trade
-      ) =>
+    closedTrades.reduce(
+      (sum, trade) =>
         sum +
         Math.abs(
-          Number(
-            trade.quantity || 0
-          )
+          Number(trade.quantity || 0)
         ),
       0
     );

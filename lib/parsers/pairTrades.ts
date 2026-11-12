@@ -1,3 +1,5 @@
+import Decimal from "decimal.js";
+
 import {
   NormalizedExecution,
   Trade,
@@ -19,12 +21,15 @@ interface PositionExecution
   remainingQuantity?: number;
 
   /**
-   * Remaining portion of this entry execution's fees
-   * that has not yet been allocated to realized trades.
+   * Remaining commission balance for this working execution
+   * that has not yet been allocated to matched trades.
    *
-   * This is used for MANUAL lifecycles only.
+   * Applies to both BROKER and MANUAL executions.
    *
-   * Broker behavior remains unchanged.
+   * This is internal FIFO accounting state.
+   *
+   * The original NormalizedExecution.fees value must remain
+   * unchanged and must never be used as a mutable fee balance.
    */
   remainingFees?: number;
 
@@ -46,24 +51,73 @@ function getExecutionDateTime(
 }
 
 // =================================================
-// MANUAL LIFECYCLE DETECTION
-// =================================================
-//
-// Current Manual Entry executions are identified by
-// their MANUAL-* contract key.
-//
-// This allows fee allocation to be isolated to
-// Manual Entry without changing broker behavior.
+// EXECUTION COMMISSION ALLOCATION
 // =================================================
 
-function isManualExecution(
-  execution: PositionExecution
-): boolean {
+/**
+ * Allocates commission from an execution's remaining
+ * commission balance according to the matched quantity.
+ *
+ * Applies consistently to BROKER and MANUAL executions.
+ *
+ * The final allocation consumes the remaining balance
+ * to prevent floating-point allocation residue.
+ *
+ * Mutates only the internal FIFO working execution.
+ * Original normalized execution fees remain unchanged.
+ */
+function allocateRemainingExecutionFees(
+  execution: PositionExecution,
+  consumeQuantity: number,
+  availableQuantity: number
+): Decimal {
 
-  return (
-    typeof execution.contractKey === "string" &&
-    execution.contractKey.startsWith("MANUAL-")
+  if (
+    !Number.isFinite(consumeQuantity) ||
+    consumeQuantity <= 0
+  ) {
+    throw new Error(
+      "Commission allocation requires a positive consumed quantity."
+    );
+  }
+
+  if (
+    !Number.isFinite(availableQuantity) ||
+    availableQuantity <= EPSILON
+  ) {
+    throw new Error(
+      "Commission allocation requires a positive available quantity."
+    );
+  }
+
+  if (
+    consumeQuantity > availableQuantity + EPSILON
+  ) {
+    throw new Error(
+      "Consumed quantity cannot exceed available quantity."
+    );
+  }
+
+  const remainingFees = new Decimal(
+    execution.remainingFees ?? execution.fees
   );
+
+  const allocatedFees =
+    consumeQuantity >= availableQuantity - EPSILON
+      ? remainingFees
+      : remainingFees
+          .mul(consumeQuantity)
+          .div(availableQuantity);
+
+  const unallocatedFees =
+    remainingFees.minus(allocatedFees);
+
+  execution.remainingFees =
+    unallocatedFees.isNegative()
+      ? 0
+      : unallocatedFees.toNumber();
+
+  return allocatedFees;
 }
 
 // =================================================
@@ -193,91 +247,63 @@ function createClosedTrade(
   entryExecution: PositionExecution,
   exitExecution: PositionExecution,
   consumeQuantity: number,
+  availableExitQuantity: number,
   positionSide: "LONG" | "SHORT",
   index: number
 ): Trade {
 
-  const priceDifference =
-    positionSide === "LONG"
+const priceDifference =
+  positionSide === "LONG"
+    ? new Decimal(exitExecution.executionPrice)
+        .minus(entryExecution.executionPrice)
+    : new Decimal(entryExecution.executionPrice)
+        .minus(exitExecution.executionPrice);
 
-      ? (
-          exitExecution.executionPrice -
-          entryExecution.executionPrice
-        )
+const availableEntryQuantity =
+  entryExecution.remainingQuantity ??
+  entryExecution.quantity;
 
-      : (
-          entryExecution.executionPrice -
-          exitExecution.executionPrice
-        );
-
-const manualEntry =
-  isManualExecution(
-    entryExecution
+// Allocate entry commission proportionally.
+// This applies to both BROKER and MANUAL executions.
+const allocatedEntryFees =
+  allocateRemainingExecutionFees(
+    entryExecution,
+    consumeQuantity,
+    availableEntryQuantity
   );
 
-const availableEntryFees =
-  entryExecution.remainingFees ??
-  entryExecution.fees;
-
-/**
- * Manual Entry:
- *
- * The entry execution fee belongs to the entire
- * original entry quantity, so FIFO must allocate
- * only the portion consumed by this match.
- *
- * Broker:
- *
- * Preserve the current behavior exactly.
- */
-const allocatedEntryFees =
-  manualEntry
-    ? Math.abs(
-        entryExecution.remainingQuantity ??
-        entryExecution.quantity
-      ) < EPSILON ||
-      consumeQuantity >=
-        (
-          entryExecution.remainingQuantity ??
-          entryExecution.quantity
-        ) - EPSILON
-      ? availableEntryFees
-      : availableEntryFees *
-        (
-          consumeQuantity /
-          (
-            entryExecution.remainingQuantity ??
-            entryExecution.quantity
-          )
-        )
-    : entryExecution.fees;
+const allocatedExitFees =
+  allocateRemainingExecutionFees(
+    exitExecution,
+    consumeQuantity,
+    availableExitQuantity
+  );
 
 const realizedFees =
-  allocatedEntryFees +
-  exitExecution.fees;
+  allocatedEntryFees.plus(
+    allocatedExitFees
+  );
 
 const realizedPnL =
-  (
-    priceDifference *
-    consumeQuantity *
-    exitExecution.multiplier
-  ) -
-  realizedFees;
+  priceDifference
+    .mul(consumeQuantity)
+    .mul(exitExecution.multiplier)
+    .minus(realizedFees);
 
   let status:
     | "WIN"
     | "LOSS"
     | "BREAKEVEN";
 
-  if (
-    realizedPnL > 0
-  ) {
+if (
+  realizedPnL.greaterThan(0)
+) {
 
     status = "WIN";
 
-  } else if (
-    realizedPnL < 0
-  ) {
+} else if (
+  realizedPnL.lessThan(0)
+) {
 
     status = "LOSS";
 
@@ -353,15 +379,17 @@ const realizedPnL =
     // PERFORMANCE
     // =================================================
 
-    pnl:
-      Number(
-        realizedPnL.toFixed(2)
-      ),
+pnl:
+  realizedPnL.toNumber(),
+
+entryFees:
+  allocatedEntryFees.toNumber(),
+
+exitFees:
+  allocatedExitFees.toNumber(),
 
 fees:
-  Number(
-    realizedFees.toFixed(2)
-  ),
+  realizedFees.toNumber(),
 
     currency:
       exitExecution.currency,
@@ -502,6 +530,12 @@ function createOpenTrade(
 pnl:
   -remainingPositionFees,
 
+entryFees:
+  remainingPositionFees,
+
+exitFees:
+  0,
+
 fees:
   remainingPositionFees,
 
@@ -641,6 +675,9 @@ export function pairTrades(
         remainingQuantity:
           trade.quantity,
 
+        remainingFees:
+          trade.fees,
+
         executionPrice:
           trade.entryPrice,
 
@@ -682,10 +719,13 @@ export function pairTrades(
   // SORT EXECUTIONS
   // =================================================
 
-  const sortedExecutions =
-    [...executions].sort(
-      compareExecutions
-    );
+const sortedExecutions: PositionExecution[] =
+  [...executions]
+    .sort(compareExecutions)
+    .map((execution) => ({
+      ...execution,
+      remainingFees: execution.fees,
+    }));
 
   // =================================================
   // PROCESS EXECUTIONS
@@ -832,13 +872,14 @@ if (
         // =============================================
 
         finalTrades.push(
-          createClosedTrade(
-            entryExecution,
-            execution,
-            consumeQuantity,
-            closingSide,
-            index
-          )
+createClosedTrade(
+  entryExecution,
+  execution,
+  consumeQuantity,
+  remainingQuantity,
+  closingSide,
+  index
+)
         );
 
         // =============================================
@@ -856,35 +897,6 @@ if (
           availableQuantity -
           consumeQuantity;
 
-// =============================================
-// REDUCE REMAINING MANUAL ENTRY FEES
-// =============================================
-
-if (
-  isManualExecution(entryExecution)
-) {
-
-  const availableEntryFees =
-    entryExecution.remainingFees ??
-    entryExecution.fees;
-
-  const allocatedEntryFees =
-    consumeQuantity >=
-      availableQuantity - EPSILON
-      ? availableEntryFees
-      : availableEntryFees *
-        (
-          consumeQuantity /
-          availableQuantity
-        );
-
-  entryExecution.remainingFees =
-    Math.max(
-      0,
-      availableEntryFees -
-      allocatedEntryFees
-    );
-}
 
 
         // =============================================
@@ -934,22 +946,11 @@ if (
         EPSILON
       ) {
 
-const openingPosition:
-  PositionExecution = {
-
+const openingPosition: PositionExecution = {
   ...execution,
-
-  remainingQuantity:
-    remainingQuantity,
-
+  remainingQuantity,
   remainingFees:
-    isManualExecution(execution) &&
-    Math.abs(
-      remainingQuantity -
-      execution.quantity
-    ) < EPSILON
-      ? execution.fees
-      : undefined,
+    execution.remainingFees ?? execution.fees,
 };
 
         buckets[

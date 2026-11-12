@@ -181,20 +181,22 @@ function DailyReviewKpiCard({
 
 export default function DailyReviewKpis({
   selectedTrades,
+  totalTradeCount,
   reportingCurrency,
 }: DailyReviewKpisProps) {
 
 const closedTrades =
   selectedTrades.filter(
-    (
-      trade
-    ) =>
-      trade.status !==
-      "OPEN"
+    (trade) =>
+      !trade.isOpen &&
+      trade.status !== "OPEN"
   );
 
-const totalTrades =
+const realizedTradeCount =
   closedTrades.length;
+
+const totalTrades =
+  totalTradeCount;
 
   const netPnL =
     selectedTrades.reduce(
@@ -254,13 +256,13 @@ const totalTrades =
   const lossCount =
     losses.length;
 
-  const winRate =
-    totalTrades > 0
-      ? (
-          winCount /
-          totalTrades
-        ) * 100
-      : 0;
+const winRate =
+  realizedTradeCount > 0
+    ? (
+        winCount /
+        realizedTradeCount
+      ) * 100
+    : 0;
 
   /*
    * Daily Profit Factor

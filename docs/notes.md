@@ -585,8 +585,8 @@ git commit -m "feat(admin): refine user details panel UI"
 git commit -m "feat(admin): refine user details panel UI"
 git commit -m "fix(admin): correct lifecycle and access preview logic"
 git commit -m "fix(admin): refine lifecycle preview states"
-
-
+git commit -m "chore(checkpoint): preserve state before commission accounting fix"
+git commit -m "Fix commission allocation and daily review accounting"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

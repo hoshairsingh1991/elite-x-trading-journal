@@ -652,10 +652,14 @@ translate-x-1
                 index
               ) => {
 
-                const pnl =
-                  Number(
-                    trade.pnl || 0
-                  );
+               const isOpenTrade =
+  trade.isOpen ||
+  trade.status === "OPEN";
+
+const pnl =
+  Number(
+    trade.pnl || 0
+  );
 
 
                 const canEdit =
@@ -958,31 +962,37 @@ ${
   )}
 </td>
 
-                    {/* P&L */}
+{/* P&L */}
 
-                    <td
-                      className={`
-                        truncate
-                        px-1
-                        text-right
-                        -translate-x-1
-                        text-[11px]
-                        font-bold
-                        ${
-                          pnl >= 0
-                            ? "text-emerald-400"
-                            : "text-red-400"
-                        }
-                      `}
-                    >
-{pnl >= 0
-  ? "+"
-  : "-"}
-{formatCurrency(
-  Math.abs(pnl),
-  reportingCurrency
-)}
-                    </td>
+<td
+  className={`
+    truncate
+    px-1
+    text-right
+    -translate-x-1
+    text-[11px]
+    font-bold
+    ${
+      isOpenTrade
+        ? "text-slate-500"
+        : pnl >= 0
+          ? "text-emerald-400"
+          : "text-red-400"
+    }
+  `}
+>
+  {isOpenTrade ? (
+    "—"
+  ) : (
+    <>
+      {pnl >= 0 ? "+" : "-"}
+      {formatCurrency(
+        Math.abs(pnl),
+        reportingCurrency
+      )}
+    </>
+  )}
+</td>
 
 {/* COMMISSION */}
 

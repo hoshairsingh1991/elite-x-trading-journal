@@ -360,10 +360,7 @@ export async function parseIBKRCsv(
 
                       executionValue,
 
-                      fees:
-                        Number(
-                          fees.toFixed(2)
-                        ),
+                      fees,
 
                       currency,
 
