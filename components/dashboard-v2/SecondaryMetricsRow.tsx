@@ -1,36 +1,22 @@
-import {
+
+import { useId } from "react";
+import type { ReactNode } from "react";
+
+import type {
   PnLAnalyticsData,
 } from "@/lib/analytics/pnlAnalytics";
 
-import {
+import type {
   ConsistencyAnalyticsData,
 } from "@/lib/analytics/consistencyAnalytics";
 
-import {
+import type {
   EquityAnalyticsData,
 } from "@/lib/analytics/equityAnalytics";
 
-import {
+import type {
   SecondaryMetricsAnalyticsData,
 } from "@/lib/analytics/secondaryMetricsAnalytics";
-
-import {
-  Repeat,
-} from "lucide-react";
-
-import { Shield } from "lucide-react";
-
-import { BarChart3 } from "lucide-react";
-
-import { Crosshair } from "lucide-react";
-
-import { Target } from "lucide-react";
-
-import { LocateFixed } from "lucide-react";
-
-import { Activity } from "lucide-react";
-
-import { Flame } from "lucide-react";
 
 import MetricInfoTooltip from "./MetricInfoTooltip";
 
@@ -41,6 +27,339 @@ type SecondaryMetricsRowProps = {
   secondaryMetricsAnalytics: SecondaryMetricsAnalyticsData;
 };
 
+type KpiAccent = "emerald" | "cyan" | "red" | "slate";
+
+type KpiCardProps = {
+  label: string;
+  value: string | number;
+  detail: string;
+  accent: KpiAccent;
+  valueClassName?: string;
+  detailClassName?: string;
+  tooltip?: ReactNode;
+};
+
+const ACCENT_COLORS: Record<KpiAccent, string> = {
+  emerald: "#10B981",
+  cyan: "#0EA5E9",
+  red: "#EF4444",
+  slate: "#64748B",
+};
+
+/**
+ * Shared secondary KPI card.
+ *
+ * Card height is intentionally fixed at 90px.
+ * Do not replace with aspect-ratio-based sizing.
+ */
+function KpiCard({
+  label,
+  value,
+  detail,
+  accent,
+  valueClassName = "text-white",
+  detailClassName = "text-slate-200",
+  tooltip,
+}: KpiCardProps) {
+  const accentColor = ACCENT_COLORS[accent];
+
+  // Unique, SSR-safe SVG filter ID for each card instance.
+  const generatedId = useId();
+
+  const glowFilterId = `secondary-kpi-${generatedId.replace(
+    /:/g,
+    ""
+  )}-glow`;
+
+  return (
+    <article
+      aria-label={`${label}: ${value}. ${detail}`}
+      className="
+        group
+        relative
+        z-0
+        h-[90px]
+        min-w-0
+        rounded-[8px]
+        border
+        border-white/[0.08]
+        bg-[#0b1220]
+        transition-all
+        duration-300
+        ease-out
+        hover:z-[100]
+        hover:-translate-y-1
+        hover:border-white/[0.14]
+        hover:bg-[#0b0c1e]
+        hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
+        motion-reduce:transition-none
+        motion-reduce:hover:translate-y-0
+      "
+      style={{
+        containerType: "inline-size",
+      }}
+    >
+      {/* SUBTLE TOP LIGHTING */}
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          rounded-[8px]
+          bg-[radial-gradient(ellipse_at_50%_0%,rgba(56,130,180,0.10),transparent_70%)]
+        "
+      />
+
+{/* CONTENT */}
+
+<div
+  className="
+    relative
+    z-10
+    flex
+    h-full
+    min-w-0
+    flex-col
+    items-center
+    gap-[3px]
+    px-2
+    pt-[7px]
+    translate-y-[8px]
+  "
+>
+        {/* TITLE */}
+
+        <div
+          className="
+            flex
+            h-[14px]
+            max-w-full
+            shrink-0
+            items-center
+            justify-center
+            gap-[3px]
+          "
+        >
+          <p
+            title={label}
+            className="
+              max-w-full
+              truncate
+              whitespace-nowrap
+              text-center
+              font-medium
+              uppercase
+              leading-none
+              tracking-[0.10em]
+              text-slate-400
+            "
+            style={{
+              fontSize: "clamp(9px, 8cqi, 11px)",
+            }}
+          >
+            {label}
+          </p>
+
+          {tooltip}
+        </div>
+
+        {/* PRIMARY VALUE */}
+
+        <div
+          className="
+            mt-[8px]
+            flex
+            h-[24px]
+            w-full
+            shrink-0
+            items-center
+            justify-center
+            text-center
+          "
+        >
+          <p
+            title={String(value)}
+            className={`
+              max-w-full
+              truncate
+              whitespace-nowrap
+              text-center
+              font-semibold
+              leading-none
+              tracking-[-0.035em]
+              ${valueClassName}
+            `}
+            style={{
+              fontSize: "clamp(15px, 14cqi, 20px)",
+            }}
+          >
+            {value}
+          </p>
+        </div>
+
+        {/* DIVIDER */}
+
+        <div
+          aria-hidden="true"
+          className="
+            mt-[6px]
+            h-px
+            w-[52%]
+            shrink-0
+            bg-gradient-to-r
+            from-transparent
+            via-sky-300/25
+            to-transparent
+          "
+        />
+
+        {/* SECONDARY VALUE */}
+
+        <div
+          className="
+            mt-[7px]
+            flex
+            h-[15px]
+            w-full
+            shrink-0
+            items-center
+            justify-center
+            text-center
+          "
+        >
+          <p
+            title={detail}
+            className={`
+              max-w-full
+              truncate
+              whitespace-nowrap
+              text-center
+              font-medium
+              leading-none
+              ${detailClassName}
+            `}
+            style={{
+              fontSize: "clamp(10px, 8.8cqi, 12px)",
+            }}
+          >
+            {detail}
+          </p>
+        </div>
+      </div>
+
+      {/* BOTTOM WAVE */}
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          inset-x-0
+          bottom-0
+          z-0
+          h-[24px]
+          overflow-hidden
+          rounded-b-[8px]
+        "
+      >
+        <svg
+          viewBox="0 0 320 80"
+          preserveAspectRatio="none"
+          className="h-full w-full"
+        >
+          <defs>
+            {/* HOVER GLOW FILTER */}
+
+            <filter
+              id={glowFilterId}
+              x="-30%"
+              y="-100%"
+              width="160%"
+              height="300%"
+            >
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
+
+          {/* WAVE BACKGROUND */}
+
+          <path
+            d="
+              M0 43
+              C45 34 65 59 112 57
+              C165 54 188 30 231 29
+              C268 27 286 39 320 43
+              L320 80
+              L0 80
+              Z
+            "
+            fill={accentColor}
+            fillOpacity="0.13"
+          />
+
+          {/* ORIGINAL WAVE LINE */}
+
+          <path
+            d="
+              M0 43
+              C45 34 65 59 112 57
+              C165 54 188 30 231 29
+              C268 27 286 39 320 43
+            "
+            fill="none"
+            stroke={accentColor}
+            strokeOpacity="0.35"
+            strokeWidth="1.5"
+          />
+
+          {/* HOVER GLOW LAYER */}
+
+          <path
+            d="
+              M0 43
+              C45 34 65 59 112 57
+              C165 54 188 30 231 29
+              C268 27 286 39 320 43
+            "
+            fill="none"
+            stroke={accentColor}
+            strokeWidth="3"
+            strokeOpacity="0.55"
+            filter={`url(#${glowFilterId})`}
+            className="
+              opacity-0
+              transition-opacity
+              duration-300
+              ease-out
+              group-hover:opacity-100
+            "
+          />
+        </svg>
+      </div>
+
+      {/* BOTTOM ACCENT */}
+
+      <div
+        aria-hidden="true"
+        className="
+          absolute
+          inset-x-0
+          bottom-0
+          z-20
+          h-[4px]
+          rounded-b-[8px]
+          opacity-60
+        "
+        style={{
+          backgroundColor: accentColor,
+        }}
+      />
+    </article>
+  );
+}
+
 export default function SecondaryMetricsRow({
   pnlAnalytics,
   consistencyAnalytics,
@@ -48,887 +367,363 @@ export default function SecondaryMetricsRow({
   secondaryMetricsAnalytics,
 }: SecondaryMetricsRowProps) {
 
-  const streakLabel =
-    pnlAnalytics.streakType === "WINNING"
-      ? "Winning Days"
-      : "Losing Days";
+// ---------------------------------------------
+// TRADING ACTIVITY AVAILABILITY
+// ---------------------------------------------
 
-const streakColor =
+const hasTradingActivity =
+  pnlAnalytics.dailyPnL.length > 0;
+
+// ---------------------------------------------
+// STREAK
+// ---------------------------------------------
+
+const streakLabel =
   pnlAnalytics.streakType === "WINNING"
-    ? "text-emerald-400"
-    : "text-red-400";
+    ? "Winning Days"
+    : "Losing Days";
+
+const streakAccent: KpiAccent =
+  !hasTradingActivity
+    ? "slate"
+    : pnlAnalytics.streakType === "WINNING"
+      ? "emerald"
+      : "red";
+
+const streakDetailColor =
+  !hasTradingActivity
+    ? "text-slate-400"
+    : pnlAnalytics.streakType === "WINNING"
+      ? "text-slate-200"
+      : "text-red-300";
+
+// ---------------------------------------------
+// CONSISTENCY
+// ---------------------------------------------
 
 const consistencyScore =
   consistencyAnalytics.consistencyScore;
 
+const hasConsistencyScore =
+  consistencyScore !== null &&
+  Number.isFinite(consistencyScore);
+
 const consistencyLabel =
-  consistencyScore >= 80
-    ? "Excellent"
+  !hasConsistencyScore
+    ? "N/A"
+    : consistencyScore >= 80
+      ? "Excellent"
+      : consistencyScore >= 65
+        ? "Good"
+        : consistencyScore >= 50
+          ? "Fair"
+          : "Poor";
+
+const consistencyColor =
+  !hasConsistencyScore
+    ? "text-slate-400"
+    : consistencyScore >= 80
+      ? "text-emerald-400"
+      : consistencyScore >= 65
+        ? "text-green-400"
+        : consistencyScore >= 50
+          ? "text-sky-500"
+          : "text-red-400";
+
+const consistencyAccent: KpiAccent =
+  !hasConsistencyScore
+    ? "slate"
     : consistencyScore >= 65
-    ? "Good"
-    : consistencyScore >= 50
-    ? "Fair"
-    : "Poor";
+      ? "emerald"
+      : consistencyScore >= 50
+        ? "cyan"
+        : "red";
 
-let consistencyColor =
-  "text-red-400";
-
-if (
-  consistencyScore >= 80
-) {
-  consistencyColor =
-    "text-emerald-400";
-}
-else if (
-  consistencyScore >= 65
-) {
-  consistencyColor =
-    "text-green-400";
-}
-else if (
-  consistencyScore >= 50
-) {
-  consistencyColor =
-    "text-sky-500";
-}
+// ---------------------------------------------
+// CALMAR RATIO
+// ---------------------------------------------
 
 const calmarRatio =
   equityAnalytics.calmarRatio;
 
+const hasCalmarRatio =
+  hasTradingActivity &&
+  calmarRatio !== null &&
+  Number.isFinite(calmarRatio);
+
 const calmarLabel =
-  calmarRatio >= 2
-    ? "Excellent"
+  !hasCalmarRatio
+    ? "N/A"
+    : calmarRatio >= 2
+      ? "Excellent"
+      : calmarRatio >= 1
+        ? "Good"
+        : calmarRatio >= 0.5
+          ? "Fair"
+          : "Poor";
+
+const calmarColor =
+  !hasCalmarRatio
+    ? "text-slate-400"
+    : calmarRatio >= 2
+      ? "text-emerald-400"
+      : calmarRatio >= 1
+        ? "text-green-400"
+        : calmarRatio >= 0.5
+          ? "text-sky-500"
+          : "text-red-400";
+
+const calmarAccent: KpiAccent =
+  !hasCalmarRatio
+    ? "slate"
     : calmarRatio >= 1
-    ? "Good"
-    : calmarRatio >= 0.5
-    ? "Fair"
-    : "Poor";
+      ? "emerald"
+      : calmarRatio >= 0.5
+        ? "cyan"
+        : "red";
 
-let calmarColor =
-  "text-red-400";
+const calmarDetail =
+  !hasTradingActivity
+    ? "No Trades"
+    : !hasCalmarRatio
+      ? "Not Calculable"
+      : calmarLabel;
 
-if (
-  calmarRatio >= 2
-) {
-  calmarColor =
-    "text-emerald-400";
-}
-else if (
-  calmarRatio >= 1
-) {
-  calmarColor =
-    "text-green-400";
-}
-else if (
-  calmarRatio >= 0.5
-) {
-  calmarColor =
-    "text-sky-500";
-}
+  // ---------------------------------------------
+  // MOST TRADED
+  // ---------------------------------------------
 
-    const mostTradedTicker =
-  secondaryMetricsAnalytics.mostTradedTicker;
+  const mostTradedTicker =
+    secondaryMetricsAnalytics.mostTradedTicker;
 
-const mostTradedTradeCount =
-  secondaryMetricsAnalytics.mostTradedTradeCount;
+  const mostTradedTradeCount =
+    secondaryMetricsAnalytics.mostTradedTradeCount;
+
+  // ---------------------------------------------
+  // TRADE FREQUENCY
+  // ---------------------------------------------
 
   const tradeFrequency =
-  secondaryMetricsAnalytics.tradeFrequency;
+    secondaryMetricsAnalytics.tradeFrequency;
 
-const activeTradingDays =
-  secondaryMetricsAnalytics.activeTradingDays;
+  const activeTradingDays =
+    secondaryMetricsAnalytics.activeTradingDays;
 
-  const volatility =
+// ---------------------------------------------
+// VOLATILITY
+// ---------------------------------------------
+
+const volatility =
   pnlAnalytics.volatility;
 
-  const avgDaily =
-  Math.abs(
-    pnlAnalytics.avgDaily
-  );
+const avgDaily =
+  Math.abs(pnlAnalytics.avgDaily);
+
+// At least two daily observations are required
+// to evaluate day-to-day P&L variability.
+
+const hasVolatilityObservations =
+  hasTradingActivity &&
+  equityAnalytics.equityCurve.length >= 2 &&
+  Number.isFinite(volatility);
+
+const rawVolatilityRatio =
+  hasVolatilityObservations &&
+  avgDaily > 0 &&
+  Number.isFinite(avgDaily)
+    ? volatility / avgDaily
+    : null;
 
 const volatilityRatio =
-  avgDaily > 0
-    ? volatility / avgDaily
-    : 0;
+  rawVolatilityRatio !== null &&
+  Number.isFinite(rawVolatilityRatio)
+    ? rawVolatilityRatio
+    : null;
 
-let volatilityLabel = "Low";
+// Default state: classification unavailable.
+
+let volatilityLabel = "N/A";
+
 let volatilityColor =
-  "text-emerald-400";
+  "text-slate-400";
 
-if (
-  volatilityRatio >= 4
-) {
-  volatilityLabel =
-    "Very High";
+let volatilityAccent: KpiAccent =
+  "slate";
 
-  volatilityColor =
-    "text-rose-500";
-}
-else if (
-  volatilityRatio >= 2
-) {
-  volatilityLabel =
-    "High";
+if (volatilityRatio !== null) {
 
-  volatilityColor =
-    "text-red-400";
-}
-else if (
-  volatilityRatio >= 1
-) {
-  volatilityLabel =
-    "Moderate";
+  if (volatilityRatio >= 4) {
+    volatilityLabel = "Very High";
+    volatilityColor = "text-rose-500";
+    volatilityAccent = "red";
 
-  volatilityColor =
-    "text-sky-500";
+  } else if (volatilityRatio >= 2) {
+    volatilityLabel = "High";
+    volatilityColor = "text-red-400";
+    volatilityAccent = "red";
+
+  } else if (volatilityRatio >= 1) {
+    volatilityLabel = "Moderate";
+    volatilityColor = "text-sky-500";
+    volatilityAccent = "cyan";
+
+  } else {
+    volatilityLabel = "Low";
+    volatilityColor = "text-emerald-400";
+    volatilityAccent = "emerald";
+  }
 }
 
   return (
+    <div className="w-full min-w-0">
+      <div className="secondary-metrics-container w-full min-w-0">
+        <div className="secondary-metrics-grid">
 
-<div className="flex w-full justify-center">
-  <div className="w-[98%] min-w-0">
+          {/* STREAK */}
 
-    <div className="grid grid-cols-2 gap-3 min-[768px]:grid-cols-3 min-[1400px]:grid-cols-6 min-[1400px]:gap-2 min-[1600px]:gap-4">
+<KpiCard
+  label="Streak"
+  value={
+    hasTradingActivity
+      ? pnlAnalytics.streak
+      : "N/A"
+  }
+  detail={
+    hasTradingActivity
+      ? streakLabel
+      : "No Trades"
+  }
+  accent={streakAccent}
+  detailClassName={streakDetailColor}
+/>
 
+          {/* VOLATILITY */}
 
-{/* STREAK */}
+          <KpiCard
+            label="Volatility"
+            value={volatilityLabel}
+            detail={
+            !hasTradingActivity
+             ? "No Trades"
+             : !hasVolatilityObservations
+            ? "Insufficient Data"
+             : `σ ${volatility.toFixed(0)}`
+            }
+            accent={volatilityAccent}
+            valueClassName={volatilityColor}
+            tooltip={
+              <MetricInfoTooltip
+                className="shrink-0 translate-x-[2px]"
+                definition="Measures how much your daily realized P&L fluctuates over the selected period."
+                formula="Standard Deviation (σ) of Daily Realized P&L"
+                calculation="Calculated from the standard deviation of your daily realized P&L values within the selected date range."
+                interpretation="Lower values indicate more stable results. Higher values indicate greater day-to-day variability in trading performance."
+              />
+            }
+          />
 
-<div
-  className="
-    relative
-    hover:z-[100]
-    h-[90px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    backdrop-blur-xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:border-white/[0.14]
-    hover:bg-[#0b0c1e]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-  "
->
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      w-full
-      items-center
-      justify-center
-      gap-3
-      px-3
-      translate-x-0
-      translate-y-0
-    "
-  >
-    {/* ICON */}
+          {/* CONSISTENCY */}
 
-    <div className="shrink-0 flex items-center -translate-x-2 translate-y-0">
-      <Flame
-        className={`h-6 w-6 ${streakColor}`}
-        strokeWidth={2}
-      />
-    </div>
+<KpiCard
+  label="Consistency"
+  value={consistencyLabel}
+  detail={
+    !hasTradingActivity
+      ? "No Trades"
+      : hasConsistencyScore
+        ? `Score: ${consistencyScore}/100`
+        : "Insufficient Data"
+  }
+  accent={consistencyAccent}
+  valueClassName={consistencyColor}
+  tooltip={
+    <MetricInfoTooltip
+      className="shrink-0 translate-x-[2px]"
+      definition="Measures how consistently your trading produces stable results over time."
+      formula="Composite Consistency Score (0–100)"
+      calculation="Computed from the winning-day percentage and positive equity movements across the selected period."
+      interpretation="Higher scores indicate more consistent positive trading results."
+    />
+  }
+/>
 
-    {/* TEXT */}
+          {/* MOST TRADED */}
 
-    <div
-      className="
-        min-w-0
-        flex
-        flex-col
-        items-center
-        justify-center
-        text-center
-        -translate-x-3
-        translate-y-0
-      "
-    >
-      <p
-        className="
-          text-[11px]
-          font-medium
-          uppercase
-          tracking-[0.12em]
-          text-slate-500
-          translate-x-0
-          -translate-y-1
-        "
-      >
-        Streak
-      </p>
+          <KpiCard
+            label="Most Traded"
+            value={mostTradedTicker}
+            detail={`${mostTradedTradeCount} Trades`}
+            accent="cyan"
+          />
 
-      <div
-        className="
-          mt-2
-          flex
-          flex-col
-          items-center
-          translate-x-0
-          translate-y-0
-        "
-      >
-        <p
-          className="
-            text-[20px]
-            font-semibold
-            leading-none
-            text-white
-            -translate-x-1
-            translate-y-0
-          "
-        >
-          {pnlAnalytics.streak}
-        </p>
+          {/* TRADE FREQUENCY */}
 
-        <p
-          className={`
-            mt-2
-            text-[12px]
-            font-medium
-            ${streakColor}
-            translate-x-0
-            translate-y-1
-          `}
-        >
-          {streakLabel}
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-{/* VOLATILITY */}
-
-<div
-  className="
-    relative
-    hover:z-[100]
-    h-[90px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    backdrop-blur-xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:border-white/[0.14]
-    hover:bg-[#0b0c1e]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-  "
->
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      w-full
-      items-center
-      justify-center
-      gap-3
-      px-3
-      translate-x-2
-      translate-y-0
-    "
-  >
-    {/* ICON */}
-
-    <div className="shrink-0 flex items-center -translate-x-3 translate-y-0">
-      <Activity
-        className={`h-6 w-6 ${volatilityColor}`}
-        strokeWidth={2}
-      />
-    </div>
-
-    {/* TEXT */}
-
-    <div
-      className="
-        min-w-0
-        flex
-        flex-col
-        items-center
-        justify-center
-        text-center
-        -translate-x-3
-        translate-y-0
-      "
-    >
-      {/* TITLE */}
-
-      <div className="flex items-center gap-1">
-        <p
-          className="
-            text-[11px]
-            font-medium
-            uppercase
-            tracking-[0.12em]
-            text-slate-500
-            translate-x-0
-            -translate-y-1
-          "
-        >
-          Volatility
-        </p>
-
-        <MetricInfoTooltip
-          className="translate-x-0 -translate-y-1"
-          definition="Measures how much your daily realized P&L fluctuates over the selected period."
-          formula="Standard Deviation (σ) of Daily Realized P&L"
-          calculation="Calculated from the standard deviation of your daily realized P&L values within the selected date range."
-          interpretation="Lower values indicate more stable results. Higher values indicate greater day-to-day variability in trading performance."
-        />
-      </div>
-
-      {/* VALUE */}
-
-      <div
-        className="
-          mt-2
-          flex
-          flex-col
-          items-center
-          translate-x-0
-          translate-y-0
-        "
-      >
-        <p
-          className={`
-            text-[20px]
-            font-semibold
-            leading-none
-            -translate-x-1
-            translate-y-0
-            ${volatilityColor}
-          `}
-        >
-          {volatilityLabel}
-        </p>
-
-        <p
-          className="
-            mt-2
-            text-[12px]
-            font-medium
-            text-slate-400
-            translate-x-0
-            translate-y-1
-          "
-        >
-          σ {volatility.toFixed(0)}
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-{/* CONSISTENCY */}
-
-<div
-  className="
-    relative
-    hover:z-[100]
-    h-[90px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    backdrop-blur-xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:border-white/[0.14]
-    hover:bg-[#0b0c1e]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-  "
->
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      w-full
-      items-center
-      justify-center
-      gap-3
-      px-3
-      translate-x-1
-      translate-y-0
-    "
-  >
-    {/* ICON */}
-
-    <div className="shrink-0 flex items-center translate-x-1 translate-y-0">
-      <LocateFixed
-        className={`h-6 w-6 ${consistencyColor}`}
-        strokeWidth={2}
-      />
-    </div>
-
-    {/* TEXT */}
-
-    <div
-      className="
-        min-w-0
-        flex
-        flex-col
-        items-center
-        justify-center
-        text-center
-        -translate-x-3
-        translate-y-0
-      "
-    >
-      {/* TITLE */}
-
-      <div className="flex items-center gap-1">
-        <p
-          className="
-            text-[11px]
-            font-medium
-            uppercase
-            tracking-[0.12em]
-            text-slate-500
-            translate-x-0
-            -translate-y-1
-          "
-        >
-          Consistency
-        </p>
-
-        <MetricInfoTooltip
-          className="translate-x-0 -translate-y-1"
-          definition="Measures how consistently your trading produces stable results over time."
-          formula="Composite Consistency Score (0–100)"
-          calculation="Computed from your win/loss distribution and equity curve stability across the selected period."
-          interpretation="Higher scores indicate more disciplined and repeatable trading performance."
-        />
-      </div>
-
-      {/* VALUE */}
-
-      <div
-        className="
-          mt-2
-          flex
-          flex-col
-          items-center
-          -translate-x-1
-          translate-y-0
-        "
-      >
-        <p
-          className={`
-            text-[20px]
-            font-semibold
-            leading-none
-            whitespace-nowrap
-            -translate-x-1
-            translate-y-0
-            ${consistencyColor}
-          `}
-        >
-          {consistencyLabel}
-        </p>
-
-        <p
-          className="
-            mt-2
-            text-[12px]
-            font-medium
-            text-slate-400
-            whitespace-nowrap
-            translate-x-0
-            translate-y-1
-          "
-        >
-          Score: {consistencyScore}/100
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-{/* MOST TRADED */}
-
-<div
-  className="
-    relative
-    hover:z-[100]
-    h-[90px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    backdrop-blur-xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:border-white/[0.14]
-    hover:bg-[#0b0c1e]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-  "
->
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      w-full
-      items-center
-      justify-center
-      gap-3
-      px-3
-      translate-x-2
-      translate-y-0
-    "
-  >
-    {/* ICON */}
-
-    <div className="shrink-0 flex items-center -translate-x-2 translate-y-0">
-      <BarChart3
-        className="h-6 w-6 text-cyan-400"
-        strokeWidth={2}
-      />
-    </div>
-
-    {/* TEXT */}
-
-    <div
-      className="
-        min-w-0
-        flex
-        flex-col
-        items-center
-        justify-center
-        text-center
-        -translate-x-3
-        translate-y-0
-      "
-    >
-      {/* TITLE */}
-
-      <p
-        className="
-          text-[11px]
-          font-medium
-          uppercase
-          tracking-[0.12em]
-          text-slate-500
-          -translate-x-1
-          -translate-y-1
-        "
-      >
-        Most Traded
-      </p>
-
-      {/* VALUE */}
-
-      <div
-        className="
-          mt-2
-          flex
-          flex-col
-          items-center
-          -translate-x-2
-          translate-y-0
-        "
-      >
-        <p
-          className="
-            text-[20px]
-            font-semibold
-            leading-none
-            text-white
-            whitespace-nowrap
-            -translate-x-0
-            translate-y-0
-          "
-        >
-          {mostTradedTicker}
-        </p>
-
-        <p
-          className="
-            mt-2
-            text-[12px]
-            font-medium
-            text-slate-400
-            whitespace-nowrap
-            translate-x-0
-            translate-y-1
-          "
-        >
-          {mostTradedTradeCount} Trades
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-{/* TRADE FREQUENCY */}
-
-<div
-  className="
-    relative
-    hover:z-[100]
-    h-[90px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    backdrop-blur-xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:border-white/[0.14]
-    hover:bg-[#0b0c1e]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-  "
->
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      w-full
-      items-center
-      justify-center
-      gap-3
-      px-3
-      -translate-x-3
-      translate-y-0
-    "
-  >
-    {/* ICON */}
-
-    <div className="shrink-0 flex items-center translate-x-5 translate-y-0">
-      <Repeat
-        className="h-6 w-6 text-cyan-400"
-        strokeWidth={2}
-      />
-    </div>
-
-    {/* TEXT */}
-
-    <div
-      className="
-        min-w-0
-        flex
-        flex-col
-        items-center
-        justify-center
-        text-center
-        -translate-x-0
-        translate-y-0
-      "
-    >
-      {/* TITLE */}
-
-      <p
-        className="
-          text-[11px]
-          font-medium
-          uppercase
-          tracking-[0.12em]
-          text-slate-500
-          translate-x-0
-          -translate-y-1
-          whitespace-nowrap
-        "
-      >
-        Trade Frequency
-      </p>
-
-      {/* VALUE */}
-
-      <div
-        className="
-          mt-2
-          flex
-          flex-col
-          items-center
-          translate-x-2
-          translate-y-0
-        "
-      >
-        <p
-          className="
-            whitespace-nowrap
-            text-[20px]
-            font-semibold
-            leading-none
-            text-white
-            -translate-x-1
-            translate-y-0
-          "
-        >
-          {tradeFrequency.toFixed(1)} / Day
-        </p>
-
-        <p
-          className="
-            mt-2
-            whitespace-nowrap
-            text-[12px]
-            font-medium
-            text-slate-400
-            -translate-x-2
-            translate-y-1
-          "
-        >
-          {activeTradingDays} Trading Days
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
+          <KpiCard
+            label="Trade Frequency"
+            value={`${tradeFrequency.toFixed(1)} / Day`}
+            detail={`${activeTradingDays} Trading Days`}
+            accent="cyan"
+          />
 
 {/* CALMAR RATIO */}
 
-<div
-  className="
-    relative
-    hover:z-[100]
-    h-[90px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    backdrop-blur-xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:border-white/[0.14]
-    hover:bg-[#0b0c1e]
-    hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-  "
->
-  <div
-    className="
-      flex
-      h-full
-      min-w-0
-      w-full
-      items-center
-      justify-center
-      gap-3
-      px-3
-      -translate-x-1
-      translate-y-0
-    "
-  >
-    {/* ICON */}
+<KpiCard
+  label="Calmar Ratio"
+  value={
+    hasCalmarRatio
+      ? calmarRatio.toFixed(2)
+      : "N/A"
+  }
+  detail={calmarDetail}
+  accent={calmarAccent}
+  valueClassName={calmarColor}
+  detailClassName={calmarColor}
+  tooltip={
+    <MetricInfoTooltip
+      className="shrink-0 translate-x-[2px]"
+      definition="Measures net profit relative to maximum drawdown."
+      formula="Net P&L ÷ Maximum Drawdown"
+      calculation="Calculated using realized trading performance and maximum drawdown over the selected period."
+      interpretation="Higher values indicate more profit generated for each unit of drawdown. The ratio is unavailable when maximum drawdown is zero."
+    />
+  }
+/>
 
-    <div className="shrink-0 flex items-center translate-x-3 translate-y-0">
-      <Shield
-        className={`h-6 w-6 ${calmarColor}`}
-        strokeWidth={2}
-      />
-    </div>
-
-    {/* TEXT */}
-
-    <div
-      className="
-        min-w-0
-        flex
-        flex-col
-        items-center
-        justify-center
-        text-center
-        -translate-x-3
-        translate-y-0
-      "
-    >
-      {/* TITLE */}
-
-      <div className="flex items-center justify-center gap-1">
-        <p
-          className="
-            whitespace-nowrap
-            text-[11px]
-            font-medium
-            uppercase
-            tracking-[0.12em]
-            text-slate-500
-            translate-x-0
-            -translate-y-1
-          "
-        >
-          Calmar Ratio
-        </p>
-
-        <MetricInfoTooltip
-          className="translate-x-0 -translate-y-1"
-          definition="Measures return achieved relative to maximum drawdown."
-          formula="Total Return ÷ Maximum Drawdown"
-          calculation="Calculated using your realized trading performance and maximum drawdown over the selected period."
-          interpretation="Higher values indicate stronger risk-adjusted performance by generating more return for each unit of drawdown."
-        />
+        </div>
       </div>
 
-      {/* VALUE */}
+      {/* CONTAINER-BASED RESPONSIVE GRID */}
 
-      <div
-        className="
-          mt-2
-          flex
-          flex-col
-          items-center
-          -translate-x-1
-          translate-y-0
-        "
-      >
-        <p
-          className={`
-            whitespace-nowrap
-            text-[20px]
-            font-semibold
-            leading-none
-            -translate-x-1
-            translate-y-0
-            ${calmarColor}
-          `}
-        >
-          {calmarRatio.toFixed(2)}
-        </p>
+      <style jsx>{`
+        .secondary-metrics-container {
+          container-type: inline-size;
+          container-name: secondary-metrics;
+        }
 
-        <p
-          className={`
-            mt-2
-            whitespace-nowrap
-            text-[12px]
-            font-medium
-            -translate-x-1
-            translate-y-1
-            ${calmarColor}
-          `}
-        >
-          {calmarLabel}
-        </p>
-      </div>
+        .secondary-metrics-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        @container secondary-metrics (max-width: 359px) {
+          .secondary-metrics-grid {
+            grid-template-columns: minmax(0, 1fr);
+          }
+        }
+
+        @container secondary-metrics (min-width: 520px) {
+          .secondary-metrics-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+        }
+
+        @container secondary-metrics (min-width: 860px) {
+          .secondary-metrics-grid {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+          }
+        }
+      `}</style>
     </div>
-  </div>
-</div>
-
-{/* END OF GRID */}
-
-</div>
-
-</div>
-
-</div>
-);
+  );
 }

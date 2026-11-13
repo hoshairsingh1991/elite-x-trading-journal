@@ -59,14 +59,11 @@ import {
   generatePerformanceBreakdownAnalytics,
 } from "@/lib/analytics/performanceBreakdownAnalytics";
 
-
-
 import {
   generateWinRateTrend,
 } from "@/lib/analytics/kpiTrendAnalytics";
 
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
-
 
 import TradeDetailModal from "@/components/trades/TradeDetailModal";
 import AddTradeModal from "@/components/trades/AddTradeModal";
@@ -85,7 +82,6 @@ import SecondaryMetricsRow from "@/components/dashboard-v2/SecondaryMetricsRow";
 import {
   generateSecondaryMetricsAnalytics,
 } from "@/lib/analytics/secondaryMetricsAnalytics";
-
 
 import {
   calculateAverageWin,
@@ -118,8 +114,6 @@ import { supabase }
 from "@/lib/supabase";
 
 import { Trade } from "@/types/trade";
-
-
 
 export default function HomePage() {
 

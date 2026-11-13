@@ -1,6 +1,6 @@
-export interface ConsistencyAnalyticsData {
 
-  consistencyScore: number;
+export interface ConsistencyAnalyticsData {
+  consistencyScore: number | null;
 }
 
 // =================================================
@@ -10,12 +10,16 @@ export interface ConsistencyAnalyticsData {
 export function calculateWinningDayPercentage(
   winningDays: number,
   totalDays: number
-): number {
+): number | null {
 
   if (
-    totalDays === 0
+    !Number.isInteger(winningDays) ||
+    !Number.isInteger(totalDays) ||
+    totalDays <= 0 ||
+    winningDays < 0 ||
+    winningDays > totalDays
   ) {
-    return 0;
+    return null;
   }
 
   return (
@@ -30,12 +34,16 @@ export function calculateWinningDayPercentage(
 
 export function calculateEquitySmoothness(
   equityCurve: number[]
-): number {
+): number | null {
+
+  // At least two observations are required
+  // to measure movement between observations.
 
   if (
-    equityCurve.length < 2
+    equityCurve.length < 2 ||
+    !equityCurve.every(Number.isFinite)
   ) {
-    return 0;
+    return null;
   }
 
   let positiveMoves = 0;
@@ -50,7 +58,6 @@ export function calculateEquitySmoothness(
       equityCurve[i] >
       equityCurve[i - 1]
     ) {
-
       positiveMoves++;
     }
   }
@@ -90,6 +97,17 @@ export function generateConsistencyAnalytics(
   equityCurve: number[]
 ): ConsistencyAnalyticsData {
 
+  // The equity curve and daily trading observations
+  // must represent the same number of days.
+
+  if (
+    equityCurve.length !== totalDays
+  ) {
+    return {
+      consistencyScore: null,
+    };
+  }
+
   const winningDayPercentage =
     calculateWinningDayPercentage(
       winningDays,
@@ -101,6 +119,18 @@ export function generateConsistencyAnalytics(
       equityCurve
     );
 
+  // Do not interpret missing observations as
+  // a genuine consistency score of zero.
+
+  if (
+    winningDayPercentage === null ||
+    smoothness === null
+  ) {
+    return {
+      consistencyScore: null,
+    };
+  }
+
   const consistencyScore =
     calculateConsistencyScore(
       winningDayPercentage,
@@ -108,7 +138,6 @@ export function generateConsistencyAnalytics(
     );
 
   return {
-
     consistencyScore,
   };
 }

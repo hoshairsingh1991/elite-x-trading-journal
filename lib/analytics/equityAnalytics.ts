@@ -1,16 +1,13 @@
-import {
+
+import type {
   DailyPnLData,
 } from "@/lib/analytics/pnlAnalytics";
 
 export interface EquityAnalyticsData {
-
   equityCurve: number[];
-
   maxDrawdown: number;
-
   currentDrawdown: number;
-
-  calmarRatio: number;
+  calmarRatio: number | null;
 }
 
 // =================================================
@@ -21,40 +18,26 @@ export function calculateMaxDrawdown(
   equityCurve: number[]
 ): number {
 
-  if (
-    equityCurve.length === 0
-  ) {
-    return 0;
-  }
+  // Initial equity is zero.
+  // Drawdown must include losses from this baseline,
+  // even when the first observed P&L is negative.
 
-  let peak =
-    equityCurve[0];
-
+  let peak = 0;
   let maxDrawdown = 0;
 
-  equityCurve.forEach(
-    (equity) => {
+  for (const equity of equityCurve) {
 
-      if (
-        equity > peak
-      ) {
-
-        peak = equity;
-      }
-
-      const drawdown =
-        peak - equity;
-
-      if (
-        drawdown >
-        maxDrawdown
-      ) {
-
-        maxDrawdown =
-          drawdown;
-      }
+    if (equity > peak) {
+      peak = equity;
     }
-  );
+
+    const drawdown =
+      peak - equity;
+
+    if (drawdown > maxDrawdown) {
+      maxDrawdown = drawdown;
+    }
+  }
 
   return maxDrawdown;
 }
@@ -67,23 +50,29 @@ export function calculateCurrentDrawdown(
   equityCurve: number[]
 ): number {
 
-  if (
-    equityCurve.length === 0
-  ) {
+  if (equityCurve.length === 0) {
     return 0;
   }
 
-  const peak =
-    Math.max(
-      ...equityCurve
-    );
+  // Include initial equity of zero when finding
+  // the historical high-water mark.
+
+  let peak = 0;
+
+  for (const equity of equityCurve) {
+
+    if (equity > peak) {
+      peak = equity;
+    }
+  }
 
   const current =
-    equityCurve[
-      equityCurve.length - 1
-    ];
+    equityCurve[equityCurve.length - 1];
 
-  return peak - current;
+  return Math.max(
+    peak - current,
+    0
+  );
 }
 
 // =================================================
@@ -99,8 +88,7 @@ export function buildEquityCurve(
   return dailyPnL.map(
     (day) => {
 
-      runningTotal +=
-        day.pnl;
+      runningTotal += day.pnl;
 
       return runningTotal;
     }
@@ -114,12 +102,17 @@ export function buildEquityCurve(
 export function calculateCalmarRatio(
   netPnL: number,
   maxDrawdown: number
-): number {
+): number | null {
+
+  // A zero or invalid denominator makes this
+  // ratio unavailable, not zero.
 
   if (
+    !Number.isFinite(netPnL) ||
+    !Number.isFinite(maxDrawdown) ||
     maxDrawdown <= 0
   ) {
-    return 0;
+    return null;
   }
 
   return (
@@ -138,34 +131,24 @@ export function generateEquityAnalytics(
 ): EquityAnalyticsData {
 
   const equityCurve =
-    buildEquityCurve(
-      dailyPnL
-    );
+    buildEquityCurve(dailyPnL);
 
   const maxDrawdown =
-    calculateMaxDrawdown(
-      equityCurve
-    );
+    calculateMaxDrawdown(equityCurve);
 
   const currentDrawdown =
-    calculateCurrentDrawdown(
-      equityCurve
+    calculateCurrentDrawdown(equityCurve);
+
+  const calmarRatio =
+    calculateCalmarRatio(
+      netPnL,
+      maxDrawdown
     );
 
-    const calmarRatio =
-  calculateCalmarRatio(
-    netPnL,
-    maxDrawdown
-  );
-
   return {
-
-  equityCurve,
-
-  maxDrawdown,
-
-  currentDrawdown,
-
-  calmarRatio,
-};
+    equityCurve,
+    maxDrawdown,
+    currentDrawdown,
+    calmarRatio,
+  };
 }

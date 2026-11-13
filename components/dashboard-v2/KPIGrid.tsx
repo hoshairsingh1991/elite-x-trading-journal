@@ -635,25 +635,13 @@ sparklineHeight={card.sparklineHeight}
 
       ))}
 
-      <KPITradingScoreCard
-        score={
-          tradingScoreAnalytics.tradingScore
-        }
-        profitability={
-          tradingScoreAnalytics.profitabilityScore
-        }
-       consistency={
-  tradingScoreAnalytics.tradingScore === null
-    ? null
-    : consistencyScore
-}
-        risk={
-          tradingScoreAnalytics.calmarScore
-        }
-        reliability={
-          tradingScoreAnalytics.reliabilityScore
-        }
-      />
+<KPITradingScoreCard
+  score={tradingScoreAnalytics.tradingScore}
+  profitability={tradingScoreAnalytics.profitabilityScore}
+  consistency={consistencyScore}
+  risk={tradingScoreAnalytics.calmarScore}
+  reliability={tradingScoreAnalytics.reliabilityScore}
+/>
 
     </div>
 

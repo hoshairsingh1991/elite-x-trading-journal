@@ -1,11 +1,8 @@
+
 export interface TradingScoreAnalyticsData {
-
   profitabilityScore: number | null;
-
   calmarScore: number | null;
-
   reliabilityScore: number | null;
-
   tradingScore: number | null;
 }
 
@@ -15,7 +12,18 @@ export interface TradingScoreAnalyticsData {
 
 export function calculateProfitFactorScore(
   profitFactor: number
-): number {
+): number | null {
+
+  // NaN and negative values are invalid.
+  // Positive Infinity is allowed: it can represent
+  // positive gross profit with no gross losses.
+
+  if (
+    Number.isNaN(profitFactor) ||
+    profitFactor < 0
+  ) {
+    return null;
+  }
 
   if (profitFactor >= 2.0) {
     return 100;
@@ -42,7 +50,7 @@ export function calculateProfitFactorScore(
 
 export function calculateProfitabilityScore(
   profitFactor: number
-): number {
+): number | null {
 
   return calculateProfitFactorScore(
     profitFactor
@@ -55,7 +63,11 @@ export function calculateProfitabilityScore(
 
 export function calculateCalmarScore(
   calmarRatio: number
-): number {
+): number | null {
+
+  if (!Number.isFinite(calmarRatio)) {
+    return null;
+  }
 
   if (calmarRatio >= 3.0) {
     return 100;
@@ -130,13 +142,13 @@ export function calculateTradingScore(
 
 export function generateTradingScoreAnalytics(
   profitFactor: number,
-  calmarRatio: number,
+  calmarRatio: number | null,
   totalTrades: number,
-  consistencyScore: number
+  consistencyScore: number | null
 ): TradingScoreAnalyticsData {
 
   // =================================================
-  // INSUFFICIENT TRADING DATA
+  // NO TRADING ACTIVITY
   // =================================================
 
   if (
@@ -151,37 +163,64 @@ export function generateTradingScoreAnalytics(
     };
   }
 
+  // =================================================
+  // INDIVIDUAL COMPONENT SCORES
+  // =================================================
+
   const profitabilityScore =
     calculateProfitabilityScore(
       profitFactor
     );
 
   const calmarScore =
-    calculateCalmarScore(
-      calmarRatio
-    );
+    calmarRatio === null
+      ? null
+      : calculateCalmarScore(
+          calmarRatio
+        );
 
   const reliabilityScore =
     calculateReliabilityScore(
       totalTrades
     );
 
+  // Consistency must be a valid score from 0–100.
+
+  const validConsistencyScore =
+    consistencyScore !== null &&
+    Number.isFinite(consistencyScore) &&
+    consistencyScore >= 0 &&
+    consistencyScore <= 100
+      ? consistencyScore
+      : null;
+
+  // =================================================
+  // OVERALL TRADING SCORE
+  // =================================================
+
+  // Every component has a fixed 25% weight.
+  // Missing components must not be treated as zero
+  // or cause the remaining weights to be redistributed.
+
+  const hasAllComponents =
+    profitabilityScore !== null &&
+    validConsistencyScore !== null &&
+    calmarScore !== null;
+
   const tradingScore =
-    calculateTradingScore(
-      profitabilityScore,
-      consistencyScore,
-      calmarScore,
-      reliabilityScore
-    );
+    hasAllComponents
+      ? calculateTradingScore(
+          profitabilityScore,
+          validConsistencyScore,
+          calmarScore,
+          reliabilityScore
+        )
+      : null;
 
   return {
-
     profitabilityScore,
-
     calmarScore,
-
     reliabilityScore,
-
     tradingScore,
   };
 }

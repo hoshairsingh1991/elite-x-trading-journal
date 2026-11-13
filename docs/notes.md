@@ -587,6 +587,9 @@ git commit -m "fix(admin): correct lifecycle and access preview logic"
 git commit -m "fix(admin): refine lifecycle preview states"
 git commit -m "chore(checkpoint): preserve state before commission accounting fix"
 git commit -m "Fix commission allocation and daily review accounting"
+git commit -m "Polish daily review and trading calendar"
+git commit -m "Improve dashboard analytics data handling"
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
