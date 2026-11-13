@@ -47,6 +47,19 @@ export default function DailyReviewBreakdown({
     setExpandedCards,
   ] = useState<Record<string, boolean>>({});
 
+    /*
+   * -------------------------------------------------------
+   * CLOSED TRADES
+   * -------------------------------------------------------
+   */
+
+  const closedTrades =
+    selectedTrades.filter(
+      (trade) =>
+        !trade.isOpen &&
+        trade.status !== "OPEN"
+    );
+
 const buildRows = (
   key: "ticker" | "account" | "side" | "assetType"
 ) => {
@@ -58,7 +71,7 @@ const buildRows = (
     }
   >();
 
-  selectedTrades.forEach((trade) => {
+  closedTrades.forEach((trade) => {
 let label: string;
 
 if (
@@ -85,11 +98,11 @@ if (
 
     if (existing) {
       existing.trades += 1;
-      existing.pnl += trade.pnl;
+      existing.pnl += Number(trade.pnl || 0);
     } else {
       groups.set(label, {
         trades: 1,
-        pnl: trade.pnl,
+        pnl: Number(trade.pnl || 0),
       });
     }
   });

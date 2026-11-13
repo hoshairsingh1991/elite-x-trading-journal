@@ -280,28 +280,59 @@ const absolutePnLs =
         )
       : [];
 
-  const handleMouseMove = (
-    event: React.MouseEvent<HTMLDivElement>
-  ) => {
+const handleMouseMove = (
+  event: React.MouseEvent<HTMLDivElement>
+) => {
+  if (!activityRef.current) {
+    return;
+  }
 
-    if (
-      !activityRef.current
-    ) {
-      return;
-    }
+  const rect =
+    activityRef.current.getBoundingClientRect();
 
-    const rect =
-      activityRef.current.getBoundingClientRect();
+  const containerWidth =
+    activityRef.current.clientWidth;
 
-    setHoverPosition({
-      x:
-        event.clientX -
-        rect.left,
-      y:
-        event.clientY -
-        rect.top,
-    });
-  };
+  const containerHeight =
+    activityRef.current.clientHeight;
+
+  const mouseX =
+    event.clientX - rect.left;
+
+  const mouseY =
+    event.clientY - rect.top;
+
+  const tooltipWidth = 100;
+  const tooltipHeight = 60;
+
+  const preferredRight =
+    mouseX + 12;
+
+  const preferredLeft =
+    mouseX - tooltipWidth - 12;
+
+  const tooltipLeft =
+    preferredRight + tooltipWidth <= containerWidth
+      ? preferredRight
+      : Math.max(8, preferredLeft);
+
+  const tooltipTop =
+    Math.min(
+      Math.max(
+        8,
+        mouseY - tooltipHeight / 2
+      ),
+      Math.max(
+        8,
+        containerHeight - tooltipHeight - 8
+      )
+    );
+
+  setHoverPosition({
+    x: tooltipLeft,
+    y: tooltipTop,
+  });
+};
 
   const handleMarkerEnter = (
     item: typeof activity[number]
@@ -339,77 +370,6 @@ const absolutePnLs =
   };
 
 
-  /*
-   * Tooltip dimensions.
-   *
-   * Keep these values synchronized with the actual
-   * tooltip element below.
-   */
-  const tooltipWidth =
-    100;
-
-  const tooltipHeight =
-    60;
-
-  let tooltipLeft =
-    0;
-
-  let tooltipTop =
-    0;
-
-  if (
-    hoverPosition &&
-    activityRef.current
-  ) {
-
-    const containerWidth =
-      activityRef.current
-        .clientWidth;
-
-    const containerHeight =
-      activityRef.current
-        .clientHeight;
-
-    const preferredRight =
-      hoverPosition.x +
-      12;
-
-    const preferredLeft =
-      hoverPosition.x -
-      tooltipWidth -
-      12;
-
-    if (
-      preferredRight +
-        tooltipWidth <=
-      containerWidth
-    ) {
-      tooltipLeft =
-        preferredRight;
-    } else {
-      tooltipLeft =
-        Math.max(
-          8,
-          preferredLeft
-        );
-    }
-
-    tooltipTop =
-      Math.min(
-        Math.max(
-          8,
-          hoverPosition.y -
-            tooltipHeight /
-              2
-        ),
-        Math.max(
-          8,
-          containerHeight -
-            tooltipHeight -
-            8
-        )
-      );
-  }
 
   return (
 <section
@@ -721,12 +681,10 @@ onMouseLeave={() => {
     text-center
     shadow-[0_0_30px_rgba(0,0,0,0.35)]
   "
-  style={{
-    left:
-      `${tooltipLeft}px`,
-    top:
-      `${tooltipTop}px`,
-  }}
+style={{
+  left: `${hoverPosition.x}px`,
+  top: `${hoverPosition.y}px`,
+}}
 >
 
 <div

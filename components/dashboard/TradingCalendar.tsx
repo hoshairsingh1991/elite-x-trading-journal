@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
@@ -16,8 +15,6 @@ import TradingCalendarNotes from "./TradingCalendarNotes";
 
 import { Trade } from "@/types/trade";
 
-import { supabase }
-from "@/lib/supabase";
 
 import {
   loadDailyNotesFromSupabase,
@@ -96,7 +93,6 @@ export default function TradingCalendar({
   startDate = null,
   endDate = null,
   reportingCurrency,
-  onTradesChanged,
 }: TradingCalendarProps) {
 
   const [currentDate, setCurrentDate] =
@@ -111,10 +107,6 @@ const [
 ] = useState<string | null>(
   null
 );
-
-
-const [mounted, setMounted] =
-  useState(false);
 
   const [noteDates, setNoteDates] =
   useState<Set<string>>(new Set());
@@ -134,13 +126,6 @@ const [mounted, setMounted] =
   loadNoteDates();
 }, []);
 
-
-
-useEffect(() => {
-
-  setMounted(true);
-
-}, []);
 
   const currentMonth =
     currentDate.getMonth();
@@ -179,20 +164,30 @@ useEffect(() => {
         )
       : null;
 
-        useEffect(() => {
-    const targetDate =
-      rangeEndDate ?? new Date();
+const dateRangeKey =
+  `${startDate?.getTime() ?? "none"}:${endDate?.getTime() ?? "none"}`;
 
-    setCurrentDate(
-      new Date(
-        targetDate.getFullYear(),
-        targetDate.getMonth(),
-        1
-      )
-    );
+const [
+  previousDateRangeKey,
+  setPreviousDateRangeKey,
+] = useState<string | null>(null);
 
-    setSelectedDate(null);
-  }, [startDate, endDate]);
+if (previousDateRangeKey !== dateRangeKey) {
+  setPreviousDateRangeKey(dateRangeKey);
+
+  const targetDate =
+    rangeEndDate ?? new Date();
+
+  setCurrentDate(
+    new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      1
+    )
+  );
+
+  setSelectedDate(null);
+}
 
   const firstDayOfMonth =
     new Date(
@@ -321,46 +316,7 @@ function moveSelectedDate(direction: number) {
   // MONTH TRADES
   // =====================================================
 
-const realizedTrades = useMemo(
-  () => trades.filter((trade) => !trade.isOpen),
-  [trades]
-);
 
-  const currentMonthTrades =
-    useMemo(() => {
-
-      return realizedTrades.filter(
-        (trade) => {
-
-          const effectiveDate =
-  trade.isOpen
-    ? (
-        trade.openedAt ||
-        trade.date
-      )
-    : (
-        trade.closedAt ||
-        trade.date
-      );
-
-const tradeDate =
-  parseLocalDate(
-    effectiveDate
-  );
-
-          return (
-            tradeDate.getMonth() ===
-              currentMonth &&
-            tradeDate.getFullYear() ===
-              currentYear
-          );
-        }
-      );
-    }, [
-  realizedTrades,
-  currentMonth,
-  currentYear,
-]);
 
 // =====================================================
 // TRADES BY DAY
@@ -418,10 +374,14 @@ const selectedTrades =
         return false;
       }
 
-      const effectiveDate =
-        trade.isOpen
-          ? (trade.openedAt || trade.date)
-          : (trade.closedAt || trade.date);
+const isOpenTrade =
+  trade.isOpen ||
+  trade.status === "OPEN";
+
+const effectiveDate =
+  isOpenTrade
+    ? (trade.openedAt || trade.date)
+    : (trade.closedAt || trade.date);
 
       const tradeDate =
         parseLocalDate(effectiveDate);
@@ -433,62 +393,10 @@ const selectedTrades =
     }
   );
 
-  // =====================================================
-  // STATS
-  // =====================================================
-
-  const totalPnL =
-    selectedTrades.reduce(
-      (sum, trade) =>
-        sum +
-        Number(trade.pnl || 0),
-      0
-    );
-
-  const totalCommission =
-    selectedTrades.reduce(
-      (sum, trade) =>
-        sum +
-        Number(trade.fees || 0),
-      0
-    );
-
-  const wins =
-    selectedTrades.filter(
-      (trade) =>
-        trade.status === "WIN"
-    ).length;
-
-  const losses =
-    selectedTrades.filter(
-      (trade) =>
-        trade.status === "LOSS"
-    ).length;
-
-  const totalTradesDay =
-    selectedTrades.length;
-
-  const winRate =
-    totalTradesDay > 0
-      ? Math.round(
-          (wins /
-            totalTradesDay) *
-            100
-        )
-      : 0;
-
 // =====================================================
 // MONTH STATS
 // =====================================================
 
-// Realized P&L only — open positions remain excluded.
-const monthlyPnL =
-  currentMonthTrades.reduce(
-    (sum, trade) =>
-      sum +
-      Number(trade.pnl || 0),
-    0
-  );
 
 // Includes days with either open or closed trades.
 const tradingDays =
@@ -655,58 +563,6 @@ const totalTrades =
       </button>
     );
   }
-
-  // =====================================================
-  // DELETE MANUAL TRADE
-  // =====================================================
-
-
-const handleDeleteTrade =
-  async (
-    trade: Trade
-  ) => {
-
-    if (
-      !trade.contractKey?.startsWith(
-        "MANUAL-"
-      )
-    ) {
-
-      return;
-    }
-
-    const confirmed =
-      window.confirm(
-        "Delete this manual trade lifecycle?"
-      );
-
-    if (!confirmed) {
-
-      return;
-    }
-
-    const {
-      error,
-    } = await supabase
-      .from("executions")
-      .delete()
-      .eq(
-        "contract_key",
-        trade.contractKey
-      );
-
-if (error) {
-
-  console.error(
-    "FAILED TO DELETE MANUAL TRADE:",
-    error
-  );
-
-  return;
-}
-
-await onTradesChanged();
-  };
 
 
 // =====================================================

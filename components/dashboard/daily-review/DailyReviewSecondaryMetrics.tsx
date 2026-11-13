@@ -10,6 +10,7 @@ import {
 
 interface DailyReviewSecondaryMetricsProps {
   selectedTrades: Trade[];
+  activityTrades: Trade[];
   reportingCurrency: string;
 }
 
@@ -139,9 +140,7 @@ function formatCurrency(
   currency: string
 ) {
   const symbol =
-    getCurrencySymbol(
-      currency
-    );
+    getCurrencySymbol(currency);
 
   return `${value >= 0 ? "+" : "-"}${symbol}${Math.abs(value).toFixed(2)}`;
 }
@@ -155,20 +154,21 @@ function formatVolume(
       maximumFractionDigits: 0,
     }
   ).format(
-    Math.abs(
-      value
-    )
+    Math.abs(value)
   );
 }
 
 export default function DailyReviewSecondaryMetrics({
   selectedTrades,
+  activityTrades,
   reportingCurrency,
 }: DailyReviewSecondaryMetricsProps) {
 
   /*
    * -------------------------------------------------------
    * CLOSED TRADES
+   *
+   * Used exclusively for realized performance.
    * -------------------------------------------------------
    */
 
@@ -274,11 +274,14 @@ export default function DailyReviewSecondaryMetrics({
   /*
    * -------------------------------------------------------
    * TOTAL VOLUME
+   *
+   * Includes open and closed trading activity.
+   * Does not represent realized performance.
    * -------------------------------------------------------
    */
 
   const totalVolume =
-    closedTrades.reduce(
+    activityTrades.reduce(
       (sum, trade) =>
         sum +
         Math.abs(
@@ -293,34 +296,27 @@ export default function DailyReviewSecondaryMetrics({
    * -------------------------------------------------------
    */
 
-const feeGrossRatio =
-  Math.abs(
-    grossPnL
-  ) > 0
-    ? (
-        Math.abs(
-          totalFees
-        ) /
-        Math.abs(
-          grossPnL
-        )
-      ) * 100
-    : null;
+  const feeGrossRatio =
+    Math.abs(grossPnL) > 0
+      ? (
+          Math.abs(totalFees) /
+          Math.abs(grossPnL)
+        ) * 100
+      : null;
 
   /*
    * -------------------------------------------------------
    * EXPECTANCY
    *
    * DailyReview-level expectancy:
-   * total net P&L / total trades.
+   * total net P&L / closed trades.
    * -------------------------------------------------------
    */
 
-const averagePnLPerTrade =
-  totalTrades > 0
-    ? netPnL /
-      totalTrades
-    : null;
+  const averagePnLPerTrade =
+    totalTrades > 0
+      ? netPnL / totalTrades
+      : null;
 
   const cards: SecondaryMetricCardProps[] = [
     {
@@ -335,15 +331,13 @@ const averagePnLPerTrade =
       subtitle:
         bestTrade
           ? formatCurrency(
-              Number(
-                bestTrade.pnl || 0
-              ),
+              Number(bestTrade.pnl || 0),
               reportingCurrency
             )
           : "No trades",
 
-valueColor:
-  "default",
+      valueColor:
+        "default",
     },
 
     {
@@ -358,15 +352,13 @@ valueColor:
       subtitle:
         worstTrade
           ? formatCurrency(
-              Number(
-                worstTrade.pnl || 0
-              ),
+              Number(worstTrade.pnl || 0),
               reportingCurrency
             )
           : "No trades",
 
-valueColor:
-  "default",
+      valueColor:
+        "default",
     },
 
     {
@@ -386,8 +378,8 @@ valueColor:
           ? `${winningTrades.length} winners`
           : "No winners",
 
-valueColor:
-  "green",
+      valueColor:
+        "green",
     },
 
     {
@@ -416,9 +408,7 @@ valueColor:
         "Total Volume",
 
       value:
-        formatVolume(
-          totalVolume
-        ),
+        formatVolume(totalVolume),
 
       subtitle:
         "shares/contracts",
@@ -453,22 +443,22 @@ valueColor:
         "Avg. P&L / Trade",
 
       value:
-averagePnLPerTrade != null
-  ? formatCurrency(
-      averagePnLPerTrade,
-      reportingCurrency
-    )
-  : "—",
+        averagePnLPerTrade != null
+          ? formatCurrency(
+              averagePnLPerTrade,
+              reportingCurrency
+            )
+          : "—",
 
-            subtitle:
+      subtitle:
         "realized average",
 
-valueColor:
-  averagePnLPerTrade == null
-    ? "default"
-    : averagePnLPerTrade >= 0
-      ? "green"
-      : "red",
+      valueColor:
+        averagePnLPerTrade == null
+          ? "default"
+          : averagePnLPerTrade >= 0
+            ? "green"
+            : "red",
     },
   ];
 
@@ -495,26 +485,16 @@ valueColor:
         >
 
           {cards.map(
-            (
-              card
-            ) => (
+            (card) => (
               <SecondaryMetricCard
-                key={
-                  card.title
+                key={card.title}
+                title={card.title}
+                value={card.value}
+                subtitle={card.subtitle}
+                valueColor={
+                  card.valueColor ??
+                  "default"
                 }
-                title={
-                  card.title
-                }
-                value={
-                  card.value
-                }
-                subtitle={
-                  card.subtitle
-                }
-valueColor={
-  card.valueColor ??
-  "default"
-}
               />
             )
           )}

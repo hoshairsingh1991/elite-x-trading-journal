@@ -129,13 +129,34 @@ const realizedSelectedTrades =
       trade.status !== "OPEN"
   );
 
+const selectionContext =
+  `${currentYear}-${currentMonth}-${selectedDay}:${selectedAccount}`;
+
 const [
-  selectedTrade,
-  setSelectedTrade,
-] = useState<Trade | null>(
-  filteredSelectedTrades[0] ??
-    null
-);
+  tradeSelection,
+  setTradeSelection,
+] = useState<{
+  context: string;
+  mode: "auto" | "manual" | "none";
+  tradeId: string | null;
+}>(() => ({
+  context: selectionContext,
+  mode: "auto",
+  tradeId: null,
+}));
+
+const selectedTrade =
+  tradeSelection.context !== selectionContext ||
+  tradeSelection.mode === "auto"
+    ? filteredSelectedTrades[0] ?? null
+    : tradeSelection.mode === "none"
+      ? null
+      : filteredSelectedTrades.find(
+          (trade) =>
+            trade.id === tradeSelection.tradeId
+        ) ??
+        filteredSelectedTrades[0] ??
+        null;
 
 const [
   tradeDrawerCollapsed,
@@ -144,27 +165,7 @@ const [
   filteredSelectedTrades.length > 0
 );
 
-useEffect(() => {
-  const nextSelectedTrades =
-    selectedAccount === "ALL"
-      ? selectedTrades
-      : selectedTrades.filter(
-          (trade) =>
-            trade.account?.trim() ===
-            selectedAccount
-        );
 
-  setSelectedTrade(
-    nextSelectedTrades[0] ?? null
-  );
-
-}, [
-  selectedDay,
-  currentMonth,
-  currentYear,
-  selectedAccount,
-  selectedTrades,
-]);
 
 const [
   reviewedTradeKeys,
@@ -332,10 +333,11 @@ const handleAccountChange = (
     null
   );
 
-  setSelectedTrade(
-    nextSelectedTrades[0] ??
-      null
-  );
+setTradeSelection({
+  context: `${currentYear}-${currentMonth}-${selectedDay}:${account}`,
+  mode: "auto",
+  tradeId: null,
+});
 
   setTradeDrawerCollapsed(
     nextSelectedTrades.length > 0
@@ -346,9 +348,11 @@ const handleSelectTrade = (
   trade: Trade
 ) => {
 
-  setSelectedTrade(
-    trade
-  );
+setTradeSelection({
+  context: selectionContext,
+  mode: "manual",
+  tradeId: trade.id,
+});
 
   setTradeDrawerCollapsed(
     false
@@ -389,11 +393,14 @@ const handlePreviousTrade = () => {
     return;
   }
 
-  setSelectedTrade(
+setTradeSelection({
+  context: selectionContext,
+  mode: "manual",
+  tradeId:
     filteredSelectedTrades[
       selectedTradeIndex - 1
-    ]
-  );
+    ].id,
+});
 
   setTradeDrawerCollapsed(
     false
@@ -408,11 +415,14 @@ const handleNextTrade = () => {
     return;
   }
 
-  setSelectedTrade(
+setTradeSelection({
+  context: selectionContext,
+  mode: "manual",
+  tradeId:
     filteredSelectedTrades[
       selectedTradeIndex + 1
-    ]
-  );
+    ].id,
+});
 
   setTradeDrawerCollapsed(
     false
@@ -474,7 +484,11 @@ const handleEditTrade = (
    * Editing and the review drawer are mutually
    * exclusive states.
    */
-  setSelectedTrade(null);
+  setTradeSelection({
+  context: selectionContext,
+  mode: "none",
+  tradeId: null,
+});
 
   setTradeDrawerCollapsed(
     false
@@ -716,12 +730,9 @@ selectedTrades={
                     </div>
 
 <DailyReviewSecondaryMetrics
-selectedTrades={
-  realizedSelectedTrades
-}
-  reportingCurrency={
-    reportingCurrency
-  }
+  selectedTrades={realizedSelectedTrades}
+  activityTrades={filteredSelectedTrades}
+  reportingCurrency={reportingCurrency}
 />
 
                     {/* ================================================= */}
