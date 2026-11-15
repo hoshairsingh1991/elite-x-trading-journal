@@ -42,37 +42,31 @@ export default function EquityCurveCard({
 const equityValues =
   equityAnalytics.equityCurve;
 
-const starting =
-  equityValues.length > 0
-    ? equityValues[0]
-    : 0;
+// Include the initial zero baseline.
+const starting = 0;
 
 const ending =
   equityValues.length > 0
-    ? equityValues[
-        equityValues.length - 1
-      ]
+    ? equityValues[equityValues.length - 1]
     : 0;
 
 const netChange =
   ending - starting;
 
-
-
 const high =
-  equityValues.length > 0
-    ? Math.max(...equityValues)
-    : 0;
+  equityValues.reduce(
+    (maximum, value) => Math.max(maximum, value),
+    starting
+  );
 
 const low =
-  equityValues.length > 0
-    ? Math.min(...equityValues)
-    : 0;
+  equityValues.reduce(
+    (minimum, value) => Math.min(minimum, value),
+    starting
+  );
 
 const currencySymbol =
-  getCurrencySymbol(
-    reportingCurrency
-  );
+  getCurrencySymbol(reportingCurrency);
 
 
 function formatCurrency(
@@ -261,9 +255,15 @@ backdrop-blur-xl
           High
         </p>
 
-        <p className="mt-3 text-[16px] font-bold text-emerald-400">
-          {formatCurrency(high)}
-        </p>
+       <p
+  className={`mt-3 text-[16px] font-bold ${
+    high >= 0
+      ? "text-emerald-400"
+      : "text-red-400"
+  }`}
+>
+  {formatCurrency(high)}
+</p>
       </div>
 
       {/* LOW */}
@@ -273,9 +273,15 @@ backdrop-blur-xl
           Low
         </p>
 
-        <p className="mt-3 text-[16px] font-bold text-red-400">
-          {formatCurrency(low)}
-        </p>
+       <p
+  className={`mt-3 text-[16px] font-bold ${
+    low >= 0
+      ? "text-emerald-400"
+      : "text-red-400"
+  }`}
+>
+  {formatCurrency(low)}
+</p>
       </div>
 
     </div>

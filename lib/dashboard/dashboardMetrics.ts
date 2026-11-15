@@ -1,3 +1,4 @@
+
 import { Trade } from "@/types/trade";
 
 import {
@@ -25,11 +26,11 @@ export interface DashboardMetrics {
 
   bestDay: number;
 
-bestDayDate: string;
+  bestDayDate: string;
 
-worstDay: number;
+  worstDay: number;
 
-worstDayDate: string;
+  worstDayDate: string;
 
   streak: number;
 
@@ -42,6 +43,28 @@ worstDayDate: string;
   averageTradeDurationMinutes: number;
 }
 
+export interface DashboardMetricsInput {
+  activityTrades: Trade[];
+  realizedTrades: Trade[];
+}
+
+// =================================================
+// TRADE LIFECYCLE
+// =================================================
+
+export function isClosedTrade(
+  trade: Trade
+): boolean {
+  return (
+    !trade.isOpen &&
+    (
+      trade.status === "WIN" ||
+      trade.status === "LOSS" ||
+      trade.status === "BREAKEVEN"
+    )
+  );
+}
+
 // =================================================
 // HELPERS
 // =================================================
@@ -49,7 +72,6 @@ worstDayDate: string;
 function calculateWinningTrades(
   trades: Trade[]
 ): number {
-
   return trades.filter(
     (trade) =>
       trade.status === "WIN"
@@ -59,7 +81,6 @@ function calculateWinningTrades(
 function calculateLosingTrades(
   trades: Trade[]
 ): number {
-
   return trades.filter(
     (trade) =>
       trade.status === "LOSS"
@@ -69,16 +90,13 @@ function calculateLosingTrades(
 function calculateAverageLoss(
   trades: Trade[]
 ): number {
-
   const losingTrades =
     trades.filter(
       (trade) =>
         trade.status === "LOSS"
     );
 
-  if (
-    losingTrades.length === 0
-  ) {
+  if (losingTrades.length === 0) {
     return 0;
   }
 
@@ -98,7 +116,6 @@ function calculateAverageLoss(
 function calculateProfitFactor(
   trades: Trade[]
 ): number {
-
   const grossProfit =
     trades
       .filter(
@@ -133,7 +150,6 @@ function calculateProfitFactor(
 function calculateExpectancy(
   trades: Trade[]
 ): number {
-
   const winningTrades =
     calculateWinningTrades(
       trades
@@ -148,9 +164,7 @@ function calculateExpectancy(
     winningTrades +
     losingTrades;
 
-  if (
-    totalClosedTrades === 0
-  ) {
+  if (totalClosedTrades === 0) {
     return 0;
   }
 
@@ -168,8 +182,7 @@ function calculateExpectancy(
 
   const avgWin =
     winningTrades > 0
-      ? grossProfit /
-        winningTrades
+      ? grossProfit / winningTrades
       : 0;
 
   const avgLoss =
@@ -194,7 +207,6 @@ function calculateExpectancy(
 function calculateMostTradedSymbol(
   trades: Trade[]
 ): string {
-
   if (trades.length === 0) {
     return "";
   }
@@ -203,9 +215,7 @@ function calculateMostTradedSymbol(
     Record<string, number> = {};
 
   trades.forEach((trade) => {
-
-    const ticker =
-      trade.ticker;
+    const ticker = trade.ticker;
 
     counts[ticker] =
       (counts[ticker] || 0) + 1;
@@ -216,11 +226,7 @@ function calculateMostTradedSymbol(
 
   Object.entries(counts)
     .forEach(([ticker, count]) => {
-
-      if (
-        count > highestCount
-      ) {
-
+      if (count > highestCount) {
         highestCount = count;
         mostTraded = ticker;
       }
@@ -232,16 +238,13 @@ function calculateMostTradedSymbol(
 function calculateAverageTradeDuration(
   trades: Trade[]
 ): number {
-
   const durations: number[] = [];
 
   trades.forEach((trade) => {
-
     if (
       trade.openedAt &&
       trade.closedAt
     ) {
-
       const opened =
         new Date(
           trade.openedAt
@@ -256,13 +259,8 @@ function calculateAverageTradeDuration(
         (closed - opened) /
         (1000 * 60);
 
-      if (
-        minutes > 0
-      ) {
-
-        durations.push(
-          minutes
-        );
+      if (minutes > 0) {
+        durations.push(minutes);
       }
 
       return;
@@ -272,7 +270,6 @@ function calculateAverageTradeDuration(
       trade.holdingDays &&
       trade.holdingDays > 0
     ) {
-
       durations.push(
         trade.holdingDays *
         24 *
@@ -281,9 +278,7 @@ function calculateAverageTradeDuration(
     }
   });
 
-  if (
-    durations.length === 0
-  ) {
+  if (durations.length === 0) {
     return 0;
   }
 
@@ -304,34 +299,41 @@ function calculateAverageTradeDuration(
 // MASTER DASHBOARD METRICS
 // =================================================
 
-export function getDashboardMetrics(
-  trades: Trade[] = []
-): DashboardMetrics {
+export function getDashboardMetrics({
+  activityTrades,
+  realizedTrades,
+}: DashboardMetricsInput): DashboardMetrics {
+
+  // Defensive lifecycle validation:
+  // Never allow an open or invalid-status trade
+  // to enter realized-performance calculations.
+
+  const closedTrades =
+    realizedTrades.filter(
+      isClosedTrade
+    );
 
   const analytics =
     generatePnLAnalytics(
-      trades,
+      closedTrades,
       "ALL"
     );
 
   const winningTrades =
     calculateWinningTrades(
-      trades
+      closedTrades
     );
 
   const losingTrades =
     calculateLosingTrades(
-      trades
+      closedTrades
     );
 
   const totalTrades =
-    trades.filter(
-      (trade) =>
-        !trade.isOpen
-    ).length;
+    closedTrades.length;
 
   const netPnL =
-    trades.reduce(
+    closedTrades.reduce(
       (sum, trade) =>
         sum + (trade.pnl || 0),
       0
@@ -339,7 +341,7 @@ export function getDashboardMetrics(
 
   const avgWin =
     winningTrades > 0
-      ? trades
+      ? closedTrades
           .filter(
             (trade) =>
               trade.status === "WIN"
@@ -354,7 +356,7 @@ export function getDashboardMetrics(
 
   const avgLoss =
     calculateAverageLoss(
-      trades
+      closedTrades
     );
 
   const winRate =
@@ -366,7 +368,6 @@ export function getDashboardMetrics(
       : 0;
 
   return {
-
     netPnL,
 
     totalTrades,
@@ -383,25 +384,25 @@ export function getDashboardMetrics(
 
     profitFactor:
       calculateProfitFactor(
-        trades
+        closedTrades
       ),
 
     expectancy:
       calculateExpectancy(
-        trades
+        closedTrades
       ),
 
     bestDay:
-  analytics.bestDay,
+      analytics.bestDay,
 
-bestDayDate:
-  analytics.bestDayDate,
+    bestDayDate:
+      analytics.bestDayDate,
 
-worstDay:
-  analytics.worstDay,
+    worstDay:
+      analytics.worstDay,
 
-worstDayDate:
-  analytics.worstDayDate,
+    worstDayDate:
+      analytics.worstDayDate,
 
     streak:
       analytics.streak,
@@ -414,12 +415,12 @@ worstDayDate:
 
     mostTradedSymbol:
       calculateMostTradedSymbol(
-        trades
+        activityTrades
       ),
 
     averageTradeDurationMinutes:
       calculateAverageTradeDuration(
-        trades
+        closedTrades
       ),
   };
 }

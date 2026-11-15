@@ -202,22 +202,26 @@ const leftColumnGap = "gap-3";
    DEDUCTIBLE CARD
    ===================================================== */
 
-const deductibleCardX = "translate-x-3";
-const deductibleCardY = "translate-y-7";
+const deductibleCardX = "translate-x-1.5";
+const deductibleCardY = "translate-y-5";
 
-const deductibleCardWidth = "w-[105%]";
+const deductibleCardWidth = "w-[110%]";
 const deductibleCardHeight = "h-[80px]";
 
-const deductibleTitleX = "translate-x-3";
+const deductibleTitleX =
+  "translate-x-3 min-[1680px]:translate-x-0";
 const deductibleTitleY = "translate-y-2";
 
-const deductibleValueX = "translate-x-4";
+const deductibleValueX =
+  "translate-x-4 min-[1680px]:translate-x-0";
 const deductibleValueY = "translate-y-3";
 
-const deductibleSubtitleX = "translate-x-4";
+const deductibleSubtitleX =
+  "translate-x-4 min-[1680px]:translate-x-0";
 const deductibleSubtitleY = "translate-y-3";
 
-const deductibleIconX = "translate-x-1";
+const deductibleIconX =
+  "translate-x-1 min-[1680px]:translate-x-3 min-[2400px]:translate-x-8 min-[3000px]:translate-x-10";
 const deductibleIconY = "translate-y-6";
 
 const deductibleIconSize = "h-7 w-7";
@@ -230,22 +234,26 @@ const deductibleSubtitleFontSize = "text-[11px]";
    BENEFIT CARD
    ===================================================== */
 
-const benefitCardX = "translate-x-3";
-const benefitCardY = "translate-y-8";
+const benefitCardX = "translate-x-1.5";
+const benefitCardY = "translate-y-4";
 
-const benefitCardWidth = "w-[105%]";
+const benefitCardWidth = "w-[110%]";
 const benefitCardHeight = "h-[80px]";
 
-const benefitTitleX = "translate-x-3";
+const benefitTitleX =
+  "translate-x-3 min-[1680px]:translate-x-0";
 const benefitTitleY = "translate-y-3";
 
-const benefitValueX = "translate-x-4";
+const benefitValueX =
+  "translate-x-4 min-[1680px]:translate-x-0";
 const benefitValueY = "translate-y-3";
 
-const benefitSubtitleX = "translate-x-4";
+const benefitSubtitleX =
+  "translate-x-4 min-[1680px]:translate-x-0";
 const benefitSubtitleY = "translate-y-3";
 
-const benefitIconX = "translate-x-1";
+const benefitIconX =
+  "translate-x-1 min-[1680px]:translate-x-3 min-[2400px]:translate-x-8 min-[3000px]:translate-x-10";
 const benefitIconY = "translate-y-6";
 
 const benefitIconSize = "h-7 w-7";
@@ -259,7 +267,7 @@ const benefitSubtitleFontSize = "text-[11px]";
    ===================================================== */
 
 const donutContainerX = "translate-x-2";
-const donutContainerY = "translate-y-14";
+const donutContainerY = "translate-y-12";
 
 const donutContainerWidth = "w-[38%]";
 const donutContainerHeight = "h-auto";
@@ -284,10 +292,10 @@ const donutBottomTextFontSize = "text-[12px]";
    TAX PROFILE CARD
    ===================================================== */
 
-const taxProfileX = "translate-x-3";
-const taxProfileY = "translate-y-12";
+const taxProfileX = "translate-x-1.5";
+const taxProfileY = "translate-y-6";
 
-const taxProfileWidth = "w-[95%]";
+const taxProfileWidth = "w-[97%]";
 const taxProfileHeight = "h-[70px]";
 
 /* =====================================================
@@ -318,87 +326,7 @@ const taxRateLabelFontSize = "text-[10px]";
 const divider1Height = "h-9";
 
 
-/* =====================================================
-   CALCULATION BASIS V2
-   ===================================================== */
 
-/* CARD */
-
-const calculationCardX = "translate-x-3";
-const calculationCardY =
-  "translate-y-0 min-[1440px]:translate-y-16";
-
-const calculationCardWidth = "w-[95%]";
-const calculationCardHeight = "h-[90px]";
-
-/* HEADER ROW */
-
-const calculationHeaderX = "translate-x-2";
-const calculationHeaderY = "-translate-y-7";
-
-/* ICON */
-
-const calculationIconX = "-translate-x-1";
-const calculationIconY = "translate-y-14";
-
-const calculationIconSize = "h-5 w-5";
-
-/* TITLE */
-
-const calculationTitleX = "translate-x-2";
-const calculationTitleY = "translate-y-8.5";
-
-const calculationTitleFontSize = "text-[12px]";
-
-
-/* FORMULA ROW */
-
-const calculationBoxesX =
-  "translate-x-0 min-[1440px]:translate-x-3";
-const calculationBoxesY = "translate-y-3";
-
-/* AMOUNT BOX */
-
-const calculationAmountWidth = "w-[60px]";
-const calculationAmountHeight = "h-[30px]";
-
-const calculationAmountBoxX = "translate-x-0";
-const calculationAmountBoxY = "translate-y-0";
-
-const calculationAmountLabelX = "translate-x-0";
-const calculationAmountLabelY = "translate-y-1";
-
-/* MULTIPLY */
-
-const calculationMultiplyX = "-translate-x-2";
-const calculationMultiplyY = "translate-y-0";
-
-/* TAX BOX */
-
-const calculationTaxWidth = "w-[60px]";
-const calculationTaxHeight = "h-[30px]";
-
-const calculationTaxBoxX = "-translate-x-2";
-const calculationTaxBoxY = "translate-y-0";
-
-const calculationTaxLabelX = "translate-x-0";
-const calculationTaxLabelY = "translate-y-1";
-
-/* EQUALS */
-
-const calculationEqualsX = "-translate-x-2";
-const calculationEqualsY = "translate-y-0";
-
-/* RESULT BOX */
-
-const calculationResultWidth = "w-[90px]";
-const calculationResultHeight = "h-[30px]";
-
-const calculationResultBoxX = "-translate-x-1";
-const calculationResultBoxY = "translate-y-0";
-
-const calculationResultLabelX = "translate-x-0";
-const calculationResultLabelY = "translate-y-1";
 
 /* =====================================================
    DISCLAIMER V2
@@ -654,7 +582,7 @@ bg-[#0b1220]
 
     {/* CONTENT */}
 
-    <div className="min-w-0 flex min-h-0 flex-col">
+    <div className="min-w-0 flex min-h-0 flex-1 flex-col min-[1680px]:text-center">
 
       <div
         className={`
@@ -752,7 +680,7 @@ bg-[#0b1220]
 
     {/* CONTENT */}
 
-    <div className="flex flex-col">
+    <div className="min-w-0 flex min-h-0 flex-1 flex-col min-[1680px]:text-center">
 
       <div
         className={`
@@ -1228,310 +1156,303 @@ translate-x-0
 
 </div> {/* tax profile wrapper */}
 
+{/* ================================================= */}
 {/* CALCULATION BASIS */}
+{/* ================================================= */}
 
 <div
-  className={`
-    ${calculationCardWidth}
+  className="
+    w-[97%]
     mx-auto
-
-    ${calculationCardX}
-    ${calculationCardY}
-  `}
+    translate-x-1.5
+    translate-y-0
+    min-[1440px]:translate-y-8
+  "
 >
   <div
-    className={`
-      ${calculationCardHeight}
-
-      rounded-[8px]
-      border
-      border-white/10
-      bg-white/[0.02]
-    `}
+className="
+  h-auto
+  min-h-[120px]
+  rounded-[10px]
+  border
+  border-white/[0.08]
+  bg-gradient-to-br
+  from-[#111b2b]
+  to-[#0b1220]
+  p-3.5
+  shadow-[0_10px_28px_rgba(0,0,0,0.18)]
+"
   >
 
     {/* HEADER */}
+<div className="h-2 w-full" />
+    <div className="flex min-w-0 translate-x-2 items-center gap-2.5">
 
-    <div
-      className={`
-        flex
-        items-center
+      <div
+        className="
+          flex
+          h-8
+          w-8
+          shrink-0
+          items-center
+          justify-center
+          rounded-[8px]
+          border
+          border-sky-400/20
+          bg-sky-400/10
+        "
+      >
+        <Calculator className="h-5 w-5 text-sky-300" />
+      </div>
 
-        ${calculationHeaderX}
-        ${calculationHeaderY}
-      `}
-    >
+      <div className="min-w-0 flex-1">
 
+        <p className="text-[12px] font-semibold text-white">
+          Calculation Basis
+        </p>
 
-<div
-  className={`
+        <p className="mt-0.5 text-[10px] text-slate-500">
+          How the estimate is derived
+        </p>
+
+      </div>
+
+<span
+  className="
     flex
+    h-[24px]
+    w-[64px]
+    shrink-0
+    -translate-x-4
     items-center
     justify-center
-
-    ${calculationIconX}
-    ${calculationIconY}
-  `}
+    rounded-[8px]
+    border
+    border-sky-400/15
+    bg-sky-400/[0.06]
+    text-[8px]
+    font-semibold
+    uppercase
+    tracking-[0.12em]
+    text-sky-300
+  "
 >
-  <Calculator className="h-6 w-6 text-sky-400" />
-</div>
-
-
-      <div
-        className={`
-          ${calculationTitleFontSize}
-          font-semibold
-          text-white
-
-          ${calculationTitleX}
-          ${calculationTitleY}
-        `}
-      >
-        Calculation Basis
-      </div>
+  Formula
+</span>
 
     </div>
 
-    {/* FORMULA */}
+<div className="h-2 w-full" />
+    {/* CALCULATION INPUTS */}
 
-{/* FORMULA */}
+    <div className="mt-3 grid grid-cols-2 gap-2">
+
+{/* DEDUCTIBLE EXPENSES */}
 
 <div
-  className={`
-    grid
+  className="
     min-w-0
-    w-full
-    max-w-full
-    grid-cols-[minmax(60px,70px)_auto_minmax(50px,55px)_auto_minmax(75px,90px)]
-    items-start
-    justify-center
-    gap-2
-
-    ${calculationBoxesX}
-    ${calculationBoxesY}
-  `}
+    w-[95%]
+    translate-x-2
+    rounded-[8px]
+    border
+    border-white/[0.07]
+    bg-white/[0.025]
+    px-2.5
+    py-2
+  "
 >
+  <div className="min-w-0 translate-x-2">
 
-      {/* AMOUNT */}
+    <div className="h-1 w-full" />
 
-      <div className="min-w-0 flex flex-1 flex-col items-center">
+    <p className="text-[10px] leading-4 text-slate-500">
+      Deductible expenses
+    </p>
 
-        <div
-          className={`
-            ${calculationAmountWidth}
-            ${calculationAmountHeight}
+    <p
+      className="
+        mt-0.5
+        whitespace-nowrap
+        text-[12px]
+        font-semibold
+        tracking-tight
+        text-white
+        tabular-nums
+      "
+    >
+      {currencySymbol}
+      {deductibleAmount.toFixed(2)}
+    </p>
 
-            flex
-            items-center
-            justify-center
-
-            rounded-[8px]
-            border
-            border-white/10
-            bg-white/[0.03]
-
-            ${calculationAmountBoxX}
-            ${calculationAmountBoxY}
-          `}
-        >
-          <span className="text-[13px] font-semibold text-white">
-            {currencySymbol}
-            {deductibleAmount.toFixed(2)}
-          </span>
-        </div>
-
-<div
-  className={`
-    w-[100px]
-    whitespace-nowrap
-    text-[11px]
-    text-slate-500
-
-    ${calculationAmountLabelX}
-    ${calculationAmountLabelY}
-  `}
->
-  Deductible Expenses
-</div>
-
-      </div>
-
-      {/* MULTIPLY */}
-
-      <div
-        className={`
-          text-[18px]
-          text-slate-500
-
-          ${calculationMultiplyX}
-          ${calculationMultiplyY}
-        `}
-      >
-        ×
-      </div>
-
-      {/* TAX */}
-
-      <div className="min-w-0 flex flex-1 flex-col items-center">
-
-        <div
-          className={`
-            ${calculationTaxWidth}
-            ${calculationTaxHeight}
-
-            flex
-            items-center
-            justify-center
-
-            rounded-[8px]
-            border
-            border-white/10
-            bg-white/[0.03]
-
-            ${calculationTaxBoxX}
-            ${calculationTaxBoxY}
-          `}
-        >
-          <span className="text-[13px] font-semibold text-white">
-            {TAX_RATE}%
-          </span>
-        </div>
-
-        <div
-          className={`
-            text-[11px]
-            text-slate-500
-
-            ${calculationTaxLabelX}
-            ${calculationTaxLabelY}
-          `}
-        >
-          Tax Rate
-        </div>
-
-      </div>
-
-      {/* EQUALS */}
-
-      <div
-        className={`
-          text-[18px]
-          text-slate-500
-
-          ${calculationEqualsX}
-          ${calculationEqualsY}
-        `}
-      >
-        =
-      </div>
-
-      {/* RESULT */}
-
-      <div className="min-w-0 flex flex-1 flex-col items-center">
-
-        <div
-          className={`
-            ${calculationResultWidth}
-            ${calculationResultHeight}
-
-            flex
-            items-center
-            justify-center
-
-            rounded-[8px]
-            border
-            border-emerald-500/20
-            bg-emerald-500/5
-
-            ${calculationResultBoxX}
-            ${calculationResultBoxY}
-          `}
-        >
-          <span className="text-[13px] font-semibold text-emerald-400">
-            {currencySymbol}
-            {estimatedTaxBenefit.toFixed(2)}
-          </span>
-        </div>
-
-<div
-  className={`
-    w-[120px]
-    whitespace-nowrap
-    text-[11px]
-    text-slate-500
-
-    ${calculationResultLabelX}
-    ${calculationResultLabelY}
-  `}
->
-  Estimated Tax Benefit
-</div>
-
-      </div>
-
-    </div>
+    <div className="h-1 w-full" />
 
   </div>
 </div>
 
-{/* DISCLAIMER */}
+
+{/* TAX RATE */}
 
 <div
-  className={`
-    ${disclaimerWidth}
-    mx-auto
+  className="
+    min-w-0
+    w-[95%]
+    rounded-[8px]
+    border
+    border-white/[0.07]
+    bg-white/[0.025]
+    px-2.5
+    py-2
+  "
+>
+  <div className="min-w-0 translate-x-2">
 
-    ${disclaimerX}
-    ${disclaimerY}
-  `}
+    <div className="h-1 w-full" />
+
+    <p className="text-[10px] leading-4 text-slate-500">
+      Applied tax rate
+    </p>
+
+    <p
+      className="
+        mt-0.5
+        text-[12px]
+        font-semibold
+        text-white
+        tabular-nums
+      "
+    >
+      {TAX_RATE}%
+    </p>
+
+    <div className="h-1 w-full" />
+
+  </div>
+</div>
+
+    </div>
+
+<div className="h-2 w-full" />
+    {/* ESTIMATED BENEFIT */}
+
+    <div
+className="
+  mt-2.5
+  mx-auto
+  w-[95%]
+  translate-x-2
+  translate-y-0
+  flex
+  items-center
+  justify-between
+  gap-2
+  rounded-[8px]
+  border
+  border-emerald-500/20
+  bg-emerald-500/[0.07]
+  px-3
+  py-2.5
+"
+    >
+
+      <div className="min-w-0 translate-x-2">
+<div className="h-1.5 w-full" />
+        <p className="text-[11px] font-semibold text-slate-200">
+          Estimated tax benefit
+        </p>
+
+        <p className="mt-0.5 text-[9px] text-slate-500">
+          Deductible expenses × tax rate
+        </p>
+<div className="h-1.5 w-full" />
+      </div>
+
+<p
+  className="
+    shrink-0
+    whitespace-nowrap
+    -translate-x-2
+    text-[13px]
+    font-bold
+    text-emerald-400
+    tabular-nums
+  "
+>
+  {currencySymbol}
+  {estimatedTaxBenefit.toFixed(2)}
+</p>
+
+    </div>
+<div className="h-2 w-full" />
+  </div>
+</div>
+
+
+{/* ================================================= */}
+{/* TAX ESTIMATE DISCLAIMER */}
+{/* ================================================= */}
+
+<div
+  className="
+    w-[97%]
+    mx-auto
+    translate-x-1.5
+    translate-y-10
+  "
 >
   <div
-    className={`
-      ${disclaimerHeight}
-
-      rounded-[8px]
+    className="
+      flex
+      items-center
+      gap-3
+      rounded-[10px]
       border
-      border-white/10
-      bg-white/[0.02]
-    `}
+      border-white/[0.08]
+      bg-[#0d1726]
+      px-3.5
+      py-3
+      shadow-[0_8px_22px_rgba(0,0,0,0.12)]
+    "
   >
 
     {/* ICON */}
 
     <div
-      className={`
-        ${disclaimerIconSize}
-
-        flex
-        items-center
-        justify-center
-
-        ${disclaimerIconX}
-        ${disclaimerIconY}
-      `}
+className="
+  flex
+  h-8
+  w-8
+  shrink-0
+  translate-x-1
+  items-center
+  justify-center
+  rounded-[8px]
+  border
+  border-sky-400/15
+  bg-sky-400/[0.06]
+"
     >
-      <ShieldCheck className="h-7 w-7 text-slate-400" />
+      <ShieldCheck className="h-4 w-4 text-slate-400" />
     </div>
 
-    {/* TEXT */}
 
-    <div
-      className={`
-        ${disclaimerTextWidth}
+    {/* CONTENT */}
 
-        ${disclaimerTextFontSize}
-        leading-6
-        text-slate-300
+    <div className="min-w-0 flex-1">
+<div className="h-1 w-full" />
+      <p className="text-[11px] font-semibold text-slate-200">
+        Estimate only
+      </p>
 
-        ${disclaimerTextX}
-        ${disclaimerTextY}
-      `}
-    >
-      Estimates are based on your configured tax profile and deductible expenses.
-      Actual tax treatment may vary by country, province/state, and accountant.
+      <p className="mt-1 text-[10px] leading-[17px] text-slate-400">
+        This is an illustrative estimate, not a tax filing result.
+        Actual deductibility and tax savings depend on applicable
+        tax rules and your circumstances.
+      </p>
+<div className="h-1 w-full" />
     </div>
 
-   </div>
+  </div>
 </div>
 
 <TaxSettingsDrawer

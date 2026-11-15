@@ -32,6 +32,7 @@ from "@/components/dashboard-v2/KPIGrid";
 
 import {
   getDashboardMetrics,
+  isClosedTrade,
 } from "@/lib/dashboard/dashboardMetrics";
 
 import {
@@ -751,30 +752,51 @@ const reportingTrades =
     fxRates
   );
 
+// =================================================
+// ANALYTICS
+// =================================================
 
-  // =================================================
-  // ANALYTICS
-  // =================================================
+// Activity dataset:
+// Includes open and closed trades.
+
+const activityTrades =
+  reportingTrades;
+
+// Realized dataset:
+// Includes only valid, completed trades.
+
+const realizedTrades =
+  activityTrades.filter(
+    isClosedTrade
+  );
+
+// =================================================
+// HEADER METRICS
+// =================================================
 
 const totalPnL =
   calculateTotalPnL(
-    reportingTrades
+    realizedTrades
   );
 
-  const totalTrades =
-    calculateTotalTrades(
-      filteredTrades
-    );
+// Preserve all-trade activity count.
 
-  const winRate =
-    calculateWinRate(
-      filteredTrades
-    );
+const totalTrades =
+  calculateTotalTrades(
+    filteredTrades
+  );
 
-  const averageWin =
-    calculateAverageWin(
-      filteredTrades
-    );
+// Existing calculations retained for now.
+
+const winRate =
+  calculateWinRate(
+    filteredTrades
+  );
+
+const averageWin =
+  calculateAverageWin(
+    filteredTrades
+  );
 
 const totalFees =
   calculateTotalFees(
@@ -791,14 +813,23 @@ const feesByCurrency =
     filteredTrades
   );
 
+// =================================================
+// DASHBOARD METRICS
+// =================================================
+
 const dashboardMetrics =
-  getDashboardMetrics(
-    reportingTrades
-  );
+  getDashboardMetrics({
+    activityTrades,
+    realizedTrades,
+  });
+
+// =================================================
+// REALIZED DAILY P&L
+// =================================================
 
 const dailyPnL =
   groupDailyPnL(
-    reportingTrades
+    realizedTrades
   );
 
 const pnlAggregationRange:
@@ -858,13 +889,13 @@ const pnlAggregationRange:
 
 const pnlAnalytics =
   generatePnLAnalytics(
-    reportingTrades,
+    realizedTrades,
     pnlAggregationRange
   );
 
-  const winRateTrend =
+const winRateTrend =
   generateWinRateTrend(
-    filteredTrades
+    realizedTrades
   );
   
 
@@ -939,7 +970,7 @@ const drawdownTrend =
 
 
 const avgWinLossHistogram =
-  filteredTrades
+  realizedTrades
     .slice(-20)
     .map(
       trade =>

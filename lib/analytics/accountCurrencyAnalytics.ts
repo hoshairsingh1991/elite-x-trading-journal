@@ -38,17 +38,26 @@ export function getAccountCurrencyAnalytics(
   // P&L BY CURRENCY
   // =====================================
 
-  trades.forEach((trade) => {
+trades.forEach((trade) => {
 
-    const currency =
-      trade.currency || "USD";
+  // Open-position fees are not realized P&L.
+  const isOpenTrade =
+    trade.isOpen ||
+    trade.status === "OPEN";
 
-    pnlMap.set(
-      currency,
-      (pnlMap.get(currency) || 0) +
-      (trade.pnl || 0)
-    );
-  });
+  if (isOpenTrade) {
+    return;
+  }
+
+  const currency =
+    trade.currency || "USD";
+
+  pnlMap.set(
+    currency,
+    (pnlMap.get(currency) || 0) +
+    (trade.pnl || 0)
+  );
+});
 
   // =====================================
   // COMMISSIONS BY CURRENCY

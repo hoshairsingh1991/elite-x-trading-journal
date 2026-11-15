@@ -10,8 +10,10 @@ import KPIGrid from "@/components/dashboard-v2/KPIGrid";
 import EquitySection from "@/components/dashboard-v2/EquitySection";
 import SecondaryMetricsRow from "@/components/dashboard-v2/SecondaryMetricsRow";
 import TradingCalendar from "@/components/dashboard/TradingCalendar";
-
-import { getDashboardMetrics } from "@/lib/dashboard/dashboardMetrics";
+import {
+  getDashboardMetrics,
+  isClosedTrade,
+} from "@/lib/dashboard/dashboardMetrics";
 import { generateEquityAnalytics } from "@/lib/analytics/equityAnalytics";
 import { groupDailyPnL, generatePnLAnalytics } from "@/lib/analytics/pnlAnalytics";
 import { generateConsistencyAnalytics } from "@/lib/analytics/consistencyAnalytics";
@@ -78,11 +80,29 @@ export default function DemoDashboardPage() {
     return convertTradesToReportingCurrency(filteredTrades, reportingCurrency, FALLBACK_RATES);
   }, [filteredTrades, reportingCurrency]);
 
+  const realizedTrades = useMemo(
+  () => convertedTrades.filter(isClosedTrade),
+  [convertedTrades]
+);
+
   // Derive Analytics Metrics using Production Engine
-  const dashboardMetrics = useMemo(() => getDashboardMetrics(convertedTrades), [convertedTrades]);
-  const dailyPnL = useMemo(() => groupDailyPnL(convertedTrades), [convertedTrades]);
+ const dashboardMetrics = useMemo(
+  () =>
+    getDashboardMetrics({
+      activityTrades: convertedTrades,
+      realizedTrades,
+    }),
+  [convertedTrades, realizedTrades]
+);
+  const dailyPnL = useMemo(
+  () => groupDailyPnL(realizedTrades),
+  [realizedTrades]
+);
   const equityAnalytics = useMemo(() => generateEquityAnalytics(dailyPnL, dashboardMetrics.netPnL), [dailyPnL, dashboardMetrics.netPnL]);
-  const pnlAnalytics = useMemo(() => generatePnLAnalytics(convertedTrades, "MTD"), [convertedTrades]);
+  const pnlAnalytics = useMemo(
+  () => generatePnLAnalytics(realizedTrades, "MTD"),
+  [realizedTrades]
+);
 
   const winningDays = useMemo(() => dailyPnL.filter((d) => d.pnl > 0).length, [dailyPnL]);
   const totalDays = dailyPnL.length;
@@ -105,7 +125,10 @@ export default function DemoDashboardPage() {
 
   const secondaryMetricsAnalytics = useMemo(() => generateSecondaryMetricsAnalytics(convertedTrades), [convertedTrades]);
   const performanceBreakdownAnalytics = useMemo(() => generatePerformanceBreakdownAnalytics(convertedTrades), [convertedTrades]);
-  const winRateTrend = useMemo(() => generateWinRateTrend(convertedTrades), [convertedTrades]);
+  const winRateTrend = useMemo(
+  () => generateWinRateTrend(realizedTrades),
+  [realizedTrades]
+);
 
   const availableAccounts = ["ALL", "Master Trading", "Options Growth", "Secondary CAD"];
 

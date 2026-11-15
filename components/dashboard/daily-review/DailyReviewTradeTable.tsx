@@ -493,15 +493,15 @@ className="
               </th>
 
               <th
-                className="
-                  truncate
-                  px-1
-                  -translate-x-1
-                  text-right
-                  text-[11px]
-                  font-medium
-                  text-slate-500
-                "
+className="
+  truncate
+  px-1
+  text-center
+  translate-x-3
+  text-[11px]
+  font-medium
+  text-slate-500
+"
               >
                 Qty
               </th>
@@ -893,15 +893,16 @@ ${
 {/* QTY */}
 
                     <td
-                      className="
-                        truncate
-                        px-1
-                        text-right
-                          -translate-x-3
-                        text-[11px]
-                        font-medium
-                        text-slate-300
-                      "
+className="
+  truncate
+  px-1
+  text-center
+  translate-x-3
+  text-[11px]
+  font-medium
+  tabular-nums
+  text-slate-300
+"
                     >
                       {formatQuantity(
                         trade.quantity

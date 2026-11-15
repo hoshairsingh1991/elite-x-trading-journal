@@ -44,34 +44,45 @@ const openTrades = trades
     return quantity.toString();
   }
 
-  function getPositionLabel(
-    trade: Trade
-  ) {
-    if (
-      trade.assetType ===
-      "Options"
-    ) {
-      if (
-        trade.contractKey?.endsWith(
-          "_C"
-        )
-      ) {
-        return "CALL";
-      }
+function isOptionTrade(trade: Trade): boolean {
+  const assetType =
+    (trade.assetType ?? "").trim().toUpperCase();
 
-      if (
-        trade.contractKey?.endsWith(
-          "_P"
-        )
-      ) {
-        return "PUT";
-      }
+  return ["OPTION", "OPTIONS", "OPT"].includes(assetType);
+}
 
-      return "OPTION";
-    }
+function getOptionType(
+  trade: Trade
+): "CALL" | "PUT" | null {
+  const contractInformation = [
+    trade.contractKey ?? "",
+    trade.contract ?? "",
+  ]
+    .join(" ")
+    .toUpperCase();
 
-    return trade.side;
+  const hasCall =
+    /(?:^|[^A-Z0-9])(?:C|CALLS?)(?=$|[^A-Z0-9])/
+      .test(contractInformation);
+
+  const hasPut =
+    /(?:^|[^A-Z0-9])(?:P|PUTS?)(?=$|[^A-Z0-9])/
+      .test(contractInformation);
+
+  if (hasCall === hasPut) {
+    return null;
   }
+
+  return hasCall ? "CALL" : "PUT";
+}
+
+function getPositionLabel(trade: Trade) {
+  if (isOptionTrade(trade)) {
+    return getOptionType(trade) ?? "OPTION";
+  }
+
+  return trade.side;
+}
 
   return (
     <div
@@ -184,8 +195,8 @@ const openTrades = trades
   Size
 </div>
 
-<div className="relative top-0.5 whitespace-nowrap text-right">
-  Unrealized P&L
+<div className="relative left-[10px] top-0.5 whitespace-nowrap text-right">
+  Commission
 </div>
   </div>
 </div>
@@ -219,9 +230,6 @@ const openTrades = trades
     </div>
   ) : (
     openTrades.map((trade) => {
-      const isProfit =
-        trade.pnl >= 0;
-
 
       return (
         <div
@@ -298,17 +306,17 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
               left-8
               text-[11px]
               font-medium
-              ${
-                trade.assetType === "Options"
-                  ? trade.contractKey?.endsWith("_C")
-                    ? "text-cyan-400"
-                    : trade.contractKey?.endsWith("_P")
-                      ? "text-amber-400"
-                      : "text-slate-400"
-                  : trade.side === "LONG"
-                    ? "text-emerald-400"
-                    : "text-red-400"
-              }
+${
+  isOptionTrade(trade)
+    ? getOptionType(trade) === "CALL"
+      ? "text-cyan-400"
+      : getOptionType(trade) === "PUT"
+        ? "text-amber-400"
+        : "text-slate-400"
+    : trade.side === "LONG"
+      ? "text-emerald-400"
+      : "text-red-400"
+}
             `}
           >
             {getPositionLabel(
@@ -334,29 +342,24 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
 </div>
 
           {/* ----------------------------------- */}
-          {/* P&L */}
+          {/* COMMISSION */}
           {/* ----------------------------------- */}
 
-<div
-  className={`
-    whitespace-nowrap
-    text-right
-    text-[11px]
-    font-semibold
-    tabular-nums
-    ${
-      isProfit
-        ? "text-emerald-400"
-        : "text-red-400"
-    }
-  `}
->
-            {isProfit ? "+" : "-"}
+          <div
+            className="
+              whitespace-nowrap
+              text-right
+              text-[11px]
+              font-semibold
+              tabular-nums
+              text-slate-300
+            "
+          >
             {getCurrencySymbol(
-              trade.currency
+              trade.feeCurrency ?? trade.currency
             )}
             {Math.abs(
-              trade.pnl
+              trade.fees
             ).toFixed(2)}
           </div>
         </div>
@@ -367,6 +370,6 @@ hover:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.035)]
   </div>
 </div>
       </div>
-   
+
   );
 }

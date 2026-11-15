@@ -77,7 +77,11 @@ export interface PerformanceBreakdownData {
 function isCompletedTrade(trade: Trade): boolean {
   return (
     !trade.isOpen &&
-    trade.status !== "OPEN"
+    (
+      trade.status === "WIN" ||
+      trade.status === "LOSS" ||
+      trade.status === "BREAKEVEN"
+    )
   );
 }
 
@@ -608,7 +612,7 @@ function generateSymbolRows(
 }
 
 // =================================================
-// EXISTING LONG P&L
+// REALIZED LONG P&L
 // =================================================
 
 export function calculateLongPnL(
@@ -616,7 +620,9 @@ export function calculateLongPnL(
 ): number {
   return trades
     .filter(
-      trade => trade.side === "LONG"
+      trade =>
+        isCompletedTrade(trade) &&
+        trade.side === "LONG"
     )
     .reduce(
       (total, trade) =>
@@ -626,7 +632,7 @@ export function calculateLongPnL(
 }
 
 // =================================================
-// EXISTING SHORT P&L
+// REALIZED SHORT P&L
 // =================================================
 
 export function calculateShortPnL(
@@ -634,7 +640,9 @@ export function calculateShortPnL(
 ): number {
   return trades
     .filter(
-      trade => trade.side === "SHORT"
+      trade =>
+        isCompletedTrade(trade) &&
+        trade.side === "SHORT"
     )
     .reduce(
       (total, trade) =>
@@ -671,14 +679,22 @@ export function generatePerformanceBreakdownAnalytics(
   const shortPnL =
     calculateShortPnL(trades);
 
-  const commissions =
-    calculateCommissions(trades);
+const commissions =
+  calculateCommissions(trades);
 
-  const netTradingPnL =
-    longPnL + shortPnL;
+// Only completed-trade commissions
+// are used to calculate realized Gross P&L.
 
-  const grossPnL =
-    netTradingPnL + Math.abs(commissions);
+const realizedCommissions =
+  calculateCommissions(
+    trades.filter(isCompletedTrade)
+  );
+
+const netTradingPnL =
+  longPnL + shortPnL;
+
+const grossPnL =
+  netTradingPnL + Math.abs(realizedCommissions);
 
   const longTrades =
     trades.filter(

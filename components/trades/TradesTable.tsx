@@ -980,15 +980,17 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
       : "text-red-300"
   }`}
 >
-  {trade.pnl >= 0 ? "+" : "-"}
+  {isOpen ? (
+    "—"
+  ) : (
+    <>
+      {trade.pnl >= 0 ? "+" : "-"}
 
-  {formatCurrency(
-    Math.abs(
-      Number(
-        trade.pnl
-      )
-    ),
-    trade.currency
+      {formatCurrency(
+        Math.abs(Number(trade.pnl)),
+        trade.currency
+      )}
+    </>
   )}
 </div>
 
@@ -1058,7 +1060,7 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
         trade
       );
     }}
-   className="absolute right-[8px] flex h-[30px] w-[30px] items-center justify-center text-[15px] text-red-400 transition-all duration-150 hover:scale-110 hover:text-red-300 hover:drop-shadow-[0_0_6px_rgba(248,113,113,0.55)]"
+   className="absolute right-[-6px] flex h-[30px] w-[30px] items-center justify-center text-[15px] text-red-400 transition-all duration-150 hover:scale-110 hover:text-red-300 hover:drop-shadow-[0_0_6px_rgba(248,113,113,0.55)]"
   >
     ✎
   </button>
