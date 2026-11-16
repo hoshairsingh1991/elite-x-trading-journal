@@ -184,6 +184,54 @@ describe("pairTrades — broker commission allocation", () => {
     expect(totalFees).toBeCloseTo(1.4, 8);
   });
 
+it("preserves the remaining entry commission credit after a partial exit", () => {
+  const executions = [
+    makeExecution({
+      id: "buy-2-credit",
+      action: "BUY",
+      quantity: 2,
+      executionPrice: 1.0,
+      fees: -1.0,
+      executionTimestamp: "2026-11-11T09:30:00",
+    }),
+
+    makeExecution({
+      id: "sell-1",
+      action: "SELL",
+      quantity: 1,
+      executionPrice: 1.1,
+      fees: 0.4,
+      executionTimestamp: "2026-11-11T09:31:00",
+    }),
+  ];
+
+  const trades = pairTrades(executions);
+
+  const closedTrade = trades.find(
+    (trade) => !trade.isOpen
+  );
+
+  const openTrade = trades.find(
+    (trade) => trade.isOpen
+  );
+
+  expect(closedTrade).toBeDefined();
+  expect(openTrade).toBeDefined();
+
+  expect(closedTrade!.quantity).toBe(1);
+  expect(closedTrade!.fees).toBeCloseTo(-0.1, 8);
+
+  expect(openTrade!.quantity).toBe(1);
+  expect(openTrade!.fees).toBeCloseTo(-0.5, 8);
+
+  const totalFees = trades.reduce(
+    (total, trade) => total + trade.fees,
+    0
+  );
+
+  expect(totalFees).toBeCloseTo(-0.6, 8);
+});
+
   it("allocates reversal execution commission between the closed and newly opened positions", () => {
     const executions = [
       makeExecution({

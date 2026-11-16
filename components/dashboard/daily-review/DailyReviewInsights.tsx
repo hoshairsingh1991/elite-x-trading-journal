@@ -228,30 +228,27 @@ export default function DailyReviewInsights({
       0
     );
 
-  const totalFees =
-    closedTrades.reduce(
-      (
-        sum,
-        trade
-      ) =>
-        sum +
-        Math.abs(
-          Number(
-            trade.fees || 0
-          )
-        ),
-      0
-    );
+const totalFees =
+  closedTrades.reduce(
+    (
+      sum,
+      trade
+    ) =>
+      sum +
+      Number(
+        trade.fees || 0
+      ),
+    0
+  );
 
-  /*
-   * pnl is treated as canonical NET P&L.
-   *
-   * Therefore:
-   *
-   * Gross P&L = Net P&L + Fees
-   *
-   * This assumes trade.fees represents positive fee magnitude.
-   */
+/*
+ * pnl is canonical NET P&L.
+ *
+ * Signed fees include commission expenses
+ * and commission credits.
+ *
+ * Gross P&L = Net P&L + Net Fees
+ */
 
   const grossPnL =
     totalPnL +

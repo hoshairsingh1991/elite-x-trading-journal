@@ -239,7 +239,7 @@ function InfoMark() {
 
       formula="Win Rate = Winning Completed Trades ÷ Completed Trades × 100. Net P&L = Sum of Completed-Trade P&L. Commissions = Sum of Recorded Fees."
 
-      calculation="P&L and commissions use your selected reporting currency. Mix and Symbol trade counts and commissions include open trades; Weekday counts and commissions use completed trades only. Net P&L and Win Rate use completed trades in every view."
+     calculation="P&L and commissions use your selected reporting currency. Mix and Symbol trade counts and commissions include open trades; Weekday commissions and the Total Commissions footer use completed trades only. Net P&L and Win Rate use completed trades in every view."
 
       interpretation="Colours reflect the selected metric. Net P&L colours indicate profit or loss, while Win Rate colours represent win-rate ranges. A high win rate does not guarantee profitability."
 
@@ -360,9 +360,9 @@ const SYMBOL_PREVIEW_ROWS: SymbolRow[] =
     })
   );
 
-  const commissionTotal = Math.abs(
-    performanceBreakdownAnalytics.commissions ?? 0
-  );
+const commissionTotal = Math.abs(
+  performanceBreakdownAnalytics.realizedCommissions ?? 0
+);
 
   const maxMixTrades = Math.max(
     ...MIX_PREVIEW_ROWS.flatMap((row) => [

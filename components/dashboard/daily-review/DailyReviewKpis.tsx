@@ -36,13 +36,25 @@ function formatDuration(
       Math.round(minutes)
     );
 
+  const days =
+    Math.floor(
+      rounded / 1440
+    );
+
+  const remainingMinutes =
+    rounded % 1440;
+
   const hours =
     Math.floor(
-      rounded / 60
+      remainingMinutes / 60
     );
 
   const mins =
-    rounded % 60;
+    remainingMinutes % 60;
+
+  if (days > 0) {
+    return `${days}d ${hours}h`;
+  }
 
   if (hours > 0) {
     return `${hours}h ${mins}m`;
@@ -312,65 +324,55 @@ const winRate =
         ? Infinity
         : 0;
 
-  /*
-   * Average hold time uses closed trades only.
-   */
-  const holdTimes =
-    selectedTrades
-      .filter(
-        (
-          trade
-        ) =>
-          trade.openedAt &&
+/*
+ * Average hold time uses valid CLOSED trades only.
+ */
+
+const holdTimes =
+  closedTrades
+    .map((trade) => {
+      if (
+        !trade.openedAt ||
+        !trade.closedAt
+      ) {
+        return null;
+      }
+
+      const entryTime =
+        new Date(
+          trade.openedAt
+        ).getTime();
+
+      const exitTime =
+        new Date(
           trade.closedAt
-      )
-      .map(
-        (
-          trade
-        ) => {
+        ).getTime();
 
-          const entryTime =
-            new Date(
-              trade.openedAt!
-            ).getTime();
+      if (
+        !Number.isFinite(entryTime) ||
+        !Number.isFinite(exitTime) ||
+        exitTime < entryTime
+      ) {
+        return null;
+      }
 
-          const exitTime =
-            new Date(
-              trade.closedAt!
-            ).getTime();
+      return (
+        exitTime - entryTime
+      ) / 60000;
+    })
+    .filter(
+      (minutes): minutes is number =>
+        minutes !== null
+    );
 
-          const minutes =
-            (
-              exitTime -
-              entryTime
-            ) / 60000;
-
-          return Number.isFinite(
-            minutes
-          ) && minutes >= 0
-            ? minutes
-            : null;
-        }
-      )
-      .filter(
-        (
-          value
-        ): value is number =>
-          value !== null
-      );
-
-  const averageHoldTime =
-    holdTimes.length > 0
-      ? holdTimes.reduce(
-          (
-            sum,
-            value
-          ) =>
-            sum + value,
-          0
-        ) /
-        holdTimes.length
-      : null;
+const averageHoldTime =
+  holdTimes.length > 0
+    ? holdTimes.reduce(
+        (sum, minutes) =>
+          sum + minutes,
+        0
+      ) / holdTimes.length
+    : null;
 
   const cards = [
     {

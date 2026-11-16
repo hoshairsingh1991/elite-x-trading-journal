@@ -112,10 +112,8 @@ function allocateRemainingExecutionFees(
   const unallocatedFees =
     remainingFees.minus(allocatedFees);
 
-  execution.remainingFees =
-    unallocatedFees.isNegative()
-      ? 0
-      : unallocatedFees.toNumber();
+execution.remainingFees =
+  unallocatedFees.toNumber();
 
   return allocatedFees;
 }

@@ -998,24 +998,29 @@ className="
 {/* COMMISSION */}
 
 <td
-className="
-  truncate
-  px-1
-  text-right
-  -translate-x-3
-  text-[11px]
-  font-medium
-  text-slate-400
-"
+  className={`
+    truncate
+    px-1
+    text-right
+    -translate-x-3
+    text-[11px]
+    font-medium
+    ${
+      Number(trade.fees || 0) < 0
+        ? "text-emerald-400"
+        : "text-slate-400"
+    }
+  `}
 >
-{formatCurrency(
-  Math.abs(
-    Number(
-      trade.fees || 0
-    )
-  ),
-  reportingCurrency
-)}
+  {Number(trade.fees || 0) < 0
+    ? `-${formatCurrency(
+        Math.abs(Number(trade.fees || 0)),
+        reportingCurrency
+      )}`
+    : formatCurrency(
+        Number(trade.fees || 0),
+        reportingCurrency
+      )}
 </td>
 
                     {/* R-MULTIPLE */}

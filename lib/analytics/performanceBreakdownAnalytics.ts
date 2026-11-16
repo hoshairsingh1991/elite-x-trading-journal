@@ -54,6 +54,7 @@ export interface PerformanceBreakdownData {
   shortPnL: number;
 
   commissions: number;
+  realizedCommissions: number;
 
   netTradingPnL: number;
   grossPnL: number;
@@ -694,7 +695,7 @@ const netTradingPnL =
   longPnL + shortPnL;
 
 const grossPnL =
-  netTradingPnL + Math.abs(realizedCommissions);
+  netTradingPnL + realizedCommissions;
 
   const longTrades =
     trades.filter(
@@ -723,6 +724,7 @@ const grossPnL =
     longPnL,
     shortPnL,
     commissions,
+    realizedCommissions,
     netTradingPnL,
     grossPnL,
     longTrades,

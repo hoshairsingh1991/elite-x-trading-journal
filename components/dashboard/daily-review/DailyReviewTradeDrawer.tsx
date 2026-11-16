@@ -1270,12 +1270,15 @@ className="
                   </div>
 
                   <div className="translate-y-[6px]">
-                    <PreviewRow
-                      label="Fees"
-                      value={`${currencySymbol}${totalCommission.toFixed(2)}`}
-                      valueClassName="translate-x-[-10px]"
-                    />
-                  </div>
+  <PreviewRow
+    label="Fees"
+    value={`${
+      totalCommission < 0 ? "-" : ""
+    }${currencySymbol}${Math.abs(totalCommission).toFixed(2)}`}
+    positive={totalCommission < 0}
+    valueClassName="translate-x-[-10px]"
+  />
+</div>
                 </div>
 
                 {/* RIGHT — PERFORMANCE */}
@@ -1592,13 +1595,17 @@ Math.abs(
                       ).toFixed(2)}
                     </div>
 
-                    <div className="mt-2 text-[12px] text-slate-400">
-                      Fee:{" "}
-                      {currencySymbol}
-                      {buyCommission.toFixed(
-                        2
-                      )}
-                    </div>
+                   <div
+  className={`mt-2 text-[12px] ${
+    buyCommission < 0
+      ? "text-emerald-400"
+      : "text-slate-400"
+  }`}
+>
+  Fee:{" "}
+  {currencySymbol}
+  {buyCommission.toFixed(2)}
+</div>
 
                   </div>
 
@@ -1684,13 +1691,17 @@ null
                           : "—"}
                       </div>
 
-                      <div className="mt-2 text-[12px] text-slate-400">
-                        Fee:{" "}
-                        {currencySymbol}
-                        {sellCommission.toFixed(
-                          2
-                        )}
-                      </div>
+                  <div
+  className={`mt-2 text-[12px] ${
+    sellCommission < 0
+      ? "text-emerald-400"
+      : "text-slate-400"
+  }`}
+>
+  Fee:{" "}
+  {currencySymbol}
+  {sellCommission.toFixed(2)}
+</div>
 
                     </div>
 

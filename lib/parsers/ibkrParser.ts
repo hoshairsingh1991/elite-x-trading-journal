@@ -260,16 +260,23 @@ export async function parseIBKRCsv(
                       );
 
 
-                    // =================================================
-                    // FEES
-                    // =================================================
+// =================================================
+// FEES
+// =================================================
 
-                    const fees =
-                      Math.abs(
-                        parseNumber(
-                          row.Commission
-                        )
-                      );
+// IBKR Commission represents cash flow:
+// Positive = commission credit
+// Negative = commission charge
+//
+// Elite X convention:
+// Positive fees = expense
+// Negative fees = credit
+
+const commissionCashFlow =
+  parseNumber(row.Commission);
+
+const fees =
+  -commissionCashFlow;
 
 
                     // =================================================
