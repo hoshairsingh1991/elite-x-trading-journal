@@ -75,7 +75,7 @@ export interface PerformanceBreakdownData {
 // COMPLETED TRADE RULE
 // =================================================
 
-function isCompletedTrade(trade: Trade): boolean {
+export function isCompletedTrade(trade: Trade): boolean {
   return (
     !trade.isOpen &&
     (

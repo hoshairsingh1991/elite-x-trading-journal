@@ -595,4 +595,5 @@ git commit -m "chore(checkpoint): save current state before Capital sidebar impl
 git commit -m "feat(capital): refine pending activity and transaction UI"
 git commit -m "fix: correct IBKR commission accounting"
 git commit -m "fix: correct trade history date filtering and sorting"
+git commit -m "fix: align expense commissions with realized trading fees"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -9,6 +9,10 @@ import {
   calculateTotalExpenses,
 } from "./expenseAnalytics";
 
+import {
+  isCompletedTrade,
+} from "./performanceBreakdownAnalytics";
+
 export interface BusinessCostAnalyticsData {
 
   commissions: number;
@@ -61,15 +65,14 @@ businessStartDate: string;
 export function calculateTotalCommissions(
   trades: Trade[]
 ): number {
+  const realizedCommissions = trades
+    .filter(isCompletedTrade)
+    .reduce(
+      (total, trade) => total + trade.fees,
+      0
+    );
 
-return trades.reduce(
-  (
-    total,
-    trade
-  ) =>
-    total + Math.abs(trade.fees),
-  0
-);
+  return Math.abs(realizedCommissions);
 }
 
 // =================================================
