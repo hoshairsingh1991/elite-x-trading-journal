@@ -174,33 +174,40 @@ const handleSelectTrade =
 
 // =================================================
 // SORT TRADES
-// NEWEST → OLDEST
-// OPEN TIME WITHIN DAY
+// NEWEST ACTIVITY → OLDEST
+// CLOSED: CLOSE TIMESTAMP
+// OPEN: OPEN TIMESTAMP
 // =================================================
 
-const sortedTrades = [
-  ...safeTrades,
-].sort((a, b) => {
+const getActivityTimestamp = (trade: Trade) => {
+  const activityDate = trade.isOpen
+    ? trade.openedAt
+    : trade.closedAt;
 
-  const timeA =
-    a.openedAt
-      ? new Date(
-          a.openedAt
-        ).getTime()
-      : parseLocalDate(
-          a.date
-        ).getTime();
+  if (activityDate) {
+    const timestamp = activityDate.includes("T")
+      ? new Date(activityDate).getTime()
+      : parseLocalDate(activityDate).getTime();
 
-  const timeB =
-    b.openedAt
-      ? new Date(
-          b.openedAt
-        ).getTime()
-      : parseLocalDate(
-          b.date
-        ).getTime();
+    if (Number.isFinite(timestamp)) {
+      return timestamp;
+    }
+  }
 
-  return timeB - timeA;
+  const fallbackTimestamp = parseLocalDate(
+    trade.date
+  ).getTime();
+
+  return Number.isFinite(fallbackTimestamp)
+    ? fallbackTimestamp
+    : 0;
+};
+
+const sortedTrades = [...safeTrades].sort((a, b) => {
+  return (
+    getActivityTimestamp(b) -
+    getActivityTimestamp(a)
+  );
 });
 
 // =================================================
@@ -996,13 +1003,18 @@ className={`text-[12px] font-bold uppercase tracking-[0.10em] ${
 
 {/* COMMISSION */}
 
-<div className="relative left-[4px] flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium text-slate-500">
+<div
+  className={`relative left-[4px] flex h-[var(--trade-row-height)] items-center justify-center border-b border-white/[0.04] px-5 text-center text-[14px] font-medium ${
+    Number(trade.fees ?? 0) < 0
+      ? "text-emerald-400"
+      : "text-slate-500"
+  }`}
+>
   {formatCurrency(
-    Number(trade.fees),
+    Number(trade.fees ?? 0),
     trade.feeCurrency ||
       trade.currency
   )}
-
 </div>
 
 {/* RESULT */}

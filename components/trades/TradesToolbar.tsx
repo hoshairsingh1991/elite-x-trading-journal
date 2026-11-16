@@ -160,20 +160,22 @@ const accounts = Array.from(
   // RESET
   // =================================================
 
-    const handleReset = () => {
+const handleReset = () => {
 
-    setSearchQuery("");
+  setSearchQuery("");
 
-    setStatusFilter("ALL");
+  setStatusFilter("ALL");
 
-    setSideFilter("ALL");
+  setSideFilter("ALL");
 
-    setAssetFilter("ALL");
+  setAssetFilter("ALL");
 
-    setFromDate("");
+  setSelectedDatePreset("All Time");
 
-    setToDate("");
-  };
+  setFromDate("");
+
+  setToDate("");
+};
 
   return (
 
@@ -362,12 +364,13 @@ border-white/[0.06]
       "
     >
 
-      <DateRangePicker
-        variant="tradeHistory"
-        heightClass="h-[40px]"
-        selectedPreset={
-          selectedDatePreset
-        }
+<DateRangePicker
+  variant="tradeHistory"
+  heightClass="h-[40px]"
+  preserveCustomRange
+  selectedPreset={
+    selectedDatePreset
+  }
         onDateRangeChange={(
           preset,
           startDate,
@@ -378,21 +381,18 @@ border-white/[0.06]
             preset
           );
 
-          setFromDate(
-            startDate
-              ? startDate
-                  .toISOString()
-                  .split("T")[0]
-              : ""
-          );
+const formatLocalDate = (date: Date | null) => {
+  if (!date) return "";
 
-          setToDate(
-            endDate
-              ? endDate
-                  .toISOString()
-                  .split("T")[0]
-              : ""
-          );
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+setFromDate(formatLocalDate(startDate));
+setToDate(formatLocalDate(endDate));
         }}
       />
 

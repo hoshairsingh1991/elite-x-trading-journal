@@ -593,6 +593,6 @@ git commit -m "fix: correct P&L accounting and refine analytics UI"
 git commit -m "chore(checkpoint): save current state before Capital sidebar implementation"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 git commit -m "feat(capital): refine pending activity and transaction UI"
-
-
+git commit -m "fix: correct IBKR commission accounting"
+git commit -m "fix: correct trade history date filtering and sorting"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

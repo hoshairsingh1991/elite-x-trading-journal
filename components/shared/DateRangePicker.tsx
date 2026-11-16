@@ -30,6 +30,8 @@ interface DateRangePickerProps {
 
   heightClass?: string;
 
+  preserveCustomRange?: boolean;
+
   variant?: "default" | "tradeHistory";
 }
 
@@ -39,6 +41,7 @@ export default function DateRangePicker({
   onDateRangeChange,
   widthClass,
   heightClass,
+  preserveCustomRange = false,
   variant = "default",
 
 }: DateRangePickerProps) {
@@ -203,11 +206,13 @@ const [displayRange, setDisplayRange] =
   );
 
 useEffect(() => {
+  if (selectedPreset === "Custom") {
+    return;
+  }
 
   setDisplayRange(
     calculatePresetRange(selectedPreset)
   );
-
 }, [selectedPreset]);
 
     /* =====================================================

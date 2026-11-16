@@ -45,6 +45,33 @@ import { Trade } from "@/types/trade";
 const lastImportX =
   "translate-x-[-0px]";
 
+function getLocalDateKey(
+  value?: string | null
+): string {
+  if (!value) return "";
+
+  // Date-only values are already calendar dates.
+  if (!value.includes("T")) {
+    return value.slice(0, 10);
+  }
+
+  const date = new Date(value);
+
+  if (!Number.isFinite(date.getTime())) {
+    return "";
+  }
+
+  const year = date.getFullYear();
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export default function TradesPage() {
 
   // =================================================
@@ -896,23 +923,26 @@ const matchesSide =
             trade.assetType ===
               assetFilter;
 
-          // =========================================
-          // DATE RANGE
-          // =========================================
+// =========================================
+// DATE RANGE
+// CLOSED TRADES: CLOSE DATE
+// OPEN TRADES: OPEN DATE
+// =========================================
 
-          const matchesFromDate =
+const activityDate = trade.isOpen
+  ? trade.openedAt ?? trade.date
+  : trade.closedAt ?? trade.date;
 
-            !fromDate ||
+const activityDateKey =
+  getLocalDateKey(activityDate);
 
-            trade.date >=
-              fromDate;
+const matchesFromDate =
+  !fromDate ||
+  (!!activityDateKey && activityDateKey >= fromDate);
 
-          const matchesToDate =
-
-            !toDate ||
-
-            trade.date <=
-              toDate;
+const matchesToDate =
+  !toDate ||
+  (!!activityDateKey && activityDateKey <= toDate);
 
 return (
   matchesSearch &&
