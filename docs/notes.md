@@ -590,9 +590,9 @@ git commit -m "Fix commission allocation and daily review accounting"
 git commit -m "Polish daily review and trading calendar"
 git commit -m "Improve dashboard analytics data handling"
 git commit -m "fix: correct P&L accounting and refine analytics UI"
-
+git commit -m "chore(checkpoint): save current state before Capital sidebar implementation"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+git commit -m "feat(capital): refine pending activity and transaction UI"
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

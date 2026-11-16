@@ -9,6 +9,7 @@ import {
   CalendarDays,
   Wallet,
   BarChart3,
+  Landmark,
   Settings,
   NotebookPen,
   Calculator,
@@ -34,16 +35,21 @@ const mainItems = [
     icon: CandlestickChart,
     href: "/trades",
   },
-{
-  title: "Notes",
-  icon: NotebookPen,
-  href: "/notes",
-},
-{
-  title: "Analytics",
-  icon: BarChart3,
-  href: "#",
-},
+  {
+    title: "Notes",
+    icon: NotebookPen,
+    href: "/notes",
+  },
+  {
+    title: "Analytics",
+    icon: BarChart3,
+    href: "#",
+  },
+  {
+    title: "Capital",
+    icon: Landmark,
+    href: "/capital",
+  },
   {
     title: "Expenses",
     icon: Wallet,
