@@ -1,6 +1,5 @@
 import { Trade } from "@/types/trade";
 
-
 // =================================================
 // TIME RANGE TYPE
 // =================================================
@@ -15,7 +14,6 @@ export type TimeRange =
   | "YTD"
   | "1Y"
   | "ALL";
-
 
 // =================================================
 // LOCAL DATE PARSER
@@ -44,7 +42,6 @@ function parseLocalDate(
     day
   );
 }
-
 
 // =================================================
 // FILTER TRADES BY RANGE
@@ -391,7 +388,6 @@ export function calculateTotalFees(
   );
 }
 
-
 // =================================================
 // BEST TRADE
 // =================================================
@@ -412,7 +408,6 @@ export function calculateBestTrade(
         : best
   );
 }
-
 
 // =================================================
 // WORST TRADE

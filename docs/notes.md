@@ -589,7 +589,7 @@ git commit -m "chore(checkpoint): preserve state before commission accounting fi
 git commit -m "Fix commission allocation and daily review accounting"
 git commit -m "Polish daily review and trading calendar"
 git commit -m "Improve dashboard analytics data handling"
-
+git commit -m "fix: correct P&L accounting and refine analytics UI"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
