@@ -206,14 +206,20 @@ const [displayRange, setDisplayRange] =
   );
 
 useEffect(() => {
-  if (selectedPreset === "Custom") {
+  if (
+    preserveCustomRange &&
+    selectedPreset === "Custom"
+  ) {
     return;
   }
 
   setDisplayRange(
     calculatePresetRange(selectedPreset)
   );
-}, [selectedPreset]);
+}, [
+  selectedPreset,
+  preserveCustomRange,
+]);
 
     /* =====================================================
    DATE BUTTON CONTENT

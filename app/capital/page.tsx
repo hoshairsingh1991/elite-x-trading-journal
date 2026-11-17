@@ -40,6 +40,11 @@ import {
   INITIAL_TRANSACTIONS,
 } from "@/lib/capital/preview-data";
 
+import {
+  getMonthlyFundingActivity,
+  getCapitalActivitySummary,
+} from "@/lib/capital/analytics";
+
 
 import { CURRENCY_ORDER } from "@/lib/capital/constants";
 
@@ -68,6 +73,10 @@ import Filter from "@/components/capital/CapitalFilters";
 import BrokerageAccountsCard from "@/components/capital/BrokerageAccountsCard";
 
 import PendingActivityPanel from "@/components/capital/PendingActivityPanel";
+
+import FundingActivityCard from "@/components/capital/FundingActivityCard";
+
+import CapitalActivitySummaryCard from "@/components/capital/CapitalActivitySummaryCard";
 
 import RecentTransactionsTable from "@/components/capital/RecentTransactionsTable";
 
@@ -370,6 +379,31 @@ const [currencyFilter, setCurrencyFilter] =
   const pendingTotals =
     getCurrencyTotals(pendingTransactions);
 
+    // ===================================================
+// CAPITAL ANALYTICS
+// ===================================================
+
+const monthlyFundingActivity = useMemo(() => {
+  if (!dateRangeStart || !dateRangeEnd) {
+    return [];
+  }
+
+  return getMonthlyFundingActivity(
+    filteredTransactions,
+    toDateKey(dateRangeStart),
+    toDateKey(dateRangeEnd)
+  );
+}, [
+  filteredTransactions,
+  dateRangeStart,
+  dateRangeEnd,
+]);
+
+const capitalActivitySummary = useMemo(
+  () => getCapitalActivitySummary(filteredTransactions),
+  [filteredTransactions]
+);
+
   // ===================================================
   // FORM HANDLERS
   // ===================================================
@@ -626,7 +660,26 @@ const clearFilters = () => {
 />
 
             </div>
-<div className="h-3" />
+   <div className="h-3" />
+            {/* ================================================= */}
+            {/* CAPITAL ANALYTICS */}
+            {/* ================================================= */}
+
+            <div className="relative left-3 mt-5 grid w-[98%] grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
+
+              <FundingActivityCard
+                data={monthlyFundingActivity}
+                currencyFilter={currencyFilter}
+              />
+
+              <CapitalActivitySummaryCard
+                summary={capitalActivitySummary}
+              />
+
+            </div>
+
+            <div className="h-3" />
+
             {/* ================================================= */}
             {/* RECENT TRANSACTIONS */}
             {/* ================================================= */}
