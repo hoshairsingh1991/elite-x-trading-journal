@@ -110,22 +110,23 @@ export default function DashboardHeader({
   onChange={(event) =>
     setSelectedAccount(event.target.value)
   }
-  className="
-    h-[40px]
-    min-w-[130px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    px-4
-    text-center
-    text-[13px]
-    font-semibold
-    text-slate-300
-    outline-none
-    transition-all
-    focus:border-blue-500/40
-  "
+className="
+  drawer-select
+  h-[40px]
+  min-w-[130px]
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#0b1220]
+  px-4
+  text-center [text-indent:-20px]
+  text-[13px]
+  font-semibold
+  text-slate-300
+  outline-none
+  transition-all
+  focus:border-blue-500/40
+"
 >
   {availableAccounts.map((account) => (
     <option

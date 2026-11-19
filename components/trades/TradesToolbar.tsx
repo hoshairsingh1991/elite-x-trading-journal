@@ -418,6 +418,7 @@ setToDate(formatLocalDate(endDate));
           )
         }
         className="
+         drawer-select
           h-[40px]
           min-w-[130px]
           rounded-[8px]
@@ -425,7 +426,7 @@ setToDate(formatLocalDate(endDate));
           border-white/[0.06]
           bg-[#0b1220]
           px-4
-          text-center
+          text-center [text-indent:-20px]
           text-[13px]
           font-semibold
           text-slate-300
@@ -474,6 +475,7 @@ setToDate(formatLocalDate(endDate));
           )
         }
         className="
+        drawer-select
           h-[40px]
           min-w-[100px]
           rounded-[8px]
@@ -481,7 +483,7 @@ setToDate(formatLocalDate(endDate));
           border-white/[0.06]
           bg-[#0b1220]
           px-4
-          text-center
+          text-center [text-indent:-20px]
           text-[13px]
           font-semibold
           text-slate-300
@@ -534,22 +536,24 @@ setToDate(formatLocalDate(endDate));
       e.target.value
     )
   }
-  className="
-    h-[40px]
-    min-w-[90px]
-    rounded-[8px]
-    border
-    border-white/[0.06]
-    bg-[#0b1220]
-    px-4
-    text-center
-    text-[13px]
-    font-semibold
-    text-slate-300
-    outline-none
-    transition-all
-    focus:border-blue-500/40
-  "
+className="
+  drawer-select
+  h-[40px]
+  min-w-[100px]
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#0b1220]
+  px-4
+  text-center [text-indent:-20px]
+  [background-position:right_24px_center]
+  text-[13px]
+  font-semibold
+  text-slate-300
+  outline-none
+  transition-all
+  focus:border-blue-500/40
+"
 >
   <option value="ALL">
     All Sides
@@ -593,23 +597,25 @@ setToDate(formatLocalDate(endDate));
             e.target.value
           )
         }
-        className="
-          h-[40px]
-          min-w-[100px]
-          rounded-[8px]
-          border
-          border-white/[0.06]
-          bg-[#0b1220]
-          px-4
-          text-center
-          text-[13px]
-          font-semibold
-          text-slate-300
-          outline-none
-          transition-all
-          focus:border-blue-500/40
-        "
-      >
+className="
+  drawer-select
+  h-[40px]
+  min-w-[105px]
+  rounded-[8px]
+  border
+  border-white/[0.06]
+  bg-[#0b1220]
+  px-4
+  text-center [text-indent:-20px]
+  [background-position:right_24px_center]
+  text-[13px]
+  font-semibold
+  text-slate-300
+  outline-none
+  transition-all
+  focus:border-blue-500/40
+"
+>
 
         <option value="ALL">
           All Assets
