@@ -7,6 +7,8 @@ export type CurrencyCode =
   | "JPY"
   | "INR";
 
+export type AccountCurrencyCode = CurrencyCode | "UNKNOWN";
+
 export type TransactionType =
   | "DEPOSIT"
   | "WITHDRAWAL"
@@ -28,7 +30,7 @@ export interface BrokerageAccount {
   name: string;
   broker: string;
   type: string;
-  baseCurrency: CurrencyCode;
+  baseCurrency: AccountCurrencyCode;
   source: "CONNECTED" | "MANUAL";
   status: "ACTIVE" | "CLOSED";
 }
