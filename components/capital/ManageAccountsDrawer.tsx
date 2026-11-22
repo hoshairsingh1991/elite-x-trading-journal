@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, X, Pencil, Archive } from "lucide-react";
+import { Plus, X, Pencil, Archive, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import type {
@@ -63,6 +63,7 @@ export default function ManageAccountsDrawer({
   onRetryAccounts,
   onCreate,
   onUpdate,
+  onArchive,
 }: ManageAccountsDrawerProps) {
 
   // =====================================================
@@ -74,6 +75,15 @@ export default function ManageAccountsDrawer({
 const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
 const [isUpdatingAccount, setIsUpdatingAccount] = useState(false);
 const [editAccountError, setEditAccountError] = useState("");
+
+const [archivingAccountId, setArchivingAccountId] = useState<string | null>(null);
+
+const [archiveAccountError, setArchiveAccountError] = useState<{
+  accountId: string;
+  message: string;
+} | null>(null);
+
+const [archiveSuccessMessage, setArchiveSuccessMessage] = useState("");
 
 // =====================================================
 // EDIT ACCOUNT FORM STATE
@@ -299,6 +309,42 @@ setNewTradingModeCustom("");
       setIsCreatingAccount(false);
     }
   };
+// =====================================================
+// ARCHIVE ACCOUNT HANDLER
+// =====================================================
+
+const handleArchiveAccount = async (account: BrokerageAccount) => {
+  if (account.status !== "ACTIVE" || archivingAccountId !== null) {
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Archive "${account.name}"?\n\nThis account will move to Archived Accounts. Its transaction history will be preserved.`
+  );
+
+  if (!confirmed) return;
+
+  setArchivingAccountId(account.id);
+  setArchiveAccountError(null);
+setArchiveSuccessMessage("");
+  try {
+    await onArchive(account.id);
+
+setArchiveSuccessMessage(
+  `"${account.name}" archived successfully.`
+);
+  } catch (error) {
+    setArchiveAccountError({
+      accountId: account.id,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to archive account. Please try again.",
+    });
+  } finally {
+    setArchivingAccountId(null);
+  }
+};
 
   if (!isOpen) return null;
 
@@ -1046,7 +1092,7 @@ className="
 
   </div>
 
-  <div className="h-1" />
+  <div className="h-2" />
 
 {/* ACCOUNT CARDS */}
 <div className="manage-accounts-scrollbar relative -right-1 flex max-h-[420px] flex-col gap-2 overflow-y-auto overflow-x-hidden pr-2">
@@ -1080,12 +1126,21 @@ className="
 {/* ARCHIVE — APPEARS ON CARD HOVER */}
 <button
   type="button"
-  disabled
-  aria-label="Archive account"
-  title="Archive account"
-  className="absolute right-8 flex h-7 w-7 translate-x-1 scale-90 items-center justify-center text-slate-500 opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100 hover:scale-110 hover:-rotate-12 hover:text-rose-400 hover:drop-shadow-[0_0_5px_rgba(251,113,133,0.55)] active:scale-90"
+  onClick={() => handleArchiveAccount(account)}
+  disabled={archivingAccountId !== null}
+  aria-label={`Archive ${account.name}`}
+  title={
+    archivingAccountId === account.id
+      ? "Archiving account..."
+      : "Archive account"
+  }
+  className="absolute right-8 flex h-7 w-7 translate-x-1 scale-90 items-center justify-center text-slate-500 opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100 focus-visible:translate-x-0 focus-visible:scale-100 focus-visible:opacity-100 hover:scale-110 hover:-rotate-12 hover:text-rose-400 hover:drop-shadow-[0_0_5px_rgba(251,113,133,0.55)] active:scale-90 disabled:cursor-not-allowed disabled:opacity-40"
 >
+  {archivingAccountId === account.id ? (
+  <Loader2 size={15} className="animate-spin text-blue-400" />
+) : (
   <Archive size={15} strokeWidth={1.8} />
+)}
 </button>
 
   {/* EDIT — ALWAYS VISIBLE */}
@@ -1151,6 +1206,14 @@ onClick={() => {
   </span>
 
 </div>
+{archiveAccountError?.accountId === account.id && (
+  <div
+    role="alert"
+    className="mt-3 rounded-[8px] border border-rose-400/20 bg-rose-500/[0.06] px-3 py-2 text-[11px] leading-relaxed text-rose-300"
+  >
+    {archiveAccountError.message}
+  </div>
+)}
 
 <div className="h-1.5" />
           </div>

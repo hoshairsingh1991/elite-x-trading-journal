@@ -79,6 +79,23 @@ export default function Filter({
   onCurrencyChange,
   onReset,
 }: FilterProps) {
+
+  const brokerOptions = Array.from(
+    new Set(
+      accounts
+        .map((account) => account.broker)
+        .filter((broker) => broker.trim().length > 0)
+    )
+  ).sort((a, b) => a.localeCompare(b));
+
+  const currencyOptions = currencies.filter((currency) =>
+    accounts.some(
+      (account) =>
+        account.status === "ACTIVE" &&
+        account.baseCurrency === currency
+    )
+  );
+
   return (
   <div className="relative left-3 mx-auto mt-5 flex min-h-[54px] w-[98%] items-center gap-4 rounded-[8px] border border-white/[0.08] bg-[#091321] px-3 py-2 shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
 
@@ -103,11 +120,13 @@ export default function Filter({
           onChange={onBrokerChange}
           icon={<Landmark size={14} />}
         >
-          <option value="ALL">All brokers</option>
-          <option value="Interactive Brokers">
-            Interactive Brokers
-          </option>
-          <option value="Questrade">Questrade</option>
+<option value="ALL">All brokers</option>
+
+{brokerOptions.map((broker) => (
+  <option key={broker} value={broker}>
+    {broker}
+  </option>
+))}
         </FilterSelect>
 
         <FilterSelect
@@ -118,13 +137,14 @@ export default function Filter({
         >
           <option value="ALL">All accounts</option>
 
-          {accounts
-            .filter(
-              (account) =>
-                brokerFilter === "ALL" ||
-                account.broker === brokerFilter
-            )
-            .map((account) => (
+{accounts
+  .filter(
+    (account) =>
+      account.status === "ACTIVE" &&
+      (brokerFilter === "ALL" ||
+        account.broker === brokerFilter)
+  )
+  .map((account) => (
               <option key={account.id} value={account.id}>
                 {account.name}
               </option>
@@ -139,11 +159,11 @@ export default function Filter({
         >
           <option value="ALL">All currencies</option>
 
-          {currencies.map((currency) => (
-            <option key={currency} value={currency}>
-              {currency}
-            </option>
-          ))}
+{currencyOptions.map((currency) => (
+  <option key={currency} value={currency}>
+    {currency}
+  </option>
+))}
         </FilterSelect>
 
       </div>

@@ -605,6 +605,6 @@ git commit -m "feat(capital): implement transaction creation and security"
 git commit -m "feat(capital): implement account management and taxonomy"
 git commit -m "fix(capital): resolve manual account creation ambiguity"
 git commit -m "feat(capital): complete account taxonomy management"
-
+git commit -m "feat(capital): refine manage accounts drawer UI"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -390,24 +390,35 @@ const involvesBroker = involvedAccounts.some(
   // ACCOUNT TABLE
   // ===================================================
 
-  const visibleAccounts =
-    accounts.filter((account) => {
-      if (
-        accountFilter !== "ALL" &&
-        account.id !== accountFilter
-      ) {
-        return false;
-      }
+const visibleAccounts =
+  accounts.filter((account) => {
+    if (account.status !== "ACTIVE") {
+      return false;
+    }
 
-      if (
-        brokerFilter !== "ALL" &&
-        account.broker !== brokerFilter
-      ) {
-        return false;
-      }
+    if (
+      accountFilter !== "ALL" &&
+      account.id !== accountFilter
+    ) {
+      return false;
+    }
 
-      return account.status === "ACTIVE";
-    });
+    if (
+      brokerFilter !== "ALL" &&
+      account.broker !== brokerFilter
+    ) {
+      return false;
+    }
+
+    if (
+      currencyFilter !== "ALL" &&
+      account.baseCurrency !== currencyFilter
+    ) {
+      return false;
+    }
+
+    return true;
+  });
 
   // ===================================================
   // RECENT TRANSACTIONS

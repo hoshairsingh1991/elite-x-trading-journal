@@ -42,27 +42,28 @@ export default function BrokerageAccountsCard({
 </span>
       </div>
 
-<div className="overflow-x-auto">
+<div className="manage-accounts-scrollbar max-h-[254px] overflow-auto">
   <table className="w-full table-fixed border-collapse text-left">
-    <thead>
+    <thead className="sticky top-0 z-10">
       <tr className="border-b border-white/[0.06] bg-white/[0.015]">
-        {[
-          "Account",
-          "Broker",
-          "Type",
-          "Base",
-          "Deposits",
-          "Withdrawals",
-          "Transfer In/Out",
-          "Source",
-        ].map((heading) => (
-          <th
-            key={heading}
-            className="px-2 py-3 text-center text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500"
-          >
-            {heading}
-          </th>
-        ))}
+{[
+  "Account",
+  "Broker",
+  "Type",
+  "Base",
+  "Deposits",
+  "Withdrawals",
+  "Transfer In/Out",
+].map((heading, index) => (
+  <th
+    key={heading}
+    className="px-2 py-3 text-center text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500"
+  >
+    <span className={index === 0 ? "relative left-3 inline-block" : "inline-block"}>
+      {heading}
+    </span>
+  </th>
+))}
       </tr>
     </thead>
 
@@ -103,11 +104,9 @@ export default function BrokerageAccountsCard({
   <button
     type="button"
     onClick={() =>
-      onAccountSelect(
-        isSelected ? "ALL" : account.id
-      )
+      onAccountSelect(isSelected ? "ALL" : account.id)
     }
-    className="block w-full text-center"
+    className="relative left-3 block w-full text-center"
   >
                       <span className="block whitespace-nowrap text-[12px] font-semibold text-slate-200 transition hover:text-blue-400">
                         {account.name}
@@ -159,19 +158,7 @@ export default function BrokerageAccountsCard({
   </div>
 </td>
 
-<td className="px-2 py-3.5 text-center">
-  <span
-    className={`text-[12px] font-semibold ${
-      account.source === "CONNECTED"
-        ? "text-emerald-400"
-        : "text-blue-400"
-    }`}
-  >
-    {account.source === "CONNECTED"
-      ? "Connected"
-      : "Manual"}
-  </span>
-</td>
+
                 </tr>
               );
             })}
@@ -179,7 +166,7 @@ export default function BrokerageAccountsCard({
             {accounts.length === 0 && (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={7}
                   className="px-5 py-10 text-center text-[12px] text-slate-500"
                 >
                   No accounts match the selected filters.
