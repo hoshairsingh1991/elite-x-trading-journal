@@ -10,6 +10,7 @@ import type { MonthlyFundingActivity } from "@/lib/capital/analytics";
 interface FundingActivityCardProps {
   data: MonthlyFundingActivity[];
   currencyFilter: string;
+  loading?: boolean;
 }
 
 const CURRENCIES: CurrencyCode[] = [
@@ -70,6 +71,7 @@ function formatAxisValue(
 export default function FundingActivityCard({
   data,
   currencyFilter,
+  loading = false,
 }: FundingActivityCardProps) {
   const availableCurrencies = useMemo(
     () =>
@@ -114,14 +116,15 @@ export default function FundingActivityCard({
   );
 
   // Calculate a rounded axis scale with four equal intervals.
-const rawStep = maxValue > 0 ? (maxValue * 1.2) / TICK_COUNT : 1;
+  const rawStep =
+    maxValue > 0 ? (maxValue * 1.2) / TICK_COUNT : 1;
 
-const magnitude = Math.pow(
-  10,
-  Math.floor(Math.log10(rawStep))
-);
+  const magnitude = Math.pow(
+    10,
+    Math.floor(Math.log10(rawStep))
+  );
 
-const normalizedStep = rawStep / magnitude;
+  const normalizedStep = rawStep / magnitude;
 
 const niceStep =
   (normalizedStep <= 1
@@ -168,7 +171,6 @@ const axisMaximum = niceStep * TICK_COUNT;
           />
 
           <div>
-            
             <h3 className="text-[14px] font-semibold text-white">
               Funding Activity
             </h3>
@@ -205,9 +207,11 @@ const axisMaximum = niceStep * TICK_COUNT;
         )}
 
       </div>
- <div className="h-1" />
-     {/* CHART */}
-<div className="relative left-2 top-0 w-[97%] px-5 pt-3 pb-3">
+
+      <div className="h-1" />
+
+      {/* CHART */}
+      <div className="relative left-2 top-0 w-[97%] px-5 pt-3 pb-3">
 
         {/* CHART LEGEND */}
         <div className="mb-2 flex items-center justify-end gap-4">
@@ -223,9 +227,15 @@ const axisMaximum = niceStep * TICK_COUNT;
           </span>
 
         </div>
- <div className="h-1" />
-        {!hasActivity ? (
-          <div className="flex h-[165px] items-center justify-center">
+
+        <div className="h-1" />
+
+        {loading ? (
+          <div className="flex h-[130px] items-center justify-center">
+            <div className="h-5 w-32 animate-pulse rounded bg-white/[0.08]" />
+          </div>
+        ) : !hasActivity ? (
+          <div className="flex h-[130px] items-center justify-center">
             <p className="text-[11px] text-slate-500">
               No funding activity for this period.
             </p>
@@ -257,16 +267,17 @@ const axisMaximum = niceStep * TICK_COUNT;
 
             </div>
 
+
             {/* PLOT AREA */}
             <div className="min-w-0 flex-1 overflow-x-auto overflow-y-hidden">
 
               <div
                 className="relative min-w-full"
                 style={{
-               minWidth: `${Math.max(
-  100,
-  monthlyData.length * 48
-)}px`,
+                  minWidth: `${Math.max(
+                    100,
+                    monthlyData.length * 48
+                  )}px`,
                 }}
               >
 
@@ -351,7 +362,8 @@ const axisMaximum = niceStep * TICK_COUNT;
                       key={`${item.month}-label`}
                       className="flex min-w-0 flex-1 flex-col items-center"
                     >
-                         <div className="h-1" />
+                      <div className="h-1" />
+
                       <span className="text-[10px] font-medium text-slate-400">
                         {item.monthLabel}
                       </span>
@@ -363,7 +375,9 @@ const axisMaximum = niceStep * TICK_COUNT;
                   ))}
 
                 </div>
-<div className="h-1" />
+
+                <div className="h-1" />
+
               </div>
 
             </div>

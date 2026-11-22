@@ -5,6 +5,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import {
   useMemo,
   useState,
+  useEffect,
   type ReactNode,
 } from "react";
 
@@ -21,12 +22,20 @@ import {
 
 import type {
   CapitalTransaction,
+  BrokerageAccount,
 } from "@/lib/capital/types";
 
+
+
 import {
-  INITIAL_ACCOUNTS,
-  INITIAL_TRANSACTIONS,
-} from "@/lib/capital/preview-data";
+  loadCapitalAccounts,
+} from "@/lib/storage/supabaseCapitalStorage";
+
+import {
+  loadCapitalTransactions,
+  createCapitalTransaction,
+  type CreateCapitalTransactionInput,
+} from "@/lib/storage/supabaseCapitalTransactionStorage";
 
 import {
   getMonthlyFundingActivity,
@@ -124,8 +133,102 @@ export default function CapitalPage() {
   // PAGE DATA
   // ===================================================
 
-  const [transactions, setTransactions] =
-    useState<CapitalTransaction[]>(INITIAL_TRANSACTIONS);
+const [transactions, setTransactions] =
+  useState<CapitalTransaction[]>([]);
+
+  const [transactionsLoading, setTransactionsLoading] =
+  useState(true);
+
+const [transactionsError, setTransactionsError] =
+  useState<string | null>(null);
+
+const [transactionsRetry, setTransactionsRetry] =
+  useState(0);
+
+  const [accounts, setAccounts] =
+    useState<BrokerageAccount[]>([]);
+
+  const [accountsLoading, setAccountsLoading] =
+    useState(true);
+
+  const [accountsError, setAccountsError] =
+    useState<string | null>(null);
+
+    const [accountsRetry, setAccountsRetry] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchAccounts() {
+      setAccountsLoading(true);
+      setAccountsError(null);
+
+      try {
+        const data = await loadCapitalAccounts();
+
+        if (!cancelled) {
+          setAccounts(data);
+        }
+      } catch (error) {
+        console.error("Failed to load capital accounts:", error);
+
+        if (!cancelled) {
+          setAccountsError(
+            error instanceof Error
+              ? error.message
+              : "Failed to load brokerage accounts."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setAccountsLoading(false);
+        }
+      }
+    }
+
+    fetchAccounts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accountsRetry]);
+
+  useEffect(() => {
+  let cancelled = false;
+
+  async function fetchTransactions() {
+    setTransactionsLoading(true);
+    setTransactionsError(null);
+
+    try {
+      const page = await loadCapitalTransactions();
+
+      if (!cancelled) {
+        setTransactions(page.transactions);
+      }
+    } catch (error) {
+      console.error("Failed to load capital transactions:", error);
+
+      if (!cancelled) {
+        setTransactionsError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load capital transactions."
+        );
+      }
+    } finally {
+      if (!cancelled) {
+        setTransactionsLoading(false);
+      }
+    }
+  }
+
+  fetchTransactions();
+
+  return () => {
+    cancelled = true;
+  };
+}, [transactionsRetry]);
 
   // ===================================================
   // FILTER STATE
@@ -206,9 +309,9 @@ const [currencyFilter, setCurrencyFilter] =
 
       // Broker filter
       if (brokerFilter !== "ALL") {
-        const involvesBroker = involvedAccounts.some(
+const involvesBroker = involvedAccounts.some(
   (id) =>
-    getAccountById(INITIAL_ACCOUNTS, id)?.broker === brokerFilter
+    getAccountById(accounts, id)?.broker === brokerFilter
 );
 
         if (!involvesBroker) {
@@ -220,6 +323,7 @@ const [currencyFilter, setCurrencyFilter] =
     });
   }, [
     transactions,
+    accounts,
     dateRangeStart,
     dateRangeEnd,
     brokerFilter,
@@ -281,7 +385,7 @@ const [currencyFilter, setCurrencyFilter] =
   // ===================================================
 
   const visibleAccounts =
-    INITIAL_ACCOUNTS.filter((account) => {
+    accounts.filter((account) => {
       if (
         accountFilter !== "ALL" &&
         account.id !== accountFilter
@@ -315,7 +419,7 @@ const [currencyFilter, setCurrencyFilter] =
   const pendingTotals =
     getCurrencyTotals(pendingTransactions);
 
-    // ===================================================
+// ===================================================
 // CAPITAL ANALYTICS
 // ===================================================
 
@@ -403,58 +507,63 @@ const capitalActivitySummary = useMemo(
 />
 
 <div className="h-5" />
-            {/* ================================================= */}
-            {/* KPI GRID */}
-            {/* ================================================= */}
+{/* ================================================= */}
+{/* KPI GRID */}
+{/* ================================================= */}
 
-         <div className="relative left-3 mx-auto my-2 grid w-[98%] grid-cols-1 gap-3 py-2 sm:grid-cols-2 xl:grid-cols-4">
+<div className="relative left-3 mx-auto my-2 grid w-[98%] grid-cols-1 gap-3 py-2 sm:grid-cols-2 xl:grid-cols-4">
 
-              <MetricCard
-                label="Total Deposits"
-                icon={<ArrowDownToLine size={17} />}
-                accent="green"
-                values={depositTotals}
-                description="Completed deposits into brokerage accounts."
-              />
+  <MetricCard
+    label="Total Deposits"
+    icon={<ArrowDownToLine size={17} />}
+    accent="green"
+    values={depositTotals}
+    description="Completed deposits into brokerage accounts."
+    loading={transactionsLoading}
+  />
 
-              <MetricCard
-                label="Total Withdrawals"
-                icon={<ArrowUpFromLine size={17} />}
-                accent="red"
-                values={withdrawalTotals}
-                description="Completed withdrawals from brokerage accounts."
-              />
+  <MetricCard
+    label="Total Withdrawals"
+    icon={<ArrowUpFromLine size={17} />}
+    accent="red"
+    values={withdrawalTotals}
+    description="Completed withdrawals from brokerage accounts."
+    loading={transactionsLoading}
+  />
 
-              <MetricCard
-                label="Net Funding"
-                icon={<Landmark size={17} />}
-                accent="green"
-                values={netFundingTotals}
-                description="Deposits minus withdrawals. Internal transfers excluded."
-              />
+  <MetricCard
+    label="Net Funding"
+    icon={<Landmark size={17} />}
+    accent="green"
+    values={netFundingTotals}
+    description="Deposits minus withdrawals. Internal transfers excluded."
+    loading={transactionsLoading}
+  />
 
-              <MetricCard
-                label="Internal Transfers"
-                icon={<ArrowLeftRight size={17} />}
-                accent="blue"
-                values={transferTotals}
-                countLabel={`${transferTransactions.length} transfers`}
-                description="Amount sent between tracked brokerage accounts."
-              />
+  <MetricCard
+    label="Internal Transfers"
+    icon={<ArrowLeftRight size={17} />}
+    accent="blue"
+    values={transferTotals}
+    countLabel={`${transferTransactions.length} transfers`}
+    description="Amount sent between tracked brokerage accounts."
+    loading={transactionsLoading}
+  />
 
-            </div>
+</div>
+
 <div className="h-3" />
 
-            {/* ================================================= */}
-            {/* FILTER BAR */}
-            {/* ================================================= */}
+{/* ================================================= */}
+{/* FILTER BAR */}
+{/* ================================================= */}
 
             <Filter
-              brokerFilter={brokerFilter}
-              accountFilter={accountFilter}
-              currencyFilter={currencyFilter}
-              accounts={INITIAL_ACCOUNTS}
-              currencies={CURRENCY_ORDER}
+  brokerFilter={brokerFilter}
+  accountFilter={accountFilter}
+  currencyFilter={currencyFilter}
+  accounts={accounts}
+  currencies={CURRENCY_ORDER}
               onBrokerChange={(value) => {
                 setBrokerFilter(value);
                 setAccountFilter("ALL");
@@ -472,12 +581,39 @@ const capitalActivitySummary = useMemo(
 
                             {/* ACCOUNT TABLE */}
 
-              <BrokerageAccountsCard
-                accounts={visibleAccounts}
-                completedTransactions={completedTransactions}
-                accountFilter={accountFilter}
-                onAccountSelect={setAccountFilter}
-              />
+{accountsLoading ? (
+  <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-white/[0.07] bg-[#091321]">
+    <div className="flex items-center gap-3 text-sm text-slate-400">
+      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-t-blue-400" />
+      Loading brokerage accounts...
+    </div>
+  </div>
+) : accountsError ? (
+  <div className="flex min-h-[180px] flex-col items-center justify-center gap-3 rounded-xl border border-red-500/15 bg-[#091321] px-5 text-center">
+    <p className="text-sm font-medium text-red-400">
+      Failed to load brokerage accounts
+    </p>
+
+    <p className="max-w-md text-xs text-slate-400">
+      {accountsError}
+    </p>
+
+    <button
+      type="button"
+      onClick={() => setAccountsRetry((current) => current + 1)}
+      className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/[0.08]"
+    >
+      Retry
+    </button>
+  </div>
+) : (
+  <BrokerageAccountsCard
+    accounts={visibleAccounts}
+    completedTransactions={completedTransactions}
+    accountFilter={accountFilter}
+    onAccountSelect={setAccountFilter}
+  />
+)}
             
 
 
@@ -486,7 +622,8 @@ const capitalActivitySummary = useMemo(
 <PendingActivityPanel
   pendingTransactions={pendingTransactions}
   pendingTotals={pendingTotals}
-  accounts={INITIAL_ACCOUNTS}
+  accounts={accounts}
+  loading={transactionsLoading}
 />
 
             </div>
@@ -498,13 +635,15 @@ const capitalActivitySummary = useMemo(
             <div className="relative left-3 mt-5 grid w-[98%] grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
 
               <FundingActivityCard
-                data={monthlyFundingActivity}
-                currencyFilter={currencyFilter}
-              />
+  data={monthlyFundingActivity}
+  currencyFilter={currencyFilter}
+  loading={transactionsLoading}
+/>
 
-              <CapitalActivitySummaryCard
-                summary={capitalActivitySummary}
-              />
+             <CapitalActivitySummaryCard
+  summary={capitalActivitySummary}
+  loading={transactionsLoading}
+/>
 
             </div>
 
@@ -514,9 +653,12 @@ const capitalActivitySummary = useMemo(
             {/* RECENT TRANSACTIONS */}
             {/* ================================================= */}
 
-            <RecentTransactionsTable
+<RecentTransactionsTable
   transactions={recentTransactions}
-  accounts={INITIAL_ACCOUNTS}
+  accounts={accounts}
+  loading={transactionsLoading}
+  error={transactionsError}
+  onRetry={() => setTransactionsRetry((prev) => prev + 1)}
 />
 <div className="h-2" />
 
@@ -587,21 +729,20 @@ const capitalActivitySummary = useMemo(
       {/* ADD TRANSACTION DRAWER */}
       {/* ================================================= */}
 
-      <AddTransactionDrawer
-        isOpen={isDrawerOpen}
-        accounts={INITIAL_ACCOUNTS}
-        onClose={() => setIsDrawerOpen(false)}
-        onSubmit={(transaction) => {
-          setTransactions((current) => [
-            transaction,
-            ...current,
-          ]);
+<AddTransactionDrawer
+  isOpen={isDrawerOpen}
+  accounts={accounts}
+  onClose={() => setIsDrawerOpen(false)}
+  onSubmit={async (transaction) => {
+    await createCapitalTransaction(transaction);
 
-          setPreviewNotice(
-            "Preview transaction added. No data was saved to Supabase."
-          );
-        }}
-      />
+    setTransactionsRetry((current) => current + 1);
+
+    setPreviewNotice(
+      "Capital transaction saved successfully."
+    );
+  }}
+/>
 
     </main>
   );

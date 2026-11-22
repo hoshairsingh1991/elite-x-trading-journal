@@ -32,12 +32,14 @@ type PendingActivityPanelProps = {
     amount: number;
   }[];
   accounts: BrokerageAccount[];
+  loading?: boolean;
 };
 
 export default function PendingActivityPanel({
   pendingTransactions,
   pendingTotals,
   accounts,
+  loading = false,
 }: PendingActivityPanelProps) {
   return (
     <aside className="flex min-w-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#091321] shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
@@ -60,15 +62,24 @@ export default function PendingActivityPanel({
         </div>
 
         <span className="relative right-4 inline-flex h-[28px] w-[80px] items-center justify-center rounded-[8px] border border-amber-500/20 bg-amber-500/[0.08] px-2.5 text-[11px] font-semibold text-amber-400">
-          {pendingTransactions.length} pending
-        </span>
+  {loading ? (
+    <span className="h-2 w-5 animate-pulse rounded bg-amber-400/20" />
+  ) : (
+    `${pendingTransactions.length} pending`
+  )}
+</span>
 
       </div>
 
       {/* PANEL BODY */}
       <div className="flex flex-1 flex-col p-4">
 
-        {pendingTransactions.length === 0 ? (
+        {loading ? (
+  <div className="flex flex-1 flex-col gap-2 py-2">
+    <div className="h-[90px] animate-pulse rounded-[8px] border border-white/[0.05] bg-white/[0.025]" />
+    <div className="h-[90px] animate-pulse rounded-[8px] border border-white/[0.05] bg-white/[0.025]" />
+  </div>
+) : pendingTransactions.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
 
             <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04] text-slate-500">
@@ -162,23 +173,28 @@ export default function PendingActivityPanel({
             </span>
           </div>
 
-          {pendingTotals.length > 0 ? (
-            <div className="relative left-4 space-y-1">
-              {pendingTotals.map((item) => (
-                <p
-                  key={item.currency}
-                  className="text-[12px] font-semibold text-slate-200 tabular-nums"
-                >
-                  {item.currency}{" "}
-                  {formatMoney(item.amount)}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="relative left-4 text-[12px] font-semibold text-slate-400">
-              —
-            </p>
-          )}
+{loading ? (
+  <div className="relative left-4 flex flex-col gap-1">
+    <div className="h-3 w-24 animate-pulse rounded bg-white/[0.08]" />
+    <div className="h-3 w-20 animate-pulse rounded bg-white/[0.06]" />
+  </div>
+) : pendingTotals.length > 0 ? (
+  <div className="relative left-4 space-y-1">
+    {pendingTotals.map((item) => (
+      <p
+        key={item.currency}
+        className="text-[12px] font-semibold text-slate-200 tabular-nums"
+      >
+        {item.currency}{" "}
+        {formatMoney(item.amount)}
+      </p>
+    ))}
+  </div>
+) : (
+  <p className="relative left-4 text-[12px] font-semibold text-slate-400">
+    —
+  </p>
+)}
 
         </div>
 

@@ -37,9 +37,13 @@ export interface BrokerageAccount {
 
 export interface CapitalTransaction {
   id: string;
+
   date: string;
+  effectiveDate: string | null;
+
   type: TransactionType;
   status: TransactionStatus;
+
   amount: number;
   currency: CurrencyCode;
 
@@ -54,4 +58,10 @@ export interface CapitalTransaction {
   counterpartyInstitution: string;
   referenceNumber: string;
   notes: string;
+
+  reversalOfTransactionId: string | null;
+  reversalReason: string | null;
+
+  createdAt: string;
+  updatedAt: string;
 }

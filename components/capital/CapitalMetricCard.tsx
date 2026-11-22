@@ -11,6 +11,7 @@ export function MetricCard({
   values,
   countLabel,
   description,
+  loading = false,
 }: {
   label: string;
   icon: ReactNode;
@@ -18,6 +19,7 @@ export function MetricCard({
   values: { currency: CurrencyCode; amount: number }[];
   countLabel?: string;
   description: string;
+  loading?: boolean;
 }) {
   const accentClasses = {
     green: {
@@ -52,10 +54,10 @@ export function MetricCard({
     <div
       className={`
         flex h-[112px] min-w-0 items-center justify-start
-overflow-hidden rounded-[8px] border
-p-3 shadow-[0_6px_20px_rgba(0,0,0,0.16)]
-transition-all duration-200 ease-out
-hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]
+        overflow-hidden rounded-[8px] border
+        p-3 shadow-[0_6px_20px_rgba(0,0,0,0.16)]
+        transition-all duration-200 ease-out
+        hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]
         ${colors.border}
         ${colors.background}
       `}
@@ -75,7 +77,9 @@ hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]
             {label}
           </p>
 
-          {countLabel ? (
+          {loading ? (
+            <div className="mt-1 h-6 w-32 animate-pulse rounded bg-white/[0.08]" />
+          ) : countLabel ? (
             <p className="mt-1 text-[22px] font-bold leading-6 text-white tabular-nums">
               {countLabel}
             </p>
@@ -91,39 +95,40 @@ hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]
             </p>
           )}
 
-{countLabel ? (
-  <div className="flex items-center gap-3 whitespace-nowrap">
-    {values.map((item) => (
-<span
-  key={item.currency}
-  className={`text-[11px] font-medium leading-4 tabular-nums ${
-    item.currency === "CAD"
-      ? "text-blue-300"
-      : "text-slate-300"
-  }`}
->
-  {item.currency} {formatMoney(item.amount)}
-</span>
-    ))}
-  </div>
-) : (
-  values.map((item, index) => (
-    <p
-      key={item.currency}
-      className={
-        index > 0
-          ? "truncate text-[11px] font-medium leading-4 text-slate-300 tabular-nums"
-          : "hidden"
-      }
-    >
-      {item.currency} {formatMoney(item.amount)}
-    </p>
-  ))
-)}
+          {!loading &&
+            (countLabel ? (
+              <div className="flex items-center gap-3 whitespace-nowrap">
+                {values.map((item) => (
+                  <span
+                    key={item.currency}
+                    className={`text-[11px] font-medium leading-4 tabular-nums ${
+                      item.currency === "CAD"
+                        ? "text-blue-300"
+                        : "text-slate-300"
+                    }`}
+                  >
+                    {item.currency} {formatMoney(item.amount)}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              values.map((item, index) => (
+                <p
+                  key={item.currency}
+                  className={
+                    index > 0
+                      ? "truncate text-[11px] font-medium leading-4 text-slate-300 tabular-nums"
+                      : "hidden"
+                  }
+                >
+                  {item.currency} {formatMoney(item.amount)}
+                </p>
+              ))
+            ))}
 
-         <p className="mt-1 line-clamp-2 pt-1 text-[10px] leading-3 text-slate-400">
-  {description}
-</p>
+          <p className="mt-1 line-clamp-2 pt-1 text-[10px] leading-3 text-slate-400">
+            {description}
+          </p>
         </div>
       </div>
     </div>

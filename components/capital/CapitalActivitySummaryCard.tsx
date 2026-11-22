@@ -12,6 +12,7 @@ import type {
 
 interface CapitalActivitySummaryCardProps {
   summary: CapitalActivitySummary;
+  loading?: boolean;
 }
 
 function formatAmount(
@@ -41,6 +42,7 @@ function formatDate(date: string): string {
 
 export default function CapitalActivitySummaryCard({
   summary,
+  loading = false,
 }: CapitalActivitySummaryCardProps) {
   return (
     <section className="flex min-w-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#091321] shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
@@ -67,7 +69,11 @@ export default function CapitalActivitySummaryCard({
         </div>
 
        <span className="relative right-4 inline-flex h-[28px] w-[50px] items-center justify-center rounded-[8px] border border-blue-500/20 bg-blue-500/[0.08] px-2.5 text-[10px] font-semibold text-blue-400">
-  {summary.totalCount} total
+  {loading ? (
+    <span className="h-2 w-5 animate-pulse rounded bg-blue-400/20" />
+  ) : (
+    `${summary.totalCount} total`
+  )}
 </span>
 
       </div>
@@ -90,8 +96,12 @@ export default function CapitalActivitySummaryCard({
 
     <div className="min-w-0">
       <p className="text-[20px] font-semibold leading-none tabular-nums text-white">
-        {summary.depositCount}
-      </p>
+  {loading ? (
+    <span className="block h-5 w-6 animate-pulse rounded bg-white/[0.08]" />
+  ) : (
+    summary.depositCount
+  )}
+</p>
 
       <p className="mt-1.5 text-[11px] font-medium leading-none text-slate-300">
         Deposits
@@ -112,8 +122,12 @@ export default function CapitalActivitySummaryCard({
 
     <div className="min-w-0">
       <p className="text-[20px] font-semibold leading-none tabular-nums text-white">
-        {summary.withdrawalCount}
-      </p>
+  {loading ? (
+    <span className="block h-5 w-6 animate-pulse rounded bg-white/[0.08]" />
+  ) : (
+    summary.withdrawalCount
+  )}
+</p>
 
       <p className="mt-1.5 text-[11px] font-medium leading-none text-slate-300">
         Withdrawals
@@ -134,8 +148,12 @@ export default function CapitalActivitySummaryCard({
 
     <div className="min-w-0">
       <p className="text-[20px] font-semibold leading-none tabular-nums text-white">
-        {summary.transferCount}
-      </p>
+  {loading ? (
+    <span className="block h-5 w-6 animate-pulse rounded bg-white/[0.08]" />
+  ) : (
+    summary.transferCount
+  )}
+</p>
 
       <p className="mt-1.5 text-[11px] font-medium leading-none text-slate-300">
         Transfers
@@ -164,39 +182,44 @@ export default function CapitalActivitySummaryCard({
     <div className="min-w-0">
       <div className="h-2" />
 
-      {summary.largestDeposits.length === 0 ? (
-        <>
-          <p className="text-[14px] font-semibold text-slate-500">
-            —
+{loading ? (
+  <>
+    <div className="h-4 w-20 animate-pulse rounded bg-white/[0.08]" />
+    <p className="mt-1 h-3 w-24 animate-pulse rounded bg-white/[0.06]" />
+  </>
+) : summary.largestDeposits.length === 0 ? (
+  <>
+    <p className="text-[14px] font-semibold text-slate-500">
+      —
+    </p>
+    <p className="mt-1 text-[10px] text-slate-500">
+      Largest Deposit
+    </p>
+  </>
+) : (
+  <div className="flex flex-col gap-2">
+    {summary.largestDeposits.map((transaction) => (
+      <div key={transaction.id} className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <p className="text-[15px] font-semibold leading-none tabular-nums text-white">
+            {formatAmount(
+              transaction.amount,
+              transaction.currency
+            )}
           </p>
-          <p className="mt-1 text-[10px] text-slate-500">
-            Largest Deposit
-          </p>
-        </>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {summary.largestDeposits.map((transaction) => (
-            <div key={transaction.id} className="flex flex-col gap-1">
-             <div className="flex items-center gap-2">
-  <p className="text-[15px] font-semibold leading-none tabular-nums text-white">
-    {formatAmount(
-      transaction.amount,
-      transaction.currency
-    )}
-  </p>
 
-  <span className="inline-flex min-w-[30px] h-[18px] items-center justify-center rounded-[4px] border border-white/[0.08] bg-white/[0.04] px-2 text-[9px] font-semibold text-slate-400">
-    {transaction.currency}
-  </span>
-</div>
-
-              <p className="text-[10px] font-medium leading-none text-slate-300">
-                Largest Deposit
-              </p>
-            </div>
-          ))}
+          <span className="inline-flex min-w-[30px] h-[18px] items-center justify-center rounded-[4px] border border-white/[0.08] bg-white/[0.04] px-2 text-[9px] font-semibold text-slate-400">
+            {transaction.currency}
+          </span>
         </div>
-      )}
+
+        <p className="text-[10px] font-medium leading-none text-slate-300">
+          Largest Deposit
+        </p>
+      </div>
+    ))}
+  </div>
+)}
 
       <div className="h-3" />
     </div>
@@ -217,41 +240,44 @@ export default function CapitalActivitySummaryCard({
     <div className="min-w-0">
       <div className="h-2" />
 
-      {summary.largestWithdrawals.length === 0 ? (
-        <>
-          <p className="text-[14px] font-semibold text-slate-500">
-            —
+{loading ? (
+  <>
+    <div className="h-4 w-20 animate-pulse rounded bg-white/[0.08]" />
+    <p className="mt-1 h-3 w-24 animate-pulse rounded bg-white/[0.06]" />
+  </>
+) : summary.largestWithdrawals.length === 0 ? (
+  <>
+    <p className="text-[14px] font-semibold text-slate-500">
+      —
+    </p>
+    <p className="mt-1 text-[10px] text-slate-500">
+      Largest Withdrawal
+    </p>
+  </>
+) : (
+  <div className="flex flex-col gap-2">
+    {summary.largestWithdrawals.map((transaction) => (
+      <div key={transaction.id} className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <p className="text-[15px] font-semibold leading-none tabular-nums text-white">
+            {formatAmount(
+              transaction.amount,
+              transaction.currency
+            )}
           </p>
-          <p className="mt-1 text-[10px] text-slate-500">
-            Largest Withdrawal
-          </p>
-        </>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {summary.largestWithdrawals.map((transaction) => (
-            <div key={transaction.id} className="flex flex-col gap-1">
 
-              <div className="flex items-center gap-2">
-                <p className="text-[15px] font-semibold leading-none tabular-nums text-white">
-                  {formatAmount(
-                    transaction.amount,
-                    transaction.currency
-                  )}
-                </p>
-
-                <span className="inline-flex min-w-[30px] h-[18px] items-center justify-center rounded-[4px] border border-white/[0.08] bg-white/[0.04] px-2 text-[9px] font-semibold text-slate-400">
-                  {transaction.currency}
-                </span>
-              </div>
-
-              <p className="text-[10px] font-medium leading-none text-slate-300">
-                Largest Withdrawal
-              </p>
-
-            </div>
-          ))}
+          <span className="inline-flex min-w-[30px] h-[18px] items-center justify-center rounded-[4px] border border-white/[0.08] bg-white/[0.04] px-2 text-[9px] font-semibold text-slate-400">
+            {transaction.currency}
+          </span>
         </div>
-      )}
+
+        <p className="text-[10px] font-medium leading-none text-slate-300">
+          Largest Withdrawal
+        </p>
+      </div>
+    ))}
+  </div>
+)}
 
       <div className="h-3" />
     </div>

@@ -14,6 +14,7 @@ const createTransaction = (
 ): CapitalTransaction => ({
   id: "TX-001",
   date: "2026-01-15",
+  effectiveDate: null,
   type: "DEPOSIT",
   status: "COMPLETED",
   amount: 1000,
@@ -27,6 +28,10 @@ const createTransaction = (
   counterpartyInstitution: "Test Bank",
   referenceNumber: "",
   notes: "",
+  reversalOfTransactionId: null,
+  reversalReason: null,
+  createdAt: "2026-01-15T00:00:00.000Z",
+  updatedAt: "2026-01-15T00:00:00.000Z",
   ...overrides,
 });
 

@@ -23,11 +23,17 @@ import { TypeIcon } from "@/components/capital/CapitalTypeIcon";
 type RecentTransactionsTableProps = {
   transactions: CapitalTransaction[];
   accounts: BrokerageAccount[];
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
 };
 
 export default function RecentTransactionsTable({
   transactions,
   accounts,
+  loading,
+  error,
+  onRetry,
 }: RecentTransactionsTableProps) {
   return (
     <section className="relative left-3 mt-5 w-[98%] min-w-0 overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#091321] shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
@@ -165,16 +171,50 @@ export default function RecentTransactionsTable({
               );
             })}
 
-            {transactions.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-5 py-10 text-center text-[12px] text-slate-500"
-                >
-                  No completed transactions match the selected filters.
-                </td>
-              </tr>
-            )}
+{loading && (
+  <tr>
+    <td
+      colSpan={6}
+      className="px-5 py-10 text-center text-[12px] text-slate-500"
+    >
+      Loading transactions...
+    </td>
+  </tr>
+)}
+
+{!loading && error && (
+  <tr>
+    <td
+      colSpan={6}
+      className="px-5 py-10 text-center"
+    >
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-[12px] text-rose-400">
+          Failed to load transactions.
+        </p>
+
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded-[6px] border border-white/[0.10] bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-slate-300 transition hover:bg-white/[0.08]"
+        >
+          Retry
+        </button>
+      </div>
+    </td>
+  </tr>
+)}
+
+{!loading && !error && transactions.length === 0 && (
+  <tr>
+    <td
+      colSpan={6}
+      className="px-5 py-10 text-center text-[12px] text-slate-500"
+    >
+      No completed transactions match the selected filters.
+    </td>
+  </tr>
+)}
 
           </tbody>
 

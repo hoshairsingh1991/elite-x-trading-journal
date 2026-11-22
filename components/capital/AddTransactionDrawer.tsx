@@ -1,15 +1,21 @@
 
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 
 import type {
   BrokerageAccount,
-  CapitalTransaction,
   CurrencyCode,
   TransactionStatus,
   TransactionType,
 } from "@/lib/capital/types";
+
+import type { CreateCapitalTransactionInput } from "@/lib/storage/supabaseCapitalTransactionStorage";
 
 import {
   ArrowDownToLine,
@@ -28,7 +34,9 @@ interface AddTransactionDrawerProps {
   isOpen: boolean;
   accounts: BrokerageAccount[];
   onClose: () => void;
-  onSubmit: (transaction: CapitalTransaction) => void;
+  onSubmit: (
+    transaction: CreateCapitalTransactionInput
+  ) => Promise<void>;
 }
 
 export default function AddTransactionDrawer({
@@ -44,11 +52,8 @@ export default function AddTransactionDrawer({
   const [formType, setFormType] =
     useState<TransactionType>("DEPOSIT");
 
-  const [formFromAccount, setFormFromAccount] =
-    useState("ibkr-main");
-
-  const [formToAccount, setFormToAccount] =
-    useState("ibkr-tfsa");
+const [formFromAccount, setFormFromAccount] = useState("");
+const [formToAccount, setFormToAccount] = useState("");
 
   const [formAmount, setFormAmount] =
     useState("1000");
@@ -65,8 +70,9 @@ export default function AddTransactionDrawer({
   const [formExchangeRate, setFormExchangeRate] =
     useState("1");
 
-  const [formDate, setFormDate] =
-    useState("2026-11-16");
+const [formDate, setFormDate] = useState(
+  new Date().toLocaleDateString("en-CA")
+);
 
   const [formStatus, setFormStatus] =
     useState<TransactionStatus>("COMPLETED");
@@ -92,106 +98,218 @@ export default function AddTransactionDrawer({
  const [formError, setFormError] =
   useState("");
 
+  const [isSaving, setIsSaving] = useState(false);
+
+  const idempotencyRef = useRef<{
+  fingerprint: string;
+  key: string;
+} | null>(null);
+
 useEffect(() => {
-  if (isOpen) {
-    setFormError("");
+  if (!isOpen) return;
+
+  setFormError("");
+
+  const activeAccounts = accounts.filter(
+    (account) => account.status === "ACTIVE"
+  );
+
+  if (activeAccounts.length === 0) {
+    setFormFromAccount("");
+    setFormToAccount("");
+    return;
   }
-}, [isOpen]);
+
+  setFormFromAccount((current) =>
+    activeAccounts.some((account) => account.id === current)
+      ? current
+      : activeAccounts[0].id
+  );
+
+  setFormToAccount((current) =>
+    activeAccounts.some((account) => account.id === current)
+      ? current
+      : activeAccounts.length > 1
+        ? activeAccounts[1].id
+        : activeAccounts[0].id
+  );
+}, [isOpen, accounts]);
 
   // =====================================================
   // FORM HANDLER
   // =====================================================
 
-  const handleCreatePreviewTransaction = (
-    event: FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-    setFormError("");
 
-    const amount = Number(formAmount);
+const handleCreatePreviewTransaction = async (
+  event: FormEvent<HTMLFormElement>
+) => {
+  event.preventDefault();
 
-    if (!Number.isFinite(amount) || amount <= 0) {
-      setFormError("Enter a valid transaction amount.");
+  if (isSaving) return;
+
+  setFormError("");
+
+  const amount = Number(formAmount);
+  const receivedAmount = Number(formReceivedAmount);
+  const exchangeRate = Number(formExchangeRate);
+
+  const activeAccounts = accounts.filter(
+    (account) => account.status === "ACTIVE"
+  );
+
+  const selectedAccountExists = (accountId: string) =>
+    activeAccounts.some((account) => account.id === accountId);
+
+  // AMOUNT VALIDATION
+  if (!Number.isFinite(amount) || amount <= 0) {
+    setFormError("Enter a valid transaction amount.");
+    return;
+  }
+
+  // DATE VALIDATION
+  if (
+    !formDate ||
+    Number.isNaN(Date.parse(`${formDate}T00:00:00`))
+  ) {
+    setFormError("Enter a valid transaction date.");
+    return;
+  }
+
+  // ACCOUNT VALIDATION
+  if (
+    formType === "DEPOSIT" &&
+    !selectedAccountExists(formToAccount)
+  ) {
+    setFormError("Select a valid destination account.");
+    return;
+  }
+
+  if (
+    formType === "WITHDRAWAL" &&
+    !selectedAccountExists(formFromAccount)
+  ) {
+    setFormError("Select a valid source account.");
+    return;
+  }
+
+  if (formType === "TRANSFER") {
+    if (!selectedAccountExists(formFromAccount)) {
+      setFormError("Select a valid source account.");
       return;
     }
 
-    if (formType === "TRANSFER") {
-      if (formFromAccount === formToAccount) {
-        setFormError(
-          "Source and destination accounts must be different."
-        );
-        return;
-      }
-
-      const receivedAmount = Number(formReceivedAmount);
-      const exchangeRate = Number(formExchangeRate);
-
-      if (
-        formReceivedCurrency !== formCurrency &&
-        (
-          !Number.isFinite(receivedAmount) ||
-          receivedAmount <= 0 ||
-          !Number.isFinite(exchangeRate) ||
-          exchangeRate <= 0
-        )
-      ) {
-        setFormError(
-          "Enter a valid receiving amount and exchange rate."
-        );
-        return;
-      }
+    if (!selectedAccountExists(formToAccount)) {
+      setFormError("Select a valid destination account.");
+      return;
     }
 
-    const isTransfer = formType === "TRANSFER";
+    if (formFromAccount === formToAccount) {
+      setFormError(
+        "Source and destination accounts must be different."
+      );
+      return;
+    }
 
-    const transaction: CapitalTransaction = {
-      id: `PREVIEW-${Date.now()}`,
-      date: formDate,
-      type: formType,
-      status: formStatus,
-      amount,
-      currency: formCurrency,
+    if (
+      formReceivedCurrency !== formCurrency &&
+      (
+        !Number.isFinite(receivedAmount) ||
+        receivedAmount <= 0 ||
+        !Number.isFinite(exchangeRate) ||
+        exchangeRate <= 0
+      )
+    ) {
+      setFormError(
+        "Enter a valid receiving amount and exchange rate."
+      );
+      return;
+    }
+  }
 
-      fromAccountId:
-        formType === "DEPOSIT"
-          ? null
-          : formFromAccount,
+  const isTransfer = formType === "TRANSFER";
 
-      toAccountId:
-        formType === "WITHDRAWAL"
-          ? null
-          : formToAccount,
+  const transactionPayload = {
+    transactionType: formType,
+    status: formStatus,
 
-      receivedAmount: isTransfer
-        ? formReceivedCurrency === formCurrency
-          ? amount
-          : Number(formReceivedAmount)
+    amount,
+    currency: formCurrency,
+
+    fromAccountId:
+      formType === "DEPOSIT" ? null : formFromAccount,
+
+    toAccountId:
+      formType === "WITHDRAWAL" ? null : formToAccount,
+
+    receivedAmount: isTransfer
+      ? formReceivedCurrency === formCurrency
+        ? amount
+        : receivedAmount
+      : null,
+
+    receivedCurrency: isTransfer
+      ? formReceivedCurrency
+      : null,
+
+    exchangeRate:
+      isTransfer && formReceivedCurrency !== formCurrency
+        ? exchangeRate
+        : isTransfer
+          ? 1
+          : null,
+
+    transactionDate: formDate,
+
+    effectiveDate:
+      formStatus === "COMPLETED"
+        ? formDate
         : null,
 
-      receivedCurrency: isTransfer
-        ? formReceivedCurrency
-        : null,
-
-      exchangeRate:
-        isTransfer && formReceivedCurrency !== formCurrency
-          ? Number(formExchangeRate)
-          : isTransfer
-            ? 1
-            : null,
-
-      method: formMethod,
-
-      counterpartyInstitution:
-        isTransfer ? "" : formCounterparty,
-
-      referenceNumber: formReference,
-      notes: formNotes,
-    };
-
-    onSubmit(transaction);
-    onClose();
+    method: formMethod,
+    counterpartyInstitution: isTransfer
+      ? ""
+      : formCounterparty,
+    referenceNumber: formReference,
+    notes: formNotes,
   };
 
+  const fingerprint = JSON.stringify(transactionPayload);
+
+  if (
+    !idempotencyRef.current ||
+    idempotencyRef.current.fingerprint !== fingerprint
+  ) {
+    idempotencyRef.current = {
+      fingerprint,
+      key: crypto.randomUUID(),
+    };
+  }
+
+  const transaction: CreateCapitalTransactionInput = {
+    ...transactionPayload,
+    idempotencyKey: idempotencyRef.current.key,
+  };
+
+  setIsSaving(true);
+
+  try {
+await onSubmit(transaction);
+
+idempotencyRef.current = null;
+
+onClose();
+  } catch (error) {
+    console.error("Failed to create capital transaction:", error);
+
+    setFormError(
+      error instanceof Error
+        ? error.message
+        : "Failed to save transaction. Please try again."
+    );
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   return (
     <>
@@ -247,10 +365,10 @@ useEffect(() => {
 <div className="h-3" />
         {/* DRAWER BODY */}
 
-        <form
-          onSubmit={handleCreatePreviewTransaction}
-          className="flex min-h-0 flex-1 flex-col"
-        >
+<form
+  onSubmit={handleCreatePreviewTransaction}
+  className="flex min-h-0 flex-1 flex-col"
+>
 
           <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
 
@@ -353,7 +471,9 @@ useEffect(() => {
       style={{ paddingLeft: "10px" }}
       className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
     >
-      {accounts.map((account) => (
+      {accounts
+  .filter((account) => account.status === "ACTIVE")
+  .map((account) => (
         <option key={account.id} value={account.id}>
           {account.name} · {account.broker}
         </option>
@@ -380,7 +500,9 @@ useEffect(() => {
       style={{ paddingLeft: "10px" }}
       className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
     >
-      {accounts.map((account) => (
+      {accounts
+  .filter((account) => account.status === "ACTIVE")
+  .map((account) => (
         <option key={account.id} value={account.id}>
           {account.name} · {account.broker}
         </option>
@@ -409,7 +531,9 @@ useEffect(() => {
         style={{ paddingLeft: "10px" }}
         className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
       >
-        {accounts.map((account) => (
+        {accounts
+  .filter((account) => account.status === "ACTIVE")
+  .map((account) => (
           <option key={account.id} value={account.id}>
             {account.name} · {account.broker}
           </option>
@@ -440,7 +564,9 @@ useEffect(() => {
         style={{ paddingLeft: "10px" }}
         className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
       >
-        {accounts.map((account) => (
+        {accounts
+  .filter((account) => account.status === "ACTIVE")
+  .map((account) => (
           <option key={account.id} value={account.id}>
             {account.name} · {account.broker}
           </option>
@@ -913,10 +1039,11 @@ useEffect(() => {
   {/* ADD BUTTON */}
   <button
     type="submit"
-    className="inline-flex h-10 w-[140px] -translate-x-4 translate-y-2 items-center justify-center gap-2 rounded-[8px] bg-blue-600 text-[14px] font-semibold text-white transition-all duration-200 hover:bg-blue-500 active:scale-[0.98]"
+    disabled={isSaving}
+    className="inline-flex h-10 w-[150px] -translate-x-4 translate-y-2 items-center justify-center gap-2 rounded-[8px] bg-blue-600 text-[14px] font-semibold text-white transition-all duration-200 hover:bg-blue-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
   >
     <Plus size={15} />
-    Add to Preview
+    {isSaving ? "Saving..." : "Save Transaction"}
   </button>
 
 </div>

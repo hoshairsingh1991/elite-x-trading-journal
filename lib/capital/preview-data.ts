@@ -55,7 +55,16 @@ export const INITIAL_ACCOUNTS: BrokerageAccount[] = [
   },
 ];
 
-export const INITIAL_TRANSACTIONS: CapitalTransaction[] = [
+type PreviewTransaction = Omit<
+  CapitalTransaction,
+  | "effectiveDate"
+  | "reversalOfTransactionId"
+  | "reversalReason"
+  | "createdAt"
+  | "updatedAt"
+>;
+
+const PREVIEW_TRANSACTIONS: PreviewTransaction[] = [
   {
     id: "D-001",
     date: "2026-11-14",
@@ -380,3 +389,13 @@ export const INITIAL_TRANSACTIONS: CapitalTransaction[] = [
     notes: "Withdrawal processing",
   },
 ];
+
+export const INITIAL_TRANSACTIONS: CapitalTransaction[] =
+  PREVIEW_TRANSACTIONS.map((transaction) => ({
+    ...transaction,
+    effectiveDate: null,
+    reversalOfTransactionId: null,
+    reversalReason: null,
+    createdAt: `${transaction.date}T00:00:00.000Z`,
+    updatedAt: `${transaction.date}T00:00:00.000Z`,
+  }));
