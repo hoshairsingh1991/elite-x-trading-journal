@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
+import { Plus, X, Pencil, Archive } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import type {
@@ -318,290 +318,306 @@ setNewTradingModeCustom("");
         role="dialog"
         aria-modal="true"
         aria-labelledby="manage-accounts-title"
-        className="
-          relative
-          z-10
-          flex
-          h-full
-          w-full
-          max-w-[620px]
-          flex-col
-          border-l
-          border-white/[0.08]
-          bg-[#07111F]
-          shadow-2xl
-        "
+className="
+  relative
+  z-10
+  flex
+  h-full
+  w-[420px]
+  max-w-[96vw]
+  flex-col
+  overflow-x-hidden
+  border-l
+  border-white/[0.06]
+  bg-[#07111d]
+  shadow-2xl
+"
       >
-        {/* HEADER */}
-        <div className="flex items-center justify-between border-b border-white/[0.07] px-6 py-5">
+{/* HEADER */}
+<div className="shrink-0 px-7 pt-6 pb-5">
 
-          <div>
-            <h2
-              id="manage-accounts-title"
-              className="text-[17px] font-semibold text-white"
-            >
-              Manage Accounts
-            </h2>
+  <div className="flex items-center justify-between">
 
-            <p className="mt-1 text-[12px] text-slate-500">
-              Create, edit and manage your brokerage accounts.
-            </p>
-          </div>
+    <div>
+      <h2
+        id="manage-accounts-title"
+        className="translate-x-3 translate-y-2 text-[20px] leading-none font-bold tracking-tight text-white"
+      >
+        Manage Accounts
+      </h2>
+<div className="h-1" />
+      <p className="mt-2 translate-x-3 translate-y-2 text-[12px] text-slate-400">
+        Create, edit and manage your brokerage accounts.
+      </p>
+    </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+    <div className="flex shrink-0 items-center gap-5">
 
-            <button
-              type="button"
-              onClick={() => {
-  setEditingAccountId(null);
-  setEditAccountError("");
-  setIsCreateFormOpen((current) => !current);
-}}
-              className="
-                inline-flex
-                h-[36px]
-                w-[125px]
-                items-center
-                justify-center
-                gap-2
-                rounded-lg
-                border
-                border-blue-400/25
-                bg-blue-500/[0.09]
-                text-[12px]
-                font-semibold
-                text-blue-200
-                transition-all
-                duration-200
-                hover:border-blue-400/50
-                hover:bg-blue-500/[0.17]
-                hover:text-white
-              "
-            >
-              <Plus size={15} />
-              Add Account
-            </button>
+{/* ADD ACCOUNT */}
+<button
+  type="button"
+  onClick={() => {
+    setEditingAccountId(null);
+    setEditAccountError("");
+    setIsCreateFormOpen((current) => !current);
+  }}
+  className="group relative translate-y-2 inline-flex h-[34px] w-[110px] items-center justify-center gap-2 rounded-[8px] border border-blue-400/25 bg-blue-500/[0.09] text-[12px] font-semibold text-blue-200 transition-all duration-200 hover:border-blue-400/50 hover:bg-blue-500/[0.17] hover:text-white"
+>
+  <Plus
+    size={15}
+    className="transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110"
+  />
+  Add Account
+</button>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="
-                flex
-                h-9
-                w-9
-                items-center
-                justify-center
-                rounded-lg
-                border
-                border-white/[0.07]
-                bg-white/[0.03]
-                text-slate-400
-                transition
-                hover:bg-white/[0.08]
-                hover:text-white
-              "
-              aria-label="Close drawer"
-            >
-              <X size={17} />
-            </button>
+      {/* CLOSE */}
+      <button
+        type="button"
+        onClick={onClose}
+        className="-translate-x-2 translate-y-2 flex h-8 w-8 items-center justify-center rounded-[8px] border border-white/[0.06] bg-white/[0.02] text-slate-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white"
+        aria-label="Close drawer"
+      >
+        <X size={20} />
+      </button>
 
-          </div>
+    </div>
 
-        </div>
+  </div>
 
-        {/* CONTENT */}
-        <div className="min-h-0 flex-1 overflow-y-auto p-6">
+  <div className="h-1" />
 
-          {accountsLoading ? (
-            <div className="flex min-h-[200px] items-center justify-center">
-              <span className="text-[13px] text-slate-400">
-                Loading accounts...
-              </span>
-            </div>
-          ) : accountsError ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center gap-3">
+  <div className="relative top-2 border-b border-white/10" />
 
-              <p className="text-[13px] text-red-400">
-                Failed to load accounts.
-              </p>
+</div>
 
-              <button
-                type="button"
-                onClick={onRetryAccounts}
-                className="rounded-lg border border-white/[0.10] px-4 py-2 text-[12px] text-slate-300 transition hover:bg-white/[0.06]"
-              >
-                Retry
-              </button>
+<div className="h-3" />
 
-            </div>
-          ) : (
-            <div className="space-y-8">
+{/* CONTENT */}
+<div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
 
-                {isCreateFormOpen && (
-  <form
-    onSubmit={handleCreateAccount}
-    className="mb-7 rounded-xl border border-blue-400/20 bg-blue-500/[0.035] p-5"
-  >
-    <h3 className="mb-4 text-[14px] font-semibold text-white">
-      Create New Account
-    </h3>
+ <div className="mx-auto w-[95%] px-5 pt-6 pb-12">
 
-    <div className="grid grid-cols-2 gap-4">
-
-      {/* ACCOUNT NAME */}
-      <div className="col-span-2">
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
-          Account Name *
-        </label>
-
-        <input
-          required
-          value={newAccountName}
-          onChange={(event) => setNewAccountName(event.target.value)}
-          placeholder="e.g. IBKR Main"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-        />
+    {accountsLoading ? (
+      <div className="flex min-h-[200px] items-center justify-center">
+        <span className="text-[13px] text-slate-400">
+          Loading accounts...
+        </span>
       </div>
+    ) : accountsError ? (
+      <div className="flex min-h-[200px] flex-col items-center justify-center gap-3">
+        <p className="text-[13px] text-red-400">
+          Failed to load accounts.
+        </p>
 
-      {/* BROKER */}
-      <div className="col-span-2">
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
-          Broker / Institution
-        </label>
-
-        <input
-          value={newBrokerName}
-          onChange={(event) => setNewBrokerName(event.target.value)}
-          placeholder="e.g. Interactive Brokers"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-        />
-      </div>
-
-      {/* CATEGORY */}
-      <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
-          Account Category *
-        </label>
-
-        <select
-          value={newAccountCategory}
-          onChange={(event) => {
-            const category = event.target.value as CapitalAccountCategory;
-            setNewAccountCategory(category);
-            setNewTradingMode(
-              category === "brokerage" ? "unknown" : "not_applicable"
-            );
-            setNewTradingModeCustom("");
-          }}
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+        <button
+          type="button"
+          onClick={onRetryAccounts}
+          className="rounded-[8px] border border-white/[0.10] px-4 py-2 text-[12px] text-slate-300 transition hover:bg-white/[0.06]"
         >
-          <option value="brokerage">Brokerage</option>
-          <option value="bank">Bank</option>
-          <option value="cash">Cash</option>
-          <option value="other">Other</option>
-        </select>
+          Retry
+        </button>
       </div>
+    ) : (
+      <div className="space-y-8 pb-12">
 
-      {/* TRADING MODE */}
-      {newAccountCategory === "brokerage" && (
-        <div>
-          <label className="mb-2 block text-[11px] font-medium text-slate-300">
-            Trading Mode
-          </label>
-
-          <select
-            value={newTradingMode}
-            onChange={(event) => {
-              const mode = event.target.value as CapitalTradingMode;
-              setNewTradingMode(mode);
-              if (mode !== "other") setNewTradingModeCustom("");
-            }}
-            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+        {isCreateFormOpen && (
+          <form
+            onSubmit={handleCreateAccount}
+            className="relative left-2 top-2 mb-7 rounded-[8px] border border-blue-400/20 bg-blue-500/[0.035] p-5"
           >
-            <option value="unknown">Unknown</option>
-            <option value="cash">Cash</option>
-            <option value="margin">Margin</option>
-            <option value="portfolio_margin">Portfolio Margin</option>
-            <option value="limited_margin">Limited Margin</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-      )}
+            <div className="h-1" />
+<h3 className="relative left-2 mb-4 text-[14px] font-semibold text-white">
+  Create New Account
+</h3>
 
-      {/* OWNERSHIP */}
-      <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
-          Ownership
-        </label>
-        <select
-          value={newOwnership}
-          onChange={(event) => {
-            const ownership = event.target.value;
-            setNewOwnership(ownership);
-            if (ownership !== "other") setNewOwnershipCustom("");
-          }}
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-        >
-          <option value="">Not specified</option>
-          {OWNERSHIP_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+            <div className="grid grid-cols-2 gap-4">
+
+              {/* ACCOUNT NAME */}
+      <div className="col-span-2">
+<label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
+  Account Name *
+</label>
+<div className="h-1" />
+<input
+  required
+  value={newAccountName}
+  onChange={(event) => setNewAccountName(event.target.value)}
+  placeholder="e.g. IBKR Main"
+  style={{ paddingLeft: "10px" }}
+  className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+/>
       </div>
 
-      {/* REGISTRATION */}
-      <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
-          Account Registration
-        </label>
-        <input
-          value={newRegistration}
-          maxLength={80}
-          onChange={(event) => setNewRegistration(event.target.value)}
-          placeholder="e.g. TFSA, RRSP, IRA"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-        />
-      </div>
+{/* BROKER */}
+<div className="col-span-2">
+  <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
+    Broker / Institution
+  </label>
 
-      {newOwnership === "other" && (
-        <div className="col-span-2">
-          <label className="mb-2 block text-[11px] font-medium text-slate-300">
-            Custom Ownership *
-          </label>
-          <input
-            required
-            value={newOwnershipCustom}
-            maxLength={80}
-            onChange={(event) => setNewOwnershipCustom(event.target.value)}
-            placeholder="Specify ownership type"
-            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-          />
-        </div>
-      )}
+  <div className="h-1" />
 
-      {newAccountCategory === "brokerage" && newTradingMode === "other" && (
-        <div className="col-span-2">
-          <label className="mb-2 block text-[11px] font-medium text-slate-300">
-            Custom Trading Mode *
-          </label>
-          <input
-            required
-            value={newTradingModeCustom}
-            maxLength={80}
-            onChange={(event) => setNewTradingModeCustom(event.target.value)}
-            placeholder="Specify trading mode"
-            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-          />
-        </div>
-      )}
+  <input
+    value={newBrokerName}
+    onChange={(event) => setNewBrokerName(event.target.value)}
+    placeholder="e.g. Interactive Brokers"
+    style={{ paddingLeft: "10px" }}
+    className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+  />
+</div>
+
+{/* CATEGORY */}
+<div>
+  <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
+    Account Category *
+  </label>
+
+  <div className="h-1" />
+
+<select
+  value={newAccountCategory}
+  onChange={(event) => {
+    const category = event.target.value as CapitalAccountCategory;
+    setNewAccountCategory(category);
+    setNewTradingMode(
+      category === "brokerage" ? "unknown" : "not_applicable"
+    );
+    setNewTradingModeCustom("");
+  }}
+  style={{ paddingLeft: "10px" }}
+  className="drawer-select relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+>
+  <option value="brokerage">Brokerage</option>
+  <option value="bank">Bank</option>
+  <option value="cash">Cash</option>
+  <option value="other">Other</option>
+</select>
+</div>
+
+{/* TRADING MODE */}
+<div
+  className={newAccountCategory === "brokerage" ? "visible" : "invisible"}
+  aria-hidden={newAccountCategory !== "brokerage"}
+>
+  <label className="relative left-0 mb-2 block text-[11px] font-medium text-slate-300">
+    Trading Mode
+  </label>
+
+  <div className="h-1" />
+
+  <select
+    value={newTradingMode}
+    disabled={newAccountCategory !== "brokerage"}
+    onChange={(event) => {
+      const mode = event.target.value as CapitalTradingMode;
+      setNewTradingMode(mode);
+      if (mode !== "other") setNewTradingModeCustom("");
+    }}
+    style={{ paddingLeft: "10px" }}
+    className="drawer-select relative left-0 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+  >
+    <option value="unknown">Unknown</option>
+    <option value="cash">Cash</option>
+    <option value="margin">Margin</option>
+    <option value="portfolio_margin">Portfolio Margin</option>
+    <option value="limited_margin">Limited Margin</option>
+    <option value="other">Other</option>
+  </select>
+</div>
+
+{/* OWNERSHIP */}
+<div>
+  <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
+    Ownership
+  </label>
+
+  <div className="h-1" />
+
+<select
+  value={newOwnership}
+  onChange={(event) => {
+    const ownership = event.target.value;
+    setNewOwnership(ownership);
+    if (ownership !== "other") setNewOwnershipCustom("");
+  }}
+  style={{ paddingLeft: "10px" }}
+  className="drawer-select relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+>
+  <option value="">Not specified</option>
+  {OWNERSHIP_OPTIONS.map((option) => (
+    <option key={option.value} value={option.value}>
+      {option.label}
+    </option>
+  ))}
+</select>
+</div>
+
+{/* REGISTRATION */}
+<div>
+  <label className="relative left-0 mb-2 block text-[11px] font-medium text-slate-300">
+    Account Registration
+  </label>
+
+  <div className="h-1" />
+
+  <input
+    value={newRegistration}
+    maxLength={80}
+    onChange={(event) => setNewRegistration(event.target.value)}
+    placeholder="e.g. TFSA, RRSP, IRA"
+    style={{ paddingLeft: "10px" }}
+    className="relative left-0 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+  />
+</div>
+
+{/* CUSTOM OWNERSHIP */}
+{newOwnership === "other" && (
+  <div className="col-span-2">
+    <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
+      Custom Ownership *
+    </label>
+
+    <div className="h-1" />
+
+    <input
+      required
+      value={newOwnershipCustom}
+      maxLength={80}
+      onChange={(event) => setNewOwnershipCustom(event.target.value)}
+      placeholder="Specify ownership type"
+      style={{ paddingLeft: "10px" }}
+      className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+    />
+  </div>
+)}
+
+{/* CUSTOM TRADING MODE */}
+{newAccountCategory === "brokerage" && newTradingMode === "other" && (
+  <div className="col-span-2">
+    <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
+      Custom Trading Mode *
+    </label>
+
+    <div className="h-1" />
+
+    <input
+      required
+      value={newTradingModeCustom}
+      maxLength={80}
+      onChange={(event) => setNewTradingModeCustom(event.target.value)}
+      placeholder="Specify trading mode"
+      style={{ paddingLeft: "10px" }}
+      className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+    />
+  </div>
+)}
 
 {/* ACCOUNT NUMBER */}
 <div className="col-span-2">
-  <label className="mb-2 block text-[11px] font-medium text-slate-300">
+  <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
     Account Number (Last 4 Digits)
   </label>
+
+  <div className="h-1" />
 
   <input
     inputMode="numeric"
@@ -613,48 +629,38 @@ setNewTradingModeCustom("");
       )
     }
     placeholder="e.g. 4821"
-    className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+    style={{ paddingLeft: "10px" }}
+    className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
   />
 </div>
 
-      {/* SUBTYPE */}
-      <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
-          Account Subtype
-        </label>
+{/* CURRENCY */}
+<div className="col-span-2">
+  <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
+    Account Currency
+  </label>
 
-        <input
-          value={newAccountSubtype}
-          onChange={(event) => setNewAccountSubtype(event.target.value)}
-          placeholder="e.g. TFSA, Margin"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-        />
-      </div>
+  <div className="h-1" />
 
-      {/* CURRENCY */}
-      <div className="col-span-2">
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
-          Account Currency
-        </label>
-
-        <select
-          value={newAccountCurrency}
-          onChange={(event) =>
-            setNewAccountCurrency(
-              event.target.value as AccountCurrencyCode
-            )
-          }
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-        >
-          <option value="UNKNOWN">Not specified</option>
-          <option value="CAD">CAD</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="GBP">GBP</option>
-          <option value="JPY">JPY</option>
-          <option value="INR">INR</option>
-        </select>
-      </div>
+  <select
+    value={newAccountCurrency}
+    onChange={(event) =>
+      setNewAccountCurrency(
+        event.target.value as AccountCurrencyCode
+      )
+    }
+    style={{ paddingLeft: "10px" }}
+    className="drawer-select relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+  >
+    <option value="UNKNOWN">Not specified</option>
+    <option value="CAD">CAD</option>
+    <option value="USD">USD</option>
+    <option value="EUR">EUR</option>
+    <option value="GBP">GBP</option>
+    <option value="JPY">JPY</option>
+    <option value="INR">INR</option>
+  </select>
+</div>
 
     </div>
 
@@ -663,30 +669,31 @@ setNewTradingModeCustom("");
         {createAccountError}
       </p>
     )}
+ <div className="h-2" />
+    <div className="relative -left-2 mt-5 flex justify-end gap-2">
 
-    <div className="mt-5 flex justify-end gap-2">
+<button
+  type="button"
+  onClick={() => {
+    setIsCreateFormOpen(false);
+    setCreateAccountError("");
+  }}
+  disabled={isCreatingAccount}
+  className="relative h-8 w-[60px] rounded-[8px] border border-white/[0.08] text-[12px] font-medium text-slate-300 transition hover:bg-white/[0.05] disabled:opacity-50"
+>
+  Cancel
+</button>
 
-      <button
-        type="button"
-        onClick={() => {
-          setIsCreateFormOpen(false);
-          setCreateAccountError("");
-        }}
-        disabled={isCreatingAccount}
-        className="h-9 rounded-lg border border-white/[0.08] px-4 text-[11px] font-medium text-slate-300 transition hover:bg-white/[0.05] disabled:opacity-50"
-      >
-        Cancel
-      </button>
-
-      <button
-        type="submit"
-        disabled={isCreatingAccount}
-        className="h-9 rounded-lg border border-blue-400/30 bg-blue-600 px-5 text-[11px] font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {isCreatingAccount ? "Creating..." : "Create Account"}
-      </button>
+<button
+  type="submit"
+  disabled={isCreatingAccount}
+  className="relative  h-8 w-[100px] rounded-[8px] border border-blue-400/30 bg-blue-600 text-[11px] font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {isCreatingAccount ? "Creating..." : "Create Account"}
+</button>
 
     </div>
+     <div className="h-2" />
   </form>
 )}
 
@@ -694,46 +701,57 @@ setNewTradingModeCustom("");
 {editingAccountId && (
   <form
     onSubmit={handleEditAccount}
-    className="mb-7 rounded-xl border border-amber-400/20 bg-amber-500/[0.035] p-5"
+    className="relative left-2 top-2 mb-7 rounded-[8px] border border-amber-400/20 bg-amber-500/[0.035] p-5"
   >
-    <h3 className="mb-4 text-[14px] font-semibold text-white">
+    <div className="h-1" />
+
+    <h3 className="relative left-2 mb-4 text-[14px] font-semibold text-white">
       Edit Account
     </h3>
 
     <div className="grid grid-cols-2 gap-4">
+
       {/* ACCOUNT NAME */}
       <div className="col-span-2">
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+        <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
           Account Name *
         </label>
+
+        <div className="h-1" />
 
         <input
           required
           value={editAccountName}
           onChange={(event) => setEditAccountName(event.target.value)}
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         />
       </div>
 
       {/* BROKER */}
       <div className="col-span-2">
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+        <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
           Broker / Institution
         </label>
+
+        <div className="h-1" />
 
         <input
           value={editBrokerName}
           onChange={(event) => setEditBrokerName(event.target.value)}
           placeholder="e.g. Interactive Brokers"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         />
       </div>
 
       {/* CATEGORY */}
       <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+        <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
           Account Category *
         </label>
+
+        <div className="h-1" />
 
         <select
           value={editAccountCategory}
@@ -745,9 +763,11 @@ setNewTradingModeCustom("");
             setEditTradingMode(
               category === "brokerage" ? "unknown" : "not_applicable"
             );
+
             setEditTradingModeCustom("");
           }}
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="drawer-select relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         >
           <option value="brokerage">Brokerage</option>
           <option value="bank">Bank</option>
@@ -757,50 +777,65 @@ setNewTradingModeCustom("");
       </div>
 
       {/* TRADING MODE */}
-      {editAccountCategory === "brokerage" && (
-        <div>
-          <label className="mb-2 block text-[11px] font-medium text-slate-300">
-            Trading Mode
-          </label>
+      <div
+        className={editAccountCategory === "brokerage" ? "visible" : "invisible"}
+        aria-hidden={editAccountCategory !== "brokerage"}
+      >
+        <label className="relative left-0 mb-2 block text-[11px] font-medium text-slate-300">
+          Trading Mode
+        </label>
 
-          <select
-            value={editTradingMode}
-            onChange={(event) => {
-              const mode = event.target.value as CapitalTradingMode;
-              setEditTradingMode(mode);
-              if (mode !== "other") setEditTradingModeCustom("");
-            }}
-            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
-          >
-            <option value="unknown">Unknown</option>
-            <option value="cash">Cash</option>
-            <option value="margin">Margin</option>
-            <option value="portfolio_margin">Portfolio Margin</option>
-            <option value="limited_margin">Limited Margin</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-      )}
+        <div className="h-1" />
+
+        <select
+          value={editTradingMode}
+          disabled={editAccountCategory !== "brokerage"}
+          onChange={(event) => {
+            const mode = event.target.value as CapitalTradingMode;
+
+            setEditTradingMode(mode);
+
+            if (mode !== "other") setEditTradingModeCustom("");
+          }}
+          style={{ paddingLeft: "10px" }}
+          className="drawer-select relative left-0 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+        >
+          <option value="unknown">Unknown</option>
+          <option value="cash">Cash</option>
+          <option value="margin">Margin</option>
+          <option value="portfolio_margin">Portfolio Margin</option>
+          <option value="limited_margin">Limited Margin</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
 
       {/* OWNERSHIP */}
       <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+        <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
           Ownership
         </label>
+
+        <div className="h-1" />
+
         <select
           value={editOwnership}
           onChange={(event) => {
             const ownership = event.target.value;
+
             setEditOwnership(ownership);
+
             if (ownership !== "other") setEditOwnershipCustom("");
           }}
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="drawer-select relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         >
           <option value="">Not specified</option>
+
           {editOwnership &&
             !OWNERSHIP_OPTIONS.some((option) => option.value === editOwnership) && (
               <option value={editOwnership}>{editOwnership}</option>
             )}
+
           {OWNERSHIP_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -811,55 +846,71 @@ setNewTradingModeCustom("");
 
       {/* REGISTRATION */}
       <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+        <label className="relative left-0 mb-2 block text-[11px] font-medium text-slate-300">
           Account Registration
         </label>
+
+        <div className="h-1" />
+
         <input
           value={editRegistration}
           maxLength={80}
           onChange={(event) => setEditRegistration(event.target.value)}
           placeholder="e.g. TFSA, RRSP, IRA"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="relative left-0 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         />
       </div>
 
+      {/* CUSTOM OWNERSHIP */}
       {editOwnership === "other" && (
         <div className="col-span-2">
-          <label className="mb-2 block text-[11px] font-medium text-slate-300">
+          <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
             Custom Ownership *
           </label>
+
+          <div className="h-1" />
+
           <input
             required
             value={editOwnershipCustom}
             maxLength={80}
             onChange={(event) => setEditOwnershipCustom(event.target.value)}
             placeholder="Specify ownership type"
-            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+            style={{ paddingLeft: "10px" }}
+            className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
           />
         </div>
       )}
 
+      {/* CUSTOM TRADING MODE */}
       {editAccountCategory === "brokerage" && editTradingMode === "other" && (
         <div className="col-span-2">
-          <label className="mb-2 block text-[11px] font-medium text-slate-300">
+          <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
             Custom Trading Mode *
           </label>
+
+          <div className="h-1" />
+
           <input
             required
             value={editTradingModeCustom}
             maxLength={80}
             onChange={(event) => setEditTradingModeCustom(event.target.value)}
             placeholder="Specify trading mode"
-            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+            style={{ paddingLeft: "10px" }}
+            className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
           />
         </div>
       )}
 
       {/* ACCOUNT NUMBER */}
       <div className="col-span-2">
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+        <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
           Account Number (Last 4 Digits)
         </label>
+
+        <div className="h-1" />
 
         <input
           inputMode="numeric"
@@ -871,29 +922,35 @@ setNewTradingModeCustom("");
             )
           }
           placeholder="e.g. 4821"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         />
       </div>
 
       {/* SUBTYPE */}
       <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+        <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
           Account Subtype
         </label>
+
+        <div className="h-1" />
 
         <input
           value={editAccountSubtype}
           onChange={(event) => setEditAccountSubtype(event.target.value)}
           placeholder="e.g. TFSA, Margin"
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         />
       </div>
 
       {/* CURRENCY */}
-      <div>
-        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+      <div className="col-span-2">
+        <label className="relative left-2 mb-2 block text-[11px] font-medium text-slate-300">
           Account Currency
         </label>
+
+        <div className="h-1" />
 
         <select
           value={editAccountCurrency}
@@ -902,7 +959,8 @@ setNewTradingModeCustom("");
               event.target.value as AccountCurrencyCode
             )
           }
-          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          style={{ paddingLeft: "10px" }}
+          className="drawer-select relative left-2 h-10 w-[96%] rounded-[8px] border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         >
           <option value="UNKNOWN">Not specified</option>
           <option value="CAD">CAD</option>
@@ -913,6 +971,7 @@ setNewTradingModeCustom("");
           <option value="INR">INR</option>
         </select>
       </div>
+
     </div>
 
     {/* ERROR */}
@@ -922,8 +981,11 @@ setNewTradingModeCustom("");
       </p>
     )}
 
+    <div className="h-2" />
+
     {/* ACTIONS */}
-    <div className="mt-5 flex justify-end gap-2">
+    <div className="relative -left-2 mt-5 flex justify-end gap-2">
+
       <button
         type="button"
         onClick={() => {
@@ -931,7 +993,7 @@ setNewTradingModeCustom("");
           setEditAccountError("");
         }}
         disabled={isUpdatingAccount}
-        className="h-9 rounded-lg border border-white/[0.08] px-4 text-[11px] font-medium text-slate-300 transition hover:bg-white/[0.05] disabled:opacity-50"
+        className="relative h-8 w-[60px] rounded-[8px] border border-white/[0.08] text-[12px] font-medium text-slate-300 transition hover:bg-white/[0.05] disabled:opacity-50"
       >
         Cancel
       </button>
@@ -939,193 +1001,296 @@ setNewTradingModeCustom("");
       <button
         type="submit"
         disabled={isUpdatingAccount}
-        className="h-9 rounded-lg border border-amber-400/30 bg-amber-500/[0.85] px-5 text-[11px] font-semibold text-white transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
+        className="relative h-8 w-[100px] rounded-[8px] border border-amber-400/30 bg-amber-500/[0.85] text-[11px] font-semibold text-white transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isUpdatingAccount ? "Saving..." : "Save Changes"}
       </button>
+
     </div>
+
+    <div className="h-2" />
+
   </form>
 )}
 
-              {/* ACTIVE ACCOUNTS */}
-              <section>
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-[13px] font-semibold text-white">
-                      Active Accounts
-                    </h3>
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      Available for deposits, withdrawals and transfers.
-                    </p>
-                  </div>
+{(isCreateFormOpen || editingAccountId !== null) && (
+  <div className="h-4" />
+)}
 
-                  <span className="rounded-md border border-emerald-500/20 bg-emerald-500/[0.08] px-2.5 py-1 text-[11px] font-semibold text-emerald-400">
-                    {accounts.filter((account) => account.status === "ACTIVE").length}
-                  </span>
-                </div>
+{/* ACTIVE ACCOUNTS */}
+<section className="relative left-2 top-1 pb-4">
 
-                <div className="space-y-2">
-                  {accounts
-                    .filter((account) => account.status === "ACTIVE")
-                    .map((account) => (
-                      <div
-                        key={account.id}
-                        className="rounded-lg border border-white/[0.07] bg-white/[0.025] px-4 py-3.5 transition hover:border-white/[0.12] hover:bg-white/[0.04]"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-[13px] font-semibold text-white">
-                              {account.name}
-                            </p>
+  {/* SECTION HEADER */}
+  <div className="mb-4 flex items-center justify-between">
 
-                            <p className="mt-1 text-[11px] text-slate-500">
-                              {account.broker}
-                            </p>
-                          </div>
+    <div className="flex flex-col gap-[1px]">
+      <h3 className="text-[13px] leading-[14px] font-semibold text-white">
+        Active Accounts
+      </h3>
 
-                         <div className="flex shrink-0 items-center gap-2">
+      <p className="text-[11px] leading-[12px] text-slate-500">
+        Available for deposits, withdrawals and transfers.
+      </p>
+    </div>
+
+    {/* ACTIVE COUNT */}
+    <span className="relative left-0 inline-flex h-[24px] w-[65px] shrink-0 items-center justify-center gap-1.5 rounded-[8px] border border-emerald-500/20 bg-emerald-500/[0.08] px-2 text-emerald-400">
+      <span className="text-[11px] font-semibold tabular-nums">
+        {accounts.filter((account) => account.status === "ACTIVE").length}
+      </span>
+
+      <span className="text-[9px] font-semibold tracking-wide">
+        ACTIVE
+      </span>
+    </span>
+
+  </div>
+
+  <div className="h-1" />
+
+{/* ACCOUNT CARDS */}
+<div className="manage-accounts-scrollbar relative -right-1 flex max-h-[420px] flex-col gap-2 overflow-y-auto overflow-x-hidden pr-2">
+  {accounts
+      .filter((account) => account.status === "ACTIVE")
+      .map((account) => (
+        <div
+          key={account.id}
+          className="group shrink-0 rounded-[8px] border border-white/[0.07] bg-white/[0.025] px-4 py-3.5 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.04]"
+        >
+ <div className="h-1" />
+          {/* INNER CONTENT WIDTH CONTROL */}
+          <div className="relative left-2 mx-auto w-[95%]">
+
+            {/* ACCOUNT NAME + ACTIONS */}
+            <div className="flex items-center justify-between gap-3">
+
+              <div className="min-w-0">
+                <p className="truncate text-[13px] font-semibold text-white">
+                  {account.name}
+                </p>
+
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {account.broker}
+                </p>
+              </div>
+
+{/* ACTIONS */}
+<div className="relative flex h-7 w-16 shrink-0 items-center">
+
+{/* ARCHIVE — APPEARS ON CARD HOVER */}
+<button
+  type="button"
+  disabled
+  aria-label="Archive account"
+  title="Archive account"
+  className="absolute right-8 flex h-7 w-7 translate-x-1 scale-90 items-center justify-center text-slate-500 opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100 hover:scale-110 hover:-rotate-12 hover:text-rose-400 hover:drop-shadow-[0_0_5px_rgba(251,113,133,0.55)] active:scale-90"
+>
+  <Archive size={15} strokeWidth={1.8} />
+</button>
+
+  {/* EDIT — ALWAYS VISIBLE */}
   <button
     type="button"
 onClick={() => {
+  setIsCreateFormOpen(false);
   setEditingAccountId(account.id);
   setEditAccountError("");
 
-  setEditAccountName(account.name);
-  setEditBrokerName(account.broker ?? "");
-  setEditAccountCategory(account.accountCategory);
-  setEditAccountSubtype(account.accountSubtype ?? "");
-  setEditAccountNumberLast4(account.accountNumberLast4 ?? "");
-  setEditTradingMode(account.tradingMode);
-  setEditAccountCurrency(account.baseCurrency);
-  setEditOwnership(account.ownership ?? "");
-  setEditOwnershipCustom(account.ownershipCustom ?? "");
-  setEditRegistration(account.registration ?? "");
-  setEditTradingModeCustom(account.tradingModeCustom ?? "");
-}}
-    className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[10px] font-medium text-slate-400 transition hover:border-white/[0.14] hover:bg-white/[0.06] hover:text-white"
+      setEditAccountName(account.name);
+      setEditBrokerName(account.broker ?? "");
+      setEditAccountCategory(account.accountCategory);
+      setEditAccountSubtype(account.accountSubtype ?? "");
+      setEditAccountNumberLast4(account.accountNumberLast4 ?? "");
+      setEditTradingMode(account.tradingMode);
+      setEditAccountCurrency(account.baseCurrency);
+      setEditOwnership(account.ownership ?? "");
+      setEditOwnershipCustom(account.ownershipCustom ?? "");
+      setEditRegistration(account.registration ?? "");
+      setEditTradingModeCustom(account.tradingModeCustom ?? "");
+    }}
+    aria-label="Edit account"
+    title="Edit account"
+    className="absolute right-0 flex h-7 w-7 cursor-pointer items-center justify-center text-slate-400 transition-all duration-200 ease-out hover:scale-110 hover:-rotate-12 hover:text-blue-400 hover:drop-shadow-[0_0_5px_rgba(96,165,250,0.55)] active:scale-90"
   >
-    Edit
+    <Pencil size={15} strokeWidth={1.8} />
   </button>
 
-  <span className="rounded-md border border-emerald-500/20 bg-emerald-500/[0.08] px-2 py-1 text-[10px] font-semibold text-emerald-400">
-    Active
+</div>
+            </div>
+<div className="h-0.5" />
+{/* ACCOUNT DETAILS */}
+<div className="mt-3 flex flex-wrap items-center gap-2">
+
+  {/* CATEGORY */}
+  <span
+    title={account.accountCategory}
+    style={{ paddingLeft: "6px", paddingRight: "6px" }}
+    className="inline-flex h-[26px] w-fit items-center justify-center rounded-[8px] border border-blue-400/20 bg-blue-500/[0.08] text-[10px] font-semibold capitalize text-blue-300"
+  >
+    {account.accountCategory}
   </span>
+
+  {/* SUBTYPE */}
+  {account.accountSubtype && (
+    <span
+      title={account.accountSubtype}
+      style={{ paddingLeft: "6px", paddingRight: "6px" }}
+      className="inline-flex h-[26px] w-fit max-w-full min-w-0 items-center justify-center truncate rounded-[8px] border border-violet-400/20 bg-violet-500/[0.08] text-[10px] font-semibold capitalize text-violet-300"
+    >
+      {account.accountSubtype}
+    </span>
+  )}
+
+  {/* CURRENCY */}
+  <span
+    title={account.baseCurrency}
+    style={{ paddingLeft: "6px", paddingRight: "6px" }}
+    className="inline-flex h-[26px] w-fit items-center justify-center rounded-[8px] border border-emerald-400/20 bg-emerald-500/[0.08] text-[10px] font-semibold uppercase text-emerald-300"
+  >
+    {account.baseCurrency}
+  </span>
+
 </div>
-</div>
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span className="rounded-md border border-white/[0.07] bg-white/[0.03] px-2 py-1 text-[10px] text-slate-300">
-                            {account.accountCategory}
-                          </span>
 
-                          {account.accountSubtype && (
-                            <span className="rounded-md border border-white/[0.07] bg-white/[0.03] px-2 py-1 text-[10px] text-slate-300">
-                              {account.accountSubtype}
-                            </span>
-                          )}
+<div className="h-1.5" />
+          </div>
+        </div>
+      ))}
 
-                          <span className="rounded-md border border-white/[0.07] bg-white/[0.03] px-2 py-1 text-[10px] text-slate-300">
-                            {account.baseCurrency}
-                          </span>
+    {/* EMPTY STATE */}
+    {accounts.filter((account) => account.status === "ACTIVE").length === 0 && (
+      <div className="rounded-[8px] border border-dashed border-white/[0.10] px-4 py-8 text-center">
 
-                          <span className="ml-auto text-[10px] font-medium text-blue-400">
-                            {account.source === "CONNECTED"
-                              ? "Connected"
-                              : "Manual"}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+        <p className="text-[12px] font-medium text-slate-300">
+          No active accounts
+        </p>
 
-                  {accounts.filter((account) => account.status === "ACTIVE").length === 0 && (
-                    <div className="rounded-lg border border-dashed border-white/[0.10] px-4 py-8 text-center">
-                      <p className="text-[12px] font-medium text-slate-300">
-                        No active accounts
-                      </p>
-                      <p className="mt-1 text-[11px] text-slate-500">
-                        Create an account to start recording capital transactions.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </section>
+        <p className="mt-1 text-[11px] text-slate-500">
+          Create an account to start recording capital transactions.
+        </p>
 
-              {/* ARCHIVED ACCOUNTS */}
-              <section>
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-[13px] font-semibold text-white">
-                      Archived Accounts
-                    </h3>
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      Historical accounts unavailable for new transactions.
-                    </p>
-                  </div>
+      </div>
+    )}
 
-                  <span className="rounded-md border border-slate-500/20 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold text-slate-400">
-                    {accounts.filter((account) => account.status === "CLOSED").length}
-                  </span>
-                </div>
+  </div>
 
-                <div className="space-y-2">
-                  {accounts
-                    .filter((account) => account.status === "CLOSED")
-                    .map((account) => (
-                      <div
-                        key={account.id}
-                        className="rounded-lg border border-white/[0.05] bg-white/[0.015] px-4 py-3.5 opacity-70"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-[13px] font-semibold text-slate-300">
-                              {account.name}
-                            </p>
+</section>
 
-                            <p className="mt-1 text-[11px] text-slate-500">
-                              {account.broker}
-                            </p>
-                          </div>
+<div className="h-2" />
 
-                          <span className="shrink-0 rounded-md border border-slate-500/20 bg-white/[0.04] px-2 py-1 text-[10px] font-semibold text-slate-400">
-                            Archived
-                          </span>
-                        </div>
+{/* ARCHIVED ACCOUNTS */}
+<section className="relative left-2 top-1 pb-6">
 
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span className="rounded-md border border-white/[0.06] bg-white/[0.025] px-2 py-1 text-[10px] text-slate-400">
-                            {account.accountCategory}
-                          </span>
+  {/* SECTION HEADER */}
+  <div className="mb-4 flex items-center justify-between">
 
-                          {account.accountSubtype && (
-                            <span className="rounded-md border border-white/[0.06] bg-white/[0.025] px-2 py-1 text-[10px] text-slate-400">
-                              {account.accountSubtype}
-                            </span>
-                          )}
+    <div className="flex flex-col gap-[1px]">
+      <h3 className="text-[13px] leading-[14px] font-semibold text-white">
+        Archived Accounts
+      </h3>
 
-                          <span className="rounded-md border border-white/[0.06] bg-white/[0.025] px-2 py-1 text-[10px] text-slate-400">
-                            {account.baseCurrency}
-                          </span>
+      <p className="text-[11px] leading-[12px] text-slate-500">
+        Historical accounts unavailable for new transactions.
+      </p>
+    </div>
 
-                          <span className="ml-auto text-[10px] text-slate-500">
-                            {account.source === "CONNECTED"
-                              ? "Connected"
-                              : "Manual"}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+    {/* ARCHIVED COUNT */}
+    <span className="inline-flex h-[24px] w-[75px] shrink-0 items-center justify-center gap-1.5 rounded-[8px] border border-slate-500/20 bg-white/[0.04] px-2 text-slate-400">
+      <span className="text-[11px] font-semibold tabular-nums">
+        {accounts.filter((account) => account.status === "CLOSED").length}
+      </span>
 
-                  {accounts.filter((account) => account.status === "CLOSED").length === 0 && (
-                    <p className="rounded-lg border border-dashed border-white/[0.07] px-4 py-5 text-center text-[11px] text-slate-500">
-                      No archived accounts.
-                    </p>
-                  )}
-                </div>
-              </section>
+      <span className="text-[9px] font-semibold tracking-wide">
+        ARCHIVED
+      </span>
+    </span>
+
+  </div>
+
+  <div className="h-2" />
+
+{/* ARCHIVED ACCOUNT CARDS */}
+<div className="manage-accounts-scrollbar flex max-h-[420px] flex-col gap-3 overflow-y-auto overflow-x-hidden pr-2 pb-6">
+
+    {accounts
+      .filter((account) => account.status === "CLOSED")
+      .map((account) => (
+        <div
+          key={account.id}
+          className="shrink-0 rounded-[8px] border border-white/[0.05] bg-white/[0.015] px-4 py-3.5 opacity-70"
+        >
+<div className="h-1" />
+          {/* INNER CONTENT WIDTH CONTROL */}
+          <div className="relative left-2 mx-auto w-[95%]">
+
+            {/* ACCOUNT NAME */}
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-semibold text-slate-300">
+                {account.name}
+              </p>
+
+              <p className="mt-1 text-[11px] text-slate-500">
+                {account.broker}
+              </p>
+            </div>
+ <div className="h-1" />
+            {/* ACCOUNT DETAILS */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+
+              {/* CATEGORY */}
+              <span
+                title={account.accountCategory}
+                style={{ paddingLeft: "6px", paddingRight: "6px" }}
+                className="inline-flex h-[26px] w-fit items-center justify-center rounded-[8px] border border-blue-400/20 bg-blue-500/[0.08] text-[10px] font-semibold capitalize text-blue-300"
+              >
+                {account.accountCategory}
+              </span>
+
+              {/* SUBTYPE */}
+              {account.accountSubtype && (
+                <span
+                  title={account.accountSubtype}
+                  style={{ paddingLeft: "6px", paddingRight: "6px" }}
+                  className="inline-flex h-[26px] w-fit max-w-full min-w-0 items-center justify-center truncate rounded-[8px] border border-violet-400/20 bg-violet-500/[0.08] text-[10px] font-semibold capitalize text-violet-300"
+                >
+                  {account.accountSubtype}
+                </span>
+              )}
+
+              {/* CURRENCY */}
+              <span
+                title={account.baseCurrency}
+                style={{ paddingLeft: "6px", paddingRight: "6px" }}
+                className="inline-flex h-[26px] w-fit items-center justify-center rounded-[8px] border border-emerald-400/20 bg-emerald-500/[0.08] text-[10px] font-semibold uppercase text-emerald-300"
+              >
+                {account.baseCurrency}
+              </span>
+
+            </div>
+<div className="h-2" />
+          </div>
+        </div>
+      ))}
+
+    {/* EMPTY STATE */}
+    {accounts.filter((account) => account.status === "CLOSED").length === 0 && (
+      <p className="rounded-[8px] border border-dashed border-white/[0.07] px-4 py-5 text-center text-[11px] text-slate-500">
+        No archived accounts.
+      </p>
+    )}
+
+  </div>
+
+</section>
+
+<div className="h-4 w-full shrink-0" />
 
             </div>
           )}
 
-        </div>
+        </div>  {/* Closes the 95% inner wrapper */}
+
+        </div>  {/* Closes the outer CONTENT scroll container */}
 
       </section>
     </div>

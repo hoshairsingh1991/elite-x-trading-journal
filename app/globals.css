@@ -380,3 +380,26 @@ Elite X drawer design system.
   background-repeat: no-repeat;
   background-position: right 10px center;
 }
+
+/* Elite X — Manage Accounts scrollbar */
+.manage-accounts-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+
+.manage-accounts-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.manage-accounts-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.manage-accounts-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #334155;
+  border-radius: 8px;
+}
+
+.manage-accounts-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b;
+}
