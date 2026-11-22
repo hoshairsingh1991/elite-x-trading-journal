@@ -1,4 +1,3 @@
-
 export type CurrencyCode =
   | "CAD"
   | "USD"
@@ -8,6 +7,21 @@ export type CurrencyCode =
   | "INR";
 
 export type AccountCurrencyCode = CurrencyCode | "UNKNOWN";
+
+export type CapitalAccountCategory =
+  | "brokerage"
+  | "bank"
+  | "cash"
+  | "other";
+
+export type CapitalTradingMode =
+  | "cash"
+  | "margin"
+  | "portfolio_margin"
+  | "limited_margin"
+  | "other"
+  | "unknown"
+  | "not_applicable";
 
 export type TransactionType =
   | "DEPOSIT"
@@ -29,7 +43,26 @@ export interface BrokerageAccount {
   id: string;
   name: string;
   broker: string;
+
+  // Existing display classification.
   type: string;
+
+  // Canonical account classification.
+  accountCategory: CapitalAccountCategory;
+  accountSubtype: string | null;
+
+  // Ownership.
+  ownership: string | null;
+  ownershipCustom: string | null;
+
+  // Registration.
+  registration: string | null;
+
+  // Account metadata.
+  accountNumberLast4: string | null;
+  tradingMode: CapitalTradingMode;
+  tradingModeCustom: string | null;
+
   baseCurrency: AccountCurrencyCode;
   source: "CONNECTED" | "MANUAL";
   status: "ACTIVE" | "CLOSED";

@@ -25,10 +25,11 @@ import type {
   BrokerageAccount,
 } from "@/lib/capital/types";
 
-
-
 import {
   loadCapitalAccounts,
+  createCapitalAccount,
+  updateCapitalAccount,
+  archiveCapitalAccount,
 } from "@/lib/storage/supabaseCapitalStorage";
 
 import {
@@ -75,6 +76,8 @@ import CapitalActivitySummaryCard from "@/components/capital/CapitalActivitySumm
 import RecentTransactionsTable from "@/components/capital/RecentTransactionsTable";
 
 import AddTransactionDrawer from "@/components/capital/AddTransactionDrawer";
+
+import ManageAccountsDrawer from "@/components/capital/ManageAccountsDrawer";
 
 // =====================================================
 // UI HELPERS
@@ -258,11 +261,14 @@ const [currencyFilter, setCurrencyFilter] =
   // TRANSACTION DRAWER STATE
   // ===================================================
 
-  const [isDrawerOpen, setIsDrawerOpen] =
-    useState(false);
+const [isDrawerOpen, setIsDrawerOpen] =
+  useState(false);
 
-  const [previewNotice, setPreviewNotice] =
-    useState("");
+const [isManageAccountsOpen, setIsManageAccountsOpen] =
+  useState(false);
+
+const [previewNotice, setPreviewNotice] =
+  useState("");
 
 
   // ===================================================
@@ -504,6 +510,7 @@ const capitalActivitySummary = useMemo(
     setDateRangeEnd(end);
   }}
   onAddTransaction={openTransactionDrawer}
+  onManageAccounts={() => setIsManageAccountsOpen(true)}
 />
 
 <div className="h-5" />
@@ -741,6 +748,29 @@ const capitalActivitySummary = useMemo(
     setPreviewNotice(
       "Capital transaction saved successfully."
     );
+  }}
+/>
+
+<ManageAccountsDrawer
+  isOpen={isManageAccountsOpen}
+  accounts={accounts}
+  accountsLoading={accountsLoading}
+  accountsError={accountsError}
+  onClose={() => setIsManageAccountsOpen(false)}
+  onRetryAccounts={() =>
+    setAccountsRetry((current) => current + 1)
+  }
+  onCreate={async (input) => {
+    await createCapitalAccount(input);
+    setAccountsRetry((current) => current + 1);
+  }}
+  onUpdate={async (input) => {
+    await updateCapitalAccount(input);
+    setAccountsRetry((current) => current + 1);
+  }}
+  onArchive={async (accountId) => {
+    await archiveCapitalAccount(accountId);
+    setAccountsRetry((current) => current + 1);
   }}
 />
 

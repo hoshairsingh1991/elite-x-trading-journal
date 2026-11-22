@@ -81,11 +81,11 @@ export default function PendingActivityPanel({
   </div>
 ) : pendingTransactions.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
-
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.04] text-slate-500">
+ <div className="h-2" />
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.04] text-slate-500">
               <CheckCircle2 size={20} />
             </div>
-
+ <div className="h-1" />
             <p className="text-[12px] font-semibold text-slate-300">
               No pending transactions
             </p>
@@ -168,7 +168,7 @@ export default function PendingActivityPanel({
               Pending value
             </span>
 
-            <span className="relative top-2 right-6 text-[9px] font-medium text-amber-400">
+            <span className="relative top-2 right-8 text-[9px] font-medium text-amber-400">
               Not included in KPIs
             </span>
           </div>

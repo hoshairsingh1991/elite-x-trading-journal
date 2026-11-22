@@ -2,7 +2,9 @@
 "use client";
 
 import DateRangePicker from "@/components/shared/DateRangePicker";
-import { Plus } from "lucide-react";
+
+import { Plus, Settings2 } from "lucide-react";
+
 
 type CapitalHeaderProps = {
   selectedPreset: string;
@@ -12,13 +14,17 @@ type CapitalHeaderProps = {
     end: Date | null
   ) => void;
   onAddTransaction: () => void;
+  onManageAccounts: () => void;
 };
 
 export default function CapitalHeader({
   selectedPreset,
   onDateRangeChange,
   onAddTransaction,
+  onManageAccounts,
 }: CapitalHeaderProps) {
+
+
   return (
     <header
       className="
@@ -74,6 +80,54 @@ export default function CapitalHeader({
           onDateRangeChange={onDateRangeChange}
           heightClass="h-[38px]"
         />
+
+<button
+  type="button"
+  onClick={onManageAccounts}
+  className="
+    group
+    inline-flex
+    h-[38px]
+    w-[150px]
+    shrink-0
+    items-center
+    justify-center
+    gap-2
+    rounded-lg
+    border
+    border-blue-400/25
+    bg-blue-500/[0.09]
+    text-[12px]
+    font-semibold
+    text-blue-200
+    shadow-[0_3px_12px_rgba(37,99,235,0.08)]
+    transition-all
+    duration-200
+    ease-out
+    hover:border-blue-400/50
+    hover:bg-blue-500/[0.17]
+    hover:text-white
+    hover:shadow-[0_5px_18px_rgba(37,99,235,0.20)]
+    active:scale-[0.97]
+    focus-visible:outline-none
+    focus-visible:ring-2
+    focus-visible:ring-blue-400/50
+  "
+>
+  <Settings2
+    size={15}
+    strokeWidth={2}
+    className="
+      text-blue-400
+      transition-transform
+      duration-300
+      group-hover:rotate-45
+      group-hover:text-blue-300
+    "
+  />
+  Manage Accounts
+</button>
+
 
         <button
           type="button"
