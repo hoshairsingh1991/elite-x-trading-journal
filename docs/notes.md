@@ -603,5 +603,5 @@ git commit --amend -m "style: refine dashboard and trade toolbar dropdowns"
 git commit -m "feat(capital): establish account and database foundation"
 git commit -m "feat(capital): implement transaction creation and security"
 git commit -m "feat(capital): implement account management and taxonomy"
-
+git commit -m "fix(capital): resolve manual account creation ambiguity"
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

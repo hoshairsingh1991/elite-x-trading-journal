@@ -15,6 +15,14 @@ import type {
   UpdateCapitalAccountInput,
 } from "@/lib/storage/supabaseCapitalStorage";
 
+const OWNERSHIP_OPTIONS = [
+  { value: "individual", label: "Individual" },
+  { value: "joint", label: "Joint" },
+  { value: "corporate", label: "Corporate" },
+  { value: "trust", label: "Trust" },
+  { value: "other", label: "Other" },
+] as const;
+
 // =====================================================
 // PROPS
 // =====================================================
@@ -81,6 +89,10 @@ const [editTradingMode, setEditTradingMode] =
   useState<CapitalTradingMode>("unknown");
 const [editAccountCurrency, setEditAccountCurrency] =
   useState<AccountCurrencyCode>("UNKNOWN");
+const [editOwnership, setEditOwnership] = useState("");
+const [editOwnershipCustom, setEditOwnershipCustom] = useState("");
+const [editRegistration, setEditRegistration] = useState("");
+const [editTradingModeCustom, setEditTradingModeCustom] = useState("");
 
   // =====================================================
   // CREATE ACCOUNT FORM STATE
@@ -103,6 +115,10 @@ const [newTradingMode, setNewTradingMode] =
 
   const [newAccountCurrency, setNewAccountCurrency] =
     useState<AccountCurrencyCode>("UNKNOWN");
+  const [newOwnership, setNewOwnership] = useState("");
+  const [newOwnershipCustom, setNewOwnershipCustom] = useState("");
+  const [newRegistration, setNewRegistration] = useState("");
+  const [newTradingModeCustom, setNewTradingModeCustom] = useState("");
 
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [createAccountError, setCreateAccountError] = useState("");
@@ -125,6 +141,33 @@ const handleEditAccount = async (
     return;
   }
 
+  const ownership = editOwnership.trim() || null;
+  const ownershipCustom =
+    ownership === "other" ? editOwnershipCustom.trim() || null : null;
+  const registration = editRegistration.trim() || null;
+  const tradingModeCustom =
+    editAccountCategory === "brokerage" && editTradingMode === "other"
+      ? editTradingModeCustom.trim() || null
+      : null;
+
+  if (ownership === "other" && !ownershipCustom) {
+    setEditAccountError(
+      "Custom ownership is required when Ownership is Other."
+    );
+    return;
+  }
+
+  if (
+    editAccountCategory === "brokerage" &&
+    editTradingMode === "other" &&
+    !tradingModeCustom
+  ) {
+    setEditAccountError(
+      "Custom trading mode is required when Trading Mode is Other."
+    );
+    return;
+  }
+
   setEditAccountError("");
   setIsUpdatingAccount(true);
 
@@ -136,13 +179,13 @@ try {
     accountType: editAccountCategory,
     accountSubtype: editAccountSubtype.trim() || null,
 
-    ownership: null,
-    ownershipCustom: null,
-    registration: null,
+    ownership,
+    ownershipCustom,
+    registration,
 
     accountNumberLast4: editAccountNumberLast4.trim() || null,
     tradingMode: editTradingMode,
-    tradingModeCustom: null,
+    tradingModeCustom,
 
     currency: editAccountCurrency,
   });
@@ -184,6 +227,33 @@ try {
       return;
     }
 
+    const ownership = newOwnership.trim() || null;
+    const ownershipCustom =
+      ownership === "other" ? newOwnershipCustom.trim() || null : null;
+    const registration = newRegistration.trim() || null;
+    const tradingModeCustom =
+      newAccountCategory === "brokerage" && newTradingMode === "other"
+        ? newTradingModeCustom.trim() || null
+        : null;
+
+    if (ownership === "other" && !ownershipCustom) {
+      setCreateAccountError(
+        "Custom ownership is required when Ownership is Other."
+      );
+      return;
+    }
+
+    if (
+      newAccountCategory === "brokerage" &&
+      newTradingMode === "other" &&
+      !tradingModeCustom
+    ) {
+      setCreateAccountError(
+        "Custom trading mode is required when Trading Mode is Other."
+      );
+      return;
+    }
+
     setCreateAccountError("");
     setIsCreatingAccount(true);
 
@@ -193,8 +263,12 @@ await onCreate({
   brokerName: newBrokerName.trim() || null,
   accountType: newAccountCategory,
   accountSubtype: newAccountSubtype.trim() || null,
+  ownership,
+  ownershipCustom,
+  registration,
   accountNumberLast4: newAccountNumberLast4.trim() || null,
   tradingMode: newTradingMode,
+  tradingModeCustom,
   currency: newAccountCurrency,
 });
 
@@ -205,6 +279,10 @@ setNewAccountSubtype("");
 setNewAccountNumberLast4("");
 setNewTradingMode("unknown");
 setNewAccountCurrency("UNKNOWN");
+setNewOwnership("");
+setNewOwnershipCustom("");
+setNewRegistration("");
+setNewTradingModeCustom("");
 
       setIsCreateFormOpen(false);
 
@@ -407,11 +485,14 @@ setNewAccountCurrency("UNKNOWN");
 
         <select
           value={newAccountCategory}
-          onChange={(event) =>
-            setNewAccountCategory(
-              event.target.value as CapitalAccountCategory
-            )
-          }
+          onChange={(event) => {
+            const category = event.target.value as CapitalAccountCategory;
+            setNewAccountCategory(category);
+            setNewTradingMode(
+              category === "brokerage" ? "unknown" : "not_applicable"
+            );
+            setNewTradingModeCustom("");
+          }}
           className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         >
           <option value="brokerage">Brokerage</option>
@@ -430,18 +511,89 @@ setNewAccountCurrency("UNKNOWN");
 
           <select
             value={newTradingMode}
-            onChange={(event) =>
-              setNewTradingMode(
-                event.target.value as CapitalTradingMode
-              )
-            }
+            onChange={(event) => {
+              const mode = event.target.value as CapitalTradingMode;
+              setNewTradingMode(mode);
+              if (mode !== "other") setNewTradingModeCustom("");
+            }}
             className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
           >
             <option value="unknown">Unknown</option>
             <option value="cash">Cash</option>
             <option value="margin">Margin</option>
             <option value="portfolio_margin">Portfolio Margin</option>
+            <option value="limited_margin">Limited Margin</option>
+            <option value="other">Other</option>
           </select>
+        </div>
+      )}
+
+      {/* OWNERSHIP */}
+      <div>
+        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+          Ownership
+        </label>
+        <select
+          value={newOwnership}
+          onChange={(event) => {
+            const ownership = event.target.value;
+            setNewOwnership(ownership);
+            if (ownership !== "other") setNewOwnershipCustom("");
+          }}
+          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+        >
+          <option value="">Not specified</option>
+          {OWNERSHIP_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* REGISTRATION */}
+      <div>
+        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+          Account Registration
+        </label>
+        <input
+          value={newRegistration}
+          maxLength={80}
+          onChange={(event) => setNewRegistration(event.target.value)}
+          placeholder="e.g. TFSA, RRSP, IRA"
+          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+        />
+      </div>
+
+      {newOwnership === "other" && (
+        <div className="col-span-2">
+          <label className="mb-2 block text-[11px] font-medium text-slate-300">
+            Custom Ownership *
+          </label>
+          <input
+            required
+            value={newOwnershipCustom}
+            maxLength={80}
+            onChange={(event) => setNewOwnershipCustom(event.target.value)}
+            placeholder="Specify ownership type"
+            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          />
+        </div>
+      )}
+
+      {newAccountCategory === "brokerage" && newTradingMode === "other" && (
+        <div className="col-span-2">
+          <label className="mb-2 block text-[11px] font-medium text-slate-300">
+            Custom Trading Mode *
+          </label>
+          <input
+            required
+            value={newTradingModeCustom}
+            maxLength={80}
+            onChange={(event) => setNewTradingModeCustom(event.target.value)}
+            placeholder="Specify trading mode"
+            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          />
         </div>
       )}
 
@@ -593,6 +745,7 @@ setNewAccountCurrency("UNKNOWN");
             setEditTradingMode(
               category === "brokerage" ? "unknown" : "not_applicable"
             );
+            setEditTradingModeCustom("");
           }}
           className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
         >
@@ -612,18 +765,93 @@ setNewAccountCurrency("UNKNOWN");
 
           <select
             value={editTradingMode}
-            onChange={(event) =>
-              setEditTradingMode(
-                event.target.value as CapitalTradingMode
-              )
-            }
+            onChange={(event) => {
+              const mode = event.target.value as CapitalTradingMode;
+              setEditTradingMode(mode);
+              if (mode !== "other") setEditTradingModeCustom("");
+            }}
             className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
           >
             <option value="unknown">Unknown</option>
             <option value="cash">Cash</option>
             <option value="margin">Margin</option>
             <option value="portfolio_margin">Portfolio Margin</option>
+            <option value="limited_margin">Limited Margin</option>
+            <option value="other">Other</option>
           </select>
+        </div>
+      )}
+
+      {/* OWNERSHIP */}
+      <div>
+        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+          Ownership
+        </label>
+        <select
+          value={editOwnership}
+          onChange={(event) => {
+            const ownership = event.target.value;
+            setEditOwnership(ownership);
+            if (ownership !== "other") setEditOwnershipCustom("");
+          }}
+          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+        >
+          <option value="">Not specified</option>
+          {editOwnership &&
+            !OWNERSHIP_OPTIONS.some((option) => option.value === editOwnership) && (
+              <option value={editOwnership}>{editOwnership}</option>
+            )}
+          {OWNERSHIP_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* REGISTRATION */}
+      <div>
+        <label className="mb-2 block text-[11px] font-medium text-slate-300">
+          Account Registration
+        </label>
+        <input
+          value={editRegistration}
+          maxLength={80}
+          onChange={(event) => setEditRegistration(event.target.value)}
+          placeholder="e.g. TFSA, RRSP, IRA"
+          className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+        />
+      </div>
+
+      {editOwnership === "other" && (
+        <div className="col-span-2">
+          <label className="mb-2 block text-[11px] font-medium text-slate-300">
+            Custom Ownership *
+          </label>
+          <input
+            required
+            value={editOwnershipCustom}
+            maxLength={80}
+            onChange={(event) => setEditOwnershipCustom(event.target.value)}
+            placeholder="Specify ownership type"
+            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          />
+        </div>
+      )}
+
+      {editAccountCategory === "brokerage" && editTradingMode === "other" && (
+        <div className="col-span-2">
+          <label className="mb-2 block text-[11px] font-medium text-slate-300">
+            Custom Trading Mode *
+          </label>
+          <input
+            required
+            value={editTradingModeCustom}
+            maxLength={80}
+            onChange={(event) => setEditTradingModeCustom(event.target.value)}
+            placeholder="Specify trading mode"
+            className="h-10 w-full rounded-lg border border-white/[0.08] bg-[#0b1220] px-3 text-[12px] text-white outline-none focus:border-blue-500/50"
+          />
         </div>
       )}
 
@@ -769,6 +997,10 @@ onClick={() => {
   setEditAccountNumberLast4(account.accountNumberLast4 ?? "");
   setEditTradingMode(account.tradingMode);
   setEditAccountCurrency(account.baseCurrency);
+  setEditOwnership(account.ownership ?? "");
+  setEditOwnershipCustom(account.ownershipCustom ?? "");
+  setEditRegistration(account.registration ?? "");
+  setEditTradingModeCustom(account.tradingModeCustom ?? "");
 }}
     className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[10px] font-medium text-slate-400 transition hover:border-white/[0.14] hover:bg-white/[0.06] hover:text-white"
   >

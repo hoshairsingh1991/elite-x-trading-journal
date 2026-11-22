@@ -492,11 +492,14 @@ export async function updateCapitalAccount(
 
       p_trading_mode: input.tradingMode,
 
-      p_trading_mode_custom: normalizeOptionalString(
-        input.tradingModeCustom,
-        "Custom trading mode",
-        80
-      ),
+p_trading_mode_custom: normalizeOptionalString(
+  input.tradingModeCustom,
+  "Custom trading mode",
+  80
+),
+
+// Explicitly replace taxonomy fields, including intentional NULL values.
+p_taxonomy_fields_provided: true,
     });
 
   if (error) {

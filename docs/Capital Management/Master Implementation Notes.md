@@ -1,8 +1,10 @@
+# Elite X Trading Journal
 # Capital Management — Master Implementation Notes
+
 **Project:** Elite X Trading Journal  
 **Module:** Capital Management  
-**Checkpoint date:** November 21–22, 2026  
-**Checkpoint purpose:** Preserve implementation state before beginning functional testing.
+**Checkpoint:** November 22, 2026
+**Status:** Account Management taxonomy implemented and functionally tested; broader transaction testing remains outstanding.
 
 ---
 
@@ -10,8 +12,11 @@
 
 Capital Management is a standalone financial management module within Elite X Trading Journal.
 
-Its purpose is to track capital movements involving brokerage accounts, including:
+Its purpose is to manage capital movements involving brokerage accounts and other financial accounts.
 
+Core functionality includes:
+
+- Account management
 - Deposits
 - Withdrawals
 - Transfers between accounts
@@ -21,15 +26,16 @@ Its purpose is to track capital movements involving brokerage accounts, includin
 - Multi-currency account movements
 - Transfer exchange rates
 - Transaction history
-- Capital activity and related analytics
+- Capital activity
+- Account and transaction analytics
 
-Capital Management is intended to provide a financial ledger for managing account funding and capital movement.
+Capital Management provides a financial ledger for tracking account funding and capital movements.
 
-## Architectural separation
+## 1.1 Architectural separation
 
 Capital Management is separate from the trading execution and analytics systems.
 
-Capital transactions must not modify:
+Capital transactions must never modify:
 
 - Canonical trade executions
 - FIFO trade pairing
@@ -38,30 +44,31 @@ Capital transactions must not modify:
 - Trade performance analytics
 - Trade journal records
 
-Capital deposits, withdrawals, and transfers are financial account movements—not trading executions.
+Deposits, withdrawals and transfers are financial account movements, not trading executions.
 
-This separation must remain intact as the module expands.
+This separation must remain intact as the application expands.
 
 ---
 
-# 2. Scope and Development Rules
+# 2. Development and Engineering Principles
 
-The implementation and audit were intentionally limited to Capital Management.
+The following principles govern Capital Management development.
 
-The following rules were followed:
-
-- No unrelated application modules were modified intentionally.
-- Existing dashboard design was preserved.
-- No unnecessary redesign was introduced.
-- Security and database integrity were prioritized over frontend-only validation.
-- Database RPCs are treated as the authoritative transaction boundary.
-- Frontend data must not be treated as canonical financial data.
+- Correctness and data integrity take priority over quick frontend fixes.
+- Database RPCs are authoritative transaction boundaries.
+- Frontend validation improves UX but does not replace database validation.
 - Account ownership and authorization must be enforced server-side.
 - Transaction creation must be atomic.
 - Retry behavior must not create duplicate financial transactions.
-- Archived accounts must not be used for new transactions.
+- Archived accounts must not be eligible for new transactions.
 - Multi-currency handling must be explicit.
-- Changes must be reviewed before functional testing.
+- Previously applied migrations must never be modified retroactively.
+- New database changes must use new migrations.
+- Existing UI layouts should be preserved unless a redesign is requested.
+- Changes should remain narrowly scoped and independently testable.
+- Every important database change requires post-deployment verification.
+
+Changes under `docs/` must be treated as intentional user-authored documentation. Preserve them when reviewing, staging or committing work.
 
 ---
 
@@ -69,44 +76,45 @@ The following rules were followed:
 
 Capital Management follows a layered architecture.
 
-## Frontend
+## 3.1 Frontend
 
 The frontend is responsible for:
 
 - Rendering the Capital Management page
-- Displaying brokerage accounts
+- Displaying accounts
 - Displaying transaction history
-- Rendering account and transaction metrics
-- Opening transaction drawers
+- Displaying account and transaction metrics
+- Opening account and transaction drawers
 - Collecting user input
-- Performing basic validation
-- Managing loading states
-- Displaying errors
+- Basic form validation
+- Loading and saving states
+- Error display
 - Submitting requests to the storage layer
 
 The frontend is not the authority for financial transaction integrity.
 
-## Storage layer
+## 3.2 Storage layer
 
 The storage layer is responsible for:
 
-- Calling the Capital API RPCs
-- Passing structured transaction input
+- Calling Capital API RPCs
+- Passing structured inputs
 - Handling database errors
 - Validating RPC response structures
-- Parsing returned transaction records
+- Parsing returned records
 - Mapping database records to frontend types
-- Loading transaction data
+- Loading account and transaction data
+- Normalizing optional strings and validating input lengths
 
-## Database/API layer
+## 3.3 Database/API layer
 
-The database is the authoritative source for:
+The database is authoritative for:
 
 - Transaction creation
 - Account ownership validation
 - Account eligibility
 - Transaction validation
-- Financial data integrity
+- Financial integrity
 - Idempotency
 - Atomic execution
 - Concurrency protection
@@ -116,15 +124,15 @@ The database is the authoritative source for:
 
 # 4. Database Architecture and Security Boundary
 
-Capital Management uses a separated database API architecture.
+Capital Management uses separated API and private implementation schemas.
 
-## Schemas
+## 4.1 Schemas
 
 ### `capital_api`
 
-Public-facing RPC interface used by the frontend.
+Public-facing RPC interface called by the frontend.
 
-The application accesses Capital Management through explicitly exposed RPC functions rather than directly manipulating private financial tables.
+The application uses explicitly exposed API functions instead of directly manipulating private financial tables.
 
 ### `capital_private`
 
@@ -132,7 +140,7 @@ Private implementation schema containing the underlying database logic.
 
 The frontend should not directly access private implementation functions or tables.
 
-## Architecture pattern
+## 4.2 Database call flow
 
 Frontend:
 
@@ -142,20 +150,39 @@ Database:
 
 `capital_api RPC → capital_private implementation → canonical Capital tables`
 
-The public API layer acts as a controlled boundary between application code and the underlying financial database implementation.
+The API schema acts as a controlled boundary between the application and the financial database.
+
+## 4.3 Security configuration
+
+Verified account functions use:
+
+- API wrappers with `SECURITY INVOKER`
+- Private implementations with `SECURITY DEFINER`
+- Empty function `search_path`
+- `postgres` ownership
+- Explicit execution grants
+- Authenticated execution
+- Anonymous execution denied
+
+The latest account Update functions were rechecked after migration 005.
+
+Both functions were confirmed to have the expected security configuration and execution permissions.
+
+The account implementation must continue enforcing `auth.uid()` and user ownership independently of frontend-supplied identifiers.
 
 ---
 
 # 5. Database Migration History
 
-Capital Management database implementation was developed through migrations.
+Capital Management uses migration-based database deployment.
 
-## Previously applied foundation migrations
+## 5.1 Earlier foundation migrations
 
-Migrations `001–007` were previously applied and covered the initial Capital Management database foundation, including:
+The original Capital Management foundation migrations 001–007 were previously applied.
 
-- Capital Management database structures
-- Account management data
+They covered the initial database foundation, including:
+
+- Capital Management structures
 - Account-related structures
 - Database security configuration
 - Row-level security
@@ -163,221 +190,1087 @@ Migrations `001–007` were previously applied and covered the initial Capital M
 - API/private schema separation
 - RPC implementation foundations
 
-The initial foundation was completed before the transaction creation work.
-
-## Latest security correction
-
-Migration:
+The transaction API security correction is also part of the existing foundation:
 
 `supabase/migrations/20261121000200_capital_transaction_api_security_correction.sql`
 
-This migration was added during the transaction API security audit.
+## 5.2 Account metadata and taxonomy migrations
 
-The migration is part of the security checkpoint and must be preserved.
+The following date-stamped migrations were implemented on November 22, 2026.
 
-## Migration policy
+| Migration | Purpose | Status |
+|---|---|---|
+| `20261122000100` | Capital account metadata | Applied |
+| `20261122000200` | Create manual account ambiguity correction | Applied |
+| `20261122000300` | Capital account taxonomy | Applied |
+| `20261122000400` | Create manual account RETURNING alias correction | Applied |
+| `20261122000500` | Account taxonomy Update semantics | Applied |
 
-Do not modify already-applied migrations to retroactively change database behavior.
+### Migration 003 — Account taxonomy
 
-New database changes must be delivered through new migrations.
+Added account taxonomy fields and the corresponding create/update/list/archive RPC implementation.
 
-Before applying any future migration:
+The user manually applied migration 003 through the Supabase SQL Editor.
 
-1. Review the SQL.
-2. Check authorization implications.
-3. Check ownership and permissions.
+It was initially missing from the remote migration history.
+
+### Migration 004 — Create account correction
+
+Corrected the account creation implementation to use an explicit insert alias:
+
+```sql
+INSERT INTO capital_private.accounts AS inserted (...)
+...
+RETURNING inserted.id INTO v_account_id;
+```
+
+The deployed implementation was inspected and confirmed to match the local migration.
+
+The original execution method and exact deployment time were not established.
+
+### Migration history reconciliation
+
+Migrations 003 and 004 had already been deployed but were not registered in the remote migration ledger.
+
+The following command successfully reconciled their history:
+
+```bash
+npx supabase migration repair 20261122000300 20261122000400 --status applied --linked
+```
+
+A subsequent `migration list --linked` confirmed that the local and remote migration histories matched through migration 004.
+
+This repair changed migration history only. It did not rerun either migration.
+
+### Migration 005 — Update semantics correction
+
+File:
+
+`supabase/migrations/20261122000500_capital_account_taxonomy_update_semantics.sql`
+
+Purpose:
+
+Correctly distinguish between an omitted taxonomy update and an intentional request to clear taxonomy fields.
+
+Migration 005 was successfully applied using:
+
+```bash
+npx supabase db push --linked
+```
+
+The dry run identified migration 005 as the only pending migration.
+
+The actual deployment completed successfully.
+
+The remote functions were then inspected to confirm the new signatures, security configuration, ownership and permissions.
+
+### Migration policy
+
+For all future database changes:
+
+1. Review the complete SQL.
+2. Review authorization implications.
+3. Verify function ownership and privileges.
 4. Check RLS implications.
 5. Check transaction integrity.
-6. Check rollback or recovery considerations.
-7. Apply it.
-8. Verify the resulting database state.
+6. Consider backward compatibility.
+7. Review the deployment plan.
+8. Apply the migration.
+9. Verify the deployed database state.
+10. Verify migration history.
+
+Never modify previously applied migrations to change production behavior.
 
 ---
 
-# 6. Database Security Audit
+# 6. Capital Account Data Model
 
-A security audit was conducted on the Capital Management database architecture and transaction RPC boundary.
+Primary account table:
 
-## Security principles
+`capital_private.accounts`
 
-The implementation must not trust:
+The account management implementation uses the following canonical fields:
+
+| Database field | Purpose |
+|---|---|
+| `id` | Account UUID |
+| `user_id` | Account owner |
+| `account_name` | Display name |
+| `broker_name` | Broker or institution |
+| `account_type` | Account category |
+| `account_subtype` | Additional classification |
+| `currency` | Account currency |
+| `account_source` | Manual or broker import |
+| `external_account_id` | External broker identity |
+| `status` | Active or archived |
+| `account_number_last4` | Last four digits |
+| `trading_mode` | Brokerage trading mode |
+| `ownership` | Account ownership |
+| `ownership_custom` | Custom ownership description |
+| `registration` | Account registration |
+| `trading_mode_custom` | Custom trading mode description |
+| `created_at` | Creation timestamp |
+| `updated_at` | Last update timestamp |
+
+## 6.1 Account categories
+
+Canonical account categories:
+
+- Brokerage
+- Bank
+- Cash
+- Other
+
+Stored values:
+
+- `brokerage`
+- `bank`
+- `cash`
+- `other`
+
+## 6.2 Account ownership
+
+Supported UI options:
+
+- Individual
+- Joint
+- Corporate
+- Trust
+- Other
+
+Ownership is stored in a TEXT column, not a dedicated PostgreSQL enum.
+
+The options above are the agreed UI taxonomy. Do not silently introduce additional choices.
+
+### Custom Ownership
+
+Custom Ownership:
+
+- Is optional when another ownership category is selected.
+- Is shown only when Ownership is Other.
+- Is required when Ownership is Other.
+- Has a maximum length of 80 characters.
+
+Ownership has a maximum length of 40 characters.
+
+## 6.3 Account registration
+
+Registration:
+
+- Is optional.
+- Uses free-text input.
+- Has a maximum length of 80 characters.
+- Must be trimmed before saving.
+- Empty values must be normalized to NULL.
+
+Registration can represent country-specific account registrations.
+
+Examples include:
+
+Canadian:
+- TFSA
+- RRSP
+- FHSA
+- RESP
+- RRIF
+
+United States:
+- IRA
+- Roth IRA
+- 401(k)
+
+The registration field is intentionally searchable/extensible rather than restricted to a fixed global enum.
+
+## 6.4 Trading Mode
+
+Brokerage accounts support:
+
+| Stored value | Display label |
+|---|---|
+| `unknown` | Unknown |
+| `cash` | Cash |
+| `margin` | Margin |
+| `portfolio_margin` | Portfolio Margin |
+| `limited_margin` | Limited Margin |
+| `other` | Other |
+
+Non-brokerage accounts use:
+
+`not_applicable`
+
+### Custom Trading Mode
+
+- Visible only when Trading Mode is Other.
+- Required when Trading Mode is Other.
+- Maximum length: 80 characters.
+- Must be cleared when the selected trading mode changes away from Other.
+
+Trading Mode itself is validated against supported values by the database implementation.
+
+---
+
+# 7. Account Database Constraints and Validation
+
+The account table contains database constraints for:
+
+- Valid account categories
+- Valid account sources
+- Valid account statuses
+- Supported currencies
+- Supported trading modes
+- Account name validity
+- Broker name validity
+- Account subtype length and validity
+- Account number last-four format
+- Ownership length
+- Custom ownership length
+- Registration length
+- Custom trading mode length
+- Broker-import identity requirements
+- External account identity requirements
+
+Account number last four must contain exactly four digits when supplied.
+
+The taxonomy columns are TEXT fields.
+
+Maximum lengths:
+
+| Field | Maximum |
+|---|---:|
+| Ownership | 40 |
+| Custom Ownership | 80 |
+| Registration | 80 |
+| Custom Trading Mode | 80 |
+
+The database RPC implementation performs the corresponding trimming and conditional validation.
+
+The UI and storage layer also normalize input for a better user experience, but database validation remains authoritative.
+
+---
+
+# 8. Account Management RPC Architecture
+
+Account management uses public API wrappers and private implementations.
+
+| Operation | API function | Private implementation |
+|---|---|---|
+| List | `capital_api.list_accounts` | `capital_private.list_accounts_impl` |
+| Create | `capital_api.create_manual_account` | `capital_private.create_manual_account_impl` |
+| Update | `capital_api.update_account` | `capital_private.update_account_impl` |
+| Archive | `capital_api.archive_account` | `capital_private.archive_account_impl` |
+
+The frontend uses the API schema.
+
+## 8.1 Create Account
+
+The create implementation:
+
+1. Checks `auth.uid()`.
+2. Validates the account name.
+3. Normalizes broker and account metadata.
+4. Validates account category and currency.
+5. Validates trading mode.
+6. Validates account ownership fields.
+7. Requires Custom Ownership when Ownership is Other.
+8. Requires Custom Trading Mode when Trading Mode is Other.
+9. Validates field lengths.
+10. Inserts a manual account.
+11. Returns the newly created canonical account record.
+
+The corrected implementation uses an explicit insert alias when returning the generated account ID.
+
+## 8.2 Update Account
+
+The Update function:
+
+- Validates authentication.
+- Validates account fields.
+- Preserves account ownership protections.
+- Protects broker integration identity.
+- Validates account number behavior.
+- Validates trading mode.
+- Validates custom ownership.
+- Validates registration.
+- Updates only the authenticated user's account.
+- Returns the canonical updated account record.
+
+Broker name updates are restricted to appropriate manual accounts without an external account ID.
+
+The current implementation uses an explicit account ID and authenticated user ID in the update condition.
+
+## 8.3 Archive Account
+
+The private archive implementation:
+
+- Checks authentication.
+- Locks the user-owned account row.
+- Confirms that the account exists.
+- Prevents archive when a pending transaction references the account.
+- Changes the account status to archived.
+
+Archived accounts must not be eligible for new transactions.
+
+The database archive functionality exists, but the account archive UI action remains to be reviewed and completed.
+
+---
+
+# 9. Migration 005 — Explicit Taxonomy Update Semantics
+
+## 9.1 Problem identified
+
+The original Update function used:
+
+```sql
+ownership = COALESCE(v_ownership, a.ownership),
+ownership_custom = COALESCE(v_ownership_custom, a.ownership_custom),
+registration = COALESCE(v_registration, a.registration)
+```
+
+This made NULL ambiguous.
+
+A NULL could mean:
+
+- Preserve the existing value.
+- Intentionally clear the existing value.
+
+The application could not distinguish those two operations.
+
+This caused a data integrity issue when a user switched Ownership from Other to Individual or cleared Registration.
+
+## 9.2 Backward-compatible correction
+
+Migration 005 added a trailing boolean parameter to both Update functions:
+
+```sql
+p_taxonomy_fields_provided BOOLEAN DEFAULT FALSE
+```
+
+This parameter defines the taxonomy update contract.
+
+### When FALSE
+
+The legacy behavior remains:
+
+- NULL means preserve the existing value.
+- Existing older callers can continue using the old behavior.
+
+### When TRUE
+
+Ownership taxonomy fields are treated as a complete replacement group.
+
+The following values are replaced using the submitted values:
+
+- Ownership
+- Custom Ownership
+- Registration
+
+An explicit NULL clears the corresponding field.
+
+The new application storage layer sends:
+
+```ts
+p_taxonomy_fields_provided: true,
+```
+
+This avoids using special text sentinels for free-text fields.
+
+## 9.3 Fields intentionally excluded
+
+The new boolean flag does not control:
+
+- Account name
+- Broker name
+- Account category
+- Account subtype
+- Currency
+- Account number last four
+- Trading Mode
+- Custom Trading Mode
+
+Existing account-number sentinel behavior is preserved.
+
+Existing Trading Mode and Custom Trading Mode logic is preserved.
+
+Switching away from Trading Mode Other clears Custom Trading Mode using the existing SQL behavior.
+
+## 9.4 Security and deployment verification
+
+After migration 005, both functions were queried directly in Supabase.
+
+Verified:
+
+| Property | API Update | Private Update |
+|---|---|---|
+| New boolean argument | Present | Present |
+| Default | FALSE | FALSE |
+| Security | Invoker | Definer |
+| Search path | Empty | Empty |
+| Owner | postgres | postgres |
+| Authenticated EXECUTE | Allowed | Allowed |
+| Anonymous EXECUTE | Denied | Denied |
+
+The migration also:
+
+- Recreates both functions with the new parameter.
+- Preserves the function return shape.
+- Preserves private implementation security.
+- Preserves authenticated-only execution permissions.
+- Sends a PostgREST schema reload notification.
+
+The remote function metadata was inspected and confirmed after deployment.
+
+---
+
+# 10. Account Frontend Implementation
+
+## 10.1 Main account drawer
+
+File:
+
+`components/capital/ManageAccountsDrawer.tsx`
+
+The drawer is responsible for:
+
+- Creating accounts
+- Editing accounts
+- Loading existing account information into Edit state
+- Validating account fields
+- Showing account errors
+- Rendering active accounts
+- Rendering archived accounts
+
+The existing drawer layout and styling were preserved during the taxonomy implementation.
+
+## 10.2 Create Account form
+
+The Create form now supports:
+
+- Account Name
+- Broker / Institution
+- Account Category
+- Account Subtype
+- Account Number (Last 4 Digits)
+- Currency
+- Trading Mode
+- Ownership
+- Custom Ownership
+- Registration
+- Custom Trading Mode
+
+Conditional form behavior:
+
+- Custom Ownership appears only when Ownership is Other.
+- Custom Trading Mode appears only when Trading Mode is Other.
+- Trading Mode is hidden for non-brokerage accounts.
+- Changing away from Other clears the corresponding custom-field UI state.
+
+## 10.3 Edit Account form
+
+The Edit form now:
+
+1. Reads the selected account object.
+2. Loads all existing account fields into form state.
+3. Loads Ownership.
+4. Loads Custom Ownership.
+5. Loads Registration.
+6. Loads Trading Mode.
+7. Loads Custom Trading Mode.
+8. Sends the actual edited values to the parent update callback.
+
+The previous hardcoded NULL values in the Edit handler were removed.
+
+## 10.4 Conditional validation
+
+Ownership Other requires Custom Ownership.
+
+Trading Mode Other requires Custom Trading Mode.
+
+The form prevents submission when either required custom field is empty.
+
+Switching away from Other clears the corresponding custom-field state.
+
+## 10.5 Category transitions
+
+Non-brokerage accounts must not expose a Trading Mode selector.
+
+The UI hides Trading Mode for:
+
+- Bank
+- Cash
+- Other
+
+The database stores `not_applicable` for non-brokerage account trading modes.
+
+When changing the category back to Brokerage, the Trading Mode control becomes visible again.
+
+---
+
+# 11. Account Storage Layer
+
+File:
+
+`lib/storage/supabaseCapitalStorage.ts`
+
+The storage layer handles:
+
+- Account database types
+- Create input types
+- Update input types
+- Account response parsing
+- Account mapping
+- Input normalization
+- Length validation
+- RPC calls
+- Error handling
+
+## 11.1 Canonical frontend model
+
+`BrokerageAccount` includes:
+
+- `id`
+- `name`
+- `broker`
+- `type`
+- `accountCategory`
+- `accountSubtype`
+- `ownership`
+- `ownershipCustom`
+- `registration`
+- `accountNumberLast4`
+- `tradingMode`
+- `tradingModeCustom`
+- `baseCurrency`
+- `source`
+- `status`
+
+The account taxonomy fields are already part of the canonical account model.
+
+No separate UI-only taxonomy data model is required.
+
+## 11.2 Input types
+
+`CreateCapitalAccountInput` supports optional nullable taxonomy fields.
+
+`UpdateCapitalAccountInput` requires the account's complete nullable taxonomy state.
+
+The storage normalizer:
+
+- Trims optional strings.
+- Converts empty strings to NULL.
+- Enforces configured maximum lengths.
+- Validates account number last four.
+
+## 11.3 Create RPC
+
+The storage layer calls:
+
+`capital_api.create_manual_account`
+
+All supported account taxonomy fields are sent to the RPC.
+
+## 11.4 Update RPC
+
+The storage layer calls:
+
+`capital_api.update_account`
+
+It sends all account fields, including:
+
+```ts
+p_taxonomy_fields_provided: true,
+```
+
+This is required for the new migration 005 contract.
+
+The flag is sent only by the Update operation. The Create function does not need it.
+
+## 11.5 Update call-site audit
+
+A source search was performed:
+
+```bash
+git grep -n -E 'updateCapitalAccount|update_account|onUpdate' -- app components lib supabase
+```
+
+The Capital account Update path was confirmed:
+
+`ManageAccountsDrawer.tsx → app/capital/page.tsx → updateCapitalAccount() → capital_api.update_account()`
+
+No additional Capital account Update RPC callers were identified in the searched application source.
+
+Other `onUpdate` matches were unrelated editor callbacks.
+
+---
+
+# 12. Account Taxonomy Functional Testing
+
+The account taxonomy implementation has undergone manual functional testing in the live application.
+
+Testing included account creation, account editing, persistence after full browser refresh, conditional controls and validation.
+
+## 12.1 Create account test
+
+A Brokerage test account was created using:
+
+- Account Name: Taxonomy Test – Brokerage
+- Broker: Test Broker
+- Account Category: Brokerage
+- Account Subtype: Taxable
+- Ownership: Other
+- Custom Ownership: Test Ownership
+- Registration: Test Registration
+- Trading Mode: Other
+- Custom Trading Mode: Test Trading Mode
+- Currency: CAD
+
+The account saved successfully.
+
+The account could then be opened in Edit.
+
+**Result: PASS**
+
+## 12.2 Edit persistence
+
+The account was reopened and its taxonomy fields were edited.
+
+The user confirmed that updates were saving successfully after migration 005.
+
+The values were checked again after refreshing the browser and reopening Edit.
+
+**Result: PASS**
+
+## 12.3 Ownership clearing
+
+Test:
+
+1. Change Ownership from Other to Individual.
+2. Clear Registration.
+3. Save.
+4. Refresh the browser.
+5. Reopen Edit.
+
+Expected:
+
+- Ownership = Individual
+- Custom Ownership = NULL
+- Registration = NULL
+
+The user confirmed the expected result after refreshing.
+
+**Result: PASS**
+
+## 12.4 Trading Mode custom-field clearing
+
+Test:
+
+1. Change Trading Mode from Other to Margin.
+2. Save.
+3. Refresh.
+4. Reopen Edit.
+
+Expected:
+
+- Trading Mode = Margin
+- Custom Trading Mode = NULL
+
+The user confirmed the expected result.
+
+**Result: PASS**
+
+## 12.5 Required Custom Ownership validation
+
+Test:
+
+1. Select Ownership Other.
+2. Leave Custom Ownership empty.
+3. Attempt to save.
+
+The form prevented the save.
+
+**Result: PASS**
+
+## 12.6 Required Custom Trading Mode validation
+
+Test:
+
+1. Set Trading Mode to Other.
+2. Leave Custom Trading Mode empty.
+3. Attempt to save.
+
+The form prevented the save.
+
+**Result: PASS**
+
+## 12.7 Non-brokerage account creation
+
+A second test account was created:
+
+`Taxonomy Test – Bank`
+
+The Trading Mode field disappeared when Bank was selected.
+
+The account was successfully created.
+
+**Result: PASS**
+
+## 12.8 Non-brokerage account editing
+
+The Bank account was opened in Edit.
+
+Account Subtype was changed to:
+
+`Test Chequing`
+
+After saving, refreshing and reopening Edit, the updated subtype remained present.
+
+Trading Mode remained hidden.
+
+**Result: PASS**
+
+## 12.9 Limited Margin
+
+Test:
+
+1. Open Brokerage account in Edit.
+2. Select Limited Margin.
+3. Save.
+4. Refresh.
+5. Reopen Edit.
+
+The user confirmed the value persisted.
+
+**Result: PASS**
+
+## 12.10 Account category transitions
+
+Tested:
+
+`Brokerage → Bank → Brokerage`
+
+Verified:
+
+- Trading Mode disappears for Bank.
+- Category changes persist.
+- Trading Mode reappears when switching back to Brokerage.
+- Previous custom trading-mode information is not incorrectly restored.
+
+**Result: PASS**
+
+## 12.11 Ownership option testing
+
+Ownership selection tests were performed for the supported categories.
+
+The user confirmed the ownership-option tests passed.
+
+Options covered:
+
+- Individual
+- Joint
+- Corporate
+- Trust
+- Other
+
+**Result: PASS**
+
+---
+
+# 13. Account Taxonomy Verification Summary
+
+| Area | Result |
+|---|---|
+| Create Brokerage account | PASS |
+| Save ownership taxonomy | PASS |
+| Save custom ownership | PASS |
+| Save registration | PASS |
+| Save custom trading mode | PASS |
+| Edit existing taxonomy values | PASS |
+| Load saved values into Edit | PASS |
+| Ownership Other → Individual | PASS |
+| Clear Custom Ownership | PASS |
+| Clear Registration | PASS |
+| Trading Mode Other → Margin | PASS |
+| Clear Custom Trading Mode | PASS |
+| Require Custom Ownership | PASS |
+| Require Custom Trading Mode | PASS |
+| Bank account creation | PASS |
+| Bank account editing | PASS |
+| Non-brokerage Trading Mode hidden | PASS |
+| Limited Margin persistence | PASS |
+| Brokerage/Bank category transition | PASS |
+| Ownership options | PASS |
+
+These are manual functional tests. They do not replace automated unit tests or database integration tests.
+
+---
+
+# 14. Current Build and Static Verification
+
+After the account drawer and storage changes:
+
+Command:
+
+```bash
+git diff --check
+npm run build
+```
+
+Result:
+
+**PASS**
+
+Build environment:
+
+- Next.js 16.2.6
+- Turbopack
+- TypeScript completed successfully
+- Static page generation completed successfully
+- All 32 static pages generated
+- No build errors
+
+This confirms the application compiles.
+
+It does not establish that all Capital Management functionality is production-ready.
+
+---
+
+# 15. Capital Transactions — Data Model
+
+Transaction types:
+
+- DEPOSIT
+- WITHDRAWAL
+- TRANSFER
+
+Transaction statuses:
+
+- PENDING
+- COMPLETED
+- CANCELLED
+
+The canonical frontend type is:
+
+`CapitalTransaction`
+
+It includes:
+
+- `id`
+- `date`
+- `effectiveDate`
+- `type`
+- `status`
+- `amount`
+- `currency`
+- `fromAccountId`
+- `toAccountId`
+- `receivedAmount`
+- `receivedCurrency`
+- `exchangeRate`
+- `method`
+- `counterpartyInstitution`
+- `referenceNumber`
+- `notes`
+- `reversalOfTransactionId`
+- `reversalReason`
+- `createdAt`
+- `updatedAt`
+
+Database values remain canonical.
+
+---
+
+# 16. Transaction Database Security and Validation
+
+Transaction creation must validate all relevant information at the database boundary.
+
+The database must not trust:
 
 - Frontend account IDs
 - Frontend transaction IDs
 - Frontend account status
 - Frontend transaction status
-- Frontend validation
 - Frontend ownership claims
 - Frontend exchange-rate values without backend validation
 
-The database must validate all relevant information before financial transaction creation.
+## 16.1 Account ownership
 
-## Account ownership
+Transaction creation must verify that involved accounts belong to the authenticated user.
 
-Transaction creation must verify that the accounts involved in the transaction belong to the authenticated user.
+A user must not be able to submit another user's account UUID and create a transaction involving that account.
 
-A user must not be able to submit another user's account UUID and create a financial transaction involving that account.
+## 16.2 Account eligibility
 
-## Account status
+Archived accounts cannot be used for new capital transactions.
 
-Archived accounts must not be eligible for new capital transactions.
+The database must enforce this independently of frontend account filtering.
 
-Account status must be checked at the database boundary—not only through frontend filtering.
+## 16.3 Deposit
 
-## Transaction integrity
+Required:
 
-The database must enforce transaction-type rules.
+- Destination account
+- Amount
+- Currency
+- Transaction date
 
-### Deposit
+The destination account must be owned by the authenticated user and eligible for the transaction.
 
-- Destination account is required.
-- Source account is not required.
-- Account ownership must be validated.
-- Destination account must be eligible.
+## 16.4 Withdrawal
 
-### Withdrawal
+Required:
 
-- Source account is required.
-- Destination account is not required.
-- Account ownership must be validated.
-- Source account must be eligible.
+- Source account
+- Amount
+- Currency
+- Transaction date
 
-### Transfer
+The source account must be owned by the authenticated user and eligible.
 
-- Source account is required.
-- Destination account is required.
-- Both accounts must belong to the authenticated user.
-- Both accounts must be eligible.
-- Source and destination must be different accounts.
+## 16.5 Transfer
+
+Required:
+
+- Source account
+- Destination account
+- Source amount
+- Source currency
+- Transaction date
+
+Both accounts must:
+
+- Belong to the authenticated user.
+- Be eligible.
+- Be different accounts.
 
 A transfer to the same account must be rejected.
 
-## Transaction status
+## 16.6 Status validation
 
-Transaction status must be validated against supported values.
+Supported statuses:
 
-Current transaction statuses:
-
-- `PENDING`
-- `COMPLETED`
-- `CANCELLED`
+- PENDING
+- COMPLETED
+- CANCELLED
 
 Completed transactions require an effective date.
 
 Pending transactions must not be assigned a completed effective date.
 
-## Financial data validation
-
-The database validates financial values, including:
-
-- Amount
-- Currency
-- Received amount
-- Received currency
-- Exchange rate
-- Transaction type
-- Transaction status
-- Source account
-- Destination account
-- Transaction dates
-
-Frontend validation exists to improve user experience, but backend validation remains authoritative.
-
-## Concurrency protection
+## 16.7 Concurrency
 
 Transaction creation includes account-level locking and deterministic lock ordering.
 
-This helps protect concurrent transaction operations and reduces deadlock risk when multiple accounts are involved.
-
-The database remains responsible for transaction integrity even if requests arrive simultaneously.
+The database is responsible for maintaining integrity when multiple operations arrive concurrently.
 
 ---
 
-# 7. Capital Transaction Idempotency
+# 17. Transaction RPC Architecture
 
-Idempotency is a critical requirement for financial transaction creation.
-
-The system must handle cases where:
-
-- A user clicks Save more than once.
-- A network request times out.
-- The database commits successfully but the client does not receive the response.
-- A user retries after an error.
-- The browser retries a request.
-- A transaction is submitted more than once.
-
-## Database idempotency behavior
-
-The database supports idempotent transaction creation using an idempotency key.
-
-Expected behavior:
-
-### Same key + same payload
-
-Return the existing canonical transaction rather than creating a duplicate.
-
-### Same key + different payload
-
-Reject the request.
-
-### Reuse after deletion
-
-Reject the reuse of an idempotency key when its previous transaction has been deleted.
-
-### Orphaned transaction
-
-Fail closed if the idempotency relationship cannot be resolved safely.
-
-This prevents silently treating a reused key as a new transaction.
-
-## Unique database protection
-
-A database-level uniqueness mechanism protects transaction idempotency.
-
-The frontend's idempotency implementation is an additional layer of protection and does not replace database enforcement.
-
----
-
-# 8. Capital Transaction RPC
-
-## Public RPC
+Public API:
 
 `capital_api.create_transaction`
 
-## Private implementation
+Private implementation:
 
 `capital_private.create_transaction_impl`
 
-The public API calls the private implementation.
+The frontend must call the public API.
 
-The frontend must only call the public API.
+The transaction RPC supports:
 
-## RPC contract
+| Parameter | Purpose |
+|---|---|
+| `p_idempotency_key` | Retry and duplicate protection |
+| `p_transaction_type` | Deposit, withdrawal or transfer |
+| `p_status` | Pending, completed or cancelled |
+| `p_amount` | Transaction amount |
+| `p_currency` | Transaction currency |
+| `p_from_account_id` | Source account |
+| `p_to_account_id` | Destination account |
+| `p_received_amount` | Receiving-side amount |
+| `p_received_currency` | Receiving currency |
+| `p_exchange_rate` | Transfer exchange rate |
+| `p_transaction_date` | Transaction date |
+| `p_effective_date` | Completion date |
+| `p_method` | Transaction method |
+| `p_counterparty_institution` | Institution or counterparty |
+| `p_reference_number` | External reference |
+| `p_notes` | User notes |
 
-The RPC accepts the following parameters:
-
-| Parameter | Type | Purpose |
-|---|---|---|
-| `p_idempotency_key` | UUID | Retry and duplicate protection |
-| `p_transaction_type` | TEXT | Deposit, withdrawal, or transfer |
-| `p_status` | TEXT | Pending, completed, or cancelled |
-| `p_amount` | NUMERIC | Transaction amount |
-| `p_currency` | TEXT | Transaction currency |
-| `p_from_account_id` | UUID | Source account |
-| `p_to_account_id` | UUID | Destination account |
-| `p_received_amount` | NUMERIC | Receiving-side transfer amount |
-| `p_received_currency` | TEXT | Receiving currency |
-| `p_exchange_rate` | NUMERIC | Transfer exchange rate |
-| `p_transaction_date` | DATE | Transaction date |
-| `p_effective_date` | DATE | Effective completion date |
-| `p_method` | TEXT | Transaction method |
-| `p_counterparty_institution` | TEXT | Institution or counterparty |
-| `p_reference_number` | TEXT | External reference |
-| `p_notes` | TEXT | User notes |
+The database performs validation, ownership checks, account checks, idempotency checks, locking and atomic creation.
 
 ---
 
-# 9. Currency Architecture
+# 18. Transaction Idempotency
+
+Idempotency prevents duplicate financial transactions when requests are retried.
+
+Scenarios include:
+
+- User double-clicks Save.
+- Network request times out.
+- Database commits but the client does not receive the response.
+- User retries after an error.
+- Browser retries a request.
+- Same transaction is accidentally submitted more than once.
+
+## 18.1 Database behavior
+
+Same key and same payload:
+
+Return the existing canonical transaction.
+
+Same key and different payload:
+
+Reject the request.
+
+Reuse after deletion:
+
+Reject reuse of the previous idempotency key.
+
+Orphaned transaction:
+
+Fail closed if the idempotency relationship cannot be safely resolved.
+
+Database-level uniqueness remains authoritative.
+
+## 18.2 Frontend idempotency
+
+The transaction drawer uses:
+
+`idempotencyRef`
+
+It stores:
+
+- Fingerprint
+- Idempotency key
+
+The fingerprint is based on:
+
+`JSON.stringify(transactionPayload)`
+
+The payload is constructed before adding the idempotency key.
+
+### Same payload retry
+
+Reuse the existing key.
+
+### Changed payload
+
+Generate a new key.
+
+### Failed submission
+
+Preserve the key.
+
+### Successful submission
+
+Clear the key and close the drawer.
+
+The frontend implementation complements database idempotency rather than replacing it.
+
+---
+
+# 19. Currency Architecture
 
 Supported currencies:
 
@@ -388,12 +1281,12 @@ Supported currencies:
 - JPY
 - INR
 
-Currency precision rules:
+Precision requirements:
 
-- JPY uses zero decimal places.
-- Other supported currencies use two decimal places.
+- JPY: zero decimal places.
+- Other supported currencies: two decimal places.
 
-Currency validation must remain consistent between:
+Currency precision must remain consistent across:
 
 - Frontend input
 - Database validation
@@ -401,11 +1294,9 @@ Currency validation must remain consistent between:
 - Transaction display
 - Capital analytics
 
-## Multi-currency transfers
+## 19.1 Multi-currency transfers
 
-Transfers can support currency conversion.
-
-The transaction may include:
+A transfer may contain:
 
 - Source amount
 - Source currency
@@ -415,221 +1306,84 @@ The transaction may include:
 
 For same-currency transfers:
 
-- Source and receiving currency are identical.
+- Source and receiving currency must match.
 - Receiving amount equals source amount.
-- Exchange rate is `1`.
+- Exchange rate equals 1.
 
 For cross-currency transfers:
 
 - Receiving currency differs from source currency.
 - Receiving amount must be valid.
 - Exchange rate must be valid.
-- The database must validate the relationship.
+- Database validation must enforce the relationship.
 
-Cross-currency transfer information must not be inferred or silently changed by frontend display logic.
-
----
-
-# 10. Account Management Foundation
-
-Capital Management account management was implemented before transaction creation.
-
-The account foundation includes:
-
-- Account storage
-- Account types and related structures
-- Account ownership
-- Account status
-- Account-related database validation
-- Account CRUD functionality
-- Account subtype structures
-- Storage-layer implementation
-- Frontend account management integration
-
-Account CRUD and account subtype functionality were previously live-tested.
-
-## Account eligibility
-
-Transaction creation uses active accounts.
-
-Archived accounts must not be available for new deposits, withdrawals, or transfers.
-
-The UI filters accounts to active accounts, while the database independently enforces eligibility.
+The frontend must not silently infer or change canonical financial values.
 
 ---
 
-# 11. Account and Transaction Types
+# 20. Capital Management Frontend
 
-Capital Management supports the following transaction types:
-
-## Deposit
-
-Money entering a brokerage account.
-
-Required:
-
-- Destination account
-- Amount
-- Currency
-- Transaction date
-
-Optional:
-
-- Method
-- Counterparty institution
-- Reference number
-- Notes
-
-## Withdrawal
-
-Money leaving a brokerage account.
-
-Required:
-
-- Source account
-- Amount
-- Currency
-- Transaction date
-
-Optional:
-
-- Method
-- Counterparty institution
-- Reference number
-- Notes
-
-## Transfer
-
-Money moving from one account to another.
-
-Required:
-
-- Source account
-- Destination account
-- Source amount
-- Source currency
-- Transaction date
-
-For cross-currency transfers:
-
-- Received amount
-- Received currency
-- Exchange rate
-
-For same-currency transfers:
-
-- Received amount is automatically equal to source amount.
-- Exchange rate is `1`.
-
----
-
-# 12. Frontend Implementation
-
-## Capital Management page
-
-File:
+Main page:
 
 `app/capital/page.tsx`
 
-The Capital Management page includes the Capital Management interface and its transaction/account data loading responsibilities.
-
-Current responsibilities include:
+Responsibilities:
 
 - Account data loading
 - Transaction data loading
-- Loading state management
-- Error state management
-- Retry behavior
+- Loading/error/retry states
+- Account and transaction integration
 - Transaction drawer integration
-- Refreshing transactions after successful creation
-- Capital page analytics and activity displays
+- Transaction persistence callback
+- Refresh after successful transaction creation
+- Capital activity and analytics display
 
-## Transaction loading state
+Account and transaction loading states are handled separately.
 
-The page maintains transaction-related state:
+This prevents an account loading failure from being silently conflated with a transaction loading failure.
 
-- `transactions`
-- `transactionsLoading`
-- `transactionsError`
-- `transactionsRetry`
-
-The transaction load effect calls:
-
-`loadCapitalTransactions()`
-
-The retry mechanism uses:
-
-`transactionsRetry`
-
-After a successful transaction creation, the retry counter is incremented to trigger transaction reload.
-
-## Account loading state
-
-Account state and loading/error/retry behavior are handled separately from transaction loading.
-
-This keeps account loading failures from being silently conflated with transaction loading.
-
-## Loading UI
-
-Capital Management loading states were added across relevant UI sections, including:
-
-- Metric cards
-- Funding sections
-- Activity sections
-- Pending transaction areas
-- Recent transactions table
-
-Loading states help prevent misleading empty-state displays while data is being fetched.
+The page includes loading states across relevant UI sections, including metrics, funding sections, activity sections, pending transaction areas and the recent transactions table.
 
 ---
 
-# 13. Add Transaction Drawer
+# 21. Add Transaction Drawer
 
 File:
 
 `components/capital/AddTransactionDrawer.tsx`
 
-The drawer is responsible for collecting transaction information and submitting the payload to the parent page.
+Responsibilities:
 
-It supports:
-
-- Deposit
-- Withdrawal
-- Transfer
+- Deposit form
+- Withdrawal form
+- Transfer form
 - Transaction status
-- Amount
-- Currency
-- Source account
-- Destination account
-- Received amount
-- Received currency
-- Exchange rate
+- Amount and currency
+- Source and destination accounts
+- Cross-currency receiving values
 - Transaction date
 - Method
 - Counterparty institution
 - Reference number
 - Notes
+- Frontend validation
+- Saving state
+- Idempotency fingerprint
+- Idempotency key preservation
+- Error display
+- Successful close behavior
 
-## Account selection
+The drawer uses active accounts.
 
-The drawer filters accounts to active accounts.
+Deposit uses a destination account.
 
-Deposit:
+Withdrawal uses a source account.
 
-- Destination account
+Transfer uses both source and destination accounts.
 
-Withdrawal:
+The drawer prevents same-account transfers.
 
-- Source account
-
-Transfer:
-
-- Source account
-- Destination account
-
-The drawer also validates that transfer source and destination accounts are different.
-
-## Validation currently implemented
+## 21.1 Current transaction validation
 
 The handler checks:
 
@@ -639,333 +1393,63 @@ The handler checks:
 - Valid selected destination account for deposits
 - Valid selected source account for transfers
 - Valid selected destination account for transfers
-- Source and destination accounts are different
-- Cross-currency received amount is positive and finite
-- Cross-currency exchange rate is positive and finite
+- Different source and destination accounts
+- Positive and finite cross-currency received amount
+- Positive and finite exchange rate
 
-## Error handling
+## 21.2 Error handling
 
 The drawer:
 
-- Clears the previous error before submission.
+- Clears previous errors before submission.
 - Sets saving state during the request.
-- Awaits parent persistence.
+- Waits for parent persistence.
 - Closes only after successful submission.
 - Keeps the drawer open after failure.
-- Displays the error to the user.
-- Clears the saving state after completion.
+- Displays the failure.
+- Clears saving state after completion.
 
-The drawer does not treat a failed submission as successful.
-
----
-
-# 14. Saving State and Duplicate Click Prevention
-
-The drawer contains:
-
-`isSaving`
-
-During submission:
-
-- Save button is disabled.
-- Button label changes to `Saving...`.
-- Repeated submissions are blocked by the handler.
-
-The save button currently uses the label:
-
-`Save Transaction`
-
-This provides basic UI protection against accidental duplicate clicks.
-
-Database idempotency remains the authoritative duplicate protection mechanism.
+The UI must not display success when persistence has failed.
 
 ---
 
-# 15. Frontend Idempotency Improvement
-
-An important frontend idempotency issue was identified and corrected.
-
-## Previous behavior
-
-The handler generated a new idempotency key on every submission:
-
-`crypto.randomUUID()`
-
-This meant that a retry of the same transaction could generate a new key.
-
-If the first request committed successfully but the client lost the response, a retry could potentially submit the same financial transaction using a new key.
-
-## New implementation
-
-A React ref stores the current idempotency fingerprint and key.
-
-The implementation uses:
-
-`idempotencyRef`
-
-The stored object contains:
-
-- `fingerprint`
-- `key`
-
-## Fingerprint
-
-The transaction payload is constructed first without the idempotency key.
-
-The fingerprint is derived from the transaction payload:
-
-`JSON.stringify(transactionPayload)`
-
-The fingerprint includes transaction details such as:
-
-- Transaction type
-- Status
-- Amount
-- Currency
-- Source account
-- Destination account
-- Received amount
-- Received currency
-- Exchange rate
-- Transaction date
-- Effective date
-- Method
-- Counterparty institution
-- Reference number
-- Notes
-
-The idempotency key itself is excluded from the fingerprint.
-
-## Key generation behavior
-
-### Same payload
-
-If the payload fingerprint is identical to the previous failed attempt:
-
-- Reuse the existing key.
-
-### Changed payload
-
-If the user changes any transaction details:
-
-- The fingerprint changes.
-- A new idempotency key is generated.
-
-### Successful save
-
-After the parent persistence call succeeds:
-
-- The stored idempotency ref is cleared.
-- The drawer closes.
-
-This allows a future intentional transaction with identical details to receive a new idempotency key.
-
-## Retry behavior
-
-The intended behavior is:
-
-| Scenario | Expected behavior |
-|---|---|
-| First submission | Generate key |
-| Same payload retry | Reuse key |
-| Payload changed | Generate new key |
-| Submission fails | Preserve key |
-| Submission succeeds | Clear key |
-| New intentional transaction | Generate fresh key |
-
-This frontend behavior complements database-level idempotency.
-
----
-
-# 16. Storage Layer
+# 22. Transaction Storage Layer
 
 File:
 
 `lib/storage/supabaseCapitalTransactionStorage.ts`
 
-This file is responsible for transaction retrieval and creation.
+Responsibilities:
 
-## Type definitions
+- Transaction retrieval
+- Transaction creation
+- RPC calls
+- Response validation
+- Parsing
+- Currency validation
+- Status validation
+- Type validation
+- Database-to-frontend mapping
+- Pagination cursor handling
+- Error propagation
 
-### `CapitalTransactionRow`
+The storage adapter uses structured input types.
 
-Defines the database transaction response shape.
+Important types include:
 
-Includes:
+- `CapitalTransactionRow`
+- `CreateCapitalTransactionInput`
+- `CapitalTransactionFilters`
+- `CapitalTransactionCursor`
+- `CapitalTransactionPage`
 
-- ID
-- Transaction type
-- Status
-- Amount
-- Currency
-- Source account
-- Destination account
-- Received amount
-- Received currency
-- Exchange rate
-- Transaction date
-- Effective date
-- Method
-- Counterparty institution
-- Reference number
-- Notes
-- Reversal transaction relationship
-- Reversal reason
-- Created timestamp
-- Updated timestamp
+The transaction parser validates required values and nullable fields.
 
-### `CreateCapitalTransactionInput`
-
-Frontend transaction creation input includes:
-
-- `idempotencyKey`
-- `transactionType`
-- `status`
-- `amount`
-- `currency`
-- `fromAccountId`
-- `toAccountId`
-- `receivedAmount`
-- `receivedCurrency`
-- `exchangeRate`
-- `transactionDate`
-- `effectiveDate`
-- `method`
-- `counterpartyInstitution`
-- `referenceNumber`
-- `notes`
-
-### `CapitalTransactionFilters`
-
-Supports filtering by:
-
-- Status
-- Transaction type
-- Account ID
-- Currency
-- Start date
-- End date
-
-### `CapitalTransactionCursor`
-
-Contains:
-
-- `activityDate`
-- `id`
-
-This is the transaction cursor structure used for paginated transaction loading.
-
-### `CapitalTransactionPage`
-
-Returns:
-
-- Transactions
-- Next cursor
-- `hasMore`
+The mapper converts database records into the canonical frontend `CapitalTransaction` type.
 
 ---
 
-# 17. Storage Validation and Parsing
-
-The storage adapter contains validation helpers to ensure that RPC responses conform to the expected structure.
-
-## Validation helpers
-
-### `readRecord`
-
-Validates that the received value is a non-null object and not an array.
-
-### `readRequiredString`
-
-Validates a required string.
-
-### `readNullableString`
-
-Validates nullable strings.
-
-### `readRequiredNumber`
-
-Validates a required finite numeric value.
-
-### `readNullableNumber`
-
-Validates nullable numbers.
-
-### `parseTransactionType`
-
-Validates transaction type:
-
-- `DEPOSIT`
-- `WITHDRAWAL`
-- `TRANSFER`
-
-### `parseTransactionStatus`
-
-Validates transaction status:
-
-- `PENDING`
-- `COMPLETED`
-- `CANCELLED`
-
-### `parseCurrency`
-
-Validates supported currencies:
-
-- CAD
-- USD
-- EUR
-- GBP
-- JPY
-- INR
-
-### `parseNullableCurrency`
-
-Validates nullable currency values.
-
-## Response parser
-
-`parseCapitalTransactionRow()`
-
-The parser validates and converts the RPC response into a structured database transaction row.
-
-The frontend should not blindly trust the shape of returned RPC data.
-
----
-
-# 18. Frontend Transaction Mapping
-
-Function:
-
-`mapCapitalTransaction()`
-
-The storage layer converts the database transaction row into the canonical frontend `CapitalTransaction` type.
-
-Database field mappings include:
-
-| Database | Frontend |
-|---|---|
-| `transaction_date` | `date` |
-| `effective_date` | `effectiveDate` |
-| `transaction_type` | `type` |
-| `from_account_id` | `fromAccountId` |
-| `to_account_id` | `toAccountId` |
-| `received_amount` | `receivedAmount` |
-| `received_currency` | `receivedCurrency` |
-| `exchange_rate` | `exchangeRate` |
-| `counterparty_institution` | `counterpartyInstitution` |
-| `reference_number` | `referenceNumber` |
-| `reversal_of_transaction_id` | `reversalOfTransactionId` |
-| `reversal_reason` | `reversalReason` |
-| `created_at` | `createdAt` |
-| `updated_at` | `updatedAt` |
-
-Nullable database metadata fields are mapped to empty strings where the frontend type requires strings.
-
-Canonical transaction data remains sourced from the database.
-
----
-
-# 19. Transaction Retrieval
+# 23. Transaction Retrieval and Pagination
 
 Function:
 
@@ -975,7 +1459,7 @@ RPC:
 
 `capital_api.list_transactions`
 
-The storage adapter passes supported filters to the RPC:
+Supported filters:
 
 - Status
 - Transaction type
@@ -984,335 +1468,142 @@ The storage adapter passes supported filters to the RPC:
 - Start date
 - End date
 
-It also passes pagination parameters.
-
-## Pagination
+Cursor-based pagination exists in the storage layer.
 
 Current page size:
 
 `TRANSACTION_PAGE_SIZE = 50`
 
-The adapter requests:
+The storage adapter requests 51 records to determine whether another page exists.
 
-`TRANSACTION_PAGE_SIZE + 1`
-
-The extra row is used to determine whether another page exists.
-
-The adapter:
-
-1. Receives transaction rows.
-2. Validates the response.
-3. Parses the rows.
-4. Determines whether additional rows exist.
-5. Returns the first 50 transactions.
-6. Creates the next cursor if more rows are available.
-
-The cursor is based on:
+Pagination uses:
 
 - Activity date
 - Transaction ID
 
-Activity date uses:
+Activity date uses the effective date when available; otherwise it uses the transaction date.
 
-- Effective date when available
-- Otherwise transaction date
+## Known limitation
 
-## Current limitation
+Pagination infrastructure exists in storage, but the Capital Management UI is not yet fully wired to load subsequent pages.
 
-Pagination infrastructure exists in the storage layer, but the Capital Management UI is not yet fully wired to load subsequent pages.
+The current frontend loads only the initial page.
 
-The current frontend transaction loading is limited to the initial page.
+This means transaction history and analytics may operate on an incomplete dataset.
 
-This means transaction history and analytics may currently operate on the loaded subset rather than the complete ledger.
-
-Pagination integration remains a future task.
+Pagination integration remains outstanding.
 
 ---
 
-# 20. Transaction Creation Storage Function
-
-Function:
-
-`createCapitalTransaction()`
-
-## Behavior
-
-The function:
-
-1. Receives `CreateCapitalTransactionInput`.
-2. Calls the public Capital API.
-3. Passes all transaction fields to the RPC.
-4. Throws if Supabase returns an error.
-5. Validates the returned response.
-6. Requires exactly one transaction record.
-7. Parses the returned record.
-8. Maps it to the canonical frontend transaction.
-9. Returns the transaction.
-
-## RPC call
-
-The storage layer calls:
-
-`capital_api.create_transaction`
-
-The function passes:
-
-- Idempotency key
-- Transaction type
-- Status
-- Amount
-- Currency
-- Source account
-- Destination account
-- Received amount
-- Received currency
-- Exchange rate
-- Transaction date
-- Effective date
-- Method
-- Counterparty institution
-- Reference number
-- Notes
-
-## Response validation
-
-The function expects an array containing exactly one transaction record.
-
-If the RPC response does not match the expected shape, the storage layer throws an error.
-
----
-
-# 21. Parent Page Integration
+# 24. Parent Page Transaction Integration
 
 File:
 
 `app/capital/page.tsx`
 
-The transaction drawer is integrated with the Capital Management page.
-
-## Parent responsibilities
-
-The parent owns persistence.
+The parent owns transaction persistence.
 
 The drawer does not directly create database transactions.
 
 The parent:
 
-1. Receives the transaction payload from the drawer.
+1. Receives the transaction payload.
 2. Calls `createCapitalTransaction()`.
-3. Waits for the RPC to complete.
-4. Increments the transaction retry state.
+3. Waits for the RPC.
+4. Increments transaction retry state after success.
 5. Triggers transaction reload.
 6. Displays the success notice.
 
-## Current callback
-
-The drawer's `onSubmit` callback is asynchronous.
-
-It:
-
-- Calls the storage layer
-- Refreshes transaction state after success
-- Displays a success message
-
-If persistence fails, the error propagates to the drawer.
-
-The drawer catches it and displays the failure.
-
-## Important behavior
-
-Transaction refresh is triggered only after the creation RPC succeeds.
-
-Failed creation must not trigger a success state or refresh as though the transaction were committed.
+A failed persistence request must not trigger a false success state or refresh as though a transaction was committed.
 
 ---
 
-# 22. Current UI Transaction Flow
+# 25. Current Account and Transaction Test Fixtures
 
-The current transaction creation flow is:
-
-`User`
-
-↓
-
-`Capital Management page`
-
-↓
-
-`Add Transaction Drawer`
-
-↓
-
-Frontend validation
-
-↓
-
-Transaction payload construction
-
-↓
-
-Payload fingerprint
-
-↓
-
-Idempotency key generation/reuse
-
-↓
-
-Parent `onSubmit`
-
-↓
-
-`createCapitalTransaction()`
-
-↓
-
-Supabase RPC
-
-↓
-
-`capital_api.create_transaction`
-
-↓
-
-Private database implementation
-
-↓
-
-Database validation, ownership checks, account checks, idempotency, and atomic creation
-
-↓
-
-Canonical transaction returned
-
-↓
-
-Storage response validation and mapping
-
-↓
-
-Parent refresh trigger
-
-↓
-
-Transaction list reload
-
-↓
-
-Success notice
-
-↓
-
-Drawer closes
-
----
-
-# 23. Current Error Handling
-
-The transaction creation flow has error handling across layers.
-
-## Database
-
-Rejects invalid financial transactions and authorization violations.
-
-## Storage
-
-Throws RPC errors.
-
-Throws response-validation errors when returned data is malformed.
-
-## Parent
-
-Does not swallow transaction creation errors.
-
-## Drawer
-
-Catches submission errors.
-
-Displays the error message.
-
-Keeps the drawer open.
-
-Allows the user to correct the input or retry.
-
-## Success
-
-The drawer closes only after the parent persistence operation completes successfully.
-
----
-
-# 24. TypeScript Verification
-
-After wiring transaction persistence and idempotency:
-
-Command:
-
-`npx tsc --noEmit`
-
-Result:
-
-**PASS**
-
-No TypeScript errors were reported following the transaction creation and idempotency changes.
-
-This is a static verification result only.
-
-It does not establish that:
-
-- The RPC works in the live environment.
-- The database transaction succeeds.
-- The frontend correctly handles all responses.
-- The transaction is displayed correctly.
-- The transaction refresh works in practice.
-- Currency conversion is correct in every scenario.
-
-Functional verification remains outstanding.
-
----
-
-# 25. Current Database Test State
-
-The previously observed Capital Management database state included:
+The previous database baseline recorded:
 
 - One archived test account
 - Zero active accounts
 - Zero capital transactions
 
-This is important for the upcoming testing phase.
+That baseline was captured before the latest account taxonomy tests.
 
-The current transaction drawer filters to active accounts.
+Since then, the following test accounts were created:
 
-Therefore, transaction testing may require an active account before deposits, withdrawals, or transfers can be tested.
+- `Taxonomy Test – Brokerage`
+- `Taxonomy Test – Bank`
 
-The existing archived test account should not be used to bypass account-status restrictions.
+Both were used during the account taxonomy functional tests.
+
+Their current account statuses should be rechecked before any future database cleanup.
+
+The previous archived test account's current status has not been rechecked.
+
+The current capital transaction count has also not been rechecked.
+
+Do not assume the database is still in its original clean test state.
+
+Test accounts should be cleaned up deliberately when testing is complete, subject to account archival restrictions and any transaction relationships.
 
 ---
 
 # 26. Known Issues and Outstanding Risks
 
-These items are known and have not yet been fully resolved.
+These are known areas that still require implementation, testing or design decisions.
 
-## 26.1 Transaction pagination not fully wired to UI
+## 26.1 Account Management UI refinement
 
-The storage layer supports cursor-based pagination.
+The taxonomy UI is functionally implemented and tested.
 
-The UI currently loads the initial transaction page.
+Visual refinement remains outstanding.
+
+Future review should evaluate:
+
+- Drawer spacing
+- Form hierarchy
+- Field grouping
+- Conditional field transitions
+- Label clarity
+- Validation message placement
+- Responsive behavior
+- Consistency between Create and Edit
+- Accessibility
+
+Do not redesign the entire drawer without need.
+
+Preserve the existing premium Capital Management visual language.
+
+## 26.2 Account archive UI
+
+The backend archive function exists.
+
+The user-facing archive action and lifecycle experience still require review.
+
+Verify:
+
+- Archive action visibility
+- Confirmation behavior
+- Error states
+- Pending transaction restrictions
+- Account list refresh
+- Archived account presentation
+- Protection against creating new transactions from archived accounts
+
+## 26.3 Transaction pagination
+
+The UI does not yet fully use the storage pagination infrastructure.
 
 Potential impact:
 
 - Transactions beyond the first 50 may not be visible.
-- Analytics may be based on an incomplete transaction dataset.
-- Activity totals may not represent the complete history.
+- Analytics may use an incomplete dataset.
+- Activity totals may not represent the full history.
 
-This needs to be addressed before Capital Management is considered production-ready.
+This needs resolution before production readiness.
 
-## 26.2 Analytics completeness
+## 26.4 Analytics completeness
 
-If the page uses only the currently loaded transaction page, analytics can be incomplete.
-
-This must be evaluated carefully.
-
-Financial analytics should not silently present partial data as complete totals.
+If analytics use only the currently loaded transaction page, totals may be incomplete.
 
 The UX must distinguish:
 
@@ -1321,11 +1612,13 @@ The UX must distinguish:
 - Loading
 - Error
 
-## 26.3 Date validation
+Financial analytics must not silently present partial data as complete totals.
 
-Current frontend date validation is permissive.
+## 26.5 Date validation
 
-A future audit should verify:
+The current frontend date validation is permissive.
+
+Audit:
 
 - Strict ISO date validation
 - Invalid dates
@@ -1334,77 +1627,69 @@ A future audit should verify:
 - Pending transaction dates
 - Completed transaction effective dates
 
-## 26.4 Currency precision
+## 26.6 Currency precision
 
-The drawer does not yet enforce currency-specific precision comprehensively.
+The transaction drawer does not yet comprehensively enforce currency-specific precision.
 
-Currency precision must be validated consistently.
+Verify:
 
-JPY must not accept fractional values.
-
-Other supported currencies should respect their allowed precision.
+- JPY rejects fractional amounts.
+- Other supported currencies respect two decimal places.
+- Frontend and backend behavior match.
 
 Backend validation remains mandatory.
 
-## 26.5 Numeric precision
+## 26.7 Numeric precision
 
-Financial amounts must be examined for JavaScript floating-point behavior.
+Examine JavaScript floating-point behavior in financial inputs.
 
-The UI should avoid introducing unnecessary precision or rounding inconsistencies.
+Avoid unnecessary rounding or precision inconsistencies.
 
 Database numeric types remain canonical.
 
-## 26.6 Transfer consistency
+## 26.8 Cross-currency transfer consistency
 
-Cross-currency transfer validation needs functional verification.
-
-Test:
+Requires end-to-end functional verification of:
 
 - Source amount
 - Source currency
 - Received amount
 - Received currency
 - Exchange rate
+- Database validation
+- UI display
 
-Verify consistency between user input and database validation.
+## 26.9 Drawer close behavior during save
 
-## 26.7 Drawer close behavior during save
+The transaction drawer prevents duplicate submissions through `isSaving`.
 
-The drawer currently prevents duplicate submissions through `isSaving`.
-
-However, cancel/backdrop/header close behavior during an in-flight request should be reviewed.
+However, cancel, backdrop and header close behavior during an in-flight request needs review.
 
 Potential risks:
 
-- User closes drawer during save.
-- Request continues after drawer closes.
-- User may not know whether the transaction succeeded.
-- User may submit another transaction after closing.
+- The user closes the drawer during a save.
+- The request continues after the drawer closes.
+- The user is unsure whether the transaction succeeded.
+- Another transaction is submitted before the first result is known.
 
-This behavior should be deliberately defined rather than changed without review.
+Define this behavior deliberately.
 
-## 26.8 Error messaging
+## 26.10 Error messaging
 
-The drawer currently displays the thrown error message.
+Review whether database errors expose inappropriate internal information to users.
 
-We should verify that database errors do not expose inappropriate internal information to end users.
-
-A future production-quality error layer may need:
+A production error layer may need:
 
 - Safe user-facing messages
 - Internal diagnostic logging
 - Error classification
-- Retryable vs non-retryable errors
+- Retryable versus non-retryable errors
 
-## 26.9 Attachment handling
+## 26.11 Transaction attachments
 
-The transaction drawer may contain attachment-related UI.
+Displayed attachment UI must not be treated as proof of a secure persisted upload.
 
-Currently, attachment handling is not equivalent to a fully implemented secure document upload system.
-
-Do not treat a displayed attachment filename as proof that a document has been securely uploaded and persisted.
-
-A future attachment implementation requires separate review of:
+A complete attachment implementation needs review of:
 
 - Storage bucket
 - Access policies
@@ -1417,228 +1702,226 @@ A future attachment implementation requires separate review of:
 - Deletion
 - Security
 
+## 26.12 Transaction lifecycle
+
+Future review areas include:
+
+- Pending transaction completion
+- Cancellation
+- Reversal
+- Editing restrictions
+- Transaction history
+- Filtering
+- Search
+- Pagination UX
+
+## 26.13 Automated verification
+
+The account taxonomy has been manually tested, but dedicated automated coverage is still required.
+
+Future tests should include:
+
+- Storage adapter tests
+- Account form validation tests
+- RPC contract tests
+- Database integration tests
+- RLS regression tests
+- Authorization regression tests
+- Idempotency tests
+- Concurrency tests
+
 ---
 
-# 27. Current Files Involved
+# 27. Current Files and Responsibilities
 
-## Main frontend
+## Account management
 
-`app/capital/page.tsx`
+`components/capital/ManageAccountsDrawer.tsx`
 
-Responsibilities:
+Create/Edit Account UI, taxonomy state and validation.
 
-- Capital page
-- Account loading
-- Transaction loading
-- Loading/error/retry state
-- Transaction drawer integration
-- Transaction persistence callback
-- Refresh after successful transaction creation
+`lib/storage/supabaseCapitalStorage.ts`
 
-## Transaction drawer
-
-`components/capital/AddTransactionDrawer.tsx`
-
-Responsibilities:
-
-- Transaction form
-- Deposit/withdrawal/transfer UI
-- Account selection
-- Validation
-- Transaction payload
-- Saving state
-- Idempotency fingerprint
-- Idempotency key reuse
-- Error display
-- Success close behavior
-
-## Storage adapter
-
-`lib/storage/supabaseCapitalTransactionStorage.ts`
-
-Responsibilities:
-
-- Transaction retrieval
-- RPC calls
-- RPC response parsing
-- Validation
-- Frontend mapping
-- Pagination
-
-## Capital types
+Account RPC calls, normalization, parsing and mapping.
 
 `lib/capital/types.ts`
 
-Canonical frontend Capital Management types, including:
+Canonical account and transaction types.
 
-- Account types
-- Currency types
-- Transaction types
-- Transaction statuses
-- Capital transaction structures
+`app/capital/page.tsx`
 
-## Database migrations
+Capital page integration and account/transaction persistence callbacks.
+
+## Transactions
+
+`components/capital/AddTransactionDrawer.tsx`
+
+Transaction creation UI, validation and idempotency behavior.
+
+`lib/storage/supabaseCapitalTransactionStorage.ts`
+
+Transaction retrieval, creation, response validation, mapping and pagination.
+
+## Database
 
 `supabase/migrations/`
 
-Contains Capital Management database foundation and transaction implementation migrations.
-
-Important security correction:
-
-`supabase/migrations/20261121000200_capital_transaction_api_security_correction.sql`
+Versioned Capital Management database implementation.
 
 ---
 
-# 28. Implementation Completed So Far
+# 28. Latest Git and Working Tree Status
+
+The latest confirmed working-tree status before the storage-layer change was:
+
+```text
+ M components/capital/ManageAccountsDrawer.tsx
+ M docs/notes.md
+?? supabase/migrations/20261122000500_capital_account_taxonomy_update_semantics.sql
+```
+
+The storage layer was subsequently modified to send the new taxonomy flag:
+
+`lib/storage/supabaseCapitalStorage.ts`
+
+The exact current Git status should be checked again before staging.
+
+Expected intended changes now include:
+
+- Account drawer taxonomy implementation
+- Account storage Update flag
+- Migration 005
+- User-authored documentation changes
+
+`docs/notes.md` is intentionally modified and must be preserved.
+
+No commit or push for this latest account taxonomy work has been confirmed.
+
+## Git discipline
+
+Before committing:
+
+1. Run `git status --short`.
+2. Inspect every changed file.
+3. Review the complete migration.
+4. Review account drawer changes.
+5. Review storage changes.
+6. Preserve `docs/notes.md`.
+7. Run `git diff --check`.
+8. Run `npm run build`.
+9. Stage only intended changes.
+10. Inspect the staged diff.
+11. Commit.
+12. Push to `origin main`.
+13. Confirm push success.
+
+Do not stage unrelated files accidentally.
+
+---
+
+# 29. Completed Implementation Checklist
 
 ## Database foundation
 
-- [x] Capital Management database foundation implemented
-- [x] Migrations 001–007 previously applied
-- [x] Schema separation
-- [x] Public API/private implementation architecture
-- [x] Database permissions
-- [x] RLS
-- [x] Account data structures
-- [x] Account-related functionality
-- [x] Account CRUD implementation
-- [x] Account subtype implementation
-- [x] Account CRUD previously live-tested
-- [x] Database security audit completed
-- [x] Transaction API security correction migration created
-
-## Transaction backend
-
-- [x] Transaction model foundation
+- [x] Capital Management database foundation
+- [x] API/private schema separation
+- [x] Initial database permissions
+- [x] RLS foundation
+- [x] Account structures
+- [x] Account ownership and status
+- [x] Account CRUD database implementation
+- [x] Account subtype support
+- [x] Transaction database model
 - [x] Transaction creation RPC
-- [x] Public RPC boundary
-- [x] Private transaction implementation
-- [x] Ownership validation
-- [x] Account eligibility validation
-- [x] Transaction-type validation
-- [x] Transfer validation
-- [x] Same-account transfer prevention
-- [x] Transaction status validation
-- [x] Date validation at database boundary
-- [x] Currency validation
-- [x] Cross-currency transaction support
-- [x] Idempotency backend
-- [x] Duplicate transaction protection
-- [x] Account locking
-- [x] Deterministic account lock ordering
-- [x] Atomic transaction creation
+- [x] Transaction API security correction
 
-## Storage layer
+## Account taxonomy
 
-- [x] Capital transaction types
-- [x] Transaction input types
-- [x] Transaction filters
-- [x] Pagination cursor types
-- [x] Response parser
-- [x] Currency parser
-- [x] Transaction status parser
-- [x] Transaction type parser
-- [x] Database-to-frontend mapper
-- [x] Transaction list RPC
-- [x] Transaction creation RPC
-- [x] RPC response validation
-- [x] Error propagation
+- [x] Ownership field
+- [x] Custom Ownership field
+- [x] Registration field
+- [x] Custom Trading Mode field
+- [x] Brokerage Trading Mode options
+- [x] Limited Margin support
+- [x] Other Trading Mode support
+- [x] Create RPC taxonomy support
+- [x] Edit RPC taxonomy support
+- [x] Account listing taxonomy mapping
+- [x] Migration 003 applied
+- [x] Migration 004 correction deployed
+- [x] Migration history reconciliation
+- [x] Migration 005 deployed
+- [x] Explicit taxonomy replacement semantics
+- [x] Backward-compatible preserve default
+- [x] Remote function security verified
+- [x] Remote function permissions verified
 
-## Frontend
+## Account frontend and storage
 
-- [x] Capital Management page transaction loading
-- [x] Transaction loading states
-- [x] Transaction error states
-- [x] Retry mechanism
-- [x] Loading states across Capital UI sections
-- [x] Add Transaction drawer
-- [x] Deposit form
-- [x] Withdrawal form
-- [x] Transfer form
-- [x] Active account filtering
-- [x] Transaction form validation
-- [x] Saving state
-- [x] Duplicate submission prevention
-- [x] Async persistence integration
-- [x] Error handling
-- [x] Successful close behavior
-- [x] Transaction refresh after creation
-- [x] Success notice
-- [x] Frontend idempotency fingerprint
-- [x] Retry key preservation
-- [x] New key for changed payload
-- [x] Key clearing after success
+- [x] Create taxonomy controls
+- [x] Edit taxonomy controls
+- [x] Load saved taxonomy values
+- [x] Create RPC payload
+- [x] Update RPC payload
+- [x] Explicit taxonomy replacement flag
+- [x] Input trimming
+- [x] Empty values normalized to NULL
+- [x] Field length validation
+- [x] Conditional Custom Ownership
+- [x] Conditional Custom Trading Mode
+- [x] Required custom-field validation
+- [x] Non-brokerage Trading Mode hiding
+- [x] Category transition behavior
+
+## Account functional verification
+
+- [x] Create Brokerage account
+- [x] Edit Brokerage account
+- [x] Verify saved data after refresh
+- [x] Clear Custom Ownership
+- [x] Clear Registration
+- [x] Clear Custom Trading Mode
+- [x] Ownership Other → Individual
+- [x] Trading Mode Other → Margin
+- [x] Required Custom Ownership validation
+- [x] Required Custom Trading Mode validation
+- [x] Create Bank account
+- [x] Edit Bank account
+- [x] Verify account subtype persistence
+- [x] Verify non-brokerage Trading Mode hiding
+- [x] Limited Margin persistence
+- [x] Brokerage → Bank → Brokerage transition
+- [x] Ownership option testing
 
 ## Verification
 
-- [x] TypeScript verification passed
-- [ ] Live transaction creation tested
-- [ ] Transaction response verified in UI
-- [ ] Database transaction row verified
-- [ ] Transaction refresh verified
-- [ ] Retry behavior functionally tested
-- [ ] Duplicate prevention functionally tested
-- [ ] Deposit tested
-- [ ] Withdrawal tested
-- [ ] Same-currency transfer tested
-- [ ] Cross-currency transfer tested
-- [ ] Pending transaction tested
-- [ ] Cancelled transaction tested
-- [ ] Invalid transaction behavior tested
+- [x] Migration dry-run
+- [x] Migration 005 deployed successfully
+- [x] Remote Update function inspected
+- [x] Function security verified
+- [x] Function permissions verified
+- [x] `git diff --check` passed
+- [x] `npm run build` passed
+- [ ] Dedicated automated account taxonomy tests
+- [ ] Final Git review
+- [ ] Commit and push
 
 ---
 
-# 29. Current Status
+# 30. Remaining Transaction Functional Testing
 
-Capital Management is transitioning from implementation into functional testing.
+Transaction creation is implemented but must not be considered end-to-end production-verified yet.
 
-The backend transaction creation architecture is implemented.
-
-The frontend transaction creation flow is wired to the database.
-
-Idempotency improvements have been implemented in both the database architecture and frontend retry flow.
-
-TypeScript passes.
-
-However, the actual end-to-end transaction creation flow has not yet been tested.
-
-**Do not consider transaction creation production-verified until the functional testing phase is completed.**
-
----
-
-# 30. Git Checkpoint Plan
-
-Before functional testing:
-
-1. Review `git status`.
-2. Review all Capital Management source changes.
-3. Review all database migrations.
-4. Review `docs/notes.md`.
-5. Verify no unrelated changes are accidentally included.
-6. Preserve any intentional changes under `docs/`.
-7. Run `git diff --check`.
-8. Stage the intended changes.
-9. Review the staged diff.
-10. Commit.
-11. Push to `origin main`.
-12. Confirm the push succeeds.
-
-This checkpoint should establish a recoverable baseline before testing the actual transaction flows.
-
----
-
-# 31. Functional Testing Plan — Next Phase
-
-Functional testing will begin only after the checkpoint has been pushed successfully.
+The following tests remain.
 
 ## Phase A — Test environment readiness
 
 - Verify Supabase connection.
 - Confirm Capital Management RPCs are available.
 - Confirm account loading works.
-- Create or identify an active account.
+- Confirm at least one active account exists.
 - Confirm the account is eligible for transactions.
-- Verify the page loads without unexpected errors.
+- Verify the Capital page loads without unexpected errors.
 
 ## Phase B — Deposit
 
@@ -1674,9 +1957,9 @@ Test:
 - Source account
 - Destination account
 - Same currency
-- Received amount automatically equal to source amount
-- Exchange rate equal to `1`
-- No same-account transfer
+- Receiving amount equals source amount
+- Exchange rate equals 1
+- Same-account transfer rejected
 - Database persistence
 
 ## Phase E — Cross-currency transfer
@@ -1685,8 +1968,8 @@ Test:
 
 - Different source and destination currencies
 - Source amount
-- Received amount
-- Received currency
+- Receiving amount
+- Receiving currency
 - Exchange rate
 - Validation
 - Persisted values
@@ -1696,10 +1979,10 @@ Test:
 
 Verify:
 
-- Pending transaction can be created
-- Effective date is null
-- Transaction appears in pending activity
-- Pending transaction is not incorrectly treated as completed funding
+- Pending transaction can be created.
+- Effective date is NULL.
+- Pending transaction appears in pending activity.
+- Pending transaction is not incorrectly treated as completed funding.
 
 ## Phase G — Error scenarios
 
@@ -1721,89 +2004,178 @@ Test:
 Test:
 
 1. Submit a transaction.
-2. Simulate or reproduce a retry.
+2. Reproduce a retry.
 3. Submit the identical payload using the same key.
-4. Confirm the backend does not create a duplicate.
+4. Confirm no duplicate transaction is created.
 5. Change the payload.
 6. Confirm a different key is generated.
 7. Successfully save.
 8. Confirm the key is cleared.
-9. Create a new intentional transaction with the same details.
+9. Create a new intentional transaction with identical details.
 10. Confirm it can be created as a new transaction.
 
 ## Phase I — UI refresh
 
 Verify:
 
-- Save completes
-- Drawer closes
-- Success notice appears
-- Transaction list refreshes
-- Transaction appears exactly once
-- Displayed values match the database
-- Loading state is correct
-- No stale transaction state remains
+- Save completes.
+- Drawer closes.
+- Success notice appears.
+- Transaction list refreshes.
+- Transaction appears exactly once.
+- Displayed values match the database.
+- Loading state is correct.
+- No stale transaction state remains.
 
 ---
 
-# 32. Production Readiness — Future Work
+# 31. Production Readiness Roadmap
 
-The following should not be assumed complete merely because transaction creation works.
+Capital Management still requires work beyond the current account taxonomy milestone.
 
-Future review areas:
+Future areas:
 
+- Account drawer visual refinement
+- Account archive UI
 - Full transaction pagination in UI
-- Analytics completeness across all transactions
+- Analytics completeness
 - Strict date validation
 - Currency precision validation
 - Financial rounding strategy
-- Error classification and safe messaging
+- Safe error messaging
 - Drawer behavior during in-flight requests
 - Pending transaction lifecycle
 - Cancellation behavior
 - Completion behavior
 - Reversal behavior
 - Transaction editing restrictions
-- Account archive interactions
-- Transaction history filtering
-- Search
+- Transaction filtering and search
 - Pagination UX
 - Secure attachments
-- Performance for large transaction histories
+- Large transaction history performance
 - Accessibility
 - Responsive behavior
 - Automated tests
 - Database integration tests
 - Concurrency testing
 - RLS regression testing
-- Idempotency regression tests
+- Idempotency regression testing
+
+Do not mark Capital Management production-ready merely because the account taxonomy tests and production build pass.
 
 ---
 
-# 33. Final Checkpoint Decision
+# 32. Next Development Sequence
 
-The current implementation should be committed and pushed before functional testing.
+The account taxonomy implementation is now functionally verified.
 
-This checkpoint represents:
+The next work should proceed in controlled phases.
 
-- The Capital Management database foundation
-- The account management foundation
-- Database security architecture
-- Transaction RPC architecture
-- Transaction creation implementation
-- Storage adapter
-- Frontend transaction integration
-- Loading and error states
-- Idempotency improvements
-- TypeScript verification
+## Phase 1 — Account Management UI refinement
 
-After the successful Git push, functional testing will begin against the live application/database environment.
+Review the current Manage Accounts drawer.
 
-No additional feature development should be mixed into the initial functional testing phase unless a test exposes a defect requiring a targeted fix.
+Improve the visual presentation of the newly implemented taxonomy controls while preserving the existing drawer design.
+
+Focus on:
+
+- Create/Edit consistency
+- Field hierarchy
+- Spacing
+- Conditional controls
+- Ownership and Registration presentation
+- Validation messages
+- Responsive layout
+- Accessibility
+
+Do not change working database behavior without a concrete reason.
+
+## Phase 2 — Continue Account Management testing
+
+Continue testing additional account behaviors and edge cases.
+
+Review:
+
+- Account category changes
+- Account metadata
+- Empty optional fields
+- Maximum field lengths
+- Account number validation
+- Error handling
+- Account archive and lifecycle behavior
+- Existing account data preservation
+
+Fix defects individually and retest after each change.
+
+## Phase 3 — Git checkpoint
+
+After the UI changes and account tests are complete:
+
+- Review Git status.
+- Preserve `docs/notes.md`.
+- Review the staged diff.
+- Run the production build.
+- Commit the intended changes.
+- Push to `origin main`.
+
+## Phase 4 — Transaction functional testing
+
+Begin controlled end-to-end testing of deposits, withdrawals, transfers and transaction lifecycle behavior.
+
+Test database persistence and UI consistency for every operation.
+
+## Phase 5 — Broader Capital Management audit
+
+Review pagination, analytics completeness, security, financial precision, date handling, attachments and performance.
 
 ---
 
-**Checkpoint:** Capital Management implementation saved before functional testing  
-**Current verification:** TypeScript passed  
-**Functional verification:** Not yet started  
-**Next milestone:** Git commit and push, followed by controlled end-to-end transaction testing
+# 33. Current Master Checkpoint
+
+**Checkpoint date:** November 22, 2026
+
+**Account Management taxonomy:** Implemented and manually functionally tested.
+
+**Database migration history:** Reconciled through migration 004; migration 005 subsequently deployed successfully.
+
+**Migration 005:** Applied and remote function metadata verified.
+
+**Account storage Update contract:** Updated to send `p_taxonomy_fields_provided: true`.
+
+**Production build:** PASS.
+
+**Account Create/Edit persistence:** PASS.
+
+**Intentional taxonomy clearing:** PASS.
+
+**Conditional field validation:** PASS.
+
+**Non-brokerage account behavior:** PASS.
+
+**Transaction backend implementation:** Built, but end-to-end functional testing remains outstanding.
+
+**Transaction pagination:** Storage support exists; UI integration remains incomplete.
+
+**Git commit/push:** Latest account taxonomy changes have not yet been confirmed committed or pushed.
+
+**Next milestone:** Refine the Account Management UI, continue account functionality testing, then proceed with end-to-end transaction testing.
+
+---
+
+## Important continuation instructions
+
+When continuing this project:
+
+- Use the existing architecture and canonical data models.
+- Preserve existing account and transaction behavior.
+- Do not repeat completed tests unnecessarily.
+- Do not modify applied migrations.
+- Do not use speculative SQL.
+- Verify actual database state before making database changes.
+- Keep changes narrow and testable.
+- Preserve user-authored documentation.
+- Continue with one concrete task at a time.
+- Distinguish verified behavior from assumptions.
+- Keep the Capital Management module isolated from canonical trading data.
+
+**This document is the current master implementation checkpoint for Capital Management as of November 22, 2026.**
