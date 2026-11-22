@@ -433,7 +433,14 @@ export async function createCapitalAccount(
     });
 
   if (error) {
-    throw error;
+    console.error("Capital account creation RPC failed:", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+
+    throw new Error(error.message || "Failed to create capital account.");
   }
 
   return mapSingleAccount(data, "Create account");

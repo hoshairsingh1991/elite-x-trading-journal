@@ -601,7 +601,7 @@ git commit -m "feat(capital): complete capital management UI"
 git commit -m "feat(capital): complete capital management UI"
 git commit --amend -m "style: refine dashboard and trade toolbar dropdowns"
 git commit -m "feat(capital): establish account and database foundation"
-
-
+git commit -m "feat(capital): implement transaction creation and security"
+git commit -m "feat(capital): implement account management and taxonomy"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
