@@ -55,17 +55,17 @@ export default function AddTransactionDrawer({
 const [formFromAccount, setFormFromAccount] = useState("");
 const [formToAccount, setFormToAccount] = useState("");
 
-  const [formAmount, setFormAmount] =
-    useState("1000");
+const [formAmount, setFormAmount] =
+  useState("");
 
-  const [formCurrency, setFormCurrency] =
-    useState<CurrencyCode>("CAD");
+const [formCurrency, setFormCurrency] =
+  useState<CurrencyCode>("USD");
 
-  const [formReceivedAmount, setFormReceivedAmount] =
-    useState("1000");
+const [formReceivedAmount, setFormReceivedAmount] =
+  useState("");
 
-  const [formReceivedCurrency, setFormReceivedCurrency] =
-    useState<CurrencyCode>("CAD");
+const [formReceivedCurrency, setFormReceivedCurrency] =
+  useState<CurrencyCode>("USD");
 
   const [formExchangeRate, setFormExchangeRate] =
     useState("1");
@@ -74,14 +74,14 @@ const [formDate, setFormDate] = useState(
   new Date().toLocaleDateString("en-CA")
 );
 
-  const [formStatus, setFormStatus] =
-    useState<TransactionStatus>("COMPLETED");
+const [formStatus, setFormStatus] =
+  useState<TransactionStatus | "">("");
 
-  const [formMethod, setFormMethod] =
-    useState("EFT");
+const [formMethod, setFormMethod] =
+  useState("");
 
-  const [formCounterparty, setFormCounterparty] =
-    useState("TD Bank");
+const [formCounterparty, setFormCounterparty] =
+  useState("");
 
   const [formReference, setFormReference] =
     useState("");
@@ -105,34 +105,71 @@ const [formDate, setFormDate] = useState(
   key: string;
 } | null>(null);
 
+const wasOpenRef = useRef(false);
+
 useEffect(() => {
-  if (!isOpen) return;
-
-  setFormError("");
-
-  const activeAccounts = accounts.filter(
-    (account) => account.status === "ACTIVE"
-  );
-
-  if (activeAccounts.length === 0) {
-    setFormFromAccount("");
-    setFormToAccount("");
+  if (!isOpen) {
+    wasOpenRef.current = false;
     return;
   }
 
-  setFormFromAccount((current) =>
-    activeAccounts.some((account) => account.id === current)
-      ? current
-      : activeAccounts[0].id
-  );
+  // Reset only when the drawer transitions from closed to open.
+const activeAccounts = accounts.filter(
+  (account) => account.status === "ACTIVE"
+);
 
-  setFormToAccount((current) =>
-    activeAccounts.some((account) => account.id === current)
-      ? current
-      : activeAccounts.length > 1
-        ? activeAccounts[1].id
+if (wasOpenRef.current) {
+  // Initialize accounts if they loaded after the drawer opened.
+  if (activeAccounts.length > 0) {
+    setFormFromAccount((current) =>
+      activeAccounts.some((account) => account.id === current)
+        ? current
         : activeAccounts[0].id
-  );
+    );
+
+    setFormToAccount((current) =>
+      activeAccounts.some((account) => account.id === current)
+        ? current
+        : activeAccounts[1]?.id ?? activeAccounts[0].id
+    );
+  }
+
+  return;
+}
+
+wasOpenRef.current = true;
+
+
+  // Transaction defaults
+  setFormType("DEPOSIT");
+  setFormAmount("");
+  setFormCurrency("USD");
+
+  // Transfer defaults
+  setFormReceivedAmount("");
+  setFormReceivedCurrency("USD");
+  setFormExchangeRate("1");
+
+  // Account defaults
+setFormFromAccount("");
+setFormToAccount("");
+
+  // Date and status
+  setFormDate(new Date().toLocaleDateString("en-CA"));
+  setFormStatus("");
+
+  // Method and additional details
+  setFormMethod("");
+  setFormCounterparty("");
+  setFormReference("");
+  setFormNotes("");
+  setFormAttachmentName("");
+  setShowAdditionalDetails(false);
+
+  // Clear previous errors and idempotency state
+  setFormError("");
+  idempotencyRef.current = null;
+
 }, [isOpen, accounts]);
 
   // =====================================================
@@ -165,6 +202,18 @@ const handleCreatePreviewTransaction = async (
     setFormError("Enter a valid transaction amount.");
     return;
   }
+
+// STATUS VALIDATION
+if (!formStatus) {
+  setFormError("Select a transaction status.");
+  return;
+}
+
+// METHOD VALIDATION
+if (formType !== "TRANSFER" && !formMethod) {
+  setFormError("Select a transaction method.");
+  return;
+}
 
   // DATE VALIDATION
   if (
@@ -471,13 +520,17 @@ onClose();
       style={{ paddingLeft: "10px" }}
       className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
     >
+      <option value="" disabled>
+        Select account
+      </option>
+
       {accounts
-  .filter((account) => account.status === "ACTIVE")
-  .map((account) => (
-        <option key={account.id} value={account.id}>
-          {account.name} · {account.broker}
-        </option>
-      ))}
+        .filter((account) => account.status === "ACTIVE")
+        .map((account) => (
+          <option key={account.id} value={account.id}>
+            {account.name} · {account.broker}
+          </option>
+        ))}
     </select>
 
   </div>
@@ -497,16 +550,21 @@ onClose();
       onChange={(event) =>
         setFormFromAccount(event.target.value)
       }
+      required
       style={{ paddingLeft: "10px" }}
       className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
     >
+      <option value="" disabled>
+        Select source account
+      </option>
+
       {accounts
-  .filter((account) => account.status === "ACTIVE")
-  .map((account) => (
-        <option key={account.id} value={account.id}>
-          {account.name} · {account.broker}
-        </option>
-      ))}
+        .filter((account) => account.status === "ACTIVE")
+        .map((account) => (
+          <option key={account.id} value={account.id}>
+            {account.name} · {account.broker}
+          </option>
+        ))}
     </select>
 
   </div>
@@ -515,40 +573,45 @@ onClose();
 {formType === "TRANSFER" && (
   <div className="relative left-2 top-0 w-[100%] space-y-5">
 
-    {/* FROM ACCOUNT */}
-    <div>
-      <label className="mb-2.5 block text-[12px] font-medium text-slate-200">
-        From Account
-      </label>
+{/* FROM ACCOUNT */}
+<div>
+  <label className="mb-2.5 block text-[12px] font-medium text-slate-200">
+    From Account
+  </label>
 
-      <div className="h-1" />
+  <div className="h-1" />
 
-      <select
-        value={formFromAccount}
-        onChange={(event) =>
-          setFormFromAccount(event.target.value)
-        }
-        style={{ paddingLeft: "10px" }}
-        className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
-      >
-        {accounts
-  .filter((account) => account.status === "ACTIVE")
-  .map((account) => (
-          <option key={account.id} value={account.id}>
-            {account.name} · {account.broker}
-          </option>
-        ))}
-      </select>
-    </div>
+  <select
+    value={formFromAccount}
+    onChange={(event) =>
+      setFormFromAccount(event.target.value)
+    }
+    required
+    style={{ paddingLeft: "10px" }}
+    className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
+  >
+    <option value="" disabled>
+      Select source account
+    </option>
 
-    {/* TRANSFER INDICATOR */}
-   <div className="relative top-[10px] flex justify-center">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-500/20 bg-blue-500/[0.08] text-blue-400">
-        <ArrowDownLeft size={15} />
-      </span>
-    </div>
+    {accounts
+      .filter((account) => account.status === "ACTIVE")
+      .map((account) => (
+        <option key={account.id} value={account.id}>
+          {account.name} · {account.broker}
+        </option>
+      ))}
+  </select>
+</div>
 
-    {/* TO ACCOUNT */}
+{/* TRANSFER INDICATOR */}
+<div className="relative top-[10px] flex justify-center">
+  <span className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-500/20 bg-blue-500/[0.08] text-blue-400">
+    <ArrowDownLeft size={15} />
+  </span>
+</div>
+
+{/* TO ACCOUNT */}
     <div>
       <label className="mb-2.5 block text-[12px] font-medium text-slate-200">
         To Account
@@ -556,22 +619,26 @@ onClose();
 
       <div className="h-1" />
 
-      <select
-        value={formToAccount}
-        onChange={(event) =>
-          setFormToAccount(event.target.value)
-        }
-        style={{ paddingLeft: "10px" }}
-        className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
-      >
-        {accounts
-  .filter((account) => account.status === "ACTIVE")
-  .map((account) => (
-          <option key={account.id} value={account.id}>
-            {account.name} · {account.broker}
-          </option>
-        ))}
-      </select>
+<select
+  value={formToAccount}
+  onChange={(event) =>
+    setFormToAccount(event.target.value)
+  }
+  style={{ paddingLeft: "10px" }}
+  className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
+>
+  <option value="" disabled>
+    Select destination account
+  </option>
+
+  {accounts
+    .filter((account) => account.status === "ACTIVE")
+    .map((account) => (
+      <option key={account.id} value={account.id}>
+        {account.name} · {account.broker}
+      </option>
+    ))}
+</select>
     </div>
 
   </div>
@@ -595,17 +662,18 @@ onClose();
 
     <div className="grid grid-cols-[minmax(0,1fr)_100px] gap-2">
 
-      <input
-        type="number"
-        min="0.01"
-        step="0.01"
-        value={formAmount}
-        onChange={(event) =>
-          setFormAmount(event.target.value)
-        }
-        style={{ paddingLeft: "10px" }}
-        className="h-[40px] min-w-0 w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm font-semibold text-white outline-none focus:border-blue-500/50"
-      />
+<input
+  type="number"
+  min="0.01"
+  step="0.01"
+  placeholder="e.g. 1000"
+  value={formAmount}
+  onChange={(event) =>
+    setFormAmount(event.target.value)
+  }
+  style={{ paddingLeft: "10px" }}
+  className="h-[40px] min-w-0 w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm font-semibold text-white outline-none focus:border-blue-500/50"
+/>
 
       <select
         value={formCurrency}
@@ -642,17 +710,18 @@ onClose();
 
       <div className="grid grid-cols-[minmax(0,1fr)_100px] gap-2">
 
-        <input
-          type="number"
-          min="0.01"
-          step="0.01"
-          value={formAmount}
-          onChange={(event) =>
-            setFormAmount(event.target.value)
-          }
-          style={{ paddingLeft: "10px" }}
-          className="h-[40px] min-w-0 w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm font-semibold text-white outline-none focus:border-blue-500/50"
-        />
+<input
+  type="number"
+  min="0.01"
+  step="0.01"
+  placeholder="e.g. 1000"
+  value={formAmount}
+  onChange={(event) =>
+    setFormAmount(event.target.value)
+  }
+  style={{ paddingLeft: "10px" }}
+  className="h-[40px] min-w-0 w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm font-semibold text-white outline-none focus:border-blue-500/50"
+/>
 
         <select
           value={formCurrency}
@@ -687,17 +756,18 @@ onClose();
 
       <div className="grid grid-cols-[minmax(0,1fr)_100px] gap-2">
 
-        <input
-          type="number"
-          min="0.01"
-          step="0.01"
-          value={formReceivedAmount}
-          onChange={(event) =>
-            setFormReceivedAmount(event.target.value)
-          }
-          style={{ paddingLeft: "10px" }}
-          className="h-[40px] min-w-0 w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm font-semibold text-white outline-none focus:border-blue-500/50"
-        />
+<input
+  type="number"
+  min="0.01"
+  step="0.01"
+  placeholder="e.g. 1000"
+  value={formReceivedAmount}
+  onChange={(event) =>
+    setFormReceivedAmount(event.target.value)
+  }
+  style={{ paddingLeft: "10px" }}
+  className="h-[40px] min-w-0 w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm font-semibold text-white outline-none focus:border-blue-500/50"
+/>
 
         <select
           value={formReceivedCurrency}
@@ -800,20 +870,22 @@ onClose();
 
     <div className="h-1" />
 
-    <select
-      value={formStatus}
-      onChange={(event) =>
-        setFormStatus(
-          event.target.value as TransactionStatus
-        )
-      }
-      style={{ paddingLeft: "10px" }}
-      className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
-    >
-      <option value="COMPLETED">Completed</option>
-      <option value="PENDING">Pending</option>
-      <option value="CANCELLED">Cancelled</option>
-    </select>
+<select
+  value={formStatus}
+  onChange={(event) =>
+    setFormStatus(
+      event.target.value as TransactionStatus | ""
+    )
+  }
+  required
+  style={{ paddingLeft: "10px" }}
+  className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
+>
+  <option value="" disabled>Select status</option>
+  <option value="COMPLETED">Completed</option>
+  <option value="PENDING">Pending</option>
+  <option value="CANCELLED">Cancelled</option>
+</select>
 
   </div>
 
@@ -834,21 +906,23 @@ onClose();
 
     <div className="h-1" />
 
-    <select
-      value={formMethod}
-      onChange={(event) =>
-        setFormMethod(event.target.value)
-      }
-      style={{ paddingLeft: "10px" }}
-      className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
-    >
-      <option>EFT</option>
-      <option>Bank wire</option>
-      <option>Bill payment</option>
-      <option>ACH</option>
-      <option>Cheque</option>
-      <option>Other</option>
-    </select>
+<select
+  value={formMethod}
+  onChange={(event) =>
+    setFormMethod(event.target.value)
+  }
+  required
+  style={{ paddingLeft: "10px" }}
+  className="drawer-select h-[40px] w-full rounded-[8px] border border-white/[0.06] bg-[#0b1220] text-sm text-white outline-none focus:border-blue-500/50"
+>
+  <option value="" disabled>Select method</option>
+  <option value="EFT">EFT</option>
+  <option value="Bank wire">Bank wire</option>
+  <option value="Bill payment">Bill payment</option>
+  <option value="ACH">ACH</option>
+  <option value="Cheque">Cheque</option>
+  <option value="Other">Other</option>
+</select>
 
   </div>
 )}

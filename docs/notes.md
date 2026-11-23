@@ -607,6 +607,6 @@ git commit -m "fix(capital): resolve manual account creation ambiguity"
 git commit -m "feat(capital): complete account taxonomy management"
 git commit -m "feat(capital): refine manage accounts drawer UI"
 git commit -m "feat(capital): improve account management and filters"
-
+git commit -m "feat(capital): refine dashboard cards and transaction history UI"
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
