@@ -10,8 +10,13 @@ import type {
   CapitalActivitySummary,
 } from "@/lib/capital/analytics";
 
+import { CURRENCY_ORDER } from "@/lib/capital/constants";
+
+import type { BrokerageAccount } from "@/lib/capital/types";
+
 interface CapitalActivitySummaryCardProps {
   summary: CapitalActivitySummary;
+  accounts: BrokerageAccount[];
   loading?: boolean;
 }
 
@@ -42,8 +47,25 @@ function formatDate(date: string): string {
 
 export default function CapitalActivitySummaryCard({
   summary,
+  accounts,
   loading = false,
 }: CapitalActivitySummaryCardProps) {
+
+  const activeAccountCurrencies = new Set(
+  accounts
+    .filter((account) => account.status === "ACTIVE")
+    .map((account) => account.baseCurrency)
+);
+
+const secondaryCurrency =
+  CURRENCY_ORDER.find(
+    (currency) =>
+      currency !== "CAD" &&
+      activeAccountCurrencies.has(currency)
+  ) ?? "USD";
+
+const displayCurrencies = ["CAD", secondaryCurrency] as const;
+
   return (
     <section className="flex min-w-0 flex-col overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#091321] shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
 
@@ -94,7 +116,7 @@ export default function CapitalActivitySummaryCard({
       <ArrowDownToLine size={19} />
     </div>
 
-    <div className="min-w-0">
+    <div className="min-w-0 flex flex-col gap-1">
       <p className="text-[20px] font-semibold leading-none tabular-nums text-white">
   {loading ? (
     <span className="block h-5 w-6 animate-pulse rounded bg-white/[0.08]" />
@@ -103,7 +125,7 @@ export default function CapitalActivitySummaryCard({
   )}
 </p>
 
-      <p className="mt-1.5 text-[11px] font-medium leading-none text-slate-300">
+      <p className="text-[11px] font-medium leading-none text-slate-300">
         Deposits
       </p>
     </div>
@@ -120,7 +142,7 @@ export default function CapitalActivitySummaryCard({
       <ArrowUpFromLine size={19} />
     </div>
 
-    <div className="min-w-0">
+    <div className="min-w-0 flex flex-col gap-1">
       <p className="text-[20px] font-semibold leading-none tabular-nums text-white">
   {loading ? (
     <span className="block h-5 w-6 animate-pulse rounded bg-white/[0.08]" />
@@ -129,7 +151,7 @@ export default function CapitalActivitySummaryCard({
   )}
 </p>
 
-      <p className="mt-1.5 text-[11px] font-medium leading-none text-slate-300">
+      <p className="text-[11px] font-medium leading-none text-slate-300">
         Withdrawals
       </p>
     </div>
@@ -146,7 +168,7 @@ export default function CapitalActivitySummaryCard({
       <ArrowLeftRight size={19} />
     </div>
 
-    <div className="min-w-0">
+   <div className="min-w-0 flex flex-col gap-1">
       <p className="text-[20px] font-semibold leading-none tabular-nums text-white">
   {loading ? (
     <span className="block h-5 w-6 animate-pulse rounded bg-white/[0.08]" />
@@ -155,7 +177,7 @@ export default function CapitalActivitySummaryCard({
   )}
 </p>
 
-      <p className="mt-1.5 text-[11px] font-medium leading-none text-slate-300">
+      <p className="text-[11px] font-medium leading-none text-slate-300">
         Transfers
       </p>
     </div>
@@ -241,45 +263,51 @@ export default function CapitalActivitySummaryCard({
       <div className="h-2" />
 
 {loading ? (
-  <>
-    <div className="h-4 w-20 animate-pulse rounded bg-white/[0.08]" />
-    <p className="mt-1 h-3 w-24 animate-pulse rounded bg-white/[0.06]" />
-  </>
-) : summary.largestWithdrawals.length === 0 ? (
-  <>
-    <p className="text-[14px] font-semibold text-slate-500">
-      —
-    </p>
-    <p className="mt-1 text-[10px] text-slate-500">
-      Largest Withdrawal
-    </p>
-  </>
-) : (
-  <div className="flex flex-col gap-2">
-    {summary.largestWithdrawals.map((transaction) => (
-      <div key={transaction.id} className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <p className="text-[15px] font-semibold leading-none tabular-nums text-white">
-            {formatAmount(
-              transaction.amount,
-              transaction.currency
-            )}
-          </p>
-
-          <span className="inline-flex min-w-[30px] h-[18px] items-center justify-center rounded-[4px] border border-white/[0.08] bg-white/[0.04] px-2 text-[9px] font-semibold text-slate-400">
-            {transaction.currency}
-          </span>
-        </div>
-
-        <p className="text-[10px] font-medium leading-none text-slate-300">
-          Largest Withdrawal
-        </p>
+  <div className="flex flex-col gap-1.5">
+    {displayCurrencies.map((currency) => (
+      <div key={currency} className="flex items-center gap-2">
+        <div className="h-4 w-20 animate-pulse rounded bg-white/[0.08]" />
+        <div className="h-[18px] w-10 animate-pulse rounded bg-white/[0.06]" />
       </div>
     ))}
+
+    <div className="h-3 w-24 animate-pulse rounded bg-white/[0.06]" />
+  </div>
+) : (
+  <div className="flex flex-col gap-1.5">
+{displayCurrencies.map((currency) => {
+  const transaction = summary.largestWithdrawals.find(
+    (item) => item.currency === currency
+  );
+
+  return (
+    <div key={currency} className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <p
+          className={`text-[15px] font-semibold leading-none tabular-nums ${
+            transaction ? "text-white" : "text-slate-500"
+          }`}
+        >
+          {transaction
+            ? formatAmount(transaction.amount, currency)
+            : "—"}
+        </p>
+
+        <span className="inline-flex h-[18px] min-w-[30px] items-center justify-center rounded-[4px] border border-white/[0.08] bg-white/[0.04] px-2 text-[9px] font-semibold text-slate-400">
+          {currency}
+        </span>
+      </div>
+
+      <p className="text-[10px] font-medium leading-none text-slate-300">
+        Largest Withdrawal
+      </p>
+    </div>
+  );
+})}
   </div>
 )}
 
-      <div className="h-3" />
+<div className="h-3" />
     </div>
 
   </div>

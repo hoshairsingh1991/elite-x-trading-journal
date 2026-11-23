@@ -15,10 +15,15 @@ import {
 
 import {
   getAccountName,
+  getAccountById,
 } from "@/lib/capital/helpers";
 
 import { StatusBadge } from "@/components/capital/StatusBadge";
 import { TypeIcon } from "@/components/capital/CapitalTypeIcon";
+
+import { Pencil, Trash2 } from "lucide-react";
+
+
 
 type RecentTransactionsTableProps = {
   transactions: CapitalTransaction[];
@@ -28,6 +33,16 @@ type RecentTransactionsTableProps = {
   onRetry: () => void;
 };
 
+function getAccountStatusLabel(
+  account: BrokerageAccount | undefined
+): string {
+  if (!account) return "—";
+
+  return account.status === "ACTIVE"
+    ? "Active"
+    : "Archived";
+}
+
 export default function RecentTransactionsTable({
   transactions,
   accounts,
@@ -35,6 +50,11 @@ export default function RecentTransactionsTable({
   error,
   onRetry,
 }: RecentTransactionsTableProps) {
+  const placeholderRowCount = Math.max(
+    0,
+    6 - transactions.length
+  );
+
   return (
     <section className="relative left-3 mt-5 w-[98%] min-w-0 overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#091321] shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
 
@@ -44,13 +64,13 @@ export default function RecentTransactionsTable({
         <div className="relative left-4">
           <div className="h-1" />
 
-          <h2 className="text-[14px] font-semibold text-white">
-            Recent Transactions
-          </h2>
+         <h2 className="text-[14px] font-semibold text-white">
+  Transaction History
+</h2>
 
-          <p className="mt-1 text-[12px] text-slate-500">
-            Latest completed capital movements
-          </p>
+<p className="mt-1 text-[12px] text-slate-500">
+  Deposits, withdrawals and transfers
+</p>
 
           <div className="h-1" />
         </div>
@@ -69,14 +89,16 @@ export default function RecentTransactionsTable({
           <thead>
             <tr className="border-b border-white/[0.06] bg-white/[0.015]">
 
-              {[
-                "Date",
-                "Type",
-                "Account / Description",
-                "Method",
-                "Amount",
-                "Status",
-              ].map((heading) => (
+{[
+  "Date",
+  "Type",
+  "Account / Description",
+  "Method",
+  "Amount",
+  "Status",
+  "Account Status",
+  "Actions",
+].map((heading) => (
                 <th
                   key={heading}
                   className="whitespace-nowrap px-2 py-3 text-center text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500"
@@ -88,27 +110,41 @@ export default function RecentTransactionsTable({
             </tr>
           </thead>
 
-          <tbody>
+<tbody>
+  {transactions.map((transaction) => {
+    const isDeposit =
+      transaction.type === "DEPOSIT";
 
-            {transactions.map((transaction) => {
-              const isDeposit =
-                transaction.type === "DEPOSIT";
+    const isWithdrawal =
+      transaction.type === "WITHDRAWAL";
 
-              const isWithdrawal =
-                transaction.type === "WITHDRAWAL";
+    const description =
+      transaction.type === "TRANSFER"
+        ? `${getAccountName(accounts, transaction.fromAccountId)} → ${getAccountName(accounts, transaction.toAccountId)}`
+        : transaction.type === "DEPOSIT"
+          ? getAccountName(accounts, transaction.toAccountId)
+          : getAccountName(accounts, transaction.fromAccountId);
 
-              const description =
-                transaction.type === "TRANSFER"
-                  ? `${getAccountName(accounts, transaction.fromAccountId)} → ${getAccountName(accounts, transaction.toAccountId)}`
-                  : transaction.type === "DEPOSIT"
-                    ? getAccountName(accounts, transaction.toAccountId)
-                    : getAccountName(accounts, transaction.fromAccountId);
+    const accountStatus =
+      transaction.type === "TRANSFER"
+        ? `${getAccountStatusLabel(
+            getAccountById(accounts, transaction.fromAccountId)
+          )} → ${getAccountStatusLabel(
+            getAccountById(accounts, transaction.toAccountId)
+          )}`
+        : transaction.type === "DEPOSIT"
+          ? getAccountStatusLabel(
+              getAccountById(accounts, transaction.toAccountId)
+            )
+          : getAccountStatusLabel(
+              getAccountById(accounts, transaction.fromAccountId)
+            );
 
-              return (
-                <tr
-                  key={transaction.id}
-                  className="h-[48px] border-b border-white/[0.045] transition hover:bg-white/[0.025]"
-                >
+    return (
+      <tr
+        key={transaction.id}
+        className="h-[48px] border-b border-white/[0.045] transition hover:bg-white/[0.025]"
+      >
 
                   <td className="px-2 py-3.5 text-center text-[12px] text-slate-400 tabular-nums">
                     {formatDate(transaction.date)}
@@ -139,6 +175,8 @@ export default function RecentTransactionsTable({
 
                   </td>
 
+
+
                   <td className="px-2 py-3.5 text-center text-[12px] text-slate-400">
                     {transaction.method}
                   </td>
@@ -167,9 +205,66 @@ export default function RecentTransactionsTable({
                     </div>
                   </td>
 
+{/* ACCOUNT STATUS */}
+<td className="px-2 py-3.5 text-center">
+  <span
+    className={`whitespace-nowrap text-[11px] font-semibold ${
+      accountStatus.includes("Archived")
+        ? "text-amber-400"
+        : accountStatus === "—"
+          ? "text-slate-500"
+          : "text-emerald-400"
+    }`}
+  >
+    {accountStatus}
+  </span>
+</td>
+
+{/* ACTIONS */}
+<td className="px-2 py-3.5 text-center">
+  <div className="flex items-center justify-center gap-1.5">
+
+    {/* EDIT */}
+    <span
+      title="Edit transaction"
+      className="flex h-7 w-7 items-center justify-center rounded-[6px] text-slate-500 transition-all duration-200 hover:scale-110 hover:bg-blue-500/[0.08] hover:text-blue-400"
+    >
+      <Pencil size={14} strokeWidth={1.8} />
+    </span>
+
+    {/* DELETE */}
+    <span
+      title="Delete transaction"
+      className="flex h-7 w-7 items-center justify-center rounded-[6px] text-slate-500 transition-all duration-200 hover:scale-110 hover:bg-rose-500/[0.08] hover:text-rose-400"
+    >
+      <Trash2 size={14} strokeWidth={1.8} />
+    </span>
+
+  </div>
+</td>
+
                 </tr>
               );
             })}
+
+            {!loading && !error && transactions.length > 0 &&
+  Array.from({ length: placeholderRowCount }).map((_, index) => (
+    <tr
+      key={`placeholder-${index}`}
+      className="h-[48px] border-b border-white/[0.045]"
+    >
+      {Array.from({ length: 8 }).map((_, cellIndex) => (
+        <td
+          key={cellIndex}
+          className="px-2 py-3.5 text-center"
+        >
+          <span className="text-[12px] text-slate-700">
+            —
+          </span>
+        </td>
+      ))}
+    </tr>
+  ))}
 
 {loading && (
   <tr>

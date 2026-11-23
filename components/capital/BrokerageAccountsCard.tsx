@@ -20,6 +20,8 @@ export default function BrokerageAccountsCard({
   accountFilter,
   onAccountSelect,
 }: BrokerageAccountsCardProps) {
+  const placeholderRowCount = Math.max(0, 5 - accounts.length);
+
   return (
     <section className="min-w-0 overflow-hidden rounded-[8px] border border-white/[0.07] bg-[#091321] shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)]">
 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
@@ -93,31 +95,33 @@ export default function BrokerageAccountsCard({
                   transaction.fromAccountId === account.id
               );
 
-              const isSelected = accountFilter === account.id;
+const isSelected = accountFilter === account.id;
 
-              return (
+const displayAccountName =
+  account.name.length > 14
+    ? `${account.name.slice(0, 13)}…`
+    : account.name;
+
+return (
               <tr
   key={account.id}
-  className="h-[48px] border-b border-white/[0.045] transition hover:bg-white/[0.025]"
+  className="h-[42px] border-b border-white/[0.045] transition hover:bg-white/[0.025]"
 >
 <td className="px-2 py-3.5 text-center">
-  <button
-    type="button"
-    onClick={() =>
-      onAccountSelect(isSelected ? "ALL" : account.id)
-    }
-    className="relative left-3 block w-full text-center"
+<div className="relative left-3 block w-full text-center">
+  <span
+    title={account.name}
+    className="block whitespace-nowrap text-[12px] font-semibold text-slate-200"
   >
-                      <span className="block whitespace-nowrap text-[12px] font-semibold text-slate-200 transition hover:text-blue-400">
-                        {account.name}
-                      </span>
+    {displayAccountName}
+  </span>
 
-                      {isSelected && (
-                        <span className="mt-1 block text-[10px] text-blue-400">
-                          Filtered account
-                        </span>
-                      )}
-                    </button>
+  {isSelected && (
+    <span className="mt-1 block text-[10px] text-blue-400">
+      Filtered account
+    </span>
+  )}
+</div>
                   </td>
 
                <td className="px-2 py-3.5 text-center text-[12px] text-slate-400">
@@ -125,9 +129,9 @@ export default function BrokerageAccountsCard({
 </td>
 
 <td className="px-2 py-3.5 text-center">
-  <span className="text-[12px] text-slate-300">
-    {account.type}
-  </span>
+<span className="capitalize text-[12px] text-slate-300">
+  {account.type}
+</span>
 </td>
 
 <td className="px-2 py-3.5 text-center text-[12px] font-semibold text-slate-300">
@@ -162,6 +166,25 @@ export default function BrokerageAccountsCard({
                 </tr>
               );
             })}
+
+            {accounts.length > 0 &&
+  Array.from({ length: placeholderRowCount }).map((_, index) => (
+    <tr
+      key={`placeholder-${index}`}
+      className="h-[48px] border-b border-white/[0.045]"
+    >
+      {Array.from({ length: 7 }).map((_, cellIndex) => (
+        <td
+          key={cellIndex}
+          className="px-2 py-3.5 text-center"
+        >
+          <span className="text-[12px] text-slate-700">
+            —
+          </span>
+        </td>
+      ))}
+    </tr>
+  ))}
 
             {accounts.length === 0 && (
               <tr>

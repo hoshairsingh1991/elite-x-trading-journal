@@ -1273,7 +1273,7 @@ onClick={() => {
   <div className="h-2" />
 
 {/* ARCHIVED ACCOUNT CARDS */}
-<div className="manage-accounts-scrollbar flex max-h-[420px] flex-col gap-3 overflow-y-auto overflow-x-hidden pr-2 pb-6">
+<div className="manage-accounts-scrollbar flex max-h-[460px] flex-col gap-3 overflow-y-auto overflow-x-hidden pr-2 pb-6">
 
     {accounts
       .filter((account) => account.status === "CLOSED")

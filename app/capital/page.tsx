@@ -658,8 +658,9 @@ const capitalActivitySummary = useMemo(
   loading={transactionsLoading}
 />
 
-             <CapitalActivitySummaryCard
+<CapitalActivitySummaryCard
   summary={capitalActivitySummary}
+  accounts={accounts}
   loading={transactionsLoading}
 />
 
